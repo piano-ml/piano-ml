@@ -179,7 +179,7 @@ export class OpenComponent implements OnInit {
     for (let i = 0; i < midi.tracks.length; i++) {
       this.checkboxes.push(false);
     }
-    console.log("name:", midi.name,midi.name , midi.name.trim() === "")
+
     if (!midi.name || midi.name.trim() === "") {
       this.midiName = this.fileName;
       midi.name = this.fileName;
