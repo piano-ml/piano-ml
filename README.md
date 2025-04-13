@@ -6,16 +6,17 @@
 
 ## About PianoMl
 
-PianoMl is a project designed to help users learn piano and practice exercises.
+PianoML is a project designed to help users learn piano and practice exercises.
 
 ## Features
 
 - Midi keyboard integration
-- Load any midi or karaoke file
+- Scale, chords and Arpeggios exercises
+- Progress tracking
+- Load any Midi or Karaoke file
 - Score engraving
 - Real-time feedback
-- Scale, chord and Arpeggios exercises
-- Progress tracking
+
 - Open-source and community-driven
 
 ## Getting Started
