@@ -1,0 +1,58 @@
+
+<div class="page-title">Open a file</div>
+<div class="page-sub-title">Please select a file</div>
+<div class=" bg-neutral-700 p-4">
+    <form *ngIf="hasFile" [formGroup]="checkboxGroup" class="m-2">
+        <div class="text-2xl">{{midi?.name || fileName}}</div>
+        <table class="table-auto border-collapse border border-gray-400 w-full">
+            <thead>
+                <tr>
+                    <th class="border border-gray-300 px-4 py-2"></th>
+                    <th class="border border-gray-300 px-4 py-2">Notes</th>
+                    <th class="border border-gray-300 px-4 py-2">Instrument</th>
+                    <th class="border border-gray-300 px-4 py-2">Track Name</th>
+                    <th class="border border-gray-300 px-4 py-2">Study</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let checkbox of checkboxes; let i = index" formArrayName="checkboxes">
+                    <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].instrument.percussion ? "🥁" : "♩"}}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].notes.length}}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].instrument.name}}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].name || " ----------------- "}}</td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        <input type="checkbox" [formControlName]="i" (change)="checkTrack(i)" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="studies.length ===1">
+            <input class="m-4" type="checkbox" id="splitvoices" (change)="splitVoicesChecked()" [checked]="splitVoices"/>
+            <label for="splitvoices" class="text-2x1 italic p-2">split voices</label>
+        </div>
+    </form>
+    <div class="">
+
+        <div *ngIf="!hasFile"  class="flex items-center justify-center w-full">
+            <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <ng-icon name="bootstrapFloppy" class="svg-icon"></ng-icon>
+                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">.MID, .MIDI</p>
+                </div>
+                <input id="dropzone-file" type="file" class="hidden"  #file type="file" (change)="onFileChange(file)"
+                accept=".mid, .midi"/>
+            </label>
+        </div> 
+        
+
+<!--
+        <input *ngIf="!hasFile" class="btn btn-blue m-4" #file type="file" (change)="onFileChange(file)"
+            accept=".mid, .midi" />
+    -->
+        <button class="btn btn-blue m-4" (click)="load()" *ngIf="hasFile">load</button>
+        <button class="btn btn-blue m-4" (click)="reset()" *ngIf="hasFile">reset</button>
+    </div>
+</div>
+
+<app-modal [isModalOpen]="isModalOpen" [title]="this.modalTitle" [content]="this.modalContent"></app-modal>

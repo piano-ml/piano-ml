@@ -1,0 +1,110 @@
+
+  
+  /* Keyboard */
+  .note-on-rh-velocity-1:not(.indicator) {
+    fill: #ffd9d9 !important;
+  }
+  .note-on-rh-velocity-2:not(.indicator) {
+    fill: #ffc8c8 !important;
+  }
+  .note-on-rh-velocity-3:not(.indicator) {
+    fill: #ffb1b1 !important;
+  }
+  .note-on-rh-velocity-4:not(.indicator) {
+    fill: #ff9496 !important;
+  }
+  .note-on-rh-velocity-5:not(.indicator) {
+    fill: #ff7d7d !important;
+  }
+  .note-on-rh-velocity-6:not(.indicator) {
+    fill: #ff6969 !important;
+  }
+  .note-on-rh-velocity-7:not(.indicator) {
+    fill: #ff5656 !important;
+  }
+  .note-on-rh-velocity-8:not(.indicator) {
+    fill: #ff3d3d !important;
+  }
+  .note-on-rh-velocity-9:not(.indicator) {
+    fill: #ff2020 !important;
+  }
+  .note-on-rh-velocity-10:not(.indicator) {
+    fill: red !important;
+  }
+  .note-on-lh-velocity-1:not(.indicator) {
+    fill: #bdddff !important;
+  }
+  .note-on-lh-velocity-2:not(.indicator) {
+    fill: #afd5ff !important;
+  }
+  .note-on-lh-velocity-3:not(.indicator) {
+    fill: #a0cfff !important;
+  }
+  .note-on-lh-velocity-4:not(.indicator) {
+    fill: #90c7ff !important;
+  }
+  .note-on-lh-velocity-5:not(.indicator) {
+    fill: #75baff !important;
+  }
+  .note-on-lh-velocity-6:not(.indicator) {
+    fill: #5aadff !important;
+  }
+  .note-on-lh-velocity-7:not(.indicator) {
+    fill: #45a2ff !important;
+  }
+  .note-on-lh-velocity-8:not(.indicator) {
+    fill: #3499ff !important;
+  }
+  .note-on-lh-velocity-9:not(.indicator) {
+    fill: #1d8eff !important;
+  }
+  .note-on-lh-velocity-10:not(.indicator) {
+    fill: #0080ff !important;
+  }
+  .note-black,
+  .note-white {
+    stroke: #0a0a0a;
+  }
+  .note-white {
+    fill: url(#GradientWhite);
+    width: 23px;
+    height: 120px;
+  }
+  .note-black {
+    fill: url(#GradientBlack);
+    width: 13px;
+    height: 80px;
+  }
+  .middle-c {
+    fill: #a6a6a6;
+  }
+  .top-line {
+    stroke: #0a0a0a;
+    stroke-width: 2.1px;
+  }
+  .note.indicator {
+    stroke-width: 1.7px;
+    fill: #fcfcfc;
+    stroke: #fcfcfc;
+    transition: fill 1.2s cubic-bezier(0.01, 0.95, 0, 0.99),
+      stroke 1.2s cubic-bezier(0.01, 0.95, 0, 0.99),
+      r 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+  }
+  .note.indicator.note-on-lh,
+  .note.indicator.note-on-rh {
+    stroke: #494949;
+  }
+  .note.indicator.note-on-rh {
+    fill: #494949;
+  }
+
+  #keyboard {
+    opacity: 1;
+    transition: opacity 0.5s;
+  }
+  
+
+  .keyboard-super {
+    background-color: white;
+  }
+

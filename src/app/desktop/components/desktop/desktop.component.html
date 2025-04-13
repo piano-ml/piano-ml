@@ -1,0 +1,144 @@
+<div class="flex flex-col h-dvh">
+    <!-- piano electonic button bar -->
+    <div class="flex bg-black ">
+        <div class="flex-row xl:flex-grow">
+            <div class="flex flex-col xl:flex-row mt-2 ">
+
+
+                <div class="flex xl:w-1/2 ">
+
+                    <div class="flex-none ">
+                        <button (click)="home()" class="btn btn-desktop m-2" [disabled]="isPlaying" 
+                            [ngStyle]="{ 'opacity': isPlaying ? '0' : '1' }">
+                            <ng-icon name="bootstrapHouse" class="svg-button" />
+                        </button>
+                    </div>
+
+                    <div class="display flew-grow m-2 lcd-text ">
+                        <div class="flex flew-grow flex-row  m-2">
+                            <div class="flex-grow overflow-clip overflow-hidden mr-2">
+                                {{ title }}
+                            </div>
+                            <div class="flex-none">
+                                ♩{{ tempo }}
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="flex xl:w-1/2 items-end justify-end">
+
+
+                    <button (click)="reset()" class="btn btn-desktop m-2" *ngIf="!isPlaying">
+                        <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
+                    </button>
+
+                    <div class="radio-input m-2">
+                        <label class="label  p-1 pt-5">
+                            <input type="radio" id="50pct" value="50pct" name="value-radio" value="value-1"
+                                (click)="setSpeed(0.5)" />
+                            <span class="text">♩50%</span>
+                        </label>
+                        <label class="label p-2 pt-5">
+                            <input type="radio" id="75pct" value="75pct" name="value-radio" value="value-1"
+                                (click)="setSpeed(0.75)" />
+                            <span class="text">♩75%</span>
+                        </label>
+
+                        <label class="label  p-2 pt-5">
+                            <input type="radio" id="100pct" value="100pct" name="value-radio" value="value-1" checked
+                                (click)="setSpeed(1)" />
+                            <span class="text">♩100%</span>
+                        </label>
+
+                    </div>
+
+
+
+                    <div class="checkbox-input">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="loop" value="loop" name="loop-checkbox"
+                                [checked]="playConfiguration.isLoop"
+                                (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
+                            <span class="">
+                                <ng-icon name="bootstrapRepeat" class="svg-button" />
+                            </span>
+
+                        </label>
+                    </div>
+
+                    <div class="checkbox-input">
+                        <label class="label svg-label ">
+                            <input type="checkbox" id="hideKeyboard" value="hideKeyboard" name="hideKeyboard"
+                                [checked]="!hideKeyboard" (change)="hideKeyboard = !hideKeyboard" />
+                            <span>
+                                <ng-icon name="keyboard" class="svg-button" />
+                            </span>
+                        </label>
+                    </div>
+
+
+                    <div class="checkbox-input">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="left-hand" value="left-hand" name="leftHand"
+                                [checked]="playConfiguration.waitForLeftHand"
+                                (change)="playConfiguration.waitForLeftHand = !playConfiguration.waitForLeftHand" />
+                            <span class="">
+                                <ng-icon name="lefthand" class="svg-button" />
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="checkbox-input">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="right-hand" value="right-hand" name="rightHand"
+                                [checked]="playConfiguration.waitForRightHand"
+                                (change)="playConfiguration.waitForRightHand = !playConfiguration.waitForRightHand" />
+                            <span class="">
+                                <ng-icon name="righthand" class="svg-button" />
+                            </span>
+                        </label>
+                    </div>
+
+
+                    <button (click)="start()" class="btn btn-desktop m-2" *ngIf="!isPlaying">
+                        <ng-icon name="bootstrapPlayFill" class="svg-button" />
+                    </button>
+                    <button (click)="stop()" class="btn btn-desktop m-2" *ngIf="isPlaying">
+                        <ng-icon name="bootstrapPauseFill" class="svg-button" />
+                    </button>
+
+                </div>
+
+
+            </div>
+            <div>
+                
+                <nouislider class="ml-6 mr-6" #sliderRef [disabled]="isPlaying" [connect]="true" [min]="0"
+                    [max]="maxStaveCount" [step]="1" [ngModel]="scoreRange" [tooltips]="[true, true]">
+                </nouislider>
+            
+            </div>
+        </div>
+    </div>
+
+    <!-- score -->
+    <div class="flex-none">
+        <app-animated-score></app-animated-score>
+    </div>
+
+    <!-- middle bar empty for now -->
+    <div #arena class=" flex-grow {{arenaClass}}">
+        <app-pianoman *ngIf="showPianoman" [hash]="hash" [performance]="performance"></app-pianoman>
+    </div>
+
+    <!-- keyboard -->
+    <div class="flex-none">
+        <app-keyboard [ngClass]="{'hide': hideKeyboard}"></app-keyboard>
+    </div>
+
+
+
+</div>
+<app-modal [isModalOpen]="isModalOpen" [title]="this.modalTitle" [content]="this.modalContent"></app-modal>

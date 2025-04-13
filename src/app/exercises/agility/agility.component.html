@@ -1,0 +1,21 @@
+<div>
+  <div class="page-title">Agility</div>
+  <div class="page-sub-title">Please select an exercise and a chord</div>
+  <hr>
+  <div >
+
+    <select [(ngModel)]="selectedExcercice" (ngModelChange)="onSelectedExerciceChange()">
+      <option *ngFor="let exercise of myexcerices" [ngValue]="exercise" >{{ exercise.title }}</option>
+    </select>
+
+    <select [(ngModel)]="selectedKey">
+      <option *ngFor="let key of keys" [ngValue]="key">{{ key }}</option>
+    </select>
+
+    <select [(ngModel)]="selectedChord">
+      <option *ngFor="let chord of this.availableChords" [ngValue]="chord" >{{ selectedKey }} {{ chord.name }}</option>
+    </select>
+    <button (click)="load()" class="btn btn-blue  m-4">Load</button>
+  </div>
+
+</div>

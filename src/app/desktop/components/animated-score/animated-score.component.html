@@ -1,0 +1,13 @@
+
+<div class="animated-score">
+
+    <div>
+        <div class="countdown" *ngIf="countdown > 0">{{ countdown }}</div>
+        <div class="match-score"></div>
+
+        <div id="score-container" #scoreContainer [style.transform]="'translateX('+ xposition + 'px)'"
+            [style.transition]="'linear '+ easeDuration +'s'">
+
+        </div>
+    </div>
+</div>

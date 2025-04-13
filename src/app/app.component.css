@@ -1,0 +1,17 @@
+
+.scroll {
+    transition: transform 5s linear, opacity 0.5s ease-out, fill 0.2s linear;
+  }
+  
+  .scrolling {
+    transform: translate(-400px, 0);
+  }
+  
+  .correct {
+    opacity: 0;
+  }
+  
+  .too-slow {
+    transform: translate(-400px, 2000px);
+  }
+  

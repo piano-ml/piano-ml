@@ -1,0 +1,9 @@
+<div>
+    <h1 class="page-title">Excercices</h1>
+    <hr>
+    <ul>
+      <li *ngFor="let item of summary" class="mb-4 mt-4">
+        <a [routerLink]="item.url" class="text-xl mb-4 mt-4">{{ item.title }}</a>
+      </li>
+    </ul>
+  </div>

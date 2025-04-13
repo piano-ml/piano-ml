@@ -1,0 +1,14 @@
+<div class=" h-full place-items-center p-4 ">
+    <figure class="relative h-full border-6 border-neutral-200 rounded-lg bg-neutral-400">
+        <div class="absolute top-2 right-0   opacity-75 rounded-lg ">
+            <p class="text-4xl text-black bg-orange-200 p-2 rounded-lg mr-2">
+                XP {{ this.performance.runCount }} PV {{ this.performance.goodNoteCount* 1 +
+                this.performance.perfectNoteCount * 10 }}
+            </p>
+        </div>
+        <img class="rounded-lg h-full" src="https://robohash.org/{{hash}}?set=set2" alt="image description">
+        <figcaption class="absolute px-4  bottom-6  left-1/2 transform -translate-x-1/2  bg-orange-200 opacity-75 rounded-lg">
+            <p class="text-4xl text-black whitespace-nowrap">{{ nickname }}</p>
+        </figcaption>
+    </figure>
+</div>

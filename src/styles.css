@@ -1,0 +1,76 @@
+/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+.btn {
+	@apply font-bold py-2 px-4 rounded tracking-[00.15rem] bg-neutral-600 text-white p-4;
+}
+
+
+
+body {
+	background-color: #4a4950;
+}
+
+body {
+	@apply text-neutral-400;
+}
+
+app-keyboard {
+	background-color: white;
+}
+
+@font-face {
+	font-family: "5x8 LCD";
+	src: url("/assets/fonts/5x8_lcd_hd44780u_a02.eot") format("eot"),
+		url("/assets/fonts/5x8_lcd_hd44780u_a02.woff") format("woff"),
+		url("/assets/fonts/5x8_lcd_hd44780u_a02.ttf") format("truetype"),
+		url("/assets/fonts/5x8_lcd_hd44780u_a02.svg#5x8-LCD-HD44780U-A02")
+		format("svg");
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+@font-face {
+	font-family: "Swiss911";
+	src:  url("/assets/fonts/Swiss911.otf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
+}
+/* @theme {
+	--font-sans: Swiss911;
+	--default-font-family: Swiss911;
+} */
+
+html,
+body {
+	margin: 0;
+	background-color: #4a4950;
+}
+
+
+
+input[type="checkbox"] {
+	@apply relative shrink-0 w-6 h-6 border-2 border-neutral-500 rounded-sm bg-white checked:bg-green-800 checked:border-0 focus:outline-none focus:ring-offset-0 focus:ring-2 focus:ring-green-100;
+}
+
+select {
+	@apply tracking-[00.15rem] m-4 ml-0 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-gray-400  focus:border-gray-500;
+}
+
+
+.page-title {
+	@apply text-4xl mb-4 mt-4 text-red-500 tracking-[00.15rem] font-['Swiss911'];
+}
+
+.page-sub-title {
+	@apply text-2xl text-neutral-400 tracking-[00.15rem] mb-4;
+}
+
+hr {
+	@apply text-neutral-500 mb-4
+}
+
+a {
+	@apply 	text-neutral-200 
+}
+

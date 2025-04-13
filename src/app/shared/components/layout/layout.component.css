@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+
+.breadcrumb-label {
+    @apply text-neutral-400 m-4 uppercase font-bold ;
+}
+
+.breadcrumb-label-separator {
+    @apply text-neutral-700;
+}
+
+.breadcrumb-label-last {
+    @apply text-red-500 m-4 uppercase
+}

@@ -1,0 +1,22 @@
+<div>
+    <div class="page-title">Scales</div>
+    <div class="page-sub-title">Please select an exercise and a scale</div>
+    <hr>
+    <div class="">
+
+      <select [(ngModel)]="selectedExcercice">
+        <option *ngFor="let exercise of myexcerices" [ngValue]="exercise">{{exercise.title}}</option>
+      </select>
+  
+      <select [(ngModel)]="selectedScale">
+        <option *ngFor="let scale of scales" [ngValue]="scale">{{scale.name}}</option>
+      </select>
+  
+      <select [(ngModel)]="selectedKey">
+        <option *ngFor="let key of keys" [ngValue]="key">{{key}}</option>
+      </select>
+
+      <button (click)="load()" class="btn btn-blue  m-4">Load</button>
+    </div>
+  
+  </div>

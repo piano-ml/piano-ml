@@ -1,0 +1,21 @@
+<div class="w-full flex flex-col h-screen">
+<div class="mt-auto bg-black p-4 text-white">
+
+<a *ngIf="true" routerLink="/home" class="breadcrumb-label">PianoML</a>
+<span *ngIf="true" class="breadcrumb-separator">/</span>
+
+<ng-container *ngFor="let item of breadcrumbService.items$ | async; let last = last">
+    <a *ngIf="!last" [routerLink]="item.path" class="breadcrumb-label">{{ item.label }}</a>
+    <span *ngIf="last" class="breadcrumb-label breadcrumb-label-last">{{ item.label }}</span>
+    <span *ngIf="!last" class="breadcrumb-separator">/</span>
+</ng-container>`
+
+
+</div>
+<div class="flex-grow m-12 p-12">
+    <router-outlet />
+</div>
+<footer class="mt-auto bg-black p-4 text-center">
+    &copy; Emmanuel Florent 2024-2028
+</footer>
+</div>
