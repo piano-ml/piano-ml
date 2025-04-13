@@ -3,12 +3,15 @@ import { RouterModule } from '@angular/router';
 // biome-ignore lint/style/useImportType: <explanation>
 import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { CommonModule } from '@angular/common';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {  bootstrapGithub } from '@ng-icons/bootstrap-icons';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule,  NgIcon],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
+    viewProviders: [provideIcons({ bootstrapGithub })],
 })
 export class LayoutComponent {
   constructor (

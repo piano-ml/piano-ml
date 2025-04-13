@@ -1,28 +1,3 @@
-/* .scroll {
-	transition: transform 5s linear, opacity 0.5s ease-out, fill 0.2s linear;
-}
-
-.scrolling {
-	transform: translate(-400px, 0);
-}
-
-.correct {
-	opacity: 0;
-}
-
-.hide {
-	opacity: 0;
-}
-
-.too-slow {
-	transform: translate(-400px, 2000px);
-}
-
-.paused {
-	animation-play-state: paused;
-} */
-
-
 
 .animated-score {
 	background-color: white;
@@ -45,8 +20,3 @@
 	top: calc(20% + 5px);
 	left: calc(50% - 72px);
 }
-
-/* .tempo {
-	font-size: 24px;
-	margin-left: 10px;
-} */
