@@ -22,7 +22,6 @@ import { bootstrapRepeat, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstra
 import type { MidiStateEvent } from '../../../shared/model/webmidi';
 // biome-ignore lint/style/useImportType: <explanation>
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
-import { PianomanComponent } from "../pianoman/pianoman.component";
 import { Md5 } from 'ts-md5';
 
 export interface UserPerformance {
@@ -38,7 +37,7 @@ export interface UserPerformance {
   selector: 'app-desktop',
   templateUrl: './desktop.component.html',
   styleUrl: './desktop.component.css',
-  imports: [AnimatedScoreComponent, KeyboardComponent, CommonModule, NouisliderModule, FormsModule, ModalComponent, NgIcon, PianomanComponent],
+  imports: [AnimatedScoreComponent, KeyboardComponent, CommonModule, NouisliderModule, FormsModule, ModalComponent, NgIcon],
   encapsulation: ViewEncapsulation.None,
   viewProviders: [provideIcons({ bootstrapRepeat, bootstrapSkipBackwardFill, bootstrapPauseFill, bootstrapPlayFill, bootstrapHouse })],
   //changeDetection: ChangeDetectionStrategy.OnPush,

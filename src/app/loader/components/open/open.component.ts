@@ -79,6 +79,7 @@ export class OpenComponent implements OnInit {
         return response.arrayBuffer();
       })
       .then(arrayBuffer => {
+        this.fileName = filename;
         const midi = new Midi.Midi(arrayBuffer);
         this.enjoy(midi);
       })
@@ -179,10 +180,11 @@ export class OpenComponent implements OnInit {
       this.checkboxes.push(false);
     }
 
-    // if (!midi.name || midi.name === "") {
-    //   this.midiName = this.fileName;
-    //   midi.name = this.fileName;
-    // }
+    if (!midi.name || midi.name.trim() === "") {
+      this.midiName = this.fileName;
+      midi.name = this.fileName;
+      console.log("name:", midi.name)
+    }
 
     this.midi = midi;
     this.hasFile = true;
