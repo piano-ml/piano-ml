@@ -47,7 +47,6 @@ export class AnimatedScoreComponent implements AfterViewInit, OnDestroy {
   }
 
   applyTranslation(x: number) {
-    console.log("x", x, this.getStartOffset() - x);
     this.xposition = (this.getStartOffset() - x)
     this.ref.detectChanges();
   }
@@ -65,11 +64,9 @@ export class AnimatedScoreComponent implements AfterViewInit, OnDestroy {
 
   getStartOffset(): number {
     const pixelRatio = 1; //window.devicePixelRatio || 1;
-    console.log(pixelRatio)
     if (window.innerHeight > window.innerWidth) {
       return ((window.innerHeight / pixelRatio) / 2);
     }
-    console.log("start offset",window.innerWidth, ((window.innerWidth / pixelRatio) / 2));
     return ((window.innerWidth / pixelRatio) / 2);
   }
 

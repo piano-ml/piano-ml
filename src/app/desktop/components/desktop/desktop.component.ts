@@ -123,11 +123,6 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
     this.heightClass = `h-[${this.engravingService.height + 100}px]`
   }
 
-
-
-
-
-
   ngOnInit(): void {
     const score = localStorage.getItem("score");
     this.hash = Md5.hashStr(score || '')

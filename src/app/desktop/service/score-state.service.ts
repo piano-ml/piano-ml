@@ -2,14 +2,14 @@ import { type ElementRef, Injectable } from '@angular/core';
 import * as Tone from "tone";
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
-import { Note, NoteOnEvent, NoteOffEvent } from '@tonejs/midi/dist/Note';
+import type { Note } from '@tonejs/midi/dist/Note';
 import { Piano } from '@tonejs/piano'
 import { BehaviorSubject } from 'rxjs';
 import { getStaveDuration, getStaveDurationTick, } from './music-theory';
 import type { PlayConfiguration, StaveAndStaveNotesPair } from '../model/model';
 // biome-ignore lint/style/useImportType: <explanation>
 import { MidiServiceService } from '../../shared/services/midi-service.service';
-import type {  MidiStateEvent } from '../../shared/model/webmidi';
+import type { MidiStateEvent } from '../../shared/model/webmidi';
 import { reducedFraction } from '../model/reduced-fraction';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 
@@ -21,8 +21,13 @@ interface KeyEvent {
   midi?: number;
 }
 
-const GOOD_RANGE = 600
-const PERFECT_RANGE = 300
+const GOOD_RANGE = 0.2
+const PERFECT_RANGE = 0.05
+
+interface lateNote {
+  note: Note;
+  pressed: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -34,15 +39,16 @@ export class ScoreStateService {
   piano!: Piano;
   midiOther!: Midi.Midi;
 
-  _xPosition = -1;
+
   public xPosition = new BehaviorSubject<number>(0);
   public measure = new BehaviorSubject<number>(0);
   public countdown = new BehaviorSubject<number>(0);
   public paused = new BehaviorSubject<boolean>(false);
   public message = new BehaviorSubject<string>("");
 
-  lateNotes: Note[] = []
+
   isWaiting = false
+  currentTime = 0;
   playConfiguration!: PlayConfiguration;
   midiFnHandle?: (e: MidiStateEvent) => void;
   synth: Tone.Synth<Tone.SynthOptions>;
@@ -50,7 +56,7 @@ export class ScoreStateService {
   constructor(private midiService: MidiServiceService) {
     this.initPiano();
     this.synth = new Tone.Synth().toDestination();
-    this.reset = this.reset.bind(this); 
+    this.reset = this.reset.bind(this);
   }
 
   setup() {
@@ -87,7 +93,7 @@ export class ScoreStateService {
     Tone.getTransport().cancel();
     Tone.getDraw().dispose();
     Tone.getDraw().cancel();
-    this.lateNotes = []
+    this.resetLateNotes();
     this.paused.next(false);
     if (this.playConfiguration?.staveAndStaveNotesPair
       && this.playConfiguration?.staveAndStaveNotesPair.length >= this.playConfiguration.scoreRange[0]) {
@@ -100,7 +106,7 @@ export class ScoreStateService {
   }
 
   async play(playConfigurations: PlayConfiguration) {
-    this.lateNotes = []
+    this.resetLateNotes();
     this.playConfiguration = playConfigurations;
     await Tone.start();
     this.scheduleStudy(this.playConfiguration.staveAndStaveNotesPair);
@@ -113,7 +119,10 @@ export class ScoreStateService {
   private scheduleStudy(staves: StaveAndStaveNotesPair[]) {
     const start = this.playConfiguration.scoreRange[0];
     const end = this.playConfiguration.scoreRange[1];
+
     const startOffset = this.calculateStartTimeInMsForMeasure(start, this.playConfiguration.midiHeader) * this.playConfiguration.delayFactor;
+    const msPerTick =  60000 / (this.playConfiguration.midiHeader.tempos[0].bpm * this.playConfiguration.midiHeader.ppq);
+    this.currentTime = startOffset / msPerTick;
     const endCut = this.calculateStartTimeInMsForMeasure(end, this.playConfiguration.midiHeader) * this.playConfiguration.delayFactor;
     for (let i = 0; i < staves.length; i++) {
       if (i < start || i >= end) {
@@ -150,14 +159,18 @@ export class ScoreStateService {
     Tone.getTransport().schedule((time) => {
       this.message.next("END");
     }, endTime);
-
+    // const tempo = this.playConfiguration.midiHeader.tempos[0].bpm;
+    // const timeSignature = this.playConfiguration.midiHeader.timeSignatures[0].timeSignature;
+    // schedule internal clock in ticks    
+    // const staveDurationMs =   getStaveDuration(tempo, reducedFraction(timeSignature[0], timeSignature[1]));
+    // const staveDurationTick = getStaveDurationTick(reducedFraction(timeSignature[0], timeSignature[1]), this.playConfiguration.midiHeader.ppq);
+    // const quantize = 16;
+    // new Tone.Loop((time) => {
+    //   this.currentTime = this.currentTime + (staveDurationTick/quantize) 
+    // }, staveDurationMs / quantize).start(0);
   }
 
   private setCurrentTick(bar: number, xPosition: number) {
-    // if (this._xPosition > xPosition) {
-    //   return
-    // }
-    this._xPosition = xPosition;
     this.xPosition.next(xPosition)
     this.measure.next(Math.trunc(bar));
   }
@@ -175,8 +188,10 @@ export class ScoreStateService {
   private scheduleNote(hand: string, note: Note, now: number, xPosition: number) {
     //==== schedule note ON
     Tone.getTransport().schedule((time) => {
+
       // schedule sound on
       if (this.playConfiguration.doSound && !this.isHandOk(hand)) {
+
         this.piano.keyDown({
           time: time,
           velocity: note.velocity,
@@ -188,19 +203,28 @@ export class ScoreStateService {
 
       // schedule sound keyboard light on
       Tone.getDraw().schedule(() => {
-        if (this.isHandOk(hand)) {
-
-          const noteOn: NoteOnEvent = { ticks: note.ticks, velocity: note.velocity, midi: note.midi };
-          const noteOff: NoteOffEvent = { ticks: note.ticks + note.durationTicks, velocity: note.noteOffVelocity }
-          const noteClone = new Note(noteOn, noteOff, this.playConfiguration.midiHeader)
-          noteClone.time = Date.now()
-          this.lateNotes.push(noteClone);
+        if (this.lateNotes.size > 0) {
+          this.isWaiting = true;
+          Tone.getTransport().pause();
         }
+
         this.setCurrentTick(note.bars, xPosition);
         if (this.isHandOk(hand) || this.zeroHand()) {
           this.noteOn(hand, note)
         }
       }, time);
+
+
+      // schedule expected notes
+      Tone.getDraw().schedule(() => {
+        if (this.isHandOk(hand)) {
+          this.pushLateNote(note, Tone.now() + GOOD_RANGE);
+        }
+        if (this.lateNotes.size > 1) {
+          this.isWaiting = true;
+          Tone.getTransport().pause();
+        }
+      }, time - GOOD_RANGE);
 
     }, ((note.time * this.playConfiguration.delayFactor) + now));
 
@@ -219,30 +243,16 @@ export class ScoreStateService {
       }
       // schedule keyboard light off
       Tone.getDraw().schedule(() => {
-
-        if (this.lateNoteContains(note) && this.isHandOk(hand)) {
-          this.isWaiting = true;
-          Tone.getTransport().pause();
-        } else {
-          if (!this.lateNoteContains(note)) {
-            const key = Array.from(this.keyboardElement.nativeElement
-              .getElementsByClassName(`key${note.name}`)) as HTMLElement[];
-            removeNoteFromKeyboard(key, hand);
-          }
-        }
-
+        if (this.midiPressedNotes.has(note.midi) || !this.isHandOk(hand)) {
+          const key = Array.from(this.keyboardElement.nativeElement
+            .getElementsByClassName(`key${note.name}`)) as HTMLElement[];
+          removeNoteFromKeyboard(key, hand);
+        }      
       }, time);
 
     }, ((note.time * this.playConfiguration.delayFactor) + now + (note.duration * this.playConfiguration.delayFactor)));
   }
 
-  private lateNotesContainsMidiEvent(midiEvent: MidiStateEvent): boolean {
-    return this.lateNotes.map(n => n.midi).indexOf(midiEvent.note) >= 0
-  }
-
-  private lateNoteContains(note: Note): boolean {
-    return this.lateNotes.map(n => n.midi).indexOf(note.midi) >= 0
-  }
 
   private noteOn(hand: string, note: Note) {
     const velocityUI = Math.min(
@@ -261,61 +271,96 @@ export class ScoreStateService {
   }
 
 
+  midiPressedNotes: Set<number> = new Set<number>();
+  lateNotes: Map<number, lateNote[]> = new Map<number, lateNote[]>();
+
+  resetLateNotes() {
+    this.lateNotes = new Map<number, lateNote[]>();
+    this.removeAllNotesFromKeyboard();
+    this.midiPressedNotes = new Set<number>();
+  }
+
+  pushLateNote(note: Note, p0: number) {
+    if (!this.lateNotes.has(note.ticks)) {
+      this.lateNotes.set(note.ticks, []);
+    }
+    this.lateNotes.get(note.ticks)?.push({ note: note, pressed: false });
+  }
+
+  // is the midi event expected
+  private lateNotesContainsMidiEventInFirstPosition(midiEvent: MidiStateEvent): boolean {
+    const lowestKey = Math.min(...this.lateNotes.keys());
+    const notes = this.lateNotes.get(lowestKey);
+    return notes ? notes.map(ln => ln.note.midi).indexOf(midiEvent.note) >= 0 : false;
+  }
+
+
+
+
+  private integrateMidiEventInLastNote(midiEvent: MidiStateEvent) {
+    const lowestKey = Math.min(...this.lateNotes.keys());
+    const firstLastNotes = this.lateNotes.get(lowestKey);
+    if (firstLastNotes) {
+      const idx = firstLastNotes.map(ln => ln.note.midi).indexOf(midiEvent.note)
+      firstLastNotes[idx].pressed = true;
+      if (firstLastNotes.filter(ln => ln.pressed===false).length === 0) {
+        // biome-ignore lint/complexity/noForEach: <explanation>
+        firstLastNotes.forEach((ln) => {
+          this.removeMidiNoteFromKeyboard(ln.note.midi);        
+        });
+        this.lateNotes.delete(lowestKey);
+        this.tellIfInTime(lowestKey)
+      }
+    }
+  }
+
+
+
+  tellIfInTime(lowestKey: number) {    
+    console.log(this.currentTime, lowestKey, this.currentTime - lowestKey);  
+  }
+
+
   private async processMidiEvent(midiEvent: MidiStateEvent) {
 
-    if (!this.playConfiguration || midiEvent.type === 'up'
+    if (!this.playConfiguration
       || (this.playConfiguration.waitForLeftHand === false
         && this.playConfiguration.waitForRightHand === false)
     ) {
       return
     }
-    if (this.lateNotes.length === 0) {
-      this.message.next("BAD")
-      this.synth.triggerAttackRelease("A1", "32n");
-      return
-    }
-
-    if (this.lateNotesContainsMidiEvent(midiEvent)) {
-      this.removeMidiEventFromKeyboard(midiEvent)
-      this.tellIfLate(midiEvent)
-      this.lateNotes.splice(this.lateNotes.map(n => n.midi).indexOf(midiEvent.note), 1);
+    if (midiEvent.type === 'down' as MidiStateEvent['type']) {
+      this.midiPressedNotes.add(midiEvent.note);
     } else {
-      this.synth.triggerAttackRelease("A1", "32n");
-      this.message.next("BAD")
+      this.midiPressedNotes.delete(midiEvent.note);
     }
 
-    if (this.lateNotes.length === 0 && this.isWaiting) {
+    if (this.lateNotesContainsMidiEventInFirstPosition(midiEvent)) {
+      this.integrateMidiEventInLastNote(midiEvent);
+    } else {
+      if (midiEvent.type === 'down') {
+        this.synth.triggerAttackRelease("A1", "32n");
+        this.message.next("BAD")
+      }
+    }
+    if (this.lateNotes.size === 0 && this.isWaiting) {
       await Tone.start();
       Tone.getTransport().start();
       this.isWaiting = false;
-    } else {
-      for (const note of this.lateNotes) {
-        const hand = note.midi > 60 ? 'rh' : 'lh';
-        this.noteOn(hand, note);
-      }
-
-
-    }
-  }
-  tellIfLate(midiEvent: MidiStateEvent) {
-    const expected = this.lateNotes[this.lateNotes.map(n => n.midi).indexOf(midiEvent.note)].time
-    const delta = midiEvent.time - expected
-    if (delta < PERFECT_RANGE) {
-      this.message.next("PERFECT")
-    } else if (delta < GOOD_RANGE) {
-      this.message.next("GOOD")
-    } else {
-      this.message.next("LATE")
-    }
+    } 
+    
   }
 
-  private removeMidiEventFromKeyboard(midiEvent: MidiStateEvent) {
-    const name = midiToPitch(midiEvent.note);
+
+  private removeMidiNoteFromKeyboard(midiNote: number) {
+    const name = midiToPitch(midiNote);
     const key = Array.from(this.keyboardElement.nativeElement
       .getElementsByClassName(`key${name}`)) as HTMLElement[];
     removeNoteFromKeyboard(key, 'lh');
     removeNoteFromKeyboard(key, 'rh');
   }
+
+
 
   private removeAllNotesFromKeyboard() {
     const keys = (Array.from(this.keyboardElement.nativeElement
@@ -329,10 +374,6 @@ export class ScoreStateService {
     });
 
   }
-
-
-
-
 
 }
 
