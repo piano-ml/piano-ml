@@ -66,11 +66,11 @@ export class AnimatedScoreComponent implements AfterViewInit, OnDestroy {
   getStartOffset(): number {
     const pixelRatio = 1; //window.devicePixelRatio || 1;
     console.log(pixelRatio)
-    if (screen.availHeight > screen.availWidth) {
-      return ((screen.availHeight / pixelRatio) / 2);
+    if (window.innerHeight > window.innerWidth) {
+      return ((window.innerHeight / pixelRatio) / 2);
     }
-    console.log("start offset",screen.availWidth, ((screen.availWidth / pixelRatio) / 2));
-    return ((screen.availWidth / pixelRatio) / 2);
+    console.log("start offset",window.innerWidth, ((window.innerWidth / pixelRatio) / 2));
+    return ((window.innerWidth / pixelRatio) / 2);
   }
 
   ngAfterViewInit(): void {

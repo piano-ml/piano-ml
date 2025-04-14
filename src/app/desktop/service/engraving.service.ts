@@ -18,7 +18,7 @@ export class EngravingService {
   width = 640;
   height = 420;
   stave_width = 400;
-  stave_offset_hint = 0;
+  stave_offset_hint = 30;
   tempo!: number;
   timeSignatures: Map<number, ReducedFraction> = new Map();
 

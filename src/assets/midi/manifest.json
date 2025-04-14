@@ -22,14 +22,15 @@
         "artist": "Laurent Voulzy"
     },
     {
-        "filename": "zelda-lullaby.mid",
+
+        "filename": "Brahms_Lullaby_-_Exercise_in_Chord_Progression.mid",
         "difficulty": "intermediate",
         "name": "Wiegenlied Op. 49 No. 4 (Lullaby) ",
         "description": "Exercise in chord progression based on Brahms' Lullaby.",  
         "artist": "Johannes Brahms"
     },
     {
-        "filename": "Brahms_Lullaby_-_Exercise_in_Chord_Progression.mid",
+        "filename": "zelda-lullaby.mid",
         "difficulty": "intermediate",
         "name": "Zelda Lullaby",
         "description": "Melody of the Royal Family.",  
