@@ -2,11 +2,11 @@ import { reducedFraction } from "../../desktop/model/reduced-fraction";
 import type { Exercise } from "../model";
 
 const exercice1 = {
-    title: "Two-octave Arpeggios",
+    title: "Two-octave Arpeggios, root, 1st and 2nd inversions",
     measure: 4,
     type: "chord",
     patternSize: 3,
-    advice: "",
+    advice: "Pratice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple time.", 
     beat: reducedFraction(7, 4),
     tempo: 60,
     patternLeftHand: [
@@ -131,11 +131,11 @@ const exercice1 = {
 } as Exercise
 
 const exercice2 = {
-    title: "Dominant Seventh Arpeggios",
+    title: "Dominant Seventh Arpeggios (root position)",
     measure: 4,
     type: "chord",
     patternSize: 4,
-    advice: "",
+    advice: "Always use a metronome when practicing exercises",
     beat: reducedFraction(3, 4),
     tempo: 60,
     patternLeftHand: [

@@ -4,7 +4,7 @@ import type { Exercise } from "../model";
 
 
 const exercice2: Exercise = {
-    title: "Parrallel motion in octaves",
+    title: "Parallel motion in octaves",
     deckName: "Awesome Hamilton",
     type: "scale",
     advice: "LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.",
