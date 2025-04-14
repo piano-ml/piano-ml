@@ -132,7 +132,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
       const twoMidi = this.splitMidi(midiJson);
       this.engravingService.setupMidiScore(twoMidi.study, splitVoices, this.fingering);
       this.scoreStateService.midiOther = twoMidi.other;
-      this.title = twoMidi.study.name.trim().substring(0, 34);
+      this.title = twoMidi.study.name.trim().substring(0, 21);
     } else {
       this.router.navigate(['/open']);
     }

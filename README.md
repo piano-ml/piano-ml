@@ -14,6 +14,7 @@ PianoML is a project designed to help users learn piano and practice exercises.
 - Scale, chords and Arpeggios exercises
 - Progress tracking
 - Load any Midi or Karaoke file
+- Select track and split hands
 - Score engraving
 - Real-time feedback
 
