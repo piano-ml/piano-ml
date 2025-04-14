@@ -34,8 +34,9 @@
 
 .lcd-text {
 	font-family: "5x8 LCD", serif !important;
+	padding: 6px;
 	font-size: 32px;
-	line-height: 48px;
+	line-height: 42px;
 	color: rgba(0, 0, 0, 0.8);
 	white-space: nowrap;
 	overflow: hidden;
@@ -48,16 +49,14 @@
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	padding: px;
 	border-radius: 8px;
 	overflow: hidden;
-	height: 72px;
+	height: 64px;
 	width: 236px;
 }
 
 .checkbox-input {
 	display: flex;
-	padding: 8px;
 	border-radius: 8px;
 }
 
@@ -81,8 +80,8 @@
 
 .label {
 	border-radius: 0.25rem;
-	height: 72px;
-	width: 72px;
+	height: 64px;
+	width: 64px;
 	background-color: var(--color-neutral-600);
 }
 
@@ -95,8 +94,8 @@
 }
 
 .label:has(input[type="checkbox"]) {
-	height: 72px;
-	width: 72px;
+	height: 64px;
+	width: 64px;
 	text-align: center;
 	/* padding-top: 28px; */
 }
@@ -105,9 +104,7 @@
 	color: white;
 	--tw-font-weight: var(--font-weight-bold);
 	font-weight: var(--font-weight-bold);
-	font-size: 16px;
-	/* padding-top: 20px; */
-	/* color: var(--color-white); */
+	font-size: 14px;
 }
 
 .label .svg-label {
@@ -154,7 +151,7 @@ body {
 } 
 
 .svg-label {
-	padding: 6px !important;
+	/* padding: 6px !important; */
 }
 
 .svg-button {
@@ -167,9 +164,9 @@ body {
 
 
 .btn-desktop {
-	@apply bg-neutral-400 text-white p-2;
-	height: 72px;
-	width: 72px;
+	@apply bg-neutral-400 text-white;
+	height: 64px;
+	width: 64px;
 }
 
 .btn-blue:hover {

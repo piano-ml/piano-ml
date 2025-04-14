@@ -137,7 +137,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
       const twoMidi = this.splitMidi(midiJson);
       this.engravingService.setupMidiScore(twoMidi.study, splitVoices, this.fingering);
       this.scoreStateService.midiOther = twoMidi.other;
-      this.title = twoMidi.study.name;
+      this.title = twoMidi.study.name.trim().substring(0, 34);
     } else {
       this.router.navigate(['/open']);
     }
@@ -259,7 +259,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
     this.maxStaveCount = this.engravingService.staveAndStaveNotesPair.length;
     if (this.maxStaveCount === 0) {
       console.warn("empty file may cause infinite loop")
-      this.home()
+      this.summary()
       return;
     }
     this.scoreRange[0] = 0;
@@ -306,8 +306,8 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
     this.ref.detectChanges();
   }
 
-  home() {
-    this.router.navigate(['/home']);
+  summary() {
+    this.router.navigate(['/summary']);
   }
 
   ngOnDestroy(): void {

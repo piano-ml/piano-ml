@@ -1,21 +1,21 @@
 <div class="flex flex-col h-dvh">
     <!-- piano electonic button bar -->
     <div class="flex bg-black ">
-        <div class="flex-row xl:flex-grow">
+        <div class="flex-row flex-grow">
             <div class="flex flex-col xl:flex-row mt-2 ">
 
 
                 <div class="flex xl:w-1/2 ">
 
                     <div class="flex-none ">
-                        <button (click)="home()" class="btn btn-desktop m-2" [disabled]="isPlaying" 
+                        <button (click)="summary()" class="btn btn-desktop m-1" [disabled]="isPlaying" 
                             [ngStyle]="{ 'opacity': isPlaying ? '0' : '1' }">
                             <ng-icon name="bootstrapHouse" class="svg-button" />
                         </button>
                     </div>
 
-                    <div class="display flew-grow m-2 lcd-text ">
-                        <div class="flex flew-grow flex-row  m-2">
+                    <div class="display flew-grow m-1 lcd-text ">
+                        <div class="flex flew-grow flex-row  m-1">
                             <div class="flex-grow overflow-clip overflow-hidden mr-2">
                                 {{ title }}
                             </div>
@@ -30,11 +30,11 @@
                 <div class="flex xl:w-1/2 items-end justify-end">
 
 
-                    <button (click)="reset()" class="btn btn-desktop m-2" *ngIf="!isPlaying">
+                    <button (click)="reset()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
                         <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
                     </button>
 
-                    <div class="radio-input m-2">
+                    <div class="radio-input m-1">
                         <label class="label  p-1 pt-5">
                             <input type="radio" id="50pct" value="50pct" name="value-radio" value="value-1"
                                 (click)="setSpeed(0.5)" />
@@ -56,56 +56,48 @@
 
 
 
-                    <div class="checkbox-input">
+                    <div class="checkbox-input m-1">
                         <label class="label svg-label">
                             <input type="checkbox" id="loop" value="loop" name="loop-checkbox"
                                 [checked]="playConfiguration.isLoop"
                                 (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
-                            <span class="">
-                                <ng-icon name="bootstrapRepeat" class="svg-button" />
-                            </span>
+                                <ng-icon name="bootstrapRepeat" class="svg-button p-2" />
 
                         </label>
                     </div>
 
-                    <div class="checkbox-input">
+                    <div class="checkbox-input m-1">
                         <label class="label svg-label ">
                             <input type="checkbox" id="hideKeyboard" value="hideKeyboard" name="hideKeyboard"
                                 [checked]="!hideKeyboard" (change)="hideKeyboard = !hideKeyboard" />
-                            <span>
-                                <ng-icon name="keyboard" class="svg-button" />
-                            </span>
+                                <ng-icon name="keyboard" class="svg-button p-2" />
                         </label>
                     </div>
 
 
-                    <div class="checkbox-input">
+                    <div class="checkbox-input m-1">
                         <label class="label svg-label">
                             <input type="checkbox" id="left-hand" value="left-hand" name="leftHand"
                                 [checked]="playConfiguration.waitForLeftHand"
                                 (change)="playConfiguration.waitForLeftHand = !playConfiguration.waitForLeftHand" />
-                            <span class="">
                                 <ng-icon name="lefthand" class="svg-button" />
-                            </span>
                         </label>
                     </div>
 
-                    <div class="checkbox-input">
+                    <div class="checkbox-input m-1">
                         <label class="label svg-label">
                             <input type="checkbox" id="right-hand" value="right-hand" name="rightHand"
                                 [checked]="playConfiguration.waitForRightHand"
                                 (change)="playConfiguration.waitForRightHand = !playConfiguration.waitForRightHand" />
-                            <span class="">
                                 <ng-icon name="righthand" class="svg-button" />
-                            </span>
                         </label>
                     </div>
 
 
-                    <button (click)="start()" class="btn btn-desktop m-2" *ngIf="!isPlaying">
+                    <button (click)="start()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
                         <ng-icon name="bootstrapPlayFill" class="svg-button" />
                     </button>
-                    <button (click)="stop()" class="btn btn-desktop m-2" *ngIf="isPlaying">
+                    <button (click)="stop()" class="btn btn-desktop m-1" *ngIf="isPlaying">
                         <ng-icon name="bootstrapPauseFill" class="svg-button" />
                     </button>
 
