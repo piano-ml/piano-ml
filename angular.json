@@ -2,6 +2,7 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "newProjectRoot": "projects",
+
   "projects": {
     "piano-ml": {
       "projectType": "application",
@@ -9,10 +10,15 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+   
       "architect": {
+        
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "loader":  {
+              ".glsl": "text"
+          }, 
             "outputPath": "dist/piano-ml",
             "index": "src/index.html",
             "browser": "src/main.ts",
@@ -32,6 +38,7 @@
               "src/styles.css"              
             ]
           },
+          
           "configurations": {
             "production": {
               "budgets": [
