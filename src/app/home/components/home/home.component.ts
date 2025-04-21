@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import fragmentScript from '../../../../assets/shader/fragment_shader1.glsl'
 import vertexScript from '../../../../assets/shader/vertex_shader1.glsl'
@@ -9,29 +9,25 @@ import vertexScript from '../../../../assets/shader/vertex_shader1.glsl'
   selector: 'app-home',
   imports: [CommonModule, RouterModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  styleUrl: './home.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements AfterViewInit {
-
-  constructor() {
-    this.render = this.render.bind(this);
-  }
-
 
   @ViewChild('glCanvas') canvas!: ElementRef<HTMLCanvasElement>;
 
   gl!: WebGLRenderingContext
   program!: WebGLProgram
-  //positionLocation!: number
   iTimeLocation!: WebGLUniformLocation
   inPos!: GLint
-
-  //positionBuffer!: WebGLBuffer
   iResolution!: WebGLUniformLocation
-  //colorLocation!: WebGLUniformLocation
-  //translation!: number[][]
   bufObjInx!: WebGLBuffer
+  animmationRunning: true | false = true;
 
+
+  constructor(private router: Router) {
+    this.render = this.render.bind(this);
+  }
 
   initGlAndProgram() {
     try {
@@ -47,11 +43,6 @@ export class HomeComponent implements AfterViewInit {
       alert('Unable to initialize WebGL. Your browser or machine may not support it.');
       return; // Ensure this is inside a valid function or method scope
     }
-
-
-    //   canvas.addEventListener('mousemove', (e) => {
-    //     mousepos = [e.clientX, e.clientY];
-    // });
 
     // Set clear color to black, fully opaque
     this.gl.clearColor(0.0, 0.0, 0.0, 0.5);
@@ -73,19 +64,12 @@ export class HomeComponent implements AfterViewInit {
       console.error('Error creating program');
       return;
     }
-    // todo in create program !
-    const status = this.gl.getProgramParameter(program, this.gl.LINK_STATUS);
-    if (!status) alert(this.gl.getProgramInfoLog(program));
 
     this.inPos = this.gl.getAttribLocation(this.program, "inPos");
     // biome-ignore lint/style/noNonNullAssertion: <explanation>
     this.iTimeLocation = this.gl.getUniformLocation(this.program, "iTime")!;
-    console.log("got iTime: ",this.iTimeLocation);
-    //this.programLocations.set("iMouse", this.gl.getAttribLocation(this.program, "iMouse"));
     // biome-ignore lint/style/noNonNullAssertion: <explanation>
-        this.iResolution = this.gl.getUniformLocation(this.program, "iResolution")!;
-
-
+    this.iResolution = this.gl.getUniformLocation(this.program, "iResolution")!;
     this.gl.useProgram(program);
     this.gl.uniform1f(this.gl.getUniformLocation(this.program, "iTime"), 0.);
 
@@ -104,11 +88,6 @@ export class HomeComponent implements AfterViewInit {
     this.gl.enableVertexAttribArray(this.inPos);
     this.gl.vertexAttribPointer(this.inPos, 2, this.gl.FLOAT, false, 0, 0);
 
-    //const inPos = this.programLocations.get("inPos") as GLint;
-    // this.gl.enableVertexAttribArray( inPos );
-
-
-
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -120,9 +99,10 @@ export class HomeComponent implements AfterViewInit {
 
 
   resize() {
-    //vp_size = [gl.drawingBufferWidth, gl.drawingBufferHeight];
+    if (!this.canvas) {
+      return;
+    }
     const vp_size = [window.innerWidth, window.innerHeight];
-    //vp_size = [256, 256]
     this.canvas.nativeElement.width = vp_size[0];
     this.canvas.nativeElement.height = vp_size[1];
   }
@@ -138,28 +118,40 @@ export class HomeComponent implements AfterViewInit {
     this.gl.uniform2f(this.iResolution, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
     // this.gl.uniform2f(this.programLocations.get("iMouse") ?? null, 0, 0);
     this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
-
-    requestAnimationFrame(this.render);
+    if (this.animmationRunning) {
+      requestAnimationFrame(this.render);
+    }
   }
 
 
+  tearDownGL() {
+    if (this.gl) {
+      this.animmationRunning = false;
+      this.gl.finish();
+      this.gl.flush();
+      this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+      this.gl.deleteProgram(this.program);
+      this.gl.deleteBuffer(this.bufObjInx);
+      //this.gl.deleteBuffer(this.bu
+      this.gl.deleteBuffer(this.gl.getParameter(this.gl.ARRAY_BUFFER_BINDING));
+      this.gl.deleteBuffer(this.gl.getParameter(this.gl.ELEMENT_ARRAY_BUFFER_BINDING));
+      this.gl.useProgram(null);
+      this.gl = null as unknown as WebGLRenderingContext;
+      this.program = null as unknown as WebGLProgram;
+      this.bufObjInx = null as unknown as WebGLBuffer;
+      this.gl.canvas.width = 0;
+      this.gl.canvas.height = 0;
+    }
+  }
 
-
-
-
-
-
-
+  summary() {
+    this.tearDownGL();
+    this.router.navigate(['summary']);
+  }
 
   ngAfterViewInit(): void {
     this.initGlAndProgram();
   }
-
-
-
-
-
-
 
   createProgram(shaders: WebGLShader[]): WebGLProgram | null {
 
@@ -176,6 +168,11 @@ export class HomeComponent implements AfterViewInit {
       console.log(`Error in program linking:${lastError}`);
       this.gl.deleteProgram(program);
       return null;
+    }
+    // todo in create program !
+    const status = this.gl.getProgramParameter(program, this.gl.LINK_STATUS);
+    if (!status) {
+      console.error(this.gl.getProgramInfoLog(program));
     }
     return program;
   }
