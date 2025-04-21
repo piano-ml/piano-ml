@@ -74,3 +74,36 @@ a {
 	@apply 	text-neutral-200 
 }
 
+@keyframes fade-in {
+	from {
+	  opacity: 0;
+	}
+  }
+  
+  @keyframes fade-out {
+	to {
+	  opacity: 0;
+	}
+  }
+  
+  @keyframes slide-from-right {
+	from {
+	  transform: translateX(30px);
+	}
+  }
+  
+  @keyframes slide-to-left {
+	to {
+	  transform: translateX(-30px);
+	}
+  }
+  
+  ::view-transition-old(root) {
+	animation: 270ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
+	  900ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-left;
+  }
+  
+  ::view-transition-new(root) {
+	animation: 630ms cubic-bezier(0, 0, 0.2, 1) 270ms both fade-in,
+	  900ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-right;
+  }

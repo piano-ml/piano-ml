@@ -1,5 +1,5 @@
 import { type ApplicationConfig, inject, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
@@ -14,7 +14,7 @@ export const appConfig: ApplicationConfig = {
       return http.get(`/assets/svg/${name}.svg`, { responseType: 'text' });
     }, withCaching()),
     provideZoneChangeDetection({ eventCoalescing: true }), 
-    provideRouter(routes),
+    provideRouter(routes,  withViewTransitions()),
     provideAnimations()
   ]
 };
