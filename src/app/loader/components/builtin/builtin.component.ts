@@ -24,9 +24,6 @@ interface ProvidedSong {
 })
 export class BuiltinComponent {
 
-
-
-
   manifest: ProvidedSong[] = [];
   rootPath = '/assets/midi';
 
