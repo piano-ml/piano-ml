@@ -8,7 +8,7 @@ import { ScoreStateService } from "../../service/score-state.service";
   imports: [],
   templateUrl: './keyboard.component.html',
   styleUrl: './keyboard.component.css',
-  //changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KeyboardComponent {
 

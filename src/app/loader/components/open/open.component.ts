@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, type OnInit } from '@angular/core';
+// biome-ignore lint/style/useImportType: <explanation>
+import { Component, Input, type OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import * as Midi from '@tonejs/midi';
 // biome-ignore lint/style/useImportType:  Angular API
 import { type FormGroup, type FormArray, ReactiveFormsModule, FormBuilder } from '@angular/forms'
@@ -14,7 +15,8 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
   imports: [CommonModule, ReactiveFormsModule, ModalComponent, NgIcon],
   templateUrl: './open.component.html',
   styleUrl: './open.component.css',
-  viewProviders: [provideIcons({ bootstrapFloppy })]
+  viewProviders: [provideIcons({ bootstrapFloppy })],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OpenComponent implements OnInit {
 
@@ -42,7 +44,8 @@ export class OpenComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private changeDetector: ChangeDetectorRef
   ) {
     const state = this.route.getCurrentNavigation()?.extras.state;
 
@@ -65,6 +68,7 @@ export class OpenComponent implements OnInit {
   ngOnInit(): void {
     if (this.fileParam) {
       this.openAsset(this.fileParam);
+      
     }
   }
 
@@ -82,6 +86,7 @@ export class OpenComponent implements OnInit {
         this.fileName = filename;
         const midi = new Midi.Midi(arrayBuffer);
         this.enjoy(midi);
+        this.changeDetector.detectChanges();
       })
       .catch(error => {
         console.error('Error loading MIDI file:', error);

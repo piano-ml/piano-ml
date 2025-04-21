@@ -34,7 +34,7 @@ export class ModalComponent implements OnInit  {
   ngOnInit(): void {
     setTimeout(() => {
       this.midiFnHandler = this.midiService.subscribe((midiEvent) => this.processMidiEvent(midiEvent))
-    }, 1000)
+    }, 0)
 
   }
 

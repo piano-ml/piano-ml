@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular
   selector: 'app-svg-icon',
   templateUrl: './svg-icon.component.html',
   styleUrls: ['./svg-icon.component.scss'],
-  //changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SvgIconComponent {
 

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnInit, ViewChild } from '@angular/core';
+// biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
 import fragmentScript from '../../../../assets/shader/fragment_shader1.glsl'
 import vertexScript from '../../../../assets/shader/vertex_shader1.glsl'
@@ -110,7 +111,9 @@ export class HomeComponent implements AfterViewInit {
 
 
   render(deltaMS: number) {
-
+    if (!this.gl) {
+      return
+    }
     this.gl.viewport(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     this.gl.uniform1f(this.iTimeLocation, deltaMS / 1000.0);
@@ -139,14 +142,16 @@ export class HomeComponent implements AfterViewInit {
       this.gl = null as unknown as WebGLRenderingContext;
       this.program = null as unknown as WebGLProgram;
       this.bufObjInx = null as unknown as WebGLBuffer;
-      this.gl.canvas.width = 0;
-      this.gl.canvas.height = 0;
+      if (this.canvas) {
+        this.canvas.nativeElement.width = 0;
+        this.canvas.nativeElement.height = 0;
+      }
     }
   }
 
   summary() {
     this.tearDownGL();
-    this.router.navigate(['summary']);
+    this.router.navigate(['home/summary']);
   }
 
   ngAfterViewInit(): void {

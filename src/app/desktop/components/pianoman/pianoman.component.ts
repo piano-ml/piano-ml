@@ -7,7 +7,7 @@ import type { UserPerformance } from '../desktop/desktop.component';
   imports: [],
   templateUrl: './pianoman.component.html',
   styleUrl: './pianoman.component.css',
-  //changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PianomanComponent {
 

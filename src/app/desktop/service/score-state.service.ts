@@ -182,7 +182,7 @@ export class ScoreStateService {
 
 
   private zeroHand() {
-    return !(this.playConfiguration.waitForRightHand && this.playConfiguration.waitForLeftHand);
+    return !(this.playConfiguration.waitForRightHand || this.playConfiguration.waitForLeftHand);
   }
 
   private scheduleNote(hand: string, note: Note, now: number, xPosition: number) {
@@ -322,7 +322,6 @@ export class ScoreStateService {
 
 
   private async processMidiEvent(midiEvent: MidiStateEvent) {
-
     if (!this.playConfiguration
       || (this.playConfiguration.waitForLeftHand === false
         && this.playConfiguration.waitForRightHand === false)

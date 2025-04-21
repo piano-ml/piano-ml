@@ -40,7 +40,7 @@ export interface UserPerformance {
   imports: [AnimatedScoreComponent, KeyboardComponent, CommonModule, NouisliderModule, FormsModule, ModalComponent, NgIcon],
   encapsulation: ViewEncapsulation.None,
   viewProviders: [provideIcons({ bootstrapRepeat, bootstrapSkipBackwardFill, bootstrapPauseFill, bootstrapPlayFill, bootstrapHouse })],
-  //changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
 

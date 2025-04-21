@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
   templateUrl: './animated-score.component.html',
   styleUrl: './animated-score.component.css',
   encapsulation: ViewEncapsulation.None,
-  //changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnimatedScoreComponent implements AfterViewInit, OnDestroy {
 
