@@ -151,7 +151,7 @@ export class HomeComponent implements AfterViewInit {
 
   summary() {
     this.tearDownGL();
-    this.router.navigate(['home/summary']);
+    this.router.navigate(['summary']);
   }
 
   ngAfterViewInit(): void {

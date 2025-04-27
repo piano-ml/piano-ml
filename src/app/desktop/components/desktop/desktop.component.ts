@@ -302,7 +302,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
   }
 
   summary() {
-    this.router.navigate(['home/summary']);
+    this.router.navigate(['summary']);
   }
 
   ngOnDestroy(): void {
