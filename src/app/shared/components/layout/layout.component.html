@@ -1,6 +1,6 @@
-<div class="flex flex-col min-h-screen">
+<div class="flex flex-col min-h-screen" id="top">
 
-<div class=" w-full top-0 h-12 flex-none bg-black p-4 text-white">
+<div class=" w-full fixed top-0 h-12 flex-none bg-black p-4 text-white z-3">
 
 <a *ngIf="true" routerLink="/home" class="breadcrumb-label">PianoML</a>
 <span *ngIf="true" class="breadcrumb-separator">/</span>
@@ -13,19 +13,27 @@
 
 
 </div>
-<div class="flex-grow pt-12 pb-12 ml-6 pl-4 pr-2">
+<div class="flex-grow pt-16 ">
     <router-outlet />
 </div>
-<footer class="bg-black fixed bottom-0 w-full h-12 text-white p-3 flex justify-center items-center">
+<footer class="bg-black fixed bottom-0 w-full h-12 text-white p-3 flex justify-center items-center z-3">
 
-
-    <a href="https://www.patreon.com/EmmanuelFlorent" class="p-2">
-        Become a Patron
-    </a>
     <a class="ml-2 mr-4" href="https://github.com/piano-ml/piano-ml">
         <ng-icon name="bootstrapGithub" style="font-size: 22px;"></ng-icon>
     </a>
-    <span>Copyright GPLv3</span>
+
+
+
+
+    <share-buttons [theme]="'modern-dark'"
+ [include]="['facebook','x','reddit','viber','xing']"
+ [show]="5"
+ [url]="'https://pianoml.org/'"
+></share-buttons>
+
+<a href="https://www.patreon.com/EmmanuelFlorent" class="p-2">
+    Become a Patron
+</a>
 
 </footer>
 </div>

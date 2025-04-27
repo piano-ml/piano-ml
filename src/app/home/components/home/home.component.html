@@ -1,8 +1,8 @@
 <canvas #glCanvas class="gl-canvas"></canvas>
 
-<div class="flex flex-col  h-full ">
+<div class="flex flex-col  h-full">
 
-  <section id="section1" class="h-screen flex flex-col h-100 pb-24">
+  <section id="section1" class="h-screen flex flex-col  w-full min-h-screen pl-4 pr-2 ">
 
     <div class="page-title">A Machine to Learn Piano
       <hr>
@@ -11,64 +11,119 @@
     <div class="flex-grow flex items-center justify-center text-center">
 
       <a class="text-center z-1 font-bold py-4 px-8 rounded tracking-[00.15rem] bg-neutral-600 text-orange p-4 border border-orange-600"
-      (click)="summary()">start</a>
+        (click)="summary()">start</a>
     </div>
 
-    
-  <!---
-    <div class="z-1 bottom-20 flex-none text-right p-8">
-      <a href="#section2" class="z-1 p-8">What's this software to learn Piano ?</a>
+
+
+    <div class="z-1 pb-30  flex-none text-right">
+      <a href="#section2" class="underscore z-1 text-xl underline text-red-500 font-bold">Why we built PianoML</a>
     </div>
-  -->
 
 
-</section>
 
-  <!--
-<section id="section2" class="flex-item-center flex h-screen">
+  </section>
 
 
-  Lores ipsum dolor sit amet, consectetur adipiscing elit. Donec tincidunt, nunc nec tincidunt tincidunt, nunc
-  nunc, nec tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec
-  tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec tincidunt nunc
+  <section id="section2" class=" h-screen flex flex-col  w-full min-h-screen z-1 bg-neutral-600 pt-12 pl-6 pr-4"
+    style="background-color: #4a4950;">
 
-  Lores ipsum dolor sit amet, consectetur adipiscing elit. Donec tincidunt, nunc nec tincidunt tincidunt, nunc
-  nunc, nec tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec
-  tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec tincidunt nunc
 
-  Lores ipsum dolor sit amet, consectetur adipiscing elit. Donec tincidunt, nunc nec tincidunt tincidunt, nunc
-  nunc, nec tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec
-  tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec tincidunt nunc
-  <div class="bg-red-200 flex-none text-right">
-    <a routerLink="." fragment="section1">What ?</a>
+    <div class="page-title">Why we build PianoML
+      <hr>
+    </div>
+    <div class="flex-grow flex">
+      <div>
+        <p class="text-xl mb-4 text-justify">
+          Learning Piano require a strong personal investment.
+          It is a long and difficult process.
+          The best piano learning app can't replace a real piano teacher. Using an app is not enough to learn piano and can lead you to bad
+          habits.<br>
+          That said practice is good. Practicing scale is one of the best way to learn Piano and this is why we built
+          PianoML.<br>
+          Each week a new scale to be practiced every day, according to a set of different exercises.
+          Don't forget to always use a metronome when practicing.<br>
+        </p>
+
+
+
+      </div>
+    </div>
+
+    <div class="z-1 mb-16  flex-none text-right ">
+      <a href="#section3" class="underscore z-1 text-2xl underline text-red-500 font-bold">What the software
+        does</a>
+    </div>
+
+  </section>
+
+  <section id="section3" class="flex flex-col w-full min-h-screen z-1 bg-white pt-12 pl-6 pr-4"
+    style="background-color: #4a4950;">
+    <div class="page-title">What the software does
+      <hr>
+    </div>
+    <div class="flex-grow flex">
+      <div>
+
+        <p class="text-xl mb-4 text-justify">
+          PianoML will generate Major, Minor and other scales starting from any note. 
+        </p>
+
+
+        <p class="text-xl mb-4 text-justify">
+          Software will wait for you to play the note and give you instant feedback, 
+          you can select left, right or both hand you want to work.
+        </p>
+
+        <p class="text-xl mb-4 text-justify">
+          By opening a MIDI file, you can choose one or two tracks to be transcribed into a Grand Staff score, with the option for hand separation.
+        </p>
+
+
+        <p class="text-xl mb-4 text-justify">
+           You can select a range of measures and work in loop on them.<br>
+        </p>
+
+      </div>
+    </div>
+
+    <div class="z-1 mb-16 flex-none text-right ">
+      <a href="#section4" class="underscore z-1 text-2xl underline text-red-500 font-bold">How does it works</a>
+    </div>
+
+
+  </section>
+
+
+  <section id="section4" class="flex flex-col min-h-screen w-full z-1 bg-gray-500 pt-12 pl-6 pr-4"
+    style="background-color: #4a4950;">
+
+
+    <div class="page-title">How does it works
+      <hr>
+    </div>
+    <div class="flex-grow flex">
+
+      <div>
+
+      <p class="text-xl mb-4 text-justify">
+        PianoML is a web application that run on your browser. There is no server. Thus we do not require you to get an
+        account to run the app. All what you need is a web browser plugged to your Midi Keyboard.<br>
+      </p>
+
+
+      <p class="text-xl mb-4 text-justify">
+        By making the software open source, we want to give the opportunity to anyone to contribute to the project
+        and make piano learning more accessible to a wider audience.
+      </p>
+
+
   </div>
 
-</section>
-
-<section id="section3" class="flex-item-center flex h-screen">
-
-  <div class="flex-grow  h-100 flex items-center justify-center">
-
-
-    Lores ipsum dolor sit amet, consectetur adipiscing elit. Donec tincidunt, nunc nec tincidunt tincidunt, nunc
-    nunc, nec tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec
-    tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec tincidunt nunc
-
-    Lores ipsum dolor sit amet, consectetur adipiscing elit. Donec tincidunt, nunc nec tincidunt tincidunt, nunc
-    nunc, nec tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec
-    tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec tincidunt nunc
-
-    Lores ipsum dolor sit amet, consectetur adipiscing elit. Donec tincidunt, nunc nec tincidunt tincidunt, nunc
-    nunc, nec tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec
-    tincidunt nunc nunc nec nunc. Donec tincidunt, nunc nec tincidunt tincidunt, nunc nunc, nec tincidunt nunc
   </div>
-
-  <div class="flex-none">
-    <a href="#section3">What ?</a>
+  <div class="z-1 mb-16 flex-none text-right">
+    <a href="#top" class="underscore z-1 text-2xl underline text-red-500 font-bold">Back to top of the page</a>
   </div>
-
-
-</section>
-  -->
+  </section>
 
 </div>

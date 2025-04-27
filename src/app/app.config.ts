@@ -6,6 +6,9 @@ import { routes } from './app.routes';
 import { provideNgIconLoader, withCaching } from '@ng-icons/core';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 
+import { provideShareButtonsOptions } from 'ngx-sharebuttons';
+import { shareIcons } from 'ngx-sharebuttons/icons';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,6 +29,9 @@ export const appConfig: ApplicationConfig = {
         }
 
       )),
-    provideAnimations()
+    provideAnimations(),
+    provideShareButtonsOptions(
+      shareIcons()
+    )
   ]
 };

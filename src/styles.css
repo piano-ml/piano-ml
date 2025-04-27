@@ -1,4 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
+
 @import "tailwindcss";
 .btn {
 	@apply font-bold py-2 px-4 rounded tracking-[00.15rem] bg-neutral-600 text-white p-4;
@@ -70,9 +71,7 @@ hr {
 	@apply text-neutral-500 mb-4
 }
 
-a {
-	@apply 	text-neutral-200 
-}
+
 
 @keyframes fade-in {
 	from {
