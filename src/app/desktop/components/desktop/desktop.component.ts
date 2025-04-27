@@ -202,13 +202,10 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
 
     this.subscriptions.push(this.scoreStateService.measure.subscribe((x: number) => {
       if (!this.sliderRef?.slider) return;
-      //this.scoreRange[0] = x;
-
       this.sliderRef.slider.updateOptions({
         start: [x, this.scoreRange[1]],
       });
       this.ref.detectChanges();
-      //}
     }));
 
 
@@ -321,9 +318,5 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
       this.hideKeyboard = true;
     }, 3000)
   }
-
-
-
-
 
 }

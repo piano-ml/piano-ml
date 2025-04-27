@@ -21,14 +21,15 @@ export function fillWithRest(stave: Stave, staveNotes: StaveNote[], midiNotes: A
   let staveNoteIndex = 0;
   for (let i = 0; i < midiNotes.length; i++) {
 
-    const midiNoteStart = midiNotes[i].sort((a, b) => a.ticks - b.ticks)[midiNotes[i].length - 1].durationTicks
+    const midiNoteStart = midiNotes[i].sort((a, b) => a.ticks - b.ticks)[midiNotes[i].length - 1].ticks
     const midiNoteDuration = midiNotes[i].sort((a, b) => a.ticks - b.ticks)[midiNotes[i].length - 1].durationTicks
     //====
     const restDuration = detectDuration(midiNoteStart - previousEnd, ppq)
     // insert rest when duration < 1/32 only to limit errors dues to lack of quantisation
-    if (Number(restDuration.duration) > 0 && Number(restDuration.duration) < 32) {
+    if (+restDuration.duration > 0 && +restDuration.duration < 16) {
       const staveRest = new StaveNote({ keys: ['c/5'], duration: `${restDuration.duration}r`, dots: restDuration.dots });
       staveNotes.splice(staveNoteIndex, 0, staveRest);
+      midiNotes.splice(staveNoteIndex, 0, []);
     }
 
 
@@ -37,9 +38,6 @@ export function fillWithRest(stave: Stave, staveNotes: StaveNote[], midiNotes: A
     staveNoteIndex = staveNoteIndex + midiNotes[i].length;
   }
 }
-
-
-
 
 
 export function fillRests(staveAndStaveNotesPair: StaveAndStaveNotesPair[], timeSignature: ReducedFraction, ppq: number) {

@@ -31,7 +31,9 @@
                 "glob": "**/*",
                 "input": "src/assets/",
                 "output": "/assets/"
-              }
+              },
+              "src/sitemap.xml",
+              "src/robots.txt"
             ],
             "styles": [
               "./node_modules/nouislider/dist/nouislider.min.css",

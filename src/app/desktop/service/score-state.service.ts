@@ -41,6 +41,7 @@ export class ScoreStateService {
 
 
   public xPosition = new BehaviorSubject<number>(0);
+  currentPosition =0; 
   public measure = new BehaviorSubject<number>(0);
   public countdown = new BehaviorSubject<number>(0);
   public paused = new BehaviorSubject<boolean>(false);
@@ -106,6 +107,7 @@ export class ScoreStateService {
   }
 
   async play(playConfigurations: PlayConfiguration) {
+    this.currentPosition = 0;
     this.resetLateNotes();
     this.playConfiguration = playConfigurations;
     await Tone.start();
@@ -171,7 +173,8 @@ export class ScoreStateService {
   }
 
   private setCurrentTick(bar: number, xPosition: number) {
-    this.xPosition.next(xPosition)
+    this.currentPosition = xPosition
+    this.xPosition.next(Math.max(xPosition,this.currentPosition));
     this.measure.next(Math.trunc(bar));
   }
 
@@ -186,6 +189,7 @@ export class ScoreStateService {
   }
 
   private scheduleNote(hand: string, note: Note, now: number, xPosition: number) {
+    if (note.midi === 0) return;
     //==== schedule note ON
     Tone.getTransport().schedule((time) => {
 

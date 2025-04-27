@@ -179,7 +179,6 @@ export class OpenComponent implements OnInit {
 
   enjoy(midi: Midi.Midi) {
     midi.tracks = midi.tracks.filter(track => track.notes.length > 0);
-
     this.checkboxes = [];
     for (let i = 0; i < midi.tracks.length; i++) {
       this.checkboxes.push(false);
@@ -188,12 +187,12 @@ export class OpenComponent implements OnInit {
     if (!midi.name || midi.name.trim() === "") {
       this.midiName = this.fileName;
       midi.name = this.fileName;
-      console.log("name:", midi.name)
     }
 
     this.midi = midi;
     this.hasFile = true;
     this.initForm();
+    this.changeDetector.detectChanges();
   }
 
   countStudyTrack() {

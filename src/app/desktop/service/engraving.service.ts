@@ -16,11 +16,12 @@ import { fillWithRest } from './rest-filler';
 export class EngravingService {
 
   width = 640;
-  height = 420;
-  stave_width = 400;
+  height = 320;
+  stave_width = 460;
   stave_offset_hint = 30;
   tempo!: number;
   timeSignatures: Map<number, ReducedFraction> = new Map();
+  maxXPosition: number = 0;
 
   ppq!: number;
   staveAndStaveNotesPair: StaveAndStaveNotesPair[] = []
@@ -197,8 +198,8 @@ export class EngravingService {
         previousTick = this.buildHand(midiNotes, previousTick, "bass", (this.fingering?.[1]) ? this.fingering[1][i] : undefined);
         i++;
       }
-    }
-    this.renderer.resize(((this.staveAndStaveNotesPair.length + 3) * (this.stave_width * this.scale)) , this.height);
+    }  
+    this.renderer.resize(this.maxXPosition + this.stave_width  , this.height);
   }
 
   buildHand(notes: Note[], _previousTick: number, clef: string, fingers?: number[]) {
@@ -300,6 +301,7 @@ export class EngravingService {
         const rect = svgElement.getBoundingClientRect();
         const x = (rect.left + rect.right) / 2;
         xPositions.push(x);
+        this.maxXPosition= Math.max(this.maxXPosition, x);
       }
     }
     return xPositions;
