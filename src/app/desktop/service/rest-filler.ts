@@ -13,14 +13,14 @@ export function fillWithRest(stave: Stave, staveNotes: StaveNote[], midiNotes: A
   // insert rest when no notes
   if (staveNotes.length === 0) {
     const restDuration = detectDuration(getStaveDurationTick(timeSignature, ppq), ppq)
-    staveNotes.push(new StaveNote({ keys: ['c/5'], duration: `${restDuration.duration}r`, dots: restDuration.dots, align_center: true }));
+    staveNotes.push(new StaveNote({ keys: ['c/5'], duration: `${restDuration.duration}r`, dots: restDuration.dots, alignCenter: true }));
     return;
   }
   // insert rest between notes
   let previousEnd = start + midiNotes[0][0].durationTicks;
   let staveNoteIndex = 0;
   for (let i = 0; i < midiNotes.length; i++) {
-
+    if (midiNotes[i].length === 0) continue;
     const midiNoteStart = midiNotes[i].sort((a, b) => a.ticks - b.ticks)[midiNotes[i].length - 1].ticks
     const midiNoteDuration = midiNotes[i].sort((a, b) => a.ticks - b.ticks)[midiNotes[i].length - 1].durationTicks
     //====

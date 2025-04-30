@@ -15,13 +15,13 @@ import { fillWithRest } from './rest-filler';
 })
 export class EngravingService {
 
-  width = 640;
-  height = 320;
+  width = 16400;
+  height = 400;
   stave_width = 460;
   stave_offset_hint = 30;
   tempo!: number;
   timeSignatures: Map<number, ReducedFraction> = new Map();
-  maxXPosition: number = 0;
+  maxXPosition = 0;
 
   ppq!: number;
   staveAndStaveNotesPair: StaveAndStaveNotesPair[] = []
@@ -53,6 +53,7 @@ export class EngravingService {
     if (!this.scoreElementRef) {
       throw new Error('Score element not found');
     }
+    console.log("rendering score")
     this.renderer = new Renderer(this.scoreElementRef as unknown as HTMLDivElement, Renderer.Backends.SVG);
     this.renderer.resize(width, this.height / 2);
     this.context = this.renderer.getContext();
@@ -226,7 +227,8 @@ export class EngravingService {
   drawVoicePairs() {
     let i = 0;
     for (const v of this.staveAndStaveNotesPair) {
-
+      const pct = Math.round(i * 100 / this.staveAndStaveNotesPair.length);
+      console.log(`engraving ${i} of ${this.staveAndStaveNotesPair.length} (${pct}%)`);
       let tickStart = Number.MAX_SAFE_INTEGER;
       if (v.midiNotesTreeble.length !== 0) {
         tickStart = v.midiNotesTreeble[0][0].ticks;
@@ -255,19 +257,20 @@ export class EngravingService {
   formatAndDraw(
     stave: Stave,
     notes: StemmableNote[],
-    num_beats: number,
-    beat_value: number
+    numBeats: number,
+    beatValue: number
   ): number[] {
     const ctx = this.context
     const xPositions = [];
-    const voice = new Voice({ num_beats, beat_value })
+   
+    const voice = new Voice({numBeats, beatValue })
       .setMode(Voice.Mode.SOFT)
       .addTickables(notes);
 
     // if (num_beats === 4 && beat_value === 4) {
     //   groups = [new Fraction(3, 8), new Fraction(3, 8)]
     // } else {
-    const groups = Beam.getDefaultBeamGroups(`${num_beats}/${beat_value}`);
+    const groups = Beam.getDefaultBeamGroups(`${numBeats}/${beatValue}`);
     // }
     const config = {
       groups: groups,
@@ -279,8 +282,8 @@ export class EngravingService {
     const beams = Beam.generateBeams(notes, config);
     const formatParams: FormatParams = {
       stave: stave,
-      align_rests: false,
-      auto_beam: true
+      alignRests: false,
+      autoBeam: true
     };
     const formatterOptions: FormatterOptions = {
       softmaxFactor: 10,
