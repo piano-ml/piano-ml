@@ -1,5 +1,5 @@
 import { type ApplicationConfig, inject, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter, withInMemoryScrolling, withRouterConfig, withViewTransitions } from '@angular/router';
+import { IsActiveMatchOptions, provideRouter, Router, withInMemoryScrolling, withRouterConfig, withViewTransitions } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
@@ -18,7 +18,26 @@ export const appConfig: ApplicationConfig = {
       return http.get(`/assets/svg/${name}.svg`, { responseType: 'text' });
     }, withCaching()),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withViewTransitions(),
+    provideRouter(routes,
+      withViewTransitions({
+        onViewTransitionCreated: ({ transition }) => {
+          const router = inject(Router);
+          // biome-ignore lint/style/noNonNullAssertion: <explanation>
+          const targetUrl = router.getCurrentNavigation()?.finalUrl!;
+          // Skip the transition if the only thing
+          // changing is the fragment and queryParams
+          const config = {
+            paths: 'exact',
+            matrixParams: "ignored",
+            fragment: "ignored",
+            queryParams: 'ignored',
+          } as IsActiveMatchOptions;
+          if (router.isActive(targetUrl, config)) {
+            transition.skipTransition();
+          }
+        },
+      }
+      ),
       withRouterConfig({
         onSameUrlNavigation: 'reload',
       }),

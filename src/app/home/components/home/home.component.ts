@@ -26,6 +26,7 @@ export class HomeComponent implements AfterViewInit {
   animmationRunning: true | false = true;
 
 
+
   constructor(private router: Router) {
     this.render = this.render.bind(this);
   }
@@ -155,6 +156,7 @@ export class HomeComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+
     this.initGlAndProgram();
   }
 

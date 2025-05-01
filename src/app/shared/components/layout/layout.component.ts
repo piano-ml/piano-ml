@@ -14,10 +14,17 @@ import {  bootstrapGithub } from '@ng-icons/bootstrap-icons';
   styleUrl: './layout.component.css',
     viewProviders: [provideIcons({ bootstrapGithub })],
 })
-export class LayoutComponent {
+export class LayoutComponent {  
+  
+  shareLinks = ['facebook','x','reddit','viber','xing']
+  
   constructor (
     public breadcrumbService: BreadcrumbService
   ) {
+    if (window.innerWidth < 768) {
+      console.log(window.innerWidth);
+      this.shareLinks = this.shareLinks.splice(0, 2);
+    }
     
   }
 

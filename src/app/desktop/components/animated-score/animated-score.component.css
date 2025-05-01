@@ -7,7 +7,7 @@
 	background-color: blue;
 	opacity: 0.3;
 	position: absolute;
-	height: 430px;
+	height: 320px;
 	/* top: 340px; */
 	width: 32px; /* stave_width / beat_number */
 	left: calc(50% - 16px);

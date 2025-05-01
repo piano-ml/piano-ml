@@ -16,7 +16,7 @@ import { fillWithRest } from './rest-filler';
 export class EngravingService {
 
   width = 16480;
-  height = 400;
+  height = 320;
   stave_width = 460;
   stave_offset_hint = 30;
   tempo!: number;
@@ -49,14 +49,14 @@ export class EngravingService {
       console.error("midi object not loaded in vexflow service")
       return;
     }
-    this.width = width;
+    //this.width = width;
     this.scoreElementRef = nativeElementRef.nativeElement;
     if (!this.scoreElementRef) {
       throw new Error('Score element not found');
     }
     console.log("rendering score")
     this.renderer = new Renderer(this.scoreElementRef as unknown as HTMLDivElement, Renderer.Backends.SVG);
-    this.renderer.resize(width, this.height);
+    this.renderer.resize(this.width, this.height);
     this.context = this.renderer.getContext();
     this.context.scale(this.scale, this.scale);
     this.staveAndStaveNotesPair = [];
@@ -117,8 +117,8 @@ export class EngravingService {
     const w = this.stave_width;
 
 
-    const staveTreeble = new Stave(this.stave_offset_hint + (w * idx), 10, w);
-    const staveBass = new Stave(this.stave_offset_hint + (w * idx), (this.height / 2) - 50, w);
+    const staveTreeble = new Stave(this.stave_offset_hint + (w * idx), 20, w);
+    const staveBass = new Stave(this.stave_offset_hint + (w * idx), (this.height / 2) -40, w);
     if (idx === 0 || this.previousTimeSignature == null || compareFractions(this.previousTimeSignature, timesig) !== 0) {
       staveTreeble.addClef('treble').addTimeSignature(`${beat_value}/${num_beats}`).setBegBarType(BarlineType.NONE);
       staveBass.addClef('bass').addTimeSignature(`${beat_value}/${num_beats}`).setBegBarType(BarlineType.NONE);
