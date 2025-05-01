@@ -15,7 +15,7 @@ import { fillWithRest } from './rest-filler';
 })
 export class EngravingService {
 
-  width = 16400;
+  width = 16480;
   height = 400;
   stave_width = 460;
   stave_offset_hint = 30;
@@ -44,6 +44,7 @@ export class EngravingService {
   scale = 1.2;
 
   renderScore(nativeElementRef: ElementRef, width: number) {
+    console.log("render score", width)
     if (!this.midiObj) {
       console.error("midi object not loaded in vexflow service")
       return;
@@ -55,7 +56,7 @@ export class EngravingService {
     }
     console.log("rendering score")
     this.renderer = new Renderer(this.scoreElementRef as unknown as HTMLDivElement, Renderer.Backends.SVG);
-    this.renderer.resize(width, this.height / 2);
+    this.renderer.resize(width, this.height);
     this.context = this.renderer.getContext();
     this.context.scale(this.scale, this.scale);
     this.staveAndStaveNotesPair = [];
@@ -200,7 +201,8 @@ export class EngravingService {
         i++;
       }
     }  
-    this.renderer.resize(this.maxXPosition + this.stave_width  , this.height);
+    //console.log("maxXPosition", this.maxXPosition)
+    //this.renderer.resize(this.maxXPosition + this.stave_width  , this.height);
   }
 
   buildHand(notes: Note[], _previousTick: number, clef: string, fingers?: number[]) {
