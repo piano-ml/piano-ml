@@ -1,12 +1,12 @@
 import { type ElementRef, Injectable } from '@angular/core';
-import { Accidental, Annotation, BarlineType, Beam, Dot, type FormatParams, Formatter, type FormatterOptions, type Fraction, type RenderContext, Renderer, Stave, StaveConnector, StaveNote, type StemmableNote, TickContext, Voice } from 'vexflow';
+import { Accidental, Annotation, BarlineType, Beam, Dot,  type RenderContext, Renderer, Stave, StaveConnector, StaveNote, type StemmableNote, type Tickable, TickContext, Voice } from 'vexflow';
 import type * as Midi from '@tonejs/midi';
 import type { Note } from '@tonejs/midi/dist/Note';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import type { StaveAndStaveNotesPair } from '../model/model';
 import { HandDetectorService } from './hand-detector.service';
 import { compareFractions, reducedFraction, type ReducedFraction } from '../model/reduced-fraction';
-import { getBar, detectDuration } from './music-theory';
+import { getBar, detectDuration, getStaveDurationTick } from './music-theory';
 import { fillWithRest } from './rest-filler';
 
 
@@ -17,7 +17,7 @@ export class EngravingService {
 
   width = 16480;
   height = 320;
-  stave_width = 460;
+  staveWidth = 360;
   stave_offset_hint = 30;
   tempo!: number;
   timeSignatures: Map<number, ReducedFraction> = new Map();
@@ -44,17 +44,14 @@ export class EngravingService {
   scale = 1.2;
 
   renderScore(nativeElementRef: ElementRef, width: number) {
-    console.log("render score", width)
     if (!this.midiObj) {
       console.error("midi object not loaded in vexflow service")
       return;
     }
-    //this.width = width;
     this.scoreElementRef = nativeElementRef.nativeElement;
     if (!this.scoreElementRef) {
       throw new Error('Score element not found');
     }
-    console.log("rendering score")
     this.renderer = new Renderer(this.scoreElementRef as unknown as HTMLDivElement, Renderer.Backends.SVG);
     this.renderer.resize(this.width, this.height);
     this.context = this.renderer.getContext();
@@ -85,9 +82,6 @@ export class EngravingService {
     }
   }
 
-
-
-
   initScoreValues(midiObj: Midi.Midi) {
     if (midiObj.header.tempos.length === 0) {
       midiObj.header.tempos.push({ bpm: 60, ticks: 0 });
@@ -95,8 +89,6 @@ export class EngravingService {
     this.tempo = midiObj.header.tempos[0].bpm;
     this.ppq = midiObj.header.ppq;
   }
-
-
 
   getOrMakeVoice(idx: number, timesig: ReducedFraction): StaveAndStaveNotesPair {
     // if we already get it just return
@@ -110,43 +102,37 @@ export class EngravingService {
           this.getOrMakeVoice(i, timesig);
         }
       }
-
     }
     const beat_value = timesig.numerator;
     const num_beats = timesig.denominator;
-    const w = this.stave_width;
+    const w = this.staveWidth;
 
-
-    const staveTreeble = new Stave(this.stave_offset_hint + (w * idx), 20, w);
-    const staveBass = new Stave(this.stave_offset_hint + (w * idx), (this.height / 2) -40, w);
+    const staveTreble = new Stave(this.stave_offset_hint + (w * idx), 20, w);
+    const staveBass = new Stave(this.stave_offset_hint + (w * idx), (this.height / 2) - 40, w);
     if (idx === 0 || this.previousTimeSignature == null || compareFractions(this.previousTimeSignature, timesig) !== 0) {
-      staveTreeble.addClef('treble').addTimeSignature(`${beat_value}/${num_beats}`).setBegBarType(BarlineType.NONE);
+      staveTreble.addClef('treble').addTimeSignature(`${beat_value}/${num_beats}`).setBegBarType(BarlineType.NONE);
       staveBass.addClef('bass').addTimeSignature(`${beat_value}/${num_beats}`).setBegBarType(BarlineType.NONE);
     }
     staveBass.setMeasure(idx);
-    staveTreeble.setMeasure(idx);
+    staveTreble.setMeasure(idx);
 
     staveBass.setContext(this.context).draw();
-    staveTreeble.setContext(this.context).draw();
+    staveTreble.setContext(this.context).draw();
 
     const vp = {
-      staveNotesTreeble: [],
+      staveNotesTreble: [],
       staveNotesBass: [],
-      staveTreeble: staveTreeble,
+      staveTreble: staveTreble,
       staveBass: staveBass,
-      midiNotesTreeble: [],
+      midiNotesTreble: [],
       midiNotesBass: [],
-      xPositionsTreeble: [],
+      xPositionsTreble: [],
       xPositionsBass: [],
     } as unknown as StaveAndStaveNotesPair;
     this.staveAndStaveNotesPair.splice(idx, 0, vp);
     this.previousTimeSignature = timesig;
     return vp;
   }
-
-
-
-
 
   setupVoicePairs(midiObj: Midi.Midi) {
     const doStaffSplit = this.handDetector.doStaffSplit();
@@ -161,7 +147,6 @@ export class EngravingService {
       const grouped = track.notes.reduce(
         (result: { [key: string]: Note[] }, currentValue: Note) => {
           const key = `${currentValue.ticks}`;
-          //const key = `${currentValue.ticks}-${currentValue.durationTicks}`;
           if (!result[key]) {
             result[key] = [];
           }
@@ -171,7 +156,6 @@ export class EngravingService {
 
       for (const key in grouped) {
         const notesAtTime = grouped[key];
-
         if (!doStaffSplit) {
           hands[trackIndex].push(notesAtTime)
         } else {
@@ -184,7 +168,6 @@ export class EngravingService {
           }
         }
       }
-
       // right hands
       let previousTick = 0;
       let i = 0;
@@ -200,9 +183,7 @@ export class EngravingService {
         previousTick = this.buildHand(midiNotes, previousTick, "bass", (this.fingering?.[1]) ? this.fingering[1][i] : undefined);
         i++;
       }
-    }  
-    //console.log("maxXPosition", this.maxXPosition)
-    //this.renderer.resize(this.maxXPosition + this.stave_width  , this.height);
+    }
   }
 
   buildHand(notes: Note[], _previousTick: number, clef: string, fingers?: number[]) {
@@ -211,12 +192,12 @@ export class EngravingService {
 
     const timesig = this.getTimeSignature(tick);
     const voicePair = this.getOrMakeVoice(getBar(notes[0]), timesig);
-    const stave = clef === "treble" ? voicePair.staveTreeble : voicePair.staveBass;
-    const staveNotes = clef === "treble" ? voicePair.staveNotesTreeble : voicePair.staveNotesBass;
-    const note = this.buildStaveNotes(notes, stave, clef, fingers);
+    const stave = clef === "treble" ? voicePair.staveTreble : voicePair.staveBass;
+    const staveNotes = clef === "treble" ? voicePair.staveNotesTreble : voicePair.staveNotesBass;
+    const note = this.buildStaveNotes(notes, timesig, clef, fingers);
 
     if (clef === "treble") {
-      voicePair.midiNotesTreeble.push(notes);
+      voicePair.midiNotesTreble.push(notes);
     } else {
       voicePair.midiNotesBass.push(notes);
     }
@@ -230,122 +211,127 @@ export class EngravingService {
     let i = 0;
     for (const v of this.staveAndStaveNotesPair) {
       const pct = Math.round(i * 100 / this.staveAndStaveNotesPair.length);
-      console.log(`engraving ${i} of ${this.staveAndStaveNotesPair.length} (${pct}%)`);
       let tickStart = Number.MAX_SAFE_INTEGER;
-      if (v.midiNotesTreeble.length !== 0) {
-        tickStart = v.midiNotesTreeble[0][0].ticks;
+      if (v.midiNotesTreble.length !== 0) {
+        tickStart = v.midiNotesTreble[0][0].ticks;
       }
       if (v.midiNotesBass.length !== 0) {
         tickStart = Math.min(tickStart, v.midiNotesBass[0][0].ticks);
       }
       const timeSignature = this.getTimeSignature(tickStart);
-      fillWithRest(v.staveTreeble, v.staveNotesTreeble, v.midiNotesTreeble, timeSignature, this.ppq)
+      fillWithRest(v.staveTreble, v.staveNotesTreble, v.midiNotesTreble, timeSignature, this.ppq)
       fillWithRest(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature, this.ppq)
-      v.xPositionsTreeble = this.formatAndDraw(v.staveTreeble, v.staveNotesTreeble, timeSignature.numerator, timeSignature.denominator);
-      v.xPositionsBass = this.formatAndDraw(v.staveBass, v.staveNotesBass, timeSignature.numerator, timeSignature.denominator);
+      v.xPositionsTreble = this.formatAndDraw(v.staveTreble, v.staveNotesTreble, v.midiNotesTreble, timeSignature);
+      v.xPositionsBass = this.formatAndDraw(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature);
       i++;
     }
     const connector = new StaveConnector(
-      this.staveAndStaveNotesPair[0].staveTreeble,
+      this.staveAndStaveNotesPair[0].staveTreble,
       this.staveAndStaveNotesPair[0].staveBass,
     );
-    this.staveAndStaveNotesPair[0].staveTreeble.setBegBarType(BarlineType.NONE);
+    this.staveAndStaveNotesPair[0].staveTreble.setBegBarType(BarlineType.NONE);
     this.staveAndStaveNotesPair[0].staveBass.setBegBarType(BarlineType.NONE);
     connector.setType('brace');
     connector.setContext(this.context).draw();
-
   }
 
-  formatAndDraw(
-    stave: Stave,
-    notes: StemmableNote[],
-    numBeats: number,
-    beatValue: number
-  ): number[] {
-    const ctx = this.context
-    const xPositions = [];
-   
-    const voice = new Voice({numBeats, beatValue })
+  formatAndDraw(stave: Stave, stemmableNotes: StemmableNote[], midiNotes: Note[][], timeSig: ReducedFraction) {
+    const numBeats = timeSig.numerator;
+    const beatValue = timeSig.denominator;
+    const voice = new Voice({ numBeats, beatValue })
       .setMode(Voice.Mode.SOFT)
-      .addTickables(notes);
-
-    // if (num_beats === 4 && beat_value === 4) {
-    //   groups = [new Fraction(3, 8), new Fraction(3, 8)]
-    // } else {
+      .addTickables(stemmableNotes).setStave(stave);
     const groups = Beam.getDefaultBeamGroups(`${numBeats}/${beatValue}`);
-    // }
-    const config = {
-      groups: groups,
-      stem_direction: -1,
-      beam_rests: false,
-      beam_middle_only: false,
-      show_stemlets: false
-    };
-    const beams = Beam.generateBeams(notes, config);
-    const formatParams: FormatParams = {
-      stave: stave,
-      alignRests: false,
-      autoBeam: true
-    };
-    const formatterOptions: FormatterOptions = {
-      softmaxFactor: 10,
-      globalSoftmax: true,
-      maxIterations: 5
+    const beams = Beam.applyAndGetBeams(voice, -1, groups);
+    const startX = stave.getNoteStartX() % this.staveWidth
+    this.simpleFormat(voice.getTickables(), midiNotes, timeSig, this.ppq, startX);
+    voice.setContext(this.context).draw();
+    this.generateBeamsAndDrawBeams(beams, numBeats, beatValue);
+    return this.getXpositions(stemmableNotes);
+  }
+
+  simpleFormat(notes: Tickable[], midiNotes: Note[][], timeSig: ReducedFraction, ppq: number, startX: number): void {
+    let i = 0;
+    let lastX = 0;
+    for (const note of notes) {
+      let midiTick = 0;
+      let rate = 0;
+      const staveDurationTicks = getStaveDurationTick(timeSig, ppq)
+      let midiTickNormalized = 0
+      if (midiNotes[i].length > 0) {
+        rate = (midiNotes[i][0].bars - Math.floor(midiNotes[i][0].bars))
+        midiTick = midiNotes[i][0].ticks;
+        midiTickNormalized = (rate * (this.staveWidth - (startX)));
+      } else {
+        midiTick = (staveDurationTicks / (i + 2));
+        midiTickNormalized = lastX + 60;
+      }
+      const tickContext = new TickContext().addTickable(note).preFormat();
+      tickContext.setX(midiTickNormalized);
+      lastX = midiTickNormalized;
+      i++;
     }
-    const justifyWidth = stave.getWidth() - 70;
-    new Formatter(formatterOptions)
-      .joinVoices([voice])
-      .format([voice], justifyWidth, formatParams);
-    voice.setStave(stave).draw(ctx, stave);
-    // biome-ignore lint/complexity/noForEach: <explanation>
-    beams.forEach((beam) => beam.setContext(ctx).draw());
-    stave.setContext(ctx).draw();
+  }
+
+  getXpositions(notes: StemmableNote[]): number[] {
+    const xPositions = [];
     for (const note of notes) {
       const svgElement = note.getSVGElement();
       if (svgElement) {
         const rect = svgElement.getBoundingClientRect();
         const x = (rect.left + rect.right) / 2;
         xPositions.push(x);
-        this.maxXPosition= Math.max(this.maxXPosition, x);
+        this.maxXPosition = Math.max(this.maxXPosition, x);
       }
     }
     return xPositions;
   }
 
 
+  generateBeamsAndDrawBeams(beams: Beam[], numBeats: number, beatValue: number): Beam[] {
+    const ctx = this.context
+    const groups = Beam.getDefaultBeamGroups(`${numBeats}/${beatValue}`);
+    const config = {
+      groups: groups,
+      stem_direction: 1,
+      beam_rests: true,
+      beam_middle_only: false,
+      show_stemlets: true,
+      maintain_stem_directions: true
+    };
+    // biome-ignore lint/complexity/noForEach: sounds cool
+    beams.forEach((beam) => beam.setContext(ctx).draw());
+    return beams
+  }
 
-  buildStaveNotes(notes: Note[], stave: Stave, clef: string, fingers?: number[]): StaveNote {
+
+  buildStaveNotes(pNotes: Note[], timeSig: ReducedFraction, clef: string, fingers?: number[]): StaveNote {
+    const notes = pNotes.filter((n) => n.durationTicks !== 0);
     const noteNotations = notes.map((n, idx) => this.makeNoteNotationFromNote(n));
 
-    const detectedDuration = detectDuration(notes[0].durationTicks, this.ppq)
-    try {
-      const note = new StaveNote({
-        clef: clef,
-        keys: noteNotations,
-        duration: detectedDuration.duration,
-        dots: detectedDuration.dots,
-      });
-      if (fingers) {
-        for (let i = 0; i < fingers.length; i++) {
-          note.addModifier(new Annotation(fingers[i].toString()).setContext(this.context), 0);
-        }
+    const detectedDuration = detectDuration(notes[0].durationTicks, timeSig, this.ppq)
+    const note = new StaveNote({
+      autoStem: true,
+      clef: clef,
+      keys: noteNotations,
+      duration: detectedDuration.duration,
+      dots: detectedDuration.dots,
+    });
+    if (fingers) {
+      for (let i = 0; i < fingers.length; i++) {
+        note.addModifier(new Annotation(fingers[i].toString()).setContext(this.context), 0);
       }
-      for (let i = 0; i < notes.length; i++) {
-        if (noteNotations[i].includes("#")) {
-          note.addModifier(new Accidental("#").setContext(this.context), i);
-        }
-      }
-      for (let i = 0; i < detectedDuration.dots; i++) {
-        note.addModifier(new Dot().setContext(this.context), 0);
-      }
-      note.setContext(this.context).setStave(stave);
-      return note;
-
-    } catch (e) {
-      console.error("error", notes, detectedDuration)
-      throw e
     }
-
+    for (let i = 0; i < notes.length; i++) {
+      if (noteNotations[i].includes("#")) {
+        note.addModifier(new Accidental("#").setContext(this.context), i);
+      }
+    }
+    for (let i = 0; i < detectedDuration.dots; i++) {
+      note.addModifier(new Dot().setContext(this.context), 0);
+    }
+    note.setStyle({ fillStyle: "currentColor", strokeStyle: "currentColor" });
+    return note;
   }
 
   makeNoteNotationFromNote(note: Note): string {
@@ -354,8 +340,6 @@ export class EngravingService {
     const octave = Math.floor(notenum / 12) - 1;
     return `${noteTxt}/${octave}`;
   }
-
-
 
   getStartOffsetHint() {
     return this.stave_offset_hint;
@@ -370,6 +354,5 @@ export class EngravingService {
     }
     return reducedFraction(sig[0], sig[1]);
   }
+
 }
-
-

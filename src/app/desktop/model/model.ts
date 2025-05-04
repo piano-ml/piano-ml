@@ -5,12 +5,12 @@ import type { ReducedFraction } from "./reduced-fraction";
 
 export interface StaveAndStaveNotesPair {
   xPositionsBass: number[];
-  xPositionsTreeble: number[];
-  staveNotesTreeble: StaveNote[];
+  xPositionsTreble: number[];
+  staveNotesTreble: StaveNote[];
   staveNotesBass: StaveNote[];
-  staveTreeble: Stave;
+  staveTreble: Stave;
   staveBass: Stave;
-  midiNotesTreeble: Array<Note[]>;
+  midiNotesTreble: Array<Note[]>;
   midiNotesBass: Array<Note[]>;
 }
 
@@ -26,7 +26,7 @@ export interface PlayConfiguration {
   waitForRightHand: boolean;
   delayFactor: number;
   scoreRange: [number, number];
-  isLoop: boolean;  
+  isLoop: boolean;
   staveAndStaveNotesPair: StaveAndStaveNotesPair[];
   tempo: number;
   staveWidth: number;

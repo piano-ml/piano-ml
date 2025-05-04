@@ -1,7 +1,7 @@
 import { type Stave, StaveNote } from 'vexflow';
 import type { StaveAndStaveNotesPair } from '../model/model';
 import { quantiseTick, type ReducedFraction } from '../model/reduced-fraction';
-import { detectDuration, getStaveDurationTick } from './music-theory';
+import { detectDuration,  getStaveDurationTick } from './music-theory';
 import type { Note } from '@tonejs/midi/dist/Note';
 
 
@@ -12,8 +12,9 @@ export function fillWithRest(stave: Stave, staveNotes: StaveNote[], midiNotes: A
 
   // insert rest when no notes
   if (staveNotes.length === 0) {
-    const restDuration = detectDuration(getStaveDurationTick(timeSignature, ppq), ppq)
+    const restDuration = detectDuration(getStaveDurationTick(timeSignature, ppq), timeSignature, ppq)
     staveNotes.push(new StaveNote({ keys: ['c/5'], duration: `${restDuration.duration}r`, dots: restDuration.dots, alignCenter: true }));
+    midiNotes.push([]);
     return;
   }
   // insert rest between notes
@@ -24,12 +25,12 @@ export function fillWithRest(stave: Stave, staveNotes: StaveNote[], midiNotes: A
     const midiNoteStart = midiNotes[i].sort((a, b) => a.ticks - b.ticks)[midiNotes[i].length - 1].ticks
     const midiNoteDuration = midiNotes[i].sort((a, b) => a.ticks - b.ticks)[midiNotes[i].length - 1].durationTicks
     //====
-    const restDuration = detectDuration(midiNoteStart - previousEnd, ppq)
+    const restDuration = detectDuration(midiNoteStart - previousEnd, timeSignature, ppq)
     // insert rest when duration < 1/32 only to limit errors dues to lack of quantisation
-    if (+restDuration.duration > 0 && +restDuration.duration < 16) {
+    if (midiNoteStart - previousEnd >0 &&   +restDuration.duration < 8) {
       const staveRest = new StaveNote({ keys: ['c/5'], duration: `${restDuration.duration}r`, dots: restDuration.dots });
-      staveNotes.splice(staveNoteIndex, 0, staveRest);
-      midiNotes.splice(staveNoteIndex, 0, []);
+      staveNotes.splice(staveNoteIndex -1 , 0, staveRest);
+      midiNotes.splice(staveNoteIndex-1, 0, []);
     }
 
 
@@ -42,7 +43,7 @@ export function fillWithRest(stave: Stave, staveNotes: StaveNote[], midiNotes: A
 
 export function fillRests(staveAndStaveNotesPair: StaveAndStaveNotesPair[], timeSignature: ReducedFraction, ppq: number) {
   for (const v of staveAndStaveNotesPair) {
-    fillWithRest(v.staveTreeble, v.staveNotesTreeble, v.midiNotesTreeble, timeSignature, ppq)
+    fillWithRest(v.staveTreble, v.staveNotesTreble, v.midiNotesTreble, timeSignature, ppq)
     fillWithRest(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature, ppq)
   }
 }

@@ -41,7 +41,7 @@ export class ScoreStateService {
 
 
   public xPosition = new BehaviorSubject<number>(0);
-  currentPosition =0; 
+  currentPosition = 0;
   public measure = new BehaviorSubject<number>(0);
   public countdown = new BehaviorSubject<number>(0);
   public paused = new BehaviorSubject<boolean>(false);
@@ -99,7 +99,7 @@ export class ScoreStateService {
     if (this.playConfiguration?.staveAndStaveNotesPair
       && this.playConfiguration?.staveAndStaveNotesPair.length >= this.playConfiguration.scoreRange[0]) {
       const xPositions = this.playConfiguration.staveAndStaveNotesPair[this.playConfiguration.scoreRange[0]]
-      this.xPosition.next(Math.min(xPositions.xPositionsBass[0], xPositions.xPositionsTreeble[0]));
+      this.xPosition.next(Math.min(xPositions.xPositionsBass[0], xPositions.xPositionsTreble[0]));
     } else {
       console.warn("skipping due to empty staveAndStaveNotesPair", this.playConfiguration?.staveAndStaveNotesPair.length);
     }
@@ -123,14 +123,14 @@ export class ScoreStateService {
     const end = this.playConfiguration.scoreRange[1];
 
     const startOffset = this.calculateStartTimeInMsForMeasure(start, this.playConfiguration.midiHeader) * this.playConfiguration.delayFactor;
-    const msPerTick =  60000 / (this.playConfiguration.midiHeader.tempos[0].bpm * this.playConfiguration.midiHeader.ppq);
+    const msPerTick = 60000 / (this.playConfiguration.midiHeader.tempos[0].bpm * this.playConfiguration.midiHeader.ppq);
     this.currentTime = startOffset / msPerTick;
     const endCut = this.calculateStartTimeInMsForMeasure(end, this.playConfiguration.midiHeader) * this.playConfiguration.delayFactor;
     for (let i = 0; i < staves.length; i++) {
       if (i < start || i >= end) {
         continue;
       }
-      this.scheduleStave(staves[i].midiNotesTreeble, staves[i].xPositionsTreeble, 'rh', startOffset);
+      this.scheduleStave(staves[i].midiNotesTreble, staves[i].xPositionsTreble, 'rh', startOffset);
       this.scheduleStave(staves[i].midiNotesBass, staves[i].xPositionsBass, 'lh', startOffset);
     }
     this.scheduleEnd(endCut - startOffset);
@@ -174,7 +174,7 @@ export class ScoreStateService {
 
   private setCurrentTick(bar: number, xPosition: number) {
     this.currentPosition = xPosition
-    this.xPosition.next(Math.max(xPosition,this.currentPosition));
+    this.xPosition.next(Math.max(xPosition, this.currentPosition));
     this.measure.next(Math.trunc(bar));
   }
 
@@ -247,11 +247,11 @@ export class ScoreStateService {
       }
       // schedule keyboard light off
       Tone.getDraw().schedule(() => {
-        if (this.midiPressedNotes.has(note.midi) || !this.isHandOk(hand)) {
+        if (this.midiPressedNotes.has(note.midi) || !this.isHandOk(hand)) {
           const key = Array.from(this.keyboardElement.nativeElement
             .getElementsByClassName(`key${note.name}`)) as HTMLElement[];
           removeNoteFromKeyboard(key, hand);
-        }      
+        }
       }, time);
 
     }, ((note.time * this.playConfiguration.delayFactor) + now + (note.duration * this.playConfiguration.delayFactor)));
@@ -307,10 +307,10 @@ export class ScoreStateService {
     if (firstLastNotes) {
       const idx = firstLastNotes.map(ln => ln.note.midi).indexOf(midiEvent.note)
       firstLastNotes[idx].pressed = true;
-      if (firstLastNotes.filter(ln => ln.pressed===false).length === 0) {
+      if (firstLastNotes.filter(ln => ln.pressed === false).length === 0) {
         // biome-ignore lint/complexity/noForEach: <explanation>
         firstLastNotes.forEach((ln) => {
-          this.removeMidiNoteFromKeyboard(ln.note.midi);        
+          this.removeMidiNoteFromKeyboard(ln.note.midi);
         });
         this.lateNotes.delete(lowestKey);
         this.tellIfInTime(lowestKey)
@@ -320,8 +320,8 @@ export class ScoreStateService {
 
 
 
-  tellIfInTime(lowestKey: number) {    
-    console.log(this.currentTime, lowestKey, this.currentTime - lowestKey);  
+  tellIfInTime(lowestKey: number) {
+    console.log(this.currentTime, lowestKey, this.currentTime - lowestKey);
   }
 
 
@@ -350,8 +350,8 @@ export class ScoreStateService {
       await Tone.start();
       Tone.getTransport().start();
       this.isWaiting = false;
-    } 
-    
+    }
+
   }
 
 

@@ -1,45 +1,49 @@
 import type { Note } from "@tonejs/midi/dist/Note";
 import { quantiseTick, reducedFraction, reducedFractionfromTicks, reduction, type ReducedFraction } from "../model/reduced-fraction";
 import type { Chord, Scale } from "../../exercises/model";
+import { TimeSignature } from "vexflow";
 
 
 /***
  * note durations
  */
-export function detectDuration(tick: number, ppq: number): { duration: string, dots: number } {
-  const tickQuant = quantiseTick(tick, ppq);
-  let d = reduction(reducedFractionfromTicks(tickQuant, ppq))
-  d = reduction(reducedFraction(d.numerator, d.denominator));
-  if (d.numerator === 1) {
-    return { duration: String(d.denominator), dots: 0 };
+
+export function detectDuration(tick: number, timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
+
+    const tickQuant =  quantiseTick(tick, ppq);
+    const d = reduction(reducedFractionfromTicks(tickQuant , ppq))
+    if (d.numerator === 1) {  
+      return { duration: String(d.denominator), dots: 0 };
+    }
+    const possibleValues = [
+      1 / 1, // ronde
+      1 / 2, // blanche
+      1 / 4, // noire
+      1 / 8, // croche
+      1 / 16, // double croche
+      1 / 32 // triple croche
+    ];
+  
+    const possibleValueDots = [
+      [1 / 1, 1 / 1 + 1 / 2],
+      [1 / 2, 1 / 2 + 1 / 4],
+      [1 / 4, 1 / 4 + 1 / 8],
+      [1 / 8, 1 / 8 + 1 / 16],
+      [1 / 16, 1 / 16 + 1 / 32],
+      [1 / 32]
+    ];
+  
+    const goal = d.numerator / d.denominator;
+    const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
+    const subarray = possibleValueDots[possibleValues.indexOf(closest)];
+    const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
+    return {
+      duration: String(1 / closest),
+      dots: subarray.indexOf(closestDot) 
+    };
   }
-  const possibleValues = [
-    1 / 1,
-    1 / 2,
-    1 / 4,
-    1 / 8,
-    1 / 16,
-    1 / 32
-  ];
 
-  const possibleValueDots = [
-    [1 / 1, 1 / 1 + 1 / 2],
-    [1 / 2, 1 / 2 + 1 / 4],
-    [1 / 4, 1 / 4 + 1 / 8],
-    [1 / 8, 1 / 8 + 1 / 16],
-    [1 / 16, 1 / 16 + 1 / 32],
-    [1 / 32]
-  ];
 
-  const goal = d.numerator / d.denominator;
-  const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-  const subarray = possibleValueDots[possibleValues.indexOf(closest)];
-  const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-  return {
-    duration: String(1 / closest),
-    dots: subarray.indexOf(closestDot) + 1
-  };
-}
 
 export function getBar(note: Note): number {
   if (Number.isNaN(note.bars)) {

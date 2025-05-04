@@ -1,7 +1,9 @@
 
 .animated-score {
 	background-color: white;
+
 }
+
 
 .match-score {
 	background-color: blue;
@@ -10,7 +12,7 @@
 	height: 320px;
 	/* top: 340px; */
 	width: 32px; /* stave_width / beat_number */
-	left: calc(50% - 16px);
+	left: calc(50% - 8px);
 }
 
 .countdown {
@@ -19,4 +21,8 @@
 	position: absolute;
 	top: calc(20% + 5px);
 	left: calc(50% - 72px);
+}
+
+svg {
+	color: black;
 }

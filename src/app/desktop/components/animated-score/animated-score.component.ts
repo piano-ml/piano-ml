@@ -24,7 +24,7 @@ export class AnimatedScoreComponent implements AfterViewInit, OnDestroy {
 
   xposition = 0;
   translationTime = 1;
-  easeDuration = 0
+  easeDuration = .1;
   countdown = 0;
   staveCount = 0;
   tempo = 90;
@@ -54,16 +54,16 @@ export class AnimatedScoreComponent implements AfterViewInit, OnDestroy {
   pause(paused: boolean) {
     const currentX = this.scoreContainer.nativeElement.getBoundingClientRect().left;
     if (paused) {
-      this.xposition = currentX //+ this.startOffset ;
+      this.xposition = currentX
     } else {
-      const fraction = 1 - (currentX / this.engravingService.stave_width);
-      const nextX = currentX + (this.engravingService.stave_width * fraction);
+      const fraction = 1 - (currentX / this.engravingService.staveWidth);
+      const nextX = currentX + (this.engravingService.staveWidth * fraction);
       this.xposition = nextX
     }
   }
 
   getStartOffset(): number {
-    const pixelRatio = 1; //window.devicePixelRatio || 1;
+    const pixelRatio = 1;
     if (window.innerHeight > window.innerWidth) {
       return ((window.innerHeight / pixelRatio) / 2);
     }
@@ -78,16 +78,12 @@ export class AnimatedScoreComponent implements AfterViewInit, OnDestroy {
       console.log(e);
       this.router.navigate(['open'], { state: { errorInfo: e } });
     }
-
-
     this.subscriptions.push(this.scoreStateService.xPosition.subscribe((x: number) => {
       this.applyTranslation(x);
     }));
-
     this.subscriptions.push(this.scoreStateService.countdown.subscribe((x: number) => {
       this.countdown = x;
     }));
-
   }
 
   ngOnDestroy(): void {

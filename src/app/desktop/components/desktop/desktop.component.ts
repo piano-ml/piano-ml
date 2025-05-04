@@ -260,7 +260,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
     this.playConfiguration.scoreRange[1] = this.maxStaveCount;
     this.playConfiguration.staveAndStaveNotesPair = this.engravingService.staveAndStaveNotesPair;
     this.playConfiguration.timeSignature = this.engravingService.getTimeSignature(0); // TODO this is a limitation
-    this.playConfiguration.staveWidth = this.engravingService.stave_width;
+    this.playConfiguration.staveWidth = this.engravingService.staveWidth;
     this.playConfiguration.midiHeader = this.engravingService.midiObj?.header
     this.scoreStateService.reset(this.playConfiguration)
     this.ref.detectChanges();
