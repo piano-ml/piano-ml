@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+// biome-ignore lint/style/useImportType: <explanation>
 import { RouterModule, Routes } from '@angular/router';
 import { BlogComponent } from './components/blog/blog.component';
 import { BlogPostComponent } from './components/blog-post/blog-post.component';

@@ -13,6 +13,6 @@ export class BlogService {
 
   getPost(slug: string): Observable<string> {
     return this.http.get(`assets/blog/${slug}.md`, { responseType: 'text' })
-      .pipe(map(markdown => marked(markdown)));
+      .pipe(map(markdown => marked.parse(markdown))) as Observable<string>;
   }
 }
