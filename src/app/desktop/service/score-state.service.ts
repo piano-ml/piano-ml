@@ -43,13 +43,13 @@ export class ScoreStateService {
   midiFnHandle?: (e: MidiStateEvent) => void;
   //synth: Tone.Synth<Tone.SynthOptions>;
   soundFontArrayBuffer!: ArrayBuffer;
-  spessasynth!: Synthetizer;
+  spessasynth?: Synthetizer;
 
   midiPressedNotes: Set<number> = new Set<number>();
   lateNotes: Map<number, lateNote[]> = new Map<number, lateNote[]>();
 
   constructor(private midiService: MidiServiceService) {
-    this.initSoundFont();
+
     this.reset = this.reset.bind(this);
   }
 
@@ -65,6 +65,9 @@ export class ScoreStateService {
 
 
   initSoundFont() {
+    if (this.spessasynth!=null) {
+      return; // already initialized
+    }
     console.log("Loading SoundFont...");
     fetch("assets/soundfonts/GeneralUserGS.sf3").then(async response => {
       const sfont = await response.arrayBuffer();
@@ -87,7 +90,7 @@ export class ScoreStateService {
   }
 
   pause() {
-    this.spessasynth.stopAll();
+    this.spessasynth?.stopAll();
     Tone.getTransport().pause();
     this.removeAllNotesFromKeyboard()
   }
@@ -112,6 +115,7 @@ export class ScoreStateService {
   }
 
   async play(playConfigurations: PlayConfiguration) {
+    this.initSoundFont();
     this.resetLateNotes();
     this.playConfiguration = playConfigurations;
     await Tone.start();
@@ -169,7 +173,7 @@ export class ScoreStateService {
   private scheduleAccompaniment() {
     let i = 0;
     for (const track of this.midiOther.tracks) {   
-      this.spessasynth.programChange(this.midiOther.tracks[i].channel, track.instrument.number);
+      this.spessasynth?.programChange(this.midiOther.tracks[i].channel, track.instrument.number);
       this.scheduleAccompanimentTrack(this.midiOther.tracks[i].channel, track);
       i++;
     }
@@ -191,11 +195,11 @@ export class ScoreStateService {
     const noteStart=(note.time * this.playConfiguration.delayFactor) - startOffset;
     // note on
     Tone.getTransport().schedule(() => {
-      this.spessasynth.noteOn(channel , note.midi, Math.round(note.velocity * 127));
+      this.spessasynth?.noteOn(channel , note.midi, Math.round(note.velocity * 127));
     }, noteStart);
     // note off
     Tone.getTransport().schedule(() => {
-      this.spessasynth.noteOff(channel, note.midi);
+      this.spessasynth?.noteOff(channel, note.midi);
     }, noteStart + (note.duration * this.playConfiguration.delayFactor)) ;
   }
 
@@ -289,7 +293,7 @@ export class ScoreStateService {
 
   private scheduleEnd(endTime: number) {
     Tone.getTransport().schedule(() => {
-      this.spessasynth.stopAll();
+      this.spessasynth?.stopAll();
       this.message.next("END");
     }, endTime);
   }
@@ -405,9 +409,9 @@ export class ScoreStateService {
     } else {
       if (midiEvent.type === 'down') {
         // todo make a function
-        this.spessasynth.noteOn(1,1,127);
+        this.spessasynth?.noteOn(1,1,127);
         setTimeout(() => {
-          this.spessasynth.noteOff(1,1);
+          this.spessasynth?.noteOff(1,1);
         }, 500);
         console.log("BAD", midiEvent.note);
         this.lateNotes.forEach((notes, key) => {
