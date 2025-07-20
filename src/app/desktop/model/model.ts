@@ -32,5 +32,6 @@ export interface PlayConfiguration {
   staveWidth: number;
   timeSignature: ReducedFraction;
   fingering?: number[][];
-  midiHeader: Midi.Header
+  accompaniment: Midi.Midi;
+  midi: Midi.Midi;  
 }
