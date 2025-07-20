@@ -15,7 +15,7 @@ import { fillWithRest } from './rest-filler';
 })
 export class EngravingService {
 
-  width = 16480;
+  width = 64596;
   height = 320;
   staveWidth = 360;
   stave_offset_hint = 30;
@@ -35,7 +35,6 @@ export class EngravingService {
 
   scoreElementRef!: ElementRef<HTMLDivElement>;
   handDetector!: HandDetectorService;
-  staveDuration!: number;
   previousTimeSignature: ReducedFraction | null = null
 
   midiObj!: Midi.Midi;
@@ -236,6 +235,18 @@ export class EngravingService {
   }
 
   formatAndDraw(stave: Stave, stemmableNotes: StemmableNote[], midiNotes: Note[][], timeSig: ReducedFraction) {
+    // console.log(timeSig, midiNotes, stave);
+    // if (stemmableNotes==null || stemmableNotes.length === 0 || stave==null || timeSig==null) {
+    //   return [0];
+    // }
+for (const note of stemmableNotes) {
+      if (note == null || note.getDuration() === "0") {
+        console.warn("Note with zero duration found, skipping", note);
+        stemmableNotes.splice(stemmableNotes.indexOf(note), 1);    
+      }
+    }
+
+
     const numBeats = timeSig.numerator;
     const beatValue = timeSig.denominator;
     const voice = new Voice({ numBeats, beatValue })
@@ -308,7 +319,9 @@ export class EngravingService {
   buildStaveNotes(pNotes: Note[], timeSig: ReducedFraction, clef: string, fingers?: number[]): StaveNote {
     const notes = pNotes.filter((n) => n.durationTicks !== 0);
     const noteNotations = notes.map((n, idx) => this.makeNoteNotationFromNote(n));
-
+    if (notes.length === 0) {
+      return null as unknown as StaveNote;
+    }
     const detectedDuration = detectDuration(notes[0].durationTicks, timeSig, this.ppq)
     const note = new StaveNote({
       autoStem: true,

@@ -84,7 +84,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
   fingering: number[][][] = [];
   midiFnHandler!: (e: MidiStateEvent) => void;
   showPianoman = false;
-  hideKeyboard = true;
+  hideKeyboard = false;
 
 
   constructor(
@@ -260,8 +260,8 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
     this.playConfiguration.scoreRange[1] = this.maxStaveCount;
     this.playConfiguration.staveAndStaveNotesPair = this.engravingService.staveAndStaveNotesPair;
     this.playConfiguration.timeSignature = this.engravingService.getTimeSignature(0); // TODO this is a limitation
-    this.playConfiguration.staveWidth = this.engravingService.staveWidth;
-    this.playConfiguration.midiHeader = this.engravingService.midiObj?.header
+    this.playConfiguration.staveWidth = this.engravingService.staveWidth * this.engravingService.scale;
+    this.playConfiguration.midi = this.engravingService.midiObj
     this.scoreStateService.reset(this.playConfiguration)
     this.ref.detectChanges();
   }

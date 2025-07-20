@@ -67,7 +67,7 @@ export class HandDetectorService {
   doSplit: boolean;
 
   constructor(private midiObj: Midi.Midi, doStaffSplit: boolean) {
-    this.doSplit=doStaffSplit;
+    this.doSplit = doStaffSplit;
     // import_midi.cpp L 1206
     // MChord::collectChords(tracks, { 2, 1 }, { 1, 2 });
     // MidiBeat::adjustChordsToBeats(tracks);
@@ -123,6 +123,7 @@ export class HandDetectorService {
       return;
     }
 
+    // pass 1:start building the onsets with note start time
     this.onsets = this.midiObj.tracks[0].notes.reduce(
       (result: { [key: number]: Note[] }, currentValue: Note) => {
         const onTime = currentValue.ticks;
@@ -133,6 +134,31 @@ export class HandDetectorService {
         return result;
       }, {});
 
+    // pass 1: add onsets for note that are stopping & fill the onsets with playong notes
+    this.midiObj.tracks[0].notes.forEach((note: Note) => {
+      const noteStartTime = note.ticks;
+      const noteEndTime = note.ticks + note.durationTicks;
+      if (!this.onsets[noteEndTime]) {
+        this.onsets[noteEndTime] = [];
+      }
+      // find previous onset
+      const targetOnsets = Object.entries(this.onsets)
+        .filter(([key, _]) => Number(key) < noteEndTime)
+        .filter(([key, _]) => Number(key) >= noteStartTime);
+      targetOnsets.forEach(([key, notes]) => {
+        if (!this.onsets[Number(key)].some((existingNote: Note) => existingNote.midi === note.midi)) {
+          this.onsets[Number(key)].push(note);
+        }
+      });
+    });
+
+    Object.keys(this.onsets).forEach((key) => {
+      if (this.onsets[Number(key)].length === 0) {
+        delete this.onsets[Number(key)];
+      }
+    });
+
+    // start voice separation
     const playing: Note[] = []
     for (const time in this.onsets) {
       for (let i = 0; i < playing.length; i++) {
@@ -145,20 +171,19 @@ export class HandDetectorService {
       this.onsets[time] = this.onsets[time].filter((item,
         index) => this.onsets[time].indexOf(item) === index);
 
-
-
       this.onsets[time].sort((a, b) => a.midi - b.midi);
       playing.push(...this.onsets[time])
     }
 
     const rightHandChords: Map<ReducedFraction, MidiChord> = new Map();
+
+
     for (const time in this.onsets) {
-      const onTime = reducedFractionfromTicks(Number(time), this.ppq);
       const notes = this.onsets[time]
       const chord = notes.map((note: Note) => {
         const midiNote: MidiNote = {
           pitch: note.midi,
-          offTime: reducedFractionfromTicks(note.ticks + note.durationTicks, this.ppq),
+          offTime: reducedFractionfromTicks(note.ticks + note.durationTicks , this.ppq),
           velo: note.velocity,
           ticks: note.ticks
         }
@@ -242,6 +267,8 @@ export class HandDetectorService {
 
       const split: ChordSplitData = { chord: [onTime, chord], possibleSplits: [] };
 
+
+
       for (let splitPoint = 0; splitPoint <= notes.length; ++splitPoint) {
         const splitTry: SplitTry = {
           penalty: this.findPitchWidthPenalty(notes, splitPoint)
@@ -278,7 +305,6 @@ export class HandDetectorService {
       }
 
       splits.push(split);
-
       ++pos;
     }
     return splits;
@@ -390,12 +416,16 @@ export class HandDetectorService {
 
   areOffTimesEqual(notes: MidiNote[], start: number, end: number): boolean {
     const offTime = notes[start].offTime;
-    for (let i = start + 1; i < end; i++) {
-      if (notes[i].offTime !== offTime) {
-        return false;
+    let areEqual=true;
+    for (let i = start + 1; i < end; i++) {      
+        if (notes[i].offTime.numerator === offTime.numerator ||
+        notes[i].offTime.denominator === offTime.denominator ) {
+        areEqual = false;
+        break;
       }
+
     }
-    return true;
+    return areEqual;
   }
 
   findDurationPenalty(notes: MidiNote[], splitPoint: number): number {
