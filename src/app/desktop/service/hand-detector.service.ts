@@ -158,12 +158,6 @@ export class HandDetectorService {
       }
     });
 
-    // DEBUG
-    Object.keys(this.onsets).sort(([key, value]) => Number(key)).forEach((key) => {
-      this.onsets[Number(key)] = this.onsets[Number(key)].sort((a: Note, b: Note) => a.midi - b.midi);
-      console.log("onsetsF", key, this.onsets[Number(key)].map((note: Note) => note.midi + " " + note.durationTicks));
-    });
-
     // start voice separation
     const playing: Note[] = []
     for (const time in this.onsets) {
@@ -200,7 +194,6 @@ export class HandDetectorService {
       }
       rightHandChords.set(reducedFractionfromTicks(Number(time), this.ppq), midiChord)
     }
-    console.log(rightHandChords)
     const splits = this.findSplits(rightHandChords);
     const leftHandChords: Map<ReducedFraction, MidiChord> = new Map();
     this.splitChords(splits, leftHandChords, rightHandChords);
@@ -313,11 +306,6 @@ export class HandDetectorService {
 
       splits.push(split);
       ++pos;
-
-      // console.log("============")
-      // console.log(chord.notes.map((note: MidiNote) => note.pitch ))
-      // console.log(split.possibleSplits.map(splitTry => splitTry.penalty)) 
-      // console.log("..........")
     }
     return splits;
   }
