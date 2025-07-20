@@ -179,7 +179,6 @@ export class OpenComponent implements OnInit {
 
   enjoy(midi: Midi.Midi) {
     midi.tracks = midi.tracks.filter(track => track.notes.length > 0);
-    midi.tracks[0].notes = midi.tracks[0].notes.splice(0, 16); // keep only first track
     this.checkboxes = [];
     for (let i = 0; i < midi.tracks.length; i++) {
       this.checkboxes.push(false);

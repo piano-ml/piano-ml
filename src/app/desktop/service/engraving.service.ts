@@ -35,7 +35,6 @@ export class EngravingService {
 
   scoreElementRef!: ElementRef<HTMLDivElement>;
   handDetector!: HandDetectorService;
-  //staveDuration!: number;
   previousTimeSignature: ReducedFraction | null = null
 
   midiObj!: Midi.Midi;

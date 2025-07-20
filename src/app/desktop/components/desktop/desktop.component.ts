@@ -225,7 +225,6 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
 
   splitMidi(json: Midi.MidiJSON): { study: Midi.Midi, other: Midi.Midi } {
     const midiAll = new Midi.Midi();
-    console.log("loading midi from json", json);
     midiAll.fromJSON(json)
     if (midiAll.header.timeSignatures.length === 0) {
       midiAll.header.timeSignatures.push({ ticks: 0, timeSignature: [4, 4] });
