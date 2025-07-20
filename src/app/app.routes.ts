@@ -27,6 +27,13 @@ export const routes: Routes = [
 
     },
     {
+        component: LayoutComponent,
+        path: 'blog',
+        loadChildren: () => import('./blog/blog.module').then(m => m.BlogModule),
+        data: { breadcrumb: 'Blog' }
+
+    },
+    {
         path: '**',
         redirectTo: ''
     }
