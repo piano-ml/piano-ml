@@ -71,7 +71,7 @@ export class ScoreStateService {
       const ctx = new AudioContext();
       await ctx.audioWorklet.addModule("/assets/soundfonts/worklet_processor.min.js")
       this.spessasynth = new Synthetizer(ctx.destination, sfont, false);
-      this.spessasynth.highPerformanceMode = true;
+      //this.spessasynth.highPerformanceMode = true;
       this.spessasynth.resetControllers();
       const track = this.playConfiguration.midi.tracks[0]
       this.spessasynth.programChange(track.channel, 1);
@@ -410,7 +410,10 @@ export class ScoreStateService {
           this.spessasynth.noteOff(1,1);
         }, 500);
         console.log("BAD", midiEvent.note);
-        console.log("late notes", this.lateNotes);
+        this.lateNotes.forEach((notes, key) => {
+          console.log("late notes", notes.map(ln => ln.note.midi));
+        });
+
         this.message.next("BAD")
 
       }
