@@ -193,3 +193,9 @@ export const scales: Scale[] = [
 
 ]
 
+
+export function midiToPitch(midi: number): string {
+  const pitchClass = midi % 12;
+  const octave = Math.floor(midi / 12) - 1; // Calcule l'octave (MIDI commence à C-1)
+  return `${keys[pitchClass]}${octave}`;
+}

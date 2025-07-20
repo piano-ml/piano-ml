@@ -84,7 +84,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
   fingering: number[][][] = [];
   midiFnHandler!: (e: MidiStateEvent) => void;
   showPianoman = false;
-  hideKeyboard = true;
+  hideKeyboard = false;
 
 
   constructor(
@@ -225,6 +225,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
 
   splitMidi(json: Midi.MidiJSON): { study: Midi.Midi, other: Midi.Midi } {
     const midiAll = new Midi.Midi();
+    console.log("loading midi from json", json);
     midiAll.fromJSON(json)
     if (midiAll.header.timeSignatures.length === 0) {
       midiAll.header.timeSignatures.push({ ticks: 0, timeSignature: [4, 4] });
@@ -260,8 +261,8 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
     this.playConfiguration.scoreRange[1] = this.maxStaveCount;
     this.playConfiguration.staveAndStaveNotesPair = this.engravingService.staveAndStaveNotesPair;
     this.playConfiguration.timeSignature = this.engravingService.getTimeSignature(0); // TODO this is a limitation
-    this.playConfiguration.staveWidth = this.engravingService.staveWidth;
-    this.playConfiguration.midiHeader = this.engravingService.midiObj?.header
+    this.playConfiguration.staveWidth = this.engravingService.staveWidth * this.engravingService.scale;
+    this.playConfiguration.midi = this.engravingService.midiObj
     this.scoreStateService.reset(this.playConfiguration)
     this.ref.detectChanges();
   }

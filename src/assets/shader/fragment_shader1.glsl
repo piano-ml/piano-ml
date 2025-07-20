@@ -4,74 +4,40 @@ uniform vec2 iResolution;
 
 uniform float iTime;
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
-{
-    float t = iTime+5.;
-	float z = 3.5;
 
-	const int n = 64; // particle count
+	//https://iquilezles.org/articles/palettes/
+	vec3 palette( float t ) {
+    vec3 a = vec3(0.5, 0.5, 0.5);
+    vec3 b = vec3(0.5, 0.5, 0.5);
+    vec3 c = vec3(1.0, 1.0, 1.0);
+    vec3 d = vec3(0.263,0.416,0.557);
 
-    vec3 startColor = vec3(1.,0.,0.);
-    vec3 endColor = vec3(0.870, 0.424, 0.000);
-    
-	float startRadius = 0.24;
-	float endRadius = 1.6;
-    
-	float power = 0.51;
-	float duration = 4.;
-    
-	vec2 
-		s = iResolution.xy,
-		v = z*(2.*gl_FragCoord.xy-s)/s.y;
-    
-    vec3 col = vec3(0.);
-    
-	vec2 pm = v.yx*2.8;
-    
-	float dMax = duration;
-    
+    return a + b*cos( 6.28318*(c*t+d) );
+}
 
-    float evo = (sin(iTime*.01+400.)*.5+.5)*99.+1.;
-	
-	float mb = 0.;
-	float mbRadius = 0.;
-	float sum = 0.;
-	for(int i=0;i<n;i++)
-	{
-		float d = fract(t*power+48934.4238*sin(float(i/int(evo))*692.7398));
-    	 		
-		float tt = 0.;
-			
-        float a = 6.28*float(i)/float(n);
+//https://www.shadertoy.com/view/mtyGWy
+void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+    vec2 uv = (fragCoord * 2.0 - iResolution.xy) / iResolution.y;
+    vec2 uv0 = uv;
+    vec3 finalColor = vec3(0.0);
+    
+    for (float i = 0.0; i < 4.0; i++) {
+        uv = fract(uv * 1.5) - 0.5;
 
-        float x = d*cos(a)*duration;
+        float d = length(uv) * exp(-length(uv0));
 
-        float y = d*sin(a)*duration;
+        vec3 col = palette(length(uv0) + i*.4 + iTime*.4);
+
+        d = sin(d*8. + iTime)/8.;
+        d = abs(d);
+
+        d = pow(0.01 / d, 1.2);
+
+        finalColor += col * d;
+    }
         
-		float distRatio = d/dMax;
-        
-		mbRadius = mix(startRadius, endRadius, distRatio); 
-        
-		vec2 p = v - vec2(x,y);
-        
-		mb = mbRadius/dot(p,p);
-    	
-		sum += mb;
-        
-		col = mix(col, mix(startColor, endColor, distRatio), mb/sum);
-	}
-    
-	sum /= float(n);
-    
-	col = normalize(col) * sum;
-    
-	sum = clamp(sum, 0., .4);
-    
-	vec3 tex = vec3(1.);
-     
-	col *= smoothstep(tex, vec3(0.), vec3(sum));
-        
-	fragColor.rgb = col;
+    fragColor = vec4(finalColor, 1.0);
+
 }
 
 void main() 

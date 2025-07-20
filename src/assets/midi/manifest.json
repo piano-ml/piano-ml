@@ -1,6 +1,13 @@
 [
 
     {
+        "filename": "No-Woman-No-Cry-1.mid",
+        "difficulty": "beginner",
+        "name": "No woman no cry",
+        "description": "Choose a track to play with accompaniment",          
+        "artist": "Bob Marley"
+    },
+    {
         "filename": "plic-ploc.mid",
         "difficulty": "beginner",
         "name": "Plic Ploc",
@@ -35,6 +42,13 @@
         "name": "Zelda Lullaby",
         "description": "Melody of the Royal Family.",  
         "artist": "Koji Kondo"
+    },
+    {
+        "filename": "for_elise_by_beethoven.mid",
+        "difficulty": "intermediate",
+        "name": "For Elise",
+        "description": "Try split voice option",          
+        "artist": "Beethoven"
     }
 
 ]
