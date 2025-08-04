@@ -20,6 +20,9 @@ export function quantizeNotes(notes: Note[], ppq: number) {
 export function quantiseTick(tick: number, ppq: number): number {
   const quantile = ppq / 8; //  (1/4) / 8 ==> 1/32
   const r = Math.round(tick /  quantile) * quantile;
+  if (r ==0) {
+    return tick; // do not quantize to 0
+  }
   return r
 }
 
@@ -50,7 +53,9 @@ export function subtractFractions(a: ReducedFraction, b: ReducedFraction): Reduc
 
 
 export function reducedFractionfromTicks(ticks: number, ppq: number): ReducedFraction {  
-  return reduction(reducedFraction(ticks, ppq*4));
+  const f = reduction(reducedFraction(ticks, ppq*4));
+  f.ticks = ticks;
+  return f
 }
 
 export function reducedFraction(numerator: number, denominator: number): ReducedFraction {

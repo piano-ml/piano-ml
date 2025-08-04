@@ -13,6 +13,8 @@ import { reducedFraction } from '../model/reduced-fraction';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import { Synthetizer } from "spessasynth_lib"
 import { midiToPitch } from './music-theory';
+import { Piano } from '@tonejs/piano'
+
 
 const GOOD_RANGE = 0.2
 const PERFECT_RANGE = 0.05
@@ -41,16 +43,27 @@ export class ScoreStateService {
   currentTime = 0;
   playConfiguration!: PlayConfiguration;
   midiFnHandle?: (e: MidiStateEvent) => void;
-  //synth: Tone.Synth<Tone.SynthOptions>;
+  synth: Tone.Synth<Tone.SynthOptions>;
   soundFontArrayBuffer!: ArrayBuffer;
   spessasynth?: Synthetizer;
 
   midiPressedNotes: Set<number> = new Set<number>();
   lateNotes: Map<number, lateNote[]> = new Map<number, lateNote[]>();
+  piano: any;
 
   constructor(private midiService: MidiServiceService) {
-
+    this.initPiano();
+    this.initSoundFont();
+    this.synth = new Tone.Synth().toDestination();
     this.reset = this.reset.bind(this);
+  }
+
+
+  initPiano() {
+    this.piano = new Piano({
+      velocities: 1
+    }).toDestination();
+    this.piano.load()
   }
 
   setup() {
@@ -74,11 +87,7 @@ export class ScoreStateService {
       const ctx = new AudioContext();
       await ctx.audioWorklet.addModule("/assets/soundfonts/worklet_processor.min.js")
       this.spessasynth = new Synthetizer(ctx.destination, sfont, false);
-      //this.spessasynth.highPerformanceMode = true;
       this.spessasynth.resetControllers();
-      const track = this.playConfiguration.midi.tracks[0]
-      this.spessasynth.programChange(track.channel, 1);
-      //this.spessasynth.muteChannel(track.channel, true);
       console.log("Synth loaded!");
     });
   }
@@ -115,7 +124,7 @@ export class ScoreStateService {
   }
 
   async play(playConfigurations: PlayConfiguration) {
-    this.initSoundFont();
+
     this.resetLateNotes();
     this.playConfiguration = playConfigurations;
     await Tone.start();
@@ -134,7 +143,7 @@ export class ScoreStateService {
     const msPerTick = 60000 / (this.playConfiguration.midi.header.tempos[0].bpm * this.playConfiguration.midi.header.ppq);
     this.currentTime = startOffset / msPerTick;
     const endCut = this.calculateEndTime();
-    this.scheduleDefaultAdvance();
+    //this.scheduleDefaultAdvance();
     for (let i = this.playConfiguration.scoreRange[0]; i < this.playConfiguration.scoreRange[1]; i++) {
       this.scheduleStave(staves[i].midiNotesTreble, staves[i].xPositionsTreble, 'rh', startOffset);
       this.scheduleStave(staves[i].midiNotesBass, staves[i].xPositionsBass, 'lh', startOffset);
@@ -217,13 +226,21 @@ export class ScoreStateService {
   private scheduleNote(hand: string, note: Note, now: number, xPosition: number) {
     if (note.midi === 0) return;
     if (this.playConfiguration.doSound && !this.isHandOk(hand)) {
-      this.scheduleAccompanimentTrackNotes(this.playConfiguration.midi.tracks[0].channel, note, -now)
+      //this.scheduleAccompanimentTrackNotes(this.playConfiguration.midi.tracks[0].channel, note, -now)
     }
     const noteTimeStart = (note.time * this.playConfiguration.delayFactor) + now;
     const noteTimeEnd = ((note.time * this.playConfiguration.delayFactor) + now + (note.duration * this.playConfiguration.delayFactor));
 
       // schedule watch, score advance and keyboard light on
       Tone.getTransport().schedule((time: number) => {
+
+        this.piano.keyDown({
+          time: time,
+          velocity: note.velocity,
+          note: note.name,
+          midi: note.midi
+        });
+
         Tone.getDraw().schedule(() => {
         // maybe make a pause ?
         if (this.lateNotes.size > 0) {
@@ -247,6 +264,14 @@ export class ScoreStateService {
 
       // schedule keyboard light off
       Tone.getTransport().schedule((time: number) => {
+
+        this.piano.keyUp({
+          time: time + note.duration,
+          velocity: note.velocity,
+          note: note.name,
+          midi: note.midi
+        });
+
         Tone.getDraw().schedule(() => {
         if (this.midiPressedNotes.has(note.midi) || !this.isHandOk(hand)) {
           const key = Array.from(this.keyboardElement.nativeElement
