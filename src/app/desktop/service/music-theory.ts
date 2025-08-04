@@ -74,7 +74,6 @@ export function detectDuration(tick: number, timeSig: ReducedFraction, ppq: numb
       [1 / 32],
       [1/64]
     ];
-    console.log("goal: ", d.numerator, "/", d.denominator, " = ", d.numerator / d.denominator);
     const goal = d.numerator / d.denominator;
     const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
     const subarray = possibleValueDots[possibleValues.indexOf(closest)];
