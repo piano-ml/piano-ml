@@ -47,8 +47,12 @@ export function detectDuration(tick: number, timeSig: ReducedFraction, ppq: numb
 
 export function getBar(note: Note): number {
   if (Number.isNaN(note.bars)) {
-    console.warn("note.bars is NaN", note.durationTicks);
-    // TODO we can have a workaroud
+    console.warn("note.bars is NaN", note);
+    return -1;
+  }
+  if (note.bars === Infinity) {
+    console.warn("note.bars is Infinity", note);
+    return -1;
   }
   return Math.trunc(note.bars);
 }

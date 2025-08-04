@@ -1,5 +1,5 @@
 import { type ElementRef, Injectable } from '@angular/core';
-import { Accidental, Annotation, BarlineType, Beam, Dot,  type RenderContext, Renderer, Stave, StaveConnector, StaveNote, type StemmableNote, type Tickable, TickContext, Voice } from 'vexflow';
+import { Accidental, Annotation, BarlineType, Beam, Dot, type RenderContext, Renderer, Stave, StaveConnector, StaveNote, type StemmableNote, type Tickable, TickContext, Voice } from 'vexflow';
 import type * as Midi from '@tonejs/midi';
 import type { Note } from '@tonejs/midi/dist/Note';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
@@ -172,8 +172,9 @@ export class EngravingService {
       let i = 0;
       notesRH.sort((a, b) => a[0].ticks - b[0].ticks)
       notesLH.sort((a, b) => a[0].ticks - b[0].ticks)
-      for (const midiNotes of notesRH) {
+      for (let midiNotes of notesRH) {
         const fingers = this.fingering ? [0] : undefined
+        //midiNotes = midiNotes.filter(n => n.durationTicks>0);
         previousTick = this.buildHand(midiNotes, previousTick, "treble", (this.fingering?.[0]) ? this.fingering[0][i] : undefined);
         i++;
       }
@@ -190,17 +191,21 @@ export class EngravingService {
     const tick = notes[0].ticks;
 
     const timesig = this.getTimeSignature(tick);
-    const voicePair = this.getOrMakeVoice(getBar(notes[0]), timesig);
-    const stave = clef === "treble" ? voicePair.staveTreble : voicePair.staveBass;
-    const staveNotes = clef === "treble" ? voicePair.staveNotesTreble : voicePair.staveNotesBass;
-    const note = this.buildStaveNotes(notes, timesig, clef, fingers);
+    const b = getBar(notes[0]);
+    if (b >= 0) {
+      const voicePair = this.getOrMakeVoice(b, timesig);
 
-    if (clef === "treble") {
-      voicePair.midiNotesTreble.push(notes);
-    } else {
-      voicePair.midiNotesBass.push(notes);
+      const stave = clef === "treble" ? voicePair.staveTreble : voicePair.staveBass;
+      const staveNotes = clef === "treble" ? voicePair.staveNotesTreble : voicePair.staveNotesBass;
+      const note = this.buildStaveNotes(notes, timesig, clef, fingers);
+
+      if (clef === "treble") {
+        voicePair.midiNotesTreble.push(notes);
+      } else {
+        voicePair.midiNotesBass.push(notes);
+      }
+      staveNotes.push(note);
     }
-    staveNotes.push(note);
     previousTick = tick + notes[0].durationTicks;
     return previousTick;
   }
@@ -235,18 +240,12 @@ export class EngravingService {
   }
 
   formatAndDraw(stave: Stave, stemmableNotes: StemmableNote[], midiNotes: Note[][], timeSig: ReducedFraction) {
-    // console.log(timeSig, midiNotes, stave);
-    // if (stemmableNotes==null || stemmableNotes.length === 0 || stave==null || timeSig==null) {
-    //   return [0];
-    // }
-for (const note of stemmableNotes) {
+    for (const note of stemmableNotes) {
       if (note == null || note.getDuration() === "0") {
         console.warn("Note with zero duration found, skipping", note);
-        stemmableNotes.splice(stemmableNotes.indexOf(note), 1);    
+        stemmableNotes.splice(stemmableNotes.indexOf(note), 1);
       }
     }
-
-
     const numBeats = timeSig.numerator;
     const beatValue = timeSig.denominator;
     const voice = new Voice({ numBeats, beatValue })
