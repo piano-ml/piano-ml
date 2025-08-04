@@ -178,7 +178,6 @@ export class EngravingService {
       notesLH.sort((a, b) => a[0].ticks - b[0].ticks)
       for (let midiNotes of notesRH) {
         const fingers = this.fingering ? [0] : undefined
-        //midiNotes = midiNotes.filter(n => n.durationTicks>0);
         previousTick = this.buildHand(midiNotes, previousTick, "treble", (this.fingering?.[0]) ? this.fingering[0][i] : undefined);
         i++;
       }
@@ -228,7 +227,7 @@ export class EngravingService {
       }
       const timeSignature = this.getTimeSignature(tickStart);
       fillWithRest(v.staveTreble, v.staveNotesTreble, v.midiNotesTreble, timeSignature, this.ppq)
-      //fillWithRest(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature, this.ppq)
+      fillWithRest(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature, this.ppq)
       v.xPositionsTreble = this.formatAndDraw(v.staveTreble, v.staveNotesTreble, v.midiNotesTreble, timeSignature);
       v.xPositionsBass = this.formatAndDraw(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature);
       i++;
