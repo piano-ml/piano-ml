@@ -15,6 +15,7 @@ export function detectDuration(tick: number, timeSig: ReducedFraction, ppq: numb
     if (d.numerator === 1) {  
       return { duration: String(d.denominator), dots: 0 };
     }
+
     const possibleValues = [
       1 / 1, // ronde
       1 / 2, // blanche
@@ -37,12 +38,53 @@ export function detectDuration(tick: number, timeSig: ReducedFraction, ppq: numb
     const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
     const subarray = possibleValueDots[possibleValues.indexOf(closest)];
     const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
+  
     return {
       duration: String(1 / closest),
       dots: subarray.indexOf(closestDot) 
     };
   }
 
+
+
+  export function detectDuration2(tick: number, timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
+
+    const tickQuant =  quantiseTick(tick, ppq);
+    const d = reduction(reducedFractionfromTicks(tickQuant , ppq))
+    if (d.numerator === 1) {  
+      return { duration: String(d.denominator), dots: 0 };
+    }
+
+    const possibleValues = [
+      1 / 1, // ronde
+      1 / 2, // blanche
+      1 / 4, // noire
+      1 / 8, // croche
+      1 / 16, // double croche
+      1 / 32, // triple croche
+      1 / 64
+    ];
+  
+    const possibleValueDots = [
+      [1 / 1, 1 / 1 + 1 / 2],
+      [1 / 2, 1 / 2 + 1 / 4],
+      [1 / 4, 1 / 4 + 1 / 8],
+      [1 / 8, 1 / 8 + 1 / 16],
+      [1 / 16, 1 / 16 + 1 / 32],
+      [1 / 32],
+      [1/64]
+    ];
+    console.log("goal: ", d.numerator, "/", d.denominator, " = ", d.numerator / d.denominator);
+    const goal = d.numerator / d.denominator;
+    const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
+    const subarray = possibleValueDots[possibleValues.indexOf(closest)];
+    const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
+  
+    return {
+      duration: String(1 / closest),
+      dots: subarray.indexOf(closestDot) 
+    };
+  }  
 
 
 export function getBar(note: Note): number {

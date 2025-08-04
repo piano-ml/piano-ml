@@ -1,42 +1,57 @@
 import { type Stave, StaveNote } from 'vexflow';
 import type { StaveAndStaveNotesPair } from '../model/model';
 import { quantiseTick, type ReducedFraction } from '../model/reduced-fraction';
-import { detectDuration,  getStaveDurationTick } from './music-theory';
+import { detectDuration2,  getStaveDurationTick } from './music-theory';
 import type { Note } from '@tonejs/midi/dist/Note';
 
 
-export function fillWithRest(stave: Stave, staveNotes: StaveNote[], midiNotes: Array<Note[]>, timeSignature: ReducedFraction, ppq: number) {
-  const ctx = stave.getContext();
-  const start = stave.getMeasure() * getStaveDurationTick(timeSignature, ppq);
-  const end = (stave.getMeasure() + 1) * getStaveDurationTick(timeSignature, ppq);
-
+export function fillWithRest(stave: Stave, staveNotes: StaveNote[], chordsInStave: Array<Note[]>, timeSignature: ReducedFraction, ppq: number) {
+  const start = (stave.getMeasure() ) * getStaveDurationTick(timeSignature, ppq);
   // insert rest when no notes
   if (staveNotes.length === 0) {
-    const restDuration = detectDuration(getStaveDurationTick(timeSignature, ppq), timeSignature, ppq)
-    staveNotes.push(new StaveNote({ keys: ['c/5'], duration: `${restDuration.duration}r`, dots: restDuration.dots, alignCenter: true }));
-    midiNotes.push([]);
+    staveNotes.push(new StaveNote({ keys: ['D/5'], duration: `1r`, dots: 0, alignCenter: true }));
+    chordsInStave.push([]);
     return;
   }
+  // TODO adapt when implementing ties....
   // insert rest between notes
-  let previousEnd = start + midiNotes[0][0].durationTicks;
+  let previousEnd = start //+ chordsInStave[0][0].durationTicks;
   let staveNoteIndex = 0;
-  for (let i = 0; i < midiNotes.length; i++) {
-    if (midiNotes[i].length === 0) continue;
-    const midiNoteStart = midiNotes[i].sort((a, b) => a.ticks - b.ticks)[midiNotes[i].length - 1].ticks
-    const midiNoteDuration = midiNotes[i].sort((a, b) => a.ticks - b.ticks)[midiNotes[i].length - 1].durationTicks
+  console.log("mesure  "+ stave.getMeasure()  + " start:", previousEnd);
+  for (let i = 0; i < chordsInStave.length; i++) {
+    if (chordsInStave[i].length === 0) continue;
+
+
+
+
+
+    const nextStart = chordsInStave[i].sort((a, b) => a.ticks - b.ticks)[0].ticks
+    const endingNoteInChord = chordsInStave[i].sort((b, a) => (a.ticks + a.duration) - (b.ticks + b.duration))[0]
+    const nextEnd = endingNoteInChord.ticks + endingNoteInChord.durationTicks
     //====
-    const restDuration = detectDuration(midiNoteStart - previousEnd, timeSignature, ppq)
+    
+    console.log("detail:",chordsInStave[i].map(n=> n.ticks + " + " + n.durationTicks + " = " + (n.ticks + n.durationTicks)));
+    //console.log("measure:", stave.getMeasure(), " previousEnd: ", previousEnd, "nextStart: ", nextStart);
+    //console.log(timeSignature, ppq);
+    const restDuration = detectDuration2(nextStart - previousEnd, timeSignature, ppq)
+
+    //const restEnd = previousEnd + ( 1 / +restDuration.duration * ppq * 4); // 1/4 = 1/32 * 8
+    //console.log("???: ", restDuration.duration,  nextStart);
     // insert rest when duration < 1/32 only to limit errors dues to lack of quantisation
-    if (midiNoteStart - previousEnd >0 &&   +restDuration.duration < 8) {
+    if (nextStart - previousEnd >0 &&   +restDuration.duration < 32) {
+      console.log("!!!rest duration: ", restDuration.duration, nextStart - previousEnd , restDuration.dots, " at ", stave.getMeasure());
+      //const staveRest = new StaveNote({ keys: ['c/5'], duration: `${restDuration.duration}r`, dots: restDuration.dots });
       const staveRest = new StaveNote({ keys: ['c/5'], duration: `${restDuration.duration}r`, dots: restDuration.dots });
-      staveNotes.splice(staveNoteIndex -1 , 0, staveRest);
-      midiNotes.splice(staveNoteIndex-1, 0, []);
+      staveNotes.splice(i  , 0, staveRest);
+      chordsInStave.splice(i, 0, []);
+    } else {
+      console.log("no rest needed: ", nextStart - previousEnd, " at ", stave.getMeasure());
     }
 
 
     //====
-    previousEnd = midiNoteStart + midiNoteDuration;
-    staveNoteIndex = staveNoteIndex + midiNotes[i].length;
+    previousEnd = nextEnd;
+    staveNoteIndex = staveNoteIndex + chordsInStave[i].length;
   }
 }
 
@@ -44,7 +59,7 @@ export function fillWithRest(stave: Stave, staveNotes: StaveNote[], midiNotes: A
 export function fillRests(staveAndStaveNotesPair: StaveAndStaveNotesPair[], timeSignature: ReducedFraction, ppq: number) {
   for (const v of staveAndStaveNotesPair) {
     fillWithRest(v.staveTreble, v.staveNotesTreble, v.midiNotesTreble, timeSignature, ppq)
-    fillWithRest(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature, ppq)
+    //fillWithRest(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature, ppq)
   }
 }
 

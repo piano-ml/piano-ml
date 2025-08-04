@@ -53,7 +53,9 @@ export function subtractFractions(a: ReducedFraction, b: ReducedFraction): Reduc
 
 
 export function reducedFractionfromTicks(ticks: number, ppq: number): ReducedFraction {  
-  return reduction(reducedFraction(ticks, ppq*4));
+  const f = reduction(reducedFraction(ticks, ppq*4));
+  f.ticks = ticks;
+  return f
 }
 
 export function reducedFraction(numerator: number, denominator: number): ReducedFraction {

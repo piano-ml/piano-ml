@@ -48,10 +48,7 @@ export class HandDetectorService {
 
   constructor(private midiObj: Midi.Midi, doStaffSplit: boolean) {
     this.doSplit = doStaffSplit;
-    this.midiObj.tracks[0].notes.forEach((note: Note) => {
-      note.ticks = quantiseTick(note.ticks, this.midiObj.header.ppq);
-      note.durationTicks = quantiseTick(note.durationTicks, this.midiObj.header.ppq);
-    });
+
     this.ppq = this.midiObj.header.ppq;
     this.setupOnsets();
   }
@@ -107,8 +104,8 @@ export class HandDetectorService {
           result[onTime] = [];
         }
         result[onTime].push(currentValue);
-        if (!result[onTime+currentValue.durationTicks]) {
-          result[onTime+currentValue.durationTicks] = [];
+        if (!result[onTime + currentValue.durationTicks]) {
+          result[onTime + currentValue.durationTicks] = [];
         }
         return result;
       }, {});
@@ -131,8 +128,8 @@ export class HandDetectorService {
     Object.keys(this.onsets).forEach((key) => {
       this.onsets[Number(key)].sort((a, b) => a.midi - b.midi);
       if (this.onsets[Number(key)].length === 0) {
-         delete this.onsets[Number(key)];
-       }
+        delete this.onsets[Number(key)];
+      }
 
     });
     // DEBUG
@@ -145,7 +142,7 @@ export class HandDetectorService {
       const chord = notes.map((note: Note) => {
         const midiNote: MidiNote = {
           pitch: note.midi,
-          offTime: reducedFractionfromTicks(note.ticks + note.durationTicks , this.ppq),
+          offTime: reducedFractionfromTicks(note.ticks + note.durationTicks, this.ppq),
           velo: note.velocity,
           ticks: note.ticks
         }
@@ -154,6 +151,7 @@ export class HandDetectorService {
       const midiChord: MidiChord = {
         notes: chord
       }
+
       rightHandChords.set(reducedFractionfromTicks(Number(time), this.ppq), midiChord)
     }
     const splits = this.findSplits(rightHandChords);
@@ -205,7 +203,6 @@ export class HandDetectorService {
         break;
       }
       splitPoint = splits[pos].possibleSplits[splitPoint].prevSplitPoint;
-      console.log(splitPoint)
 
     }
   }
@@ -214,10 +211,9 @@ export class HandDetectorService {
   findSplits(chords: Map<ReducedFraction, MidiChord>): ChordSplitData[] {
     const splits: ChordSplitData[] = [];
     let pos = 0;
-    let maxChordLen: ReducedFraction = { ticks: 0, numerator: 0, denominator: 1 };
+    let maxChordLen= 0; // ReducedFraction = { ticks: 0, numerator: 0, denominator: 1 };
     for (const [onTime, chord] of chords) {
       const notes = chord.notes;
-      console.log("onTime: ", onTime.numerator/onTime.denominator * this.ppq / 4);
       if (notes.length === 0) {
         throw new Error("Notes are empty");
       }
@@ -225,18 +221,18 @@ export class HandDetectorService {
         throw new Error("Notes are not sorted by pitch in ascending order");
       }
 
-      const len = subtractFractions(this.maxNoteOffTime(notes), onTime);
-      if (compareFractions(len, maxChordLen) > 0) {
-        maxChordLen = len;
+      const duration = this.maxNoteOffTime(notes) - onTime.ticks;
+      if (duration>maxChordLen) {
+        maxChordLen = duration;
       }
       const split: ChordSplitData = { chord: [onTime, chord], possibleSplits: [] };
       for (let splitPoint = 0; splitPoint <= notes.length; ++splitPoint) {
         let splitTry: SplitTry = {
-         
-           penalty: 0 
-           + this.findPitchWidthPenalty(notes, splitPoint) 
-           + this.findDurationPenalty(notes, splitPoint)
-           + this.findNoteCountPenalty(notes, splitPoint)
+
+          penalty: 0
+            + this.findPitchWidthPenalty(notes, splitPoint)
+            + this.findDurationPenalty(notes, splitPoint)
+            + this.findNoteCountPenalty(notes, splitPoint)
           ,
           prevSplitPoint: -1
         };
@@ -245,16 +241,16 @@ export class HandDetectorService {
           let bestPrevSplitPoint = -1;
           let minPenalty = Number.MAX_SAFE_INTEGER;
           const prevNotes = Array.from(chords.values())[pos - 1].notes;
-
           for (let prevSplitPoint = 0; prevSplitPoint <= prevNotes.length; ++prevSplitPoint) {
-            const prevPenalty = splits[pos - 1].possibleSplits[prevSplitPoint].penalty
-            + this.findSimilarityPenalty(notes, prevNotes, splitPoint, prevSplitPoint)
+            const prevPenalty = 0
+              + splits[pos - 1].possibleSplits[prevSplitPoint].penalty
+              + this.findSimilarityPenalty(notes, prevNotes, splitPoint, prevSplitPoint)
               + this.findSimilarityPenalty(notes, prevNotes, splitPoint, prevSplitPoint)
               + this.findIntersectionPenalty(onTime, pos - 1, prevSplitPoint, maxChordLen, splits, splitPoint > 0, splitPoint < notes.length);
             if (prevPenalty < minPenalty) {
               minPenalty = prevPenalty;
               bestPrevSplitPoint = prevSplitPoint;
-           }
+            }
           }
 
           if (bestPrevSplitPoint === -1) {
@@ -265,10 +261,10 @@ export class HandDetectorService {
         }
         split.possibleSplits.push(splitTry);
       }
-      console.log(split.possibleSplits.map(p => p.penalty).join(" "))    
       splits.push(split);
       ++pos;
     }
+
     return splits;
   }
 
@@ -374,11 +370,10 @@ export class HandDetectorService {
 
 
   areOffTimesEqual(notes: MidiNote[], start: number, end: number): boolean {
-    const offTime = notes[start].offTime;
-    let areEqual=true;
-    for (let i = start + 1; i < end; i++) {      
-        if (notes[i].offTime.numerator === offTime.numerator ||
-        notes[i].offTime.denominator === offTime.denominator ) {
+    const firstOffTime = notes[start].offTime;
+    let areEqual = true;
+    for (let i = start + 1; i < end; i++) {
+      if (notes[i].offTime.ticks !== firstOffTime.ticks) {
         areEqual = false;
         break;
       }
@@ -399,16 +394,15 @@ export class HandDetectorService {
   }
 
   findNoteCountPenalty(notes: MidiNote[], splitPoint: number): number {
-    let penalty = 0;
-    const leftHandNoteCount = splitPoint;
-    const rightHandNoteCount = notes.length - splitPoint;
-
-    if (leftHandNoteCount > rightHandNoteCount) {
-      penalty += (leftHandNoteCount - rightHandNoteCount) * 10;
-    } else {
-      penalty += (rightHandNoteCount - leftHandNoteCount) * 10;
+    const leftHandCount = splitPoint;
+    const rightHandCount = notes.length - splitPoint;
+    if (rightHandCount > 0 && leftHandCount > 0 && leftHandCount < rightHandCount) {
+      return 5;
     }
-    return Number(penalty);
+    if (rightHandCount == 0 && leftHandCount > 1) {
+      return 10;
+    }
+    return 0;
   }
 
 
@@ -416,7 +410,7 @@ export class HandDetectorService {
     currentOnTime: ReducedFraction,
     prevPos: number,
     prevSplitPoint: number,
-    maxChordLen: ReducedFraction,
+    maxChordLen: number,
     splits: ChordSplitData[],
     hasLowNotes: boolean,
     hasHighNotes: boolean
@@ -425,28 +419,28 @@ export class HandDetectorService {
     let pos = prevPos;
     let splitPoint = prevSplitPoint;
 
-    while (addFractions(splits[pos].chord[0], maxChordLen) > currentOnTime) {
+    while (splits[pos].chord[0].ticks +  maxChordLen > currentOnTime.ticks) {
       const chord = splits[pos].chord[1];
 
       if (hasLowNotes) {
-        let maxNoteOffTime: ReducedFraction = { ticks: 0, numerator: 0, denominator: 1 };
+        let maxNoteOffTime = 0 // ReducedFraction = { ticks: 0, numerator: 0, denominator: 1 };
         for (let i = 0; i !== splitPoint; ++i) {
-          if (compareFractions(chord.notes[i].offTime, maxNoteOffTime) > 0) {
-            maxNoteOffTime = chord.notes[i].offTime;
+          if (chord.notes[i].offTime.ticks > maxNoteOffTime) {
+            maxNoteOffTime = chord.notes[i].offTime.ticks;
           }
         }
-        if (compareFractions(maxNoteOffTime, currentOnTime) > 0) {
+        if (maxNoteOffTime > currentOnTime.ticks) {
           penalty += 10;
         }
       }
       if (hasHighNotes) {
-        let maxNoteOffTime: ReducedFraction = { ticks: 0, numerator: 0, denominator: 1 };
+        let maxNoteOffTime =0 // ReducedFraction = { ticks: 0, numerator: 0, denominator: 1 };
         for (let i = splitPoint; i !== chord.notes.length; ++i) {
-          if (compareFractions(chord.notes[i].offTime, maxNoteOffTime) > 0) {
-            maxNoteOffTime = chord.notes[i].offTime;
+          if (chord.notes[i].offTime.ticks > maxNoteOffTime) {
+            maxNoteOffTime = chord.notes[i].offTime.ticks;
           }
         }
-        if (compareFractions(maxNoteOffTime, currentOnTime) > 0) {
+        if (maxNoteOffTime > currentOnTime.ticks) {
           penalty += 10;
         }
       }
@@ -456,18 +450,28 @@ export class HandDetectorService {
       const splitTry = splits[pos].possibleSplits[splitPoint];
       splitPoint = splitTry.prevSplitPoint;
       --pos;
-    }    
-    return Number(penalty);
+    }
+    return penalty;
   }
 
 
-  maxNoteOffTime(notes: MidiNote[]): ReducedFraction {
-    return notes.reduce((max, note) => compareFractions(note.offTime, max) > 0 ? note.offTime : max, { ticks: 0, numerator: 0, denominator: 1 });
+  maxNoteOffTime(notes: MidiNote[]): number {
+    let maxOfftime = 0;
+    for (let i = 0; i < notes.length; ++i) {
+      if (notes[i].offTime.ticks > maxOfftime ) {
+        maxOfftime = notes[i].offTime.ticks;
+      }
+    }
+    return maxOfftime
+//    return notes.reduce((max, note) => compareFractions(note.offTime, max) > 0 ? note.offTime : max, { ticks: 0, numerator: 0, denominator: 1 });
   }
 
 
   isOctave(notes: MidiNote[], beg: number, end: number): boolean {
     const octave = 12;
+    if (!(end > 0 && beg >= 0 && end > beg)) {
+      console.error("LRHand::isOctave", "Invalid note indexes", beg, end);
+    }
     return end - beg === 2 && notes[end - 1].pitch - notes[beg].pitch === octave;
   }
 

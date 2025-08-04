@@ -5,7 +5,7 @@ import type { Note } from '@tonejs/midi/dist/Note';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import type { StaveAndStaveNotesPair } from '../model/model';
 import { HandDetectorService } from './hand-detector.service';
-import { compareFractions, reducedFraction, type ReducedFraction } from '../model/reduced-fraction';
+import { compareFractions, quantiseTick, quantizeNotes, reducedFraction, type ReducedFraction } from '../model/reduced-fraction';
 import { getBar, detectDuration, getStaveDurationTick } from './music-theory';
 import { fillWithRest } from './rest-filler';
 
@@ -66,6 +66,10 @@ export class EngravingService {
   setupMidiScore(midiObj: Midi.Midi, doStaffSplit = false, fingering?: number[][][]) {
     this.doStaffSplit = doStaffSplit
     this.midiObj = midiObj;
+    quantizeNotes(this.midiObj.tracks[0].notes, this.midiObj.header.ppq);
+    if (this.midiObj.tracks.length > 1) {
+      quantizeNotes(this.midiObj.tracks[1].notes, this.midiObj.header.ppq);
+    }
     this.initTimeSignatures(this.midiObj);
     this.initScoreValues(this.midiObj);
     this.fingering = fingering;
@@ -224,7 +228,7 @@ export class EngravingService {
       }
       const timeSignature = this.getTimeSignature(tickStart);
       fillWithRest(v.staveTreble, v.staveNotesTreble, v.midiNotesTreble, timeSignature, this.ppq)
-      fillWithRest(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature, this.ppq)
+      //fillWithRest(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature, this.ppq)
       v.xPositionsTreble = this.formatAndDraw(v.staveTreble, v.staveNotesTreble, v.midiNotesTreble, timeSignature);
       v.xPositionsBass = this.formatAndDraw(v.staveBass, v.staveNotesBass, v.midiNotesBass, timeSignature);
       i++;
