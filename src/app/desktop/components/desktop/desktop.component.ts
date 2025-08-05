@@ -23,6 +23,7 @@ import type { MidiStateEvent } from '../../../shared/model/webmidi';
 // biome-ignore lint/style/useImportType: <explanation>
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
 import { Md5 } from 'ts-md5';
+import { quantizeNotes } from '../../model/reduced-fraction';
 
 export interface UserPerformance {
   badNoteCount: number;
@@ -130,6 +131,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
     if (midiJson) {
       const splitVoices: boolean = JSON.parse(localStorage.getItem("splitVoices") || 'false') === true;
       const twoMidi = this.splitMidi(midiJson);
+
       this.engravingService.setupMidiScore(twoMidi.study, splitVoices, this.fingering);
       this.scoreStateService.midiOther = twoMidi.other;
       this.title = twoMidi.study.name.trim().substring(0, 21);

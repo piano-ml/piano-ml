@@ -10,80 +10,80 @@ import { TimeSignature } from "vexflow";
 
 export function detectDuration(tick: number, timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
 
-    const tickQuant =  quantiseTick(tick, ppq);
-    const d = reduction(reducedFractionfromTicks(tickQuant , ppq))
-    if (d.numerator === 1) {  
-      return { duration: String(d.denominator), dots: 0 };
-    }
-
-    const possibleValues = [
-      1 / 1, // ronde
-      1 / 2, // blanche
-      1 / 4, // noire
-      1 / 8, // croche
-      1 / 16, // double croche
-      1 / 32 // triple croche
-    ];
-  
-    const possibleValueDots = [
-      [1 / 1, 1 / 1 + 1 / 2],
-      [1 / 2, 1 / 2 + 1 / 4],
-      [1 / 4, 1 / 4 + 1 / 8],
-      [1 / 8, 1 / 8 + 1 / 16],
-      [1 / 16, 1 / 16 + 1 / 32],
-      [1 / 32]
-    ];
-  
-    const goal = d.numerator / d.denominator;
-    const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-    const subarray = possibleValueDots[possibleValues.indexOf(closest)];
-    const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-  
-    return {
-      duration: String(1 / closest),
-      dots: subarray.indexOf(closestDot) 
-    };
+  const tickQuant = quantiseTick(tick, ppq);
+  const d = reduction(reducedFractionfromTicks(tickQuant, ppq))
+  if (d.numerator === 1) {
+    return { duration: String(d.denominator), dots: 0 };
   }
 
+  const possibleValues = [
+    1 / 1, // ronde
+    1 / 2, // blanche
+    1 / 4, // noire
+    1 / 8, // croche
+    1 / 16, // double croche
+    1 / 32 // triple croche
+  ];
+
+  const possibleValueDots = [
+    [1 / 1, 1 / 1 + 1 / 2],
+    [1 / 2, 1 / 2 + 1 / 4],
+    [1 / 4, 1 / 4 + 1 / 8],
+    [1 / 8, 1 / 8 + 1 / 16],
+    [1 / 16, 1 / 16 + 1 / 32],
+    [1 / 32]
+  ];
+
+  const goal = d.numerator / d.denominator;
+  const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
+  const subarray = possibleValueDots[possibleValues.indexOf(closest)];
+  const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
+
+  return {
+    duration: String(1 / closest),
+    dots: subarray.indexOf(closestDot)
+  };
+}
 
 
-  export function detectDuration2(tick: number, timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
 
-    const tickQuant =  quantiseTick(tick, ppq);
-    const d = reduction(reducedFractionfromTicks(tickQuant , ppq))
-    if (d.numerator === 1) {  
-      return { duration: String(d.denominator), dots: 0 };
-    }
+export function detectDuration2(tick: number, timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
 
-    const possibleValues = [
-      1 / 1, // ronde
-      1 / 2, // blanche
-      1 / 4, // noire
-      1 / 8, // croche
-      1 / 16, // double croche
-      1 / 32, // triple croche
-      1 / 64
-    ];
-  
-    const possibleValueDots = [
-      [1 / 1, 1 / 1 + 1 / 2],
-      [1 / 2, 1 / 2 + 1 / 4],
-      [1 / 4, 1 / 4 + 1 / 8],
-      [1 / 8, 1 / 8 + 1 / 16],
-      [1 / 16, 1 / 16 + 1 / 32],
-      [1 / 32],
-      [1/64]
-    ];
-    const goal = d.numerator / d.denominator;
-    const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-    const subarray = possibleValueDots[possibleValues.indexOf(closest)];
-    const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-  
-    return {
-      duration: String(1 / closest),
-      dots: subarray.indexOf(closestDot) 
-    };
-  }  
+  const tickQuant = quantiseTick(tick, ppq);
+  const d = reduction(reducedFractionfromTicks(tickQuant, ppq))
+  if (d.numerator === 1) {
+    return { duration: String(d.denominator), dots: 0 };
+  }
+
+  const possibleValues = [
+    1 / 1, // ronde
+    1 / 2, // blanche
+    1 / 4, // noire
+    1 / 8, // croche
+    1 / 16, // double croche
+    1 / 32, // triple croche
+    1 / 64
+  ];
+
+  const possibleValueDots = [
+    [1 / 1, 1 / 1 + 1 / 2],
+    [1 / 2, 1 / 2 + 1 / 4],
+    [1 / 4, 1 / 4 + 1 / 8],
+    [1 / 8, 1 / 8 + 1 / 16],
+    [1 / 16, 1 / 16 + 1 / 32],
+    [1 / 32],
+    [1 / 64]
+  ];
+  const goal = d.numerator / d.denominator;
+  const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
+  const subarray = possibleValueDots[possibleValues.indexOf(closest)];
+  const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
+
+  return {
+    duration: String(1 / closest),
+    dots: subarray.indexOf(closestDot)
+  };
+}
 
 
 export function getBar(note: Note): number {
@@ -102,7 +102,7 @@ export function getBar(note: Note): number {
 export function getStaveDuration(tempo: number, timeSignature: ReducedFraction): number {
   const beatsPerMeasure = timeSignature.numerator;
   const beatDuration = 60 / tempo;
-  const staveD =  beatsPerMeasure * beatDuration * (4 / timeSignature.denominator);
+  const staveD = beatsPerMeasure * beatDuration * (4 / timeSignature.denominator);
   return staveD;
 }
 
@@ -152,7 +152,7 @@ export const chords: Chord[] = [
 ]
 
 export function getChordNote(midiStart: number, index2: number, pattern: number[]): number {
-    const index = index2 - 1;
+  const index = index2 - 1;
   const octaveShift = Math.floor(index / pattern.length);
   return pattern[index % pattern.length] + midiStart + (12 * octaveShift);
 }
@@ -244,3 +244,82 @@ export function midiToPitch(midi: number): string {
   const octave = Math.floor(midi / 12) - 1; // Calcule l'octave (MIDI commence à C-1)
   return `${keys[pitchClass]}${octave}`;
 }
+
+
+export enum MajorKeys {
+  C = "C",
+  F = "F",
+  Bb = "Bb",
+  Eb = "Eb",
+  Ab = "Ab",
+  Db = "Db",
+  Gb = "Gb",
+  Cb = "Cb",
+  G = "G",
+  D = "D",
+  A = "A",
+  E = "E",
+  B = "B",
+  FSharp = "F#",
+  CSharp = "C#",
+}
+
+const sharpSpelling = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+const flatSpelling = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
+
+export const keySpelling: { [key in MajorKeys]: string[] } = {
+  [MajorKeys.Cb]: flatSpelling,
+  [MajorKeys.Gb]: flatSpelling,
+  [MajorKeys.Db]: flatSpelling,
+  [MajorKeys.Ab]: flatSpelling,
+  [MajorKeys.Eb]: flatSpelling,
+  [MajorKeys.Bb]: flatSpelling,
+  [MajorKeys.F]: flatSpelling,
+  [MajorKeys.C]: sharpSpelling,
+  [MajorKeys.G]: sharpSpelling,
+  [MajorKeys.D]: sharpSpelling,
+  [MajorKeys.A]: sharpSpelling,
+  [MajorKeys.E]: sharpSpelling,
+  [MajorKeys.B]: sharpSpelling,
+  [MajorKeys.FSharp]: sharpSpelling,
+  [MajorKeys.CSharp]: sharpSpelling,
+}
+
+export const keySignatureSharpFlats: { [key in MajorKeys]?: string[] } = {
+  [MajorKeys.Db]: ["Bb", "Eb", "Ab", "Db", "Gb"],
+  [MajorKeys.Ab]: ["Bb", "Eb", "Ab", "Db"],
+  [MajorKeys.Eb]: ["Bb", "Eb", "Ab"],
+  [MajorKeys.Bb]: ["Bb", "Eb"],
+  [MajorKeys.F]: ["Bb"],
+  [MajorKeys.C]: [],
+  [MajorKeys.G]: ['F#'],
+  [MajorKeys.D]: ["F#", "C#"],
+  [MajorKeys.A]: ["F#", "C#", "G#"],
+  [MajorKeys.E]: ["F#", "C#", "G#", "D#"],
+  [MajorKeys.B]: ["F#", "C#", "G#", "D#", "A#"],
+  [MajorKeys.FSharp]: ["F#", "C#", "G#", "D#", "A#", "E#"]
+}
+
+export function isAccentuationSuppressed(keySignature: MajorKeys, pitch: number): boolean {
+  const spell = keySpelling[keySignature][pitch % 12]
+  return keySignatureSharpFlats[keySignature]?.indexOf(spell) !== -1
+}
+
+// export const MINOR_KEYS: { [key: string]: string } = {
+//   A: 'Am',
+//   D: 'Dm',
+//   G: 'Gm',
+//   C: 'Cm',
+//   F: 'Fm',
+//   Bb: 'Bbm',
+//   Eb: 'Ebm',
+//   Ab: 'Abm',
+//   E: 'Em',
+//   B: 'Bm',
+//   'F#': 'F#m',
+//   'C#': 'C#m',
+//   'G#': 'G#m',
+//   'D#': 'D#m',
+//   'A#': 'A#m',
+// };
