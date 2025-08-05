@@ -5,10 +5,11 @@ import type { Note } from '@tonejs/midi/dist/Note';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import type { StaveAndStaveNotesPair } from '../model/model';
 import { HandDetectorService } from './hand-detector.service';
-import { compareFractions, quantiseTick, quantizeNotes, reducedFraction, type ReducedFraction } from '../model/reduced-fraction';
-import { getBar, detectDuration, getStaveDurationTick, MajorKeys, keySpelling, isAccentuationSuppressed } from './music-theory';
+import { compareFractions,  quantizeNotes, reducedFraction, type ReducedFraction } from '../model/reduced-fraction';
+import {  MajorKeys, keySpelling } from './music-theory';
 import { fillWithRest } from './rest-filler';
-import { detectCle, detectKey } from './key-detection.service';
+import { detectCle, detectKey, isAccentuationSuppressed } from './key-detection.service';
+import { detectDuration, getBar, getStaveDurationTick } from './midi-maths';
 
 
 @Injectable({

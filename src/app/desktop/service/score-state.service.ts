@@ -4,7 +4,6 @@ import * as Tone from "tone";
 import * as Midi from '@tonejs/midi';
 import type { Note } from '@tonejs/midi/dist/Note';
 import { BehaviorSubject } from 'rxjs';
-import {  getStaveDuration, getStaveDurationTick } from './music-theory';
 import type { PlayConfiguration, StaveAndStaveNotesPair } from '../model/model';
 // biome-ignore lint/style/useImportType: <explanation>
 import { MidiServiceService } from '../../shared/services/midi-service.service';
@@ -12,8 +11,8 @@ import type { MidiStateEvent } from '../../shared/model/webmidi';
 import { reducedFraction } from '../model/reduced-fraction';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import { Synthetizer } from "spessasynth_lib"
-import { midiToPitch } from './music-theory';
 import { Piano } from '@tonejs/piano'
+import { getStaveDuration, getStaveDurationTick, midiToPitch } from './midi-maths';
 
 
 const GOOD_RANGE = 0.2

@@ -1,8 +1,8 @@
 import { type Stave, StaveNote } from 'vexflow';
 import type { StaveAndStaveNotesPair } from '../model/model';
-import { quantiseTick, type ReducedFraction } from '../model/reduced-fraction';
-import { detectDuration2,  getStaveDurationTick } from './music-theory';
+import { type ReducedFraction } from '../model/reduced-fraction';
 import type { Note } from '@tonejs/midi/dist/Note';
+import { detectDuration2, getStaveDurationTick } from './midi-maths';
 
 
 export function fillWithRest(stave: Stave, staveNotes: StaveNote[], chordsInStave: Array<Note[]>, timeSignature: ReducedFraction, ppq: number) {

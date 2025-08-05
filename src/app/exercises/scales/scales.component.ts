@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { keys, scales } from '../../desktop/service/music-theory';
+import { keys, Scale, scales } from '../../desktop/service/music-theory';
 import { exercises } from './pattern';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router } from '@angular/router';
 import { getWeekOfYear, loadExercice } from '../exercices';
-import type { Exercise, Scale } from '../model';
+import type { Exercise } from '../model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 

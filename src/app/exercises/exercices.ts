@@ -1,10 +1,11 @@
 
 import type { Router } from "@angular/router";
-import { getChordNote, getNoteDuration, getNoteDurationTicks } from "../desktop/service/music-theory";
-import type { Chord, Exercise, Scale } from "./model";
+import { Chord, getChordNote, Scale } from "../desktop/service/music-theory";
+import type {  Exercise } from "./model";
 import * as Midi from '@tonejs/midi';
 import { Header } from '@tonejs/midi';
 import { getNote } from "../shared/services/midi-service.service";
+import { getNoteDuration, getNoteDurationTicks } from "../desktop/service/midi-maths";
 
 
 export function getWeekOfYear(): number {

@@ -1,9 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { getNoteDurationTicks, getNoteDuration, keys, chords } from '../../desktop/service/music-theory';
-import { Header, Track } from '@tonejs/midi';
-import * as Midi from '@tonejs/midi';
-import type { Chord, ChordInPattern, Exercise } from '../../exercises/model';
+import { keys, chords, Chord } from '../../desktop/service/music-theory';
+import type {  Exercise } from '../../exercises/model';
 import { exercises } from './pattern';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router } from '@angular/router';
