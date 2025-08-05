@@ -1,0 +1,20 @@
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<url>
+<loc>https://pianoml.org/</loc>
+<lastmod>2025-07-20T15:44:56+00:00</lastmod>
+</url>
+<url>
+<loc>https://pianoml.org/blog</loc>
+<lastmod>2025-07-20T15:44:56+00:00</lastmod>
+</url>
+<url>
+<loc>https://pianoml.org/blog/just-play-along</loc>
+<lastmod>2025-07-20T15:44:56+00:00</lastmod>
+</url>
+
+<url>
+<loc>https://pianoml.org/#/what-is-this-piano-app</loc>
+<lastmod>2025-07-20T15:44:56+00:00</lastmod>
+</url>
+
+</urlset>

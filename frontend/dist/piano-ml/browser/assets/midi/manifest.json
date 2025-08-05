@@ -1,0 +1,54 @@
+[
+
+    {
+        "filename": "No-Woman-No-Cry-1.mid",
+        "difficulty": "beginner",
+        "name": "No woman no cry",
+        "description": "Choose a track to play with accompaniment",          
+        "artist": "Bob Marley"
+    },
+    {
+        "filename": "plic-ploc.mid",
+        "difficulty": "beginner",
+        "name": "Plic Ploc",
+        "description": "Exercise in rythm recognition and note reading",          
+        "artist": "Gilles Pauget"
+    },
+    {
+        "filename": "happy_birthday.mid",
+        "difficulty": "beginner",
+        "name": "Happy birthday",
+        "description": "The most recognized song in the English language",  
+        "artist": "Patty Hill Mildred J. Hill"
+    },
+    {
+        "filename": "Belle-Ile-en-Mer - Laurent Voulzy.mid",
+        "difficulty": "intermediate",
+        "name": "Belle-Ile-en-Mer",
+        "description": "Exercise in chord progression",          
+        "artist": "Laurent Voulzy"
+    },
+    {
+
+        "filename": "Brahms_Lullaby_-_Exercise_in_Chord_Progression.mid",
+        "difficulty": "intermediate",
+        "name": "Wiegenlied Op. 49 No. 4 (Lullaby) ",
+        "description": "Exercise in chord progression based on Brahms' Lullaby.",  
+        "artist": "Johannes Brahms"
+    },
+    {
+        "filename": "zelda-lullaby.mid",
+        "difficulty": "intermediate",
+        "name": "Zelda Lullaby",
+        "description": "Melody of the Royal Family.",  
+        "artist": "Koji Kondo"
+    },
+    {
+        "filename": "for_elise_by_beethoven.mid",
+        "difficulty": "intermediate",
+        "name": "For Elise",
+        "description": "Try split voice option",          
+        "artist": "Beethoven"
+    }
+
+]
