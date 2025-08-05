@@ -1,13 +1,15 @@
 import { type ElementRef, Injectable } from '@angular/core';
-import { Accidental, Annotation, BarlineType, Beam, Dot, type RenderContext, Renderer, Stave, StaveConnector, StaveNote, type StemmableNote, type Tickable, TickContext, Voice } from 'vexflow';
+import { Accidental, Annotation, BarlineType, Beam, Dot, KeySignature, type RenderContext, Renderer, Stave, StaveConnector, StaveNote, type StemmableNote, type Tickable, TickContext, Voice } from 'vexflow';
 import type * as Midi from '@tonejs/midi';
 import type { Note } from '@tonejs/midi/dist/Note';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import type { StaveAndStaveNotesPair } from '../model/model';
 import { HandDetectorService } from './hand-detector.service';
-import { compareFractions, quantiseTick, quantizeNotes, reducedFraction, type ReducedFraction } from '../model/reduced-fraction';
-import { getBar, detectDuration, getStaveDurationTick } from './music-theory';
+import { compareFractions,  quantizeNotes, reducedFraction, type ReducedFraction } from '../model/reduced-fraction';
+import {  MajorKeys, keySpelling } from './music-theory';
 import { fillWithRest } from './rest-filler';
+import { detectCle, detectKey, isAccentuationSuppressed } from './key-detection.service';
+import { detectDuration, getBar, getStaveDurationTick } from './midi-maths';
 
 
 @Injectable({
@@ -93,7 +95,7 @@ export class EngravingService {
     this.ppq = midiObj.header.ppq;
   }
 
-  getOrMakeVoice(idx: number, timesig: ReducedFraction): StaveAndStaveNotesPair {
+  getOrMakeVoice(idx: number, timesig: ReducedFraction, clefRight: string, clefLeft: string, keySignature: MajorKeys): StaveAndStaveNotesPair {
     // if we already get it just return
     if (this.staveAndStaveNotesPair[idx]) {
       return this.staveAndStaveNotesPair[idx];
@@ -102,7 +104,7 @@ export class EngravingService {
     for (let i = 0; i < idx; i++) {
       if (!this.staveAndStaveNotesPair[idx]) {
         if (!this.staveAndStaveNotesPair[i]) {
-          this.getOrMakeVoice(i, timesig);
+          this.getOrMakeVoice(i, timesig, clefRight, clefLeft,  keySignature);
         }
       }
     }
@@ -113,8 +115,14 @@ export class EngravingService {
     const staveTreble = new Stave(this.stave_offset_hint + (w * idx), 20, w);
     const staveBass = new Stave(this.stave_offset_hint + (w * idx), (this.height / 2) - 40, w);
     if (idx === 0 || this.previousTimeSignature == null || compareFractions(this.previousTimeSignature, timesig) !== 0) {
-      staveTreble.addClef('treble').addTimeSignature(`${beat_value}/${num_beats}`).setBegBarType(BarlineType.NONE);
-      staveBass.addClef('bass').addTimeSignature(`${beat_value}/${num_beats}`).setBegBarType(BarlineType.NONE);
+      staveTreble.addClef((clefRight ==='G') ?   'treble' : 'bass')
+      .addTimeSignature(`${beat_value}/${num_beats}`)
+      .addKeySignature(keySignature)
+      .setBegBarType(BarlineType.NONE);
+      staveBass.addClef((clefLeft ==='G') ?   'treble' : 'bass')
+      .addKeySignature(keySignature)
+      .addTimeSignature(`${beat_value}/${num_beats}`)
+      .setBegBarType(BarlineType.NONE);
     }
     staveBass.setMeasure(idx);
     staveTreble.setMeasure(idx);
@@ -146,6 +154,7 @@ export class EngravingService {
       const notesLH: Array<Note[]> = []
       const hands = [notesRH, notesLH]
 
+
       // regroup
       const grouped = track.notes.reduce(
         (result: { [key: string]: Note[] }, currentValue: Note) => {
@@ -156,6 +165,10 @@ export class EngravingService {
           result[key].push(currentValue);
           return result;
         }, {});
+
+        const groupedArray: Note[][] = Object.values(grouped);
+        const keySignature = detectKey(groupedArray);
+      
 
       for (const key in grouped) {
         const notesAtTime = grouped[key];
@@ -176,33 +189,37 @@ export class EngravingService {
       let i = 0;
       notesRH.sort((a, b) => a[0].ticks - b[0].ticks)
       notesLH.sort((a, b) => a[0].ticks - b[0].ticks)
+
+      const clefRight = detectCle(notesRH);
+      const clefLeft = detectCle(notesLH);
+
       for (let midiNotes of notesRH) {
         const fingers = this.fingering ? [0] : undefined
-        previousTick = this.buildHand(midiNotes, previousTick, "treble", (this.fingering?.[0]) ? this.fingering[0][i] : undefined);
+        previousTick = this.buildHand(0, midiNotes, previousTick,clefRight, clefLeft, keySignature, (this.fingering?.[0]) ? this.fingering[0][i] : undefined);
         i++;
       }
       i = 0;
       for (const midiNotes of notesLH) {
-        previousTick = this.buildHand(midiNotes, previousTick, "bass", (this.fingering?.[1]) ? this.fingering[1][i] : undefined);
+        previousTick = this.buildHand(1, midiNotes, previousTick, clefRight, clefLeft, keySignature, (this.fingering?.[1]) ? this.fingering[1][i] : undefined);
         i++;
       }
     }
   }
 
-  buildHand(notes: Note[], _previousTick: number, clef: string, fingers?: number[]) {
+  buildHand(id:number, notes: Note[], _previousTick: number, clefR: string,  clefL: string, keySignature: MajorKeys, fingers?: number[]) {
     let previousTick = _previousTick
     const tick = notes[0].ticks;
 
     const timesig = this.getTimeSignature(tick);
     const b = getBar(notes[0]);
     if (b >= 0) {
-      const voicePair = this.getOrMakeVoice(b, timesig);
+      const voicePair = this.getOrMakeVoice(b, timesig, clefR, clefL, keySignature);
 
-      const stave = clef === "treble" ? voicePair.staveTreble : voicePair.staveBass;
-      const staveNotes = clef === "treble" ? voicePair.staveNotesTreble : voicePair.staveNotesBass;
-      const note = this.buildStaveNotes(notes, timesig, clef, fingers);
+    
+      const staveNotes = id === 0 ? voicePair.staveNotesTreble : voicePair.staveNotesBass;
+      const note = this.buildStaveNotes(notes, timesig, (id===0) ? clefR : clefL, keySignature, fingers);
 
-      if (clef === "treble") {
+      if (id === 0) {
         voicePair.midiNotesTreble.push(notes);
       } else {
         voicePair.midiNotesBass.push(notes);
@@ -317,17 +334,17 @@ export class EngravingService {
     return beams
   }
 
-
-  buildStaveNotes(pNotes: Note[], timeSig: ReducedFraction, clef: string, fingers?: number[]): StaveNote {
+  // TODO: need to be reworked along with voice detection
+  buildStaveNotes(pNotes: Note[], timeSig: ReducedFraction, clef: string, keySignature: MajorKeys, fingers?: number[]): StaveNote {
     const notes = pNotes.filter((n) => n.durationTicks !== 0);
-    const noteNotations = notes.map((n, idx) => this.makeNoteNotationFromNote(n));
+    const noteNotations = notes.map((n, idx) => this.makeNoteNotationFromNote(keySignature, n));
     if (notes.length === 0) {
       return null as unknown as StaveNote;
     }
     const detectedDuration = detectDuration(notes[0].durationTicks, timeSig, this.ppq)
     const note = new StaveNote({
       autoStem: true,
-      clef: clef,
+      clef: (clef === "G") ? "treble" : "bass",
       keys: noteNotations,
       duration: detectedDuration.duration,
       dots: detectedDuration.dots,
@@ -338,8 +355,11 @@ export class EngravingService {
       }
     }
     for (let i = 0; i < notes.length; i++) {
-      if (noteNotations[i].includes("#")) {
+      if (noteNotations[i].includes("#") && !isAccentuationSuppressed( keySignature,notes[i].midi)) {
         note.addModifier(new Accidental("#").setContext(this.context), i);
+      }
+      if (noteNotations[i].includes("b") && !isAccentuationSuppressed(keySignature,notes[i].midi,)) {
+        note.addModifier(new Accidental("b").setContext(this.context), i);
       }
     }
     for (let i = 0; i < detectedDuration.dots; i++) {
@@ -349,11 +369,11 @@ export class EngravingService {
     return note;
   }
 
-  makeNoteNotationFromNote(note: Note): string {
+  makeNoteNotationFromNote(keySignature : MajorKeys, note: Note): string {
     const notenum = note.midi;
-    const noteTxt = "C C#D D#E F F#G G#A A#B ".substring((notenum % 12) * 2, (notenum % 12) * 2 + 2).trim();
     const octave = Math.floor(notenum / 12) - 1;
-    return `${noteTxt}/${octave}`;
+    const noteModulo = notenum % 12;
+    return `${keySpelling[keySignature][noteModulo]}/${octave}`; 
   }
 
   getStartOffsetHint() {

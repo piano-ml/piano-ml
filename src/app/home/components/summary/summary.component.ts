@@ -12,7 +12,11 @@ import { Router, RouterModule } from '@angular/router';
 export class SummaryComponent {
 
   summary = [
-
+    {
+      url: '../blog',
+      title: 'Blog',
+      description: 'Some news about the project',
+    },
     {
       url: '/exercises/scale',
       title: 'Exercises / Scale',
@@ -27,7 +31,7 @@ export class SummaryComponent {
       url: '/open',
       title: 'Practice / Open File',
       description: 'Practice using a midi file',
-    },
+    }
   ]
   constructor(private route: Router) {
 

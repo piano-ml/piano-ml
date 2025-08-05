@@ -28,17 +28,3 @@ export interface Exercise {
 
 
 
-export interface Scale {
-    kind: 'Scale',
-    name: string,
-    alt: string,
-    pattern: number[]
-}
-
-
-export interface Chord {
-    kind: 'Chord',
-    name: string,
-    alt: string,
-    pattern: number[]
-}

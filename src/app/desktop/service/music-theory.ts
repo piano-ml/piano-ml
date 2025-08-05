@@ -1,133 +1,98 @@
-import type { Note } from "@tonejs/midi/dist/Note";
-import { quantiseTick, reducedFraction, reducedFractionfromTicks, reduction, type ReducedFraction } from "../model/reduced-fraction";
-import type { Chord, Scale } from "../../exercises/model";
-import { TimeSignature } from "vexflow";
-
-
-/***
- * note durations
- */
-
-export function detectDuration(tick: number, timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
-
-    const tickQuant =  quantiseTick(tick, ppq);
-    const d = reduction(reducedFractionfromTicks(tickQuant , ppq))
-    if (d.numerator === 1) {  
-      return { duration: String(d.denominator), dots: 0 };
-    }
-
-    const possibleValues = [
-      1 / 1, // ronde
-      1 / 2, // blanche
-      1 / 4, // noire
-      1 / 8, // croche
-      1 / 16, // double croche
-      1 / 32 // triple croche
-    ];
-  
-    const possibleValueDots = [
-      [1 / 1, 1 / 1 + 1 / 2],
-      [1 / 2, 1 / 2 + 1 / 4],
-      [1 / 4, 1 / 4 + 1 / 8],
-      [1 / 8, 1 / 8 + 1 / 16],
-      [1 / 16, 1 / 16 + 1 / 32],
-      [1 / 32]
-    ];
-  
-    const goal = d.numerator / d.denominator;
-    const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-    const subarray = possibleValueDots[possibleValues.indexOf(closest)];
-    const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-  
-    return {
-      duration: String(1 / closest),
-      dots: subarray.indexOf(closestDot) 
-    };
-  }
-
-
-
-  export function detectDuration2(tick: number, timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
-
-    const tickQuant =  quantiseTick(tick, ppq);
-    const d = reduction(reducedFractionfromTicks(tickQuant , ppq))
-    if (d.numerator === 1) {  
-      return { duration: String(d.denominator), dots: 0 };
-    }
-
-    const possibleValues = [
-      1 / 1, // ronde
-      1 / 2, // blanche
-      1 / 4, // noire
-      1 / 8, // croche
-      1 / 16, // double croche
-      1 / 32, // triple croche
-      1 / 64
-    ];
-  
-    const possibleValueDots = [
-      [1 / 1, 1 / 1 + 1 / 2],
-      [1 / 2, 1 / 2 + 1 / 4],
-      [1 / 4, 1 / 4 + 1 / 8],
-      [1 / 8, 1 / 8 + 1 / 16],
-      [1 / 16, 1 / 16 + 1 / 32],
-      [1 / 32],
-      [1/64]
-    ];
-    const goal = d.numerator / d.denominator;
-    const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-    const subarray = possibleValueDots[possibleValues.indexOf(closest)];
-    const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-  
-    return {
-      duration: String(1 / closest),
-      dots: subarray.indexOf(closestDot) 
-    };
-  }  
-
-
-export function getBar(note: Note): number {
-  if (Number.isNaN(note.bars)) {
-    console.warn("note.bars is NaN", note);
-    return -1;
-  }
-  if (note.bars === Infinity) {
-    console.warn("note.bars is Infinity", note);
-    return -1;
-  }
-  return Math.trunc(note.bars);
-}
-
-
-export function getStaveDuration(tempo: number, timeSignature: ReducedFraction): number {
-  const beatsPerMeasure = timeSignature.numerator;
-  const beatDuration = 60 / tempo;
-  const staveD =  beatsPerMeasure * beatDuration * (4 / timeSignature.denominator);
-  return staveD;
-}
-
-
-export function getStaveDurationTick(timeSignature: ReducedFraction, ppq: number): number {
-  const staveD = ppq * timeSignature.numerator * 4 / timeSignature.denominator;
-  return staveD
-}
-
-export function getNoteDurationTicks(theoricalDuration: number, timeSignature: ReducedFraction, ppq: number): number {
-  const measureDurationTick = getStaveDurationTick(timeSignature, ppq);
-  return measureDurationTick / timeSignature.numerator * (timeSignature.denominator / theoricalDuration);
-}
-
-export function getNoteDuration(theoricalDuration: number, timeSignature: ReducedFraction, tempo: number): number {
-  const measureDuration = getStaveDuration(tempo, timeSignature);
-  return measureDuration / timeSignature.numerator * 4 / theoricalDuration;
-}
-
 /**
- * notes values
+ * Some elements relative to music theory.
  */
 
-export const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+export const sharpSpelling = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
+export const keys = sharpSpelling
+
+export const flatSpelling = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
+
+export enum MajorKeys {
+  C = "C",
+  F = "F",
+  Bb = "Bb",
+  Eb = "Eb",
+  Ab = "Ab",
+  Db = "Db",
+  Gb = "Gb",
+  Cb = "Cb",
+  G = "G",
+  D = "D",
+  A = "A",
+  E = "E",
+  B = "B",
+  FSharp = "F#",
+  CSharp = "C#",
+}
+
+export enum MinorKeys {
+  A = 'Am',
+  D = 'Dm',
+  G = 'Gm',
+  C = 'Cm',
+  F = 'Fm',
+  Bb = 'Bbm',
+  Eb = 'Ebm',
+  Ab = 'Abm',
+  E = 'Em',
+  B = 'Bm',
+  FSharp = 'F#m',
+  CSharp = 'C#m',
+  GSharp = 'G#m',
+  DSharp = 'D#m',
+  ASharp = 'A#m'
+};
+
+
+export const keySpelling: { [key in MajorKeys]: string[] } = {
+  [MajorKeys.Cb]: flatSpelling,
+  [MajorKeys.Gb]: flatSpelling,
+  [MajorKeys.Db]: flatSpelling,
+  [MajorKeys.Ab]: flatSpelling,
+  [MajorKeys.Eb]: flatSpelling,
+  [MajorKeys.Bb]: flatSpelling,
+  [MajorKeys.F]: flatSpelling,
+  [MajorKeys.C]: sharpSpelling,
+  [MajorKeys.G]: sharpSpelling,
+  [MajorKeys.D]: sharpSpelling,
+  [MajorKeys.A]: sharpSpelling,
+  [MajorKeys.E]: sharpSpelling,
+  [MajorKeys.B]: sharpSpelling,
+  [MajorKeys.FSharp]: sharpSpelling,
+  [MajorKeys.CSharp]: sharpSpelling,
+}
+
+export const keySignatureSharpFlats: { [key in MajorKeys]?: string[] } = {
+  [MajorKeys.Db]: ["Bb", "Eb", "Ab", "Db", "Gb"],
+  [MajorKeys.Ab]: ["Bb", "Eb", "Ab", "Db"],
+  [MajorKeys.Eb]: ["Bb", "Eb", "Ab"],
+  [MajorKeys.Bb]: ["Bb", "Eb"],
+  [MajorKeys.F]: ["Bb"],
+  [MajorKeys.C]: [],
+  [MajorKeys.G]: ['F#'],
+  [MajorKeys.D]: ["F#", "C#"],
+  [MajorKeys.A]: ["F#", "C#", "G#"],
+  [MajorKeys.E]: ["F#", "C#", "G#", "D#"],
+  [MajorKeys.B]: ["F#", "C#", "G#", "D#", "A#"],
+  [MajorKeys.FSharp]: ["F#", "C#", "G#", "D#", "A#", "E#"]
+}
+
+
+export interface Scale {
+  kind: 'Scale',
+  name: string,
+  alt: string,
+  pattern: number[]
+}
+
+
+export interface Chord {
+  kind: 'Chord',
+  name: string,
+  alt: string,
+  pattern: number[]
+}
 
 export const chords: Chord[] = [
   {
@@ -148,15 +113,15 @@ export const chords: Chord[] = [
     alt: "",
     pattern: [0, 4, 7, 10]
   }
-
 ]
 
 export function getChordNote(midiStart: number, index2: number, pattern: number[]): number {
-    const index = index2 - 1;
+  const index = index2 - 1;
   const octaveShift = Math.floor(index / pattern.length);
   return pattern[index % pattern.length] + midiStart + (12 * octaveShift);
 }
 
+// 2 full step, 1 half step
 const majorScalePattern = [2, 2, 1, 2, 2, 2, 1]
 const naturalMinorScalePattern = [2, 1, 2, 2, 1, 2, 2]  // Aeolian
 const harmonicMinorScalePattern = [2, 1, 2, 2, 1, 3, 1] //  Aeolian ♮7 scale
@@ -166,18 +131,6 @@ const phrygianScalePattern = [1, 2, 2, 2, 1, 2, 2] //  Phrygian
 const lydianScalePattern = [2, 2, 2, 1, 2, 2, 1] //  Lydian
 const mixolydianScalePattern = [2, 2, 1, 2, 2, 1, 2] //  Mixolydian
 const locrianScalePattern = [1, 2, 2, 1, 2, 2, 2] //  Locrian
-
-export function generateMajorCadence(root: number): number[][] {
-  const majorChord = [0, 4, 7]; // Major triad
-  const dominant7Chord = [0, 4, 7, 10]; // Dominant 7th chord
-
-  const I = majorChord.map(interval => interval + root); // I chord
-  const IV = majorChord.map(interval => interval + root + 5); // IV chord (5 semitones up)
-  const V = majorChord.map(interval => interval + root + 7); // V chord (7 semitones up)
-  const V7 = dominant7Chord.map(interval => interval + root + 7); // V7 chord (7 semitones up)
-
-  return [I, IV, V, V7];
-}
 
 
 export const scales: Scale[] = [
@@ -235,12 +188,16 @@ export const scales: Scale[] = [
     alt: '',
     pattern: locrianScalePattern
   }
-
 ]
 
+export function generateMajorCadence(root: number): number[][] {
+  const majorChord = [0, 4, 7]; // Major triad
+  const dominant7Chord = [0, 4, 7, 10]; // Dominant 7th chord
 
-export function midiToPitch(midi: number): string {
-  const pitchClass = midi % 12;
-  const octave = Math.floor(midi / 12) - 1; // Calcule l'octave (MIDI commence à C-1)
-  return `${keys[pitchClass]}${octave}`;
+  const I = majorChord.map(interval => interval + root); // I chord
+  const IV = majorChord.map(interval => interval + root + 5); // IV chord (5 semitones up)
+  const V = majorChord.map(interval => interval + root + 7); // V chord (7 semitones up)
+  const V7 = dominant7Chord.map(interval => interval + root + 7); // V7 chord (7 semitones up)
+
+  return [I, IV, V, V7];
 }
