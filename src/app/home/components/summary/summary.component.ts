@@ -31,8 +31,7 @@ export class SummaryComponent {
       url: '/open',
       title: 'Practice / Open File',
       description: 'Practice using a midi file',
-    },
-
+    }
   ]
   constructor(private route: Router) {
 

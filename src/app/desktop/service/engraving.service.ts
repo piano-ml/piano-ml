@@ -334,7 +334,7 @@ export class EngravingService {
     return beams
   }
 
-  // TODO: fix when notes does note have same duration
+  // TODO: need to be reworked along with voice detection
   buildStaveNotes(pNotes: Note[], timeSig: ReducedFraction, clef: string, keySignature: MajorKeys, fingers?: number[]): StaveNote {
     const notes = pNotes.filter((n) => n.durationTicks !== 0);
     const noteNotations = notes.map((n, idx) => this.makeNoteNotationFromNote(keySignature, n));
