@@ -36,7 +36,7 @@ paths:
                     type: string
                   expire:
                     type: string
-                    format: date-time                    
+                    format: date-time
         '401':
           description: Unauthorized
   /account/create:
@@ -69,7 +69,7 @@ paths:
         '400':
           description: Bad request
         '403':
-          description: User already exists          
+          description: User already exists
   /account/userinfo:
     get:
       tags:
@@ -81,13 +81,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  email:
-                    type: string
-                    format: email
-                  name:
-                    type: string
+                $ref: '#/components/schemas/UserApiInfo'
         '401':
           description: Unauthorized
     put:
@@ -99,26 +93,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                name:
-                  type: string
+              $ref: '#/components/schemas/UserApiInfo'
       responses:
         '200':
           description: User information retrieved successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  email:
-                    type: string
-                    format: email
-                  name:
-                    type: string
+                $ref: '#/components/schemas/UserApiInfo'
         '401':
           description: Unauthorized
   /account/password_reset:
@@ -181,11 +163,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
               $ref: '#/components/schemas/ScoreApiInfo'
       responses:
         '200':
           description: ScoreApiInfo successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreApiInfo'
         '400':
           description: Bad request
 
@@ -230,7 +215,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScoreApiInfo'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScoreApiInfo'
         '400':
           description: Bad request
           
@@ -357,12 +344,15 @@ paths:
         content:
           application/json:
             schema:
-              type: object
               $ref: '#/components/schemas/AuthorApiInfo'              
 
       responses:
         '201':
           description: AuthorApiInfo created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorApiInfo'
         '400':
           description: Invalid input
   /author/{id}:
@@ -377,15 +367,19 @@ paths:
           schema:
             type: string
           description: The ID of the author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorApiInfo'
       responses:
         '200':
-          description: List of scores retrieved successfully
+          description: AuthorApiInfo retrieved successfully
           content:
             application/json:
               schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/AuthorApiInfo'
+                $ref: '#/components/schemas/AuthorApiInfo'
         '404':
           description: AuthorApiInfo not found
     get:
@@ -401,13 +395,11 @@ paths:
           description: The ID of the author
       responses:
         '200':
-          description: List of scores retrieved successfully
+          description: AuthorApiInfo retrieved successfully
           content:
             application/json:
               schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/AuthorApiInfo'
+                $ref: '#/components/schemas/AuthorApiInfo'
         '404':
           description: AuthorApiInfo not found
   /author/search/{query}:
@@ -488,19 +480,20 @@ components:
         duration:
           type: number
           format: float
-        genres:
-          type: array
-          items:
-            type: string
+        genre:
+          type: string
+        genre_id:
+          type: string
         grade:
           type: integer
           format: int32
         uploaded_at:
           type: string
           format: date-time
-        uploaded_by:
+        uploaded_by_id:
           type: string
-          format: date-time
+        uploaded_by_name:
+          type: string
         updated_at:
           type: string
           format: date-time
@@ -537,6 +530,8 @@ components:
     GenreApiInfo:
       type: object
       properties:
+        id:
+          type: string
         name:
           type: string
         url:

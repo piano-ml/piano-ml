@@ -46,3 +46,5 @@ notes.md
 .editorconfig
 frontend/.postcssrc.json
 frontend/.angular
+backend/target
+backend/backend.iml

@@ -1,1 +1,7 @@
 databaseChangeLog:
+  - property:
+      name: objectQuotingStrategy
+      value: QUOTE_RESERVED_WORDS
+      global: true
+  - include:
+      file: db/changelog/changes/001-initial-schema.yaml

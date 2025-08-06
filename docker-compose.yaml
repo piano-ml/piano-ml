@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/pianoml
+      - SPRING_DATASOURCE_USERNAME=web
+      - SPRING_DATASOURCE_PASSWORD=web
+      - JWT_SECRET=your-super-secret-key-that-is-long-enough-for-docker
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=pianoml
+      - POSTGRES_USER=web
+      - POSTGRES_PASSWORD=web
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    # Optimizations for low memory footprint
+    command: >
+      postgres
+      -c shared_buffers=128MB
+      -c max_connections=50
+      -c work_mem=1MB
+      -c maintenance_work_mem=32MB
+
+volumes:
+  postgres_data:
