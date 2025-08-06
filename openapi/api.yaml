@@ -1,0 +1,548 @@
+openapi: 3.0.0
+info:
+  title: PianoML API
+  version: 1.0.0
+paths:
+  /account/login:
+    post:
+      tags:
+        - account
+      summary: Log in to an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  expire:
+                    type: string
+                    format: date-time                    
+        '401':
+          description: Unauthorized
+  /account/create:
+    post:
+      tags:
+        - account
+      summary: Create a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                name:
+                  type: string
+              required:
+                - email
+                - password
+                - name
+      responses:
+        '201':
+          description: Account created successfully
+        '400':
+          description: Bad request
+        '403':
+          description: User already exists          
+  /account/userinfo:
+    get:
+      tags:
+        - account
+      summary: Get user information
+      responses:
+        '200':
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    format: email
+                  name:
+                    type: string
+        '401':
+          description: Unauthorized
+    put:
+      tags:
+        - account
+      summary: Update user information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                name:
+                  type: string
+      responses:
+        '200':
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    format: email
+                  name:
+                    type: string
+        '401':
+          description: Unauthorized
+  /account/password_reset:
+    post:
+      tags:
+        - account
+      summary: Reset account password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        '200':
+          description: Password reset email sent
+        '400':
+          description: Bad request
+  /account/create/{token}/confirm:
+    get:
+      tags:
+        - account
+      summary: Confirm account creation with token
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The token to confirm account creation
+      responses:
+        '200':
+          description: Account confirmed successfully
+        '400':
+          description: Invalid or expired token
+  /account/logout:
+    get:
+      tags:
+        - account
+      summary: Log out from the account
+      responses:
+        '200':
+          description: Successfully logged out
+        '401':
+          description: Unauthorized
+
+  /score:
+    post:
+      tags:
+        - score
+      summary: Create a score
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/ScoreApiInfo'
+      responses:
+        '200':
+          description: ScoreApiInfo successfully created
+        '400':
+          description: Bad request
+
+  /score/search:
+    get:
+      tags:
+        - score
+      summary: Search a score
+      parameters:
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: A keyword 
+        - name: genreId
+          in: query
+          schema:
+            type: string
+          description: genre
+        - name: gradeStart
+          in: query
+          schema:
+            type: integer
+        - name: gradeEnd
+          in: query
+          schema:
+            type: integer            
+          description: the level
+        - name: offset
+          in: query
+          schema:
+            type: integer
+          description: search start at           
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          description: limit results count    
+      responses:
+        '200':
+          description: ScoreApiInfo retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreApiInfo'
+        '400':
+          description: Bad request
+          
+  /score/{id}:
+    get:
+      tags:
+        - score
+      summary: Retrieve a score by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the score to retrieve
+      responses:
+        '200':
+          description: ScoreApiInfo retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreApiInfo'
+        '404':
+          description: ScoreApiInfo not found
+    put:
+      tags:
+        - score
+      summary: Update a score by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the score to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoreApiInfo'
+      
+      responses:
+        '200':
+          description: ScoreApiInfo retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreApiInfo'
+        '403':
+          description: Not authorized
+        '404':
+          description: ScoreApiInfo not found          
+
+  /score/{id}/{type}:
+    post:
+      tags:
+        - score
+      summary: Upload a binary file for a specific score
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the score
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [pdf, mxml]
+          description: The type of file being uploaded (e.g., pdf or mxml)
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: File uploaded successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: ScoreApiInfo not found
+    get:
+      tags:
+        - score
+      summary: Download a file for a specific score
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the score
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [pdf, mxml]
+          description: The type of file to download (e.g., pdf or mxml)
+      responses:
+        '200':
+          description: File downloaded successfully
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: ScoreApiInfo or file type not found
+          
+  /author:
+    post:
+      tags:
+        - author
+      summary: Create a new author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/AuthorApiInfo'              
+
+      responses:
+        '201':
+          description: AuthorApiInfo created successfully
+        '400':
+          description: Invalid input
+  /author/{id}:
+    put:
+      tags:
+        - author
+      summary: Update an author
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the author
+      responses:
+        '200':
+          description: List of scores retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/AuthorApiInfo'
+        '404':
+          description: AuthorApiInfo not found
+    get:
+      tags:
+        - author
+      summary: Retrieve informations about an author
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the author
+      responses:
+        '200':
+          description: List of scores retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/AuthorApiInfo'
+        '404':
+          description: AuthorApiInfo not found
+  /author/search/{query}:
+    get:
+      tags:
+        - author
+      summary: Search authors
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the author
+      responses:
+        '200':
+          description: List of authors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorApiInfo'
+        '404':
+          description: AuthorApiInfo not found
+components:
+  schemas:
+    AuthorApiInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        birth:
+          type: string
+          format: date-time
+        bio:
+          type: string
+        image:
+          type: string
+          format: uri
+        link:
+          type: string
+          format: uri
+      required:
+        - id
+        - name
+        - year
+        - bio
+    ScoreApiInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        author_id:
+          type: string
+        version:
+          type: integer
+          format: int32
+        year:
+          type: integer
+          format: int32
+        tracks_count:
+          type: integer
+          format: int32
+        hand_separated:
+          type: boolean
+        has_lyrics:
+          type: boolean
+        measures:
+          type: integer
+          format: int32
+        duration:
+          type: number
+          format: float
+        genres:
+          type: array
+          items:
+            type: string
+        grade:
+          type: integer
+          format: int32
+        uploaded_at:
+          type: string
+          format: date-time
+        uploaded_by:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        has_mxml:
+          type: boolean
+        has_pdf:
+          type: boolean
+        image:
+          type: string          
+          format: uri
+      required:
+        - title
+        - author
+        - year
+    UserApiInfo:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        url:
+          type: string
+        bio:
+          type: string
+          format: uri
+        image:
+          type: string          
+          format: uri
+      required:
+        - email
+        - name
+    GenreApiInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        image:
+          type: string          
+          format: uri
+      required:
+        - name        
