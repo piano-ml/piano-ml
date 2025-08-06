@@ -6,11 +6,14 @@ import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.service.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,11 +58,24 @@ public class ScoreController implements ScoreApi {
 
     @Override
     public ResponseEntity<Void> scoreIdTypePost(String id, String type, org.springframework.core.io.Resource body) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        try {
+            scoreService.addAttachmentToScore(id, type, body.getInputStream());
+            return ResponseEntity.ok().build();
+        } catch (java.io.IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @Override
     public ResponseEntity<org.springframework.core.io.Resource> scoreIdTypeGet(String id, String type) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        try {
+            return scoreService.getAttachmentFromScore(id, type)
+                    .map(bytes -> ResponseEntity.ok()
+                            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                            .body((org.springframework.core.io.Resource) new ByteArrayResource(bytes)))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
