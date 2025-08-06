@@ -11,16 +11,35 @@ import org.pianoml.backend.repository.GenreRepository;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class ScoreService {
+
+    @Autowired
+    private S3Client s3Client;
+
+    @Value("${aws.s3.bucket-name}")
+    private String bucketName;
 
     @Autowired
     private ScoreRepository scoreRepository;
@@ -96,5 +115,66 @@ public class ScoreService {
                 .limit(limit != null ? limit : 10)
                 .map(scoreMapper::toScoreApiInfo)
                 .collect(Collectors.toList());
+    }
+
+    public void addAttachmentToScore(String id, String type, java.io.InputStream inputStream) throws IOException {
+        String key = "scores/" + id + ".zip";
+        byte[] existingZipData = new byte[0];
+
+        try {
+            existingZipData = s3Client.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build()).readAllBytes();
+        } catch (S3Exception e) {
+            if (e.statusCode() != 404) {
+                throw e;
+            }
+            // If not found, we'll create a new zip file.
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+            // Copy existing entries
+            if (existingZipData.length > 0) {
+                try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(existingZipData))) {
+                    ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        if (!entry.getName().equals(id + "." + type)) {
+                            zos.putNextEntry(new ZipEntry(entry.getName()));
+                            zos.write(zis.readAllBytes());
+                            zos.closeEntry();
+                        }
+                    }
+                }
+            }
+
+            // Add new file
+            ZipEntry newEntry = new ZipEntry(id + "." + type);
+            zos.putNextEntry(newEntry);
+            zos.write(inputStream.readAllBytes());
+            zos.closeEntry();
+        }
+
+        s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(key).build(),
+                RequestBody.fromBytes(baos.toByteArray()));
+    }
+
+    public Optional<byte[]> getAttachmentFromScore(String id, String type) throws IOException {
+        String key = "scores/" + id + ".zip";
+        try {
+            byte[] zipData = s3Client.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build()).readAllBytes();
+            try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipData))) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    if (entry.getName().equals(id + "." + type)) {
+                        return Optional.of(zis.readAllBytes());
+                    }
+                }
+            }
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404) {
+                return Optional.empty();
+            }
+            throw e;
+        }
+        return Optional.empty();
     }
 }

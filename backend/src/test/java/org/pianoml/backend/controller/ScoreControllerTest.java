@@ -112,14 +112,33 @@ public class ScoreControllerTest {
     }
 
     @Test
-    public void testGetScoreAttachmentNotImplemented() throws Exception {
-        mockMvc.perform(get("/score/{id}/{type}", UUID.randomUUID(), "midi"))
-                .andExpect(status().isNotImplemented());
+    public void testUploadAttachment() throws Exception {
+        UUID scoreId = UUID.randomUUID();
+        String fileContent = "dummy midi data";
+
+        mockMvc.perform(post("/score/{id}/{type}", scoreId, "midi").with(csrf())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .content(fileContent))
+                .andExpect(status().isOk());
     }
 
-     @Test
-    public void testUploadScoreAttachmentNotImplemented() throws Exception {
-        mockMvc.perform(post("/score/{id}/{type}", UUID.randomUUID(), "midi").with(csrf()))
-                .andExpect(status().isNotImplemented());
+    @Test
+    public void testDownloadAttachment() throws Exception {
+        UUID scoreId = UUID.randomUUID();
+        String fileContent = "dummy midi data";
+        given(scoreService.getAttachmentFromScore(scoreId.toString(), "midi")).willReturn(Optional.of(fileContent.getBytes()));
+
+        mockMvc.perform(get("/score/{id}/{type}", scoreId, "midi"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(fileContent));
+    }
+
+    @Test
+    public void testDownloadAttachmentNotFound() throws Exception {
+        UUID scoreId = UUID.randomUUID();
+        given(scoreService.getAttachmentFromScore(scoreId.toString(), "midi")).willReturn(Optional.empty());
+
+        mockMvc.perform(get("/score/{id}/{type}", scoreId, "midi"))
+                .andExpect(status().isNotFound());
     }
 }
