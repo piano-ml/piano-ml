@@ -1,1 +1,2 @@
-/home/eflorent/PROJECTS/piano-ml/backend/src/test/java/org/pianoml/backend/PianoMLApplicationTests.java
+/app/backend/src/test/java/org/pianoml/backend/PianoMLApplicationTests.java
+/app/backend/src/test/java/org/pianoml/backend/controller/AccountControllerTest.java
