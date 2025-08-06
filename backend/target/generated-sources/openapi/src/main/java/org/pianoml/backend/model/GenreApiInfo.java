@@ -19,7 +19,7 @@ import jakarta.annotation.Generated;
  * GenreApiInfo
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T14:23:40.684288203Z[Etc/UTC]", comments = "Generator version: 7.5.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T17:29:55.723979095+02:00[Europe/Paris]", comments = "Generator version: 7.5.0")
 public class GenreApiInfo {
 
   private String id;
@@ -50,7 +50,7 @@ public class GenreApiInfo {
    * Get id
    * @return id
   */
-
+  
   @Schema(name = "id", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("id")
   public String getId() {
@@ -70,7 +70,7 @@ public class GenreApiInfo {
    * Get name
    * @return name
   */
-  @NotNull
+  @NotNull 
   @Schema(name = "name", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("name")
   public String getName() {
@@ -90,7 +90,7 @@ public class GenreApiInfo {
    * Get url
    * @return url
   */
-
+  
   @Schema(name = "url", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("url")
   public String getUrl() {
@@ -110,7 +110,7 @@ public class GenreApiInfo {
    * Get image
    * @return image
   */
-  @Valid
+  @Valid 
   @Schema(name = "image", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("image")
   public URI getImage() {
@@ -164,3 +164,4 @@ public class GenreApiInfo {
     return o.toString().replace("\n", "\n    ");
   }
 }
+

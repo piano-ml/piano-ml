@@ -12,10 +12,10 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:'supersecret'}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration-ms}")
+    @Value("${jwt.expiration-ms:1000}")
     private int jwtExpirationInMs;
 
     public String generateToken(User user) {
@@ -23,7 +23,7 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
         return JWT.create()
-                .withSubject(user.getId().toString())
+                .withSubject(user.getClass().toString())
                 .withIssuedAt(now)
                 .withExpiresAt(expiryDate)
                 .sign(Algorithm.HMAC512(jwtSecret));

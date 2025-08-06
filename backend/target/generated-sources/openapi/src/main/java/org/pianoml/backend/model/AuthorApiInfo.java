@@ -21,7 +21,7 @@ import jakarta.annotation.Generated;
  * AuthorApiInfo
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T14:23:40.684288203Z[Etc/UTC]", comments = "Generator version: 7.5.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T17:29:55.723979095+02:00[Europe/Paris]", comments = "Generator version: 7.5.0")
 public class AuthorApiInfo {
 
   private String id;
@@ -59,7 +59,7 @@ public class AuthorApiInfo {
    * Get id
    * @return id
   */
-  @NotNull
+  @NotNull 
   @Schema(name = "id", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("id")
   public String getId() {
@@ -79,7 +79,7 @@ public class AuthorApiInfo {
    * Get name
    * @return name
   */
-  @NotNull
+  @NotNull 
   @Schema(name = "name", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("name")
   public String getName() {
@@ -99,7 +99,7 @@ public class AuthorApiInfo {
    * Get birth
    * @return birth
   */
-  @Valid
+  @Valid 
   @Schema(name = "birth", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("birth")
   public OffsetDateTime getBirth() {
@@ -119,7 +119,7 @@ public class AuthorApiInfo {
    * Get bio
    * @return bio
   */
-  @NotNull
+  @NotNull 
   @Schema(name = "bio", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("bio")
   public String getBio() {
@@ -139,7 +139,7 @@ public class AuthorApiInfo {
    * Get image
    * @return image
   */
-  @Valid
+  @Valid 
   @Schema(name = "image", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("image")
   public URI getImage() {
@@ -159,7 +159,7 @@ public class AuthorApiInfo {
    * Get link
    * @return link
   */
-  @Valid
+  @Valid 
   @Schema(name = "link", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("link")
   public URI getLink() {
@@ -217,3 +217,4 @@ public class AuthorApiInfo {
     return o.toString().replace("\n", "\n    ");
   }
 }
+

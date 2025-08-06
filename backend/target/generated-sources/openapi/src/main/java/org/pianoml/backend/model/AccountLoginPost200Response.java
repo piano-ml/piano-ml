@@ -22,7 +22,7 @@ import jakarta.annotation.Generated;
  */
 
 @JsonTypeName("_account_login_post_200_response")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T14:23:40.684288203Z[Etc/UTC]", comments = "Generator version: 7.5.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T17:29:55.723979095+02:00[Europe/Paris]", comments = "Generator version: 7.5.0")
 public class AccountLoginPost200Response {
 
   private String token;
@@ -39,7 +39,7 @@ public class AccountLoginPost200Response {
    * Get token
    * @return token
   */
-
+  
   @Schema(name = "token", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("token")
   public String getToken() {
@@ -59,7 +59,7 @@ public class AccountLoginPost200Response {
    * Get expire
    * @return expire
   */
-  @Valid
+  @Valid 
   @Schema(name = "expire", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("expire")
   public OffsetDateTime getExpire() {
@@ -109,3 +109,4 @@ public class AccountLoginPost200Response {
     return o.toString().replace("\n", "\n    ");
   }
 }
+

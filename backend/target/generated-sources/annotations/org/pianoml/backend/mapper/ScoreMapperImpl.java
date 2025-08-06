@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-06T14:23:43+0000",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.8 (Ubuntu)"
+    date = "2025-08-06T17:29:58+0200",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.9 (JetBrains s.r.o.)"
 )
 @Component
 public class ScoreMapperImpl implements ScoreMapper {
@@ -43,7 +43,6 @@ public class ScoreMapperImpl implements ScoreMapper {
         if ( id2 != null ) {
             scoreApiInfo.setUploadedById( id2.toString() );
         }
-        scoreApiInfo.setUploadedByName( scoreUploadedByName( score ) );
         if ( score.getId() != null ) {
             scoreApiInfo.setId( score.getId().toString() );
         }
@@ -164,20 +163,5 @@ public class ScoreMapperImpl implements ScoreMapper {
             return null;
         }
         return id;
-    }
-
-    private String scoreUploadedByName(Score score) {
-        if ( score == null ) {
-            return null;
-        }
-        User uploadedBy = score.getUploadedBy();
-        if ( uploadedBy == null ) {
-            return null;
-        }
-        String name = uploadedBy.getName();
-        if ( name == null ) {
-            return null;
-        }
-        return name;
     }
 }

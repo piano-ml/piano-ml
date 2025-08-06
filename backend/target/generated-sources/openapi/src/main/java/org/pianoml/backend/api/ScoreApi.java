@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T14:23:40.684288203Z[Etc/UTC]", comments = "Generator version: 7.5.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T17:29:55.723979095+02:00[Europe/Paris]", comments = "Generator version: 7.5.0")
 @Validated
 @Tag(name = "score", description = "the score API")
 public interface ScoreApi {
@@ -64,7 +64,7 @@ public interface ScoreApi {
         value = "/score/{id}",
         produces = { "application/json" }
     )
-
+    
     default ResponseEntity<ScoreApiInfo> scoreIdGet(
         @Parameter(name = "id", description = "The ID of the score to retrieve", required = true, in = ParameterIn.PATH) @PathVariable("id") String id
     ) {
@@ -109,7 +109,7 @@ public interface ScoreApi {
         produces = { "application/json" },
         consumes = { "application/json" }
     )
-
+    
     default ResponseEntity<ScoreApiInfo> scoreIdPut(
         @Parameter(name = "id", description = "The ID of the score to update", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
         @Parameter(name = "ScoreApiInfo", description = "", required = true) @Valid @RequestBody ScoreApiInfo scoreApiInfo
@@ -152,7 +152,7 @@ public interface ScoreApi {
         value = "/score/{id}/{type}",
         produces = { "application/octet-stream" }
     )
-
+    
     default ResponseEntity<org.springframework.core.io.Resource> scoreIdTypeGet(
         @Parameter(name = "id", description = "The ID of the score", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
         @Parameter(name = "type", description = "The type of file to download (e.g., pdf or mxml)", required = true, in = ParameterIn.PATH) @PathVariable("type") String type
@@ -187,7 +187,7 @@ public interface ScoreApi {
         value = "/score/{id}/{type}",
         consumes = { "application/octet-stream" }
     )
-
+    
     default ResponseEntity<Void> scoreIdTypePost(
         @Parameter(name = "id", description = "The ID of the score", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
         @Parameter(name = "type", description = "The type of file being uploaded (e.g., pdf or mxml)", required = true, in = ParameterIn.PATH) @PathVariable("type") String type,
@@ -222,7 +222,7 @@ public interface ScoreApi {
         produces = { "application/json" },
         consumes = { "application/json" }
     )
-
+    
     default ResponseEntity<ScoreApiInfo> scorePost(
         @Parameter(name = "ScoreApiInfo", description = "", required = true) @Valid @RequestBody ScoreApiInfo scoreApiInfo
     ) {
@@ -268,7 +268,7 @@ public interface ScoreApi {
         value = "/score/search",
         produces = { "application/json" }
     )
-
+    
     default ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(
         @Parameter(name = "keyword", description = "A keyword", in = ParameterIn.QUERY) @Valid @RequestParam(value = "keyword", required = false) String keyword,
         @Parameter(name = "genreId", description = "genre", in = ParameterIn.QUERY) @Valid @RequestParam(value = "genreId", required = false) String genreId,

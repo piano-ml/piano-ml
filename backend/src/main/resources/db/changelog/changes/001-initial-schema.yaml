@@ -14,7 +14,7 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: username
+                  name: name
                   type: VARCHAR(255)
                   constraints:
                     unique: true
@@ -36,6 +36,21 @@ databaseChangeLog:
                   defaultValueBoolean: false
                   constraints:
                     nullable: false
+              - column:
+                  name: bio
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: image
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: url
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
   - changeSet:
       id: 2
       author: jules

@@ -20,7 +20,7 @@ import jakarta.annotation.Generated;
  */
 
 @JsonTypeName("_account_password_reset_post_request")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T14:23:40.684288203Z[Etc/UTC]", comments = "Generator version: 7.5.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T17:29:55.723979095+02:00[Europe/Paris]", comments = "Generator version: 7.5.0")
 public class AccountPasswordResetPostRequest {
 
   private String email;
@@ -45,7 +45,7 @@ public class AccountPasswordResetPostRequest {
    * Get email
    * @return email
   */
-  @NotNull @jakarta.validation.constraints.Email
+  @NotNull @jakarta.validation.constraints.Email 
   @Schema(name = "email", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("email")
   public String getEmail() {
@@ -93,3 +93,4 @@ public class AccountPasswordResetPostRequest {
     return o.toString().replace("\n", "\n    ");
   }
 }
+

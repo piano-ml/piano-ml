@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T14:23:40.684288203Z[Etc/UTC]", comments = "Generator version: 7.5.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T17:29:55.723979095+02:00[Europe/Paris]", comments = "Generator version: 7.5.0")
 @Validated
 @Tag(name = "account", description = "the account API")
 public interface AccountApi {
@@ -68,7 +68,7 @@ public interface AccountApi {
         value = "/account/create",
         consumes = { "application/json" }
     )
-
+    
     default ResponseEntity<Void> accountCreatePost(
         @Parameter(name = "AccountCreatePostRequest", description = "", required = true) @Valid @RequestBody AccountCreatePostRequest accountCreatePostRequest
     ) {
@@ -97,7 +97,7 @@ public interface AccountApi {
         method = RequestMethod.GET,
         value = "/account/create/{token}/confirm"
     )
-
+    
     default ResponseEntity<Void> accountCreateTokenConfirmGet(
         @Parameter(name = "token", description = "The token to confirm account creation", required = true, in = ParameterIn.PATH) @PathVariable("token") String token
     ) {
@@ -130,7 +130,7 @@ public interface AccountApi {
         produces = { "application/json" },
         consumes = { "application/json" }
     )
-
+    
     default ResponseEntity<AccountLoginPost200Response> accountLoginPost(
         @Parameter(name = "AccountLoginPostRequest", description = "", required = true) @Valid @RequestBody AccountLoginPostRequest accountLoginPostRequest
     ) {
@@ -167,9 +167,9 @@ public interface AccountApi {
         method = RequestMethod.GET,
         value = "/account/logout"
     )
-
+    
     default ResponseEntity<Void> accountLogoutGet(
-
+        
     ) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
@@ -197,7 +197,7 @@ public interface AccountApi {
         value = "/account/password_reset",
         consumes = { "application/json" }
     )
-
+    
     default ResponseEntity<Void> accountPasswordResetPost(
         @Parameter(name = "AccountPasswordResetPostRequest", description = "", required = true) @Valid @RequestBody AccountPasswordResetPostRequest accountPasswordResetPostRequest
     ) {
@@ -228,9 +228,9 @@ public interface AccountApi {
         value = "/account/userinfo",
         produces = { "application/json" }
     )
-
+    
     default ResponseEntity<UserApiInfo> accountUserinfoGet(
-
+        
     ) {
         getRequest().ifPresent(request -> {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
@@ -270,7 +270,7 @@ public interface AccountApi {
         produces = { "application/json" },
         consumes = { "application/json" }
     )
-
+    
     default ResponseEntity<UserApiInfo> accountUserinfoPut(
         @Parameter(name = "UserApiInfo", description = "", required = true) @Valid @RequestBody UserApiInfo userApiInfo
     ) {

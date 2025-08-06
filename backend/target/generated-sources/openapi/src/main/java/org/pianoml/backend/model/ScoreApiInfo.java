@@ -21,7 +21,7 @@ import jakarta.annotation.Generated;
  * ScoreApiInfo
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T14:23:40.684288203Z[Etc/UTC]", comments = "Generator version: 7.5.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T17:29:55.723979095+02:00[Europe/Paris]", comments = "Generator version: 7.5.0")
 public class ScoreApiInfo {
 
   private String id;
@@ -90,7 +90,7 @@ public class ScoreApiInfo {
    * Get id
    * @return id
   */
-
+  
   @Schema(name = "id", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("id")
   public String getId() {
@@ -110,7 +110,7 @@ public class ScoreApiInfo {
    * Get title
    * @return title
   */
-  @NotNull
+  @NotNull 
   @Schema(name = "title", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("title")
   public String getTitle() {
@@ -130,7 +130,7 @@ public class ScoreApiInfo {
    * Get author
    * @return author
   */
-  @NotNull
+  @NotNull 
   @Schema(name = "author", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("author")
   public String getAuthor() {
@@ -150,7 +150,7 @@ public class ScoreApiInfo {
    * Get authorId
    * @return authorId
   */
-
+  
   @Schema(name = "author_id", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("author_id")
   public String getAuthorId() {
@@ -170,7 +170,7 @@ public class ScoreApiInfo {
    * Get version
    * @return version
   */
-
+  
   @Schema(name = "version", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("version")
   public Integer getVersion() {
@@ -190,7 +190,7 @@ public class ScoreApiInfo {
    * Get year
    * @return year
   */
-  @NotNull
+  @NotNull 
   @Schema(name = "year", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("year")
   public Integer getYear() {
@@ -210,7 +210,7 @@ public class ScoreApiInfo {
    * Get tracksCount
    * @return tracksCount
   */
-
+  
   @Schema(name = "tracks_count", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("tracks_count")
   public Integer getTracksCount() {
@@ -230,7 +230,7 @@ public class ScoreApiInfo {
    * Get handSeparated
    * @return handSeparated
   */
-
+  
   @Schema(name = "hand_separated", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("hand_separated")
   public Boolean getHandSeparated() {
@@ -250,7 +250,7 @@ public class ScoreApiInfo {
    * Get hasLyrics
    * @return hasLyrics
   */
-
+  
   @Schema(name = "has_lyrics", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("has_lyrics")
   public Boolean getHasLyrics() {
@@ -270,7 +270,7 @@ public class ScoreApiInfo {
    * Get measures
    * @return measures
   */
-
+  
   @Schema(name = "measures", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("measures")
   public Integer getMeasures() {
@@ -290,7 +290,7 @@ public class ScoreApiInfo {
    * Get duration
    * @return duration
   */
-
+  
   @Schema(name = "duration", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("duration")
   public Float getDuration() {
@@ -310,7 +310,7 @@ public class ScoreApiInfo {
    * Get genre
    * @return genre
   */
-
+  
   @Schema(name = "genre", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("genre")
   public String getGenre() {
@@ -330,7 +330,7 @@ public class ScoreApiInfo {
    * Get genreId
    * @return genreId
   */
-
+  
   @Schema(name = "genre_id", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("genre_id")
   public String getGenreId() {
@@ -350,7 +350,7 @@ public class ScoreApiInfo {
    * Get grade
    * @return grade
   */
-
+  
   @Schema(name = "grade", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("grade")
   public Integer getGrade() {
@@ -370,7 +370,7 @@ public class ScoreApiInfo {
    * Get uploadedAt
    * @return uploadedAt
   */
-  @Valid
+  @Valid 
   @Schema(name = "uploaded_at", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("uploaded_at")
   public OffsetDateTime getUploadedAt() {
@@ -390,7 +390,7 @@ public class ScoreApiInfo {
    * Get uploadedById
    * @return uploadedById
   */
-
+  
   @Schema(name = "uploaded_by_id", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("uploaded_by_id")
   public String getUploadedById() {
@@ -410,7 +410,7 @@ public class ScoreApiInfo {
    * Get uploadedByName
    * @return uploadedByName
   */
-
+  
   @Schema(name = "uploaded_by_name", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("uploaded_by_name")
   public String getUploadedByName() {
@@ -430,7 +430,7 @@ public class ScoreApiInfo {
    * Get updatedAt
    * @return updatedAt
   */
-  @Valid
+  @Valid 
   @Schema(name = "updated_at", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("updated_at")
   public OffsetDateTime getUpdatedAt() {
@@ -450,7 +450,7 @@ public class ScoreApiInfo {
    * Get hasMxml
    * @return hasMxml
   */
-
+  
   @Schema(name = "has_mxml", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("has_mxml")
   public Boolean getHasMxml() {
@@ -470,7 +470,7 @@ public class ScoreApiInfo {
    * Get hasPdf
    * @return hasPdf
   */
-
+  
   @Schema(name = "has_pdf", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("has_pdf")
   public Boolean getHasPdf() {
@@ -490,7 +490,7 @@ public class ScoreApiInfo {
    * Get image
    * @return image
   */
-  @Valid
+  @Valid 
   @Schema(name = "image", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("image")
   public URI getImage() {
@@ -578,3 +578,4 @@ public class ScoreApiInfo {
     return o.toString().replace("\n", "\n    ");
   }
 }
+

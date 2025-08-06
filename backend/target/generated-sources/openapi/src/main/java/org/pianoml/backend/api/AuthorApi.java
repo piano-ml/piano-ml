@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T14:23:40.684288203Z[Etc/UTC]", comments = "Generator version: 7.5.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T17:29:55.723979095+02:00[Europe/Paris]", comments = "Generator version: 7.5.0")
 @Validated
 @Tag(name = "author", description = "the author API")
 public interface AuthorApi {
@@ -64,7 +64,7 @@ public interface AuthorApi {
         value = "/author/{id}",
         produces = { "application/json" }
     )
-
+    
     default ResponseEntity<AuthorApiInfo> authorIdGet(
         @Parameter(name = "id", description = "The ID of the author", required = true, in = ParameterIn.PATH) @PathVariable("id") String id
     ) {
@@ -107,7 +107,7 @@ public interface AuthorApi {
         produces = { "application/json" },
         consumes = { "application/json" }
     )
-
+    
     default ResponseEntity<AuthorApiInfo> authorIdPut(
         @Parameter(name = "id", description = "The ID of the author", required = true, in = ParameterIn.PATH) @PathVariable("id") String id,
         @Parameter(name = "AuthorApiInfo", description = "", required = true) @Valid @RequestBody AuthorApiInfo authorApiInfo
@@ -150,7 +150,7 @@ public interface AuthorApi {
         produces = { "application/json" },
         consumes = { "application/json" }
     )
-
+    
     default ResponseEntity<AuthorApiInfo> authorPost(
         @Parameter(name = "AuthorApiInfo", description = "", required = true) @Valid @RequestBody AuthorApiInfo authorApiInfo
     ) {
@@ -191,7 +191,7 @@ public interface AuthorApi {
         value = "/author/search/{query}",
         produces = { "application/json" }
     )
-
+    
     default ResponseEntity<List<AuthorApiInfo>> authorSearchQueryGet(
         @Parameter(name = "query", description = "The ID of the author", required = true, in = ParameterIn.PATH) @PathVariable("query") String query
     ) {

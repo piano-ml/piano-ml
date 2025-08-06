@@ -20,7 +20,7 @@ import jakarta.annotation.Generated;
  */
 
 @JsonTypeName("_account_create_post_request")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T14:23:40.684288203Z[Etc/UTC]", comments = "Generator version: 7.5.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-08-06T17:29:55.723979095+02:00[Europe/Paris]", comments = "Generator version: 7.5.0")
 public class AccountCreatePostRequest {
 
   private String email;
@@ -51,7 +51,7 @@ public class AccountCreatePostRequest {
    * Get email
    * @return email
   */
-  @NotNull @jakarta.validation.constraints.Email
+  @NotNull @jakarta.validation.constraints.Email 
   @Schema(name = "email", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("email")
   public String getEmail() {
@@ -71,7 +71,7 @@ public class AccountCreatePostRequest {
    * Get password
    * @return password
   */
-  @NotNull
+  @NotNull 
   @Schema(name = "password", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("password")
   public String getPassword() {
@@ -91,7 +91,7 @@ public class AccountCreatePostRequest {
    * Get name
    * @return name
   */
-  @NotNull
+  @NotNull 
   @Schema(name = "name", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("name")
   public String getName() {
@@ -143,3 +143,4 @@ public class AccountCreatePostRequest {
     return o.toString().replace("\n", "\n    ");
   }
 }
+
