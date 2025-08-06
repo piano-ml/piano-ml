@@ -34,6 +34,9 @@ paths:
                 properties:
                   token:
                     type: string
+                  expire:
+                    type: string
+                    format: date-time                    
         '401':
           description: Unauthorized
   /account/create:
@@ -148,6 +151,7 @@ paths:
       parameters:
         - name: token
           in: path
+          required: true
           schema:
             type: string
           description: The token to confirm account creation
@@ -178,10 +182,10 @@ paths:
           application/json:
             schema:
               type: object
-              $ref: '#/components/schemas/Score'
+              $ref: '#/components/schemas/ScoreApiInfo'
       responses:
         '200':
-          description: Score successfully created
+          description: ScoreApiInfo successfully created
         '400':
           description: Bad request
 
@@ -222,11 +226,11 @@ paths:
           description: limit results count    
       responses:
         '200':
-          description: Score retrieved successfully
+          description: ScoreApiInfo retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Score'
+                $ref: '#/components/schemas/ScoreApiInfo'
         '400':
           description: Bad request
           
@@ -238,18 +242,19 @@ paths:
       parameters:
         - name: id
           in: path
+          required: true
           schema:
             type: string
           description: The ID of the score to retrieve
       responses:
         '200':
-          description: Score retrieved successfully
+          description: ScoreApiInfo retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Score'
+                $ref: '#/components/schemas/ScoreApiInfo'
         '404':
-          description: Score not found
+          description: ScoreApiInfo not found
     put:
       tags:
         - score
@@ -257,6 +262,7 @@ paths:
       parameters:
         - name: id
           in: path
+          required: true
           schema:
             type: string
           description: The ID of the score to update
@@ -265,19 +271,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Score'
+              $ref: '#/components/schemas/ScoreApiInfo'
       
       responses:
         '200':
-          description: Score retrieved successfully
+          description: ScoreApiInfo retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Score'
+                $ref: '#/components/schemas/ScoreApiInfo'
         '403':
           description: Not authorized
         '404':
-          description: Score not found          
+          description: ScoreApiInfo not found          
 
   /score/{id}/{type}:
     post:
@@ -311,7 +317,7 @@ paths:
         '400':
           description: Invalid input
         '404':
-          description: Score not found
+          description: ScoreApiInfo not found
     get:
       tags:
         - score
@@ -319,15 +325,17 @@ paths:
       parameters:
         - name: id
           in: path
+          required: true
           schema:
             type: string
           description: The ID of the score
         - name: type
           in: path
+          required: true
           schema:
             type: string
-            enum: [midi, pdf, mxml]
-          description: The type of file to download (e.g., midi,pdf or mxml)
+            enum: [pdf, mxml]
+          description: The type of file to download (e.g., pdf or mxml)
       responses:
         '200':
           description: File downloaded successfully
@@ -337,7 +345,7 @@ paths:
                 type: string
                 format: binary
         '404':
-          description: Score or file type not found
+          description: ScoreApiInfo or file type not found
           
   /author:
     post:
@@ -350,10 +358,11 @@ paths:
           application/json:
             schema:
               type: object
-              $ref: '#/components/schemas/Author'              
+              $ref: '#/components/schemas/AuthorApiInfo'              
+
       responses:
         '201':
-          description: Author created successfully
+          description: AuthorApiInfo created successfully
         '400':
           description: Invalid input
   /author/{id}:
@@ -376,9 +385,9 @@ paths:
               schema:
                 type: object
                 items:
-                  $ref: '#/components/schemas/Author'
+                  $ref: '#/components/schemas/AuthorApiInfo'
         '404':
-          description: Author not found
+          description: AuthorApiInfo not found
     get:
       tags:
         - author
@@ -398,9 +407,9 @@ paths:
               schema:
                 type: object
                 items:
-                  $ref: '#/components/schemas/Author'
+                  $ref: '#/components/schemas/AuthorApiInfo'
         '404':
-          description: Author not found
+          description: AuthorApiInfo not found
   /author/search/{query}:
     get:
       tags:
@@ -421,12 +430,12 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Author'
+                  $ref: '#/components/schemas/AuthorApiInfo'
         '404':
-          description: Author not found
+          description: AuthorApiInfo not found
 components:
   schemas:
-    Author:
+    AuthorApiInfo:
       type: object
       properties:
         id:
@@ -449,7 +458,7 @@ components:
         - name
         - year
         - bio
-    Score:
+    ScoreApiInfo:
       type: object
       properties:
         id:
@@ -506,7 +515,7 @@ components:
         - title
         - author
         - year
-    UserInfo:
+    UserApiInfo:
       type: object
       properties:
         email:
@@ -525,3 +534,15 @@ components:
       required:
         - email
         - name
+    GenreApiInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        image:
+          type: string          
+          format: uri
+      required:
+        - name        
