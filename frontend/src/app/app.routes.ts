@@ -34,6 +34,12 @@ export const routes: Routes = [
 
     },
     {
+        component: LayoutComponent,
+        path: 'account',
+        loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
+        data: { breadcrumb: 'Account' }
+    },
+    {
         path: '**',
         redirectTo: ''
     }
