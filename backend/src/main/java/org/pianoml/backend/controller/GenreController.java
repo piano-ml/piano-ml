@@ -18,12 +18,6 @@ public class GenreController implements GenreApi {
     private GenreService genreService;
 
     @Override
-    public ResponseEntity<List<GenreApiInfo>> genreGet() {
-        List<GenreApiInfo> genres = genreService.getAllGenres();
-        return ResponseEntity.ok(genres);
-    }
-
-    @Override
     public ResponseEntity<GenreApiInfo> genreIdGet(String id) {
         return genreService.getGenre(UUID.fromString(id))
                 .map(ResponseEntity::ok)
