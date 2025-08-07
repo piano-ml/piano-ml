@@ -426,13 +426,34 @@ paths:
         '404':
           description: AuthorApiInfo not found
   /genre:
+    get:
+      tags:
+        - genre
+      summary: Retrieve all genres
+      responses:
+        '200':
+          description: A list of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreApiInfo'
     post:
       tags:
         - genre
-      summary: Add a  genre
+      summary: Add a list of genres
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/GenreApiInfo'
       responses:
-        '200':
-          description: List of genres retrieved successfully
+        '201':
+          description: Genres created successfully
           content:
             application/json:
               schema:
@@ -459,7 +480,7 @@ paths:
               $ref: '#/components/schemas/GenreApiInfo'
       responses:
         '200':
-          description: AuthorApiInfo retrieved successfully
+          description: Genre updated successfully
           content:
             application/json:
               schema:
@@ -469,24 +490,46 @@ paths:
     get:
       tags:
         - genre
-      summary: Retrieve informations about an author
+      summary: Retrieve informations about a genre
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-          description: The ID of the author
+          description: The ID of the genre
       responses:
         '200':
-          description: AuthorApiInfo retrieved successfully
+          description: Genre retrieved successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenreApiInfo'
         '404':
           description: GenreApiInfo not found
-
+  /genre/search/{query}:
+    get:
+      tags:
+        - genre
+      summary: Search genres
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The query to search genres
+      responses:
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreApiInfo'
+        '404':
+          description: Genre not found
   /artist/search/{query}:
     get:
       tags:
