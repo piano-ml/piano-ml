@@ -1,1 +1,60 @@
-<p>create-account works!</p>
+<div class="flex justify-center items-center h-full">
+  <form [formGroup]="createAccountForm" (ngSubmit)="onSubmit()" class="p-8 rounded-lg shadow-lg w-full max-w-sm">
+    <h2 class="text-2xl font-bold mb-6 text-center">Create Account</h2>
+
+    <div class="mb-4">
+      <label for="username" class="block text-sm font-medium mb-2">Username</label>
+      <input type="text" id="username" formControlName="username"
+             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+             placeholder="Enter your username">
+      <div *ngIf="createAccountForm.get('username')?.invalid && createAccountForm.get('username')?.touched"
+           class="text-red-500 text-sm mt-1">
+        Username is required.
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label for="email" class="block text-sm font-medium mb-2">Email</label>
+      <input type="email" id="email" formControlName="email"
+             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+             placeholder="Enter your email">
+      <div *ngIf="createAccountForm.get('email')?.invalid && createAccountForm.get('email')?.touched"
+           class="text-red-500 text-sm mt-1">
+        <span *ngIf="createAccountForm.get('email')?.errors?.['required']">Email is required.</span>
+        <span *ngIf="createAccountForm.get('email')?.errors?.['email']">Invalid email format.</span>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label for="password" class="block text-sm font-medium mb-2">Password</label>
+      <input type="password" id="password" formControlName="password"
+             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+             placeholder="Enter your password" (input)="checkPasswordStrength($any($event.target).value)">
+      <div *ngIf="createAccountForm.get('password')?.invalid && createAccountForm.get('password')?.touched"
+           class="text-red-500 text-sm mt-1">
+        Password must be at least 8 characters long.
+      </div>
+      <div class="flex mt-1">
+        <div class="w-1/3 h-2 rounded-l-lg" [class.bg-red-500]="passwordStrength.weak" [class.bg-gray-200]="!passwordStrength.weak"></div>
+        <div class="w-1/3 h-2" [class.bg-yellow-500]="passwordStrength.medium" [class.bg-gray-200]="!passwordStrength.medium"></div>
+        <div class="w-1/3 h-2 rounded-r-lg" [class.bg-green-500]="passwordStrength.strong" [class.bg-gray-200]="!passwordStrength.strong"></div>
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <label for="confirmPassword" class="block text-sm font-medium mb-2">Confirm Password</label>
+      <input type="password" id="confirmPassword" formControlName="confirmPassword"
+             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+             placeholder="Confirm your password">
+      <div *ngIf="createAccountForm.get('confirmPassword')?.errors?.['mismatch'] && createAccountForm.get('confirmPassword')?.touched"
+           class="text-red-500 text-sm mt-1">
+        Passwords do not match.
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="createAccountForm.invalid"
+            class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 disabled:bg-gray-400">
+      Create Account
+    </button>
+  </form>
+</div>
