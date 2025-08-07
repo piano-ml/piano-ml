@@ -1,6 +1,6 @@
 <div class="flex flex-col min-h-screen" id="top">
 
-    <div class=" w-full fixed top-0 h-12 flex-none bg-black p-4 text-white z-3">
+    <div class=" w-full fixed top-0 h-12 flex-grow bg-black p-4 text-white z-3">
 
         <a *ngIf="true" routerLink="/home" class="breadcrumb-label">PianoML</a>
         <span *ngIf="true" class="breadcrumb-separator">/</span>
@@ -9,7 +9,11 @@
             <a *ngIf="!last" [routerLink]="item.path" class="breadcrumb-label">{{ item.label }}</a>
             <span *ngIf="last" class="breadcrumb-label breadcrumb-label-last">{{ item.label }}</span>
             <span *ngIf="!last" class="breadcrumb-separator">/</span>
-        </ng-container>`
+        </ng-container>
+
+        <span class="flex-none">
+            login
+        </span>
 
 
     </div>

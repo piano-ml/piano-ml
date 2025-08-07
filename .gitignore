@@ -48,4 +48,3 @@ frontend/.postcssrc.json
 frontend/.angular
 backend/target
 backend/backend.iml
-frontend/src/app/core/api
