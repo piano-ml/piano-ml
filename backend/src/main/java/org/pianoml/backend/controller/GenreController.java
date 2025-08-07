@@ -1,5 +1,6 @@
 package org.pianoml.backend.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.pianoml.backend.api.GenreApi;
 import org.pianoml.backend.model.GenreApiInfo;
 import org.pianoml.backend.service.GenreService;
@@ -12,9 +13,9 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 public class GenreController implements GenreApi {
 
-    @Autowired
     private GenreService genreService;
 
     @Override
@@ -32,9 +33,9 @@ public class GenreController implements GenreApi {
     }
 
     @Override
-    public ResponseEntity<List<GenreApiInfo>> genrePost(List<GenreApiInfo> genreApiInfo) {
-        List<GenreApiInfo> createdGenres = genreService.createGenres(genreApiInfo);
-        return new ResponseEntity<>(createdGenres, HttpStatus.CREATED);
+    public ResponseEntity<GenreApiInfo> genrePost(GenreApiInfo genreApiInfo) {
+        GenreApiInfo createdGenre = genreService.createGenre(genreApiInfo);
+        return new ResponseEntity<>(createdGenre, HttpStatus.CREATED);
     }
 
     @Override

@@ -12,13 +12,10 @@ public interface ScoreMapper {
     @Mapping(source = "author.id", target = "authorId")
     @Mapping(source = "genre.name", target = "genre")
     @Mapping(source = "genre.id", target = "genreId")
-    @Mapping(source = "uploadedBy.id", target = "uploadedById")
-    //@Mapping(source = "uploadedBy.name", target = "uploadedByName")
     ScoreApiInfo toScoreApiInfo(Score score);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "author", ignore = true)
     @Mapping(target = "genre", ignore = true)
-    @Mapping(target = "uploadedBy", ignore = true)
     Score toScore(ScoreApiInfo scoreApiInfo);
 }

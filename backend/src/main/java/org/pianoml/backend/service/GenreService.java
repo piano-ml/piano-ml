@@ -22,14 +22,9 @@ public class GenreService {
     @Autowired
     private GenreMapper genreMapper;
 
-    public List<GenreApiInfo> createGenres(List<GenreApiInfo> genreApiInfos) {
-        List<Genre> genres = genreApiInfos.stream()
-                .map(genreMapper::toGenre)
-                .collect(Collectors.toList());
-        List<Genre> savedGenres = (List<Genre>) genreRepository.saveAll(genres);
-        return savedGenres.stream()
-                .map(genreMapper::toGenreApiInfo)
-                .collect(Collectors.toList());
+    public GenreApiInfo createGenre(GenreApiInfo genreApiInfos) {
+        Genre savedGenre = genreRepository.save(genreMapper.toGenre(genreApiInfos));
+        return genreApiInfos;
     }
 
     public Optional<GenreApiInfo> getGenre(UUID id) {

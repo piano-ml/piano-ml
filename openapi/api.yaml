@@ -442,24 +442,21 @@ paths:
     post:
       tags:
         - genre
-      summary: Add a list of genres
+      summary: Add an entry for genres
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/GenreApiInfo'
+              $ref: '#/components/schemas/GenreApiInfo'
+                
       responses:
         '201':
           description: Genres created successfully
           content:
-            application/json:
+            application/json:              
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/GenreApiInfo'
+                $ref: '#/components/schemas/GenreApiInfo'
   /genre/{id}:
     put:
       tags:
@@ -570,7 +567,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AllWorksApiInfo'
         '404':
-          description: GenreApiInfo not found
+          description: Work not found
           
 
 components:
@@ -626,8 +623,8 @@ components:
           type: integer
           format: int32
         duration:
-          type: number
-          format: float
+          type: integer
+          format: int32
         genre:
           type: string
         genre_id:
@@ -707,10 +704,6 @@ components:
                 items:
                   type: object
                   properties:
-                    id:
-                      type: string
-                    title:
-                      type: string
                     artist:
                       type: object
                       properties:

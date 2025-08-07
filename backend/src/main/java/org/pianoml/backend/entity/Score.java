@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -17,55 +18,66 @@ import java.util.UUID;
 @Data
 public class Score {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = false)
-    private String title;
+  @Column(nullable = false)
+  private String title;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id", nullable = false)
-    private Author author;
+  @ManyToOne
+  @JoinColumn(name = "author_id", nullable = false)
+  private Author author;
 
-    @ManyToOne
-    @JoinColumn(name = "genre_id")
-    private Genre genre;
+  @ManyToOne
+  @JoinColumn(name = "genre_id")
+  private Genre genre;
 
-    private Integer version;
+  private Integer version;
 
-    private Integer year;
+  private Integer year;
 
-    @Column(name = "tracks_count")
-    private Integer tracksCount;
+  @Column(name = "tracks_count")
+  private Integer tracksCount;
 
-    @Column(name = "hand_separated")
-    private Boolean handSeparated;
+  @Column(name = "hand_separated")
+  private Boolean handSeparated;
 
-    @Column(name = "has_lyrics")
-    private Boolean hasLyrics;
+  @Column(name = "has_lyrics")
+  private Boolean hasLyrics;
 
-    private Integer measures;
+  @Column(name = "grade")
+  private Integer grade;
 
-    private Float duration;
+  @Column(name = "uploaded_at")
+  private OffsetDateTime uploadedAt;
 
-    private Integer grade;
+  @ManyToOne
+  @JoinColumn(name = "owner_id")
+  private User owner;
 
-    @Column(name = "uploaded_at")
-    private OffsetDateTime uploadedAt;
+  @Column(name = "updated_at")
+  private OffsetDateTime updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "uploaded_by")
-    private User uploadedBy;
+  @Column(name = "has_mxml")
+  private Boolean hasMxml;
 
-    @Column(name = "updated_at")
-    private OffsetDateTime updatedAt;
+  @Column(name = "has_pdf")
+  private Boolean hasPdf;
 
-    @Column(name = "has_mxml")
-    private Boolean hasMxml;
+  @Column(name = "image")
+  private String image;
 
-    @Column(name = "has_pdf")
-    private Boolean hasPdf;
+  @Column(nullable = false)
+  private UUID mbid;
 
-    private String image;
+  @Column(name = "has_mscz", nullable = false)
+  private Boolean hasMscz = false;
+
+  @Column(name = "deleted", nullable = false)
+  private Boolean deleted = false;
+
+  @Column(name = "duration", nullable = true)
+  private int duration;
+
 }

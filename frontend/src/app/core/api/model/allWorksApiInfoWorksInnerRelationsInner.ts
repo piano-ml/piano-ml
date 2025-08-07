@@ -11,8 +11,6 @@ import { AllWorksApiInfoWorksInnerRelationsInnerArtist } from './allWorksApiInfo
 
 
 export interface AllWorksApiInfoWorksInnerRelationsInner { 
-    id?: string;
-    title?: string;
     artist?: AllWorksApiInfoWorksInnerRelationsInnerArtist;
 }
 

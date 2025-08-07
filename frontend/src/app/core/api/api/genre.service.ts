@@ -208,15 +208,15 @@ export class GenreService extends BaseService {
     }
 
     /**
-     * Add a list of genres
+     * Add an entry for genres
      * @param genreApiInfo 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public genrePost(genreApiInfo: Array<GenreApiInfo>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GenreApiInfo>>;
-    public genrePost(genreApiInfo: Array<GenreApiInfo>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GenreApiInfo>>>;
-    public genrePost(genreApiInfo: Array<GenreApiInfo>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GenreApiInfo>>>;
-    public genrePost(genreApiInfo: Array<GenreApiInfo>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public genrePost(genreApiInfo: GenreApiInfo, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GenreApiInfo>;
+    public genrePost(genreApiInfo: GenreApiInfo, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GenreApiInfo>>;
+    public genrePost(genreApiInfo: GenreApiInfo, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GenreApiInfo>>;
+    public genrePost(genreApiInfo: GenreApiInfo, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (genreApiInfo === null || genreApiInfo === undefined) {
             throw new Error('Required parameter genreApiInfo was null or undefined when calling genrePost.');
         }
@@ -257,7 +257,7 @@ export class GenreService extends BaseService {
 
         let localVarPath = `/genre`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<GenreApiInfo>>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<GenreApiInfo>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: genreApiInfo,
