@@ -6,8 +6,9 @@ import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { ShareButtons } from 'ngx-sharebuttons/buttons';
 import {  bootstrapGithub } from '@ng-icons/bootstrap-icons';
-import { AuthService } from 'src/app/account/services/auth.service';
+
 import { Observable } from 'rxjs';
+import { AuthService } from '../../../account/services/auth.service';
 
 @Component({
   selector: 'app-layout',

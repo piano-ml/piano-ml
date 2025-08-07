@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, tap } from 'rxjs';
+import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService } from '../../core/api';
 
-import { AccountService, AccountRegisterPostRequest } from 'src/app/core/api';
-import { AccountLoginPostRequest } from 'src/app/core/api';
+
 
 @Injectable({
   providedIn: 'root'
@@ -46,7 +46,7 @@ export class AuthService {
     return !!localStorage.getItem('token');
   }
 
-  register(user: AccountRegisterPostRequest) {
-    return this.accountService.accountRegisterPost(user);
+  register(user: AccountCreatePostRequest) {
+    return this.accountService.accountCreatePost(user);
   }
 }

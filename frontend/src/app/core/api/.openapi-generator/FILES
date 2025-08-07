@@ -5,6 +5,8 @@ api.module.ts
 api/account.service.ts
 api/api.ts
 api/author.service.ts
+api/genre.service.ts
+api/musicbrainz.service.ts
 api/score.service.ts
 configuration.ts
 encoder.ts
@@ -14,6 +16,13 @@ model/accountCreatePostRequest.ts
 model/accountLoginPost200Response.ts
 model/accountLoginPostRequest.ts
 model/accountPasswordResetPostRequest.ts
+model/allAuthorApiInfo.ts
+model/allAuthorApiInfoArtistsInner.ts
+model/allAuthorApiInfoArtistsInnerLifeSpan.ts
+model/allWorksApiInfo.ts
+model/allWorksApiInfoWorksInner.ts
+model/allWorksApiInfoWorksInnerRelationsInner.ts
+model/allWorksApiInfoWorksInnerRelationsInnerArtist.ts
 model/authorApiInfo.ts
 model/genreApiInfo.ts
 model/models.ts
