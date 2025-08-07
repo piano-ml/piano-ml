@@ -11,9 +11,15 @@
             <span *ngIf="!last" class="breadcrumb-separator">/</span>
         </ng-container>
 
-        <span class="flex-none">
-            login
-        </span>
+        <div class="flex-grow"></div>
+        <div class="flex-none">
+            <ng-container *ngIf="isLoggedIn$ | async; else loginLink">
+                <button (click)="logout()" class="text-white">Logout</button>
+            </ng-container>
+            <ng-template #loginLink>
+                <a routerLink="/account/login" class="text-white">Login</a>
+            </ng-template>
+        </div>
 
 
     </div>
