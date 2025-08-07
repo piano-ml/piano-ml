@@ -42,4 +42,10 @@ public class GenreController implements GenreApi {
         List<GenreApiInfo> createdGenres = genreService.createGenres(genreApiInfo);
         return new ResponseEntity<>(createdGenres, HttpStatus.CREATED);
     }
+
+    @Override
+    public ResponseEntity<List<GenreApiInfo>> genreSearchQueryGet(String query) {
+        List<GenreApiInfo> genres = genreService.searchGenres(query);
+        return ResponseEntity.ok(genres);
+    }
 }

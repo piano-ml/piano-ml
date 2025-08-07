@@ -507,7 +507,29 @@ paths:
                 $ref: '#/components/schemas/GenreApiInfo'
         '404':
           description: GenreApiInfo not found
-
+  /genre/search/{query}:
+    get:
+      tags:
+        - genre
+      summary: Search genres
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The query to search genres
+      responses:
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreApiInfo'
+        '404':
+          description: Genre not found
   /artist/search/{query}:
     get:
       tags:

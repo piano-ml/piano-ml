@@ -53,4 +53,10 @@ public class GenreService {
                     return genreMapper.toGenreApiInfo(updatedGenre);
                 });
     }
+
+    public List<GenreApiInfo> searchGenres(String query) {
+        return genreRepository.findByNameContainingIgnoreCase(query).stream()
+                .map(genreMapper::toGenreApiInfo)
+                .collect(Collectors.toList());
+    }
 }

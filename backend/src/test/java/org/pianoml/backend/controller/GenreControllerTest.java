@@ -116,4 +116,17 @@ public class GenreControllerTest {
                 .andExpect(jsonPath("$.id").value(genreId.toString()))
                 .andExpect(jsonPath("$.name").value("Blues"));
     }
+
+    @Test
+    public void testSearchGenres() throws Exception {
+        GenreApiInfo genre = new GenreApiInfo();
+        genre.setId(UUID.randomUUID().toString());
+        genre.setName("Rock");
+
+        given(genreService.searchGenres("Rock")).willReturn(Collections.singletonList(genre));
+
+        mockMvc.perform(get("/genre/search/Rock"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Rock"));
+    }
 }
