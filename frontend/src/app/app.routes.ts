@@ -8,11 +8,11 @@ export const routes: Routes = [
         loadChildren: () => import('./home/home.module').then(m => m.HomeModule),
         data: { breadcrumb: 'Home' }
     },
-    {
-        path: 'desktop',
-        loadComponent: () => import('./desktop/components/desktop/desktop.component').then(m => m.DesktopComponent),
-        data: { breadcrumb: 'Desktop' }
-    },
+    // {
+    //     path: 'account/home',
+    //     loadComponent: () => import('./account/components/home/home.component').then(m => m.AccountHomeComponent),
+    //     data: { breadcrumb: 'Account Home' }
+    // },
     {
         component: LayoutComponent,
         path: 'open',
@@ -32,6 +32,17 @@ export const routes: Routes = [
         loadChildren: () => import('./blog/blog.module').then(m => m.BlogModule),
         data: { breadcrumb: 'Blog' }
 
+    },
+    {
+        component: LayoutComponent,
+        path: 'account',
+        loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
+        data: { breadcrumb: 'Account' }
+    },
+    {
+        path: 'error',
+        loadComponent: () => import('./shared/components/error/error.component').then(m => m.ErrorComponent),
+        data: { breadcrumb: 'Erreur' }
     },
     {
         path: '**',

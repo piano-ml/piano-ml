@@ -8,11 +8,14 @@ import { HttpClient, provideHttpClient } from '@angular/common/http';
 
 import { provideShareButtonsOptions } from 'ngx-sharebuttons';
 import { shareIcons } from 'ngx-sharebuttons/icons';
+import { provideApi } from './core/api';
+import { environment } from '../environments/environment';
 
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
+    provideApi(environment.api),
     provideNgIconLoader(name => {
       const http = inject(HttpClient);
       return http.get(`/assets/svg/${name}.svg`, { responseType: 'text' });

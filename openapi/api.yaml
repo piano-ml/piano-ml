@@ -425,6 +425,151 @@ paths:
                   $ref: '#/components/schemas/AuthorApiInfo'
         '404':
           description: AuthorApiInfo not found
+  /genre:
+    get:
+      tags:
+        - genre
+      summary: Retrieve all genres
+      responses:
+        '200':
+          description: A list of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreApiInfo'
+    post:
+      tags:
+        - genre
+      summary: Add an entry for genres
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreApiInfo'
+                
+      responses:
+        '201':
+          description: Genres created successfully
+          content:
+            application/json:              
+              schema:
+                $ref: '#/components/schemas/GenreApiInfo'
+  /genre/{id}:
+    put:
+      tags:
+        - genre
+      summary: Update a genre
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreApiInfo'
+      responses:
+        '200':
+          description: Genre updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreApiInfo'
+        '404':
+          description: GenreApiInfo not found
+    get:
+      tags:
+        - genre
+      summary: Retrieve informations about a genre
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the genre
+      responses:
+        '200':
+          description: Genre retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreApiInfo'
+        '404':
+          description: GenreApiInfo not found
+  /genre/search/{query}:
+    get:
+      tags:
+        - genre
+      summary: Search genres
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The query to search genres
+      responses:
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreApiInfo'
+        '404':
+          description: Genre not found
+  /artist/search/{query}:
+    get:
+      tags:
+        - musicbrainz
+      summary: Search all artists
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: AuthorApiInfo retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllAuthorApiInfo'
+        '404':
+          description: GenreApiInfo not found
+          
+  /work/search/{query}:
+    get:
+      tags:
+        - musicbrainz
+      summary: Search all works
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: AuthorApiInfo retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllWorksApiInfo'
+        '404':
+          description: Work not found
+          
+
 components:
   schemas:
     AuthorApiInfo:
@@ -478,8 +623,8 @@ components:
           type: integer
           format: int32
         duration:
-          type: number
-          format: float
+          type: integer
+          format: int32
         genre:
           type: string
         genre_id:
@@ -540,4 +685,61 @@ components:
           type: string          
           format: uri
       required:
-        - name        
+        - name       
+
+    AllWorksApiInfo:
+      type: object
+      properties:
+        works:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              relations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    artist:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        sort-name:
+                          type: string
+                        disambiguation:
+                          type: string
+    AllAuthorApiInfo:
+      type: object
+      properties:
+        artists:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              type:
+                type: string
+              name:
+                type: string
+              sort-name:
+                type: string                
+              life-span:
+                type: object
+                properties:
+                  begin:
+                    type: string
+                    format: date
+                  end:
+                    type: string
+                    format: date
+                  ended:
+                    type: boolean
+                     

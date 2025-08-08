@@ -51,6 +51,17 @@ databaseChangeLog:
                   type: VARCHAR(255)
                   constraints:
                     nullable: true
+              - column:
+                  name: locked
+                  type: BOOLEAN
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reset_password
+                  type: UUID
+                  constraints:
+                    nullable: true
   - changeSet:
       id: 2
       author: jules
@@ -127,6 +138,85 @@ databaseChangeLog:
                   name: genre_id
                   type: UUID
                   constraints:
-                    nullable: false
+                    nullable: true
                     foreignKeyName: fk_score_genre
                     references: pianoml."genre"(id)
+              - column:
+                  name: owner_id
+                  type: UUID
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_score_user
+                    references: pianoml."user"(id)
+              - column:
+                  name: mbid
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: INT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+              - column:
+                  name: has_mscz
+                  type: BOOLEAN
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: has_pdf
+                  type: BOOLEAN
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deleted
+                  type: BOOLEAN
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: has_lyrics
+                  type: BOOLEAN
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: hand_separated
+                  type: BOOLEAN
+                  defaultValue: "false"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tracks_count
+                  type: INT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: grade
+                  type: INT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: image
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: uploaded_at
+                  type: DATETIME
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: duration
+                  type: INT
+                  constraints:
+                    nullable: true
+        - addUniqueConstraint:
+            tableName: "score"
+            columnNames: mbid,version
+            constraintName: uq_score_mbid_version
+            schemaName: pianoml
