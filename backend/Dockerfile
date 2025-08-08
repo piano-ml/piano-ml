@@ -10,19 +10,18 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install poetry
-RUN pipx ensurepath
-RUN pipx install poetry
-RUN ln -s /root/.local/bin/poetry  /usr/bin/poetry
-# Install music21
-#RUN pip3 install music21
+# RUN pipx ensurepath
+# RUN pipx install poetry
+# RUN ln -s /root/.local/bin/poetry  /usr/bin/poetry
+# # Install music21
+# #RUN pip3 install music21
 
-# Clone the homr repository and install its dependencies
-RUN git clone https://github.com/liebharc/homr.git /opt/homr
-WORKDIR /opt/homr
-RUN poetry install
+# # Clone the homr repository and install its dependencies
+# RUN git clone https://github.com/liebharc/homr.git /opt/homr
+# WORKDIR /opt/homr
+# RUN poetry install
 
-# Switch back to a directory for the main application
-#WORKDIR /app
+
 
 # Copy the Maven wrapper and the project's pom.xml
 COPY target/backend.jar target/backend.jar
