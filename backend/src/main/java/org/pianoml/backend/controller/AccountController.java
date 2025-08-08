@@ -20,12 +20,14 @@ public class AccountController implements AccountApi {
 
     @Override
     public ResponseEntity<Void> accountCreatePost(AccountCreatePostRequest accountCreatePostRequest) {
+      System.out.println(accountCreatePostRequest);
         accountService.createUser(accountCreatePostRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Override
     public ResponseEntity<AccountLoginPost200Response> accountLoginPost(AccountLoginPostRequest accountLoginPostRequest) {
+
         String token = accountService.loginUser(accountLoginPostRequest);
         AccountLoginPost200Response response = new AccountLoginPost200Response();
         response.setToken(token);
