@@ -34,7 +34,7 @@ public class ScoreService {
   @Autowired
   private S3Client s3Client;
 
-  @Value("${aws.s3.bucket-name}")
+  @Value("${aws.s3.bucket-name:'no-bucket'}")
   private String bucketName;
 
   @Autowired
