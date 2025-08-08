@@ -24,11 +24,14 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCR_PUSH_SECRET }}
 
-      - name: Configure Docker for GCR
-        run: |
-          echo ${{ secrets.GCR_PUSH_SECRET }} > /tmp/gcloud.json
-          gcloud auth activate-service-account --key-file=/tmp/gcloud.json
-          gcloud auth configure-docker --quiet
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+#      - name: Configure Docker for GCR
+#        run: |
+#          echo ${{ secrets.GCR_PUSH_SECRET }} > /tmp/gcloud.json
+#          gcloud auth activate-service-account --key-file=/tmp/gcloud.json
+#          gcloud auth configure-docker --quiet
 
       - name: Build Docker image
         run: |
