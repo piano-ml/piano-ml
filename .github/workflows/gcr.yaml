@@ -46,7 +46,7 @@ jobs:
 
       - name: Build image
         run: docker build . --file DOCKERFILE_LOCATION --tag ${{ env.GAR_LOCATION }}
-        working-directory: WORKING_DIRECTORY
+        working-directory: ./backend
 
       - name: Push image
         run: docker push ${{ env.GAR_LOCATION }}
