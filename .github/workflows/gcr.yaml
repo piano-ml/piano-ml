@@ -27,7 +27,7 @@ jobs:
           cache: maven
       - name: compile
         working-directory: ./backend
-        run: mvn --batch-mode --update-snapshots compile
+        run: mvn --batch-mode --update-snapshots install
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
