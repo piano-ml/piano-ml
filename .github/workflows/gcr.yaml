@@ -11,61 +11,45 @@ env:
   PROJECT_ID: sectrack
   REGION: northamerica-northeast1
   REPO_NAME: images
+  SERVICE_ACCOUNT: my-service-account
+  PROVIDER_ID: projects/189831140484/locations/global/workloadIdentityPools/my-pool/providers/github-actions-provider 
+
+
 
 jobs:
-  build-push-artifact:
+  docker-release:
+    name: Tagged Docker release to Google Artifact Registry
     runs-on: ubuntu-latest
+    #if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')  # <-- Notice that I'm filtering here to only run when a tagged commit is pushed
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v2
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - id: auth
+        name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v0
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-      - name: compile
-        working-directory: ./backend
-        run: mvn --batch-mode --update-snapshots install
+          token_format: access_token
+          workload_identity_provider: ${{ env.PROVIDER_ID }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}@<${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+          access_token_lifetime: 300s
 
-      - id: "auth"
-        uses: "google-github-actions/auth@v2"
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v1
         with:
-          credentials_json: ${{ secrets.GCR_PUSH_SECRET }}
-
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v1"
-
-      - name: "Use gcloud CLI"
-        run: "gcloud info"
-
-      - name: "Docker auth"
-        run: |-
-          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-
-      - name: Build image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest .
-        working-directory: ./backend
-
-      - name: Push image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest 
-
-# name: Build and Push Docker image to GCR
-
-# on:
-#   push:
-#     branches:
-#       - main
-#       - deploy
+          registry: ${{ env.REGION }}-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
 
 # jobs:
-#   build-and-push:
-#     #if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#   build-push-artifact:
 #     runs-on: ubuntu-latest
-#     permissions:
-#       contents: 'read'
-#       id-token: 'write'
 #     steps:
 #       - name: Checkout code
 #         uses: actions/checkout@v3
@@ -80,24 +64,101 @@ jobs:
 #         working-directory: ./backend
 #         run: mvn --batch-mode --update-snapshots install
 
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v3
-#       - name: Authenticate to Google Cloud
-#         uses: google-github-actions/auth@v2
+#       - id: "auth"
+#         uses: "google-github-actions/auth@v2"
 #         with:
 #           credentials_json: ${{ secrets.GCR_PUSH_SECRET }}
-#       - name: 'Set up Cloud SDK'
-#         uses: 'google-github-actions/setup-gcloud@v2'
-#       - name: Build Docker image
-#         run: |
-#           docker build -t northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest -f backend/Dockerfile ./backend
-#       - name: GitHub Container Registry login
-#         uses: docker/login-action@v3
-#         with:
-#           registry: ghcr.io
-#           username: ${{ github.actor }}
-#           password: ${{ secrets.CR_PAT_SECRET }}
-#       - name: Push Docker image to GitHub Container Registry
-#         run: |
-#           docker tag northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest ghcr.io/${{ github.repository_owner }}/pianoml:latest
-#           docker push northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest
+
+#       - name: "Set up Cloud SDK"
+#         uses: "google-github-actions/setup-gcloud@v1"
+
+#       - name: "Use gcloud CLI"
+#         run: "gcloud info"
+
+#       - name: "Docker auth"
+#         run: |-
+#           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+#       - name: Build image
+#         run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest .
+#         working-directory: ./backend
+
+#       - name: Push image
+#         run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest 
+# northamerica-northeast1-docker.pkg.dev/sectrack/images
+# northamerica-northeast1-docker.pkg.dev/sectrack/images/pianoml:latest
+# northamerica-northeast1-docker.pkg.dev/sectrack/images/pianoml:latest
+
+
+# gcloud iam workload-identity-pools providers create-oidc "${WORKLOAD_PROVIDER}"   \ 
+# --project="${PROJECT_ID}"  \
+#  --location="global" \
+#    --workload-identity-pool="${WORKLOAD_IDENTITY_POOL}"  \
+#     --display-name="${WORKLOAD_PROVIDER}" \
+#        --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository" \
+# --attribute-condition="assertion.repository_owner == 'piano-ml'" \
+#        --issuer-uri="https://token.actions.githubusercontent.com"
+
+
+# gcloud iam workload-identity-pools providers create-oidc "${WORKLOAD_PROVIDER}" \
+#   --project="${PROJECT_ID}" \
+#   --location="global" \
+#   --workload-identity-pool="${WORKLOAD_IDENTITY_POOL}" \
+#   --display-name="${WORKLOAD_PROVIDER}" \
+#   --attribute-condition="assertion.repository_owner == 'piano-ml' "
+#   --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository" \
+#   --issuer-uri="https://token.actions.githubusercontent.com"
+
+
+
+# #projects/189831140484/locations/global/workloadIdentityPools/my-pool
+# # name: Build and Push Docker image to GCR
+
+# # on:
+# #   push:
+# #     branches:
+# #       - main
+# #       - deploy
+
+# # jobs:
+# #   build-and-push:
+# #     #if: ${{ github.event.workflow_run.conclusion == 'success' }}
+# #     runs-on: ubuntu-latest
+# #     permissions:
+# #       contents: 'read'
+# #       id-token: 'write'
+# #     steps:
+# #       - name: Checkout code
+# #         uses: actions/checkout@v3
+
+# #       - name: Set up JDK 17
+# #         uses: actions/setup-java@v4
+# #         with:
+# #           java-version: '17'
+# #           distribution: 'temurin'
+# #           cache: maven
+# #       - name: compile
+# #         working-directory: ./backend
+# #         run: mvn --batch-mode --update-snapshots install
+
+# #       - name: Set up Docker Buildx
+# #         uses: docker/setup-buildx-action@v3
+# #       - name: Authenticate to Google Cloud
+# #         uses: google-github-actions/auth@v2
+# #         with:
+# #           credentials_json: ${{ secrets.GCR_PUSH_SECRET }}
+# #       - name: 'Set up Cloud SDK'
+# #         uses: 'google-github-actions/setup-gcloud@v2'
+# #       - name: Build Docker image
+# #         run: |
+# #           docker build -t northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest -f backend/Dockerfile ./backend
+# #       - name: GitHub Container Registry login
+# #         uses: docker/login-action@v3
+# #         with:
+# #           registry: ghcr.io
+# #           username: ${{ github.actor }}
+# #           password: ${{ secrets.CR_PAT_SECRET }}
+# #       - name: Push Docker image to GitHub Container Registry
+# #         run: |
+# #           docker tag northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest ghcr.io/${{ github.repository_owner }}/pianoml:latest
+# #           docker push northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest
