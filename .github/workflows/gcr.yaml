@@ -49,4 +49,4 @@ jobs:
       - name: Push Docker image to GitHub Container Registry
         run: |
           docker tag gcr.io/sectrack/pianoml:latest ghcr.io/${{ github.repository_owner }}/pianoml:latest
-          docker push ghcr.io/${{ github.repository_owner }}/pianoml:latest
+          docker push ghcr.io/sectrack/pianoml:latest
