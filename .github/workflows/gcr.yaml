@@ -45,11 +45,12 @@ jobs:
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
       - name: Build image
-        run: docker build . --file DOCKERFILE_LOCATION --tag ${{ env.GAR_LOCATION }}
+        run: docker build -t northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest -f backend/Dockerfile ./backend
+#
         working-directory: ./backend
 
       - name: Push image
-        run: docker push ${{ env.GAR_LOCATION }}
+        run: docker push northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest 
 
 # name: Build and Push Docker image to GCR
 
