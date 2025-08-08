@@ -98,7 +98,7 @@
 		</dependency>
     <dependency>
       <groupId>com.google.cloud</groupId>
-      <artifactId>spring-cloud-gcp-starter-sql-postgres</artifactId>
+      <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
     </dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
