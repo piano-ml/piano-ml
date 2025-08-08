@@ -39,7 +39,7 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v2'
       - name: Build Docker image
         run: |
-          docker build -t gcr.io/sectrack/pianoml:latest -f backend/Dockerfile ./backend
+          docker build -t northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest -f backend/Dockerfile ./backend
       - name: GitHub Container Registry login
         uses: docker/login-action@v3
         with:
@@ -48,5 +48,5 @@ jobs:
           password: ${{ secrets.CR_PAT_SECRET }}
       - name: Push Docker image to GitHub Container Registry
         run: |
-          docker tag gcr.io/sectrack/pianoml:latest ghcr.io/${{ github.repository_owner }}/pianoml:latest
-          docker push gcr.io/sectrack/pianoml:latest
+          docker tag northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest ghcr.io/${{ github.repository_owner }}/pianoml:latest
+          docker push northamerica-northeast1-docker.pkg.dev/sectrack/pianoml:latest
