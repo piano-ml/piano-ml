@@ -33,7 +33,7 @@ jobs:
 
       - id: auth
         name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v2.1.12
+        uses: google-github-actions/auth@v2
         with:
           token_format: access_token
           workload_identity_provider: ${{ env.PROVIDER_ID }}
@@ -46,6 +46,20 @@ jobs:
           registry: ${{ env.REGION }}-docker.pkg.dev
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
+
+
+#       - name: "Docker auth"
+#         run: |-
+#           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build image
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest .
+        working-directory: ./backend
+
+      - name: Push image
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest 
+
+
 
 # jobs:
 #   build-push-artifact:
@@ -85,6 +99,8 @@ jobs:
 
 #       - name: Push image
 #         run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest 
+
+
 # northamerica-northeast1-docker.pkg.dev/sectrack/images
 # northamerica-northeast1-docker.pkg.dev/sectrack/images/pianoml:latest
 # northamerica-northeast1-docker.pkg.dev/sectrack/images/pianoml:latest

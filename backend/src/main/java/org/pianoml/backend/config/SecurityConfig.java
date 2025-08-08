@@ -48,3 +48,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+//  {"error":"unauthorized_client","error_description":"The given credential is rejected by the attribute condition."}
