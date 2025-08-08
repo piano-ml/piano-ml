@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -33,7 +35,7 @@ jobs:
 
       - name: Push Docker image to GCR
         run: |
-          docker push gcr.io/secktrack/pianoml:latest
+          docker push gcr.io/sectrack/pianoml:latest
 
       - name: GitHub Container Registry login
         uses: docker/login-action@v3
