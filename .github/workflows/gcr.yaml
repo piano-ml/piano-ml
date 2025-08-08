@@ -3,10 +3,10 @@
 name: Build and Push Docker image to GCR
 
 on:
-  workflow_run:
-    workflows: ["Java CI with Maven and Docker"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
+      - deploy
 
 jobs:
   build-and-push:
