@@ -1,26 +1,32 @@
 <div class="flex flex-col min-h-screen" id="top">
 
     <div class=" w-full fixed top-0 h-12 flex-grow bg-black p-4 text-white z-3">
+        <div class="flex flex-row bg-red">
+            <div class="flex-none">
+                <a *ngIf="true" routerLink="/home" class="breadcrumb-label">PianoML</a>
+                <span *ngIf="true" class="breadcrumb-separator">/</span>
 
-        <a *ngIf="true" routerLink="/home" class="breadcrumb-label">PianoML</a>
-        <span *ngIf="true" class="breadcrumb-separator">/</span>
+                <ng-container *ngFor="let item of breadcrumbService.items$ | async; let last = last">
+                    <a *ngIf="!last" [routerLink]="item.path" class="breadcrumb-label">{{ item.label }}</a>
+                    <span *ngIf="last" class="breadcrumb-label breadcrumb-label-last">{{ item.label }}</span>
+                    <span *ngIf="!last" class="breadcrumb-separator">/</span>
+                </ng-container>
+            </div>
 
-        <ng-container *ngFor="let item of breadcrumbService.items$ | async; let last = last">
-            <a *ngIf="!last" [routerLink]="item.path" class="breadcrumb-label">{{ item.label }}</a>
-            <span *ngIf="last" class="breadcrumb-label breadcrumb-label-last">{{ item.label }}</span>
-            <span *ngIf="!last" class="breadcrumb-separator">/</span>
-        </ng-container>
+            <div class="flex-grow"></div>
+            
+            <div class="flex-none">
+                <ng-container *ngIf="isLoggedIn$ | async; else loginLink">
+                    <button routerLink="/account/home" class="text-white">Me</button>
+                </ng-container>
+                <ng-template #loginLink>
+                    <ng-container *ngIf="!(router.url === '/account/login')">
+                        <a routerLink="/account/login" class="text-white">Login</a>
+                    </ng-container>
+                </ng-template>
+            </div>
 
-        <div class="flex-grow"></div>
-        <div class="flex-none">
-            <ng-container *ngIf="isLoggedIn$ | async; else loginLink">
-                <button (click)="logout()" class="text-white">Logout</button>
-            </ng-container>
-            <ng-template #loginLink>
-                <a routerLink="/account/login" class="text-white">Login</a>
-            </ng-template>
         </div>
-
 
     </div>
     <div class="flex-grow pt-16 pb-16">

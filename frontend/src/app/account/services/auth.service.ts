@@ -49,4 +49,12 @@ export class AuthService {
   register(user: AccountCreatePostRequest) {
     return this.accountService.accountCreatePost(user);
   }
+  
+  getUserInfo() {
+    return this.accountService.accountUserinfoGet();
+  }
+  
+  updateUserInfo(data: any) {
+    return this.accountService.accountUserinfoPut(data);
+  }
 }

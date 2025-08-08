@@ -1,0 +1,14 @@
+<div class="account-home">
+  <h2>Account</h2>
+  <div class="user-info">
+    <label>name:</label>
+    <span *ngIf="!editMode">{{ userInfo.name }} <button (click)="enableEdit()" title="Edit"><span class="edit-icon">✏️</span></button></span>
+    <span *ngIf="editMode">
+      <form [formGroup]="nameForm" (ngSubmit)="savename()" style="display:inline">
+        <input formControlName="name" />
+        <button type="submit" title="Save">💾</button>
+      </form>
+    </span>
+  </div>
+  <a (click)="logout()" class="logout-link">Logout</a>
+</div>

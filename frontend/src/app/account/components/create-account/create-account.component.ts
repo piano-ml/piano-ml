@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -18,9 +18,9 @@ export class CreateAccountComponent {
     strong: false,
   };
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.createAccountForm = this.fb.group({
-      username: ['', Validators.required],
+      name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required]
@@ -55,19 +55,21 @@ export class CreateAccountComponent {
   onSubmit() {
     if (this.createAccountForm.valid) {
       this.checkPasswordStrength(this.createAccountForm.value.password);
-      if (this.passwordStrength.strong || this.passwordStrength.medium) {
+      //if (this.passwordStrength.strong || this.passwordStrength.medium) {
         // Call auth service
         this.authService.register(this.createAccountForm.value).subscribe({
           next: () => {
             // Redirect to login or home
+            this.router.navigate(['/account/login']);
           },
           error: (err) => {
+            this.router.navigate(['/error']);            
             console.error(err);
           }
         });
-      } else {
-        // show password too weak error
-      }
+      //} else {
+      //  // show password too weak error
+      //}
     }
   }
 }

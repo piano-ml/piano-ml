@@ -1,0 +1,24 @@
+.account-home {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.edit-icon {
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+.logout-link {
+  color: #d32f2f;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: bold;
+}

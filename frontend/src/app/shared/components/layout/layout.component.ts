@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 // biome-ignore lint/style/useImportType: <explanation>
 import { BreadcrumbService } from '../../services/breadcrumb.service';
@@ -23,14 +24,14 @@ export class LayoutComponent {
   
   constructor (
     public breadcrumbService: BreadcrumbService,
-    private authService: AuthService
+    private authService: AuthService,
+    public router: Router
   ) {
     this.isLoggedIn$ = this.authService.isLoggedIn;
     if (window.innerWidth < 768) {
       console.log(window.innerWidth);
       this.shareLinks = this.shareLinks.splice(0, 2);
     }
-    
   }
 
   logout() {
