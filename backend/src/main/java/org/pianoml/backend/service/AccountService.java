@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class AccountService {
 
@@ -40,7 +42,7 @@ public class AccountService {
 
         User user = userMapper.toUser(accountCreatePostRequest);
         user.setPassword(passwordEncoder.encode(accountCreatePostRequest.getPassword()));
-
+        user.setRoles("USER"); // Default role for new users
         return userRepository.save(user);
     }
 
@@ -60,4 +62,22 @@ public class AccountService {
 
         return tokenProvider.generateToken(user);
     }
+
+
+  public User getUserFromAuthentication(Authentication authentication) {
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new RuntimeException("user not authenticated");
+    }
+    String id = authentication.getName();
+    // TODO switch to using userId instead of email
+    java.util.Optional<User> userOpt = userRepository.findById(UUID.fromString(id));
+    if (userOpt.isEmpty()) {
+      throw new RuntimeException("user not found");
+    }
+    return userOpt.get();
+  }
+
+  public org.pianoml.backend.model.UserApiInfo getUserApiInfoFromAuthentication(Authentication authentication) {
+      return userMapper.toUserApiInfo(getUserFromAuthentication(authentication));
+  }
 }

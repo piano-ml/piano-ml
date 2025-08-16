@@ -1,0 +1,35 @@
+meta {
+  name: account login
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/account/login
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+}
+
+body:json {
+  {
+    "email": "test@test.fr",
+    "password": "test"
+  }
+}
+
+script:post-response {
+  let responseBody = res.body;
+  
+  const token = responseBody.token
+  console.log(token)
+  bru.setEnvVar("token", token);
+}
+
+settings {
+  encodeUrl: true
+}

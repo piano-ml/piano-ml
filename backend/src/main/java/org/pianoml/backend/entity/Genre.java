@@ -19,9 +19,9 @@ public class Genre {
     private UUID id;
 
     @Column(nullable = false)
+    private UUID mbid;
+
+    @Column(nullable = false)
     private String name;
 
-    private String url;
-
-    private String image;
 }

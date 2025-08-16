@@ -1,0 +1,29 @@
+meta {
+  name: account user info
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8080/account/userinfo
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {}
+}
+
+script:pre-request {
+  const token = bru.getEnvVar("token");
+}
+
+settings {
+  encodeUrl: true
+}

@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -33,9 +34,12 @@ public class Score {
   @JoinColumn(name = "genre_id")
   private Genre genre;
 
+  @Column(name = "version")
   private Integer version;
 
-  private Integer year;
+  @ManyToOne
+  @JoinColumn(name = "owner_id", nullable = false)
+  private User owner;
 
   @Column(name = "tracks_count")
   private Integer tracksCount;
@@ -49,18 +53,12 @@ public class Score {
   @Column(name = "grade")
   private Integer grade;
 
-  @Column(name = "uploaded_at")
-  private OffsetDateTime uploadedAt;
-
-  @ManyToOne
-  @JoinColumn(name = "owner_id")
-  private User owner;
-
   @Column(name = "updated_at")
   private OffsetDateTime updatedAt;
 
-  @Column(name = "has_mxml")
-  private Boolean hasMxml;
+  // TODO
+  //@Column(name = "updated_at")
+  //private OffsetDateTime updatedAt;
 
   @Column(name = "has_pdf")
   private Boolean hasPdf;
@@ -79,5 +77,11 @@ public class Score {
 
   @Column(name = "duration", nullable = true)
   private int duration;
+
+  @Column(name = "study_tracks")
+  private String studyTracks;
+
+  @Column(name = "publish")
+  private Boolean publish;
 
 }

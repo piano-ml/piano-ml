@@ -1,0 +1,16 @@
+meta {
+  name: author search
+  type: http
+  seq: 16
+}
+
+get {
+  url: http://localhost:8080/author/search/arley
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  Authorization: Bearer {{token}}
+}

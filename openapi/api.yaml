@@ -1,3 +1,4 @@
+
 openapi: 3.0.0
 info:
   title: PianoML API
@@ -184,7 +185,7 @@ paths:
           in: query
           schema:
             type: string
-          description: A keyword 
+          description: A keyword
         - name: genreId
           in: query
           schema:
@@ -197,18 +198,18 @@ paths:
         - name: gradeEnd
           in: query
           schema:
-            type: integer            
+            type: integer
           description: the level
         - name: offset
           in: query
           schema:
             type: integer
-          description: search start at           
+          description: search start at
         - name: limit
           in: query
           schema:
             type: integer
-          description: limit results count    
+          description: limit results count
       responses:
         '200':
           description: ScoreApiInfo retrieved successfully
@@ -220,7 +221,7 @@ paths:
                   $ref: '#/components/schemas/ScoreApiInfo'
         '400':
           description: Bad request
-          
+
   /score/{id}:
     get:
       tags:
@@ -259,7 +260,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ScoreApiInfo'
-      
+
       responses:
         '200':
           description: ScoreApiInfo retrieved successfully
@@ -270,15 +271,15 @@ paths:
         '403':
           description: Not authorized
         '404':
-          description: ScoreApiInfo not found          
+          description: ScoreApiInfo not found
 
-  /score/{id}/{type}:
+  /score/{mbid}/{type}/{version}/{revision}:
     post:
       tags:
         - score
       summary: Upload a binary file for a specific score
       parameters:
-        - name: id
+        - name: mbid
           in: path
           required: true
           schema:
@@ -289,8 +290,30 @@ paths:
           required: true
           schema:
             type: string
-            enum: [pdf, mxml]
+            enum: [pdf, musicxml, mid]
           description: The type of file being uploaded (e.g., pdf or mxml)
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the score
+        - name: revision
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the score
+        - name: track1
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: track2
+          in: query
+          required: false
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -305,12 +328,19 @@ paths:
           description: Invalid input
         '404':
           description: ScoreApiInfo not found
+  /score/{owner}/{mbid}/{type}/{version}/{revision}:
     get:
       tags:
         - score
       summary: Download a file for a specific score
       parameters:
-        - name: id
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The User Id
+        - name: mbid
           in: path
           required: true
           schema:
@@ -323,6 +353,19 @@ paths:
             type: string
             enum: [pdf, mxml]
           description: The type of file to download (e.g., pdf or mxml)
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the score
+        - name: revision
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the score
+
       responses:
         '200':
           description: File downloaded successfully
@@ -333,7 +376,7 @@ paths:
                 format: binary
         '404':
           description: ScoreApiInfo or file type not found
-          
+
   /author:
     post:
       tags:
@@ -344,7 +387,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthorApiInfo'              
+              $ref: '#/components/schemas/AuthorApiInfo'
 
       responses:
         '201':
@@ -355,18 +398,18 @@ paths:
                 $ref: '#/components/schemas/AuthorApiInfo'
         '400':
           description: Invalid input
-  /author/{id}:
+  /author/{mbid}:
     put:
       tags:
         - author
       summary: Update an author
       parameters:
-        - name: id
+        - name: mbid
           in: path
           required: true
           schema:
             type: string
-          description: The ID of the author
+          description: The MusicBrainz ID for the author
       requestBody:
         required: true
         content:
@@ -387,12 +430,12 @@ paths:
         - author
       summary: Retrieve informations about an author
       parameters:
-        - name: id
+        - name: mbid
           in: path
           required: true
           schema:
             type: string
-          description: The ID of the author
+          description: The MusicBrainz ID for the author
       responses:
         '200':
           description: AuthorApiInfo retrieved successfully
@@ -442,20 +485,21 @@ paths:
     post:
       tags:
         - genre
-      summary: Add an entry for genres
+      summary: Add a genre
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/GenreApiInfo'
-                
+
       responses:
         '201':
           description: Genres created successfully
           content:
-            application/json:              
+            application/json:
               schema:
+                type: object
                 $ref: '#/components/schemas/GenreApiInfo'
   /genre/{id}:
     put:
@@ -544,10 +588,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllAuthorApiInfo'
+                $ref: '#/components/schemas/MbAuthorApiInfo'
         '404':
           description: GenreApiInfo not found
-          
+
   /work/search/{query}:
     get:
       tags:
@@ -568,7 +612,7 @@ paths:
                 $ref: '#/components/schemas/AllWorksApiInfo'
         '404':
           description: Work not found
-          
+
 
 components:
   schemas:
@@ -577,28 +621,32 @@ components:
       properties:
         id:
           type: string
+        mbid:
+          type: string
         name:
           type: string
-        birth:
+        disambiguation:
           type: string
-          format: date-time
-        bio:
+        country:
           type: string
-        image:
+        type:
           type: string
-          format: uri
-        link:
+        gender:
           type: string
-          format: uri
-      required:
-        - id
-        - name
-        - year
-        - bio
+        lifeSpanBegin:
+          type: string
+          format: date
+        lifeSpanEnd:
+          type: string
+          format: date
+        lifeSpanEnded:
+          type: boolean
     ScoreApiInfo:
       type: object
       properties:
         id:
+          type: string
+        mbid:
           type: string
         title:
           type: string
@@ -607,9 +655,6 @@ components:
         author_id:
           type: string
         version:
-          type: integer
-          format: int32
-        year:
           type: integer
           format: int32
         tracks_count:
@@ -623,8 +668,8 @@ components:
           type: integer
           format: int32
         duration:
-          type: integer
-          format: int32
+          type: number
+          format: float
         genre:
           type: string
         genre_id:
@@ -635,9 +680,7 @@ components:
         uploaded_at:
           type: string
           format: date-time
-        uploaded_by_id:
-          type: string
-        uploaded_by_name:
+        owner_id:
           type: string
         updated_at:
           type: string
@@ -647,15 +690,22 @@ components:
         has_pdf:
           type: boolean
         image:
-          type: string          
+          type: string
           format: uri
+        study_tracks:
+          type: array
+          items:
+            type: integer
       required:
         - title
         - author
-        - year
+        - version
+        - mbid
     UserApiInfo:
       type: object
       properties:
+        id:
+          type: string
         email:
           type: string
           format: email
@@ -667,7 +717,7 @@ components:
           type: string
           format: uri
         image:
-          type: string          
+          type: string
           format: uri
       required:
         - email
@@ -677,16 +727,34 @@ components:
       properties:
         id:
           type: string
+        mbid:
+          type: string
         name:
           type: string
-        url:
+    MusicBrainzService:
+      type: object
+      properties:
+        name:
           type: string
-        image:
-          type: string          
-          format: uri
-      required:
-        - name       
-
+        country:
+          type: string
+        disambiguation:
+          type: string
+        sort-name:
+          type: string
+        type:
+          type: string
+        life-span:
+          type: object
+          properties:
+            begin:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+            ended:
+              type: boolean
     AllWorksApiInfo:
       type: object
       properties:
@@ -715,31 +783,45 @@ components:
                           type: string
                         disambiguation:
                           type: string
-    AllAuthorApiInfo:
+    MbAuthorApiInfo:
       type: object
       properties:
-        artists:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
+        id:
+          type: string
+        type:
+          type: string
+        name:
+          type: string
+        sort-name:
+          type: string
+        disambiguation:
+          type: string
+        gender:
+          type: string
+        country:
+          type:  string
+        life-span:
+          type: object
+          properties:
+            begin:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+            ended:
+              type: boolean
+    ErrorApiInfo:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            name:
+              type: string
+            message:
+              type: string
+            stacktrace:
+              type: array
+              items:
                 type: string
-              type:
-                type: string
-              name:
-                type: string
-              sort-name:
-                type: string                
-              life-span:
-                type: object
-                properties:
-                  begin:
-                    type: string
-                    format: date
-                  end:
-                    type: string
-                    format: date
-                  ended:
-                    type: boolean
-                     

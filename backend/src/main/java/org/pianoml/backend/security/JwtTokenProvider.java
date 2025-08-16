@@ -23,7 +23,7 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
         return JWT.create()
-                .withSubject(user.getClass().toString())
+                .withSubject(user.getId().toString())
                 .withIssuedAt(now)
                 .withExpiresAt(expiryDate)
                 .sign(Algorithm.HMAC512(jwtSecret));

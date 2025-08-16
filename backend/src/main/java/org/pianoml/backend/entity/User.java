@@ -39,4 +39,7 @@ public class User {
 
     @Column
     private String image;
+
+  @Column
+  private String roles;
 }

@@ -1,0 +1,26 @@
+meta {
+  name: author update
+  type: http
+  seq: 15
+}
+
+put {
+  url: http://localhost:8080/author/aee4be66-e41e-40aa-bf24-d407144c504b
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "name": "string",
+    "mbid": "aee4be66-e41e-40aa-bf24-d407144c504b"
+  }
+}

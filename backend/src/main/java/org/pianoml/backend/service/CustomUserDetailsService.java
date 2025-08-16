@@ -3,12 +3,14 @@ package org.pianoml.backend.service;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -27,7 +29,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserById(String id) {
         User user = userRepository.findById(java.util.UUID.fromString(id))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
-
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
+      String[] roles =  user.getRoles().split(",");
+      Collection<? extends GrantedAuthority> authorities = java.util.Arrays.stream(roles)
+        .map(role -> (GrantedAuthority) () -> "ROLE_" + role.trim())
+        .toList();
+      return new org.springframework.security.core.userdetails.User(user.getId().toString(), user.getPassword(), authorities);
     }
 }

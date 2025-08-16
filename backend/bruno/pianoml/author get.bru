@@ -1,0 +1,16 @@
+meta {
+  name: author get
+  type: http
+  seq: 14
+}
+
+get {
+  url: http://localhost:8080/author/ed2ac1e9-d51d-4eff-a2c2-85e81abd6360
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  Authorization: Bearer {{token}}
+}

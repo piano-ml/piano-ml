@@ -23,12 +23,12 @@ public class GenreService {
     private GenreMapper genreMapper;
 
     public GenreApiInfo createGenre(GenreApiInfo genreApiInfos) {
-        Genre savedGenre = genreRepository.save(genreMapper.toGenre(genreApiInfos));
-        return genreApiInfos;
+        Genre newGenre = genreRepository.save(genreMapper.toGenre(genreApiInfos));
+        return genreMapper.toGenreApiInfo(newGenre);
     }
 
     public Optional<GenreApiInfo> getGenre(UUID id) {
-        return genreRepository.findById(id)
+        return genreRepository.findByMbid(id)
                 .map(genreMapper::toGenreApiInfo);
     }
 
@@ -39,11 +39,9 @@ public class GenreService {
     }
 
     public Optional<GenreApiInfo> updateGenre(UUID id, GenreApiInfo genreApiInfo) {
-        return genreRepository.findById(id)
+        return genreRepository.findByMbid(id)
                 .map(genre -> {
                     genre.setName(genreApiInfo.getName());
-                    genre.setUrl(genreApiInfo.getUrl());
-                    genre.setImage(genreApiInfo.getImage() != null ? genreApiInfo.getImage().toString() : null);
                     Genre updatedGenre = genreRepository.save(genre);
                     return genreMapper.toGenreApiInfo(updatedGenre);
                 });

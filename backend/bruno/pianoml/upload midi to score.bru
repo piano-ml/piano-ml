@@ -1,0 +1,60 @@
+meta {
+  name: upload midi to score
+  type: http
+  seq: 17
+}
+
+post {
+  url: http://localhost:8080/score/aee4be66-e41e-40aa-bf24-d407144c504b/mid/1073741824/1?track1=3&track2=1
+  body: file
+  auth: inherit
+}
+
+params:query {
+  track1: 3
+  track2: 1
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "mbid": "aee4be66-e41e-40aa-bf24-d407144c504b",
+    "title": "string",
+    "author": "string",
+    "author_id": "004be66-e41e-40aa-bf24-d407144c504b",
+    "version": 1073741824,
+    "year": 1073741824,
+    "tracks_count": 1073741824,
+    "hand_separated": true,
+    "has_lyrics": true,
+    "measures": 1073741824,
+    "duration": 0.1,
+    "genre": "string",
+    "grade": 1073741824,
+    "uploaded_at": "2025-08-11T16:44:12.753Z",
+    "uploaded_by_id": "string",
+    "uploaded_by_name": "string",
+    "updated_at": "2025-08-11T16:44:12.753Z",
+    "has_mxml": true,
+    "has_pdf": true,
+    "image": "https://example.com/"
+  }
+  
+}
+
+body:file {
+  file: @file(/home/eflorent/Téléchargements/Cradle Song.pdf) @contentType(application/octet-stream)
+}
+
+script:pre-request {
+  const token = bru.getEnvVar("token");
+}
+
+settings {
+  encodeUrl: true
+}

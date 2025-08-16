@@ -18,17 +18,15 @@ public class AuthorController implements AuthorApi {
     private AuthorService authorService;
 
     @Override
-    public ResponseEntity<AuthorApiInfo> authorIdGet(String id) {
+    public ResponseEntity<AuthorApiInfo> authorMbidGet(String id) {
         return authorService.getAuthor(UUID.fromString(id))
                 .map(ResponseEntity::ok)
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @Override
-    public ResponseEntity<AuthorApiInfo> authorIdPut(String id, AuthorApiInfo authorApiInfo) {
-        return authorService.updateAuthor(UUID.fromString(id), authorApiInfo)
-                .map(ResponseEntity::ok)
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<AuthorApiInfo> authorMbidPut(String id, AuthorApiInfo authorApiInfo) {
+      return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     @Override

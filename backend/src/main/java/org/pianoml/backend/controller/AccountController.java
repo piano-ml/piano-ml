@@ -10,6 +10,7 @@ import org.pianoml.backend.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -51,7 +52,8 @@ public class AccountController implements AccountApi {
 
     @Override
     public ResponseEntity<UserApiInfo> accountUserinfoGet() {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+      UserApiInfo userApiInfo = accountService.getUserApiInfoFromAuthentication(SecurityContextHolder.getContext().getAuthentication());
+      return ResponseEntity.ok(userApiInfo);
     }
 
     @Override

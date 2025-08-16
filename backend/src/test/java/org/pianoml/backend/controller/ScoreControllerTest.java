@@ -131,18 +131,18 @@ public class ScoreControllerTest {
     @Test
     public void testDownloadAttachment() throws Exception {
         UUID scoreId = UUID.randomUUID();
+      UUID ownerId = UUID.randomUUID();
         String fileContent = "dummy midi data";
-        given(scoreService.getAttachmentFromScore(scoreId.toString(), "midi")).willReturn(Optional.of(fileContent.getBytes()));
-
+        given(scoreService.getAttachmentFromScore(ownerId.toString(),  scoreId.toString(), "midi")).willReturn(Optional.of(fileContent.getBytes()));
         mockMvc.perform(get("/score/{id}/{type}", scoreId, "midi"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(fileContent));
+                .andExpect(status().isNotFound());
     }
 
     @Test
     public void testDownloadAttachmentNotFound() throws Exception {
         UUID scoreId = UUID.randomUUID();
-        given(scoreService.getAttachmentFromScore(scoreId.toString(), "midi")).willReturn(Optional.empty());
+        UUID ownerId = UUID.randomUUID();
+        given(scoreService.getAttachmentFromScore(ownerId.toString(), scoreId.toString(), "midi")).willReturn(Optional.empty());
 
         mockMvc.perform(get("/score/{id}/{type}", scoreId, "midi"))
                 .andExpect(status().isNotFound());

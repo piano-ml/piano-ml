@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "pianoml",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

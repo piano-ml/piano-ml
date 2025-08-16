@@ -1,33 +1,37 @@
 package org.pianoml.backend.service;
 
+import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.entity.Author;
 import org.pianoml.backend.entity.Genre;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
+import org.pianoml.backend.exception.MusicBrainzException;
 import org.pianoml.backend.mapper.ScoreMapper;
 import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
+@Slf4j
 @Service
 public class ScoreService {
 
@@ -44,7 +48,7 @@ public class ScoreService {
   private ScoreRepositoryCustom scoreRepositoryCustom;
 
   @Autowired
-  private AuthorRepository authorRepository;
+  private AuthorService authorService;
 
   @Autowired
   private GenreRepository genreRepository;
@@ -55,11 +59,17 @@ public class ScoreService {
   @Autowired
   private ScoreMapper scoreMapper;
 
-  public ScoreApiInfo createScore(ScoreApiInfo scoreApiInfo, String userId) {
-    Score score = scoreMapper.toScore(scoreApiInfo);
 
-    Author author = authorRepository.findById(UUID.fromString(scoreApiInfo.getAuthorId()))
-      .orElseThrow(() -> new RuntimeException("Author not found"));
+
+
+  @Autowired
+  private PackService packService;
+
+  @Transactional
+  public ScoreApiInfo createScore(ScoreApiInfo scoreApiInfo, User userId) {
+    Score score = scoreMapper.toScore(scoreApiInfo);
+    score.setOwner(userId);
+    Author author = authorService.maybeCreateAuthor(UUID.fromString(scoreApiInfo.getAuthorId()));
     score.setAuthor(author);
 
     if (scoreApiInfo.getGenreId() != null) {
@@ -68,13 +78,11 @@ public class ScoreService {
       score.setGenre(genre);
     }
 
-    User user = userRepository.findById(UUID.fromString(userId))
-      .orElseThrow(() -> new RuntimeException("User not found"));
-    score.setOwner(user);
-
     Score savedScore = scoreRepository.save(score);
     return scoreMapper.toScoreApiInfo(savedScore);
   }
+
+
 
   public Optional<ScoreApiInfo> getScore(UUID id) {
     return scoreRepository.findById(id)
@@ -87,11 +95,9 @@ public class ScoreService {
         // Update score fields from scoreApiInfo
         score.setTitle(scoreApiInfo.getTitle());
         score.setVersion(scoreApiInfo.getVersion());
-        score.setYear(scoreApiInfo.getYear());
         score.setTracksCount(scoreApiInfo.getTracksCount());
         score.setHandSeparated(scoreApiInfo.getHandSeparated());
         score.setHasLyrics(scoreApiInfo.getHasLyrics());
-        score.setDuration(scoreApiInfo.getDuration());
         score.setGrade(scoreApiInfo.getGrade());
         score.setHasMscz(scoreApiInfo.getHasMxml());
         score.setHasPdf(scoreApiInfo.getHasPdf());
@@ -109,54 +115,39 @@ public class ScoreService {
       .collect(Collectors.toList());
   }
 
-  public void addAttachmentToScore(String id, String type, java.io.InputStream inputStream) throws IOException {
-    String key = "scores/" + id + ".zip";
-    byte[] existingZipData = new byte[0];
+  public void packAttachmentToScore(String id, String type, Integer version, Integer revision, InputStream inputStream, Score score) throws IOException {
+    String key = "scores/" + id + "/" + version + ".zip";
 
+    String filename = null;
     try {
-      existingZipData = s3Client.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build()).readAllBytes();
-    } catch (S3Exception e) {
-      if (e.statusCode() != 404) {
-        throw e;
+      if (type.equals("pdf")) {
+        filename = packService.packPDF(id, inputStream, score.getTitle(), score.getAuthor().getName());
+      } else if (type.equals("mid")) {
+        filename = packService.packMidi(id, inputStream,score.getTitle(), score.getAuthor().getName());
+      } else if (type.equals("musicxml")) {
+        filename = packService.packMusicXml(id, inputStream, score.getTitle(), score.getAuthor().getName());
+      } else {
+        throw new RuntimeException("Unsupported type " + type);
       }
-      // If not found, we'll create a new zip file.
-    }
-
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-      // Copy existing entries
-      if (existingZipData.length > 0) {
-        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(existingZipData))) {
-          ZipEntry entry;
-          while ((entry = zis.getNextEntry()) != null) {
-            if (!entry.getName().equals(id + "." + type)) {
-              zos.putNextEntry(new ZipEntry(entry.getName()));
-              zos.write(zis.readAllBytes());
-              zos.closeEntry();
-            }
-          }
-        }
+      log.info("successfully generated " + filename);
+      s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(key).build(),
+        RequestBody.fromFile(new File(filename)));
+      log.info("successfully sent to bucket " + key);
+    } finally {
+      if (filename != null) {
+        Files.deleteIfExists(Paths.get(filename));
       }
-
-      // Add new file
-      ZipEntry newEntry = new ZipEntry(id + "." + type);
-      zos.putNextEntry(newEntry);
-      zos.write(inputStream.readAllBytes());
-      zos.closeEntry();
     }
-
-    s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(key).build(),
-      RequestBody.fromBytes(baos.toByteArray()));
   }
 
-  public Optional<byte[]> getAttachmentFromScore(String id, String type) throws IOException {
-    String key = "scores/" + id + ".zip";
+  public Optional<byte[]> getAttachmentFromScore(String owner, String mbid, String type) throws IOException {
+    String key = "scores/" + owner + "/" + mbid + ".zip";
     try {
       byte[] zipData = s3Client.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build()).readAllBytes();
       try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipData))) {
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
-          if (entry.getName().equals(id + "." + type)) {
+          if (entry.getName().equals(mbid + "." + type)) {
             return Optional.of(zis.readAllBytes());
           }
         }

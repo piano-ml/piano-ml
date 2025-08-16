@@ -6,21 +6,26 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install essential packages, including Python, pip, git, and Java
 RUN apt-get update && \
-    apt-get install -y python3.10 python3-pip git openjdk-17-jdk pipx && \
+    apt-get install -y python3.10 python3-pip git openjdk-17-jdk pipx poppler-utils zip && \
     rm -rf /var/lib/apt/lists/*
 
 # Install poetry
-# RUN pipx ensurepath
-# RUN pipx install poetry
-# RUN ln -s /root/.local/bin/poetry  /usr/bin/poetry
-# # Install music21
-# #RUN pip3 install music21
+RUN pipx ensurepath
+RUN pipx install poetry
+RUN ln -s /root/.local/bin/poetry  /usr/bin/poetry
 
-# # Clone the homr repository and install its dependencies
-# RUN git clone https://github.com/liebharc/homr.git /opt/homr
-# WORKDIR /opt/homr
-# RUN poetry install
+# Install music21
+RUN pip3 install music21
 
+ # Clone the homr repository and install its dependencies
+RUN git clone https://github.com/liebharc/homr.git
+WORKDIR homr
+RUN poetry install
+
+workdir /
+RUN git clone https://github.com/papoteur-mga/relieur.git
+
+RUN git clone https://github.com/marcomusy/pianoplayer.git
 
 
 # Copy the Maven wrapper and the project's pom.xml
