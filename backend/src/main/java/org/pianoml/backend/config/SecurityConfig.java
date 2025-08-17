@@ -65,4 +65,3 @@ public class SecurityConfig {
       return source;
   }
 }
-//  {"error":"unauthorized_client","error_description":"The given credential is rejected by the attribute condition."}
