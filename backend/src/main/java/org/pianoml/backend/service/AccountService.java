@@ -68,6 +68,7 @@ public class AccountService {
     if (authentication == null || !authentication.isAuthenticated()) {
       throw new RuntimeException("user not authenticated");
     }
+    System.out.println(authentication);
     String id = authentication.getName();
     // TODO switch to using userId instead of email
     java.util.Optional<User> userOpt = userRepository.findById(UUID.fromString(id));

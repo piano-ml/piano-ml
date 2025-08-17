@@ -11,8 +11,7 @@
 
 export interface GenreApiInfo { 
     id?: string;
-    name: string;
-    url?: string;
-    image?: string;
+    mbid?: string;
+    name?: string;
 }
 

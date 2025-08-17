@@ -9,12 +9,9 @@
  */
 
 
-export interface UserApiInfo { 
-    id?: string;
-    email: string;
-    name: string;
-    url?: string;
-    bio?: string;
-    image?: string;
+export interface ErrorApiInfoError { 
+    name?: string;
+    message?: string;
+    stacktrace?: Array<string>;
 }
 

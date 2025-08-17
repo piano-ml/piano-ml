@@ -7,18 +7,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { MusicBrainzServiceLifeSpan } from './musicBrainzServiceLifeSpan';
 
 
-export interface AuthorApiInfo { 
-    id?: string;
-    mbid?: string;
+export interface MusicBrainzService { 
     name?: string;
-    disambiguation?: string;
     country?: string;
+    disambiguation?: string;
+    'sort-name'?: string;
     type?: string;
-    gender?: string;
-    lifeSpanBegin?: string;
-    lifeSpanEnd?: string;
-    lifeSpanEnded?: boolean;
+    'life-span'?: MusicBrainzServiceLifeSpan;
 }
 

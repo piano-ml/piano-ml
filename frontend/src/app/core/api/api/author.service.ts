@@ -37,16 +37,16 @@ export class AuthorService extends BaseService {
 
     /**
      * Retrieve informations about an author
-     * @param id The ID of the author
+     * @param mbid The MusicBrainz ID for the author
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public authorIdGet(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AuthorApiInfo>;
-    public authorIdGet(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AuthorApiInfo>>;
-    public authorIdGet(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AuthorApiInfo>>;
-    public authorIdGet(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling authorIdGet.');
+    public authorMbidGet(mbid: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AuthorApiInfo>;
+    public authorMbidGet(mbid: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AuthorApiInfo>>;
+    public authorMbidGet(mbid: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AuthorApiInfo>>;
+    public authorMbidGet(mbid: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (mbid === null || mbid === undefined) {
+            throw new Error('Required parameter mbid was null or undefined when calling authorMbidGet.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -74,7 +74,7 @@ export class AuthorService extends BaseService {
             }
         }
 
-        let localVarPath = `/author/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        let localVarPath = `/author/${this.configuration.encodeParam({name: "mbid", value: mbid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<AuthorApiInfo>('get', `${basePath}${localVarPath}`,
             {
@@ -91,20 +91,20 @@ export class AuthorService extends BaseService {
 
     /**
      * Update an author
-     * @param id The ID of the author
+     * @param mbid The MusicBrainz ID for the author
      * @param authorApiInfo 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public authorIdPut(id: string, authorApiInfo: AuthorApiInfo, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AuthorApiInfo>;
-    public authorIdPut(id: string, authorApiInfo: AuthorApiInfo, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AuthorApiInfo>>;
-    public authorIdPut(id: string, authorApiInfo: AuthorApiInfo, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AuthorApiInfo>>;
-    public authorIdPut(id: string, authorApiInfo: AuthorApiInfo, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling authorIdPut.');
+    public authorMbidPut(mbid: string, authorApiInfo: AuthorApiInfo, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AuthorApiInfo>;
+    public authorMbidPut(mbid: string, authorApiInfo: AuthorApiInfo, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AuthorApiInfo>>;
+    public authorMbidPut(mbid: string, authorApiInfo: AuthorApiInfo, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AuthorApiInfo>>;
+    public authorMbidPut(mbid: string, authorApiInfo: AuthorApiInfo, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (mbid === null || mbid === undefined) {
+            throw new Error('Required parameter mbid was null or undefined when calling authorMbidPut.');
         }
         if (authorApiInfo === null || authorApiInfo === undefined) {
-            throw new Error('Required parameter authorApiInfo was null or undefined when calling authorIdPut.');
+            throw new Error('Required parameter authorApiInfo was null or undefined when calling authorMbidPut.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -141,7 +141,7 @@ export class AuthorService extends BaseService {
             }
         }
 
-        let localVarPath = `/author/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        let localVarPath = `/author/${this.configuration.encodeParam({name: "mbid", value: mbid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<AuthorApiInfo>('put', `${basePath}${localVarPath}`,
             {

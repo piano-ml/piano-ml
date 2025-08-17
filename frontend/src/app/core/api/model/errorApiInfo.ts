@@ -7,14 +7,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { ErrorApiInfoError } from './errorApiInfoError';
 
 
-export interface UserApiInfo { 
-    id?: string;
-    email: string;
-    name: string;
-    url?: string;
-    bio?: string;
-    image?: string;
+export interface ErrorApiInfo { 
+    error?: ErrorApiInfoError;
 }
 
