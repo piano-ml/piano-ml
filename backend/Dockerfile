@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install essential packages, including Python, pip, git, and Java
 RUN apt-get update && \
-    apt-get install -y python3.10 python3-pip git openjdk-17-jdk pipx poppler-utils zip && \
+    apt-get install -y python3.10 python3-pip git openjdk-17-jdk pipx poppler-utils zip musescore && \
     rm -rf /var/lib/apt/lists/*
 
 # Install poetry
