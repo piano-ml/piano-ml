@@ -1,12 +1,14 @@
 import { Component, type OnInit } from '@angular/core';
 import { OpenComponent } from '../open/open.component';
 // biome-ignore lint/style/useImportType: <explanation>
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BuiltinComponent } from "../builtin/builtin.component";
+import { BrowseComponent } from "../browse/browse.component";
+import { LinkComponent } from "../link/link.component";
 
 @Component({
   selector: 'app-loader-home',
-  imports: [OpenComponent, BuiltinComponent],
+  imports: [OpenComponent, BuiltinComponent, BrowseComponent, LinkComponent, RouterModule],
   templateUrl: './loader-home.component.html',
   styleUrl: './loader-home.component.css'
 })

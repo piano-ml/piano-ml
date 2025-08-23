@@ -1,18 +1,13 @@
 meta {
   name: upload midi to score
   type: http
-  seq: 17
+  seq: 12
 }
 
 post {
-  url: http://localhost:8080/score/aee4be66-e41e-40aa-bf24-d407144c504b/mid/1073741824/1?track1=3&track2=1
+  url: http://localhost:8080/score/aee4be66-e41e-40aa-bf24-d407144c504b/mid/1/1
   body: file
   auth: inherit
-}
-
-params:query {
-  track1: 3
-  track2: 1
 }
 
 headers {
@@ -48,7 +43,7 @@ body:json {
 }
 
 body:file {
-  file: @file(/home/eflorent/Téléchargements/Cradle Song.pdf) @contentType(application/octet-stream)
+  file: @file(/home/eflorent/PROJECTS/piano-ml/frontend/src/assets/midi/No-Woman-No-Cry-1.mid) @contentType(application/octet-stream)
 }
 
 script:pre-request {

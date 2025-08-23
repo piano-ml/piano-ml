@@ -35,6 +35,10 @@ paths:
                 properties:
                   token:
                     type: string
+                  username:
+                    type: string
+                  userId:
+                    type: string
                   expire:
                     type: string
                     format: date-time
@@ -186,6 +190,11 @@ paths:
           schema:
             type: string
           description: A keyword
+        - name: ownerId
+          in: query
+          schema:
+            type: string
+          description: owner
         - name: genreId
           in: query
           schema:
@@ -685,9 +694,7 @@ components:
         updated_at:
           type: string
           format: date-time
-        has_mxml:
-          type: boolean
-        has_pdf:
+        has_files:
           type: boolean
         image:
           type: string
@@ -696,11 +703,7 @@ components:
           type: array
           items:
             type: integer
-      required:
-        - title
-        - author
-        - version
-        - mbid
+
     UserApiInfo:
       type: object
       properties:
@@ -720,7 +723,6 @@ components:
           type: string
           format: uri
       required:
-        - email
         - name
     GenreApiInfo:
       type: object

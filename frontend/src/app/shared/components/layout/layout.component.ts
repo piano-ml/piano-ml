@@ -8,7 +8,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { ShareButtons } from 'ngx-sharebuttons/buttons';
 import {  bootstrapGithub } from '@ng-icons/bootstrap-icons';
 
-import { Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { AuthService } from '../../../account/services/auth.service';
 
 @Component({
@@ -20,6 +20,7 @@ import { AuthService } from '../../../account/services/auth.service';
 })
 export class LayoutComponent {  
   isLoggedIn$: Observable<boolean>;
+  username$: Observable<string | null>;;
   shareLinks = ['facebook','x','reddit','viber','xing']
   
   constructor (
@@ -28,8 +29,15 @@ export class LayoutComponent {
     public router: Router
   ) {
     this.isLoggedIn$ = this.authService.isLoggedIn;
+    this.username$ = this.authService.getUserInfo().pipe(
+      tap(user => {
+        if (user) {
+          localStorage.setItem('username', user.name!);
+        }
+      }),
+      map(user => user?.name || null)
+    );
     if (window.innerWidth < 768) {
-      console.log(window.innerWidth);
       this.shareLinks = this.shareLinks.splice(0, 2);
     }
   }

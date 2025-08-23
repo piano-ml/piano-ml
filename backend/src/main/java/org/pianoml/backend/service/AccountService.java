@@ -46,7 +46,7 @@ public class AccountService {
         return userRepository.save(user);
     }
 
-    public String loginUser(AccountLoginPostRequest accountLoginPostRequest) {
+    public org.pianoml.backend.model.AccountLoginPost200Response loginUser(AccountLoginPostRequest accountLoginPostRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         accountLoginPostRequest.getEmail(),
@@ -58,9 +58,12 @@ public class AccountService {
 
         org.springframework.security.core.userdetails.User userDetails = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
         User user = userRepository.findByEmail(userDetails.getUsername()).get();
+      org.pianoml.backend.model.AccountLoginPost200Response response = new org.pianoml.backend.model.AccountLoginPost200Response();
+        response.setToken(tokenProvider.generateToken(user));
+        response.setUserId(user.getId().toString());
+        response.setUsername(user.getName());
 
-
-        return tokenProvider.generateToken(user);
+      return response;
     }
 
 
@@ -80,5 +83,11 @@ public class AccountService {
 
   public org.pianoml.backend.model.UserApiInfo getUserApiInfoFromAuthentication(Authentication authentication) {
       return userMapper.toUserApiInfo(getUserFromAuthentication(authentication));
+  }
+
+  public void updateUserInfo(org.pianoml.backend.model.UserApiInfo userApiInfo) {
+    User user = getUserFromAuthentication(SecurityContextHolder.getContext().getAuthentication());
+    user.setName(userApiInfo.getName());
+    userRepository.save(user);
   }
 }

@@ -13,30 +13,29 @@ import java.nio.file.Files;
 @Slf4j
 public class PackService {
 
-  public String packPDF(String id, InputStream inputStream, String title, String composer) throws IOException {
-    File tempPdf = Files.createTempFile("upload_" + id, ".pdf").toFile();
-    return runPackScript("scripts/pdf2pack.sh", tempPdf, inputStream, title, composer);
+  public String packPDF(PackScriptDto packScriptDto) throws IOException {
+    File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".pdf").toFile();
+    return runPackScript("scripts/pdf2pack.sh", tempFile, packScriptDto);
   }
 
-  public String packMidi(String id, InputStream inputStream, String title, String composer) throws IOException {
-    File tempPdf = Files.createTempFile("upload_" + id, ".midi").toFile();
-    return runPackScript("scripts/midi2pack.sh", tempPdf, inputStream, title, composer);
+  public String packMidi(PackScriptDto packScriptDto) throws IOException {
+    File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".midi").toFile();
+    System.out.println("trackRight:" +  packScriptDto.trackRight);
+    return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto);
   }
 
-
-  public String packMusicXml(String id, InputStream inputStream, String title, String composer) throws IOException {
-    File tempPdf = Files.createTempFile("upload_" + id, ".midi").toFile();
-    return runPackScript("scripts/midi2pack.sh", tempPdf, inputStream, title, composer);
+  public String packMusicXml(PackScriptDto packScriptDto) throws IOException {
+    File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".midi").toFile();
+    return runPackScript("scripts/mxml2pack.sh", tempFile, packScriptDto);
   }
 
-
-  private String runPackScript(String script, File tempFile,  InputStream inputStream, String title, String composer) {
+  private String runPackScript(String script, File tempFile,  PackScriptDto packScriptDto ) throws IOException {
     try {
       try (FileOutputStream out = new FileOutputStream(tempFile)) {
-        inputStream.transferTo(out);
+        packScriptDto.getInputStream().transferTo(out);
       }
       // Appel du script de conversion PDF -> MusicXML
-      ProcessBuilder pb = new ProcessBuilder(script, tempFile.getAbsolutePath(), title, composer);
+      ProcessBuilder pb = new ProcessBuilder(script, tempFile.getAbsolutePath(), packScriptDto.getTitle(), packScriptDto.getComposer(), packScriptDto.getTrackRight(), packScriptDto.getTrackLeft());
       pb.redirectErrorStream(true);
       Process process = pb.start();
       try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()))) {

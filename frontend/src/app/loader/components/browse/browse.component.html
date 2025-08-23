@@ -1,0 +1,44 @@
+<div class="bg-neutral-700 p-4">
+  <!-- Search Section -->
+  <div class="mb-6">
+    <div class="flex gap-2">
+      <input 
+        [(ngModel)]="searchKeyword" 
+        (keyup.enter)="onSearch()"
+        placeholder="Search scores by title, artist, or genre..."
+        class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black">
+      <button 
+        (click)="onSearch()" 
+        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+        [disabled]="loading">
+        {{ loading ? 'Searching...' : 'Search' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Results Table -->
+  <app-score-table
+    [scores]="scores"
+    [loading]="loading"
+    [columns]="tableColumns"
+    [actions]="tableActions"
+    emptyMessage="No scores found. Try a different search term."
+    loadingMessage="Loading..."
+    (scoreClick)="onScoreClick($event)">
+  </app-score-table>
+
+  <!-- Load More Button -->
+  <div class="mt-4 text-center" *ngIf="hasMore && scores.length > 0">
+    <button 
+      (click)="loadMore()" 
+      class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
+      [disabled]="loading">
+      {{ loading ? 'Loading...' : 'Load More' }}
+    </button>
+  </div>
+
+  <!-- Results Count -->
+  <div class="mt-2 text-sm text-gray-400" *ngIf="scores.length > 0">
+    Showing {{ scores.length }} scores
+  </div>
+</div>

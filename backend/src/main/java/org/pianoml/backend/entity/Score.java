@@ -56,21 +56,14 @@ public class Score {
   @Column(name = "updated_at")
   private OffsetDateTime updatedAt;
 
-  // TODO
-  //@Column(name = "updated_at")
-  //private OffsetDateTime updatedAt;
-
-  @Column(name = "has_pdf")
-  private Boolean hasPdf;
-
   @Column(name = "image")
   private String image;
 
   @Column(nullable = false)
   private UUID mbid;
 
-  @Column(name = "has_mscz", nullable = false)
-  private Boolean hasMscz = false;
+  @Column(name = "has_files", nullable = false)
+  private Boolean hasFiles = false;
 
   @Column(name = "deleted", nullable = false)
   private Boolean deleted = false;

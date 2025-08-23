@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.pianoml.backend.api.ScoreApi;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
+import org.pianoml.backend.exception.EntityAlreadyExistsException;
 import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
@@ -11,6 +12,7 @@ import org.pianoml.backend.security.JwtTokenProvider;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -70,13 +72,20 @@ public class ScoreController implements ScoreApi {
   public ResponseEntity<ScoreApiInfo> scorePost(ScoreApiInfo scoreApiInfo) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user = userService.getUserFromAuthentication(authentication);
-    ScoreApiInfo createdScore = scoreService.createScore(scoreApiInfo, user);
-    return new ResponseEntity<>(createdScore, HttpStatus.CREATED);
+    try {
+      if (scoreApiInfo.getHasFiles()==null) {
+        scoreApiInfo.setHasFiles(false);
+      }
+      ScoreApiInfo createdScore = scoreService.createScore(scoreApiInfo, user);
+      return new ResponseEntity<>(createdScore, HttpStatus.CREATED);
+    } catch (DataIntegrityViolationException e) {
+      throw new EntityAlreadyExistsException("You have already created this score, please consider edit it in account/scores page.");
+    }
   }
 
   @Override
-  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String genreId, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
-    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, genreId, gradeStart, gradeEnd, offset, limit);
+  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId,  String genreId, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
+    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, gradeStart, gradeEnd, offset, limit);
     return ResponseEntity.ok(scores);
   }
 
@@ -85,16 +94,17 @@ public class ScoreController implements ScoreApi {
   public ResponseEntity<Void> scoreMbidTypeVersionRevisionPost(String mbid, String type, Integer version, Integer revision, org.springframework.core.io.Resource body, Integer track1, Integer track2) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String id = authentication.getName();
-    User user = userRepository.findById(UUID.fromString(id)).get();
+    User user = userRepository.findById(UUID.fromString(id)).orElseThrow(EntityNotFoundException::new);
     Optional<Score> optScore = scoreRepository.findScoreByMbidAndOwnerAndVersion(UUID.fromString(mbid), user, version);
     if (optScore.isEmpty()) {
+      System.out.println("not found here" + mbid + " " + user.getId() + " " + version);
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
     if (!optScore.get().getOwner().getId().equals(UUID.fromString(id))) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
     try {
-      scoreService.packAttachmentToScore(mbid, type, version, revision, body.getInputStream(), optScore.get());
+      scoreService.packAttachmentToScore(optScore.get(), type, body.getInputStream());
       return ResponseEntity.ok().build();
     } catch (java.io.IOException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -102,9 +112,15 @@ public class ScoreController implements ScoreApi {
   }
 
   @Override
-  public ResponseEntity<org.springframework.core.io.Resource> scoreOwnerMbidTypeVersionRevisionGet(String owner, String mbid, String type, Integer version, Integer revision) {
+  public ResponseEntity<org.springframework.core.io.Resource> scoreOwnerMbidTypeVersionRevisionGet(String strOwner, String mbid, String type, Integer version, Integer revision) {
     try {
-      return scoreService.getAttachmentFromScore(owner, mbid, type)
+      User owner = userRepository.findById(UUID.fromString(strOwner)).orElseThrow(EntityNotFoundException::new);
+      Optional<Score> optScore = scoreRepository.findScoreByMbidAndOwnerAndVersion(UUID.fromString(mbid), owner, version);
+      if (optScore.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      return scoreService.getAttachmentFromScore(optScore.get(),type)
         .map(bytes -> ResponseEntity.ok()
           .contentType(MediaType.APPLICATION_OCTET_STREAM)
           .body((org.springframework.core.io.Resource) new ByteArrayResource(bytes)))

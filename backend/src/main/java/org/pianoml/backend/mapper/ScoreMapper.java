@@ -29,10 +29,14 @@ public interface ScoreMapper {
     @Named("stringToIntegerList")
     public static List<Integer> stringToIntegerList(String value) {
         if (value == null || value.isEmpty()) return List.of();
-        return Arrays.stream(value.split(","))
-                .map(String::trim)
-                .map(Integer::valueOf)
-                .collect(Collectors.toList());
+        try {
+          return Arrays.stream(value.split(","))
+            .map(String::trim)
+            .map(Integer::valueOf)
+            .collect(Collectors.toList());
+        } catch (Exception e) {
+          return List.of();
+        }
     }
 
     @Named("integerListToString")

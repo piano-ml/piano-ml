@@ -371,6 +371,7 @@ export class ScoreService extends BaseService {
     /**
      * Search a score
      * @param keyword A keyword
+     * @param ownerId owner
      * @param genreId genre
      * @param gradeStart 
      * @param gradeEnd the level
@@ -379,14 +380,16 @@ export class ScoreService extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public scoreSearchGet(keyword?: string, genreId?: string, gradeStart?: number, gradeEnd?: number, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ScoreApiInfo>>;
-    public scoreSearchGet(keyword?: string, genreId?: string, gradeStart?: number, gradeEnd?: number, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ScoreApiInfo>>>;
-    public scoreSearchGet(keyword?: string, genreId?: string, gradeStart?: number, gradeEnd?: number, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ScoreApiInfo>>>;
-    public scoreSearchGet(keyword?: string, genreId?: string, gradeStart?: number, gradeEnd?: number, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, gradeStart?: number, gradeEnd?: number, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ScoreApiInfo>>;
+    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, gradeStart?: number, gradeEnd?: number, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ScoreApiInfo>>>;
+    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, gradeStart?: number, gradeEnd?: number, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ScoreApiInfo>>>;
+    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, gradeStart?: number, gradeEnd?: number, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>keyword, 'keyword');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>ownerId, 'ownerId');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>genreId, 'genreId');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,

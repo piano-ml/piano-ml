@@ -1,0 +1,25 @@
+meta {
+  name: score search
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:8080/score/search
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~keyword: {{keyword}}
+  ~genreId: {{genreId}}
+  ~gradeStart: {{gradeStart}}
+  ~gradeEnd: {{gradeEnd}}
+  ~offset: {{offset}}
+  ~limit: {{limit}}
+}
+
+headers {
+  Accept: */*
+  Authorization: Bearer {{token}}
+}

@@ -1,14 +1,44 @@
-<div class="account-home">
-  <h2>Account</h2>
-  <div class="user-info">
-    <label>name:</label>
-    <span *ngIf="!editMode">{{ userInfo.name }} <button (click)="enableEdit()" title="Edit"><span class="edit-icon">✏️</span></button></span>
-    <span *ngIf="editMode">
-      <form [formGroup]="nameForm" (ngSubmit)="savename()" style="display:inline">
-        <input formControlName="name" />
-        <button type="submit" title="Save">💾</button>
-      </form>
-    </span>
+<div class="flex justify-center items-center h-full">
+  <div class="p-8 rounded-lg shadow-lg w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6 text-center">Account</h2>
+
+    <div class="mb-6">
+      <label class="block text-sm font-medium mb-2">Name</label>
+      <div *ngIf="!editMode" class="flex items-center justify-between">
+        <span class="text-lg">{{ userInfo.name }}</span>
+        <button (click)="enableEdit()" 
+                class="ml-2 p-2 text-blue-500 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 rounded"
+                title="Edit name">
+          <span class="text-lg">✏️</span>
+        </button>
+      </div>
+      <div *ngIf="editMode">
+        <form [formGroup]="nameForm" (ngSubmit)="savename()" class="flex gap-2">
+          <input formControlName="name" 
+                 class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+                 placeholder="Enter your name">
+          <button type="submit" 
+                  class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
+                  title="Save">
+            💾
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="mb-6">
+      <a routerLink="/account/scores" 
+         class="block w-full text-center bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors mb-3">
+        My Scores
+      </a>
+    </div>
+
+    <div class="text-center">
+      <button (click)="logout()" 
+              class="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-50">
+        Logout
+      </button>
+    </div>
   </div>
-  <a (click)="logout()" class="logout-link">Logout</a>
 </div>

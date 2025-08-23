@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IScoreRepositoryCustom {
-  List<Score> findByCriterias(String keyword, String genreId, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit);
+  List<Score> findByCriterias(String keyword, String ownerId, String genreId, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit);
 
 }

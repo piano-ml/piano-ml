@@ -20,11 +20,17 @@ export class AuthService {
     return this.loggedIn.asObservable();
   }
 
+  getUserId(): string | null {
+    return localStorage.getItem('userId');
+  }
+
   login(user: AccountLoginPostRequest) {
     return this.accountService.accountLoginPost(user).pipe(
       tap(response => {
         if (response.token) {
           localStorage.setItem('token', response.token);
+          localStorage.setItem('username', response.username!);
+          localStorage.setItem('userId', response.userId!);
           this.loggedIn.next(true);
           this.router.navigate(['/']);
         }

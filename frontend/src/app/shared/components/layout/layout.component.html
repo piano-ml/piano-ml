@@ -17,7 +17,7 @@
             
             <div class="flex-none">
                 <ng-container *ngIf="isLoggedIn$ | async; else loginLink">
-                    <button routerLink="/account/home" class="text-white">Me</button>
+                    <button routerLink="/account/home" class="text-white">{{ username$ | async }}</button>
                 </ng-container>
                 <ng-template #loginLink>
                     <ng-container *ngIf="!(router.url === '/account/login')">

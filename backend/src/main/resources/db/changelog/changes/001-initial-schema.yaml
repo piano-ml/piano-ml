@@ -219,11 +219,7 @@ databaseChangeLog:
                   type: TIMESTAMP WITH TIME ZONE
                   constraints:
                     nullable: true
-              - column:
-                  name: has_pdf
-                  type: BOOLEAN
-                  constraints:
-                    nullable: true
+
               - column:
                   name: image
                   type: VARCHAR(255)
@@ -235,8 +231,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: has_mscz
+                  name: has_files
                   type: BOOLEAN
+                  defaultValue: false
                   constraints:
                     nullable: false
               - column:
@@ -262,6 +259,6 @@ databaseChangeLog:
 
         - addUniqueConstraint:
             tableName: "score"
-            columnNames: mbid,version
-            constraintName: uq_score_mbid_version
+            columnNames: mbid,owner_id,version
+            constraintName: uq_score_mbid_owner_version
             schemaName: pianoml

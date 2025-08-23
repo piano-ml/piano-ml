@@ -124,3 +124,13 @@ hr {
 	--sb-overflow: initial;
   }
 
+
+input::placeholder, textarea::placeholder {
+  color: #e5e7eb; /* gris très clair, Tailwind gray-200 */
+  opacity: 1;
+}
+
+input, textarea  {
+  color: #e5e7eb; /* gris très clair, Tailwind gray-200 */
+  opacity: 1;
+}

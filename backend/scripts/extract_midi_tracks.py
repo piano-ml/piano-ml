@@ -8,7 +8,14 @@ if len(sys.argv) != 4:
 
 musicxml_path = sys.argv[1]
 track1 = int(sys.argv[2])
-track2 = int(sys.argv[3])
+
+if len(sys.argv) == 4:
+    try:
+        track2 = int(sys.argv[3])
+    except ValueError:
+        track2 = None
+else:
+    track2 = None
 
 score = converter.parse(musicxml_path)
 

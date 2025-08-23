@@ -11,7 +11,7 @@
 
 export interface UserApiInfo { 
     id?: string;
-    email: string;
+    email?: string;
     name: string;
     url?: string;
     bio?: string;

@@ -11,6 +11,8 @@
 
 export interface AccountLoginPost200Response { 
     token?: string;
+    username?: string;
+    userId?: string;
     expire?: string;
 }
 

@@ -11,11 +11,11 @@
 
 export interface ScoreApiInfo { 
     id?: string;
-    mbid: string;
-    title: string;
-    author: string;
+    mbid?: string;
+    title?: string;
+    author?: string;
     author_id?: string;
-    version: number;
+    version?: number;
     tracks_count?: number;
     hand_separated?: boolean;
     has_lyrics?: boolean;
@@ -27,8 +27,7 @@ export interface ScoreApiInfo {
     uploaded_at?: string;
     owner_id?: string;
     updated_at?: string;
-    has_mxml?: boolean;
-    has_pdf?: boolean;
+    has_files?: boolean;
     image?: string;
     study_tracks?: Array<number>;
 }

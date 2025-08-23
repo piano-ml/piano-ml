@@ -37,6 +37,14 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(errorApiInfo, HttpStatus.NOT_FOUND);
   }
 
+  @ExceptionHandler(EntityAlreadyExistsException.class)
+  public ResponseEntity<org.pianoml.backend.model.ErrorApiInfo> handleEntityExistsException(Exception ex) {
+    log.warn("{}", ex.getClass().getName());
+    org.pianoml.backend.model.ErrorApiInfo errorApiInfo = makeFromException(ex);
+    errorApiInfo.getError().setStacktrace(null);
+    return new ResponseEntity<>(errorApiInfo, HttpStatus.CONFLICT);
+  }
+
   private org.pianoml.backend.model.ErrorApiInfo makeFromException(Exception ex) {
     org.pianoml.backend.model.ErrorApiInfo errorApiInfo = new org.pianoml.backend.model.ErrorApiInfo();
     ErrorApiInfoError errorApiInfoError = new ErrorApiInfoError();

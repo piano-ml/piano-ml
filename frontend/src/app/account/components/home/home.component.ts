@@ -3,12 +3,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-account-home',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -47,6 +47,7 @@ export class AccountHomeComponent {
     this.authService.updateUserInfo({ name: newname }).subscribe(() => {
       this.userInfo.name = newname;
       this.editMode = false;
+      window.location.reload();
     });
   }
 

@@ -7,12 +7,14 @@ import org.pianoml.backend.entity.Author;
 import org.pianoml.backend.entity.Genre;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
+import org.pianoml.backend.exception.EntityAlreadyExistsException;
 import org.pianoml.backend.exception.MusicBrainzException;
 import org.pianoml.backend.mapper.ScoreMapper;
 import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -54,13 +56,7 @@ public class ScoreService {
   private GenreRepository genreRepository;
 
   @Autowired
-  private UserRepository userRepository;
-
-  @Autowired
   private ScoreMapper scoreMapper;
-
-
-
 
   @Autowired
   private PackService packService;
@@ -69,17 +65,22 @@ public class ScoreService {
   public ScoreApiInfo createScore(ScoreApiInfo scoreApiInfo, User userId) {
     Score score = scoreMapper.toScore(scoreApiInfo);
     score.setOwner(userId);
-    Author author = authorService.maybeCreateAuthor(UUID.fromString(scoreApiInfo.getAuthorId()));
-    score.setAuthor(author);
+    if (scoreApiInfo.getAuthorId() != null) {
+      Author author = authorService.maybeCreateAuthor(UUID.fromString(scoreApiInfo.getAuthorId()));
+      score.setAuthor(author);
+    }
+    if (scoreApiInfo.getVersion()==null) {
+      score.setVersion(1);
+    }
 
     if (scoreApiInfo.getGenreId() != null) {
       Genre genre = genreRepository.findById(UUID.fromString(scoreApiInfo.getGenreId()))
         .orElseThrow(() -> new RuntimeException("Genre not found"));
       score.setGenre(genre);
     }
-
     Score savedScore = scoreRepository.save(score);
     return scoreMapper.toScoreApiInfo(savedScore);
+
   }
 
 
@@ -99,8 +100,7 @@ public class ScoreService {
         score.setHandSeparated(scoreApiInfo.getHandSeparated());
         score.setHasLyrics(scoreApiInfo.getHasLyrics());
         score.setGrade(scoreApiInfo.getGrade());
-        score.setHasMscz(scoreApiInfo.getHasMxml());
-        score.setHasPdf(scoreApiInfo.getHasPdf());
+        score.setHasFiles(scoreApiInfo.getHasFiles());
         score.setImage(scoreApiInfo.getImage() != null ? scoreApiInfo.getImage().toString() : null);
 
         Score updatedScore = scoreRepository.save(score);
@@ -108,24 +108,29 @@ public class ScoreService {
       });
   }
 
-  public List<ScoreApiInfo> searchScores(String keyword, String genreId, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
-    return scoreRepositoryCustom.findByCriterias(keyword, genreId, gradeStart, gradeEnd, offset, limit)
+  public List<ScoreApiInfo> searchScores(String keyword, String ownerId ,String genreId, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
+    return scoreRepositoryCustom.findByCriterias(keyword, ownerId, genreId, gradeStart, gradeEnd, offset, limit)
       .stream()
       .map(scoreMapper::toScoreApiInfo)
       .collect(Collectors.toList());
   }
 
-  public void packAttachmentToScore(String id, String type, Integer version, Integer revision, InputStream inputStream, Score score) throws IOException {
-    String key = "scores/" + id + "/" + version + ".zip";
+  private String makeBucketKeyFromScore(Score score) {
+    return "scores/" + score.getOwner().getId() + "/" + score.getMbid() + "/" + score.getVersion() + ".zip";
+  }
+
+  public void packAttachmentToScore(Score score, String type, InputStream inputStream) throws IOException {
+    String key = makeBucketKeyFromScore(score);
 
     String filename = null;
     try {
+      PackScriptDto packScriptDto = new PackScriptDto(inputStream, score);
       if (type.equals("pdf")) {
-        filename = packService.packPDF(id, inputStream, score.getTitle(), score.getAuthor().getName());
+        filename = packService.packPDF(packScriptDto);
       } else if (type.equals("mid")) {
-        filename = packService.packMidi(id, inputStream,score.getTitle(), score.getAuthor().getName());
+        filename = packService.packMidi(packScriptDto);
       } else if (type.equals("musicxml")) {
-        filename = packService.packMusicXml(id, inputStream, score.getTitle(), score.getAuthor().getName());
+        filename = packService.packMusicXml(packScriptDto);
       } else {
         throw new RuntimeException("Unsupported type " + type);
       }
@@ -135,19 +140,19 @@ public class ScoreService {
       log.info("successfully sent to bucket " + key);
     } finally {
       if (filename != null) {
-        Files.deleteIfExists(Paths.get(filename));
+        //Files.deleteIfExists(Paths.get(filename));
       }
     }
   }
 
-  public Optional<byte[]> getAttachmentFromScore(String owner, String mbid, String type) throws IOException {
-    String key = "scores/" + owner + "/" + mbid + ".zip";
+  public Optional<byte[]> getAttachmentFromScore(Score score, String type) throws IOException {
+    String key = makeBucketKeyFromScore(score);
     try {
       byte[] zipData = s3Client.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build()).readAllBytes();
       try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipData))) {
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
-          if (entry.getName().equals(mbid + "." + type)) {
+          if (entry.getName().equals(score.getMbid() + "." + type)) {
             return Optional.of(zis.readAllBytes());
           }
         }
