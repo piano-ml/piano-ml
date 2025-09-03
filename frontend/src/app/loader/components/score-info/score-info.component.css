@@ -1,0 +1,74 @@
+/* Form styling to match the edit component */
+.bg-gray-100 {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+/* Error styling */
+.border-red-500 {
+  border-color: #ef4444 !important;
+}
+
+/* Animation for loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Form layout improvements */
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+/* Download buttons */
+.fas {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+/* Button transitions */
+button {
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Card styling */
+.bg-neutral-600 {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Info display styling */
+.bg-neutral-600 div {
+  word-break: break-word;
+}
+
+/* Warning box styling */
+.bg-yellow-100 {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}

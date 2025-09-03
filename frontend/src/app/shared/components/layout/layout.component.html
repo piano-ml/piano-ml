@@ -1,9 +1,9 @@
 <div class="flex flex-col min-h-screen" id="top">
 
-    <div class=" w-full fixed top-0 h-12 flex-grow bg-black p-4 text-white z-3">
+    <div class=" w-full fixed top-0 h-14 flex-grow bg-black p-2 pt-4 text-white z-3">
         <div class="flex flex-row bg-red">
             <div class="flex-none">
-                <a *ngIf="true" routerLink="/home" class="breadcrumb-label">PianoML</a>
+                <a *ngIf="true" routerLink="/home" class="breadcrumb-label breadcrumb-with-circle">PianoML</a>
                 <span *ngIf="true" class="breadcrumb-separator">/</span>
 
                 <ng-container *ngFor="let item of breadcrumbService.items$ | async; let last = last">
@@ -15,13 +15,13 @@
 
             <div class="flex-grow"></div>
             
-            <div class="flex-none">
-                <ng-container *ngIf="isLoggedIn$ | async; else loginLink">
-                    <button routerLink="/account/home" class="text-white">{{ username$ | async }}</button>
+            <div class="flex-none mr-2">
+                <ng-container *ngIf="(isLoggedIn$ | async) === true; else loginLink">
+                    <button routerLink="/account/home" class="text-white underline">{{ username$ | async }}</button>
                 </ng-container>
                 <ng-template #loginLink>
                     <ng-container *ngIf="!(router.url === '/account/login')">
-                        <a routerLink="/account/login" class="text-white">Login</a>
+                        <a routerLink="/account/login" class="text-white underline">Login</a>
                     </ng-container>
                 </ng-template>
             </div>

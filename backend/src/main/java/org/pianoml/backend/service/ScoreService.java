@@ -78,6 +78,13 @@ public class ScoreService {
         .orElseThrow(() -> new RuntimeException("Genre not found"));
       score.setGenre(genre);
     }
+    // check if score exists
+    Score candidate = scoreRepository.findScoreByMbidAndOwnerAndVersion(score.getMbid(), score.getOwner(), score.getVersion())
+      .orElse(null);
+    if (candidate != null) {
+      score.setId(candidate.getId()) ;
+    }
+  
     Score savedScore = scoreRepository.save(score);
     return scoreMapper.toScoreApiInfo(savedScore);
 
@@ -127,7 +134,7 @@ public class ScoreService {
       PackScriptDto packScriptDto = new PackScriptDto(inputStream, score);
       if (type.equals("pdf")) {
         filename = packService.packPDF(packScriptDto);
-      } else if (type.equals("mid")) {
+      } else if (type.equals("midi")) {
         filename = packService.packMidi(packScriptDto);
       } else if (type.equals("musicxml")) {
         filename = packService.packMusicXml(packScriptDto);
@@ -140,7 +147,7 @@ public class ScoreService {
       log.info("successfully sent to bucket " + key);
     } finally {
       if (filename != null) {
-        //Files.deleteIfExists(Paths.get(filename));
+        Files.deleteIfExists(Paths.get(filename));
       }
     }
   }
@@ -152,12 +159,14 @@ public class ScoreService {
       try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipData))) {
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
-          if (entry.getName().equals(score.getMbid() + "." + type)) {
+          System.out.println(entry.getName() + " ? " +score.getMbid() + "." + type);
+          if (entry.getName().endsWith(type)) {
             return Optional.of(zis.readAllBytes());
           }
         }
       }
     } catch (S3Exception e) {
+      e.printStackTrace();
       if (e.statusCode() == 404) {
         return Optional.empty();
       }

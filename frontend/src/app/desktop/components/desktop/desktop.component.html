@@ -106,10 +106,11 @@
 
             </div>
             <div>
-                
+               <!--
                 <nouislider class="ml-6 mr-6" #sliderRef [disabled]="isPlaying" [connect]="true" [min]="0"
                     [max]="maxStaveCount" [step]="1" [ngModel]="scoreRange" [tooltips]="[true, true]">
                 </nouislider>
+            -->
             
             </div>
         </div>
@@ -122,6 +123,7 @@
 
     <!-- middle bar empty for now -->
     <div #arena class=" flex-grow {{arenaClass}} text-center text-neutral-400 text-2xl">
+   
     <!-- <app-pianoman *ngIf="showPianoman" [hash]="hash" [performance]="performance"></app-pianoman> 
     xp: {{ performance.runCount }},  accuracy: {{ performance.goodNoteCount* 1 + performance.perfectNoteCount * 10 }}
     -->

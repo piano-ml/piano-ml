@@ -219,7 +219,6 @@ databaseChangeLog:
                   type: TIMESTAMP WITH TIME ZONE
                   constraints:
                     nullable: true
-
               - column:
                   name: image
                   type: VARCHAR(255)
@@ -256,6 +255,16 @@ databaseChangeLog:
                   type: BOOLEAN
                   constraints:
                     nullable: true
+              - column:
+                  name: immutable_slug
+                  type: VARCHAR(255)
+              - column:
+                  name: mutable_slug
+                  type: VARCHAR(255)
+              - column:
+                  name: etude
+                  type: BOOLEAN
+                  defaultValue: false
 
         - addUniqueConstraint:
             tableName: "score"

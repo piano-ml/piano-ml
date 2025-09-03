@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { AccountRoutingModule } from './account-routing.module';
 import { AccountScoresComponent } from './components/account-scores/account-scores.component';
+import { EditScoreComponent } from './components/edit-score/edit-score.component';
 
 
 @NgModule({
@@ -10,7 +11,8 @@ import { AccountScoresComponent } from './components/account-scores/account-scor
   imports: [
     CommonModule,
     AccountRoutingModule,
-    AccountScoresComponent
+    AccountScoresComponent,
+    EditScoreComponent
   ]
 })
 export class AccountModule { }

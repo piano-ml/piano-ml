@@ -20,7 +20,6 @@ public class PackService {
 
   public String packMidi(PackScriptDto packScriptDto) throws IOException {
     File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".midi").toFile();
-    System.out.println("trackRight:" +  packScriptDto.trackRight);
     return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto);
   }
 

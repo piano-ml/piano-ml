@@ -13,9 +13,9 @@ import { EngravingService } from '../../service/engraving.service';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Subscription } from 'rxjs';
 // biome-ignore lint/style/useImportType: <explanation>
-import { NouisliderComponent, NouisliderModule } from 'ng2-nouislider';
+//import { NouisliderComponent, NouisliderModule } from 'ng2-nouislider';
 import { FormsModule } from '@angular/forms';
-import type { PlayConfiguration } from '../../model/model';
+import type { PlayConfiguration, UserPerformance } from '../../model/model';
 import { ModalComponent } from '../modal/modal.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapRepeat, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapHouse } from '@ng-icons/bootstrap-icons';
@@ -25,20 +25,12 @@ import { MidiServiceService } from '../../../shared/services/midi-service.servic
 import { Md5 } from 'ts-md5';
 import { quantizeNotes } from '../../model/reduced-fraction';
 
-export interface UserPerformance {
-  badNoteCount: number;
-  runCount: number;
-  tooEarlyCount: number;
-  tooLateCount: number;
-  perfectNoteCount: number;
-  goodNoteCount: number;
-}
 
 @Component({
   selector: 'app-desktop',
   templateUrl: './desktop.component.html',
   styleUrl: './desktop.component.css',
-  imports: [AnimatedScoreComponent, KeyboardComponent, CommonModule, NouisliderModule, FormsModule, ModalComponent, NgIcon],
+  imports: [AnimatedScoreComponent, KeyboardComponent, CommonModule, FormsModule, ModalComponent, NgIcon],
   encapsulation: ViewEncapsulation.None,
   viewProviders: [provideIcons({ bootstrapRepeat, bootstrapSkipBackwardFill, bootstrapPauseFill, bootstrapPlayFill, bootstrapHouse })],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,7 +43,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
   tempoFactor = 0;
   title = "";
   subscriptions: Subscription[] = [];
-  scoreRange = [0, 100];
+  scoreRange = [0, 10, 80];
   isTheEnd = false;
   measure = 0;
   maxStaveCount = 10000;
@@ -63,6 +55,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
     scoreRange: [0, 100],
     isLoop: false,
   } as PlayConfiguration
+  
   performance: UserPerformance = {
     badNoteCount: 0,
     runCount: 0,
@@ -73,7 +66,8 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
   };
   heightClass = ""
 
-  @ViewChild('sliderRef') sliderRef!: NouisliderComponent;
+
+  //@ViewChild('sliderRef') sliderRef!: NouisliderComponent;
 
   arenaClass = ''
 
@@ -201,7 +195,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
       }
     }));
 
-
+/**
     this.subscriptions.push(this.scoreStateService.measure.subscribe((x: number) => {
       if (!this.sliderRef?.slider) return;
       this.sliderRef.slider.updateOptions({
@@ -223,6 +217,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
       }
 
     }));
+    */
   }
 
   splitMidi(json: Midi.MidiJSON): { study: Midi.Midi, other: Midi.Midi } {
@@ -261,8 +256,8 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
     this.playConfiguration.scoreRange[0] = 0;
     this.playConfiguration.scoreRange[1] = this.maxStaveCount;
     this.playConfiguration.staveAndStaveNotesPair = this.engravingService.staveAndStaveNotesPair;
-    this.playConfiguration.timeSignature = this.engravingService.getTimeSignature(0); // TODO this is a limitation
-    this.playConfiguration.staveWidth = this.engravingService.staveWidth * this.engravingService.scale;
+    //this.playConfiguration.timeSignature = this.engravingService.getTimeSignature(0); // TODO this is a limitation
+    //this.playConfiguration.staveWidth = this.engravingService.staveWidth * this.engravingService.scale;
     this.playConfiguration.midi = this.engravingService.midiObj
     this.scoreStateService.reset(this.playConfiguration)
     this.ref.detectChanges();
@@ -274,7 +269,7 @@ export class DesktopComponent implements OnDestroy, AfterViewInit, OnInit {
 
   start() {
     this.isPlaying = true;
-    this.playConfiguration.tempo = this.tempo;
+    //this.playConfiguration.tempo = this.tempo;
     this.playConfiguration.staveAndStaveNotesPair = this.engravingService.staveAndStaveNotesPair; // TODO CHECK 
     this.scoreStateService.play(this.playConfiguration);
   }

@@ -1,16 +1,17 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MusicbrainzService, MusicBrainzWork, MusicBrainzWorksResponse } from '../../../shared/services/musicbrainz.service';
 import { SimplifiedWork } from './simplified-work';
+import { AuthService } from '../../../account/services/auth.service';
 @Component({
   selector: 'app-link',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './link.component.html',
   styleUrl: './link.component.css'
 })
-export class LinkComponent {
+export class LinkComponent implements OnInit {
   searchQuery = '';
   artistQuery = '';
   titleQuery = '';
@@ -19,12 +20,20 @@ export class LinkComponent {
   response: MusicBrainzWorksResponse | null = null;
   displayedWorks: SimplifiedWork[] = [];
   showSongsOnly = true; // Par défaut, montrer seulement les chansons
+  isLoggedIn = false;
 
   constructor(
     private musicbrainzService: MusicbrainzService,
     private router: Router,
-    private changeDetector: ChangeDetectorRef
+    private changeDetector: ChangeDetectorRef,
+    private authService: AuthService
   ) { }
+
+  ngOnInit() {
+    this.authService.isLoggedIn.subscribe(isLoggedIn => {
+      this.isLoggedIn = isLoggedIn;
+    });
+  }
 
   fromMusicBrainzWorkToSimplified(work: MusicBrainzWork): SimplifiedWork | undefined {
 
@@ -47,6 +56,9 @@ export class LinkComponent {
 
     this.loading = true;
     this.error = null;
+    this.response = null;
+    this.displayedWorks = [];
+    this.changeDetector.detectChanges();
 
     this.musicbrainzService.searchWorks({ query: this.searchQuery, limit: 50 })
       .subscribe({
@@ -54,10 +66,12 @@ export class LinkComponent {
           this.response = response;
           this.updateDisplayedWorks();
           this.loading = false;
+          this.changeDetector.detectChanges();
         },
         error: (error) => {
           this.error = error.message || 'An error occurred while searching';
           this.loading = false;
+          this.changeDetector.detectChanges();
         }
       });
   }
@@ -67,6 +81,9 @@ export class LinkComponent {
 
     this.loading = true;
     this.error = null;
+    this.response = null;
+    this.displayedWorks = [];
+    this.changeDetector.detectChanges();
 
     this.musicbrainzService.searchWorksByArtistAndTitle(this.artistQuery, this.titleQuery, 50)
       .subscribe({
@@ -74,10 +91,12 @@ export class LinkComponent {
           this.response = response;
           this.updateDisplayedWorks();
           this.loading = false;
+          this.changeDetector.detectChanges();
         },
         error: (error) => {
           this.error = error.message || 'An error occurred while searching';
           this.loading = false;
+          this.changeDetector.detectChanges();
         }
       });
   }
@@ -87,12 +106,17 @@ export class LinkComponent {
       this.displayedWorks = [];
       return;
     }
+    
+    // Réinitialiser le tableau avant d'ajouter les nouveaux résultats
+    this.displayedWorks = [];
+    
     this.response.works.forEach(work => {
       const simplified = this.fromMusicBrainzWorkToSimplified(work);
       if (simplified) {
         this.displayedWorks.push(simplified);
       }
     });
+    
     this.changeDetector.detectChanges();
   }
 
@@ -141,5 +165,20 @@ export class LinkComponent {
   getLyricistsList(work: MusicBrainzWork): string {
     const lyricists = this.getLyricists(work);
     return lyricists.length > 0 ? lyricists.join(', ') : 'N/A';
+  }
+
+  // Méthode de debug pour vérifier l'état du bouton
+  isAdvancedSearchDisabled(): boolean {
+    const disabled = this.loading || !this.artistQuery.trim() || !this.titleQuery.trim();
+    return disabled;
+  }
+
+  // Méthodes de debug pour les inputs
+  onArtistQueryChange(event: any): void {
+    // Event handler for artist query changes
+  }
+
+  onTitleQueryChange(event: any): void {
+    // Event handler for title query changes
   }
 }

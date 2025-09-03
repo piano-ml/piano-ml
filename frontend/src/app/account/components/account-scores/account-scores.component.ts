@@ -1,13 +1,14 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo } from '../../../core/api';
 import { AuthService } from '../../services/auth.service';
 import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn } from '../../../shared/components/score-table/score-table.component';
+import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
 
 @Component({
   selector: 'app-account-scores',
-  imports: [CommonModule, RouterModule, ScoreTableComponent],
+  imports: [CommonModule, RouterModule, ScoreTableComponent, QuickActionsComponent],
   templateUrl: './account-scores.component.html',
   styleUrl: './account-scores.component.css'
 })
@@ -28,6 +29,12 @@ export class AccountScoresComponent implements OnInit {
 
   tableActions: ScoreTableAction[] = [
     {
+      label: 'View',
+      icon: '👁️',
+      class: '',
+      callback: (score) => this.viewScore(score)
+    },
+    {
       label: 'Edit',
       icon: '✏️',
       class: '',
@@ -44,7 +51,8 @@ export class AccountScoresComponent implements OnInit {
   constructor(
     private scoreService: ScoreService,
     private authService: AuthService,
-    private changeDetector: ChangeDetectorRef
+    private changeDetector: ChangeDetectorRef,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -86,9 +94,20 @@ export class AccountScoresComponent implements OnInit {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
+  viewScore(score: ScoreApiInfo) {
+    if (score.id) {
+      this.router.navigate(['/browse', score.id, 'info']);
+    } else {
+      console.error('Score ID is missing');
+    }
+  }
+
   editScore(score: ScoreApiInfo) {
-    console.log('Edit score:', score);
-    // TODO: Implement edit functionality
+    if (score.id) {
+      this.router.navigate(['/account/score/edit', score.id]);
+    } else {
+      console.error('Score ID is missing');
+    }
   }
 
   deleteScore(score: ScoreApiInfo) {

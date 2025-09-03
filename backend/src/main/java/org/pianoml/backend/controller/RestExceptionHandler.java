@@ -1,6 +1,7 @@
 package org.pianoml.backend.controller;
 
 import org.pianoml.backend.exception.UserAlreadyExistsException;
+import org.pianoml.backend.exception.UserNotLoggedInException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,4 +19,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<Object>(
           ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT);
     }
+
+
+  @ExceptionHandler({ UserNotLoggedInException.class })
+  public ResponseEntity<Object> handleUserNotLoggedIn(
+    Exception ex, WebRequest request) {
+    return new ResponseEntity<Object>(
+      ex.getMessage(), new HttpHeaders(), HttpStatus.FORBIDDEN);
+  }
+
+
+
 }

@@ -1,6 +1,7 @@
 package org.pianoml.backend.service;
 
 import org.pianoml.backend.entity.User;
+import org.pianoml.backend.exception.UserNotLoggedInException;
 import org.pianoml.backend.mapper.UserMapper;
 import org.pianoml.backend.model.AccountCreatePostRequest;
 import org.pianoml.backend.exception.UserAlreadyExistsException;
@@ -15,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -71,12 +73,14 @@ public class AccountService {
     if (authentication == null || !authentication.isAuthenticated()) {
       throw new RuntimeException("user not authenticated");
     }
-    System.out.println(authentication);
     String id = authentication.getName();
+    if (Objects.equals(id, "anonymousUser")) {
+      throw new UserNotLoggedInException("user not logged in");
+    }
     // TODO switch to using userId instead of email
     java.util.Optional<User> userOpt = userRepository.findById(UUID.fromString(id));
     if (userOpt.isEmpty()) {
-      throw new RuntimeException("user not found");
+      throw new UserNotLoggedInException("user not activated");
     }
     return userOpt.get();
   }

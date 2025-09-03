@@ -3,6 +3,20 @@ import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
 import type { ReducedFraction } from "./reduced-fraction";
 
+export interface lateNote {
+  note: Note;
+  pressed: boolean;
+}
+
+export interface UserPerformance {
+  badNoteCount: number;
+  runCount: number;
+  tooEarlyCount: number;
+  tooLateCount: number;
+  perfectNoteCount: number;
+  goodNoteCount: number;
+}
+
 export interface StaveAndStaveNotesPair {
   xPositionsBass: number[];
   xPositionsTreble: number[];
@@ -21,6 +35,8 @@ export interface DurationDetection {
 
 
 export interface PlayConfiguration {
+  maxStaveCount: number;
+  currentStave: number;
   doSound: boolean;
   waitForLeftHand: boolean;
   waitForRightHand: boolean;
@@ -28,10 +44,14 @@ export interface PlayConfiguration {
   scoreRange: [number, number];
   isLoop: boolean;
   staveAndStaveNotesPair: StaveAndStaveNotesPair[];
-  tempo: number;
-  staveWidth: number;
-  timeSignature: ReducedFraction;
-  fingering?: number[][];
-  accompaniment: Midi.Midi;
-  midi: Midi.Midi;  
+  //tempo: number;
+  //staveWidth: number; // to be removed
+  //timeSignature: ReducedFraction;
+  //fingering?: number[][]; // to be removed
+  accompaniment: Midi.Midi | null;
+  midi: Midi.Midi | null;  
 }
+
+
+export const MUSIC_XML_STORAGE_KEY = 'musicXMLScore';
+export const MIDI_STORAGE_KEY = 'midiScore';

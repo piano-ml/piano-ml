@@ -1,0 +1,143 @@
+<div class="p-6">
+  <div class="page-title">Score Details</div>
+  <div class="page-sub-title">View score information and download files</div>
+</div>
+
+<div class="bg-neutral-700 p-4">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-8">
+    <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full"></div>
+    <p class="mt-2 text-gray-400">Loading score...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <strong>Error:</strong> {{ error }}
+  </div>
+
+  <!-- Score Details -->
+  <div *ngIf="!loading && score" class="space-y-6">
+
+        <!-- Download Section -->
+    <div class="bg-neutral-600 p-4 rounded">
+      <h3 class="text-lg font-semibold mb-4 text-white">Download Files</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- PDF Download -->
+        <div class="text-center">
+          <button
+            (click)="downloadFile('pdf')"
+            class="w-full px-4 py-3 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+            <i class="fas fa-file-pdf mr-2"></i>
+            Download PDF
+          </button>
+          <p class="text-gray-400 text-sm mt-2">Sheet music in PDF format</p>
+        </div>
+
+        <!-- MusicXML Download -->
+        <div class="text-center">
+          <button
+            (click)="downloadFile('musicxml')"
+            class="w-full px-4 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+            <i class="fas fa-code mr-2"></i>
+            Download MusicXML
+          </button>
+          <p class="text-gray-400 text-sm mt-2">Editable music notation</p>
+        </div>
+
+        <!-- MIDI Download -->
+        <div class="text-center">
+          <button
+            (click)="downloadFile('midi')"
+            class="w-full px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+            <i class="fas fa-music mr-2"></i>
+            Download MIDI
+          </button>
+          <p class="text-gray-400 text-sm mt-2">Digital audio format</p>
+        </div>
+      </div>
+      
+
+    </div>
+
+
+    <!-- Score Basic Info Display -->
+    <div class="bg-neutral-600 p-4 rounded">
+      <h3 class="text-lg font-semibold mb-4 text-white">Score Information</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
+        <div><strong>ID:</strong> {{ score.id }}</div>
+        <div><strong>Uploaded:</strong> {{ score.uploaded_at | date:'medium' }}</div>
+        <div><strong>Duration:</strong> {{ score.duration ? (score.duration + ' seconds') : 'N/A' }}</div>
+        <div><strong>Tracks:</strong> {{ score.tracks_count || 0 }}</div>
+        <div><strong>Measures:</strong> {{ score.measures || 'N/A' }}</div>
+        <div><strong>Version:</strong> {{ score.version || 1 }}</div>
+        <div><strong>Owner ID:</strong> {{ score.owner_id }}</div>
+        <div><strong>Hand Separated:</strong> {{ score.hand_separated ? 'Yes' : 'No' }}</div>
+        <div><strong>Has Lyrics:</strong> {{ score.has_lyrics ? 'Yes' : 'No' }}</div>
+      </div>
+    </div>
+
+    <!-- Editable Fields Display -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Title -->
+      <div class="bg-neutral-600 p-4 rounded">
+        <label class="block text-sm font-medium text-gray-300 mb-2">Title</label>
+        <div class="px-3 py-2 bg-gray-100 rounded-lg text-gray-700">
+          {{ score.title || 'No title' }}
+        </div>
+      </div>
+
+      <!-- Author -->
+      <div class="bg-neutral-600 p-4 rounded">
+        <label class="block text-sm font-medium text-gray-300 mb-2">Author</label>
+        <div class="px-3 py-2 bg-gray-100 rounded-lg text-gray-700">
+          {{ score.author || 'No author' }}
+        </div>
+        <div *ngIf="score.author_id" class="text-gray-400 text-sm mt-1">
+          MusicBrainz ID: {{ score.author_id }}
+        </div>
+        <div *ngIf="!score.author_id && score.author" class="text-gray-400 text-sm mt-1">
+          Manual entry (no MusicBrainz ID)
+        </div>
+      </div>
+
+      <!-- Genre -->
+      <div class="bg-neutral-600 p-4 rounded">
+        <label class="block text-sm font-medium text-gray-300 mb-2">Genre</label>
+        <div class="px-3 py-2 bg-gray-100 rounded-lg text-gray-700">
+          {{ selectedGenre?.name || score.genre || 'No genre' }}
+        </div>
+        <div *ngIf="loadingGenres" class="text-gray-400 text-sm mt-1">Loading genres...</div>
+      </div>
+
+      <!-- Grade -->
+      <div class="bg-neutral-600 p-4 rounded">
+        <label class="block text-sm font-medium text-gray-300 mb-2">Grade (1-10)</label>
+        <div class="px-3 py-2 bg-gray-100 rounded-lg text-gray-700">
+          {{ score.grade || 'No grade assigned' }}
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Action Buttons -->
+    <div class="flex gap-4 mt-6">
+
+      <button
+        (click)="onBack()"
+        class="px-6 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        << Browse all Scores
+      </button>
+
+      <button
+        *ngIf="isOwner()"
+        (click)="editScore()"
+        class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+        <i class="fas fa-edit mr-2"></i>
+        Edit Score
+      </button>
+      
+
+    </div>
+  </div>
+</div>

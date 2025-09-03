@@ -17,6 +17,7 @@ public interface ScoreMapper {
     @Mapping(source = "author.id", target = "authorId")
     @Mapping(source = "genre.name", target = "genre")
     @Mapping(source = "genre.id", target = "genreId")
+    @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "studyTracks", target = "studyTracks", qualifiedByName = "stringToIntegerList")
     ScoreApiInfo toScoreApiInfo(Score score);
 

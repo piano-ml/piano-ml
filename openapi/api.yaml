@@ -299,7 +299,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [pdf, musicxml, mid]
+            enum: [pdf, musicxml, midi]
           description: The type of file being uploaded (e.g., pdf or mxml)
         - name: version
           in: path
@@ -360,7 +360,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [pdf, mxml]
+            enum: [pdf, musicxml, midi]
           description: The type of file to download (e.g., pdf or mxml)
         - name: version
           in: path
@@ -508,7 +508,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/GenreApiInfo'
   /genre/{id}:
     put:
@@ -725,6 +724,7 @@ components:
       required:
         - name
     GenreApiInfo:
+      title: GenreApiInfo
       type: object
       properties:
         id:

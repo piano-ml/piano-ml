@@ -1,8 +1,22 @@
 <div class="bg-neutral-700 p-4">
   <h3 class="text-xl font-bold mb-4">Link Music Works</h3>
   
-  <!-- Search Form -->
-  <div class="mb-6 bg-neutral-600 p-4 rounded-lg">
+  <!-- Not Logged In Message -->
+  <div *ngIf="!isLoggedIn" class="text-center text-yellow-400 py-8 bg-yellow-900 bg-opacity-20 rounded-lg">
+    <div class="text-4xl mb-4">🔒</div>
+    <h4 class="text-lg font-medium mb-2">Authentication Required</h4>
+    <p class="text-sm mb-4">You must be logged in to link musical works.</p>
+    <a 
+      routerLink="/account/login" 
+      class="inline-block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors">
+      Login
+    </a>
+  </div>
+
+  <!-- Main Content (only shown when logged in) -->
+  <div *ngIf="isLoggedIn">
+    <!-- Search Form -->
+    <div class="mb-6 bg-neutral-600 p-4 rounded-lg">
     <!-- Quick Search -->
     <div class="mb-4">
       <label class="block text-sm font-medium mb-2">Quick Search</label>
@@ -32,17 +46,19 @@
       <div class="flex gap-2">
         <input 
           [(ngModel)]="artistQuery" 
+          (input)="onArtistQueryChange($event)"
           placeholder="Artist name"
           class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black">
         <input 
           [(ngModel)]="titleQuery" 
+          (input)="onTitleQueryChange($event)"
           placeholder="Work title"
           class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black">
         <button 
           (click)="searchByArtistAndTitle()" 
           class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
-          [disabled]="loading || !artistQuery.trim() || !titleQuery.trim()">
-          Search
+          [disabled]="false">
+          {{ loading ? 'Searching...' : 'Search (Debug)' }}
         </button>
       </div>
     </div>
@@ -68,7 +84,7 @@
   </div>
 
   <!-- Results Table -->
-  <div class="overflow-x-auto" *ngIf="displayedWorks.length > 0">
+  <div class="overflow-x-auto" *ngIf="response && displayedWorks.length > 0">
     <table class="table-auto border-collapse border border-gray-400 w-full">
       <thead>
         <tr class="bg-neutral-600">
@@ -79,6 +95,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let work of displayedWorks" 
+            (click)="onWorkClick(work); $event.stopPropagation()"
             class="hover:bg-gray-600 transition-colors cursor-pointer"
             >
           <td class="border border-gray-300 px-4 py-2">            
@@ -100,10 +117,11 @@
   </div>
 
   <!-- No Results -->
-  <div *ngIf="response && displayedWorks.length === 0 && !loading" 
+  <div *ngIf="response && (response.count === 0 || (response.count > 0 && displayedWorks.length === 0)) && !loading" 
        class="text-center text-gray-400 py-8 bg-neutral-600 rounded-lg">
     <div class="text-2xl mb-2">🎵</div>
-    <p>No works found matching your criteria.</p>
+    <p *ngIf="response.count === 0">No works found matching your criteria.</p>
+    <p *ngIf="response.count > 0 && displayedWorks.length === 0">No works found after filtering (found {{ response.count }} but none matched the current filters).</p>
     <p class="text-sm mt-1">Try adjusting your search terms or filters.</p>
   </div>
 
@@ -125,13 +143,13 @@
     </button>
   </div>
 
-  <!-- Empty State -->
-  <div *ngIf="!response && !loading && !error" 
-       class="text-center text-gray-400 py-12">
-    <div class="text-4xl mb-4">🎼</div>
-    <h4 class="text-lg font-medium mb-2">Link Music Works</h4>
-    <p class="text-sm">Search for musical works in the MusicBrainz database.</p>
-    <p class="text-xs mt-1">Enter a song title, artist name, or use the advanced search options above.</p>
+    <!-- Empty State -->
+    <div *ngIf="!response && !loading && !error" 
+         class="text-center text-gray-400 py-12">
+      <div class="text-4xl mb-4">🎼</div>
+      <h4 class="text-lg font-medium mb-2">Link Music Works</h4>
+      <p class="text-sm">Search for musical works in the MusicBrainz database.</p>
+      <p class="text-xs mt-1">Enter a song title, artist name, or use the advanced search options above.</p>
+    </div>
   </div>
-</div>
-  
+</div>  

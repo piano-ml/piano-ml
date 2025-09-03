@@ -68,7 +68,7 @@ public class Score {
   @Column(name = "deleted", nullable = false)
   private Boolean deleted = false;
 
-  @Column(name = "duration", nullable = true)
+  @Column(name = "duration")
   private int duration;
 
   @Column(name = "study_tracks")
@@ -76,5 +76,14 @@ public class Score {
 
   @Column(name = "publish")
   private Boolean publish;
+
+  @Column(name = "etude")
+  private Boolean etude;
+
+  @Column(name = "immutable_slug")
+  private String immutableSlug;
+
+  @Column(name = "mutable_slug")
+  private String mutableSlug;
 
 }

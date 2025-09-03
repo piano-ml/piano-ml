@@ -217,7 +217,7 @@ export class ImportWorkComponent implements OnInit {
 
                 },
                 next: (data) => {
-                    this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, "mid", 1, 0, blob).subscribe({
+                    this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, "midi", 1, 0, blob).subscribe({
                         next: (data) => {
                             console.log("MIDI file uploaded successfully:", data);
                             this.loading = false;

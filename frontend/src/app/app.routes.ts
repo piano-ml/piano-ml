@@ -21,6 +21,12 @@ export const routes: Routes = [
     },
     {
         component: LayoutComponent,
+        path: 'browse',
+        loadChildren: () => import('./loader/loader.module').then(m => m.LoaderModule),
+        data: { breadcrumb: 'Browse' }
+    },
+    {
+        component: LayoutComponent,
         path: 'exercises',
         loadChildren: () => import('./exercises/exercises.module').then(m => m.ExercisesModule),
         data: { breadcrumb: 'Exercises' }
@@ -38,6 +44,18 @@ export const routes: Routes = [
         path: 'account',
         loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
         data: { breadcrumb: 'Account' }
+    },
+    {
+        // this component does not need a LayoutComponent !
+        path: 'desktop',
+        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
+        data: { breadcrumb: 'Desktop' }
+    },
+        {
+        // this component does not need a LayoutComponent !
+        path: 'play',
+        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
+        data: { breadcrumb: 'Desktop' }
     },
     {
         path: 'error',

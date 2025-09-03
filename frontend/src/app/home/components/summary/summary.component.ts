@@ -17,6 +17,7 @@ export class SummaryComponent {
       title: 'Blog',
       description: 'Some news about the project',
     },
+    
     {
       url: '/exercises/scale',
       title: 'Exercises / Scale',
@@ -26,7 +27,7 @@ export class SummaryComponent {
       url: '/exercises/agility',
       title: 'Exercises / Agility',
       description: 'Agility is the ability to move quickly and easily. It requires quick reflexes, coordination, balance, speed, and correct response to the changing situation.',
-    },
+    }, 
     {
       url: '/open',
       title: 'Practice / Open File',
@@ -34,8 +35,7 @@ export class SummaryComponent {
     }
   ]
   constructor(private route: Router) {
-
-    try {
+ {
       const currentScore = JSON.parse(localStorage.getItem("score") || "{}")
       const currentScoreName = currentScore.header?.name
       if (currentScoreName) {
@@ -45,9 +45,9 @@ export class SummaryComponent {
           description: ""
         })
       }
-    } catch (e) {
-
     }
+
+    
 
   }
 

@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ScoreService } from '../../../core/api/api/score.service';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn } from '../../../shared/components/score-table/score-table.component';
+import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
 
 @Component({
   selector: 'app-browse',
-  imports: [CommonModule, FormsModule, ScoreTableComponent],
+  imports: [CommonModule, FormsModule, ScoreTableComponent, QuickActionsComponent],
   templateUrl: './browse.component.html',
   styleUrl: './browse.component.css'
 })
@@ -35,6 +36,12 @@ export class BrowseComponent implements OnInit {
 
   tableActions: ScoreTableAction[] = [
     {
+      label: 'Info',
+      icon: '',
+      class: '',
+      callback: (score) => this.onScoreInfo(score)
+    },
+    {
       label: 'Select',
       icon: '',
       class: '',
@@ -45,6 +52,7 @@ export class BrowseComponent implements OnInit {
   constructor(
     private scoreService: ScoreService,
     private router: Router,
+    private route: ActivatedRoute,
     private changeDetector: ChangeDetectorRef
   ) { }
 
@@ -100,8 +108,19 @@ export class BrowseComponent implements OnInit {
   }
 
   onScoreClick(score: ScoreApiInfo) {
+
     if (score.id) {
-      this.router.navigate(['/score', score.id]);
+    console.log('Score clicked:', score);
+      this.router.navigate(['/desktop/workbench'], { 
+        state: { score: score }
+      });
+    }
+  }
+
+  onScoreInfo(score: ScoreApiInfo) {
+    if (score.id) {
+      console.log('Score info clicked:', score);
+      this.router.navigate([score.id, 'info'], { relativeTo: this.route });
     }
   }
 

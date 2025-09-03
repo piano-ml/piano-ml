@@ -1,43 +1,50 @@
-<div class="container mx-auto p-6">
-  <div class="bg-white rounded-lg shadow-md p-6">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-gray-800">My Scores</h2>
-      <button 
-        (click)="refresh()" 
-        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-        [disabled]="loading">
-        <span *ngIf="loading" class="animate-spin inline-block mr-2">⟳</span>
-        Refresh
-      </button>
-    </div>
+<div class="m-6">
+<div class="page-title">My Scores</div>
+<div class="page-sub-title">Manage your uploaded scores</div>
+</div>
+<div class="bg-neutral-700 p-4">
 
-    <!-- Loading State -->
-    <div *ngIf="loading" class="text-center py-8">
-      <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full"></div>
-      <p class="mt-2 text-gray-600">Loading your scores...</p>
-    </div>
 
-    <!-- Error State -->
-    <div *ngIf="error && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-      <strong>Error:</strong> {{ error }}
-    </div>
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-8">
+    <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full"></div>
+    <p class="mt-2 text-gray-400">Loading your scores...</p>
+  </div>
 
-    <!-- Scores Table -->
-    <app-score-table *ngIf="!error"
-      [scores]="scores"
-      [loading]="loading"
-      [columns]="tableColumns"
-      [actions]="tableActions"
-      [showRowClick]="false"
-      emptyMessage="You don't have any scores yet. Upload your first MIDI file to get started!"
-      loadingMessage="Loading your scores..."
-      tableClass="table-auto border-collapse border border-gray-400 w-full"
-      rowClass="">
-    </app-score-table>
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <strong>Error:</strong> {{ error }}
+  </div>
+
+  <!-- Scores Table -->
+  <app-score-table *ngIf="!error"
+    [scores]="scores"
+    [loading]="loading"
+    [columns]="tableColumns"
+    [actions]="tableActions"
+    [showRowClick]="false"
+    emptyMessage="You don't have any scores yet. Upload your first MIDI file to get started!"
+    loadingMessage="Loading your scores..."
+    tableClass="table-auto border-collapse border border-gray-400 w-full"
+    rowClass="">
+  </app-score-table>
 
     <!-- Stats -->
-    <div *ngIf="!loading && !error && scores.length > 0" class="mt-6 text-sm text-gray-600">
+    <div *ngIf="!loading && !error && scores.length > 0" class="mt-6 text-sm text-gray-400">
       Total: {{ scores.length }} score{{ scores.length !== 1 ? 's' : '' }}
     </div>
+
+  <div class="">
+    <button 
+      (click)="refresh()" 
+      class="btn btn-blue mt-4"
+      [disabled]="loading">
+      <span *ngIf="loading" class="animate-spin inline-block mr-2">⟳</span>
+      Browse all Scores
+    </button>
   </div>
+
+  <!-- Quick Actions Section -->
+  <app-quick-actions></app-quick-actions>
+
 </div>
