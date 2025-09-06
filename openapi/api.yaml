@@ -1,4 +1,3 @@
-
 openapi: 3.0.0
 info:
   title: PianoML API
@@ -281,6 +280,24 @@ paths:
           description: Not authorized
         '404':
           description: ScoreApiInfo not found
+    delete:
+      tags:
+        - score
+      summary: Delete a score by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the score to delete
+      responses:
+        '204':
+          description: Score deleted successfully
+        '403':
+          description: Not authorized - only owner or admin can delete
+        '404':
+          description: Score not found
 
   /score/{mbid}/{type}/{version}/{revision}:
     post:

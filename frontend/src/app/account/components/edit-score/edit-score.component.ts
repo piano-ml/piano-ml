@@ -27,6 +27,10 @@ export class EditScoreComponent implements OnInit {
   selectedAuthor: string | null = null;
   selectedAuthorId: string | null = null;
 
+  // Delete confirmation properties
+  showDeleteConfirmation = false;
+  deleting = false;
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -41,7 +45,9 @@ export class EditScoreComponent implements OnInit {
       author: ['', [Validators.maxLength(255)]],
       author_id: ['', []],
       genre_id: ['', []],
-      grade: [null, []]
+      grade: [null, []],
+      rightHandTrack: [null, []],
+      leftHandTrack: [null, []]
     });
   }
 
@@ -118,12 +124,18 @@ export class EditScoreComponent implements OnInit {
     this.selectedAuthor = score.author || null;
     this.selectedAuthorId = score.author_id || null;
     
+    // Extract study tracks (remember: index 0 = right hand, index 1 = left hand)
+    const rightHandTrack = score.study_tracks && score.study_tracks.length > 0 ? score.study_tracks[0] : null;
+    const leftHandTrack = score.study_tracks && score.study_tracks.length > 1 ? score.study_tracks[1] : null;
+    
     this.scoreForm.patchValue({
       title: score.title || '',
       author: score.author || '',
       author_id: score.author_id,  // Don't convert null to empty string
       genre_id: score.genre_id || '',
-      grade: score.grade || null
+      grade: score.grade || null,
+      rightHandTrack: rightHandTrack,
+      leftHandTrack: leftHandTrack
     });
   }
 
@@ -139,10 +151,25 @@ export class EditScoreComponent implements OnInit {
     this.cdr.detectChanges();
 
     const formValue = this.scoreForm.value;
+    
+    // Build study_tracks array (index 0 = right hand, index 1 = left hand)
+    const study_tracks: number[] = [];
+    if (formValue.rightHandTrack !== null && formValue.rightHandTrack !== undefined) {
+      study_tracks[0] = Number(formValue.rightHandTrack);
+    }
+    if (formValue.leftHandTrack !== null && formValue.leftHandTrack !== undefined) {
+      study_tracks[1] = Number(formValue.leftHandTrack);
+    }
+    
     const updatedScore: ScoreApiInfo = {
       ...this.score,
-      ...formValue
+      ...formValue,
+      study_tracks: study_tracks.length > 0 ? study_tracks : undefined
     };
+
+    // Remove the form controls that don't belong to ScoreApiInfo
+    delete (updatedScore as any).rightHandTrack;
+    delete (updatedScore as any).leftHandTrack;
 
     this.scoreService.scoreIdPut(this.scoreId, updatedScore).subscribe({
       next: (response) => {
@@ -220,5 +247,45 @@ export class EditScoreComponent implements OnInit {
       }
     }
     return '';
+  }
+
+  // Track options method
+  getTrackOptions(): number[] {
+    const maxTracks = this.score?.tracks_count || 255;
+    const options: number[] = [];
+    for (let i = 0; i <= Math.min(maxTracks - 1, 255); i++) {
+      options.push(i);
+    }
+    return options;
+  }
+
+  // Delete functionality
+  onDelete() {
+    this.showDeleteConfirmation = true;
+  }
+
+  confirmDelete() {
+    if (!this.scoreId) return;
+
+    this.deleting = true;
+    this.error = null;
+    this.cdr.detectChanges();
+
+    this.scoreService.scoreIdDelete(this.scoreId).subscribe({
+      next: () => {
+        this.deleting = false;
+        this.showDeleteConfirmation = false;
+        this.cdr.detectChanges();
+        // Navigate to scores list
+        this.router.navigate(['/account/scores']);
+      },
+      error: (error) => {
+        this.error = error.message || 'Failed to delete score';
+        this.deleting = false;
+        this.showDeleteConfirmation = false;
+        console.error('Error deleting score:', error);
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

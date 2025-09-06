@@ -26,6 +26,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.List;
 import java.util.Optional;
@@ -109,6 +110,8 @@ public class ScoreService {
         score.setGrade(scoreApiInfo.getGrade());
         score.setHasFiles(scoreApiInfo.getHasFiles());
         score.setImage(scoreApiInfo.getImage() != null ? scoreApiInfo.getImage().toString() : null);
+        // Handle studyTracks update (List<Integer> -> comma-separated String)
+        score.setStudyTracks(ScoreMapper.integerListToString(scoreApiInfo.getStudyTracks()));
 
         Score updatedScore = scoreRepository.save(score);
         return scoreMapper.toScoreApiInfo(updatedScore);
@@ -174,5 +177,44 @@ public class ScoreService {
       throw e;
     }
     return Optional.empty();
+  }
+
+  @Transactional
+  public boolean deleteScore(UUID id, User authenticatedUser) {
+    Optional<Score> scoreOpt = scoreRepository.findById(id);
+    if (scoreOpt.isEmpty()) {
+      return false;
+    }
+
+    Score score = scoreOpt.get();
+
+    // Check if user is owner or has admin role
+    boolean isOwner = score.getOwner().getId().equals(authenticatedUser.getId());
+    boolean isAdmin = Arrays.stream(authenticatedUser.getRoles().split(","))
+      .anyMatch(role -> "ADMIN".equals(role.trim()));
+
+    if (!isOwner && !isAdmin) {
+      throw new RuntimeException("Unauthorized: Only owner or admin can delete this score");
+    }
+
+    // Delete from S3 if files exist
+    if (score.getHasFiles() != null && score.getHasFiles()) {
+      try {
+        String key = makeBucketKeyFromScore(score);
+        s3Client.deleteObject(software.amazon.awssdk.services.s3.model.DeleteObjectRequest.builder()
+          .bucket(bucketName)
+          .key(key)
+          .build());
+        log.info("Successfully deleted S3 object: " + key);
+      } catch (S3Exception e) {
+        log.warn("Failed to delete S3 object for score " + id + ": " + e.getMessage());
+        // Continue with database deletion even if S3 deletion fails
+      }
+    }
+
+    // Delete from database
+    scoreRepository.delete(score);
+    log.info("Successfully deleted score: " + id);
+    return true;
   }
 }

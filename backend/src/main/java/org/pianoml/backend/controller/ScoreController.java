@@ -127,4 +127,24 @@ public class ScoreController implements ScoreApi {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
+
+  @Override
+  public ResponseEntity<Void> scoreIdDelete(String id) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = userService.getUserFromAuthentication(authentication);
+
+    try {
+      boolean deleted = scoreService.deleteScore(UUID.fromString(id), user);
+      if (deleted) {
+        return ResponseEntity.noContent().build();
+      } else {
+        return ResponseEntity.notFound().build();
+      }
+    } catch (RuntimeException e) {
+      if (e.getMessage().contains("Unauthorized")) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+      }
+      throw e;
+    }
+  }
 }
