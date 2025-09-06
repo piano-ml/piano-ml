@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install essential packages, including Python, pip, git, and Java
 RUN apt-get update && \
-    apt-get install -y python3.10 python3-pip git openjdk-17-jdk pipx poppler-utils zip musescore && \
+    apt-get install -y python3.10 python3-pip git openjdk-21-jdk pipx poppler-utils zip musescore && \
     rm -rf /var/lib/apt/lists/*
 
 # Install poetry
@@ -22,7 +22,12 @@ RUN git clone https://github.com/liebharc/homr.git
 WORKDIR homr
 RUN poetry install
 
+
+
+RUN poetry run homr --init
+
 workdir /
+RUN pip install musicxml
 RUN git clone https://github.com/piano-ml/relieur
 
 RUN git clone https://github.com/marcomusy/pianoplayer.git
@@ -31,8 +36,21 @@ RUN git clone https://github.com/marcomusy/pianoplayer.git
 # Copy the Maven wrapper and the project's pom.xml
 COPY target/backend.jar target/backend.jar
 
+# Copy scripts folder into the container
+COPY scripts/ scripts/
+
+RUN ln -s /usr/bin/python3.10 /usr/bin/python
+
 # Expose the application port
 EXPOSE 8080
+#(-XX:+UseG1GC)
+# Set default JVM options as environment variable
+ENV JAVA_OPTS="-XX:+UseSerialGC -Xms64m -Xmx512m -XX:MaxMetaspaceSize=256m -XX:MaxDirectMemorySize=64m -XX:+ExitOnOutOfMemoryError  -Djava.security.egd=file:/dev/urandom"
 
 # Command to run the application
-CMD ["java", "-jar", "target/backend.jar"]
+# To override JVM options at runtime, use:
+# docker run -e JAVA_OPTS="your custom options" your-image
+# Or with docker-compose:
+# environment:
+#   JAVA_OPTS: "-XX:+UseG1GC -Xms64m -Xmx512m"
+CMD sh -c "java $JAVA_OPTS -jar target/backend.jar"

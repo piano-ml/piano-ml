@@ -1,7 +1,13 @@
 #!/bin/bash
 # Convert a PDF to MXML using homr
 
-echo "$#  Arguments passed: $@ "
+# Set QT platform to offscreen for headless execution in Docker
+export QT_QPA_PLATFORM=offscreen
+export QT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/x86_64-linux-gnu/qt5/plugins
+export DISPLAY=:99
+
+# Alias python to python3 for compatibility
+alias python=python3
 
 cd homr
 
@@ -20,9 +26,7 @@ FROOT="${PDF%.*}"
 FROOT="${FROOT/upload_/}"
 
 pdftoppm  -rx 75 -ry 75  -gray -png "$PDF" "$FROOT"
-#pdftoppm   -mono -png "$PDF" "$FROOT"
-rm $FROOT*teaser*
-ls -lah $FROOT*.png
+ls -lah "$FROOT*.png"
 
 FILES=`ls -p $FROOT*.png`
 
