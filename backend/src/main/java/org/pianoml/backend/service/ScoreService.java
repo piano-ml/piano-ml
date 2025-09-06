@@ -122,7 +122,7 @@ public class ScoreService {
       .collect(Collectors.toList());
   }
 
-  private String makeBucketKeyFromScore(Score score) {
+  public String makeBucketKeyFromScore(Score score) {
     return "scores/" + score.getOwner().getId() + "/" + score.getMbid() + "/" + score.getVersion() + ".zip";
   }
 
