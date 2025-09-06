@@ -84,7 +84,7 @@ public class ScoreService {
     if (candidate != null) {
       score.setId(candidate.getId()) ;
     }
-  
+
     Score savedScore = scoreRepository.save(score);
     return scoreMapper.toScoreApiInfo(savedScore);
 
@@ -144,6 +144,8 @@ public class ScoreService {
       log.info("successfully generated " + filename);
       s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(key).build(),
         RequestBody.fromFile(new File(filename)));
+      score.setHasFiles(true);
+      scoreRepository.save(score);
       log.info("successfully sent to bucket " + key);
     } finally {
       if (filename != null) {
@@ -159,7 +161,6 @@ public class ScoreService {
       try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipData))) {
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
-          System.out.println(entry.getName() + " ? " +score.getMbid() + "." + type);
           if (entry.getName().endsWith(type)) {
             return Optional.of(zis.readAllBytes());
           }

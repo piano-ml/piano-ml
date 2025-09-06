@@ -112,15 +112,12 @@ public class ScoreController implements ScoreApi {
 
   @Override
   public ResponseEntity<org.springframework.core.io.Resource> scoreOwnerMbidTypeVersionRevisionGet(String strOwner, String mbid, String type, Integer version, Integer revision) {
-    System.out.println("1not found !" + mbid + " " + strOwner + " " + version);
     try {
       User owner = userRepository.findById(UUID.fromString(strOwner)).orElseThrow(EntityNotFoundException::new);
       Optional<Score> optScore = scoreRepository.findScoreByMbidAndOwnerAndVersion(UUID.fromString(mbid), owner, version);
       if (optScore.isEmpty()) {
-        System.out.println("2not found !" + mbid + " " + owner.getId() + " " + version);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
       }
-      System.out.println("found !" + mbid + " " + owner.getId() + " " + version);
       return scoreService.getAttachmentFromScore(optScore.get(),type)
         .map(bytes -> ResponseEntity.ok()
           .contentType(MediaType.APPLICATION_OCTET_STREAM)

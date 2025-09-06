@@ -1,13 +1,17 @@
 #!/bin/bash
 # Convert a PDF to MXML using homr
-# TODO: handle multiple page PDFs
+
+echo "$#  Arguments passed: $@ "
 
 cd homr
 
-if [ $# -ne 3 ]; then
+if [ $# -ne 5 ]; then
   echo "Usage: $0 <PDF>"
-  exit 1
+  #exit 1
 fi
+
+
+
 echo "processing $1"
 PDF="$1"
 TITLE="$2"
@@ -15,23 +19,45 @@ COMPOSER="$3"
 FROOT="${PDF%.*}"
 FROOT="${FROOT/upload_/}"
 
-pdftoppm -png "$PDF" "$FROOT"
+pdftoppm  -rx 75 -ry 75  -gray -png "$PDF" "$FROOT"
+#pdftoppm   -mono -png "$PDF" "$FROOT"
+rm $FROOT*teaser*
+ls -lah $FROOT*.png
 
 FILES=`ls -p $FROOT*.png`
 
-poetry run homr "$FILES"
-rm  $FROOT*.png
+XMLFILES=""
+for FILE in $FILES; do
+  echo "starting poetry run homr $FILE"
+  poetry -v run homr "$FILE" || exit 1
+  XML_FILE="${FILE%.png}.musicxml"
+  XMLFILES="$XMLFILES $XML_FILE"
+done
+sleep 1
+echo "All XML files: $XMLFILES --> $FROOT.musicxml"
 
-mv $FROOT-1.musicxml $FROOT.musicxml
-cd pianoplayer
+python ../relieur/relieur/relieur.py $XMLFILES -o $FROOT.musicxml
+echo "XXXXXXX Created $FROOT.musicxml"
+
+sleep 1
+
 pianoplayer $FROOT.musicxml -o $FROOT.musicxml -z
+
+echo "TITLE: $TITLE"
+echo "COMPOSER: $COMPOSER"
+
 cd ..
 python scripts/extract_fingering.py "$FROOT.musicxml"
 python scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
+
 sleep 1
-mscore -o $FROOT.pdf $FROOT.musicxml
-mscore -o $FROOT.mid $FROOT.musicxml
 
-zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.mid" "$FROOT.musicxml" "$FROOT.fingering.json"
+python scripts/convert.py --verbose $FROOT.musicxml $FROOT.midi
 
-rm "$FROOT.pdf" "$FROOT.mid" "$FROOT.musicxml" "$FROOT.fingering.json"
+mscore -f -o $FROOT.pdf $FROOT.musicxml
+
+
+zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json"
+
+rm "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"
+rm "$FROOT.fingering.json"

@@ -72,6 +72,7 @@ export class ImportWorkComponent implements OnInit {
             if (this.error) {
                 console.error(this.error);
                 this.isModalOpen = true;
+                this.changeDetector.detectChanges();
             }
         }
 
@@ -115,6 +116,7 @@ export class ImportWorkComponent implements OnInit {
                     this.modalContent = error.message;
                     this.modalTitle = 'Error';
                     this.isModalOpen = true;
+                    this.changeDetector.detectChanges();
                 });
         }
     }
@@ -151,14 +153,61 @@ export class ImportWorkComponent implements OnInit {
     }
 
     onFileChange(input: HTMLInputElement) {
-        if (input?.files && input.files.length > 0) {
-            const file = input.files[0];
-            this.fileName = file.name;
-            if (this.fileName.endsWith('.midi') || this.fileName.endsWith('.mid')) {
-                this.onMidiSent(input)
-            }
-        }
+        if (!input?.files?.length) return;
 
+        const file = input.files[0];
+        this.fileName = file.name;
+
+        if (this.fileName.endsWith('.midi') || this.fileName.endsWith('.mid')) {
+            this.onMidiSent(input);
+        } else if (this.fileName.endsWith('.pdf') || this.fileName.endsWith('.musicxml') || this.fileName.endsWith('.mxml')) {
+            this.onFileSent(input);
+        }
+    }
+    onFileSent(input: HTMLInputElement) {
+        if (!input?.files?.length) return;
+        const file = input.files[0];
+        const blob = new Blob([file], { type: file.type });
+        const type = this.fileName.endsWith('.pdf') ? 'pdf' : 'musicxml';
+        const scoreApiInfo = {
+            mbid: this.work.mbid,
+            title: this.work.title,
+            author_id: this.work.artistMbId,
+            author_name: this.work.artistName,
+            study_tracks: this.studies,
+            hand_separated: this.splitVoices,
+            type: type
+        } as unknown as ScoreApiInfo
+        this.scoreService.scorePost(scoreApiInfo).subscribe({
+            error: (error) => {
+                this.error = error.error?.error || error;
+                this.modalContent = error.error?.error.message || 'An error occurred while creating the score.';
+                this.modalTitle = 'Creation Error';
+                this.isModalOpen = true;
+                this.loading = false;
+                this.changeDetector.detectChanges();
+            }, next: (data) => {
+                    this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, type, 1, 0, blob).subscribe({
+                        next: (data) => {
+                            this.loading = false;
+                            this.changeDetector.detectChanges();
+                            this.route.navigate(['/desktop/workbench'], {
+                                state: { score: scoreApiInfo }
+                            });
+                        },
+                        error: (error) => {
+                            console.error("Error uploading MIDI file:", error);
+                            console.error("Error uploading MIDI file:", error.error?.error);
+                            this.error = error.error.error;
+                            this.modalContent = error.error.error.message || 'An error occurred while uploading the MIDI file.';
+                            this.modalTitle = 'Upload Error';
+                            this.isModalOpen = true;
+                            this.loading = false;
+                            this.changeDetector.detectChanges();
+                        }
+                    });
+            }
+        });
     }
 
     onMidiSent(input: HTMLInputElement) {
@@ -196,6 +245,7 @@ export class ImportWorkComponent implements OnInit {
                 return;
             }
             this.loading = true;
+            this.changeDetector.detectChanges();
             const blob = new Blob([this.file], { type: this.file.type });
             const scoreApiInfo = {
                 mbid: this.work.mbid,
@@ -208,20 +258,22 @@ export class ImportWorkComponent implements OnInit {
             } as unknown as ScoreApiInfo
             this.scoreService.scorePost(scoreApiInfo).subscribe({
                 error: (error) => {
-                    this.error = error.error?.error || error;
+                    this.error = error.error?.error || error;
                     this.modalContent = error.error?.error.message || 'An error occurred while creating the score.';
                     this.modalTitle = 'Creation Error';
                     this.isModalOpen = true;
                     this.loading = false;
                     this.changeDetector.detectChanges();
-
                 },
                 next: (data) => {
                     this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, "midi", 1, 0, blob).subscribe({
                         next: (data) => {
                             console.log("MIDI file uploaded successfully:", data);
                             this.loading = false;
-                            this.route.navigate(['/desktop']);
+                            this.changeDetector.detectChanges();
+                            this.route.navigate(['/desktop/workbench'], {
+                                state: { score: scoreApiInfo }
+                            });
                         },
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);
@@ -234,7 +286,6 @@ export class ImportWorkComponent implements OnInit {
                             this.changeDetector.detectChanges();
                         }
                     });
-
                 }
             });
 
@@ -259,6 +310,7 @@ export class ImportWorkComponent implements OnInit {
 
     reset() {
         this.hasFile = false;
+        this.changeDetector.detectChanges();
     }
 
     enjoy(midi: Midi.Midi) {

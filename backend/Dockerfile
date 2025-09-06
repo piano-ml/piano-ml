@@ -23,7 +23,7 @@ WORKDIR homr
 RUN poetry install
 
 workdir /
-RUN git clone https://github.com/papoteur-mga/relieur.git
+RUN git clone https://github.com/piano-ml/relieur
 
 RUN git clone https://github.com/marcomusy/pianoplayer.git
 

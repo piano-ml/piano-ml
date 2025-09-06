@@ -114,8 +114,10 @@ export class WorkbenchComponent implements AfterViewInit {
           try {
             const arrayBuffer = await data.arrayBuffer();
             const midi = new Midi.Midi(arrayBuffer);
-            const midiText = JSON.stringify(midi.toJSON());
-            localStorage.setItem(MIDI_STORAGE_KEY, midiText);
+            if (!(scoreData.study_tracks && scoreData.study_tracks.length > 0)) {
+              midi.tracks = midi.tracks.filter(track => track.notes.length > 0);
+            }            
+            localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi.toJSON()));
             resolve();
           } catch (error) {
             reject(error);
