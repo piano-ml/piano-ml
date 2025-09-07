@@ -149,6 +149,14 @@ export class ScoreInfoComponent implements OnInit {
     }
   }
 
+  playScore() {
+    if (this.score) {
+      this.router.navigate(['/desktop/workbench'], {
+        state: { score: this.score }
+      });
+    }
+  }
+
   isOwner(): boolean {
     const currentUserId = this.authService.getUserId();
     return !!(currentUserId && this.score?.owner_id && currentUserId === this.score.owner_id);

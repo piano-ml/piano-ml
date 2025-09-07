@@ -93,9 +93,9 @@ export class WorkbenchComponent implements AfterViewInit {
         this.loadMusicXML(this.scoreData)
       ]);
       setTimeout(() => {
-       this.loading = false;
-       this.changeDetector.detectChanges();
-      }, 0); 
+        this.loading = false;
+        this.changeDetector.detectChanges();
+      }, 0);
     }
     // starting from here we always have score data in local storage and the view is loaded
     const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
@@ -116,7 +116,7 @@ export class WorkbenchComponent implements AfterViewInit {
             const midi = new Midi.Midi(arrayBuffer);
             if (!(scoreData.study_tracks && scoreData.study_tracks.length > 0)) {
               midi.tracks = midi.tracks.filter(track => track.notes.length > 0);
-            }            
+            }
             localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi.toJSON()));
             resolve();
           } catch (error) {
@@ -169,7 +169,7 @@ export class WorkbenchComponent implements AfterViewInit {
   }
 
   start() {
-    this.isPlaying = true;    
+    this.isPlaying = true;
     this.playerService.play(this.playConfiguration);
     this.slider.disable();
   }
@@ -182,7 +182,7 @@ export class WorkbenchComponent implements AfterViewInit {
 
   setupSubscription() {
     this.playerService.measure.subscribe((measure) => {
-      this.playConfiguration.currentStave = measure +1;
+      this.playConfiguration.currentStave = measure + 1;
       this.updateSlider();
       this.changeDetector.detectChanges();
     });
@@ -209,18 +209,18 @@ export class WorkbenchComponent implements AfterViewInit {
     });
 
     this.slider.on('end', (values: (string | number)[]) => {
+      // start changed we reset current run
       if (Number(values[0]) != this.playConfiguration.scoreRange[0]) {
-        // start changed we reset run
-        this.playConfiguration.currentStave = Number(values[0]);
-        this.playConfiguration.scoreRange[0] = Number(values[0]);
-      } else if (Number(values[1]) != this.playConfiguration.currentStave) {
-        // run changed we reset start
-        this.playConfiguration.scoreRange[0] = Number(values[1]);
-        this.playConfiguration.currentStave = Number(values[1]);
-      } else if (Number(values[2]) != this.playConfiguration.scoreRange[1]) {
-        this.playConfiguration.currentStave = Number(values[0]);
-        this.playConfiguration.scoreRange[1] = Number(values[2]);
+        //   
+        values [1] = Number(values[0]);
       }
+      // current run  changed we reset start
+      if (Number(values[1]) != this.playConfiguration.scoreRange[0]) {        
+        values [0] = Number(values[1]);
+      }
+      this.playConfiguration.scoreRange[0] = Number(values[0]);
+      this.playConfiguration.currentStave = Number(values[1]);
+      this.playConfiguration.scoreRange[1] = Number(values[2]);
       this.updateSlider();
       this.playerService.reset(this.playConfiguration);
     });

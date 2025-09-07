@@ -31,7 +31,6 @@
         <div><strong>Measures:</strong> {{ score.measures || 'N/A' }}</div>
         <div><strong>Version:</strong> {{ score.version || 1 }}</div>
         <div><strong>Hand Separated:</strong> {{ score.hand_separated ? 'Yes' : 'No' }}</div>
-        <div><strong>Has Lyrics:</strong> {{ score.has_lyrics ? 'Yes' : 'No' }}</div>
       </div>
     </div>
 
@@ -51,6 +50,9 @@
           placeholder="Enter score title">
         <div *ngIf="isFieldInvalid('title')" class="text-red-400 text-sm mt-1">
           {{ getFieldError('title') }}
+        </div>
+        <div *ngIf="score.mbid" class="text-gray-400 text-sm mt-1">
+          MusicBrainz ID: {{ score.mbid }}
         </div>
       </div>
 
@@ -73,14 +75,6 @@
         </div>
         <div *ngIf="!selectedAuthorId && selectedAuthor" class="text-gray-400 text-sm mt-1">
           Manual entry (no MusicBrainz ID)
-        </div>
-      </div>
-
-      <!-- MusicBrainz ID for Score -->
-      <div>
-        <label class="block text-sm font-medium text-gray-300 mb-2">MusicBrainz ID</label>
-        <div class="px-3 py-2 border rounded-lg bg-gray-100 text-gray-700">
-          {{ score.mbid || 'No MusicBrainz ID' }}
         </div>
       </div>
 
@@ -127,33 +121,58 @@
       </div>
 
       <!-- Study Tracks -->
-      <div>
-        <!--
+      <div class="study-tracks-container">
         <label class="block text-sm font-medium text-gray-300 mb-2">Study Tracks</label>
-      -->
-        <div class="grid grid-cols-2 gap-2">
-
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <!-- Left Hand (second element) -->
-          <div>
+          <div class="relative custom-dropdown-container">
             <label for="leftHandTrack" class="block text-xs text-gray-400 mb-1">Left Hand</label>
-            <select
-              id="leftHandTrack"
-              formControlName="leftHandTrack"
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black">
-              <option [value]="null">default to midi track 1</option>
-              <option *ngFor="let i of getTrackOptions()" [value]="i">{{ i }}</option>
-            </select>
+            <div class="custom-select-wrapper">
+              <button
+                type="button"
+                class="custom-select-button w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black bg-white text-left"
+                (click)="toggleLeftHandDropdown()">
+                {{ getSelectedLeftHandLabel() }}
+                <svg class="custom-select-arrow" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              <div class="custom-dropdown-menu" [class.show]="showLeftHandDropdown">
+                <div class="custom-dropdown-item" (click)="selectLeftHand(null)">
+                  default to midi track 1
+                </div>
+                <div class="custom-dropdown-item" 
+                     *ngFor="let i of getTrackOptions()" 
+                     (click)="selectLeftHand(i)">
+                  Track {{ i }}
+                </div>
+              </div>
+            </div>
           </div>
           <!-- Right Hand (first element) -->
-          <div>
+          <div class="relative custom-dropdown-container">
             <label for="rightHandTrack" class="block text-xs text-gray-400 mb-1">Right Hand</label>
-            <select
-              id="rightHandTrack"
-              formControlName="rightHandTrack"
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black">
-              <option [value]="null">default to midi track 0</option>
-              <option *ngFor="let i of getTrackOptions()" [value]="i">{{ i }}</option>
-            </select>
+            <div class="custom-select-wrapper">
+              <button
+                type="button"
+                class="custom-select-button w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black bg-white text-left"
+                (click)="toggleRightHandDropdown()">
+                {{ getSelectedRightHandLabel() }}
+                <svg class="custom-select-arrow" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              <div class="custom-dropdown-menu" [class.show]="showRightHandDropdown">
+                <div class="custom-dropdown-item" (click)="selectRightHand(null)">
+                  default to midi track 0
+                </div>
+                <div class="custom-dropdown-item" 
+                     *ngFor="let i of getTrackOptions()" 
+                     (click)="selectRightHand(i)">
+                  Track {{ i }}
+                </div>
+              </div>
+            </div>
           </div>          
         </div>
       </div>
@@ -174,7 +193,7 @@
       <div class="flex gap-4">
         <button
           type="submit"
-          class="btn btn-blue m-4"
+          class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed m-4"
           [disabled]="loading || scoreForm.invalid">
           {{ loading ? 'Saving...' : 'Save Changes' }}
         </button>

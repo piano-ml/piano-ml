@@ -12,7 +12,7 @@ const routes: Routes = [
   { path: 'create', component: CreateAccountComponent,     data: { breadcrumb: 'Create' } },
   { path: 'scores', component: AccountScoresComponent,     data: { breadcrumb: 'My Scores' } },
   { path: 'score/edit/:id', component: EditScoreComponent,     data: { breadcrumb: 'Edit Score' } },
-  { path: '', redirectTo: 'login', pathMatch: 'full' }
+  { path: '', redirectTo: 'home', pathMatch: 'full' }
 ];
 
 @NgModule({

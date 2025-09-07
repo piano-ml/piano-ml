@@ -74,7 +74,7 @@ export class PlayerService {
       track.notes.length > 0 ? track.notes[track.notes.length - 1].bars : 0
     )));
     playConfiguration.scoreRange[0] = 1;
-    playConfiguration.scoreRange[1] = playConfiguration.maxStaveCount;
+    playConfiguration.scoreRange[1] = playConfiguration.maxStaveCount + 1;
     this.playConfiguration = playConfiguration;
     this.reset(playConfiguration);
     return playConfiguration;
@@ -155,9 +155,13 @@ export class PlayerService {
     this.lastMidiEventTime = 0;
     if (this.osmdCursor !== null) {
       this.osmdCursor.reset();
-      for (let i = 0; i < this.playConfiguration.currentStave - 1; i++) {
-        this.osmdCursor.nextMeasure();
+      if (this.playConfiguration.currentStave>0) {
+        this.osmdCursor.previous();
       }
+      for (let i = 0; i < this.playConfiguration.currentStave - 1; i++) {
+        this.osmdCursor.nextMeasure();        
+      }
+      //this.osmdCursor.previous();
     }
   }
 
@@ -345,6 +349,11 @@ export class PlayerService {
     Tone.getTransport().schedule(() => {
       this.spessasynth?.stopAll();
       this.message.next("END");
+      this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
+      this.reset(this.playConfiguration);
+      if (this.playConfiguration.isLoop) {
+        this.play(this.playConfiguration);
+      }
     }, endTime);
   }
 

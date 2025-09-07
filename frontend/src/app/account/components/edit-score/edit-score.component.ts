@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -30,6 +30,10 @@ export class EditScoreComponent implements OnInit {
   // Delete confirmation properties
   showDeleteConfirmation = false;
   deleting = false;
+
+  // Custom dropdown properties
+  showLeftHandDropdown = false;
+  showRightHandDropdown = false;
 
   constructor(
     private fb: FormBuilder,
@@ -257,6 +261,53 @@ export class EditScoreComponent implements OnInit {
       options.push(i);
     }
     return options;
+  }
+
+  // Custom dropdown methods
+  toggleLeftHandDropdown() {
+    this.showLeftHandDropdown = !this.showLeftHandDropdown;
+    this.showRightHandDropdown = false; // Close other dropdown
+  }
+
+  toggleRightHandDropdown() {
+    this.showRightHandDropdown = !this.showRightHandDropdown;
+    this.showLeftHandDropdown = false; // Close other dropdown
+  }
+
+  selectLeftHand(value: number | null) {
+    this.scoreForm.patchValue({ leftHandTrack: value });
+    this.showLeftHandDropdown = false;
+  }
+
+  selectRightHand(value: number | null) {
+    this.scoreForm.patchValue({ rightHandTrack: value });
+    this.showRightHandDropdown = false;
+  }
+
+  getSelectedLeftHandLabel(): string {
+    const value = this.scoreForm.get('leftHandTrack')?.value;
+    if (value === null || value === undefined) {
+      return 'default to midi track 1';
+    }
+    return `Track ${value}`;
+  }
+
+  getSelectedRightHandLabel(): string {
+    const value = this.scoreForm.get('rightHandTrack')?.value;
+    if (value === null || value === undefined) {
+      return 'default to midi track 0';
+    }
+    return `Track ${value}`;
+  }
+
+  // Close dropdowns when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-dropdown-container')) {
+      this.showLeftHandDropdown = false;
+      this.showRightHandDropdown = false;
+    }
   }
 
   // Delete functionality
