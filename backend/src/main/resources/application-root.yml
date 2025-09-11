@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: backend
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/pianoml
+    hikari:
+      maximum-pool-size: 10
+  cloud:
+    gcp:
+      sql:
+        enabled: false
+    aws:
+      region:
+        static: us-east-1
+      endpoint: https://a875d3bbcfc175fef5a7d5506780ff7f.r2.cloudflarestorage.com
+      credentials:
+        access-key: 0caaa45e10dc748a1e4e01ff2f202f87
+        secret-key: dd76ea97d971ab0024bfbde01476607da67dfb1709588eec929f8faf9863ce6b
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+  liquibase:
+    default-schema: pianoml
+  main:
+    lazy-initialization: true
+
+server:
+  tomcat:
+    max-threads: 50
+
+jwt:
+  secret: your-super-secret-key-that-is-long-enough
+  expiration-ms: 3600000
+
+# AWS S3 Configuration
+aws:
+  s3:
+    bucket-name: pianoml-media

@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat } from '@ng-icons/bootstrap-icons';
+import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfo } from '@ng-icons/bootstrap-icons';
 import { ScoreApiInfo, ScoreService } from '../../../core/api';
 import { OsmdComponent } from '../osmd/osmd.component';
 //import { NouisliderComponent, NouisliderModule } from 'ng2-nouislider';
@@ -13,6 +13,8 @@ import * as Midi from '@tonejs/midi';
 import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
 import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
+import { Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-workbench',
@@ -20,18 +22,20 @@ import wNumb from 'wnumb';
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [
     provideIcons({
       bootstrapHouse,
       bootstrapSkipBackwardFill,
       bootstrapPlayFill,
       bootstrapPauseFill,
-      bootstrapRepeat
+      bootstrapRepeat,
+      bootstrapInfo
     })
   ]
 })
 
-export class WorkbenchComponent implements AfterViewInit {
+export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   // Score data from state
   scoreData: ScoreApiInfo | null = null;
@@ -39,6 +43,16 @@ export class WorkbenchComponent implements AfterViewInit {
   isPlaying = false;
   tempo = 120;
   maxStaveCount = 100; // Placeholder, should be set based on actual score data
+  
+  // Cache for parsed MIDI data
+  private cachedMidi: Midi.Midi | null = null;
+  private cachedMusicXML: string | null = null;
+  private subscriptions: Subscription[] = [];
+  
+  // Reusable decoder and config cache
+  private static readonly textDecoder = new TextDecoder();
+  private sliderConfigCache: any = null;
+  
   // Configuration
   playConfiguration: PlayConfiguration = {
     maxStaveCount: 100,
@@ -88,79 +102,139 @@ export class WorkbenchComponent implements AfterViewInit {
 
   async ngAfterViewInit() {
     if (this.scoreData) {
-      await Promise.all([
-        this.loadMidi(this.scoreData),
-        this.loadMusicXML(this.scoreData)
-      ]);
-      setTimeout(() => {
+      this.loading = true;
+      this.changeDetector.detectChanges(); // Trigger change detection for loading state
+      
+      try {
+        await Promise.all([
+          this.loadMidi(this.scoreData),
+          this.loadMusicXML(this.scoreData)
+        ]);
+        
+        // Use requestAnimationFrame for better performance than setTimeout
+        requestAnimationFrame(() => {
+          this.loading = false;
+          this.changeDetector.detectChanges();
+        });
+      } catch (error) {
+        console.error('Error loading score data:', error);
         this.loading = false;
         this.changeDetector.detectChanges();
-      }, 0);
+        return;
+      }
+    } else {
+      this.loading = false;
     }
+    
     // starting from here we always have score data in local storage and the view is loaded
-    const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
-    const midi = new Midi.Midi();
-    midi.fromJSON(JSON.parse(midiScore!));
+    const midi = this.getCachedMidi();
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, midi);
     this.setupSlider();
     this.setupSubscription();
   }
 
+  private getCachedMidi(): Midi.Midi {
+    if (!this.cachedMidi) {
+      try {
+        const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
+        if (midiScore) {
+          this.cachedMidi = new Midi.Midi();
+          this.cachedMidi.fromJSON(JSON.parse(midiScore));
+        } else {
+          this.cachedMidi = new Midi.Midi();
+        }
+      } catch (error) {
+        console.warn('Failed to load MIDI from localStorage:', error);
+        this.cachedMidi = new Midi.Midi();
+      }
+    }
+    return this.cachedMidi;
+  }
+
+  private getCachedMusicXML(): string | null {
+    if (!this.cachedMusicXML) {
+      try {
+        this.cachedMusicXML = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
+      } catch (error) {
+        console.warn('Failed to load MusicXML from localStorage:', error);
+        this.cachedMusicXML = null;
+      }
+    }
+    return this.cachedMusicXML;
+  }
+
   async loadMidi(scoreData: ScoreApiInfo): Promise<void> {
-    this.loading = true;
+    return this.loadScoreData(scoreData, 'midi', async (data) => {
+      const arrayBuffer = await data.arrayBuffer();
+      const midi = new Midi.Midi(arrayBuffer);
+      if (!(scoreData.study_tracks && scoreData.study_tracks.length > 0)) {
+        midi.tracks = midi.tracks.filter(track => track.notes.length > 0);
+      }
+      localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi.toJSON()));
+      // Invalidate cache when new MIDI is loaded
+      this.cachedMidi = null;
+    });
+  }
+
+  async loadMusicXML(scoreData: ScoreApiInfo): Promise<void> {
+    return this.loadScoreData(scoreData, 'musicxml', async (data) => {
+      const arrayBuffer = await data.arrayBuffer();
+      const xmlText = WorkbenchComponent.textDecoder.decode(arrayBuffer);
+      localStorage.setItem(MUSIC_XML_STORAGE_KEY, xmlText);
+      // Invalidate cache when new MusicXML is loaded
+      this.cachedMusicXML = null;
+    });
+  }
+
+  private async loadScoreData(
+    scoreData: ScoreApiInfo,
+    type: 'midi' | 'musicxml',
+    processor: (data: any) => Promise<void>
+  ): Promise<void> {
+    // Don't set loading here since it's managed at higher level
     return new Promise((resolve, reject) => {
-      this.scoreService.scoreOwnerMbidTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.mbid!, 'midi', 1, 1).subscribe({
+      this.scoreService.scoreOwnerMbidTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.mbid!, type, 1, 1).subscribe({
         next: async (data) => {
           try {
-            const arrayBuffer = await data.arrayBuffer();
-            const midi = new Midi.Midi(arrayBuffer);
-            if (!(scoreData.study_tracks && scoreData.study_tracks.length > 0)) {
-              midi.tracks = midi.tracks.filter(track => track.notes.length > 0);
-            }
-            localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi.toJSON()));
+            await processor(data);
             resolve();
           } catch (error) {
             reject(error);
           }
         },
-        error: (error) => {
-          reject(error);
-        }
+        error: (error) => this.handleLoadError(error, scoreData, reject)
       });
     });
   }
 
-
-  async loadMusicXML(scoreData: ScoreApiInfo): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.loading = true;
-      this.scoreService.scoreOwnerMbidTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.mbid!, 'musicxml', 1, 1).subscribe({
-        next: (data) => {
-          data.arrayBuffer().then((arrayBuffer) => {
-            const xmlText = new TextDecoder().decode(arrayBuffer);
-            localStorage.setItem(MUSIC_XML_STORAGE_KEY, xmlText);
-            resolve();
-          });
-        },
-        error: (error) => {
-          reject(error);
-        }
-      });
-    });
+  private handleLoadError(error: any, scoreData: ScoreApiInfo, reject: (reason?: any) => void): void {
+    if (error.status === 404) {
+      this.router.navigate(['/open', scoreData.id, 'info']);
+    }
+    reject(error);
   }
 
   summary() {
     this.router.navigate(['/summary']);
   }
 
+  showInfo() {
+    if (this.scoreData?.id) {
+      this.router.navigate(['/open', this.scoreData.id, 'info']);
+    }
+  }
+
   reset() {
-    this.slider.enable();
+    this.setSliderState(true);
     if (this.playConfiguration.currentStave === this.playConfiguration.scoreRange[0]) {
       this.playConfiguration.scoreRange[0] = 0;
     }
     this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
     this.playerService.reset(this.playConfiguration);
     this.isPlaying = false;
+    
+    // Invalidate config cache since values changed
+    this.sliderConfigCache = null;
     this.updateSlider();
   }
 
@@ -171,31 +245,38 @@ export class WorkbenchComponent implements AfterViewInit {
   start() {
     this.isPlaying = true;
     this.playerService.play(this.playConfiguration);
-    this.slider.disable();
+    this.setSliderState(false);
   }
 
   stop() {
-    this.slider.enable();
+    this.setSliderState(true);
     this.playerService.pause();
     this.isPlaying = false;
   }
 
+  private setSliderState(enabled: boolean) {
+    if (enabled) {
+      this.slider.enable();
+    } else {
+      this.slider.disable();
+    }
+  }
+
   setupSubscription() {
-    this.playerService.measure.subscribe((measure) => {
-      this.playConfiguration.currentStave = measure + 1;
-      this.updateSlider();
-      this.changeDetector.detectChanges();
-    });
+    const measureSub = this.playerService.measure
+      .pipe(debounceTime(16)) // ~60fps limit
+      .subscribe((measure) => {
+        this.playConfiguration.currentStave = measure + 1;
+        this.updateSlider();
+        this.changeDetector.detectChanges();
+      });
+    
+    this.subscriptions.push(measureSub);
   }
 
   setupSlider() {
     this.slider = noUiSlider.create(this.range.nativeElement, {
-      behaviour: 'unconstrained',
-      range: {
-        'min': this.playConfiguration.scoreRange[0],
-        'max': this.playConfiguration.scoreRange[1]
-      },
-      start: [this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]],
+      ...this.getSliderBaseConfig(),
       pips: {
         mode: PipsMode.Steps,
         //values: 2, //this.maxStaveCount,
@@ -209,34 +290,72 @@ export class WorkbenchComponent implements AfterViewInit {
     });
 
     this.slider.on('end', (values: (string | number)[]) => {
-      // start changed we reset current run
-      if (Number(values[0]) != this.playConfiguration.scoreRange[0]) {
-        //   
-        values [1] = Number(values[0]);
+      // Convert once and reuse
+      const numValues = values.map(v => Number(v));
+      const [start, current, end] = numValues;
+      const currentRange = this.playConfiguration.scoreRange[0];
+      
+      // Optimized logic: avoid redundant assignments
+      let newStart = start;
+      let newCurrent = current;
+      
+      if (start !== currentRange) {
+        newCurrent = start;
+      } else if (current !== currentRange) {
+        newStart = current;
       }
-      // current run  changed we reset start
-      if (Number(values[1]) != this.playConfiguration.scoreRange[0]) {        
-        values [0] = Number(values[1]);
+      
+      // Only update if values actually changed
+      if (newStart !== this.playConfiguration.scoreRange[0] || 
+          newCurrent !== this.playConfiguration.currentStave || 
+          end !== this.playConfiguration.scoreRange[1]) {
+        
+        this.playConfiguration.scoreRange[0] = newStart;
+        this.playConfiguration.currentStave = newCurrent;
+        this.playConfiguration.scoreRange[1] = end;
+        
+        // Invalidate slider config cache
+        this.sliderConfigCache = null;
+        
+        this.updateSlider();
+        this.playerService.reset(this.playConfiguration);
       }
-      this.playConfiguration.scoreRange[0] = Number(values[0]);
-      this.playConfiguration.currentStave = Number(values[1]);
-      this.playConfiguration.scoreRange[1] = Number(values[2]);
-      this.updateSlider();
-      this.playerService.reset(this.playConfiguration);
     });
+  }
+
+  private getSliderBaseConfig() {
+    // Cache the config object to avoid recreation if values haven't changed
+    const currentKey = `${this.playConfiguration.scoreRange[0]}-${this.playConfiguration.scoreRange[1]}-${this.playConfiguration.currentStave}`;
+    
+    if (!this.sliderConfigCache || this.sliderConfigCache.key !== currentKey) {
+      this.sliderConfigCache = {
+        key: currentKey,
+        config: {
+          behaviour: 'unconstrained' as const,
+          range: {
+            'min': this.playConfiguration.scoreRange[0],
+            'max': this.playConfiguration.scoreRange[1]
+          },
+          start: [this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]]
+        }
+      };
+    }
+    
+    return this.sliderConfigCache.config;
   }
 
   debugPlayConfiguration(step: string) {
     console.log(step, this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]);
   }
 
+  // Public getter for debugging loading state
+  get isLoading(): boolean {
+    return this.loading;
+  }
+
   initSlider() {
     this.slider.updateOptions({
-      range: {
-        'min': this.playConfiguration.scoreRange[0],
-        'max': this.playConfiguration.scoreRange[1]
-      },
-      start: [this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]],
+      ...this.getSliderBaseConfig(),
       pips: {
         mode: PipsMode.Count,
         values: this.maxStaveCount,
@@ -246,9 +365,54 @@ export class WorkbenchComponent implements AfterViewInit {
   }
 
   updateSlider() {
-    this.slider.updateOptions({
-      start: [this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]]
+    if (!this.slider) return;
+    
+    const newValues = [this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]];
+    const currentValues = this.slider.get();
+    
+    // Only update if values have actually changed
+    if (!this.arraysEqual(newValues, currentValues)) {
+      this.slider.updateOptions({
+        start: newValues
+      });
+    }
+  }
+
+  private arraysEqual(a: any[], b: any[]): boolean {
+    if (a === b) return true; // Same reference
+    if (!a || !b) return false; // Null/undefined check
+    if (a.length !== b.length) return false;
+    
+    // Early return on first difference
+    for (let i = 0; i < a.length; i++) {
+      if (Number(a[i]) !== Number(b[i])) return false;
+    }
+    return true;
+  }
+
+  ngOnDestroy() {
+    // Clean up subscriptions
+    this.subscriptions.forEach(sub => {
+      if (sub && !sub.closed) {
+        sub.unsubscribe();
+      }
     });
+    this.subscriptions.length = 0;
+    
+    // Clean up slider
+    if (this.slider) {
+      try {
+        this.slider.destroy();
+      } catch (error) {
+        console.warn('Error destroying slider:', error);
+      }
+      this.slider = null;
+    }
+    
+    // Clear caches
+    this.cachedMidi = null;
+    this.cachedMusicXML = null;
+    this.sliderConfigCache = null;
   }
 
 }

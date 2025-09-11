@@ -62,6 +62,9 @@ public class ScoreService {
   @Autowired
   private PackService packService;
 
+  @Autowired
+  private WorkloadRepository workloadRepository;
+
   @Transactional
   public ScoreApiInfo createScore(ScoreApiInfo scoreApiInfo, User userId) {
     Score score = scoreMapper.toScore(scoreApiInfo);
@@ -132,27 +135,33 @@ public class ScoreService {
   public void packAttachmentToScore(Score score, String type, InputStream inputStream) throws IOException {
     String key = makeBucketKeyFromScore(score);
 
-    String filename = null;
-    try {
-      PackScriptDto packScriptDto = new PackScriptDto(inputStream, score);
-      if (type.equals("pdf")) {
-        filename = packService.packPDF(packScriptDto);
-      } else if (type.equals("midi")) {
-        filename = packService.packMidi(packScriptDto);
-      } else if (type.equals("musicxml")) {
-        filename = packService.packMusicXml(packScriptDto);
-      } else {
-        throw new RuntimeException("Unsupported type " + type);
-      }
-      log.info("successfully generated " + filename);
-      s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(key).build(),
-        RequestBody.fromFile(new File(filename)));
-      score.setHasFiles(true);
-      scoreRepository.save(score);
-      log.info("successfully sent to bucket " + key);
-    } finally {
-      if (filename != null) {
-        Files.deleteIfExists(Paths.get(filename));
+    PackScriptDto packScriptDto = new PackScriptDto(inputStream, score);
+
+    if (type.equals("pdf")) {
+      // New workload-based processing for PDF
+      packService.packPDFWorkload(packScriptDto, key);
+      log.info("Successfully created PDF workload for score: {}", score.getId());
+    } else {
+      // Existing logic for midi and musicxml
+      String filename = null;
+      try {
+        if (type.equals("midi")) {
+          filename = packService.packMidi(packScriptDto);
+        } else if (type.equals("musicxml")) {
+          filename = packService.packMusicXml(packScriptDto);
+        } else {
+          throw new RuntimeException("Unsupported type " + type);
+        }
+        log.info("successfully generated " + filename);
+        s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(key).build(),
+          RequestBody.fromFile(new File(filename)));
+        score.setHasFiles(true);
+        scoreRepository.save(score);
+        log.info("successfully sent to bucket " + key);
+      } finally {
+        if (filename != null) {
+          Files.deleteIfExists(Paths.get(filename));
+        }
       }
     }
   }

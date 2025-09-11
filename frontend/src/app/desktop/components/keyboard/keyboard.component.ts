@@ -17,8 +17,6 @@ export class KeyboardComponent {
   @ViewChild('keyboardContainer')
   keyboardContainer!: ElementRef;
 
-  //private playerService: PlayerService;
-
 
   constructor(private playerService: PlayerService)  {
     this.playerService = playerService;
@@ -31,6 +29,3 @@ export class KeyboardComponent {
 
 
 }
-
-
-

@@ -1,56 +1,42 @@
-# Use the latest Ubuntu LTS as a base image
-FROM ubuntu:22.04
+FROM debian:12-slim
 
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install essential packages, including Python, pip, git, and Java
 RUN apt-get update && \
-    apt-get install -y python3.10 python3-pip git openjdk-21-jdk pipx poppler-utils zip musescore && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y  --no-install-recommends python3.11 python3-pip python3-venv git openjdk-17-jre-headless pipx poppler-utils zip musescore3 curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
 
-# Install poetry
+# Install some python packages globally using pipx
 RUN pipx ensurepath
 RUN pipx install poetry
+RUN pipx install --include-deps music21
+
+# setup pythons and tool path for scripts
+RUN ln -s /usr/bin/python3.11 /usr/bin/python
 RUN ln -s /root/.local/bin/poetry  /usr/bin/poetry
 
-# Install music21
-RUN pip3 install music21
-
- # Clone the homr repository and install its dependencies
-RUN git clone https://github.com/liebharc/homr.git
-WORKDIR homr
-RUN poetry install
-
-
-
-RUN poetry run homr --init
-
-workdir /
-RUN pip install musicxml
+# An awesome Optical Music Recognition software
+RUN git clone https://github.com/liebharc/homr.git &&  \
+    cd homr &&  \
+    poetry install --without dev && \
+    poetry run homr --init
+# merge multiple musicxml files into one
 RUN git clone https://github.com/piano-ml/relieur
-
+# guess fingerings from a musicxml file
 RUN git clone https://github.com/marcomusy/pianoplayer.git
 
-
-# Copy the Maven wrapper and the project's pom.xml
+# Copy the backend jar file into the container
 COPY target/backend.jar target/backend.jar
 
 # Copy scripts folder into the container
 COPY scripts/ scripts/
 
-RUN ln -s /usr/bin/python3.10 /usr/bin/python
-
 # Expose the application port
 EXPOSE 8080
-#(-XX:+UseG1GC)
-# Set default JVM options as environment variable
-ENV JAVA_OPTS="-XX:+UseSerialGC -Xms64m -Xmx512m -XX:MaxMetaspaceSize=256m -XX:MaxDirectMemorySize=64m -XX:+ExitOnOutOfMemoryError  -Djava.security.egd=file:/dev/urandom"
 
-# Command to run the application
-# To override JVM options at runtime, use:
-# docker run -e JAVA_OPTS="your custom options" your-image
-# Or with docker-compose:
-# environment:
-#   JAVA_OPTS: "-XX:+UseG1GC -Xms64m -Xmx512m"
-CMD sh -c "java $JAVA_OPTS -jar target/backend.jar"
+# Set default JVM options as environment variable
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:+OptimizeStringConcat -Djava.security.egd=file:/dev/urandom -XX:+ExitOnOutOfMemoryError"
+CMD ["sh", "-c", "java $JAVA_OPTS -jar target/backend.jar \"$@\"", "--"]

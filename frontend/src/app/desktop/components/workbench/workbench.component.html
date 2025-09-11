@@ -30,6 +30,10 @@
                 <div class="flex xl:w-1/2 items-end justify-end">
 
 
+                    <button (click)="showInfo()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
+                        <ng-icon name="bootstrapInfo" class="svg-button" />
+                    </button>
+
                     <button (click)="reset()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
                         <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
                     </button>
@@ -115,13 +119,13 @@
                   <div  #range></div>
             </div>
     <!-- score -->
-    <div class="flex-none" *ngIf="loading === false">
+    <div class="flex-none" *ngIf="!loading && scoreData">
         <app-osmd [scoreData]="scoreData"></app-osmd>
     </div>
 
     <!-- middle bar empty for now -->
     <div #arena class=" flex-grow {{arenaClass}} text-center text-neutral-400 text-2xl">
-{{ loading ? 'Loading MIDI...' : ''    }}
+{{ loading ? 'Loading score data...' : ''    }}
     </div>
 
     <!-- keyboard -->

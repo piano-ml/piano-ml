@@ -19,8 +19,18 @@ export class AccountScoresComponent implements OnInit {
 
   // Table configuration
   tableColumns: ScoreTableColumn[] = [
-    { key: 'title', label: 'Title', visible: true },
-    { key: 'author_name', label: 'Author', visible: true },
+    { 
+      key: 'has_files', 
+      label: '', 
+      visible: true, 
+      formatter: (value, score) => score.has_files === false ? '⚠️' : '✅'
+    },
+    { 
+      key: 'title', 
+      label: 'Title', 
+      visible: true
+    },
+    { key: 'author', label: 'Author', visible: true },
     { key: 'version', label: 'Version', visible: true },
     { key: 'grade', label: 'Grade', visible: true },
     { key: 'duration', label: 'Duration', visible: true },
@@ -29,22 +39,9 @@ export class AccountScoresComponent implements OnInit {
 
   tableActions: ScoreTableAction[] = [
     {
-      label: 'View',
-      icon: '👁️',
-      class: '',
+      label: 'Info',
+      class: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm transition-colors',
       callback: (score) => this.viewScore(score)
-    },
-    {
-      label: 'Edit',
-      icon: '✏️',
-      class: '',
-      callback: (score) => this.editScore(score)
-    },
-    {
-      label: 'Delete',
-      icon: '🗑️',
-      class: '',
-      callback: (score) => this.deleteScore(score)
     }
   ];
 
@@ -88,6 +85,10 @@ export class AccountScoresComponent implements OnInit {
     this.loadUserScores();
   }
 
+  onScoreClick(score: ScoreApiInfo) {
+    this.viewScore(score);
+  }
+
   formatDuration(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -99,22 +100,6 @@ export class AccountScoresComponent implements OnInit {
       this.router.navigate(['/browse', score.id, 'info']);
     } else {
       console.error('Score ID is missing');
-    }
-  }
-
-  editScore(score: ScoreApiInfo) {
-    if (score.id) {
-      this.router.navigate(['/account/score/edit', score.id]);
-    } else {
-      console.error('Score ID is missing');
-    }
-  }
-
-  deleteScore(score: ScoreApiInfo) {
-    console.log('Delete score:', score);
-    // TODO: Implement delete functionality
-    if (confirm(`Are you sure you want to delete "${score.title}"?`)) {
-      // Call delete API
     }
   }
 }
