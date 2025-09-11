@@ -39,4 +39,4 @@ EXPOSE 8080
 
 # Set default JVM options as environment variable
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:+OptimizeStringConcat -Djava.security.egd=file:/dev/urandom -XX:+ExitOnOutOfMemoryError"
-CMD ["sh", "-c", "java $JAVA_OPTS -jar target/backend.jar \"$@\"", "--"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar target/backend.jar \"$@\"", "--"]
