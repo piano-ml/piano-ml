@@ -10,10 +10,13 @@ RUN apt-get update && \
     apt-get clean
 
 # Install some python packages globally using pipx
-RUN pipx ensurepath
-RUN pipx install poetry
-RUN pipx install --include-deps music21
+RUN pip3 install --break-system-packages poetry music21
 
+# Après l'installation pipx, ajouter:
+RUN ln -s /root/.local/pipx/venvs/music21/lib/python3.11/site-packages/music21 /usr/lib/python3/dist-packages/
+RUN ln -s /root/.local/pipx/venvs/poetry/lib/python3.11/site-packages/poetry /usr/lib/python3/dist-packages/
+
+#
 # setup pythons and tool path for scripts
 RUN ln -s /usr/bin/python3.11 /usr/bin/python
 RUN ln -s /root/.local/bin/poetry  /usr/bin/poetry

@@ -30,7 +30,7 @@ mv $ORI.musicxml $FROOT.musicxml
 
 python scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
-mscore -o $FROOT.pdf $FROOT.musicxml
+musescore3 -o $FROOT.pdf $FROOT.musicxml
 
 mv $1 "$FROOT.midi"
 
