@@ -65,7 +65,7 @@ sleep 1
 
 python scripts/convert.py --verbose "$FROOT".musicxml "$FROOT".midi
 
-musescore3-f -o "$FROOT".pdf "$FROOT".musicxml
+musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
 
 
 zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json"
