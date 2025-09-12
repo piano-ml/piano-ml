@@ -191,7 +191,7 @@ export class ImportWorkComponent implements OnInit {
                         next: (data) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();
-                            this.route.navigate([`/browse/${scoreApiInfo.id}/info`]);
+                            this.route.navigate([`/account/scores`]);
                         },
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);
@@ -269,7 +269,7 @@ export class ImportWorkComponent implements OnInit {
                             console.log("MIDI file uploaded successfully:", data);
                             this.loading = false;
                             this.changeDetector.detectChanges();
-                            this.route.navigate([`/browse/${scoreApiInfo.id}/info`]);
+                            this.route.navigate([`/account/scores`]);
                         },
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);

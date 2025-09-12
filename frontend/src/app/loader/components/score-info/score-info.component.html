@@ -66,7 +66,7 @@
     </div>
 
         <!-- Play Section -->
-    <div class="bg-neutral-600 p-4 rounded">
+    <div class="bg-neutral-600 p-4 rounded" *ngIf="score.has_files">
       <div class="text-center">
         <button
           (click)="playScore()"
@@ -79,7 +79,7 @@
     </div>
 
         <!-- Download Section -->
-    <div class="bg-neutral-600 p-4 rounded">
+    <div class="bg-neutral-600 p-4 rounded" *ngIf="!score.has_files">
       <h3 class="text-lg font-semibold mb-4 text-white">Download Files</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- MusicXML Download -->

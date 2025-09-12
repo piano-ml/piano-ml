@@ -416,6 +416,29 @@ paths:
         '404':
           description: ScoreApiInfo or file type not found
 
+  /workload/{id}:
+    get:
+      operationId: workloadIdGet
+      tags:
+        - workload
+      summary: Retrieve a workload by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the workload to retrieve
+      responses:
+        '200':
+          description: Workload retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadApiInfo'
+        '404':
+          description: Workload not found
+
   /author:
     post:
       operationId: authorPost
@@ -743,6 +766,33 @@ components:
           type: array
           items:
             type: integer
+
+    WorkloadApiInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        kind:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        scoreId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PENDING, RUNNING, COMPLETED, FAILED]
+        errorMessage:
+          type: string
+        duration:
+          type: integer
+          format: int32
+          description: Duration in milliseconds
+        workloadSize:
+          type: integer
+          format: int32
 
     UserApiInfo:
       type: object
