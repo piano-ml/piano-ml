@@ -6,6 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install essential packages, including Python, pip, git, Java, and pipx
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    vim \
+    joe \
         python3.11 \
         python3-pip \
         python3-venv \
@@ -33,6 +35,11 @@ RUN ln -s /usr/bin/python3.11 /usr/bin/python
 USER appuser
 WORKDIR /home/appuser
 
+# Create a global shared virtual environment for common Python packages
+RUN python -m venv /home/appuser/shared-venv && \
+    /home/appuser/shared-venv/bin/pip install --upgrade pip && \
+    /home/appuser/shared-venv/bin/pip install music21 musicxml pretty_midi
+
 # Install Poetry using pipx (recommended for Debian 12)
 RUN pipx install poetry && \
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
@@ -42,28 +49,18 @@ ENV PATH="/home/appuser/.local/bin:$PATH"
 RUN git clone https://github.com/liebharc/homr.git && \
     cd homr && \
     poetry install --without dev && \
-    poetry run homr --init
+    poetry run python -c "from homr.main import main; import sys; sys.argv = ['homr', '--init']; main()"
 
 # Clone and install relieur (MusicXML merger)
 RUN git clone https://github.com/piano-ml/relieur.git && \
     cd relieur && \
     poetry install
 
-# Clone and install pianoplayer (fingering detection)
-RUN git clone https://github.com/marcomusy/pianoplayer.git && \
-    cd pianoplayer && \
-    python -m venv venv && \
-    ./venv/bin/pip install -r requirements.txt && \
-    ./venv/bin/pip install -e .
+# Clone pianoplayer (will use shared venv instead of its own)
+RUN git clone https://github.com/marcomusy/pianoplayer.git && cd pianoplayer && pipx install pianoplayer
 
 # Create wrapper scripts for easy access to Python tools
-RUN mkdir -p /home/appuser/bin && \
-    echo '#!/bin/bash\ncd /home/appuser/homr && poetry run python -m homr "$@"' > /home/appuser/bin/homr && \
-    echo '#!/bin/bash\ncd /home/appuser/relieur && poetry run python -m relieur.relieur "$@"' > /home/appuser/bin/relieur && \
-    echo '#!/bin/bash\ncd /home/appuser/pianoplayer && ./venv/bin/python -m pianoplayer "$@"' > /home/appuser/bin/pianoplayer && \
-    chmod +x /home/appuser/bin/*
 
-ENV PATH="/home/appuser/bin:$PATH"
 
 # Copy the backend jar file into the container
 COPY --chown=appuser:appuser target/backend.jar /home/appuser/target/backend.jar

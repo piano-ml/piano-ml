@@ -26,7 +26,7 @@ FILES=$(ls -p "$FROOT"*.png)
 XMLFILES=""
 for FILE in $FILES; do
   echo "starting homr $FILE"
-  cd /home/appuser/homr && poetry -v run homr "$FILE" || exit 1
+  cd homr && poetry run homr "$FILE" || exit 1
   XML_FILE="${FILE%.png}.musicxml"
   if [ -z "$XMLFILES" ]; then
     XMLFILES="$XML_FILE"
@@ -37,7 +37,7 @@ done
 sleep 1
 
 echo "Running relieur to merge musicxml files: $XMLFILES"
-relieur $XMLFILES -o "$FROOT".musicxml
+/home/appuser/shared-venv/bin/python3 relieur $XMLFILES -o "$FROOT".musicxml
 
 sleep 1
 
@@ -47,12 +47,12 @@ pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z
 echo "TITLE: $TITLE"
 echo "COMPOSER: $COMPOSER"
 
-python /home/appuser/scripts/extract_fingering.py "$FROOT.musicxml"
-python /home/appuser/scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
+/home/appuser/shared-venv/bin/python /home/appuser/scripts/extract_fingering.py "$FROOT.musicxml"
+/home/appuser/shared-venv/bin/python /home/appuser/scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
 sleep 1
 
-python /home/appuser/scripts/convert.py --verbose "$FROOT".musicxml "$FROOT".midi
+/home/appuser/shared-venv/bin/python /home/appuser/scripts/convert.py --verbose "$FROOT".musicxml "$FROOT".midi
 
 musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
 

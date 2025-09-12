@@ -16,7 +16,7 @@ FROOT="${FROOT/upload_/}"
 
 if [ -n "$TRACK_RIGHT" ]; then
   echo "Extracting left/right hand track: $TRACK_RIGHT $TRACK_LEFT"
-  python /home/appuser/scripts/extract_midi_tracks.py "$1" "$TRACK_RIGHT" "$TRACK_LEFT"
+  /home/appuser/shared-venv/bin/python /home/appuser/scripts/extract_midi_tracks.py "$1" "$TRACK_RIGHT" "$TRACK_LEFT"
 else
   echo "No track specified in original midi file"
   exit 1
@@ -28,7 +28,7 @@ echo "mv $ORI.musicxml $FROOT.musicxml"
 
 mv $ORI.musicxml $FROOT.musicxml
 
-python /home/appuser/scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
+/home/appuser/shared-venv/bin/python /home/appuser/scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
 musescore3 -o $FROOT.pdf $FROOT.musicxml
 
