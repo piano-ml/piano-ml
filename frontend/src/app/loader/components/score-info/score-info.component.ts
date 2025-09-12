@@ -74,7 +74,7 @@ export class ScoreInfoComponent implements OnInit {
         this.loading = false;
         // Load workload info if score doesn't have files
         if (!score.has_files && score.id) {
-          this.loadWorkload(Number(score.id));
+          this.loadWorkload(score.id);
         }
         this.cdr.detectChanges();
       },
@@ -87,7 +87,7 @@ export class ScoreInfoComponent implements OnInit {
     });
   }
 
-  loadWorkload(scoreId: number) {
+  loadWorkload(scoreId: string) {
     this.loadingWorkload = true;
     this.cdr.detectChanges();
 
