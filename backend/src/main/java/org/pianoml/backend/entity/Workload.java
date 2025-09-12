@@ -17,7 +17,7 @@ public class Workload {
   // Getters and Setters
   @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "workload_id_seq")
-    @SequenceGenerator(name = "workload_id_seq", sequenceName = "workload_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "workload_id_seq", sequenceName = "pianoml.workload_id_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name = "kind", nullable = false)
