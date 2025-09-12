@@ -99,6 +99,8 @@ public class WorkloadProcessingService {
             if (scoreOptional.isEmpty()) {
                 throw new RuntimeException("Score not found for ID: " + workload.getScoreId());
             }
+            workload.setStatus(Workload.WorkloadStatus.RUNNING);
+            workloadRepository.save(workload);
             Score score = scoreOptional.get();
             // 2. Generate S3 key using ScoreService method
             String s3Key = makeBucketKeyFromScore(score);
