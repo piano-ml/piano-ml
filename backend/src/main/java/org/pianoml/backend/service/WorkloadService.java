@@ -19,8 +19,8 @@ public class WorkloadService {
         this.workloadRepository = workloadRepository;
     }
 
-    public Workload getWorkloadById(Integer id) {
-        return workloadRepository.findById(id)
+    public Workload getWorkloadByScoreId(UUID id) {
+        return workloadRepository.findByScoreId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Workload not found with id: " + id));
     }
 

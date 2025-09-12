@@ -8,4 +8,6 @@ export * from './musicbrainz.service';
 import { MusicbrainzService } from './musicbrainz.service';
 export * from './score.service';
 import { ScoreService } from './score.service';
-export const APIS = [AccountService, AuthorService, GenreService, MusicbrainzService, ScoreService];
+export * from './workload.service';
+import { WorkloadService } from './workload.service';
+export const APIS = [AccountService, AuthorService, GenreService, MusicbrainzService, ScoreService, WorkloadService];

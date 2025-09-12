@@ -15,3 +15,4 @@ export * from './musicBrainzService';
 export * from './musicBrainzServiceLifeSpan';
 export * from './scoreApiInfo';
 export * from './userApiInfo';
+export * from './workloadApiInfo';

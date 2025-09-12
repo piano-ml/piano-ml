@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 public class WorkloadController implements org.pianoml.backend.api.WorkloadApi {
 
@@ -21,8 +23,8 @@ public class WorkloadController implements org.pianoml.backend.api.WorkloadApi {
     }
 
     @Override
-    public ResponseEntity<WorkloadApiInfo> workloadIdGet(Integer id) {
-        Workload workload = workloadService.getWorkloadById(id);
+    public ResponseEntity<WorkloadApiInfo> workloadIdGet(UUID id) {
+        Workload workload = workloadService.getWorkloadByScoreId(id);
         WorkloadApiInfo workloadApiInfo = workloadMapper.toApiInfo(workload);
         return ResponseEntity.ok(workloadApiInfo);
     }

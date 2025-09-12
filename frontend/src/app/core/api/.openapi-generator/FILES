@@ -8,6 +8,7 @@ api/author.service.ts
 api/genre.service.ts
 api/musicbrainz.service.ts
 api/score.service.ts
+api/workload.service.ts
 configuration.ts
 encoder.ts
 git_push.sh
@@ -30,6 +31,7 @@ model/musicBrainzService.ts
 model/musicBrainzServiceLifeSpan.ts
 model/scoreApiInfo.ts
 model/userApiInfo.ts
+model/workloadApiInfo.ts
 param.ts
 provide-api.ts
 variables.ts

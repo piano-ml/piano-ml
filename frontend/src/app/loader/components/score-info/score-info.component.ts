@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo } from '../../../core/api';
+import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
 
 @Component({
@@ -19,12 +19,15 @@ export class ScoreInfoComponent implements OnInit {
   genres: GenreApiInfo[] = [];
   loadingGenres = false;
   selectedGenre: GenreApiInfo | null = null;
+  workload: WorkloadApiInfo | null = null;
+  loadingWorkload = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private scoreService: ScoreService,
     private genreService: GenreService,
+    private workloadService: WorkloadService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService
   ) {}
@@ -69,12 +72,34 @@ export class ScoreInfoComponent implements OnInit {
         this.score = score;
         this.updateSelectedGenre();
         this.loading = false;
+        // Load workload info if score doesn't have files
+        if (!score.has_files && score.id) {
+          this.loadWorkload(Number(score.id));
+        }
         this.cdr.detectChanges();
       },
       error: (error) => {
         this.error = error.message || 'Failed to load score';
         this.loading = false;
         console.error('Error loading score:', error);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadWorkload(scoreId: number) {
+    this.loadingWorkload = true;
+    this.cdr.detectChanges();
+
+    this.workloadService.workloadIdGet(scoreId).subscribe({
+      next: (workload) => {
+        this.workload = workload;
+        this.loadingWorkload = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error loading workload:', error);
+        this.loadingWorkload = false;
         this.cdr.detectChanges();
       }
     });
