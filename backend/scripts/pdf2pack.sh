@@ -35,8 +35,9 @@ for FILE in $FILES; do
   fi
 done
 sleep 1
-
+cd ..
 echo "Running relieur to merge musicxml files: $XMLFILES"
+
 /home/appuser/shared-venv/bin/python relieur/relieur/relieur.py $XMLFILES -o "$FROOT".musicxml
 
 sleep 1
