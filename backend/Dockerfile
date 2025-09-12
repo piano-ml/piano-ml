@@ -3,12 +3,13 @@ FROM debian:12-slim
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install essential packages, including Python, pip, git, and Java
+# Install essential packages, including Python, pip, git, Java, and pipx
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         python3.11 \
         python3-pip \
         python3-venv \
+        pipx \
         git \
         openjdk-17-jre-headless \
         poppler-utils \
@@ -32,8 +33,8 @@ RUN ln -s /usr/bin/python3.11 /usr/bin/python
 USER appuser
 WORKDIR /home/appuser
 
-# Install Poetry in user space
-RUN pip3 install --user poetry && \
+# Install Poetry using pipx (recommended for Debian 12)
+RUN pipx install poetry && \
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 ENV PATH="/home/appuser/.local/bin:$PATH"
 
