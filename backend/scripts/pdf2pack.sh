@@ -26,7 +26,7 @@ FILES=$(ls -p "$FROOT"*.png)
 XMLFILES=""
 for FILE in $FILES; do
   echo "starting homr $FILE"
-  homr "$FILE" || exit 1
+ poetry -v run homr "$FILE" || exit 1
   XML_FILE="${FILE%.png}.musicxml"
   if [ -z "$XMLFILES" ]; then
     XMLFILES="$XML_FILE"
