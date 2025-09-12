@@ -128,7 +128,7 @@ public class ScoreService {
       .collect(Collectors.toList());
   }
 
-  public String makeBucketKeyFromScore(Score score) {
+  public static String makeBucketKeyFromScore(Score score) {
     return "scores/" + score.getOwner().getId() + "/" + score.getMbid() + "/" + score.getVersion() + ".zip";
   }
 
@@ -136,14 +136,14 @@ public class ScoreService {
     String key = makeBucketKeyFromScore(score);
 
     PackScriptDto packScriptDto = new PackScriptDto(inputStream, score);
-
+    String filename = null;
     if (type.equals("pdf")) {
       // New workload-based processing for PDF
       packService.packPDFWorkload(packScriptDto, key);
       log.info("Successfully created PDF workload for score: {}", score.getId());
     } else {
       // Existing logic for midi and musicxml
-      String filename = null;
+
       try {
         if (type.equals("midi")) {
           filename = packService.packMidi(packScriptDto);

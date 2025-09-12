@@ -8,16 +8,23 @@ import org.pianoml.backend.repository.WorkloadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import static org.pianoml.backend.service.ScoreService.makeBucketKeyFromScore;
 
 @Service
 @Slf4j
@@ -62,36 +69,23 @@ public class WorkloadProcessingService {
         log.info("Found {} pending workloads to process", pendingWorkloads.size());
 
         for (Workload workload : pendingWorkloads) {
-            processWorkloadSafely(workload);
+            processWorkloadLogic(workload);
         }
 
         log.info("All workloads processed. Exiting.");
         System.exit(0);
     }
 
-    /**
-     * Process a single workload with proper transaction management
-     */
-    private void processWorkloadSafely(Workload workload) {
-        try {
-            workloadTransactionService.processWorkloadWithTransaction(workload, () -> {
-                processWorkloadLogic(workload);
-            });
-        } catch (Exception e) {
-            workload.setErrorMessage(e.getMessage().substring(0,Math.min(1000,e.getMessage().length())));
-            workloadRepository.save(workload);
-            log.error("Critical error processing workload {}: {}", workload.getId(), e.getMessage(), e);
-        }
-    }
+
 
     /**
      * Implement the actual workload processing logic here
      * This method should contain the business logic for processing different workload types
      */
-    private void processWorkloadLogic(Workload workload) {
+    private void processWorkloadLogic(Workload workload)  {
         log.info("Processing workload of kind: {} with score ID: {}", workload.getKind(), workload.getScoreId());
         if (Workload.KIND_OMR_PDF.equals(workload.getKind())) {
-            processOmrPdf(workload);
+          processOmrPdf(workload);
         } else {
             throw new IllegalArgumentException("Unknown workload kind: " + workload.getKind());
         }
@@ -99,33 +93,36 @@ public class WorkloadProcessingService {
 
     private void processOmrPdf(Workload workload) {
         log.info("Processing OMR PDF for workload {}", workload.getId());
-
         try {
             // 1. Load Score from repository
             Optional<Score> scoreOptional = scoreRepository.findById(workload.getScoreId());
             if (scoreOptional.isEmpty()) {
                 throw new RuntimeException("Score not found for ID: " + workload.getScoreId());
             }
-
             Score score = scoreOptional.get();
-
             // 2. Generate S3 key using ScoreService method
-            String s3Key = scoreService.makeBucketKeyFromScore(score);
-
+            String s3Key = makeBucketKeyFromScore(score);
             // 3. Download ZIP from S3 and extract PDF
             InputStream pdfInputStream = extractPdfFromS3Zip(s3Key);
-
             // 4. Create PackScriptDto with PDF inputStream and score data
             PackScriptDto packScriptDto = new PackScriptDto(pdfInputStream, score);
-
             // 5. Call packPDF to process the PDF
             String resultPath = packService.packPDF(packScriptDto);
-
             log.info("Successfully processed OMR PDF for workload {}, result: {}", workload.getId(), resultPath);
             workload.setStatus(Workload.WorkloadStatus.COMPLETED);
+            // upload resultPath to S3
+            s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(s3Key).build(),
+            RequestBody.fromFile(new File(resultPath)));
+            log.info("Successfully uploaded processed files to S3: {}", s3Key);
+            score.setHasFiles(true);
+            scoreRepository.save(score);
             workloadRepository.save(workload);
+            log.info("Successfully saved workload {} and score {}", workload.getId(), score.getId());
         } catch (Exception e) {
             log.error("Error processing OMR PDF for workload {}: {}", workload.getId(), e.getMessage(), e);
+            workload.setErrorMessage(e.getMessage());
+            workload.setStatus(Workload.WorkloadStatus.FAILED);
+            workloadRepository.save(workload);
             throw new RuntimeException("Error processing OMR PDF: " + e.getMessage(), e);
         }
     }
