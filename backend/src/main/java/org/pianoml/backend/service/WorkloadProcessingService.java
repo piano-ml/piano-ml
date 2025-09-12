@@ -122,7 +122,8 @@ public class WorkloadProcessingService {
             String resultPath = packService.packPDF(packScriptDto);
 
             log.info("Successfully processed OMR PDF for workload {}, result: {}", workload.getId(), resultPath);
-
+            workload.setStatus(Workload.WorkloadStatus.COMPLETED);
+            workloadRepository.save(workload);
         } catch (Exception e) {
             log.error("Error processing OMR PDF for workload {}: {}", workload.getId(), e.getMessage(), e);
             throw new RuntimeException("Error processing OMR PDF: " + e.getMessage(), e);

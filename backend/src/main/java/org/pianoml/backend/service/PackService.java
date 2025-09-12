@@ -1,6 +1,7 @@
 package org.pianoml.backend.service;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.pianoml.backend.entity.Workload;
 import org.pianoml.backend.repository.WorkloadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static org.pianoml.backend.entity.Workload.KIND_OMR_PDF;
 
 @Service
 @Slf4j
@@ -73,11 +76,11 @@ public class PackService {
 
     // 3. Create workload entry
     Workload workload = new Workload();
-    workload.setKind(Workload.KIND_OMR_PDF);
+    workload.setKind(KIND_OMR_PDF);
     workload.setScoreId(java.util.UUID.fromString(packScriptDto.getId()));
-    workload.setCreatedAt(OffsetDateTime.now());
+    workload.setCreatedAt(OffsetDateTime.now().toLocalDateTime());
     workload.setStatus(Workload.WorkloadStatus.PENDING);
-    workload.setWorkloadSize((int) zipData.length);
+    workload.setWorkloadSize(zipData.length);
 
     workloadRepository.save(workload);
     log.info("Created workload entry for PDF processing: scoreId={}", packScriptDto.getId());
@@ -88,14 +91,12 @@ public class PackService {
           .whenComplete((executionName, throwable) -> {
             if (throwable != null) {
               log.error("Failed to execute Cloud Run job for scoreId: {}", packScriptDto.getId(), throwable);
-              // Optionally update workload status to FAILED
-              workload.setStatus(Workload.WorkloadStatus.FAILED);
               workloadRepository.save(workload);
             } else {
               log.info("Cloud Run job execution started successfully for scoreId: {}, execution: {}",
                   packScriptDto.getId(), executionName);
               // Optionally update workload with execution reference
-              //workload.setStatus(Workload.WorkloadStatus.PROCESSING);
+              workload.setStatus(Workload.WorkloadStatus.RUNNING);
               workloadRepository.save(workload);
             }
           });

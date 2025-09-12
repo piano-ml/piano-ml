@@ -5,13 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
 import java.util.List;
 
 @Repository
 public interface WorkloadRepository extends JpaRepository<Workload, Integer> {
 
-    @Query("SELECT w FROM Workload w WHERE w.status = 'PENDING' ORDER BY w.createdAt ASC")
-    List<Workload> findPendingWorkloadsOrderedByCreatedAt();
 
-    List<Workload> findByStatusOrderByCreatedAtAsc(Workload.WorkloadStatus status);
+  @Query(value = "SELECT * FROM \"pianoml\".workload w WHERE w.status = 'PENDING' ORDER BY w.created_at ASC", nativeQuery = true)
+  List<Workload> findPendingWorkloadsOrderedByCreatedAt();
+
 }
