@@ -37,7 +37,7 @@ done
 sleep 1
 
 echo "Running relieur to merge musicxml files: $XMLFILES"
-/home/appuser/shared-venv/bin/python3 relieur $XMLFILES -o "$FROOT".musicxml
+/home/appuser/shared-venv/bin/python relieur/relieur/relieur.py $XMLFILES -o "$FROOT".musicxml
 
 sleep 1
 
