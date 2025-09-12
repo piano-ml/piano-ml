@@ -123,7 +123,6 @@ public class WorkloadProcessingService {
             workload.setErrorMessage(e.getMessage());
             workload.setStatus(Workload.WorkloadStatus.FAILED);
             workloadRepository.save(workload);
-            throw new RuntimeException("Error processing OMR PDF: " + e.getMessage(), e);
         }
     }
 
