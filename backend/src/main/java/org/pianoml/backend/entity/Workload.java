@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "workload")
+@Table(name = "workload", schema = "pianoml")
 public class Workload {
 
   public static final String KIND_OMR_PDF = "KIND_OMR_PDF";
