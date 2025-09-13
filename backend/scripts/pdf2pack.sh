@@ -22,7 +22,7 @@ pdftoppm -rx 75 -ry 75 -gray -png "$PDF" "$FROOT"
 sleep 1
 
 FILES=$(ls -p "$FROOT"*.png)
-
+pwd
 XMLFILES=""
 for FILE in $FILES; do
   echo "starting homr $FILE"
@@ -37,7 +37,7 @@ done
 sleep 1
 
 cd ..
-
+pwd
 echo "Running relieur to merge musicxml files: $XMLFILES"
 
 /home/appuser/shared-venv/bin/python relieur/relieur/relieur.py $XMLFILES -o "$FROOT".musicxml

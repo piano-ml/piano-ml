@@ -109,7 +109,6 @@ public class WorkloadProcessingService {
       // 5. Call packPDF to process the PDF
       String resultPath = packService.packPDF(packScriptDto);
       log.info("Successfully processed OMR PDF for workload {}, result: {}", workload.getId(), resultPath);
-      workload.setStatus(Workload.WorkloadStatus.COMPLETED);
       // upload resultPath to S3
       s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(s3Key).build(),
         RequestBody.fromFile(new File(resultPath)));
@@ -117,7 +116,6 @@ public class WorkloadProcessingService {
       score.setHasFiles(true);
       score.setUploadedAt(OffsetDateTime.now());
       scoreRepository.save(score);
-      workloadRepository.save(workload);
       scoreService.infosFromMetadata(score);
       workload.setStatus(Workload.WorkloadStatus.COMPLETED);
       workloadRepository.save(workload);
