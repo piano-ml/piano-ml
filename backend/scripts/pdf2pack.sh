@@ -53,7 +53,7 @@ $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE
 
 sleep 1
 
-$HOME/hared-venv/bin/python ./scripts/convert.py --verbose "$FROOT".musicxml "$FROOT".midi
+$HOME/shared-venv/bin/python ./scripts/convert.py --verbose "$FROOT".musicxml "$FROOT".midi
 
 musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
 
