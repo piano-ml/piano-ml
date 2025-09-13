@@ -61,7 +61,7 @@ public class ScoreControllerDeleteApiTest {
 
     when(scoreService.deleteScore(eq(scoreId), eq(user))).thenReturn(true);
 
-    mockMvc.perform(delete("/score/{id}", scoreId))
+    mockMvc.perform(delete("/score/{id}/info", scoreId))
       .andExpect(status().isNoContent());
 
     verify(scoreService).deleteScore(eq(scoreId), eq(user));
@@ -76,7 +76,7 @@ public class ScoreControllerDeleteApiTest {
 
     when(scoreService.deleteScore(eq(scoreId), eq(user))).thenReturn(false);
 
-    mockMvc.perform(delete("/score/{id}", scoreId))
+    mockMvc.perform(delete("/score/{id}/info", scoreId))
       .andExpect(status().isNotFound());
   }
 
@@ -90,7 +90,7 @@ public class ScoreControllerDeleteApiTest {
     when(scoreService.deleteScore(eq(scoreId), eq(user)))
       .thenThrow(new RuntimeException("Unauthorized: Only owner or admin can delete this score"));
 
-    mockMvc.perform(delete("/score/{id}", scoreId))
+    mockMvc.perform(delete("/score/{id}/info", scoreId))
       .andExpect(status().isForbidden());
   }
 }

@@ -201,7 +201,7 @@ export class ScoreInfoComponent implements OnInit {
   }
 
   onBack() {
-    this.router.navigate(['/loader']);
+    this.router.navigate(['/browse']);
   }
 
   editScore() {

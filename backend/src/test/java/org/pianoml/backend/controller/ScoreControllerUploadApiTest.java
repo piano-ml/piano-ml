@@ -38,7 +38,7 @@ public class ScoreControllerUploadApiTest {
   private UserRepository userRepository;
   private ScoreRepository scoreRepository;
   private AccountService accountService;
-  private JwtTokenProvider jwtTokenProvider;
+
 
   private ScoreController controller;
 
@@ -48,7 +48,6 @@ public class ScoreControllerUploadApiTest {
     userRepository = mock(UserRepository.class);
     scoreRepository = mock(ScoreRepository.class);
     accountService = mock(AccountService.class);
-    jwtTokenProvider = mock(JwtTokenProvider.class);
 
     controller = new ScoreController();
     // Inject mocks
@@ -56,7 +55,7 @@ public class ScoreControllerUploadApiTest {
     ReflectionTestUtils.setField(controller, "userRepository", userRepository);
     ReflectionTestUtils.setField(controller, "userService", accountService);
     ReflectionTestUtils.setField(controller, "scoreRepository", scoreRepository);
-    ReflectionTestUtils.setField(controller, "tokenProvider", jwtTokenProvider);
+
 
     mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
   }

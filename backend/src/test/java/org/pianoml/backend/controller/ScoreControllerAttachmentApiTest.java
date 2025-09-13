@@ -35,7 +35,6 @@ public class ScoreControllerAttachmentApiTest {
   private UserRepository userRepository;
   private ScoreRepository scoreRepository;
   private AccountService accountService;
-  private JwtTokenProvider jwtTokenProvider;
 
   private ScoreController controller;
 
@@ -45,7 +44,6 @@ public class ScoreControllerAttachmentApiTest {
     userRepository = Mockito.mock(UserRepository.class);
     scoreRepository = Mockito.mock(ScoreRepository.class);
     accountService = Mockito.mock(AccountService.class);
-    jwtTokenProvider = Mockito.mock(JwtTokenProvider.class);
 
     controller = new ScoreController();
     // Inject mocks into controller's fields
@@ -53,7 +51,7 @@ public class ScoreControllerAttachmentApiTest {
     ReflectionTestUtils.setField(controller, "userRepository", userRepository);
     ReflectionTestUtils.setField(controller, "userService", accountService);
     ReflectionTestUtils.setField(controller, "scoreRepository", scoreRepository);
-    ReflectionTestUtils.setField(controller, "tokenProvider", jwtTokenProvider);
+    //ReflectionTestUtils.setField(controller, "tokenProvider", jwtTokenProvider);
 
     mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
   }
@@ -85,7 +83,7 @@ public class ScoreControllerAttachmentApiTest {
     // Act + Assert
     mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, mbid, type, version, revision))
       .andExpect(status().isOk())
-      .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+      .andExpect(content().contentType(MediaType.parseMediaType("audio/midi")))
       .andExpect(content().bytes(payload));
   }
 

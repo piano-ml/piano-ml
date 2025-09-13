@@ -49,7 +49,6 @@ public class ScoreControllerCreateScoreTest {
     userRepository = mock(UserRepository.class);
     scoreRepository = mock(ScoreRepository.class);
     accountService = mock(AccountService.class);
-    jwtTokenProvider = mock(JwtTokenProvider.class);
     objectMapper = new ObjectMapper();
 
     controller = new ScoreController();
@@ -57,7 +56,7 @@ public class ScoreControllerCreateScoreTest {
     ReflectionTestUtils.setField(controller, "userRepository", userRepository);
     ReflectionTestUtils.setField(controller, "userService", accountService);
     ReflectionTestUtils.setField(controller, "scoreRepository", scoreRepository);
-    ReflectionTestUtils.setField(controller, "tokenProvider", jwtTokenProvider);
+
 
     mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
   }
@@ -85,10 +84,12 @@ public class ScoreControllerCreateScoreTest {
 
     ScoreApiInfo input = new ScoreApiInfo();
     input.setTitle("New Score");
+    input.setAuthorId(UUID.randomUUID().toString());
     input.setHasFiles(null); // controller should default this to false
 
     ScoreApiInfo created = new ScoreApiInfo();
     created.setId(UUID.randomUUID().toString());
+    created.setAuthorId(UUID.randomUUID().toString());
     created.setTitle("New Score");
 
     when(scoreService.createScore(any(ScoreApiInfo.class), eq(user))).thenReturn(created);

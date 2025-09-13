@@ -18,7 +18,7 @@
               (click)="enableEdit()" 
               class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               title="Edit name">
-              ✏️ Edit
+              Edit
             </button>
           </div>
           <div *ngIf="editMode">
@@ -36,7 +36,7 @@
                   type="submit" 
                   class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   title="Save">
-                  💾 Save
+                  Save
                 </button>
                 <button 
                   type="button"
@@ -51,7 +51,7 @@
       </div>
     </div>
 
-    <ul>
+    <ul class="ml-2">
       <li class="mb-4 mt-4">
         <a routerLink="/account/scores" class="text-xl mb-4 mt-4">My Scores</a>
       </li>
