@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class PianoMLApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+  @Test
+  void contextLoads() {
+  }
 
 }

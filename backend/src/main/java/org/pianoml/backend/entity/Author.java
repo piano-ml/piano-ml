@@ -1,16 +1,9 @@
 package org.pianoml.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -18,36 +11,39 @@ import java.util.UUID;
 @Data
 public class Author {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(name="mbid")
-    private UUID mbid;
+  @Column(name = "mbid")
+  private UUID mbid;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+  @Column(nullable = false, unique = true)
+  private String name;
 
-    @Column(name = "disambiguation")
-    private String disambiguation;
+  @Column(name = "sort_name")
+  private String sortName;
 
-    @Column(name = "country")
-    private String country;
+  @Column(name = "disambiguation")
+  private String disambiguation;
 
-    @Column(name = "type")
-    private String type;
+  @Column(name = "country")
+  private String country;
 
-    @Column(name = "gender")
-    private String gender;
+  @Column(name = "type")
+  private String type;
 
-    @Column(name = "life_span_begin")
-    private LocalDate  lifeSpanBegin;
+  @Column(name = "gender")
+  private String gender;
 
-    @Column(name = "life_span_end")
-    private LocalDate lifeSpanEnd;
+  @Column(name = "life_span_begin")
+  private LocalDate lifeSpanBegin;
 
-    @Column(name = "life_span_ended")
-    private Boolean lifeSpanEnded;
+  @Column(name = "life_span_end")
+  private LocalDate lifeSpanEnd;
+
+  @Column(name = "life_span_ended")
+  private Boolean lifeSpanEnded;
 
 
 }

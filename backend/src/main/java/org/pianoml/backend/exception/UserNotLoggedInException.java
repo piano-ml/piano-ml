@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
 public class UserNotLoggedInException extends RuntimeException {
-    public UserNotLoggedInException(String message) {
-        super(message);
-    }
+  public UserNotLoggedInException(String message) {
+    super(message);
+  }
 }

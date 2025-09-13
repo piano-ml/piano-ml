@@ -10,7 +10,6 @@ import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,7 +18,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -31,112 +29,112 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class ScoreControllerAttachmentApiTest {
 
-    private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-    private ScoreService scoreService;
-    private UserRepository userRepository;
-    private ScoreRepository scoreRepository;
-    private AccountService accountService;
-    private JwtTokenProvider jwtTokenProvider;
+  private ScoreService scoreService;
+  private UserRepository userRepository;
+  private ScoreRepository scoreRepository;
+  private AccountService accountService;
+  private JwtTokenProvider jwtTokenProvider;
 
-    private ScoreController controller;
+  private ScoreController controller;
 
-    @BeforeEach
-    void setup() {
-        scoreService = Mockito.mock(ScoreService.class);
-        userRepository = Mockito.mock(UserRepository.class);
-        scoreRepository = Mockito.mock(ScoreRepository.class);
-        accountService = Mockito.mock(AccountService.class);
-        jwtTokenProvider = Mockito.mock(JwtTokenProvider.class);
+  @BeforeEach
+  void setup() {
+    scoreService = Mockito.mock(ScoreService.class);
+    userRepository = Mockito.mock(UserRepository.class);
+    scoreRepository = Mockito.mock(ScoreRepository.class);
+    accountService = Mockito.mock(AccountService.class);
+    jwtTokenProvider = Mockito.mock(JwtTokenProvider.class);
 
-        controller = new ScoreController();
-        // Inject mocks into controller's fields
-        ReflectionTestUtils.setField(controller, "scoreService", scoreService);
-        ReflectionTestUtils.setField(controller, "userRepository", userRepository);
-        ReflectionTestUtils.setField(controller, "userService", accountService);
-        ReflectionTestUtils.setField(controller, "scoreRepository", scoreRepository);
-        ReflectionTestUtils.setField(controller, "tokenProvider", jwtTokenProvider);
+    controller = new ScoreController();
+    // Inject mocks into controller's fields
+    ReflectionTestUtils.setField(controller, "scoreService", scoreService);
+    ReflectionTestUtils.setField(controller, "userRepository", userRepository);
+    ReflectionTestUtils.setField(controller, "userService", accountService);
+    ReflectionTestUtils.setField(controller, "scoreRepository", scoreRepository);
+    ReflectionTestUtils.setField(controller, "tokenProvider", jwtTokenProvider);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-    }
+    mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+  }
 
-    @Test
-    void getAttachment_ok_returnsBytes() throws Exception {
-        // Arrange
-        UUID ownerId = UUID.randomUUID();
-        UUID mbid = UUID.randomUUID();
-        int version = 1;
-        int revision = 0; // unused in controller
-        String type = "midi";
+  @Test
+  void getAttachment_ok_returnsBytes() throws Exception {
+    // Arrange
+    UUID ownerId = UUID.randomUUID();
+    UUID mbid = UUID.randomUUID();
+    int version = 1;
+    int revision = 0; // unused in controller
+    String type = "midi";
 
-        User owner = new User();
-        owner.setId(ownerId);
+    User owner = new User();
+    owner.setId(ownerId);
 
-        Score score = new Score();
-        score.setOwner(owner);
-        score.setMbid(mbid);
-        score.setVersion(version);
+    Score score = new Score();
+    score.setOwner(owner);
+    score.setMbid(mbid);
+    score.setVersion(version);
 
-        byte[] payload = "test-midi".getBytes();
+    byte[] payload = "test-midi".getBytes();
 
-        when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
-        when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
-                .thenReturn(Optional.of(score));
-        when(scoreService.getAttachmentFromScore(eq(score), eq(type))).thenReturn(Optional.of(payload));
+    when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
+    when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
+      .thenReturn(Optional.of(score));
+    when(scoreService.getAttachmentFromScore(eq(score), eq(type))).thenReturn(Optional.of(payload));
 
-        // Act + Assert
-        mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, mbid, type, version, revision))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
-                .andExpect(content().bytes(payload));
-    }
+    // Act + Assert
+    mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, mbid, type, version, revision))
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+      .andExpect(content().bytes(payload));
+  }
 
-    @Test
-    void getAttachment_scoreNotFound_returns404() throws Exception {
-        // Arrange
-        UUID ownerId = UUID.randomUUID();
-        UUID mbid = UUID.randomUUID();
-        int version = 1;
-        int revision = 0;
-        String type = "midi";
+  @Test
+  void getAttachment_scoreNotFound_returns404() throws Exception {
+    // Arrange
+    UUID ownerId = UUID.randomUUID();
+    UUID mbid = UUID.randomUUID();
+    int version = 1;
+    int revision = 0;
+    String type = "midi";
 
-        User owner = new User();
-        owner.setId(ownerId);
+    User owner = new User();
+    owner.setId(ownerId);
 
-        when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
-        when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
-                .thenReturn(Optional.empty());
+    when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
+    when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
+      .thenReturn(Optional.empty());
 
-        // Act + Assert
-        mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, mbid, type, version, revision))
-                .andExpect(status().isNotFound());
-    }
+    // Act + Assert
+    mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, mbid, type, version, revision))
+      .andExpect(status().isNotFound());
+  }
 
-    @Test
-    void getAttachment_attachmentMissing_returns404() throws Exception {
-        // Arrange
-        UUID ownerId = UUID.randomUUID();
-        UUID mbid = UUID.randomUUID();
-        int version = 1;
-        int revision = 0;
-        String type = "midi";
+  @Test
+  void getAttachment_attachmentMissing_returns404() throws Exception {
+    // Arrange
+    UUID ownerId = UUID.randomUUID();
+    UUID mbid = UUID.randomUUID();
+    int version = 1;
+    int revision = 0;
+    String type = "midi";
 
-        User owner = new User();
-        owner.setId(ownerId);
+    User owner = new User();
+    owner.setId(ownerId);
 
-        Score score = new Score();
-        score.setOwner(owner);
-        score.setMbid(mbid);
-        score.setVersion(version);
+    Score score = new Score();
+    score.setOwner(owner);
+    score.setMbid(mbid);
+    score.setVersion(version);
 
-        when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
-        when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
-                .thenReturn(Optional.of(score));
-        when(scoreService.getAttachmentFromScore(eq(score), eq(type))).thenReturn(Optional.empty());
+    when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
+    when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
+      .thenReturn(Optional.of(score));
+    when(scoreService.getAttachmentFromScore(eq(score), eq(type))).thenReturn(Optional.empty());
 
-        // Act + Assert
-        mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, mbid, type, version, revision))
-                .andExpect(status().isNotFound());
-    }
+    // Act + Assert
+    mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, mbid, type, version, revision))
+      .andExpect(status().isNotFound());
+  }
 }
 

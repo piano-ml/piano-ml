@@ -48,16 +48,18 @@ pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z
 echo "TITLE: $TITLE"
 echo "COMPOSER: $COMPOSER"
 
-/home/appuser/shared-venv/bin/python /home/appuser/scripts/extract_fingering.py "$FROOT.musicxml"
-/home/appuser/shared-venv/bin/python /home/appuser/scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
+$HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
+$HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
 sleep 1
 
-/home/appuser/shared-venv/bin/python /home/appuser/scripts/convert.py --verbose "$FROOT".musicxml "$FROOT".midi
+$HOME/hared-venv/bin/python ./scripts/convert.py --verbose "$FROOT".musicxml "$FROOT".midi
 
 musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
 
-zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json"
+$HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml"
+
+zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json" "metadata.json"
 
 #rm "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"
 #rm "$FROOT.fingering.json"

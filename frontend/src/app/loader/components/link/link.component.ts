@@ -47,6 +47,16 @@ export class LinkComponent implements OnInit {
           artistName: rel.artist.name,
         };
       }
+      if (rel.artist) {
+        return {
+          mbid: work.id,
+          title: work.title,
+          artistMbId: rel.artist.id,
+          artistName: rel.artist.name,
+        };
+      }
+
+
     }
     return undefined;
   }

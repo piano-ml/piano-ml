@@ -1,7 +1,6 @@
 package org.pianoml.backend.service;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.pianoml.backend.entity.Workload;
 import org.pianoml.backend.repository.WorkloadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +10,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.util.zip.ZipEntry;
@@ -52,6 +47,9 @@ public class PackService {
 
   public String packMidi(PackScriptDto packScriptDto) throws IOException {
     File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".midi").toFile();
+    try (FileOutputStream out = new FileOutputStream(tempFile)) {
+      packScriptDto.getInputStream().transferTo(out);
+    }
     return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto);
   }
 
@@ -66,11 +64,11 @@ public class PackService {
 
     // 2. Upload to S3
     s3Client.putObject(
-        PutObjectRequest.builder()
-            .bucket(bucketName)
-            .key(s3Key)
-            .build(),
-        RequestBody.fromBytes(zipData)
+      PutObjectRequest.builder()
+        .bucket(bucketName)
+        .key(s3Key)
+        .build(),
+      RequestBody.fromBytes(zipData)
     );
     log.info("Successfully uploaded PDF workload zip to S3: {}", s3Key);
 
@@ -88,18 +86,18 @@ public class PackService {
     // 4. Trigger Cloud Run job execution
     try {
       cloudRunJobService.executeJob(packScriptDto.getId(), s3Key)
-          .whenComplete((executionName, throwable) -> {
-            if (throwable != null) {
-              log.error("Failed to execute Cloud Run job for scoreId: {}", packScriptDto.getId(), throwable);
-              workloadRepository.save(workload);
-            } else {
-              log.info("Cloud Run job execution started successfully for scoreId: {}, execution: {}",
-                  packScriptDto.getId(), executionName);
-              // Optionally update workload with execution reference
-              workload.setStatus(Workload.WorkloadStatus.RUNNING);
-              workloadRepository.save(workload);
-            }
-          });
+        .whenComplete((executionName, throwable) -> {
+          if (throwable != null) {
+            log.error("Failed to execute Cloud Run job for scoreId: {}", packScriptDto.getId(), throwable);
+            workloadRepository.save(workload);
+          } else {
+            log.info("Cloud Run job execution started successfully for scoreId: {}, execution: {}",
+              packScriptDto.getId(), executionName);
+            // Optionally update workload with execution reference
+            workload.setStatus(Workload.WorkloadStatus.RUNNING);
+            workloadRepository.save(workload);
+          }
+        });
     } catch (Exception e) {
       log.error("Exception while triggering Cloud Run job for scoreId: {}", packScriptDto.getId(), e);
       // Update workload status to FAILED

@@ -1,35 +1,39 @@
 package org.pianoml.backend.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.entity.Author;
 import org.pianoml.backend.entity.Genre;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
-import org.pianoml.backend.exception.EntityAlreadyExistsException;
-import org.pianoml.backend.exception.MusicBrainzException;
 import org.pianoml.backend.mapper.ScoreMapper;
 import org.pianoml.backend.model.ScoreApiInfo;
-import org.pianoml.backend.repository.*;
+import org.pianoml.backend.repository.GenreRepository;
+import org.pianoml.backend.repository.ScoreRepository;
+import org.pianoml.backend.repository.ScoreRepositoryCustom;
+import org.pianoml.backend.repository.WorkloadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -65,16 +69,20 @@ public class ScoreService {
   @Autowired
   private WorkloadRepository workloadRepository;
 
+  public static String makeBucketKeyFromScore(Score score) {
+    return "scores/" + score.getOwner().getId() + "/" + score.getMbid() + "/" + score.getVersion() + ".zip";
+  }
+
   @Transactional
   public ScoreApiInfo createScore(ScoreApiInfo scoreApiInfo, User userId) {
+    if (scoreApiInfo.getVersion() == null) {
+      scoreApiInfo.setVersion(1);
+    }
     Score score = scoreMapper.toScore(scoreApiInfo);
     score.setOwner(userId);
     if (scoreApiInfo.getAuthorId() != null) {
       Author author = authorService.maybeCreateAuthor(UUID.fromString(scoreApiInfo.getAuthorId()));
       score.setAuthor(author);
-    }
-    if (scoreApiInfo.getVersion()==null) {
-      score.setVersion(1);
     }
 
     if (scoreApiInfo.getGenreId() != null) {
@@ -86,18 +94,24 @@ public class ScoreService {
     Score candidate = scoreRepository.findScoreByMbidAndOwnerAndVersion(score.getMbid(), score.getOwner(), score.getVersion())
       .orElse(null);
     if (candidate != null) {
-      score.setId(candidate.getId()) ;
+      score.setId(candidate.getId());
     }
-
+    // Generate unique immutable slug
+    String uniqueSlug = SlugUtils.createUniqueSlug(score, scoreRepository);
+    score.setImmutableSlug(uniqueSlug);
+    score.setMutableSlug(uniqueSlug); // Initially, mutable slug is the same as immutable slug
     Score savedScore = scoreRepository.save(score);
     return scoreMapper.toScoreApiInfo(savedScore);
 
   }
 
-
-
   public Optional<ScoreApiInfo> getScore(UUID id) {
     return scoreRepository.findById(id)
+      .map(scoreMapper::toScoreApiInfo);
+  }
+
+  public Optional<ScoreApiInfo> getScoreBySlug(String slug) {
+    return scoreRepository.findByImmutableSlug(slug)
       .map(scoreMapper::toScoreApiInfo);
   }
 
@@ -121,15 +135,11 @@ public class ScoreService {
       });
   }
 
-  public List<ScoreApiInfo> searchScores(String keyword, String ownerId ,String genreId, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
-    return scoreRepositoryCustom.findByCriterias(keyword, ownerId, genreId, gradeStart, gradeEnd, offset, limit)
+  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
+    return scoreRepositoryCustom.findByCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit)
       .stream()
       .map(scoreMapper::toScoreApiInfo)
       .collect(Collectors.toList());
-  }
-
-  public static String makeBucketKeyFromScore(Score score) {
-    return "scores/" + score.getOwner().getId() + "/" + score.getMbid() + "/" + score.getVersion() + ".zip";
   }
 
   public void packAttachmentToScore(Score score, String type, InputStream inputStream) throws IOException {
@@ -156,6 +166,7 @@ public class ScoreService {
         s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(key).build(),
           RequestBody.fromFile(new File(filename)));
         score.setHasFiles(true);
+        score.setUploadedAt(OffsetDateTime.now());
         scoreRepository.save(score);
         log.info("successfully sent to bucket " + key);
       } finally {
@@ -163,6 +174,34 @@ public class ScoreService {
           Files.deleteIfExists(Paths.get(filename));
         }
       }
+      this.infosFromMetadata(score);
+    }
+  }
+
+  void infosFromMetadata(Score score) {
+    Optional<byte[]> optMetadata = null;
+    try {
+      optMetadata = getAttachmentFromScore(score, "metadata.json");
+      if (optMetadata.isPresent()) {
+        String metadataStr = new String(optMetadata.get());
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(metadataStr);
+
+        int tracks = node.get("tracks_count").asInt();
+        double durationSeconds = node.get("duration_seconds").asInt();
+        int measureCount = node.get("measures_count").asInt();
+        boolean hasLyrics = node.get("has_lyrics").asBoolean();
+
+        score.setTracksCount(tracks);
+        score.setDuration((int) durationSeconds);
+        score.setMeasuresCount(measureCount);
+        score.setHasLyrics(hasLyrics);
+        scoreRepository.save(score);
+      } else {
+        log.warn("No metadata found for score: " + score.getId());
+      }
+    } catch (Exception e) {
+      log.error("No metadata found for score:", e);
     }
   }
 

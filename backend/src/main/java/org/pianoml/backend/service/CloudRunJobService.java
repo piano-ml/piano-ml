@@ -3,12 +3,7 @@ package org.pianoml.backend.service;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.cloud.run.v2.ExecutionReference;
-import com.google.cloud.run.v2.JobsClient;
-import com.google.cloud.run.v2.JobsSettings;
-import com.google.cloud.run.v2.RunJobRequest;
-import com.google.cloud.run.v2.Execution;
-import com.google.cloud.run.v2.JobName;
+import com.google.cloud.run.v2.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.config.GoogleCloudProperties;
@@ -17,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j

@@ -13,21 +13,20 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({ UserAlreadyExistsException.class })
-    public ResponseEntity<Object> handleUserAlreadyExists(
-      Exception ex, WebRequest request) {
-        return new ResponseEntity<Object>(
-          ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT);
-    }
+  @ExceptionHandler({UserAlreadyExistsException.class})
+  public ResponseEntity<Object> handleUserAlreadyExists(
+    Exception ex, WebRequest request) {
+    return new ResponseEntity<Object>(
+      ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT);
+  }
 
 
-  @ExceptionHandler({ UserNotLoggedInException.class })
+  @ExceptionHandler({UserNotLoggedInException.class})
   public ResponseEntity<Object> handleUserNotLoggedIn(
     Exception ex, WebRequest request) {
     return new ResponseEntity<Object>(
       ex.getMessage(), new HttpHeaders(), HttpStatus.FORBIDDEN);
   }
-
 
 
 }

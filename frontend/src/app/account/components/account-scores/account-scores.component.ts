@@ -19,22 +19,26 @@ export class AccountScoresComponent implements OnInit {
 
   // Table configuration
   tableColumns: ScoreTableColumn[] = [
-    { 
-      key: 'has_files', 
-      label: '', 
-      visible: true, 
+    {
+      key: 'has_files',
+      label: '',
+      visible: true,
       formatter: (value, score) => score.has_files === false ? '⚠️' : '✅'
     },
-    { 
-      key: 'title', 
-      label: 'Title', 
+    { key: 'version', label: 'Version', visible: true },
+    {
+      key: 'title',
+      label: 'Title',
       visible: true
     },
     { key: 'author', label: 'Author', visible: true },
-    { key: 'version', label: 'Version', visible: true },
-    { key: 'grade', label: 'Grade', visible: true },
-    { key: 'duration', label: 'Duration', visible: true },
-    { key: 'uploaded_at', label: 'Uploaded', visible: true }
+
+    {
+      key: 'uploaded_at',
+      label: 'Uploaded',
+      visible: true,
+      formatter: (value) => value ? new Date(value).toLocaleString() : ''
+    }
   ];
 
   tableActions: ScoreTableAction[] = [
@@ -83,6 +87,10 @@ export class AccountScoresComponent implements OnInit {
 
   refresh() {
     this.loadUserScores();
+  }
+
+  navigateToOpen() {
+    this.router.navigate(['/open']);
   }
 
   onScoreClick(score: ScoreApiInfo) {

@@ -1,17 +1,9 @@
 package org.pianoml.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -44,6 +36,9 @@ public class Score {
   @Column(name = "tracks_count")
   private Integer tracksCount;
 
+  @Column(name = "measures_count")
+  private Integer measuresCount;
+
   @Column(name = "hand_separated")
   private Boolean handSeparated;
 
@@ -52,6 +47,9 @@ public class Score {
 
   @Column(name = "grade")
   private Integer grade;
+
+  @Column(name = "uploaded_at")
+  private OffsetDateTime uploadedAt;
 
   @Column(name = "updated_at")
   private OffsetDateTime updatedAt;

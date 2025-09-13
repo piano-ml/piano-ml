@@ -4,10 +4,8 @@ import org.pianoml.backend.entity.Score;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IScoreRepositoryCustom {
-  List<Score> findByCriterias(String keyword, String ownerId, String genreId, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit);
-
+  List<Score> findByCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit);
 }

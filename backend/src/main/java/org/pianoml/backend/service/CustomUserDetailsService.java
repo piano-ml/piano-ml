@@ -15,24 +15,24 @@ import java.util.Collection;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired
+  private UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+  @Override
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    User user = userRepository.findByEmail(email)
+      .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
-    }
+    return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
+  }
 
-    public UserDetails loadUserById(String id) {
-        User user = userRepository.findById(java.util.UUID.fromString(id))
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
-      String[] roles =  user.getRoles().split(",");
-      Collection<? extends GrantedAuthority> authorities = java.util.Arrays.stream(roles)
-        .map(role -> (GrantedAuthority) () -> "ROLE_" + role.trim())
-        .toList();
-      return new org.springframework.security.core.userdetails.User(user.getId().toString(), user.getPassword(), authorities);
-    }
+  public UserDetails loadUserById(String id) {
+    User user = userRepository.findById(java.util.UUID.fromString(id))
+      .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+    String[] roles = user.getRoles().split(",");
+    Collection<? extends GrantedAuthority> authorities = java.util.Arrays.stream(roles)
+      .map(role -> (GrantedAuthority) () -> "ROLE_" + role.trim())
+      .toList();
+    return new org.springframework.security.core.userdetails.User(user.getId().toString(), user.getPassword(), authorities);
+  }
 }

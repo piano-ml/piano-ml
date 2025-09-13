@@ -15,6 +15,7 @@ export interface ScoreApiInfo {
     title?: string;
     author?: string;
     author_id?: string;
+    sortName?: string;
     version?: number;
     tracks_count?: number;
     hand_separated?: boolean;
@@ -26,9 +27,12 @@ export interface ScoreApiInfo {
     grade?: number;
     uploaded_at?: string;
     owner_id?: string;
+    owner?: string;
     updated_at?: string;
     has_files?: boolean;
     image?: string;
     study_tracks?: Array<number>;
+    mutableSlug?: string;
+    immutableSlug?: string;
 }
 

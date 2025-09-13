@@ -14,30 +14,30 @@ import java.util.UUID;
 @RestController
 public class AuthorController implements AuthorApi {
 
-    @Autowired
-    private AuthorService authorService;
+  @Autowired
+  private AuthorService authorService;
 
-    @Override
-    public ResponseEntity<AuthorApiInfo> authorMbidGet(String id) {
-        return authorService.getAuthor(UUID.fromString(id))
-                .map(ResponseEntity::ok)
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
+  @Override
+  public ResponseEntity<AuthorApiInfo> authorMbidGet(String id) {
+    return authorService.getAuthor(UUID.fromString(id))
+      .map(ResponseEntity::ok)
+      .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+  }
 
-    @Override
-    public ResponseEntity<AuthorApiInfo> authorMbidPut(String id, AuthorApiInfo authorApiInfo) {
-      return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-    }
+  @Override
+  public ResponseEntity<AuthorApiInfo> authorMbidPut(String id, AuthorApiInfo authorApiInfo) {
+    return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+  }
 
-    @Override
-    public ResponseEntity<AuthorApiInfo> authorPost(AuthorApiInfo authorApiInfo) {
-        AuthorApiInfo createdAuthor = authorService.createAuthor(authorApiInfo);
-        return new ResponseEntity<>(createdAuthor, HttpStatus.CREATED);
-    }
+  @Override
+  public ResponseEntity<AuthorApiInfo> authorPost(AuthorApiInfo authorApiInfo) {
+    AuthorApiInfo createdAuthor = authorService.createAuthor(authorApiInfo);
+    return new ResponseEntity<>(createdAuthor, HttpStatus.CREATED);
+  }
 
-    @Override
-    public ResponseEntity<List<AuthorApiInfo>> authorSearchQueryGet(String query) {
-        List<AuthorApiInfo> authors = authorService.searchAuthors(query);
-        return ResponseEntity.ok(authors);
-    }
+  @Override
+  public ResponseEntity<List<AuthorApiInfo>> authorSearchQueryGet(String query) {
+    List<AuthorApiInfo> authors = authorService.searchAuthors(query);
+    return ResponseEntity.ok(authors);
+  }
 }

@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.UUID;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -20,11 +20,11 @@ import java.util.stream.StreamSupport;
 @Service
 public class AuthorService {
 
-    @Autowired
-    private AuthorRepository authorRepository;
+  @Autowired
+  private AuthorRepository authorRepository;
 
-    @Autowired
-    private AuthorMapper authorMapper;
+  @Autowired
+  private AuthorMapper authorMapper;
 
   @Autowired
   private MusicBrainzService musicBrainzService;
@@ -47,29 +47,29 @@ public class AuthorService {
     }
   }
 
-    public AuthorApiInfo createAuthor(AuthorApiInfo authorApiInfo) {
-      Author author = maybeCreateAuthor(UUID.fromString(authorApiInfo.getMbid()));
-      return  authorMapper.toAuthorApiInfo(author);
-    }
+  public AuthorApiInfo createAuthor(AuthorApiInfo authorApiInfo) {
+    Author author = maybeCreateAuthor(UUID.fromString(authorApiInfo.getMbid()));
+    return authorMapper.toAuthorApiInfo(author);
+  }
 
-    public Optional<AuthorApiInfo> getAuthor(UUID id) {
-        return authorRepository.findByMbid(id)
-                .map(authorMapper::toAuthorApiInfo);
-    }
+  public Optional<AuthorApiInfo> getAuthor(UUID id) {
+    return authorRepository.findByMbid(id)
+      .map(authorMapper::toAuthorApiInfo);
+  }
 
-    public Optional<AuthorApiInfo> updateAuthor(UUID mbid, AuthorApiInfo authorApiInfo) {
-        return authorRepository.findByMbid(mbid)
-                .map(author -> {
-                    author.setName(authorApiInfo.getName());
-                    Author updatedAuthor = authorRepository.save(author);
-                    return authorMapper.toAuthorApiInfo(updatedAuthor);
-                });
-    }
+  public Optional<AuthorApiInfo> updateAuthor(UUID mbid, AuthorApiInfo authorApiInfo) {
+    return authorRepository.findByMbid(mbid)
+      .map(author -> {
+        author.setName(authorApiInfo.getName());
+        Author updatedAuthor = authorRepository.save(author);
+        return authorMapper.toAuthorApiInfo(updatedAuthor);
+      });
+  }
 
-    public List<AuthorApiInfo> searchAuthors(String query) {
-        Iterable<Author> authors = authorRepository.searchByNameIlike(query);
-        return StreamSupport.stream(authors.spliterator(), false)
-                .map(authorMapper::toAuthorApiInfo)
-                .collect(Collectors.toList());
-    }
+  public List<AuthorApiInfo> searchAuthors(String query) {
+    Iterable<Author> authors = authorRepository.searchByNameIlike(query);
+    return StreamSupport.stream(authors.spliterator(), false)
+      .map(authorMapper::toAuthorApiInfo)
+      .collect(Collectors.toList());
+  }
 }

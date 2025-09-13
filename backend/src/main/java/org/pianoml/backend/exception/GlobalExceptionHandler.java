@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.model.ErrorApiInfoError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.security.authentication.BadCredentialsException;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

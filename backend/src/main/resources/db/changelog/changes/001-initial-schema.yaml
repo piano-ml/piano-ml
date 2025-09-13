@@ -116,6 +116,11 @@ databaseChangeLog:
                     unique: true
                     nullable: false
               - column:
+                  name: sort_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
                   name: disambiguation
                   type: VARCHAR(255)
                   constraints:
@@ -195,6 +200,11 @@ databaseChangeLog:
                   constraints:
                     nullable: true
               - column:
+                  name: measures_count
+                  type: INT
+                  constraints:
+                    nullable: true
+              - column:
                   name: hand_separated
                   type: BOOLEAN
                   constraints:
@@ -232,7 +242,6 @@ databaseChangeLog:
               - column:
                   name: has_files
                   type: BOOLEAN
-                  defaultValue: false
                   constraints:
                     nullable: false
               - column:
@@ -258,9 +267,15 @@ databaseChangeLog:
               - column:
                   name: immutable_slug
                   type: VARCHAR(255)
+                  constraints:
+                    unique: true
+                    nullable: true
               - column:
                   name: mutable_slug
                   type: VARCHAR(255)
+                  constraints:
+                    unique: true
+                    nullable: true
               - column:
                   name: etude
                   type: BOOLEAN

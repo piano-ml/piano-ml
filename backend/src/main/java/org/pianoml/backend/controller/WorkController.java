@@ -1,18 +1,13 @@
 package org.pianoml.backend.controller;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.pianoml.backend.api.WorkApi;
 import org.pianoml.backend.model.AllWorksApiInfo;
-import org.pianoml.backend.model.AllWorksApiInfoWorksInner;
-import org.pianoml.backend.model.AllWorksApiInfoWorksInnerRelationsInner;
 import org.pianoml.backend.service.MusicBrainzService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController

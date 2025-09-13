@@ -16,40 +16,40 @@ import java.util.stream.StreamSupport;
 @Service
 public class GenreService {
 
-    @Autowired
-    private GenreRepository genreRepository;
+  @Autowired
+  private GenreRepository genreRepository;
 
-    @Autowired
-    private GenreMapper genreMapper;
+  @Autowired
+  private GenreMapper genreMapper;
 
-    public GenreApiInfo createGenre(GenreApiInfo genreApiInfos) {
-        Genre newGenre = genreRepository.save(genreMapper.toGenre(genreApiInfos));
-        return genreMapper.toGenreApiInfo(newGenre);
-    }
+  public GenreApiInfo createGenre(GenreApiInfo genreApiInfos) {
+    Genre newGenre = genreRepository.save(genreMapper.toGenre(genreApiInfos));
+    return genreMapper.toGenreApiInfo(newGenre);
+  }
 
-    public Optional<GenreApiInfo> getGenre(UUID id) {
-        return genreRepository.findByMbid(id)
-                .map(genreMapper::toGenreApiInfo);
-    }
+  public Optional<GenreApiInfo> getGenre(UUID id) {
+    return genreRepository.findByMbid(id)
+      .map(genreMapper::toGenreApiInfo);
+  }
 
-    public List<GenreApiInfo> getAllGenres() {
-        return StreamSupport.stream(genreRepository.findAll().spliterator(), false)
-                .map(genreMapper::toGenreApiInfo)
-                .collect(Collectors.toList());
-    }
+  public List<GenreApiInfo> getAllGenres() {
+    return StreamSupport.stream(genreRepository.findAll().spliterator(), false)
+      .map(genreMapper::toGenreApiInfo)
+      .collect(Collectors.toList());
+  }
 
-    public Optional<GenreApiInfo> updateGenre(UUID id, GenreApiInfo genreApiInfo) {
-        return genreRepository.findByMbid(id)
-                .map(genre -> {
-                    genre.setName(genreApiInfo.getName());
-                    Genre updatedGenre = genreRepository.save(genre);
-                    return genreMapper.toGenreApiInfo(updatedGenre);
-                });
-    }
+  public Optional<GenreApiInfo> updateGenre(UUID id, GenreApiInfo genreApiInfo) {
+    return genreRepository.findByMbid(id)
+      .map(genre -> {
+        genre.setName(genreApiInfo.getName());
+        Genre updatedGenre = genreRepository.save(genre);
+        return genreMapper.toGenreApiInfo(updatedGenre);
+      });
+  }
 
-    public List<GenreApiInfo> searchGenres(String query) {
-        return genreRepository.findByNameContainingIgnoreCase(query).stream()
-                .map(genreMapper::toGenreApiInfo)
-                .collect(Collectors.toList());
-    }
+  public List<GenreApiInfo> searchGenres(String query) {
+    return genreRepository.findByNameContainingIgnoreCase(query).stream()
+      .map(genreMapper::toGenreApiInfo)
+      .collect(Collectors.toList());
+  }
 }

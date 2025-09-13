@@ -3,9 +3,11 @@ package org.pianoml.backend.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.pianoml.backend.entity.Score;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,31 +19,47 @@ public class ScoreRepositoryCustom implements IScoreRepositoryCustom {
   @PersistenceContext
   private EntityManager em;
 
-  public List<Score> findByCriterias(String keyword, String ownerId, String genreId, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
+  public List<Score> findByCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Score> cq = cb.createQuery(Score.class);
     Root<Score> root = cq.from(Score.class);
 
     Predicate predicate = cb.conjunction();
-    if (keyword != null && !keyword.isEmpty()) {
 
+    // Exclude deleted scores
+    //predicate = cb.and(predicate, cb.or(cb.isNull(root.get("deleted")), cb.isFalse(root.get("deleted"))));
+
+    if (keyword != null && !keyword.isEmpty()) {
       predicate = cb.and(predicate, cb.like(cb.lower(root.get("title")), "%" + keyword.toLowerCase() + "%"));
     }
     if (ownerId != null && !ownerId.isEmpty()) {
       predicate = cb.and(predicate, cb.equal(root.get("owner").get("id"), UUID.fromString(ownerId)));
+    } else {
+      predicate = cb.and(predicate, cb.isTrue(root.get("hasFiles")));
     }
 
     if (genreId != null && !genreId.isEmpty()) {
       predicate = cb.and(predicate, cb.equal(root.get("genreId"), genreId));
     }
-    if (gradeStart != null) {
+
+    if (artist != null && !artist.isEmpty()) {
+      predicate = cb.and(predicate, cb.like(cb.lower(root.get("author").get("name")), "%" + artist.toLowerCase() + "%"));
+    }
+
+    if (etude != null) {
+      predicate = cb.and(predicate, cb.equal(root.get("etude"), etude));
+    }
+
+/*    if (gradeStart != null) {
       predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("grade"), gradeStart));
     }
     if (gradeEnd != null) {
       predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("grade"), gradeEnd));
-    }
+    }*/
 
     cq.where(predicate);
+
+    cq.orderBy(cb.desc(root.get("uploadedAt")));
 
     TypedQuery<Score> query = em.createQuery(cq);
     if (offset != null) query.setFirstResult(offset);

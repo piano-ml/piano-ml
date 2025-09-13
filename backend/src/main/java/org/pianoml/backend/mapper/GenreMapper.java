@@ -7,7 +7,7 @@ import org.pianoml.backend.model.GenreApiInfo;
 @Mapper(componentModel = "spring", uses = UriMapper.class)
 public interface GenreMapper {
 
-    GenreApiInfo toGenreApiInfo(Genre genre);
+  GenreApiInfo toGenreApiInfo(Genre genre);
 
-    Genre toGenre(GenreApiInfo genreApiInfo);
+  Genre toGenre(GenreApiInfo genreApiInfo);
 }

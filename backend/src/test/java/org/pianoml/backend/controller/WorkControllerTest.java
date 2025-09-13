@@ -20,21 +20,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class WorkControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockBean
-    private MusicBrainzService musicBrainzService;
+  @MockBean
+  private MusicBrainzService musicBrainzService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @Test
-    public void testSearchWorks() throws Exception {
-        AllWorksApiInfo works = new AllWorksApiInfo();
-        given(musicBrainzService.searchWorks("test")).willReturn(works);
+  @Test
+  public void testSearchWorks() throws Exception {
+    AllWorksApiInfo works = new AllWorksApiInfo();
+    given(musicBrainzService.searchWorks("test")).willReturn(works);
 
-        mockMvc.perform(get("/work/search/test"))
-                .andExpect(status().isOk());
-    }
+    mockMvc.perform(get("/work/search/test"))
+      .andExpect(status().isOk());
+  }
 }

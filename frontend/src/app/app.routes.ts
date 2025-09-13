@@ -21,10 +21,16 @@ export const routes: Routes = [
     },
     {
         component: LayoutComponent,
+        path: 'work',
+        loadChildren: () => import('./loader/loader.module').then(m => m.LoaderModule),
+        data: { breadcrumb: 'Practice' }
+    },    
+    {
+        component: LayoutComponent,
         path: 'browse',
         loadChildren: () => import('./loader/loader.module').then(m => m.LoaderModule),
-        data: { breadcrumb: 'Browse' }
-    },
+        data: { breadcrumb: 'Practice' }
+    },       
     {
         component: LayoutComponent,
         path: 'exercises',

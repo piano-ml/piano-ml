@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ChangeDetectorRef, ViewEncapsulation, Aft
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfo } from '@ng-icons/bootstrap-icons';
+import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat,  bootstrapInfoCircle } from '@ng-icons/bootstrap-icons';
 import { ScoreApiInfo, ScoreService } from '../../../core/api';
 import { OsmdComponent } from '../osmd/osmd.component';
 //import { NouisliderComponent, NouisliderModule } from 'ng2-nouislider';
@@ -30,7 +30,7 @@ import { debounceTime } from 'rxjs/operators';
       bootstrapPlayFill,
       bootstrapPauseFill,
       bootstrapRepeat,
-      bootstrapInfo
+      bootstrapInfoCircle
     })
   ]
 })

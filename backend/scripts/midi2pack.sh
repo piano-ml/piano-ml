@@ -15,8 +15,8 @@ ORI=$FROOT
 FROOT="${FROOT/upload_/}"
 
 if [ -n "$TRACK_RIGHT" ]; then
-  echo "Extracting left/right hand track: $TRACK_RIGHT $TRACK_LEFT"
-  /home/appuser/shared-venv/bin/python /home/appuser/scripts/extract_midi_tracks.py "$1" "$TRACK_RIGHT" "$TRACK_LEFT"
+  echo "Extracting left/right hand track $TRACK_RIGHT $TRACK_LEFT for $1"
+  $HOME/shared-venv/bin/python ./scripts/extract_midi_tracks.py "$1" "$TRACK_RIGHT" "$TRACK_LEFT"
 else
   echo "No track specified in original midi file"
   exit 1
@@ -28,12 +28,15 @@ echo "mv $ORI.musicxml $FROOT.musicxml"
 
 mv $ORI.musicxml $FROOT.musicxml
 
-/home/appuser/shared-venv/bin/python /home/appuser/scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
+$HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
+$HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
 
 musescore3 -o $FROOT.pdf $FROOT.musicxml
 
 mv $1 "$FROOT.midi"
 
-zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"
+$HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml"
 
-rm "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"
+zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json" "metadata.json"
+
+#rm "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"

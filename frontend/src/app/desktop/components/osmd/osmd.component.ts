@@ -55,11 +55,14 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.loading = true;
         this.error = null;
-        //this.changeDetector.detectChanges();
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
-        //https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/blob/4578938f67a4c4e1e6bd9c659a5b0c95e851e77a/src/OpenSheetMusicDisplay/OSMDOptions.ts#L88
-        this.osmd.setOptions({
-            autoResize: false,
+        this.osmd.setOptions({ // https://opensheetmusicdisplay.github.io/classdoc/interfaces/IOSMDOptions.html
+            autoResize: true,
+            autoBeam: true,
+            alignRests: 1,
+            drawLyricist: true,
+            measureNumberInterval: 1,
+            spacingFactorSoftmax: 100,
             useXMLMeasureNumbers: true,
             disableCursor: false,
             backend: "svg",
@@ -72,7 +75,6 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                 }] as CursorOptions[],
 
             drawTitle: false,
-            autoBeam: true,
             darkMode: false,
             renderSingleHorizontalStaffline: true,
             drawCredits: false,

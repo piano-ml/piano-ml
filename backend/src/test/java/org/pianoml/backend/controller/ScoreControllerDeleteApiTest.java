@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -23,76 +22,76 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class ScoreControllerDeleteApiTest {
 
-    private MockMvc mockMvc;
-    private ScoreService scoreService;
-    private AccountService accountService;
+  private MockMvc mockMvc;
+  private ScoreService scoreService;
+  private AccountService accountService;
 
-    @BeforeEach
-    void setup() {
-        scoreService = mock(ScoreService.class);
-        accountService = mock(AccountService.class);
+  @BeforeEach
+  void setup() {
+    scoreService = mock(ScoreService.class);
+    accountService = mock(AccountService.class);
 
-        ScoreController controller = new ScoreController();
-        ReflectionTestUtils.setField(controller, "scoreService", scoreService);
-        ReflectionTestUtils.setField(controller, "userService", accountService);
+    ScoreController controller = new ScoreController();
+    ReflectionTestUtils.setField(controller, "scoreService", scoreService);
+    ReflectionTestUtils.setField(controller, "userService", accountService);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-    }
+    mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+  }
 
-    @AfterEach
-    void cleanup() {
-        SecurityContextHolder.clearContext();
-    }
+  @AfterEach
+  void cleanup() {
+    SecurityContextHolder.clearContext();
+  }
 
-    private Authentication withAuth(User user) {
-        SecurityContext context = mock(SecurityContext.class);
-        Authentication auth = mock(Authentication.class);
-        when(context.getAuthentication()).thenReturn(auth);
-        SecurityContextHolder.setContext(context);
-        when(accountService.getUserFromAuthentication(auth)).thenReturn(user);
-        return auth;
-    }
+  private Authentication withAuth(User user) {
+    SecurityContext context = mock(SecurityContext.class);
+    Authentication auth = mock(Authentication.class);
+    when(context.getAuthentication()).thenReturn(auth);
+    SecurityContextHolder.setContext(context);
+    when(accountService.getUserFromAuthentication(auth)).thenReturn(user);
+    return auth;
+  }
 
-    @Test
-    void delete_ok_returns204() throws Exception {
-        UUID scoreId = UUID.randomUUID();
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        withAuth(user);
+  @Test
+  void delete_ok_returns204() throws Exception {
+    UUID scoreId = UUID.randomUUID();
+    User user = new User();
+    user.setId(UUID.randomUUID());
+    withAuth(user);
 
-        when(scoreService.deleteScore(eq(scoreId), eq(user))).thenReturn(true);
+    when(scoreService.deleteScore(eq(scoreId), eq(user))).thenReturn(true);
 
-        mockMvc.perform(delete("/score/{id}", scoreId))
-                .andExpect(status().isNoContent());
+    mockMvc.perform(delete("/score/{id}", scoreId))
+      .andExpect(status().isNoContent());
 
-        verify(scoreService).deleteScore(eq(scoreId), eq(user));
-    }
+    verify(scoreService).deleteScore(eq(scoreId), eq(user));
+  }
 
-    @Test
-    void delete_notFound_returns404() throws Exception {
-        UUID scoreId = UUID.randomUUID();
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        withAuth(user);
+  @Test
+  void delete_notFound_returns404() throws Exception {
+    UUID scoreId = UUID.randomUUID();
+    User user = new User();
+    user.setId(UUID.randomUUID());
+    withAuth(user);
 
-        when(scoreService.deleteScore(eq(scoreId), eq(user))).thenReturn(false);
+    when(scoreService.deleteScore(eq(scoreId), eq(user))).thenReturn(false);
 
-        mockMvc.perform(delete("/score/{id}", scoreId))
-                .andExpect(status().isNotFound());
-    }
+    mockMvc.perform(delete("/score/{id}", scoreId))
+      .andExpect(status().isNotFound());
+  }
 
-    @Test
-    void delete_forbidden_returns403() throws Exception {
-        UUID scoreId = UUID.randomUUID();
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        withAuth(user);
+  @Test
+  void delete_forbidden_returns403() throws Exception {
+    UUID scoreId = UUID.randomUUID();
+    User user = new User();
+    user.setId(UUID.randomUUID());
+    withAuth(user);
 
-        when(scoreService.deleteScore(eq(scoreId), eq(user)))
-                .thenThrow(new RuntimeException("Unauthorized: Only owner or admin can delete this score"));
+    when(scoreService.deleteScore(eq(scoreId), eq(user)))
+      .thenThrow(new RuntimeException("Unauthorized: Only owner or admin can delete this score"));
 
-        mockMvc.perform(delete("/score/{id}", scoreId))
-                .andExpect(status().isForbidden());
-    }
+    mockMvc.perform(delete("/score/{id}", scoreId))
+      .andExpect(status().isForbidden());
+  }
 }
 

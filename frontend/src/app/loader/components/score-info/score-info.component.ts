@@ -3,13 +3,18 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
+import { ShareButtons } from 'ngx-sharebuttons/buttons';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { bootstrapClipboard } from '@ng-icons/bootstrap-icons';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-score-info',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ShareButtons, NgIcon],
   templateUrl: './score-info.component.html',
-  styleUrl: './score-info.component.css'
+  styleUrl: './score-info.component.css',
+  viewProviders: [provideIcons({ bootstrapClipboard })]
 })
 export class ScoreInfoComponent implements OnInit {
   loading = false;
@@ -21,6 +26,9 @@ export class ScoreInfoComponent implements OnInit {
   selectedGenre: GenreApiInfo | null = null;
   workload: WorkloadApiInfo | null = null;
   loadingWorkload = false;
+  siteUrl = `${window.location.protocol}//${window.location.host}`;
+  shareLinks = ['facebook','x','reddit','xing']
+  slug: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -34,13 +42,19 @@ export class ScoreInfoComponent implements OnInit {
 
   ngOnInit() {
     this.scoreId = this.route.snapshot.paramMap.get('id');
+    this.slug = this.route.snapshot.paramMap.get('slug');
+    console.log(this.route.snapshot.paramMap)
+    this.loadGenres();
     if (this.scoreId) {
-      this.loadGenres();
       this.loadScore();
+    } else if (this.slug) {
+      console.log("got sluf!!!!", this.slug);
+      this.loadScoreBySlug(this.slug);
     } else {
       this.error = 'No score ID provided';
     }
   }
+
 
   loadGenres() {
     this.loadingGenres = true;
@@ -86,6 +100,28 @@ export class ScoreInfoComponent implements OnInit {
       }
     });
   }
+
+  loadScoreBySlug(slug: string) {
+    this.scoreService.scoreGetBySlug(slug).subscribe({
+      next: (score) => {
+        this.score = score;
+        this.updateSelectedGenre();
+        this.loading = false;
+        // Load workload info if score doesn't have files
+        if (!score.has_files && score.id) {
+          this.loadWorkload(score.id);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.error = error.message || 'Failed to load score';
+        this.loading = false;
+        console.error('Error loading score:', error);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
 
   loadWorkload(scoreId: string) {
     this.loadingWorkload = true;
@@ -185,5 +221,51 @@ export class ScoreInfoComponent implements OnInit {
   isOwner(): boolean {
     const currentUserId = this.authService.getUserId();
     return !!(currentUserId && this.score?.owner_id && currentUserId === this.score.owner_id);
+  }
+
+  getPublicUrl(): string | null {
+    if (!this.score?.immutableSlug) {
+      return null;
+    }
+    return `${this.siteUrl}/work/${this.score.immutableSlug}`;
+  }
+
+  copyUrlToClipboard(): void {
+    const url = this.getPublicUrl();
+    if (url) {
+      navigator.clipboard.writeText(url).then(() => {
+        // Optionally show a success message
+        console.log('URL copied to clipboard');
+      }).catch(err => {
+        console.error('Failed to copy URL: ', err);
+        // Fallback method
+        this.fallbackCopyTextToClipboard(url);
+      });
+    }
+  }
+
+  private fallbackCopyTextToClipboard(text: string): void {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = '0';
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      console.log('Fallback: URL copied to clipboard');
+    } catch (err) {
+      console.error('Fallback: Failed to copy', err);
+    }
+    document.body.removeChild(textArea);
   }
 }

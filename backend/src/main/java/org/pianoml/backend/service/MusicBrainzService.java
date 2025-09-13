@@ -14,16 +14,16 @@ import java.util.UUID;
 @Service
 public class MusicBrainzService {
 
-    @Autowired
-    private RestTemplate restTemplate;
+  @Autowired
+  private RestTemplate restTemplate;
 
-    @Autowired
-    private MbAuthorApiInfoMapper mbAuthorApiInfoMapper;
+  @Autowired
+  private MbAuthorApiInfoMapper mbAuthorApiInfoMapper;
 
-    public AllWorksApiInfo searchWorks(String query) {
-        String url = "https://musicbrainz.org/ws/2/work?query=" + query + "&limit=25&method=indexed&fmt=json";
-        return restTemplate.getForObject(url, AllWorksApiInfo.class);
-    }
+  public AllWorksApiInfo searchWorks(String query) {
+    String url = "https://musicbrainz.org/ws/2/work?query=" + query + "&limit=25&method=indexed&fmt=json";
+    return restTemplate.getForObject(url, AllWorksApiInfo.class);
+  }
 
 
   public Author getAuthor(UUID mbid) {
@@ -33,7 +33,6 @@ public class MusicBrainzService {
     log.info("Found artist: {}", artist);
     return mbAuthorApiInfoMapper.toAuthor(artist);
   }
-
 
 
 }

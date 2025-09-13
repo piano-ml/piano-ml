@@ -26,8 +26,8 @@ export const loaderRouteList: Routes = [
     component: ImportWorkComponent
   },
   {
-    path: ':filename',
-    component: LoaderHomeComponent
+    path: ':slug',
+    component: ScoreInfoComponent
   }
 
 ];

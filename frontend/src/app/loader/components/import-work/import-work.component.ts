@@ -154,7 +154,7 @@ export class ImportWorkComponent implements OnInit {
 
     onFileChange(input: HTMLInputElement) {
         if (!input?.files?.length) return;
-
+        console.log("on file change")
         const file = input.files[0];
         this.fileName = file.name;
 
@@ -166,9 +166,13 @@ export class ImportWorkComponent implements OnInit {
     }
     onFileSent(input: HTMLInputElement) {
         if (!input?.files?.length) return;
+        console.log("on file sent")
+        this.loading = true;
         const file = input.files[0];
         const blob = new Blob([file], { type: file.type });
-        const type = this.fileName.endsWith('.pdf') ? 'pdf' : 'musicxml';
+        const type = this.fileName.endsWith('.mid') || this.fileName.endsWith('.midi') ? 'midi' : 
+                    this.fileName.endsWith('.musicxml') || this.fileName.endsWith('.mxml') ? 'musicxml' : 
+                    'pdf';
         const scoreApiInfo = {
             mbid: this.work.mbid,
             title: this.work.title,

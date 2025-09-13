@@ -207,6 +207,16 @@ paths:
           schema:
             type: string
           description: genre
+        - name: artist
+          in: query
+          schema:
+            type: string
+          description: artist name
+        - name: etude
+          in: query
+          schema:
+            type: boolean
+          description: filter by etude type
         - name: gradeStart
           in: query
           schema:
@@ -238,7 +248,7 @@ paths:
         '400':
           description: Bad request
 
-  /score/{id}:
+  /score/{id}/info:
     get:
       operationId: scoreIdGet
       tags:
@@ -310,6 +320,29 @@ paths:
         '404':
           description: Score not found
 
+  /score/{slug}:
+    get:
+      operationId: scoreGetBySlug
+      tags:
+        - score
+      summary: Retrieve a score by its immutable slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The immutable slug of the score to retrieve
+      responses:
+        '200':
+          description: Score retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreApiInfo'
+        '404':
+          description: Score not found
+
   /score/{mbid}/{type}/{version}/{revision}:
     post:
       operationId: scoreMbidTypeVersionRevisionPost
@@ -328,7 +361,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [pdf, musicxml, midi]
+            enum: [pdf, musicxml, midi, metadata]
           description: The type of file being uploaded (e.g., pdf or mxml)
         - name: version
           in: path
@@ -727,6 +760,8 @@ components:
           type: string
         author_id:
           type: string
+        sortName:
+          type: string
         version:
           type: integer
           format: int32
@@ -755,6 +790,8 @@ components:
           format: date-time
         owner_id:
           type: string
+        owner:
+          type: string
         updated_at:
           type: string
           format: date-time
@@ -767,6 +804,10 @@ components:
           type: array
           items:
             type: integer
+        mutableSlug:
+          type: string
+        immutableSlug:
+          type: string
 
     WorkloadApiInfo:
       type: object

@@ -12,16 +12,16 @@ public class PackScriptDto {
   InputStream inputStream;
   String title;
   String composer;
-  String trackRight="";
-  String trackLeft="";
-  boolean splitTracks=false;
+  String trackRight = "";
+  String trackLeft = "";
+  boolean splitTracks = false;
 
   public PackScriptDto(InputStream inputStream, Score score) {
-    this.id=score.getId().toString();
-    this.mbid=score.getMbid().toString();
-    this.inputStream=inputStream;
-    this.title=score.getTitle();
-    this.composer=score.getAuthor().getName();
+    this.id = score.getId().toString();
+    this.mbid = score.getMbid().toString();
+    this.inputStream = inputStream;
+    this.title = score.getTitle();
+    this.composer = score.getAuthor().getName();
     String[] tracks = score.getStudyTracks().split(",");
     if (tracks.length == 2) {
       this.trackRight = tracks[0];
