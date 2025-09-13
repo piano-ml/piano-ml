@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
@@ -114,9 +115,12 @@ public class WorkloadProcessingService {
         RequestBody.fromFile(new File(resultPath)));
       log.info("Successfully uploaded processed files to S3: {}", s3Key);
       score.setHasFiles(true);
+      score.setUploadedAt(OffsetDateTime.now());
       scoreRepository.save(score);
       workloadRepository.save(workload);
       scoreService.infosFromMetadata(score);
+      workload.setStatus(Workload.WorkloadStatus.COMPLETED);
+      workloadRepository.save(workload);
       log.info("Successfully saved workload {} and score {}", workload.getId(), score.getId());
     } catch (Exception e) {
       log.error("Error processing OMR PDF for workload {}: {}", workload.getId(), e.getMessage(), e);
