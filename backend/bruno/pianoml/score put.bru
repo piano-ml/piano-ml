@@ -1,0 +1,49 @@
+meta {
+  name: score put
+  type: http
+  seq: 19
+}
+
+put {
+  url: http://localhost:8080/score/b46797f3-d5bd-4bc2-9010-ebad3bc6e305/info
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+   {
+      "id": "b46797f3-d5bd-4bc2-9010-ebad3bc6e305",
+      "mbid": "396883fa-ba67-33a5-934c-a6d05ee6d7e7",
+      "title": "Redemption Song",
+      "author": "Bob Marley",
+      "author_id": "5c5c4180-d964-44e4-adff-b1cf3786fe2b",
+      "sortName": "Marley, Bob",
+      "version": 1,
+      "tracks_count": 2,
+      "hand_separated": false,
+      "has_lyrics": false,
+      "measures": 44,
+      "duration": 67,
+      "genre": null,
+      "genre_id": null,
+      "grade": null,
+      "uploaded_at": "2025-09-13T15:51:56.821385Z",
+      "owner_id": "85338fe1-cea0-44ae-9bd0-5bb63b82a57c",
+      "owner": "EFL",
+      "updated_at": null,
+      "has_files": true,
+      "image": null,
+      "study_tracks": [
+        0,
+        1
+      ],
+      "mutableSlug": "marley-bob-redemption-song",
+      "immutableSlug": "marley-bob-redemption-song",
+      "tempo": 62
+    }
+}

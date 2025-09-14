@@ -119,12 +119,13 @@
                   <div  #range></div>
             </div>
     <!-- score -->
-    <div class="flex-none" *ngIf="!loading && scoreData">
+    <div class="flex-none" *ngIf="!loading">
         <app-osmd [scoreData]="scoreData"></app-osmd>
     </div>
 
     <!-- middle bar empty for now -->
     <div #arena class=" flex-grow {{arenaClass}} text-center text-neutral-400 text-2xl">
+
 {{ loading ? 'Loading score data...' : ''    }}
     </div>
 
