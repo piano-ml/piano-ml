@@ -1,0 +1,16 @@
+meta {
+  name: genre search
+  type: http
+  seq: 10
+}
+
+get {
+  url: http://localhost:8080/genre/search/{{query}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  Authorization: Bearer {{token}}
+}

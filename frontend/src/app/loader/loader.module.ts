@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LoaderRoutingModule } from './loader-routing.module';
+import { BrowseComponent } from './components/browse/browse.component';
+import { ScoreInfoComponent } from './components/score-info/score-info.component';
 
 
 @NgModule({
@@ -9,7 +11,9 @@ import { LoaderRoutingModule } from './loader-routing.module';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    LoaderRoutingModule
+    LoaderRoutingModule,
+    BrowseComponent,
+    ScoreInfoComponent
   ]
 })
 export class LoaderModule { }

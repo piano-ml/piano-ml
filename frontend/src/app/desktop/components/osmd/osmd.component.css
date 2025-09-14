@@ -1,0 +1,156 @@
+.osmd-wrapper {
+  overflow-x: hidden; 
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+.osmd-container {
+  overflow-x: hidden!important; 
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e3e3e3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.error-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.error-content {
+  text-align: center;
+  max-width: 400px;
+  padding: 2rem;
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+}
+
+.error-title {
+  color: #d32f2f;
+  margin: 0 0 1rem 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.error-message {
+  color: #666;
+  margin: 0 0 1.5rem 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.retry-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.retry-button:hover {
+  background-color: #2980b9;
+}
+
+.osmd-container {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border-radius: 4px;
+  padding: 1rem;
+  overflow: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-score-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.no-score-text {
+  color: #999;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* MusicXML Preview Styles (temporary) */
+.musicxml-preview {
+  width: 100%;
+}
+
+.musicxml-preview h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.musicxml-preview pre {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow: auto;
+  max-height: 300px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .osmd-wrapper {
+    padding: 0.5rem;
+  }
+  
+  .error-content {
+    padding: 1rem;
+  }
+  
+  .osmd-container {
+    padding: 0.5rem;
+    min-height: 300px;
+  }
+}
+
+#cursorImg-0 {
+    height: -webkit-fill-available!important;
+}
+

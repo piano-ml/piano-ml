@@ -1,14 +1,9 @@
 package org.pianoml.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
-import java.time.OffsetDateTime;
+
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -16,19 +11,39 @@ import java.util.UUID;
 @Data
 public class Author {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = false)
-    private String name;
+  @Column(name = "mbid")
+  private UUID mbid;
 
-    private OffsetDateTime birth;
+  @Column(nullable = false, unique = true)
+  private String name;
 
-    @Lob
-    private String bio;
+  @Column(name = "sort_name")
+  private String sortName;
 
-    private String image;
+  @Column(name = "disambiguation")
+  private String disambiguation;
 
-    private String link;
+  @Column(name = "country")
+  private String country;
+
+  @Column(name = "type")
+  private String type;
+
+  @Column(name = "gender")
+  private String gender;
+
+  @Column(name = "life_span_begin")
+  private LocalDate lifeSpanBegin;
+
+  @Column(name = "life_span_end")
+  private LocalDate lifeSpanEnd;
+
+  @Column(name = "life_span_ended")
+  private Boolean lifeSpanEnded;
+
+
 }

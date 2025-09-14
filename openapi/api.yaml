@@ -34,6 +34,10 @@ paths:
                 properties:
                   token:
                     type: string
+                  username:
+                    type: string
+                  userId:
+                    type: string
                   expire:
                     type: string
                     format: date-time
@@ -41,6 +45,7 @@ paths:
           description: Unauthorized
   /account/create:
     post:
+      operationId: accountCreatePost
       tags:
         - account
       summary: Create a new account
@@ -72,6 +77,7 @@ paths:
           description: User already exists
   /account/userinfo:
     get:
+      operationId: accountUserinfoGet
       tags:
         - account
       summary: Get user information
@@ -85,6 +91,7 @@ paths:
         '401':
           description: Unauthorized
     put:
+      operationId: accountUserinfoPut
       tags:
         - account
       summary: Update user information
@@ -105,6 +112,7 @@ paths:
           description: Unauthorized
   /account/password_reset:
     post:
+      operationId: accountPasswordResetPost
       tags:
         - account
       summary: Reset account password
@@ -127,6 +135,7 @@ paths:
           description: Bad request
   /account/create/{token}/confirm:
     get:
+      operationId: accountCreateTokenConfirmGet
       tags:
         - account
       summary: Confirm account creation with token
@@ -144,6 +153,7 @@ paths:
           description: Invalid or expired token
   /account/logout:
     get:
+      operationId: accountLogoutGet
       tags:
         - account
       summary: Log out from the account
@@ -155,6 +165,7 @@ paths:
 
   /score:
     post:
+      operationId: scorePost
       tags:
         - score
       summary: Create a score
@@ -176,6 +187,7 @@ paths:
 
   /score/search:
     get:
+      operationId: scoreSearchGet
       tags:
         - score
       summary: Search a score
@@ -184,12 +196,27 @@ paths:
           in: query
           schema:
             type: string
-          description: A keyword 
+          description: A keyword
+        - name: ownerId
+          in: query
+          schema:
+            type: string
+          description: owner
         - name: genreId
           in: query
           schema:
             type: string
           description: genre
+        - name: artist
+          in: query
+          schema:
+            type: string
+          description: artist name
+        - name: etude
+          in: query
+          schema:
+            type: boolean
+          description: filter by etude type
         - name: gradeStart
           in: query
           schema:
@@ -197,18 +224,18 @@ paths:
         - name: gradeEnd
           in: query
           schema:
-            type: integer            
+            type: integer
           description: the level
         - name: offset
           in: query
           schema:
             type: integer
-          description: search start at           
+          description: search start at
         - name: limit
           in: query
           schema:
             type: integer
-          description: limit results count    
+          description: limit results count
       responses:
         '200':
           description: ScoreApiInfo retrieved successfully
@@ -220,9 +247,10 @@ paths:
                   $ref: '#/components/schemas/ScoreApiInfo'
         '400':
           description: Bad request
-          
-  /score/{id}:
+
+  /score/{id}/info:
     get:
+      operationId: scoreIdGet
       tags:
         - score
       summary: Retrieve a score by ID
@@ -243,6 +271,7 @@ paths:
         '404':
           description: ScoreApiInfo not found
     put:
+      operationId: scoreIdPut
       tags:
         - score
       summary: Update a score by ID
@@ -259,7 +288,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ScoreApiInfo'
-      
+
       responses:
         '200':
           description: ScoreApiInfo retrieved successfully
@@ -270,15 +299,58 @@ paths:
         '403':
           description: Not authorized
         '404':
-          description: ScoreApiInfo not found          
+          description: ScoreApiInfo not found
+    delete:
+      operationId: scoreIdDelete
+      tags:
+        - score
+      summary: Delete a score by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the score to delete
+      responses:
+        '204':
+          description: Score deleted successfully
+        '403':
+          description: Not authorized - only owner or admin can delete
+        '404':
+          description: Score not found
 
-  /score/{id}/{type}:
+  /score/{slug}:
+    get:
+      operationId: scoreGetBySlug
+      tags:
+        - score
+      summary: Retrieve a score by its immutable slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The immutable slug of the score to retrieve
+      responses:
+        '200':
+          description: Score retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreApiInfo'
+        '404':
+          description: Score not found
+
+  /score/{mbid}/{type}/{version}/{revision}:
     post:
+      operationId: scoreMbidTypeVersionRevisionPost
       tags:
         - score
       summary: Upload a binary file for a specific score
       parameters:
-        - name: id
+        - name: mbid
           in: path
           required: true
           schema:
@@ -289,8 +361,30 @@ paths:
           required: true
           schema:
             type: string
-            enum: [pdf, mxml]
+            enum: [pdf, musicxml, midi, metadata]
           description: The type of file being uploaded (e.g., pdf or mxml)
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the score
+        - name: revision
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the score
+        - name: track1
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: track2
+          in: query
+          required: false
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -305,12 +399,20 @@ paths:
           description: Invalid input
         '404':
           description: ScoreApiInfo not found
+  /score/{owner}/{mbid}/{type}/{version}/{revision}:
     get:
+      operationId: scoreOwnerMbidTypeVersionRevisionGet
       tags:
         - score
       summary: Download a file for a specific score
       parameters:
-        - name: id
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The User Id
+        - name: mbid
           in: path
           required: true
           schema:
@@ -321,8 +423,21 @@ paths:
           required: true
           schema:
             type: string
-            enum: [pdf, mxml]
+            enum: [pdf, musicxml, midi]
           description: The type of file to download (e.g., pdf or mxml)
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the score
+        - name: revision
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the score
+
       responses:
         '200':
           description: File downloaded successfully
@@ -333,9 +448,34 @@ paths:
                 format: binary
         '404':
           description: ScoreApiInfo or file type not found
-          
+
+  /workload/{id}:
+    get:
+      operationId: workloadIdGet
+      tags:
+        - workload
+      summary: Retrieve a workload by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the workload to retrieve
+      responses:
+        '200':
+          description: Workload retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadApiInfo'
+        '404':
+          description: Workload not found
+
   /author:
     post:
+      operationId: authorPost
       tags:
         - author
       summary: Create a new author
@@ -344,7 +484,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthorApiInfo'              
+              $ref: '#/components/schemas/AuthorApiInfo'
 
       responses:
         '201':
@@ -355,18 +495,19 @@ paths:
                 $ref: '#/components/schemas/AuthorApiInfo'
         '400':
           description: Invalid input
-  /author/{id}:
+  /author/{mbid}:
     put:
+      operationId: authorMbidPut
       tags:
         - author
       summary: Update an author
       parameters:
-        - name: id
+        - name: mbid
           in: path
           required: true
           schema:
             type: string
-          description: The ID of the author
+          description: The MusicBrainz ID for the author
       requestBody:
         required: true
         content:
@@ -383,16 +524,17 @@ paths:
         '404':
           description: AuthorApiInfo not found
     get:
+      operationId: authorMbidGet
       tags:
         - author
       summary: Retrieve informations about an author
       parameters:
-        - name: id
+        - name: mbid
           in: path
           required: true
           schema:
             type: string
-          description: The ID of the author
+          description: The MusicBrainz ID for the author
       responses:
         '200':
           description: AuthorApiInfo retrieved successfully
@@ -404,6 +546,7 @@ paths:
           description: AuthorApiInfo not found
   /author/search/{query}:
     get:
+      operationId: authorSearchQueryGet
       tags:
         - author
       summary: Search authors
@@ -425,6 +568,158 @@ paths:
                   $ref: '#/components/schemas/AuthorApiInfo'
         '404':
           description: AuthorApiInfo not found
+  /genre:
+    get:
+      operationId: genreGet
+      tags:
+        - genre
+      summary: Retrieve all genres
+      responses:
+        '200':
+          description: A list of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreApiInfo'
+    post:
+      operationId: genrePost
+      tags:
+        - genre
+      summary: Add a genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreApiInfo'
+
+      responses:
+        '201':
+          description: Genres created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreApiInfo'
+  /genre/{id}:
+    put:
+      operationId: genreIdPut
+      tags:
+        - genre
+      summary: Update a genre
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreApiInfo'
+      responses:
+        '200':
+          description: Genre updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreApiInfo'
+        '404':
+          description: GenreApiInfo not found
+    get:
+      operationId: genreIdGet
+      tags:
+        - genre
+      summary: Retrieve informations about a genre
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the genre
+      responses:
+        '200':
+          description: Genre retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreApiInfo'
+        '404':
+          description: GenreApiInfo not found
+  /genre/search/{query}:
+    get:
+      operationId: genreSearchQueryGet
+      tags:
+        - genre
+      summary: Search genres
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The query to search genres
+      responses:
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreApiInfo'
+        '404':
+          description: Genre not found
+  /artist/search/{query}:
+    get:
+      operationId: artistSearchQueryGet
+      tags:
+        - musicbrainz
+      summary: Search all artists
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: AuthorApiInfo retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MbAuthorApiInfo'
+        '404':
+          description: GenreApiInfo not found
+
+  /work/search/{query}:
+    get:
+      operationId: workSearchQueryGet
+      tags:
+        - musicbrainz
+      summary: Search all works
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: AuthorApiInfo retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllWorksApiInfo'
+        '404':
+          description: Work not found
+
+
 components:
   schemas:
     AuthorApiInfo:
@@ -432,28 +727,32 @@ components:
       properties:
         id:
           type: string
+        mbid:
+          type: string
         name:
           type: string
-        birth:
+        disambiguation:
           type: string
-          format: date-time
-        bio:
+        country:
           type: string
-        image:
+        type:
           type: string
-          format: uri
-        link:
+        gender:
           type: string
-          format: uri
-      required:
-        - id
-        - name
-        - year
-        - bio
+        lifeSpanBegin:
+          type: string
+          format: date
+        lifeSpanEnd:
+          type: string
+          format: date
+        lifeSpanEnded:
+          type: boolean
     ScoreApiInfo:
       type: object
       properties:
         id:
+          type: string
+        mbid:
           type: string
         title:
           type: string
@@ -461,10 +760,9 @@ components:
           type: string
         author_id:
           type: string
+        sortName:
+          type: string
         version:
-          type: integer
-          format: int32
-        year:
           type: integer
           format: int32
         tracks_count:
@@ -490,27 +788,62 @@ components:
         uploaded_at:
           type: string
           format: date-time
-        uploaded_by_id:
+        owner_id:
           type: string
-        uploaded_by_name:
+        owner:
           type: string
         updated_at:
           type: string
           format: date-time
-        has_mxml:
-          type: boolean
-        has_pdf:
+        has_files:
           type: boolean
         image:
-          type: string          
+          type: string
           format: uri
-      required:
-        - title
-        - author
-        - year
+        study_tracks:
+          type: array
+          items:
+            type: integer
+        mutableSlug:
+          type: string
+        immutableSlug:
+          type: string
+        tempo:
+          type: integer
+          format: int32
+
+    WorkloadApiInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        kind:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        scoreId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PENDING, RUNNING, COMPLETED, FAILED]
+        errorMessage:
+          type: string
+        duration:
+          type: integer
+          format: int32
+          description: Duration in milliseconds
+        workloadSize:
+          type: integer
+          format: int32
+
     UserApiInfo:
       type: object
       properties:
+        id:
+          type: string
         email:
           type: string
           format: email
@@ -522,22 +855,111 @@ components:
           type: string
           format: uri
         image:
-          type: string          
+          type: string
           format: uri
       required:
-        - email
         - name
     GenreApiInfo:
+      title: GenreApiInfo
       type: object
       properties:
         id:
           type: string
+        mbid:
+          type: string
         name:
           type: string
-        url:
+    MusicBrainzService:
+      type: object
+      properties:
+        name:
           type: string
-        image:
-          type: string          
-          format: uri
-      required:
-        - name        
+        country:
+          type: string
+        disambiguation:
+          type: string
+        sort-name:
+          type: string
+        type:
+          type: string
+        life-span:
+          type: object
+          properties:
+            begin:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+            ended:
+              type: boolean
+    AllWorksApiInfo:
+      type: object
+      properties:
+        works:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              relations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    artist:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        sort-name:
+                          type: string
+                        disambiguation:
+                          type: string
+    MbAuthorApiInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        name:
+          type: string
+        sort-name:
+          type: string
+        disambiguation:
+          type: string
+        gender:
+          type: string
+        country:
+          type:  string
+        life-span:
+          type: object
+          properties:
+            begin:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+            ended:
+              type: boolean
+    ErrorApiInfo:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            name:
+              type: string
+            message:
+              type: string
+            stacktrace:
+              type: array
+              items:
+                type: string

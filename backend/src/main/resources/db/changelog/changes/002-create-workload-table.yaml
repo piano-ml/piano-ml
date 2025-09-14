@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-workload-table
+      author: system
+      changes:
+        - createSequence:
+            sequenceName: workload_id_seq
+            startValue: 1
+            incrementBy: 1
+        - createTable:
+            tableName: workload
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  defaultValueSequenceNext: workload_id_seq
+              - column:
+                  name: kind
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: scoreid
+                  type: uuid
+                  constraints:
+                    nullable: true
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                  defaultValue: "PENDING"
+              - column:
+                  name: error_message
+                  type: varchar(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: duration
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: workload_size
+                  type: int
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: 002-fix-workload-sequence
+      author: system
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            sequenceExists:
+              sequenceName: workload_id_seq
+      changes:
+        - createSequence:
+            sequenceName: workload_id_seq
+            startValue: 1
+            incrementBy: 1

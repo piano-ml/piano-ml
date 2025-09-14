@@ -1,12 +1,13 @@
 import { Component, type OnInit } from '@angular/core';
-import { OpenComponent } from '../open/open.component';
 // biome-ignore lint/style/useImportType: <explanation>
-import { ActivatedRoute, Router } from '@angular/router';
-import { BuiltinComponent } from "../builtin/builtin.component";
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { BrowseComponent } from "../browse/browse.component";
+import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
+import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../../../desktop/model/model';
 
 @Component({
   selector: 'app-loader-home',
-  imports: [OpenComponent, BuiltinComponent],
+  imports: [BrowseComponent, RouterModule, QuickActionsComponent],
   templateUrl: './loader-home.component.html',
   styleUrl: './loader-home.component.css'
 })
@@ -16,7 +17,10 @@ export class LoaderHomeComponent implements OnInit {
   
   constructor(
     private route: ActivatedRoute
-  ) { }
+  ) { 
+    localStorage.removeItem(MUSIC_XML_STORAGE_KEY);
+    localStorage.removeItem(MIDI_STORAGE_KEY);
+  }
 
   ngOnInit() {
     this.route.params.subscribe(params => {

@@ -5,6 +5,23 @@
     @apply text-neutral-400 m-4 uppercase font-bold ;
 }
 
+.breadcrumb-with-circle {
+    @apply text-neutral-400 m-4 uppercase font-bold relative ;
+}
+
+.breadcrumb-with-circle::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-color: #FFDD00; /* Ukrainian flag yellow - official shade */
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
 .breadcrumb-label-separator {
     @apply text-neutral-700;
 }

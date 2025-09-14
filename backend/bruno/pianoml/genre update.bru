@@ -1,0 +1,28 @@
+meta {
+  name: genre update
+  type: http
+  seq: 9
+}
+
+put {
+  url: http://localhost:8080/genre/ed2ac1e9-d51d-4eff-a2c2-85e81abd6360
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "mbid": "ed2ac1e9-d51d-4eff-a2c2-85e81abd6360",
+    "name": "ClassiqueZ"
+  }
+}
+
+script:pre-request {
+  const token = bru.getEnvVar("token");
+}

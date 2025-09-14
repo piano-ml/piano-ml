@@ -1,14 +1,8 @@
 package org.pianoml.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -17,55 +11,80 @@ import java.util.UUID;
 @Data
 public class Score {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = false)
-    private String title;
+  @Column(nullable = false)
+  private String title;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id", nullable = false)
-    private Author author;
+  @ManyToOne
+  @JoinColumn(name = "author_id", nullable = false)
+  private Author author;
 
-    @ManyToOne
-    @JoinColumn(name = "genre_id")
-    private Genre genre;
+  @ManyToOne
+  @JoinColumn(name = "genre_id")
+  private Genre genre;
 
-    private Integer version;
+  @Column(name = "version")
+  private Integer version;
 
-    private Integer year;
+  @ManyToOne
+  @JoinColumn(name = "owner_id", nullable = false)
+  private User owner;
 
-    @Column(name = "tracks_count")
-    private Integer tracksCount;
+  @Column(name = "tracks_count")
+  private Integer tracksCount;
 
-    @Column(name = "hand_separated")
-    private Boolean handSeparated;
+  @Column(name = "measures_count")
+  private Integer measuresCount;
 
-    @Column(name = "has_lyrics")
-    private Boolean hasLyrics;
+  @Column(name = "hand_separated")
+  private Boolean handSeparated;
 
-    private Integer measures;
+  @Column(name = "has_lyrics")
+  private Boolean hasLyrics;
 
-    private Float duration;
+  @Column(name = "grade")
+  private Integer grade;
 
-    private Integer grade;
+  @Column(name = "uploaded_at")
+  private OffsetDateTime uploadedAt;
 
-    @Column(name = "uploaded_at")
-    private OffsetDateTime uploadedAt;
+  @Column(name = "updated_at")
+  private OffsetDateTime updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "uploaded_by")
-    private User uploadedBy;
+  @Column(name = "image")
+  private String image;
 
-    @Column(name = "updated_at")
-    private OffsetDateTime updatedAt;
+  @Column(nullable = false)
+  private UUID mbid;
 
-    @Column(name = "has_mxml")
-    private Boolean hasMxml;
+  @Column(name = "has_files", nullable = false)
+  private Boolean hasFiles = false;
 
-    @Column(name = "has_pdf")
-    private Boolean hasPdf;
+  @Column(name = "deleted", nullable = false)
+  private Boolean deleted = false;
 
-    private String image;
+  @Column(name = "duration")
+  private int duration;
+
+  @Column(name = "study_tracks")
+  private String studyTracks;
+
+  @Column(name = "publish")
+  private Boolean publish;
+
+  @Column(name = "etude")
+  private Boolean etude;
+
+  @Column(name = "immutable_slug")
+  private String immutableSlug;
+
+  @Column(name = "mutable_slug")
+  private String mutableSlug;
+
+  @Column(name = "tempo")
+  private Integer tempo;
+
 }

@@ -1,0 +1,25 @@
+meta {
+  name: score search
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8080/score/search
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~keyword: "redemption"
+  ~genreId: {{genreId}}
+  ~gradeStart: {{gradeStart}}
+  ~gradeEnd: {{gradeEnd}}
+  ~offset: {{offset}}
+  ~limit: {{limit}}
+}
+
+headers {
+  Accept: */*
+  Authorization: Bearer {{token}}
+}

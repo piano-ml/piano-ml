@@ -39,9 +39,9 @@ const exercice2: Exercise = {
         { note: [9], duration: 8, finger: [3] },
         { note: [8], duration: 8, finger: [1] },
         { note: [7], duration: 8, finger: [4] },
-        { note: [6], duration: 8, finger: [] },
+        { note: [6], duration: 8, finger: [3] },
         // ================= 2
-        { note: [5], duration: 8, finger: [] },
+        { note: [5], duration: 8, finger: [1] },
         { note: [4], duration: 8, finger: [1] },
         { note: [3], duration: 8, finger: [3] },
         { note: [2], duration: 8, finger: [2] },
@@ -151,7 +151,7 @@ const exercice1: Exercise = {
         { note: [0], duration: 8, },
         { note: [0], duration: 8, },
         { note: [0], duration: 8, },
-        // ================= 2
+        // ================= 3
         { note: [0], duration: 8, },
         { note: [0], duration: 8, },
         { note: [0], duration: 8, },
@@ -160,7 +160,7 @@ const exercice1: Exercise = {
         { note: [0], duration: 8, },
         { note: [0], duration: 8, },
         { note: [0], duration: 8, },
-        // // ================= 2
+        // // ================= 4
         { note: [8], duration: 8, finger: [1] },
         { note: [7], duration: 8, finger: [2] },
         { note: [6], duration: 8, finger: [3] },
@@ -172,8 +172,6 @@ const exercice1: Exercise = {
     ]
 
 }
-
-
 
 
 export const exercises = [exercice1, exercice2,];

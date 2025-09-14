@@ -1,0 +1,22 @@
+/* Styles pour le lien d'import */
+.import-link {
+  transition: all 0.2s ease-in-out;
+}
+
+.import-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.import-link:active {
+  transform: translateY(0);
+}
+
+/* Section de navigation */
+.navigation-section {
+  border-left: 4px solid #3b82f6;
+}
+
+.navigation-section:hover {
+  border-left-color: #2563eb;
+}

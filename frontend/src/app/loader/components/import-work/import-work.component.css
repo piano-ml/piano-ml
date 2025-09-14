@@ -1,0 +1,10 @@
+@import "tailwindcss";
+th {
+	@apply font-bold;
+}
+
+.svg-icon {
+	width: 72px!important;
+	height: 72px!important;
+	margin: 12px;
+}

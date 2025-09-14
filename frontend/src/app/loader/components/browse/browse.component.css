@@ -1,0 +1,9 @@
+/* Styles pour le composant browse */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Animation pour les lignes du tableau */
+tr:hover {
+  background-color: rgba(107, 114, 128, 0.3) !important;
+}

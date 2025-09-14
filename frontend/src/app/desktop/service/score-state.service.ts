@@ -139,7 +139,7 @@ export class ScoreStateService {
 
 
     const startOffset =this.calculateStartTime();
-    const msPerTick = 60000 / (this.playConfiguration.midi.header.tempos[0].bpm * this.playConfiguration.midi.header.ppq);
+    const msPerTick = 60000 / (this.playConfiguration.midi!.header.tempos[0].bpm * this.playConfiguration.midi!.header.ppq);
     this.currentTime = startOffset / msPerTick;
     const endCut = this.calculateEndTime();
     //this.scheduleDefaultAdvance();
@@ -158,19 +158,19 @@ export class ScoreStateService {
     for (let i = start; i < end; i++) {
       const elapsedTicks=0;
 
-      const timeSigEvent = this.playConfiguration.midi.header.timeSignatures.filter((t) => t.ticks <= elapsedTicks).at(-1)
+      const timeSigEvent = this.playConfiguration.midi!.header.timeSignatures.filter((t) => t.ticks <= elapsedTicks).at(-1)
       || { timeSignature: [4, 4], ticks: 0 } as TimeSignatureEvent;
       const staveDuration = getStaveDuration(
-        this.playConfiguration.midi.header.tempos[0].bpm, 
+        this.playConfiguration.midi!.header.tempos[0].bpm, 
         reducedFraction(timeSigEvent.timeSignature[0], timeSigEvent.timeSignature[1])
       );
-      const newXPositon = ((i+1) * this.playConfiguration.staveWidth) + 40;
+      //const newXPositon = ((i+1) * this.playConfiguration.staveWidth) + 40;
 
       Tone.getTransport().schedule((time: number) => {
         Tone.getDraw().schedule(() => {
-          if (this.xPosition.getValue() < newXPositon) {
-            this.xPosition.next(newXPositon );
-          }
+          //if (this.xPosition.getValue() < newXPositon) {
+          //  this.xPosition.next(newXPositon );
+         // }
         }, time);
       }, staveDuration * (i+1));
     }
@@ -190,7 +190,7 @@ export class ScoreStateService {
   private scheduleAccompanimentTrack(channel: number, track: Midi.Track) {
 
     const startOffset = this.calculateStartTime() 
-    const msPerTick = 60000 / (this.playConfiguration.midi.header.tempos[0].bpm * this.playConfiguration.midi.header.ppq);
+    const msPerTick = 60000 / (this.playConfiguration.midi!.header.tempos[0].bpm * this.playConfiguration.midi!.header.ppq);
     this.currentTime = startOffset / msPerTick;
 
     for (const note of track.notes) {
@@ -347,7 +347,7 @@ export class ScoreStateService {
   calculateStartTime() {
     return this.calculateStartTimeInMsForMeasure(
       this.playConfiguration.scoreRange[0], 
-      this.playConfiguration.midi.header
+      this.playConfiguration.midi!.header
     ) * this.playConfiguration.delayFactor;
   }
 
@@ -355,7 +355,7 @@ export class ScoreStateService {
   calculateEndTime() {
     return this.calculateStartTimeInMsForMeasure(
         this.playConfiguration.scoreRange[1],
-        this.playConfiguration.midi.header
+        this.playConfiguration.midi!.header
       )  * this.playConfiguration.delayFactor;
   }
 

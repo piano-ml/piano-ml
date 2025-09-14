@@ -1,0 +1,64 @@
+/* Styles pour le composant link */
+
+/* Animation de spin pour le loader */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Amélioration des hover states */
+.hover\:bg-gray-600:hover {
+  background-color: rgba(75, 85, 99, 1);
+}
+
+.hover\:bg-gray-400:hover {
+  background-color: rgba(156, 163, 175, 1);
+}
+
+/* Styles pour les badges */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Truncate long text */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Focus states améliorés */
+input:focus,
+button:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+/* Transition smooth pour tous les éléments interactifs */
+button,
+input,
+tr {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Styles responsifs pour le tableau */
+@media (max-width: 768px) {
+  .overflow-x-auto {
+    font-size: 0.875rem;
+  }
+  
+  .border.border-gray-300.px-4.py-2 {
+    padding: 0.5rem;
+  }
+}
+
+

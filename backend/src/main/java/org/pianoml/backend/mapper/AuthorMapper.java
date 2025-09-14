@@ -7,7 +7,7 @@ import org.pianoml.backend.model.AuthorApiInfo;
 @Mapper(componentModel = "spring", uses = UriMapper.class)
 public interface AuthorMapper {
 
-    AuthorApiInfo toAuthorApiInfo(Author author);
+  AuthorApiInfo toAuthorApiInfo(Author author);
 
-    Author toAuthor(AuthorApiInfo authorApiInfo);
+  Author toAuthor(AuthorApiInfo authorApiInfo);
 }

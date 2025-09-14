@@ -5,3 +5,7 @@ databaseChangeLog:
       global: true
   - include:
       file: db/changelog/changes/001-initial-schema.yaml
+  - include:
+      file: db/changelog/changes/002-create-workload-table.yaml
+  - include:
+      file: db/changelog/changes/003-add-tempo-column.yaml

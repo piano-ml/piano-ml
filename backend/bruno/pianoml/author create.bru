@@ -1,0 +1,24 @@
+meta {
+  name: author create
+  type: http
+  seq: 15
+}
+
+post {
+  url: http://localhost:8080/author
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "name": "string",
+    "mbid": "ed2ac1e9-d51d-4eff-a2c2-85e81abd6360"
+  }
+}

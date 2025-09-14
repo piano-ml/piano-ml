@@ -6,98 +6,97 @@ import org.pianoml.backend.model.AuthorApiInfo;
 import org.pianoml.backend.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 public class AuthorControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockBean
-    private AuthorService authorService;
+  @MockBean
+  private AuthorService authorService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @Test
-    public void testGetAuthorById() throws Exception {
-        UUID authorId = UUID.randomUUID();
-        AuthorApiInfo author = new AuthorApiInfo();
-        author.setId(authorId.toString());
-        author.setName("John Doe");
+  @Test
+  public void testGetAuthorById() throws Exception {
+    UUID authorId = UUID.randomUUID();
+    AuthorApiInfo author = new AuthorApiInfo();
+    author.setId(authorId.toString());
+    author.setName("John Doe");
 
-        given(authorService.getAuthor(authorId)).willReturn(Optional.of(author));
+    given(authorService.getAuthor(authorId)).willReturn(Optional.of(author));
 
-        mockMvc.perform(get("/author/{id}", authorId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(authorId.toString()))
-                .andExpect(jsonPath("$.name").value("John Doe"));
-    }
+    mockMvc.perform(get("/author/{id}", authorId))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.id").value(authorId.toString()))
+      .andExpect(jsonPath("$.name").value("John Doe"));
+  }
 
-    @Test
-    public void testGetAuthorByIdNotFound() throws Exception {
-        UUID authorId = UUID.randomUUID();
-        given(authorService.getAuthor(authorId)).willReturn(Optional.empty());
+  @Test
+  public void testGetAuthorByIdNotFound() throws Exception {
+    UUID authorId = UUID.randomUUID();
+    given(authorService.getAuthor(authorId)).willReturn(Optional.empty());
 
-        mockMvc.perform(get("/author/{id}", authorId))
-                .andExpect(status().isNotFound());
-    }
+    mockMvc.perform(get("/author/{id}", authorId))
+      .andExpect(status().isNotFound());
+  }
 
-    @Test
-    public void testCreateAuthor() throws Exception {
-        AuthorApiInfo authorToCreate = new AuthorApiInfo();
-        authorToCreate.setName("Jane Doe");
+  @Test
+  public void testCreateAuthor() throws Exception {
+    AuthorApiInfo authorToCreate = new AuthorApiInfo();
+    authorToCreate.setName("Jane Doe");
 
-        AuthorApiInfo createdAuthor = new AuthorApiInfo();
-        createdAuthor.setId(UUID.randomUUID().toString());
-        createdAuthor.setName("Jane Doe");
+    AuthorApiInfo createdAuthor = new AuthorApiInfo();
+    createdAuthor.setId(UUID.randomUUID().toString());
+    createdAuthor.setName("Jane Doe");
 
-        given(authorService.createAuthor(any(AuthorApiInfo.class))).willReturn(createdAuthor);
+    given(authorService.createAuthor(any(AuthorApiInfo.class))).willReturn(createdAuthor);
 
-        mockMvc.perform(post("/author")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(authorToCreate)))
-                .andExpect(status().isForbidden());
-                //.andExpect(jsonPath("$.id").exists())
-                //.andExpect(jsonPath("$.name").value("Jane Doe"));
-    }
+    mockMvc.perform(post("/author")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(authorToCreate)))
+      .andExpect(status().isForbidden());
+    //.andExpect(jsonPath("$.id").exists())
+    //.andExpect(jsonPath("$.name").value("Jane Doe"));
+  }
 
-    @Test
-    public void testUpdateAuthor() throws Exception {
-        UUID authorId = UUID.randomUUID();
-        AuthorApiInfo authorToUpdate = new AuthorApiInfo();
-        authorToUpdate.setName("John Smith");
+  @Test
+  public void testUpdateAuthor() throws Exception {
+    UUID authorId = UUID.randomUUID();
+    AuthorApiInfo authorToUpdate = new AuthorApiInfo();
+    authorToUpdate.setName("John Smith");
 
-        AuthorApiInfo updatedAuthor = new AuthorApiInfo();
-        updatedAuthor.setId(authorId.toString());
-        updatedAuthor.setName("John Smith");
+    AuthorApiInfo updatedAuthor = new AuthorApiInfo();
+    updatedAuthor.setId(authorId.toString());
+    updatedAuthor.setName("John Smith");
 
-        given(authorService.updateAuthor(any(UUID.class), any(AuthorApiInfo.class))).willReturn(Optional.of(updatedAuthor));
+    given(authorService.updateAuthor(any(UUID.class), any(AuthorApiInfo.class))).willReturn(Optional.of(updatedAuthor));
 
-        mockMvc.perform(put("/author/{id}", authorId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(authorToUpdate)))
-                .andExpect(status().isForbidden());
-                //.andExpect(jsonPath("$.id").value(authorId.toString()))
-                //.andExpect(jsonPath("$.name").value("John Smith"));
-    }
+    mockMvc.perform(put("/author/{id}", authorId)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(authorToUpdate)))
+      .andExpect(status().isForbidden());
+    //.andExpect(jsonPath("$.id").value(authorId.toString()))
+    //.andExpect(jsonPath("$.name").value("John Smith"));
+  }
 
 //    @Test
 //    public void testSearchAuthors() throws Exception {

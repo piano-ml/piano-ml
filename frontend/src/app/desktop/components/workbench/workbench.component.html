@@ -1,0 +1,148 @@
+<div class="flex flex-col h-dvh">
+
+    <div class="flex bg-black ">
+        <div class="flex-row flex-grow">
+            <div class="flex flex-col xl:flex-row mt-2 ">
+
+
+                <div class="flex xl:w-1/2 ">
+
+                    <div class="flex-none ">
+                        <button (click)="summary()" class="btn btn-desktop m-1" [disabled]="isPlaying" 
+                            [ngStyle]="{ 'opacity': isPlaying ? '0' : '1' }">
+                            <ng-icon name="bootstrapHouse" class="svg-button" />
+                        </button>
+                    </div>
+
+                    <div class="display flew-grow m-1 lcd-text ">
+                        <div class="flex flew-grow flex-row  m-1">
+                            <div class="flex-grow overflow-clip overflow-hidden mr-2">
+                                {{ scoreData?.title }}
+                            </div>
+                            <div class="flex-none">
+                                ♩{{ tempo }}
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="flex xl:w-1/2 items-end justify-end">
+
+
+                    <button (click)="showInfo()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
+                        <ng-icon name="bootstrapInfoCircle" class="svg-button" />
+                    </button>
+
+                    <button (click)="reset()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
+                        <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
+                    </button>
+
+                    <div class="radio-input m-1">
+                        <label class="label  p-1 pt-5">
+                            <input type="radio" id="50pct" value="50pct" name="value-radio" value="value-1"
+                                (click)="setSpeed(0.5)" />
+                            <span class="text">♩50%</span>
+                        </label>
+                        <label class="label p-2 pt-5">
+                            <input type="radio" id="75pct" value="75pct" name="value-radio" value="value-1"
+                                (click)="setSpeed(0.75)" />
+                            <span class="text">♩75%</span>
+                        </label>
+
+                        <label class="label  p-2 pt-5">
+                            <input type="radio" id="100pct" value="100pct" name="value-radio" value="value-1" checked
+                                (click)="setSpeed(1)" />
+                            <span class="text">♩100%</span>
+                        </label>
+
+                    </div>
+
+
+
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="loop" value="loop" name="loop-checkbox"
+                                [checked]="playConfiguration.isLoop"
+                                (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
+                                <ng-icon name="bootstrapRepeat" class="svg-button p-2" />
+
+                        </label>
+                    </div>
+
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label ">
+                            <input type="checkbox" id="hideKeyboard" value="hideKeyboard" name="hideKeyboard"
+                                [checked]="!hideKeyboard" (change)="hideKeyboard = !hideKeyboard" />
+                                <ng-icon name="keyboard" class="svg-button p-2" />
+                        </label>
+                    </div>
+
+
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="left-hand" value="left-hand" name="leftHand"
+                                [checked]="playConfiguration.waitForLeftHand"
+                                (change)="playConfiguration.waitForLeftHand = !playConfiguration.waitForLeftHand" />
+                                <ng-icon name="lefthand" class="svg-button" />
+                        </label>
+                    </div>
+
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="right-hand" value="right-hand" name="rightHand"
+                                [checked]="playConfiguration.waitForRightHand"
+                                (change)="playConfiguration.waitForRightHand = !playConfiguration.waitForRightHand" />
+                                <ng-icon name="righthand" class="svg-button" />
+                        </label>
+                    </div>
+
+
+                    <button (click)="start()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
+                        <ng-icon name="bootstrapPlayFill" class="svg-button" />
+                    </button>
+                    <button (click)="stop()" class="btn btn-desktop m-1" *ngIf="isPlaying">
+                        <ng-icon name="bootstrapPauseFill" class="svg-button" />
+                    </button>
+
+                </div>
+
+
+            </div>
+          
+
+        </div>
+
+    </div>
+
+            <div class="p-2 mr-4 ml-4">
+                  <div  #range></div>
+            </div>
+    <!-- score -->
+    <div class="flex-none" *ngIf="!loading">
+        <app-osmd [scoreData]="scoreData"></app-osmd>
+    </div>
+
+    <!-- middle bar empty for now -->
+    <div #arena class=" flex-grow {{arenaClass}} text-center text-neutral-400 text-2xl">
+
+{{ loading ? 'Loading score data...' : ''    }}
+    </div>
+
+    <!-- keyboard -->
+    <div class="flex-none">
+        <app-keyboard [ngClass]="{'hide': hideKeyboard}"></app-keyboard>
+    </div>
+
+</div>
+
+<!-- Modal placeholder -->
+<div *ngIf="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-bold mb-4">{{ modalTitle }}</h3>
+        <p class="mb-4">{{ modalContent }}</p>
+        <button (click)="isModalOpen = false" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Close
+        </button>
+    </div>
+</div>
