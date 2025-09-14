@@ -26,7 +26,7 @@ pwd
 XMLFILES=""
 for FILE in $FILES; do
   echo "starting homr $FILE"
-  cd homr && poetry run homr "$FILE" || exit 1
+  cd homr && poetry run homr "$FILE"
   XML_FILE="${FILE%.png}.musicxml"
   if [ -z "$XMLFILES" ]; then
     XMLFILES="$XML_FILE"

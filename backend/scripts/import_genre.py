@@ -2,7 +2,7 @@ import sys
 import requests
 import time
 
-API_URL = "http://localhost:8080/genre"
+API_URL = "https://api.pianoml.org/genre"
 FETCH_URL = "https://musicbrainz.org/ws/2/genre/all?fmt=json&offset={offset}&limit=100"
 
 
