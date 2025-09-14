@@ -23,10 +23,6 @@ public class WorkloadTransactionService {
 
     long startTime = System.currentTimeMillis();
 
-    // Update status to PROCESSING
-    //workload.setStatus(Workload.WorkloadStatus.PROCESSING);
-    workloadRepository.save(workload);
-
     try {
       // Execute the actual processing logic
       workloadLogic.run();
@@ -34,16 +30,12 @@ public class WorkloadTransactionService {
       // Mark as completed on success
       long duration = System.currentTimeMillis() - startTime;
       workload.setStatus(Workload.WorkloadStatus.COMPLETED);
-      //workload.setDuration((int) duration);
-      workload.setErrorMessage(null);
-      workloadRepository.save(workload);
-
       log.info("Successfully processed workload ID: {} in {}ms", workload.getId(), duration);
 
     } catch (Exception e) {
       // Mark as failed on error
       long duration = System.currentTimeMillis() - startTime;
-      //workload.setStatus(Workload.WorkloadStatus.FAILED);
+      workload.setStatus(Workload.WorkloadStatus.FAILED);
       workload.setDuration((int) duration);
       workload.setErrorMessage(e.getMessage());
       workloadRepository.save(workload);

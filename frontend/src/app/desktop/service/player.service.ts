@@ -155,8 +155,9 @@ export class PlayerService {
     this.lastMidiEventTime = 0;
     if (this.osmdCursor !== null) {
       this.osmdCursor.reset();
+
       if (this.playConfiguration.currentStave>0) {
-        this.osmdCursor.previous();
+    //    this.osmdCursor.previous();
       }
       for (let i = 0; i < this.playConfiguration.currentStave - 1; i++) {
         this.osmdCursor.nextMeasure();        
@@ -385,7 +386,7 @@ export class PlayerService {
 
   calculateEndTime() {
     return this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1],
+      this.playConfiguration.scoreRange[1] + 1,
       this.playConfiguration.midi!.header
     ) * this.playConfiguration.delayFactor;
   }
