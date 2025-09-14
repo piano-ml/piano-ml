@@ -50,6 +50,7 @@ export class EditScoreComponent implements OnInit {
       author_id: ['', []],
       genre_id: ['', []],
       grade: [null, []],
+      tempo: [null, [Validators.min(30), Validators.max(300)]],
       rightHandTrack: [null, []],
       leftHandTrack: [null, []]
     });
@@ -138,6 +139,7 @@ export class EditScoreComponent implements OnInit {
       author_id: score.author_id,  // Don't convert null to empty string
       genre_id: score.genre_id || '',
       grade: score.grade || null,
+      tempo: score.tempo || null,
       rightHandTrack: rightHandTrack,
       leftHandTrack: leftHandTrack
     });

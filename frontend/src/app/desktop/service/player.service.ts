@@ -65,7 +65,11 @@ export class PlayerService {
     } else if (midiAll.tracks.length == 2) {
       study_tracks = [0, 1];
     }
-
+    const midiAsDefaultTempo = midiAll.header.tempos.every((t) => { t.bpm === 120; return true });
+    if (midiAsDefaultTempo && scoreApiInfo?.tempo) {
+      playConfiguration.tempoFactor = (scoreApiInfo?.tempo || 120 )/ 120;
+    }
+    
     const midiSplit = this.splitMidi(midiAll.toJSON(), study_tracks);
     playConfiguration.accompaniment = midiSplit.other;
     playConfiguration.midi = midiSplit.study;
@@ -167,7 +171,7 @@ export class PlayerService {
   }
 
   async play(playConfigurations: PlayConfiguration) {
-    //this.osmdCursor.previous();
+    this.osmdCursor.previous();
     this.lastMidiEventTime = -1;
     this.resetLateNotes();
     const startOffset = this.calculateStartTime();
@@ -215,7 +219,7 @@ export class PlayerService {
   private scheduleAccompanimentTrackNotes(channel: number, note: Note, startOffset: number) {
     if (note.time < startOffset) return;
     if (note.midi === 0) return; // skip rest notes
-    const noteStart = (note.time * this.playConfiguration.delayFactor) - startOffset;
+    const noteStart = (note.time * this.getTimeFactor()) - startOffset;
     // note on
     Tone.getTransport().schedule(() => {
       this.spessasynth?.noteOn(channel, note.midi, Math.round(note.velocity * 127));
@@ -223,7 +227,7 @@ export class PlayerService {
     // note off
     Tone.getTransport().schedule(() => {
       this.spessasynth?.noteOff(channel, note.midi);
-    }, noteStart + (note.duration * this.playConfiguration.delayFactor));
+    }, noteStart + (note.duration * this.getTimeFactor()));
   }
 
   private scheduleStave(notesArray: Note[][], hand: string, startTime: number) {
@@ -236,16 +240,23 @@ export class PlayerService {
     }
   }
 
+  public advance() {
+    if (this.osmdCursor !== null) {
+      this.osmdCursor.next();
+    }
+  }
+
   private cursorMayBeAdvance(note: Note) {
     if (note.ticks > this.lastMidiEventTime) {
       this.osmdCursor.next();
     }
+    this.lastMidiEventTime = note.ticks;    
     let safety = 0;
     while (safety < 10 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
       this.osmdCursor.next();
       safety++;
     }
-    this.lastMidiEventTime = note.ticks;
+
   }
 
   isSkipable(n: OSMDNote): unknown {
@@ -261,8 +272,8 @@ export class PlayerService {
       return
     }
 //    console.log("scheduleNote", note.ticks, note.name, note.midi);
-    const noteTimeStart = (note.time * this.playConfiguration.delayFactor) - startTime;
-    const noteTimeEnd = ((note.time * this.playConfiguration.delayFactor) - startTime + (note.duration * this.playConfiguration.delayFactor));
+    const noteTimeStart = (note.time * this.getTimeFactor()) - startTime;
+    const noteTimeEnd = ((note.time * this.getTimeFactor()) - startTime + (note.duration * this.getTimeFactor()));
 
     // schedule watch, score advance and keyboard light on
     Tone.getTransport().schedule((time: number) => {
@@ -375,12 +386,15 @@ export class PlayerService {
     return !(this.playConfiguration.waitForRightHand || this.playConfiguration.waitForLeftHand);
   }
 
+  getTimeFactor() {
+    return 1/ (this.playConfiguration.tempoFactor * this.playConfiguration.delayFactor);
+  }
 
   calculateStartTime() {
     return this.calculateStartTimeInMsForMeasure(
       this.playConfiguration.scoreRange[0],
       this.playConfiguration.midi!.header
-    ) * this.playConfiguration.delayFactor;
+    ) * this.getTimeFactor();
   }
 
 
@@ -388,7 +402,7 @@ export class PlayerService {
     return this.calculateStartTimeInMsForMeasure(
       this.playConfiguration.scoreRange[1] + 1,
       this.playConfiguration.midi!.header
-    ) * this.playConfiguration.delayFactor;
+    ) * this.getTimeFactor();
   }
 
 

@@ -117,7 +117,7 @@ public class ScoreService {
 
   public Optional<ScoreApiInfo> updateScore(UUID id, ScoreApiInfo scoreApiInfo) {
     return scoreRepository.findById(id)
-      .map(score -> {
+      .map(score -> { // TODO rework to use mapper
         // Update score fields from scoreApiInfo
         score.setTitle(scoreApiInfo.getTitle());
         score.setVersion(scoreApiInfo.getVersion());
@@ -126,6 +126,7 @@ public class ScoreService {
         score.setHasLyrics(scoreApiInfo.getHasLyrics());
         score.setGrade(scoreApiInfo.getGrade());
         score.setHasFiles(scoreApiInfo.getHasFiles());
+        score.setTempo(scoreApiInfo.getTempo());
         score.setImage(scoreApiInfo.getImage() != null ? scoreApiInfo.getImage().toString() : null);
         // Handle studyTracks update (List<Integer> -> comma-separated String)
         score.setStudyTracks(ScoreMapper.integerListToString(scoreApiInfo.getStudyTracks()));

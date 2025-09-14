@@ -41,6 +41,7 @@ export interface PlayConfiguration {
   waitForLeftHand: boolean;
   waitForRightHand: boolean;
   delayFactor: number;
+  tempoFactor: number;  
   scoreRange: [number, number];
   isLoop: boolean;
   staveAndStaveNotesPair: StaveAndStaveNotesPair[];
