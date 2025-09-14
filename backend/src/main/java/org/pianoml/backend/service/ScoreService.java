@@ -187,15 +187,27 @@ public class ScoreService {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readTree(metadataStr);
 
-        int tracks = node.get("tracks_count").asInt();
-        double durationSeconds = node.get("duration_seconds").asInt();
-        int measureCount = node.get("measures_count").asInt();
-        boolean hasLyrics = node.get("has_lyrics").asBoolean();
+        Integer tracks = node.has("tracks_count") && !node.get("tracks_count").isNull()
+            ? node.get("tracks_count").asInt()
+            : null;
+        Integer durationSeconds = node.has("duration_seconds") && !node.get("duration_seconds").isNull()
+            ? node.get("duration_seconds").asInt()
+            : null;
+        Integer measureCount = node.has("measures_count") && !node.get("measures_count").isNull()
+            ? node.get("measures_count").asInt()
+            : null;
+        Integer tempo = node.has("tempo") && !node.get("tempo").isNull()
+            ? node.get("tempo").asInt()
+            : null;
+        Boolean hasLyrics = node.has("has_lyrics") && !node.get("has_lyrics").isNull()
+            ? node.get("has_lyrics").asBoolean()
+            : null;
 
         score.setTracksCount(tracks);
-        score.setDuration((int) durationSeconds);
+        score.setDuration(durationSeconds);
         score.setMeasuresCount(measureCount);
         score.setHasLyrics(hasLyrics);
+        score.setTempo(tempo);
         scoreRepository.save(score);
       } else {
         log.warn("No metadata found for score: " + score.getId());
