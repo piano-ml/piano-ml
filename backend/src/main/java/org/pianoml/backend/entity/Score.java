@@ -84,4 +84,7 @@ public class Score {
   @Column(name = "mutable_slug")
   private String mutableSlug;
 
+  @Column(name = "tempo")
+  private Integer tempo;
+
 }

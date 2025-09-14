@@ -808,6 +808,9 @@ components:
           type: string
         immutableSlug:
           type: string
+        tempo:
+          type: integer
+          format: int32
 
     WorkloadApiInfo:
       type: object

@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-add-tempo-column
+      author: system
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            columnExists:
+              schemaName: pianoml
+              tableName: score
+              columnName: tempo
+      changes:
+        - addColumn:
+            schemaName: pianoml
+            tableName: score
+            columns:
+              - column:
+                  name: tempo
+                  type: INTEGER
+                  constraints:
+                    nullable: true
+      rollback:
+        - dropColumn:
+            schemaName: pianoml
+            tableName: score
+            columnName: tempo
+

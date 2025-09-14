@@ -34,5 +34,6 @@ export interface ScoreApiInfo {
     study_tracks?: Array<number>;
     mutableSlug?: string;
     immutableSlug?: string;
+    tempo?: number;
 }
 
