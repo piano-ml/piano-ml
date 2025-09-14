@@ -36,15 +36,15 @@ export class SummaryComponent {
   ]
   constructor(private route: Router) {
  {
-      const currentScore = JSON.parse(localStorage.getItem("score") || "{}")
-      const currentScoreName = currentScore.header?.name
-      if (currentScoreName) {
-        this.summary.push({
-          url: "/desktop",
-          title: `Practice / ${currentScoreName}`,
-          description: ""
-        })
-      }
+//      const currentScore = JSON.parse(localStorage.getItem("score") || "{}")
+//      const currentScoreName = currentScore.header?.name
+//      if (currentScoreName) {
+//        this.summary.push({
+//          url: "/desktop",
+//          title: `Practice / ${currentScoreName}`,
+//          description: ""
+//        })
+//      }
     }
 
     
