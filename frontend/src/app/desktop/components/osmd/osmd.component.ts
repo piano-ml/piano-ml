@@ -71,7 +71,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                     follow: true,
                     color: "#fb2c36",
                     alpha: 0.63,
-                    type: 0,
+                    type: 4,
                 }] as CursorOptions[],
 
             drawTitle: false,

@@ -191,7 +191,7 @@ export class ImportWorkComponent implements OnInit {
                 this.loading = false;
                 this.changeDetector.detectChanges();
             }, next: (data) => {
-                    this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, type, 1, 0, blob).subscribe({
+                    this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, type, data.version!, 0, blob).subscribe({
                         next: (data) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();

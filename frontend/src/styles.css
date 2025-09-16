@@ -147,5 +147,5 @@ input, textarea  {
 #cursorImg-0 {
 	transform: translateY(-30px);
     height: 200px!important;
-	border: 16px solid #fb2c3666!important;
+	border: 1px solid #fb2c3666!important;
 }
