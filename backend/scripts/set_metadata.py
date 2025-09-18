@@ -15,20 +15,7 @@ score.metadata = metadata.Metadata()
 score.metadata.title = title
 score.metadata.composer = composer
 
-for part in score.parts:
-    for meas in part.getElementsByClass('Measure'):
-        notes_to_remove = []
-        for n in meas.notes:
-            d = n.duration
-            if True:
-              print(typeToMusicXMLType(d.type))
-              print(str(meas.number) + " " + str(d.quarterLength) + " sss " + str(d.type))
-              #notes_to_remove.append(n)
-        for n in notes_to_remove:
-            meas.remove(n)
-
-
-#score.write('musicxml', fp=musicxml)
+score.write('musicxml', fp=musicxml)
 
 duration_seconds = score.duration.quarterLength * score.metronomeMarkBoundaries()[0][2].secondsPerQuarter()
 mesure_count = len(list(score.parts[0].getElementsByClass('Measure')))
