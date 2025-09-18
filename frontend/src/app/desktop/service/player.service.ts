@@ -387,7 +387,7 @@ export class PlayerService {
   }
 
   getTimeFactor() {
-    return 1/ (this.playConfiguration.tempoFactor * this.playConfiguration.delayFactor);
+    return 1/ (this.playConfiguration.tempoFactor / this.playConfiguration.delayFactor);
   }
 
   calculateStartTime() {
