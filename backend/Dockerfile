@@ -51,7 +51,7 @@ RUN git config --global user.email "you@example.com" &&  \
     git clone https://github.com/piano-ml/homr.git &&  \
     cd homr && \
     git fetch --tags && \
-    git checkout v0.5.0 && \
+    git checkout 885073c && \
     git cherry-pick 2b274aa15dc08836d308ac9020f5d98a45cddf88 && \
     poetry install --without dev && \
     poetry run python -c "from homr.main import main; import sys; sys.argv = ['homr', '--init']; main()"
