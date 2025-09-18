@@ -10,8 +10,8 @@
       <ng-icon name="bootstrapClipboard" size="16"></ng-icon>
     </button>
 
-    <share-buttons [url]="getPublicUrl() || ''" [title]="score?.title || 'Piano Score'"
-      [description]="'Check out this piano score: ' + (score?.title || 'Untitled') + ' by ' + (score?.author || 'Unknown')"
+    <share-buttons [url]="getPublicUrl() || ''" [title]="score.title || 'Piano Score'"
+      [description]="'Check out this piano score: ' + (score.title || 'Untitled') + ' by ' + (score.author || 'Unknown')"
       [include]="shareLinks" [show]="4" size="25">
     </share-buttons>
   </div>

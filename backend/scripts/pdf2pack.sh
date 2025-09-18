@@ -40,7 +40,7 @@ cd ..
 pwd
 echo "Running relieur to merge musicxml files: $XMLFILES"
 
-/home/appuser/shared-venv/bin/python /home/appuser/relieur/relieur/relieur.py $XMLFILES -o "$FROOT".musicxml
+$HOME/shared-venv/bin/python ./relieur/relieur/relieur.py $XMLFILES -o "$FROOT".musicxml
 
 sleep 1
 
@@ -50,16 +50,16 @@ pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z
 echo "TITLE: $TITLE"
 echo "COMPOSER: $COMPOSER"
 
-$HOME/shared-venv/bin/python /home/appuser/scripts/extract_fingering.py "$FROOT.musicxml"
-$HOME/shared-venv/bin/python /home/appuser/scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
+$HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
+$HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
 sleep 1
 
-$HOME/shared-venv/bin/python /home/appuser/scripts/convert.py --verbose "$FROOT".musicxml "$FROOT".midi
+$HOME/shared-venv/bin/python ./scripts/convert.py --verbose "$FROOT".musicxml "$FROOT".midi
 
 musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
 
-$HOME/shared-venv/bin/python /home/appuser/scripts/get_metadata.py "$FROOT.musicxml"
+$HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml"
 
 zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json" "metadata.json"
 
