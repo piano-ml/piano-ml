@@ -76,7 +76,9 @@ public class ScoreService {
   @Transactional
   public ScoreApiInfo createScore(ScoreApiInfo scoreApiInfo, User userId) {
     if (scoreApiInfo.getVersion() == null) {
-      scoreApiInfo.setVersion(1);
+      // check if score exists
+      int candidateCount = scoreRepository.countScoreByMbidAndOwner(UUID.fromString(scoreApiInfo.getMbid()),userId);
+      scoreApiInfo.setVersion(candidateCount + 1);
     }
     Score score = scoreMapper.toScore(scoreApiInfo);
     score.setOwner(userId);
@@ -90,12 +92,7 @@ public class ScoreService {
         .orElseThrow(() -> new RuntimeException("Genre not found"));
       score.setGenre(genre);
     }
-    // check if score exists
-    Score candidate = scoreRepository.findScoreByMbidAndOwnerAndVersion(score.getMbid(), score.getOwner(), score.getVersion())
-      .orElse(null);
-    if (candidate != null) {
-      score.setId(candidate.getId());
-    }
+
     // Generate unique immutable slug
     String uniqueSlug = SlugUtils.createUniqueSlug(score, scoreRepository);
     score.setImmutableSlug(uniqueSlug);
@@ -117,20 +114,21 @@ public class ScoreService {
 
   public Optional<ScoreApiInfo> updateScore(UUID id, ScoreApiInfo scoreApiInfo) {
     return scoreRepository.findById(id)
-      .map(score -> { // TODO rework to use mapper
+      .map(score -> {
         // Update score fields from scoreApiInfo
         score.setTitle(scoreApiInfo.getTitle());
-        score.setVersion(scoreApiInfo.getVersion());
-        score.setTracksCount(scoreApiInfo.getTracksCount());
-        score.setHandSeparated(scoreApiInfo.getHandSeparated());
-        score.setHasLyrics(scoreApiInfo.getHasLyrics());
+        if (scoreApiInfo.getGenreId() != null) {
+          try {
+            UUID.fromString(scoreApiInfo.getGenreId());
+            Genre genre = genreRepository.findById(UUID.fromString(scoreApiInfo.getGenreId())).orElse(null);
+            score.setGenre(genre);
+          } catch (IllegalArgumentException e) {
+            score.setGenre(null);
+          }
+        }
         score.setGrade(scoreApiInfo.getGrade());
-        score.setHasFiles(scoreApiInfo.getHasFiles());
-        score.setTempo(scoreApiInfo.getTempo());
-        score.setImage(scoreApiInfo.getImage() != null ? scoreApiInfo.getImage().toString() : null);
-        // Handle studyTracks update (List<Integer> -> comma-separated String)
         score.setStudyTracks(ScoreMapper.integerListToString(scoreApiInfo.getStudyTracks()));
-
+        score.setTempo(scoreApiInfo.getTempo());
         Score updatedScore = scoreRepository.save(score);
         return scoreMapper.toScoreApiInfo(updatedScore);
       });

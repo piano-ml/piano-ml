@@ -2,7 +2,7 @@
   <div class="page-title">Score Details</div>
 
   
-  <div class="flex items-center">
+  <div class="flex items-center"  *ngIf="!loading && score" >
   <a [href]="getPublicUrl()" target="_blank" class="underline">
     {{ getPublicUrl() }}
   </a>

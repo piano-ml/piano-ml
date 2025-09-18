@@ -17,7 +17,7 @@ COMPOSER="$3"
 FROOT="${PDF%.*}"
 FROOT="${FROOT/upload_/}"
 
-pdftoppm -rx 75 -ry 75 -gray -png "$PDF" "$FROOT"
+pdftoppm -rx 300 -ry 300 -gray -png "$PDF" "$FROOT"
 
 sleep 1
 
