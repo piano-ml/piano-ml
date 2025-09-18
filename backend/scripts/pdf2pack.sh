@@ -59,6 +59,7 @@ sleep 1
 
 musescore3 -f -o "$FROOT".mid "$FROOT".musicxml
 mv "$FROOT".mid "$FROOT".midi
+musescore3 -f -o "$FROOT".musicxml "$FROOT".midi
 musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
 
 $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml"
