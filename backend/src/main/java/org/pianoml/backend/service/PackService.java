@@ -94,7 +94,6 @@ public class PackService {
             log.info("Cloud Run job execution started successfully for scoreId: {}, execution: {}",
               packScriptDto.getId(), executionName);
             // Optionally update workload with execution reference
-            workload.setStatus(Workload.WorkloadStatus.RUNNING);
             workloadRepository.save(workload);
           }
         });
