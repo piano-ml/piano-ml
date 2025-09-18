@@ -50,6 +50,7 @@ RUN git config --global user.email "you@example.com" &&  \
     git config --global user.name "Your Name" && \
     git clone https://github.com/piano-ml/homr.git &&  \
     cd homr && \
+    git fetch --tags && \
     git checkout v0.5.0 && \
     git cherry-pick 2b274aa15dc08836d308ac9020f5d98a45cddf88 && \
     poetry install --without dev && \
