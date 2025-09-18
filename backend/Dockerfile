@@ -49,6 +49,7 @@ ENV PATH="/home/appuser/.local/bin:$PATH"
 RUN git clone https://github.com/piano-ml/homr.git &&  \
     cd homr && \
     git checkout 922dcc29d37ae098d746f89953a4b7199f5155d0 && \
+    git cherry-pick 2b274aa15dc08836d308ac9020f5d98a45cddf88 && \
     poetry install --without dev && \
     poetry run python -c "from homr.main import main; import sys; sys.argv = ['homr', '--init']; main()"
 
