@@ -1,5 +1,6 @@
 package org.pianoml.backend.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.api.WorkApi;
 import org.pianoml.backend.model.AllWorksApiInfo;
 import org.pianoml.backend.service.MusicBrainzService;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @RestController
+@Slf4j
 public class WorkController implements WorkApi {
 
   @Autowired
@@ -34,4 +36,5 @@ public class WorkController implements WorkApi {
     );
     return ResponseEntity.ok(works);
   }
+
 }

@@ -17,18 +17,3 @@ score.metadata.composer = composer
 
 score.write('musicxml', fp=musicxml)
 
-duration_seconds = score.duration.quarterLength * score.metronomeMarkBoundaries()[0][2].secondsPerQuarter()
-mesure_count = len(list(score.parts[0].getElementsByClass('Measure')))
-has_lyrics = any(n.lyric is not None for n in score.parts[0].recurse().notes)
-
-metadata_dict = {
-    "duration_seconds": duration_seconds,
-    "mesure_count": mesure_count,
-    "has_lyrics": has_lyrics
-}
-
-
-
-
-with open("metadata.json", "w") as f:
-    json.dump(metadata_dict, f, indent=2)
