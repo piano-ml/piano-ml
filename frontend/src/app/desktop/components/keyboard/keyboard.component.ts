@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, type ElementRef, ViewChild } from "@angular/core";
 // biome-ignore lint/style/useImportType: <explanation>
-import { ScoreStateService } from "../../service/score-state.service";
 import { PlayerService } from "../../service/player.service";
 
 

@@ -40,7 +40,7 @@ export class PlayerService {
   currentTime = 0;
   playConfiguration!: PlayConfiguration;
   midiFnHandle?: (e: MidiStateEvent) => void;
-  synth: Tone.Synth<Tone.SynthOptions>;
+  synth: Tone.Synth<Tone.SynthOptions> | undefined;
   soundFontArrayBuffer!: ArrayBuffer;
   spessasynth?: Synthetizer;
 
@@ -50,9 +50,9 @@ export class PlayerService {
   lastMidiEventTime = 0;
 
   constructor(private midiService: MidiServiceService) {
-    this.initPiano();
     this.initSoundFont();
     this.synth = new Tone.Synth().toDestination();
+    this.initPiano();
     this.reset = this.reset.bind(this);
   }
 
@@ -67,9 +67,9 @@ export class PlayerService {
     }
     const midiAsDefaultTempo = midiAll.header.tempos.every((t) => { t.bpm === 120; return true });
     if (midiAsDefaultTempo && scoreApiInfo?.tempo) {
-      playConfiguration.tempoFactor = (scoreApiInfo?.tempo || 120 )/ 120;
+      playConfiguration.tempoFactor = (scoreApiInfo?.tempo || 120) / 120;
     }
-    
+
     const midiSplit = this.splitMidi(midiAll.toJSON(), study_tracks);
     playConfiguration.accompaniment = midiSplit.other;
     playConfiguration.midi = midiSplit.study;
@@ -120,17 +120,17 @@ export class PlayerService {
     }
     setTimeout(() => {
       this.midiFnHandle = this.midiService.subscribe((midiEvent) => this.processMidiEvent(midiEvent))
-    }, 0)
+    }, 2000)
   }
 
-  initSoundFont() {
+  async initSoundFont() {
     if (this.spessasynth != null) {
       return; // already initialized
     }
+    const ctx = new AudioContext();
+    await ctx.audioWorklet.addModule("/assets/soundfonts/worklet_processor.min.js")
     fetch("assets/soundfonts/GeneralUserGS.sf3").then(async response => {
       const sfont = await response.arrayBuffer();
-      const ctx = new AudioContext();
-      await ctx.audioWorklet.addModule("/assets/soundfonts/worklet_processor.min.js")
       this.spessasynth = new Synthetizer(ctx.destination, sfont, false);
       this.spessasynth.resetControllers();
     });
@@ -160,17 +160,18 @@ export class PlayerService {
     if (this.osmdCursor !== null) {
       this.osmdCursor.reset();
 
-      if (this.playConfiguration.currentStave>0) {
-    //    this.osmdCursor.previous();
+      if (this.playConfiguration.currentStave > 0) {
+        //    this.osmdCursor.previous();
       }
       for (let i = 0; i < this.playConfiguration.currentStave - 1; i++) {
-        this.osmdCursor.nextMeasure();        
+        this.osmdCursor.nextMeasure();
       }
       //this.osmdCursor.previous();
     }
   }
 
   async play(playConfigurations: PlayConfiguration) {
+
     this.osmdCursor.previous();
     this.lastMidiEventTime = -1;
     this.resetLateNotes();
@@ -184,7 +185,7 @@ export class PlayerService {
     }
     this.scheduleAccompanimentTracks(this.playConfiguration.accompaniment!, startOffset);
     this.scheduleEnd(endCut - startOffset);
-    Tone.getContext().lookAhead = 0
+    //Tone.getContext().lookAhead = 0
     Tone.getTransport().start();
   }
 
@@ -250,7 +251,7 @@ export class PlayerService {
     if (note.ticks > this.lastMidiEventTime) {
       this.osmdCursor.next();
     }
-    this.lastMidiEventTime = note.ticks;    
+    this.lastMidiEventTime = note.ticks;
     let safety = 0;
     while (safety < 10 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
       this.osmdCursor.next();
@@ -271,7 +272,6 @@ export class PlayerService {
     if (note.time < startTime) {
       return
     }
-//    console.log("scheduleNote", note.ticks, note.name, note.midi);
     const noteTimeStart = (note.time * this.getTimeFactor()) - startTime;
     const noteTimeEnd = ((note.time * this.getTimeFactor()) - startTime + (note.duration * this.getTimeFactor()));
 
@@ -292,7 +292,7 @@ export class PlayerService {
           Tone.getTransport().pause();
         }
         if (this.isHandOk(hand)) {
-          this.pushLateNote(note, Tone.now() + GOOD_RANGE);
+          this.pushLateNote(note);
         }
         this.cursorMayBeAdvance(note);
         this.setCurrentTick(note.bars);
@@ -313,17 +313,20 @@ export class PlayerService {
       });
 
       Tone.getDraw().schedule(() => {
-        if (this.midiPressedNotes.has(note.midi) || !this.isHandOk(hand)) {
-          const key = Array.from(this.keyboardElement.nativeElement
-            .getElementsByClassName(`key${note.name}`)) as HTMLElement[];
-          Array.from(this.lateNotes.values()).forEach((ln) => {
-            ln.forEach((lateNote) => {
-              if (lateNote.note.midi === note.midi) {
-                return; // if note is awaited we do not remove it
-              }
-            });
-          });
-          removeNoteFromKeyboard(key, hand);
+        if (!this.isHandOk(hand)) {
+          // Vérifier d'abord si la note est en attente avant la recherche DOM
+          const isNoteAwaited = Array.from(this.lateNotes.values())
+            .some(lateNotesList =>
+              lateNotesList.some(lateNote => lateNote.note.midi === note.midi)
+            );
+
+          if (!isNoteAwaited) {
+            const key = Array.from(this.keyboardElement.nativeElement
+              .getElementsByClassName(`key${note.midi}`)) as HTMLElement[];
+            removeNoteFromKeyboard(key);
+          } else {
+            this.noteOn('late', note);
+          }
         }
       }, time);
     }, noteTimeEnd);
@@ -345,14 +348,13 @@ export class PlayerService {
       Math.max(Math.round(note.velocity * 10), 1),
       10
     );
-    const key = Array.from(this.keyboardElement.nativeElement
-      .getElementsByClassName(`key${note.name}`)) as HTMLElement[];
 
-    [].forEach.call(key, (el: HTMLElement) => {
-      el.classList.add(
-        `note-on-${hand}`,
-        `note-on-${hand}-velocity-${velocityUI}`
-      );
+    const keys = this.keyboardElement.nativeElement
+      .querySelectorAll(`.key${note.midi}`) as NodeListOf<HTMLElement>;
+
+    const classesToAdd = [`note-on-${hand}`, `note-on-${hand}-velocity-${velocityUI}`];
+    keys.forEach((el: HTMLElement) => {
+      el.classList.add(...classesToAdd);
     });
   }
 
@@ -387,7 +389,7 @@ export class PlayerService {
   }
 
   getTimeFactor() {
-    return 1/ (this.playConfiguration.tempoFactor / this.playConfiguration.delayFactor);
+    return 1 / (this.playConfiguration.tempoFactor / this.playConfiguration.delayFactor);
   }
 
   calculateStartTime() {
@@ -409,7 +411,7 @@ export class PlayerService {
   calculateStartTimeInMsForMeasure(start: number, midiHeader: Midi.Header): number {
     let timeSig: TimeSignatureEvent | undefined = midiHeader.timeSignatures[0];
     let elapsedTicks = 0;
-    for (let i = 0; i < start-1; i++) {
+    for (let i = 0; i < start - 1; i++) {
       timeSig = midiHeader.timeSignatures.filter((t) => t.ticks <= elapsedTicks).at(-1);
       elapsedTicks += getStaveDurationTick(reducedFraction(timeSig?.timeSignature[0] || 4, timeSig?.timeSignature[1] || 4), midiHeader.ppq);
     }
@@ -424,37 +426,33 @@ export class PlayerService {
   }
 
 
-  pushLateNote(note: Note, p0: number) {
+  pushLateNote(note: Note) {
     if (!this.lateNotes.has(note.ticks)) {
       this.lateNotes.set(note.ticks, []);
     }
-    this.lateNotes.get(note.ticks)?.push({ note: note, pressed: false });
+    this.lateNotes.get(note.ticks)!.push({ note: note, pressed: false });
   }
 
-
-  // is the midi event expected
-  private lateNotesContainsMidiEventInFirstPosition(midiEvent: MidiStateEvent): boolean {
-    const lowestKey = Math.min(...this.lateNotes.keys());
-    const notes = this.lateNotes.get(lowestKey);
-    return notes ? notes.map(ln => ln.note.midi).indexOf(midiEvent.note) >= 0 : false;
-  }
-
-
-  private integrateMidiEventInLastNote(midiEvent: MidiStateEvent) {
-    const lowestKey = Math.min(...this.lateNotes.keys());
-    const firstLastNotes = this.lateNotes.get(lowestKey);
-    if (firstLastNotes) {
-      const idx = firstLastNotes.map(ln => ln.note.midi).indexOf(midiEvent.note)
-      firstLastNotes[idx].pressed = true;
-      if (firstLastNotes.filter(ln => ln.pressed === false).length === 0) {
-        // biome-ignore lint/complexity/noForEach: <explanation>
-        firstLastNotes.forEach((ln) => {
+  private integrateMidiEventInLastNote(midiEvent: MidiStateEvent): number {
+    let success = -1;
+    this.lateNotes.forEach((notes, key) => {
+      notes.forEach((ln, idx) => {
+        if (midiEvent.note === ln.note.midi) {
+          notes.splice(idx, 1);
           this.removeMidiNoteFromKeyboard(ln.note.midi);
-        });
-        this.lateNotes.delete(lowestKey);
-        this.tellIfInTime(lowestKey)
+          if (idx === 0) {
+            success = 1;
+          } else {
+            success = 0;
+          }
+        }
+      });
+      if (notes.length === 0) {
+        this.lateNotes.delete(key);
+        success = 1;
       }
-    }
+    });
+    return success;
   }
 
   tellIfInTime(lowestKey: number) {
@@ -469,54 +467,33 @@ export class PlayerService {
       return
     }
     if (midiEvent.type === 'down' as MidiStateEvent['type']) {
-      this.midiPressedNotes.add(midiEvent.note);
-    } else {
-      this.midiPressedNotes.delete(midiEvent.note);
-    }
-
-    if (this.lateNotesContainsMidiEventInFirstPosition(midiEvent)) {
-      this.integrateMidiEventInLastNote(midiEvent);
-    } else {
-      if (midiEvent.type === 'down') {
-        // todo make a function
-        this.spessasynth?.noteOn(1, 1, 127);
-        setTimeout(() => {
-          this.spessasynth?.noteOff(1, 1);
-        }, 500);
-        console.log("BAD", midiEvent.note);
-        this.lateNotes.forEach((notes, key) => {
-          console.log("late notes", notes.map(ln => ln.note.midi));
-        });
-
-        this.message.next("BAD")
-
+     
+      const hit = this.integrateMidiEventInLastNote(midiEvent);
+      if (this.lateNotes.size === 0 && this.isWaiting) {
+        await Tone.start();
+        Tone.getTransport().start();
+        this.isWaiting = false;
       }
-    }
-    if (this.lateNotes.size === 0 && this.isWaiting) {
-      await Tone.start();
-      Tone.getTransport().start();
-      this.isWaiting = false;
+      // else {
+      // console.log("pressed", midiEvent.note);
+      // this.lateNotes.forEach((notes, key) => {
+      //   console.log("late notes", notes.map(ln => ln.note.midi));
+      // });
+      // }
     }
   }
-
 
   private removeMidiNoteFromKeyboard(midiNote: number) {
-    const name = midiToPitch(midiNote);
-    const key = Array.from(this.keyboardElement.nativeElement
-      .getElementsByClassName(`key${name}`)) as HTMLElement[];
-    removeNoteFromKeyboard(key, 'lh');
-    removeNoteFromKeyboard(key, 'rh');
+    const keys = this.keyboardElement.nativeElement.getElementsByClassName(`key${midiNote}`);
+    for (let i = 0; i < keys.length; i++) {
+      clearClassesFromSVG(keys[i] as HTMLElement, "note-on");
+    }
   }
 
-
   private removeAllNotesFromKeyboard() {
-    const keys = (Array.from(this.keyboardElement.nativeElement
-      .getElementsByClassName("note-on-lh")) as HTMLElement[])
-      .concat(
-        Array.from(this.keyboardElement.nativeElement
-          .getElementsByClassName("note-on-rh")) as HTMLElement[]
-      );
-    [].forEach.call(keys, (el: HTMLElement) => {
+    const selector = ".note-on-lh, .note-on-rh, .note-on-late";
+    const keys = Array.from(this.keyboardElement.nativeElement.querySelectorAll(selector)) as HTMLElement[];
+    keys.forEach((el: HTMLElement) => {
       clearClassesFromSVG(el, "note-on");
     });
   }
@@ -524,20 +501,20 @@ export class PlayerService {
 
 
 function clearClassesFromSVG(el: HTMLElement, str: string) {
-  const a = el.className as unknown as SVGAnimatedString
-  const classes = a.baseVal
-    .split(' ')
-    .filter((c) => c.startsWith(str));
-  [].forEach.call(classes, (c: string) => {
-    el.classList.remove(c);
-  });
+  const classList = el.classList;
+  const classesToRemove: string[] = [];
+  for (let i = 0; i < classList.length; i++) {
+    if (classList[i].startsWith(str)) {
+      classesToRemove.push(classList[i]);
+    }
+  }
+  classesToRemove.forEach(className => classList.remove(className));
 }
 
 
-function removeNoteFromKeyboard(key: HTMLElement[], hand: string) {
-  // Remove note-on class name
-  [].forEach.call(key, (el: HTMLElement) => {
-    clearClassesFromSVG(el, `note-on-${hand}`);
+function removeNoteFromKeyboard(keys: HTMLElement[]) {
+  keys.forEach((el: HTMLElement) => {
+    clearClassesFromSVG(el, "note-on");
   });
 }
 

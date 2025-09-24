@@ -1,5 +1,7 @@
 {
-  "duration_seconds": 50.666666666666664,
-  "mesure_count": 23,
-  "has_lyrics": false
+  "tracks_count": 2,
+  "duration_seconds": 75.0,
+  "measures_count": 33,
+  "has_lyrics": false,
+  "tempo": 80
 }

@@ -138,7 +138,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
     // starting from here we always have score data in local storage and the view is loaded
     const midi = this.getCachedMidi();
-    this.tempo = this.scoreData?.tempo || midi.header.tempos[0]?.bpm || 120;
+    this.tempo = Math.round(this.scoreData?.tempo || midi.header.tempos[0]?.bpm || 120);
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, midi);
     this.setupSlider();
     this.setupSubscription();

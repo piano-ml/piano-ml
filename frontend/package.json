@@ -3,8 +3,8 @@
   "version": "2.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "BASE_PATH='http://localhost:8080' ng serve",
-    "start-remote": "BASE_PATH='https://api.pianoml.org' ng serve",    
+    "start": "BASE_PATH='http://localhost:8080' ng serve --host 0.0.0.0",
+    "start-remote": "BASE_PATH='https://api.pianoml.org' ng serve --host 0.0.0.0",    
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

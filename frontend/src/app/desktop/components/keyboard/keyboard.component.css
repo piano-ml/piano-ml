@@ -61,6 +61,38 @@
   .note-on-lh-velocity-10:not(.indicator) {
     fill: #0080ff !important;
   }
+
+  .note-on-late-velocity-1:not(.indicator) {
+    fill: #fffacd !important;
+  }
+  .note-on-late-velocity-2:not(.indicator) {
+    fill: #fff8b8 !important;
+  }
+  .note-on-late-velocity-3:not(.indicator) {
+    fill: #fff59e !important;
+  }
+  .note-on-late-velocity-4:not(.indicator) {
+    fill: #fff280 !important;
+  }
+  .note-on-late-velocity-5:not(.indicator) {
+    fill: #ffee5c !important;
+  }
+  .note-on-late-velocity-6:not(.indicator) {
+    fill: #ffe838 !important;
+  }
+  .note-on-late-velocity-7:not(.indicator) {
+    fill: #ffe214 !important;
+  }
+  .note-on-late-velocity-8:not(.indicator) {
+    fill: #ffdd00 !important;
+  }
+  .note-on-late-velocity-9:not(.indicator) {
+    fill: #f5d000 !important;
+  }
+  .note-on-late-velocity-10:not(.indicator) {
+    fill: #e6c200 !important;
+  }
+
   .note-black,
   .note-white {
     stroke: #0a0a0a;

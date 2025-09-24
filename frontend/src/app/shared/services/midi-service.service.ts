@@ -14,7 +14,8 @@ export class MidiServiceService {
   listeners: Array<Function> = []
 
   constructor() {
-    this.onMidiMessage = this.onMidiMessage.bind(this); 
+
+    this.onMidiMessage = this.onMidiMessage.bind(this);
     this.setupMidiDeviceListeners()
   }
 
@@ -63,7 +64,6 @@ export class MidiServiceService {
   }
 
   onMidiMessage(e: MIDIMessageEvent) {
-
     const msg: MidiEvent | null = parseMidiMessage(e)
     if (!msg) {
       return
@@ -71,6 +71,7 @@ export class MidiServiceService {
 
     const { note, velocity } = msg
     if (msg.type === 'on' && msg.velocity > 0) {
+
       this.press(note, velocity)
     } else {
       this.release(note)
@@ -81,7 +82,8 @@ export class MidiServiceService {
   setupMidiDeviceListeners() {
     const inputs = getMidiInputs().then((inputs) => {
       for (const device of inputs.values()) {
-        this.enableInputMidiDevice( device)
+        console.log(`${device.manufacturer} ${device.name}`);
+        this.enableInputMidiDevice(device)
       }
     })
   }
@@ -90,23 +92,15 @@ export class MidiServiceService {
     device.open()
     device.addEventListener('midimessage', this.onMidiMessage)
     this.enabledInputDevices.set(device.id, device)
+    console.log(`Enabled MIDI input device: ${device.manufacturer} ${device.name}`)
+
   }
 
   isInputMidiDeviceEnabled(device: MIDIInput) {
     return this.enabledInputDevices.has(device.id)
   }
-  
-  isOutputMidiDeviceEnabled(device: MIDIOutput) {
-    return this.enabledOutputDevices.has(device.id)
-  }
-  
 
-  
-  enableOutputMidiDevice(device: MIDIOutput) {
-    device.open()
-    this.enabledOutputDevices.set(device.id, device)
-  }
-  
+
   disableInputMidiDevice(deviceParam: MIDIInput) {
     const device = this.enabledInputDevices.get(deviceParam.id)
     if (!device) {
@@ -116,22 +110,8 @@ export class MidiServiceService {
     device.close()
     this.enabledInputDevices.delete(device.id)
   }
-  
-  disableOutputMidiDevice(deviceParam: MIDIOutput) {
-    const device = this.enabledOutputDevices.get(deviceParam.id)
-    if (!device) {
-      return
-    }
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    device.removeEventListener('midimessage', this.onMidiMessage as any)
-    device.close()
-    this.enabledOutputDevices.delete(device.id)
-  }
-
-
 
 }
-
 
 
 function parseMidiMessage(event: MIDIMessageEvent): MidiEvent | null {
@@ -152,49 +132,17 @@ function parseMidiMessage(event: MIDIMessageEvent): MidiEvent | null {
 
 
 export async function getMidiInputs(): Promise<MIDIInputMap> {
-  if (!window.navigator.requestMIDIAccess) {
+
+  const result = await navigator.permissions.query({ name: "midi" })
+  if (result.state === "denied") {
+    alert(`Your browser is not allowing MIDI. Please check your browser settings.`);
     return new Map()
   }
-
   try {
-    const midiAccess = await window.navigator.requestMIDIAccess()
+    const midiAccess = await navigator.requestMIDIAccess()
     return midiAccess.inputs as unknown as MIDIInputMap
   } catch (error) {
-    console.error(`Error accessing MIDI devices: ${error}`)
+    alert(`Error accessing MIDI devices: ${error}`)
     return new Map()
   }
-}
-
-export async function getMidiOutputs(): Promise<MIDIOutputMap> {
-  if (!window.navigator.requestMIDIAccess) {
-    return new Map()
-  }
-
-  try {
-    const midiAccess = await window.navigator.requestMIDIAccess()
-    return midiAccess.outputs as MIDIOutputMap
-  } catch (error) {
-    console.error(`Error accessing MIDI devices: ${error}`)
-    return new Map()
-  }
-}
-
-
-
-
-
-const keyToNote: { [key: string]: number } = {}
-
-export function getNote(key: string): number {
-  if (Object.keys(keyToNote).length === 0) {
-      const A0 = 21 // first note
-      const C8 = 108 // last note
-      const number2Key = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-      for (let n = A0; n <= C8; n++) {
-        const octave = ((n - 12) / 12) >> 0
-        const name = number2Key[n % 12] + octave
-        keyToNote[name] = n
-      }
-  }
-  return keyToNote[key]
 }
