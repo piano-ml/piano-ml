@@ -60,6 +60,7 @@ public class ScoreController implements ScoreApi {
   @Override
   public ResponseEntity<ScoreApiInfo> scoreIdPut(String id, ScoreApiInfo scoreApiInfo) {
 
+
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String userid = authentication.getName();
     User user = userRepository.findById(UUID.fromString(userid)).orElseThrow(EntityNotFoundException::new);
@@ -68,6 +69,8 @@ public class ScoreController implements ScoreApi {
     if (!score.getOwnerId().equals(user.getId().toString())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
+
+
 
     return scoreService.updateScore(UUID.fromString(id), scoreApiInfo)
       .map(ResponseEntity::ok)

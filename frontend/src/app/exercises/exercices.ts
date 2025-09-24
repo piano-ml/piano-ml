@@ -3,11 +3,12 @@ import { Chord, getChordNote, Scale } from "../desktop/service/music-theory";
 import type { Exercise } from "./model";
 import * as Midi from '@tonejs/midi';
 import { Header } from '@tonejs/midi';
-import { getNote } from "../shared/services/midi-service.service";
+//import { getNote } from "../shared/services/midi-service.service";
 import { getNoteDuration, getNoteDurationTicks } from "../desktop/service/midi-maths";
 import { MusicXML, elements } from '@stringsync/musicxml';
 import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from "../desktop/model/model";
 
+const keyToNote: { [key: string]: number } = {}
 
 export function getWeekOfYear(): number {
   const date = new Date();
@@ -100,7 +101,6 @@ function generateExerciceAsMidi(exercice: Exercise, scaleOrChord: Scale | Chord,
   const tracks = generateMidiTracks(exercice, key, header, scaleOrChord)
   const midi = new Midi.Midi();
   midi.fromJSON({ header: header, tracks: tracks })
-  console.log(midi);
   return midi.toJSON();
 }
 
@@ -432,4 +432,21 @@ function getScaleNotes(scale: Scale, octave: number, key: string, numberInPatter
   const midiStart = getNote(key + octaveWithShift)
   const result = getScale(midiStart, scale.pattern)[index]
   return result
+}
+
+
+
+
+function getNote(key: string): number {
+  if (Object.keys(keyToNote).length === 0) {
+      const A0 = 21 // first note
+      const C8 = 108 // last note
+      const number2Key = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+      for (let n = A0; n <= C8; n++) {
+        const octave = ((n - 12) / 12) >> 0
+        const name = number2Key[n % 12] + octave
+        keyToNote[name] = n
+      }
+  }
+  return keyToNote[key]
 }

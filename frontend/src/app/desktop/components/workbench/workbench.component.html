@@ -1,6 +1,6 @@
-<div class="flex flex-col h-dvh">
+<div class="flex flex-col flex-grow h-dvh">
 
-        <div class="flex-row flex-grow">
+        <div class="flex-row  bg-black">
             <div class="flex flex-col xl:flex-row mt-2 ">
 
 
@@ -116,7 +116,7 @@
 
 
     <!-- score -->
-    <div class="flex-none" *ngIf="!loading">
+    <div class="flex-none bg-black" *ngIf="!loading">
         <app-osmd [scoreData]="scoreData"></app-osmd>
     </div>
 

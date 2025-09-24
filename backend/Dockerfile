@@ -46,8 +46,13 @@ RUN pipx install poetry && \
 ENV PATH="/home/appuser/.local/bin:$PATH"
 
 # Clone and install HOMR (Optical Music Recognition)
-RUN git clone https://github.com/liebharc/homr.git && \
+RUN git config --global user.email "you@example.com" &&  \
+    git config --global user.name "Your Name" && \
+    git clone https://github.com/piano-ml/homr.git &&  \
     cd homr && \
+    git fetch --tags && \
+    git checkout 885073c && \
+    git cherry-pick 2b274aa15dc08836d308ac9020f5d98a45cddf88 && \
     poetry install --without dev && \
     poetry run python -c "from homr.main import main; import sys; sys.argv = ['homr', '--init']; main()"
 

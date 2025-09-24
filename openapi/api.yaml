@@ -689,13 +689,15 @@ paths:
             type: string
       responses:
         '200':
-          description: AuthorApiInfo retrieved successfully
+          description: List of artists retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MbAuthorApiInfo'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MbAuthorApiInfo'
         '404':
-          description: GenreApiInfo not found
+          description: Artists not found
 
   /work/search/{query}:
     get:
