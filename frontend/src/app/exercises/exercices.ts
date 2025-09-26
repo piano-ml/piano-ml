@@ -52,31 +52,35 @@ function generateMidiTrack(hand: string, exercice: Exercise, scaleOrChord: Scale
   const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift || 0);
   let time = 0;
   let ticks = 0;
-  for (let i = 0; i < notesInPattern.length; i++) {
-    const noteInPattern = notesInPattern[i];
-    const duractionTicks = getNoteDurationTicks(noteInPattern.duration, beat, header.ppq)
-    const duractionMs = getNoteDuration(noteInPattern.duration, beat, tempo)
-    if (noteInPattern.note[0] !== 0) {
-      for (let i = 0; i < noteInPattern.note.length; i++) {
-        let midiNoteNum: number;
-        if (scaleOrChord.kind === "Scale") {
+  
+  // Répéter le pattern selon exercice.repeat
+  for (let repeat = 0; repeat < exercice.repeat; repeat++) {
+    for (let i = 0; i < notesInPattern.length; i++) {
+      const noteInPattern = notesInPattern[i];
+      const duractionTicks = getNoteDurationTicks(noteInPattern.duration, beat, header.ppq)
+      const duractionMs = getNoteDuration(noteInPattern.duration, beat, tempo)
+      if (noteInPattern.note[0] !== 0) {
+        for (let i = 0; i < noteInPattern.note.length; i++) {
+          let midiNoteNum: number;
+          if (scaleOrChord.kind === "Scale") {
 
-          midiNoteNum = getScaleNotes(scaleOrChord, octave, key, noteInPattern.note[i]);
-        } else {
-          midiNoteNum = getChordNote(getNote(`${key}${octave}`), noteInPattern.note[i], scaleOrChord.pattern)
+            midiNoteNum = getScaleNotes(scaleOrChord, octave, key, noteInPattern.note[i]);
+          } else {
+            midiNoteNum = getChordNote(getNote(`${key}${octave}`), noteInPattern.note[i], scaleOrChord.pattern)
+          }
+          const note = {
+            time: time,
+            ticks: ticks,
+            duration: duractionMs * 0.94,
+            durationTicks: duractionTicks * 0.94,
+            midi: midiNoteNum,
+          }
+          track.addNote(note);
         }
-        const note = {
-          time: time,
-          ticks: ticks,
-          duration: duractionMs * 0.94,
-          durationTicks: duractionTicks * 0.94,
-          midi: midiNoteNum,
-        }
-        track.addNote(note);
       }
+      time = time + duractionMs;
+      ticks = ticks + duractionTicks;
     }
-    time = time + duractionMs;
-    ticks = ticks + duractionTicks;
   }
   return track;
 }
@@ -272,7 +276,10 @@ function createPartWithAPI(
   const measures = [];
   let noteElements: elements.Note[] = [];
   let measureCounter = 0;
-  for (let i = 0; i < notesInPattern.length; i++) {
+  
+  // Répéter le pattern selon exercice.repeat
+  for (let repeat = 0; repeat < exercice.repeat; repeat++) {
+    for (let i = 0; i < notesInPattern.length; i++) {
     const noteInPattern = notesInPattern[i];
 
 
@@ -377,6 +384,7 @@ function createPartWithAPI(
     }
 
 //    counter = counter + 1 / noteInPattern.duration;
+    }
   }
   return new elements.PartPartwise({
     attributes: { id: partId },

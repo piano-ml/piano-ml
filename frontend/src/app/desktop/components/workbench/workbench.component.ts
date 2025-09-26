@@ -179,7 +179,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   async loadMidi(scoreData: ScoreApiInfo): Promise<void> {
-    console.log("in loadMidi");
     return this.loadScoreData(scoreData, 'midi', async (data) => {
       const arrayBuffer = await data.arrayBuffer();
       const midi = new Midi.Midi(arrayBuffer);

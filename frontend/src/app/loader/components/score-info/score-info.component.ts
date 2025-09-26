@@ -43,12 +43,10 @@ export class ScoreInfoComponent implements OnInit {
   ngOnInit() {
     this.scoreId = this.route.snapshot.paramMap.get('id');
     this.slug = this.route.snapshot.paramMap.get('slug');
-    console.log(this.route.snapshot.paramMap)
     this.loadGenres();
     if (this.scoreId) {
       this.loadScore();
     } else if (this.slug) {
-      console.log("got sluf!!!!", this.slug);
       this.loadScoreBySlug(this.slug);
     } else {
       this.error = 'No score ID provided';

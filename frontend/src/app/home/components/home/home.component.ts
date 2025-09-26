@@ -60,18 +60,14 @@ export class HomeComponent implements AfterViewInit {
    * 2. Sinon, fait une recherche automatique
    */
   async loadAvailableShaders(): Promise<void> {
-    console.log('🔍 Chargement dynamique des shaders...');
     
     // Méthode 1: Essayer de charger depuis le manifeste
     const manifestShaders = await this.loadFromManifest();
     
     if (manifestShaders.length > 0) {
       this.availableShaders = manifestShaders;
-      console.log(`🎨 ${this.availableShaders.length} shaders chargés depuis le manifeste:`, 
-        this.availableShaders.map(s => `${s.name || 'Shader'} ${s.index}`));
     } else {
       // Méthode 2: Recherche automatique
-      console.log('📁 Manifeste introuvable, recherche automatique...');
       await this.autoDiscoverShaders();
     }
 
@@ -125,8 +121,6 @@ export class HomeComponent implements AfterViewInit {
         result.status === 'fulfilled' && result.value !== null)
       .map(result => result.value);
 
-    console.log(`🎨 ${this.availableShaders.length} sets de shaders découverts automatiquement:`, 
-      this.availableShaders.map(s => `Shader ${s.index}`));
   }
 
   /**
@@ -163,7 +157,7 @@ export class HomeComponent implements AfterViewInit {
       const randomIndex = Math.floor(Math.random() * this.availableShaders.length);
       this.selectedShader = this.availableShaders[randomIndex];
       
-      console.log('🎨 Shader sélectionné aléatoirement:', {
+      console.log('🎨 Random shader :', {
         index: this.selectedShader.index,
         name: this.selectedShader.name || 'Sans nom',
         description: this.selectedShader.description || 'Pas de description'
@@ -178,7 +172,6 @@ export class HomeComponent implements AfterViewInit {
     const shader = this.availableShaders.find(s => s.index === index);
     if (shader) {
       this.selectedShader = shader;
-      console.log('🎨 Shader changé pour:', index);
       // Redémarrer l'initialisation WebGL si nécessaire
       if (this.gl && this.isInitialized) {
         this.tearDownGL();
@@ -226,7 +219,6 @@ export class HomeComponent implements AfterViewInit {
    * Force le rechargement des shaders
    */
   async reloadShaders(): Promise<void> {
-    console.log('🔄 Rechargement des shaders...');
     this.availableShaders = [];
     this.selectedShader = null;
     await this.loadAvailableShaders();

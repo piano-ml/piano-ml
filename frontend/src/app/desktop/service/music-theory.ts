@@ -130,8 +130,8 @@ const dorianScalePattern = [2, 1, 2, 2, 2, 1, 2] //  Dorian
 const phrygianScalePattern = [1, 2, 2, 2, 1, 2, 2] //  Phrygian
 const lydianScalePattern = [2, 2, 2, 1, 2, 2, 1] //  Lydian
 const mixolydianScalePattern = [2, 2, 1, 2, 2, 1, 2] //  Mixolydian
-const locrianScalePattern = [1, 2, 2, 1, 2, 2, 2] //  Locrian
-const bluesScalePattern = [3, 2, 1, 1, 3, 2] // Hexatonique (6 notes)
+const locrianScalePattern =    [1, 2, 2, 1, 2, 2, 2] //  Locrian
+const bluesScalePattern =      [3, 2, 1, 1, 3, 2] // Hexatonique (6 notes)
 const bluesHeptatonicPattern = [2, 1, 2, 1, 1, 2, 3] // Heptatonique (7 notes)
 
 
