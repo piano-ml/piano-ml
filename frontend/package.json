@@ -4,12 +4,16 @@
   "scripts": {
     "ng": "ng",
     "start": "BASE_PATH='http://localhost:8080' ng serve --host 0.0.0.0",
-    "start-remote": "BASE_PATH='https://api.pianoml.org' ng serve --host 0.0.0.0",    
-    "build": "ng build",
+    "start-remote": "BASE_PATH='https://api.pianoml.org' ng serve --host 0.0.0.0",
+    "build": "npm run shaders:manifest && ng build",
+    "build:prod": "npm run shaders:manifest && ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "generate:api": "openapi-generator-cli generate -i ../openapi/api.yaml -g typescript-angular -o src/app/core/api --additional-properties=ngVersion=17.0.0",
-    "prestart": "npm run generate:api"
+    "prestart": "npm run generate:api && npm run shaders:manifest",
+    "shaders:manifest": "node scripts/generate-shader-manifest.js",
+    "shaders:watch": "nodemon --watch src/assets/shader --ext glsl --exec \"npm run shaders:manifest\"",
+    "dev": "concurrently \"npm run shaders:watch\" \"npm start\""
   },
   "private": true,
   "dependencies": {
@@ -63,12 +67,14 @@
     "@openapitools/openapi-generator-cli": "^2.21.4",
     "@types/jasmine": "~5.1.0",
     "@types/lodash": "^4.17.16",
+    "concurrently": "^9.2.1",
     "jasmine-core": "~5.5.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "nodemon": "^3.1.10",
     "typescript": "~5.7.2"
   }
 }

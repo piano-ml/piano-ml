@@ -1,8 +1,16 @@
-// Interstellar
-// Hazel Quantock
-// This code is licensed under the CC0 license http://creativecommons.org/publicdomain/zero/1.0/
+// Interstellar (WebGL Compatible)
+// Based on Hazel Quantock's work
+// Adapted for WebGL without external textures
+
+precision mediump float;
+
+uniform vec2 iResolution;
+uniform float iTime;
 
 const float tau = 6.28318530717958647692;
+
+// Contrôle de la vitesse d'animation (plus petit = plus lent)
+const float ANIMATION_SPEED = 0.2;
 
 // Gamma correction
 #define GAMMA (2.2)
@@ -19,17 +27,23 @@ vec3 ToGamma( in vec3 col )
 	return pow( col, vec3(1.0/GAMMA) );
 }
 
+// Replace texture-based noise with procedural noise
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
 vec4 Noise( in ivec2 x )
 {
-	return texture( iChannel0, (vec2(x)+0.5)/256.0, -100.0 );
+    vec2 p = vec2(x);
+    float n = hash(p);
+    return vec4(n, n, n, 1.0);
 }
 
 vec4 Rand( in int x )
 {
-	vec2 uv;
-	uv.x = (float(x)+0.5)/256.0;
-	uv.y = (floor(uv.x)+0.5)/256.0;
-	return texture( iChannel0, uv, -100.0 );
+    float f = float(x);
+    float n = hash(vec2(f, f + 1.0));
+    return vec4(n, n, n, 1.0);
 }
 
 
@@ -39,11 +53,12 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 	ray.xy = 2.0*(fragCoord.xy-iResolution.xy*.5)/iResolution.x;
 	ray.z = 1.0;
 
-	float offset = iTime*.5;	
+	// Ralentir l'animation en utilisant la constante de vitesse
+	float offset = iTime * ANIMATION_SPEED;
 	float speed2 = (cos(offset)+1.0)*2.0;
 	float speed = speed2+.1;
 	offset += sin(offset)*.96;
-	offset *= 2.0;
+	offset *= 1.0;  // Réduit de 2.0 à 1.0 (2x plus lent)
 	
 	
 	vec3 col = vec3(0);
@@ -63,4 +78,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 	}
 	
 	fragColor = vec4(ToGamma(col),1.0);
+}
+
+void main() {
+    mainImage(gl_FragColor, gl_FragCoord.xy);
 }
