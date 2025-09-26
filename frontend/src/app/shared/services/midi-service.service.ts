@@ -12,9 +12,10 @@ export class MidiServiceService {
   pressedNotes = new Map<number, { time: number; vel: number }>()
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   listeners: Array<Function> = []
+  private midiSetupRetries = 0
+  private readonly maxRetries = 3
 
   constructor() {
-
     this.onMidiMessage = this.onMidiMessage.bind(this);
     this.setupMidiDeviceListeners()
   }
@@ -80,19 +81,44 @@ export class MidiServiceService {
 
 
   setupMidiDeviceListeners() {
-    const inputs = getMidiInputs().then((inputs) => {
-      for (const device of inputs.values()) {
-        console.log(`${device.manufacturer} ${device.name}`);
-        this.enableInputMidiDevice(device)
+    getMidiInputs().then((inputs) => {
+      if (inputs.size === 0) {
+        if (this.midiSetupRetries < this.maxRetries) {
+          this.midiSetupRetries++;
+          console.log(`No MIDI devices found. Retry attempt ${this.midiSetupRetries}/${this.maxRetries}`);
+          setTimeout(() => {
+            this.setupMidiDeviceListeners();
+          }, 100);
+        } else {
+          console.warn(`No MIDI devices found after ${this.maxRetries} attempts. Stopping retry loop.`);
+        }
+        return;
       }
-    })
+      
+      // Reset retry counter on success
+      this.midiSetupRetries = 0;
+      for (const device of inputs.values()) {
+        this.enableInputMidiDevice(device);
+      }
+    }).catch((error) => {
+      console.error('Erreur lors de la configuration des appareils MIDI:', error);
+      if (this.midiSetupRetries < this.maxRetries) {
+        this.midiSetupRetries++;
+        console.log(`MIDI setup error. Retry attempt ${this.midiSetupRetries}/${this.maxRetries}`);
+        setTimeout(() => {
+          this.setupMidiDeviceListeners();
+        }, 500);
+      } else {
+        console.error(`MIDI setup failed after ${this.maxRetries} attempts. Stopping retry loop.`);
+      }
+    });
   }
 
   enableInputMidiDevice(device: MIDIInput) {
     device.open()
     device.addEventListener('midimessage', this.onMidiMessage)
     this.enabledInputDevices.set(device.id, device)
-    console.log(`Enabled MIDI input device: ${device.manufacturer} ${device.name}`)
+    console.log(`Enabled MIDI input device: ${device.manufacturer} ${device.name} ${device.version} `)
 
   }
 
@@ -132,7 +158,6 @@ function parseMidiMessage(event: MIDIMessageEvent): MidiEvent | null {
 
 
 export async function getMidiInputs(): Promise<MIDIInputMap> {
-
   const result = await navigator.permissions.query({ name: "midi" })
   if (result.state === "denied") {
     alert(`Your browser is not allowing MIDI. Please check your browser settings.`);
@@ -140,7 +165,28 @@ export async function getMidiInputs(): Promise<MIDIInputMap> {
   }
   try {
     const midiAccess = await navigator.requestMIDIAccess()
-    return midiAccess.inputs as unknown as MIDIInputMap
+    return new Promise((resolve) => {
+      const checkDevices = () => {
+        const inputs = midiAccess.inputs as unknown as MIDIInputMap;
+        if (inputs.size > 0 ) {
+          resolve(inputs);
+        } else {
+          // Réessayer après un court délai
+          setTimeout(checkDevices, 1000);
+        }
+      };
+      midiAccess.addEventListener('statechange', checkDevices);
+
+      // Vérifier immédiatement
+      checkDevices();
+
+      setTimeout(() => {
+        midiAccess.removeEventListener('statechange', checkDevices);
+        resolve(midiAccess.inputs as unknown as MIDIInputMap);
+      }, 2000);
+    });
+
+
   } catch (error) {
     alert(`Error accessing MIDI devices: ${error}`)
     return new Map()
