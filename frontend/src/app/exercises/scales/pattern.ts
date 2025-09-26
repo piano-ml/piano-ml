@@ -130,9 +130,10 @@ const exercice1: Exercise = {
         { note: [0], duration: 8, },
         { note: [0], duration: 8, },
         { note: [0], duration: 8, },
-        { note: [0], duration: 2, },
         { note: [0], duration: 8, },
-        { note: [0], duration: 2, },   
+        { note: [0], duration: 8, },
+        { note: [0], duration: 8, },   
+         { note: [0], duration: 8, },   
     ],
     patternLeftHand: [
         // // ================= 1

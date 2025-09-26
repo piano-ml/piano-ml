@@ -52,7 +52,7 @@ function generateMidiTrack(hand: string, exercice: Exercise, scaleOrChord: Scale
   const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift || 0);
   let time = 0;
   let ticks = 0;
-  
+
   // Répéter le pattern selon exercice.repeat
   for (let repeat = 0; repeat < exercice.repeat; repeat++) {
     for (let i = 0; i < notesInPattern.length; i++) {
@@ -60,13 +60,13 @@ function generateMidiTrack(hand: string, exercice: Exercise, scaleOrChord: Scale
       const duractionTicks = getNoteDurationTicks(noteInPattern.duration, beat, header.ppq)
       const duractionMs = getNoteDuration(noteInPattern.duration, beat, tempo)
       if (noteInPattern.note[0] !== 0) {
-        for (let i = 0; i < noteInPattern.note.length; i++) {
+        for (let j = 0; j < noteInPattern.note.length; j++) {
           let midiNoteNum: number;
           if (scaleOrChord.kind === "Scale") {
 
-            midiNoteNum = getScaleNotes(scaleOrChord, octave, key, noteInPattern.note[i]);
+            midiNoteNum = getScaleNotes(scaleOrChord, octave, key, noteInPattern.note[j]);
           } else {
-            midiNoteNum = getChordNote(getNote(`${key}${octave}`), noteInPattern.note[i], scaleOrChord.pattern)
+            midiNoteNum = getChordNote(getNote(`${key}${octave}`), noteInPattern.note[j], scaleOrChord.pattern)
           }
           const note = {
             time: time,
@@ -76,11 +76,15 @@ function generateMidiTrack(hand: string, exercice: Exercise, scaleOrChord: Scale
             midi: midiNoteNum,
           }
           track.addNote(note);
+
         }
+
       }
+
       time = time + duractionMs;
       ticks = ticks + duractionTicks;
     }
+
   }
   return track;
 }
@@ -264,7 +268,7 @@ function createPartWithAPI(
       new Array<elements.MeasureStyle>(),
     ],
   });
-  
+
 
 
   // Generate notes for the pattern
@@ -276,37 +280,93 @@ function createPartWithAPI(
   const measures = [];
   let noteElements: elements.Note[] = [];
   let measureCounter = 0;
-  
+
   // Répéter le pattern selon exercice.repeat
   for (let repeat = 0; repeat < exercice.repeat; repeat++) {
     for (let i = 0; i < notesInPattern.length; i++) {
-    const noteInPattern = notesInPattern[i];
+      const noteInPattern = notesInPattern[i];
 
 
-    if (noteInPattern.note[0] !== 0) {
-      // Generate notes
-      for (let j = 0; j < noteInPattern.note.length; j++) {
-        let midiNoteNum: number;
-        if (scaleOrChord.kind === "Scale") {
-          midiNoteNum = getScaleNotes(scaleOrChord, octave, key, noteInPattern.note[j]);
-        } else {
-          midiNoteNum = getChordNote(getNote(`${key}${octave}`), noteInPattern.note[j], scaleOrChord.pattern);
+      if (noteInPattern.note[0] !== 0) {
+        // Generate notes
+        for (let j = 0; j < noteInPattern.note.length; j++) {
+          let midiNoteNum: number;
+          if (scaleOrChord.kind === "Scale") {
+            midiNoteNum = getScaleNotes(scaleOrChord, octave, key, noteInPattern.note[j]);
+          } else {
+            midiNoteNum = getChordNote(getNote(`${key}${octave}`), noteInPattern.note[j], scaleOrChord.pattern);
+          }
+
+          const pitchInfo = midiNoteToPitch(midiNoteNum);
+          const duration = convertDurationToMusicXML(noteInPattern.duration, divisions);
+
+          // Create notations with fingering if available
+          const notations: elements.Notations[] = [];
+          if (noteInPattern.finger && noteInPattern.finger.length > j && noteInPattern.finger[j]) {
+            const fingering = new elements.Fingering({
+              attributes: { alternate: 'no', substitution: 'no' },
+              contents: [noteInPattern.finger[j].toString()],
+            });
+
+            const technical = new elements.Technical({
+              contents: [[fingering]],
+            });
+
+            notations.push(
+              new elements.Notations({
+                contents: [
+                  null, // elements.Footnote
+                  null, // elements.Level
+                  [technical] // Array of notation elements
+                ],
+              })
+            );
+          }
+
+          const note = new elements.Note({
+            contents: [
+              [
+                null, // elements.TiedNote
+                new elements.Pitch({
+                  contents: [
+                    new elements.Step({ contents: [pitchInfo.step as any] }),
+                    pitchInfo.alter !== 0 ? new elements.Alter({ contents: [pitchInfo.alter] }) : null,
+                    new elements.Octave({ contents: [pitchInfo.octave] }),
+                  ],
+                }),
+                new elements.Duration({ contents: [duration] }),
+                [], // elements.Tie
+              ],
+              new Array<elements.Instrument>(),
+              null, // elements.Footnote
+              null, // elements.Level
+              null, // elements.Voice
+              null, // elements.Type
+              new Array<elements.Dot>(),
+              null, // elements.Accidental
+              null, // elements.TimeModification
+              null, // elements.Stem
+              null, // elements.Notehead
+              null, // elements.NoteheadText
+              null, // elements.Staff
+              [], // elements.Beam
+              notations,
+              new Array<elements.Lyric>(),
+              null, // elements.Play
+              null, // elements.Listen
+            ],
+          });
+          noteElements.push(note);
         }
-
-        const pitchInfo = midiNoteToPitch(midiNoteNum);
+      } else {
+        // Generate rest
         const duration = convertDurationToMusicXML(noteInPattern.duration, divisions);
 
-        const note = new elements.Note({
+        const rest = new elements.Note({
           contents: [
             [
               null, // elements.TiedNote
-              new elements.Pitch({
-                contents: [
-                  new elements.Step({ contents: [pitchInfo.step as any] }),
-                  pitchInfo.alter !== 0 ? new elements.Alter({ contents: [pitchInfo.alter] }) : null,
-                  new elements.Octave({ contents: [pitchInfo.octave] }),
-                ],
-              }),
+              new elements.Rest({}),
               new elements.Duration({ contents: [duration] }),
               [], // elements.Tie
             ],
@@ -329,61 +389,28 @@ function createPartWithAPI(
             null, // elements.Listen
           ],
         });
-        noteElements.push(note);
+        noteElements.push(rest);
       }
-    } else {
-      // Generate rest
-      const duration = convertDurationToMusicXML(noteInPattern.duration, divisions);
 
-      const rest = new elements.Note({
-        contents: [
-          [
-            null, // elements.TiedNote
-            new elements.Rest({}),
-            new elements.Duration({ contents: [duration] }),
-            [], // elements.Tie
+      if (i > 0 && ((((i + 1) / noteInPattern.duration) % 1 === 0) || (i == notesInPattern.length - 1))) {
+        let attributes;
+        if (measureCounter == 0) {
+          attributes = attributesFirstMeasure
+        } else {
+          attributes = attributesNextMeasure
+        }
+        const newMeasure: elements.MeasurePartwise = new elements.MeasurePartwise({
+          attributes: { number: '' + (measures.length + 1) },
+          contents: [
+            [attributes, ...noteElements],
           ],
-          new Array<elements.Instrument>(),
-          null, // elements.Footnote
-          null, // elements.Level
-          null, // elements.Voice
-          null, // elements.Type
-          new Array<elements.Dot>(),
-          null, // elements.Accidental
-          null, // elements.TimeModification
-          null, // elements.Stem
-          null, // elements.Notehead
-          null, // elements.NoteheadText
-          null, // elements.Staff
-          [], // elements.Beam
-          new Array<elements.Notations>(),
-          new Array<elements.Lyric>(),
-          null, // elements.Play
-          null, // elements.Listen
-        ],
-      });
-      noteElements.push(rest);
-    }
-
-    if (i>0 && ((( (i+1) / noteInPattern.duration) % 1 === 0) || (i == notesInPattern.length -1))) {
-      let attributes;
-      if (measureCounter == 0) {
-        attributes = attributesFirstMeasure
-      } else {
-        attributes = attributesNextMeasure
+        })
+        measures.push(newMeasure);
+        noteElements = [];
+        measureCounter = measureCounter + 1;
       }
-      const newMeasure: elements.MeasurePartwise = new elements.MeasurePartwise({
-        attributes: { number: '' + (measures.length + 1) },
-        contents: [
-          [attributes, ...noteElements],
-        ],
-      })
-      measures.push(newMeasure);
-      noteElements = [];
-      measureCounter = measureCounter + 1;
-    }
 
-//    counter = counter + 1 / noteInPattern.duration;
+      //    counter = counter + 1 / noteInPattern.duration;
     }
   }
   return new elements.PartPartwise({
@@ -447,14 +474,14 @@ function getScaleNotes(scale: Scale, octave: number, key: string, numberInPatter
 
 function getNote(key: string): number {
   if (Object.keys(keyToNote).length === 0) {
-      const A0 = 21 // first note
-      const C8 = 108 // last note
-      const number2Key = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-      for (let n = A0; n <= C8; n++) {
-        const octave = ((n - 12) / 12) >> 0
-        const name = number2Key[n % 12] + octave
-        keyToNote[name] = n
-      }
+    const A0 = 21 // first note
+    const C8 = 108 // last note
+    const number2Key = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+    for (let n = A0; n <= C8; n++) {
+      const octave = ((n - 12) / 12) >> 0
+      const name = number2Key[n % 12] + octave
+      keyToNote[name] = n
+    }
   }
   return keyToNote[key]
 }
