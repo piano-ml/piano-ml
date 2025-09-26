@@ -27,7 +27,6 @@ import { shareIcons } from 'ngx-sharebuttons/icons';
 import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
 
-
 export const appConfig: ApplicationConfig = {
   providers: [
     {
