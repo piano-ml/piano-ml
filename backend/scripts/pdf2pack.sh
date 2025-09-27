@@ -42,23 +42,15 @@ echo "Running relieur to merge musicxml files: $XMLFILES"
 
 $HOME/shared-venv/bin/python ./relieur/relieur/relieur.py $XMLFILES -o "$FROOT".musicxml
 
-sleep 1
+musescore3 -f -o "$FROOT".mid "$FROOT".musicxml
+mv "$FROOT".mid "$FROOT".midi
+musescore3 -f -o "$FROOT".musicxml "$FROOT".midi
 
 echo "Running pianoplayer for fingering detection"
 pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z
 
 echo "TITLE: $TITLE"
 echo "COMPOSER: $COMPOSER"
-
-
-
-sleep 1
-
-## $HOME/shared-venv/bin/python ./scripts/convert.py --verbose "$FROOT".musicxml "$FROOT".midi
-
-musescore3 -f -o "$FROOT".mid "$FROOT".musicxml
-mv "$FROOT".mid "$FROOT".midi
-musescore3 -f -o "$FROOT".musicxml "$FROOT".midi
 
 $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
