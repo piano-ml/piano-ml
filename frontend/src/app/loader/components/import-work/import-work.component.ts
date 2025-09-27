@@ -62,7 +62,6 @@ export class ImportWorkComponent implements OnInit {
             // Récupérer l'objet work depuis l'état de navigation
             if (state['work']) {
                 this.work = state['work'];
-                console.log('Work object received:', this.work);
             }
 
             // Gestion des erreurs existante
@@ -154,7 +153,6 @@ export class ImportWorkComponent implements OnInit {
 
     onFileChange(input: HTMLInputElement) {
         if (!input?.files?.length) return;
-        console.log("on file change")
         const file = input.files[0];
         this.fileName = file.name;
 
@@ -166,7 +164,6 @@ export class ImportWorkComponent implements OnInit {
     }
     onFileSent(input: HTMLInputElement) {
         if (!input?.files?.length) return;
-        console.log("on file sent")
         this.loading = true;
         const file = input.files[0];
         const blob = new Blob([file], { type: file.type });
@@ -270,7 +267,6 @@ export class ImportWorkComponent implements OnInit {
                 next: (data) => {
                     this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, "midi", 1, 0, blob).subscribe({
                         next: (data) => {
-                            console.log("MIDI file uploaded successfully:", data);
                             this.loading = false;
                             this.changeDetector.detectChanges();
                             this.route.navigate([`/account/scores`]);

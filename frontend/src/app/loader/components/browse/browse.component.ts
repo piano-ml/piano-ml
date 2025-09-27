@@ -71,7 +71,7 @@ export class BrowseComponent implements OnInit {
 
     this.loading = true;
     const offset = this.currentPage * this.pageSize;
-    console.log("offset:", offset);
+
 
     this.scoreService.scoreSearchGet(
       this.searchKeyword || undefined,
@@ -110,7 +110,6 @@ export class BrowseComponent implements OnInit {
   onScoreClick(score: ScoreApiInfo) {
 
     if (score.id) {
-    console.log('Score clicked:', score);
       this.router.navigate(['/desktop/workbench'], { 
         state: { score: score }
       });

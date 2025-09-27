@@ -9,6 +9,7 @@ const exercice1 = {
     advice: "Pratice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple time.", 
     beat: reducedFraction(7, 4),
     tempo: 60,
+    repeat: 3,
     patternLeftHand: [
         // root position
         { note: [1], duration: 8, finger: [5] },
@@ -138,6 +139,7 @@ const exercice2 = {
     advice: "Always use a metronome when practicing exercises",
     beat: reducedFraction(3, 4),
     tempo: 60,
+    repeat: 3,
     patternLeftHand: [
         // root position
         { note: [1], duration: 8, finger: [5] },

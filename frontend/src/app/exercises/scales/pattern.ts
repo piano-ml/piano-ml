@@ -12,6 +12,7 @@ const exercice2: Exercise = {
     beat: reducedFraction(2, 2),
     tempo: 60,
     octaveShift: -1,
+    repeat: 3,
     patternRightHand: [
         // ================= 1
         { note: [1], duration: 8, finger: [1] },
@@ -94,6 +95,7 @@ const exercice1: Exercise = {
     beat: reducedFraction(4, 4),
     tempo: 60,
     octaveShift: 0,
+    repeat: 3,
     patternRightHand: [
         // ================= 1
         { note: [0], duration: 8,  },
@@ -128,9 +130,10 @@ const exercice1: Exercise = {
         { note: [0], duration: 8, },
         { note: [0], duration: 8, },
         { note: [0], duration: 8, },
-        { note: [0], duration: 2, },
         { note: [0], duration: 8, },
-        { note: [0], duration: 2, },   
+        { note: [0], duration: 8, },
+        { note: [0], duration: 8, },   
+         { note: [0], duration: 8, },   
     ],
     patternLeftHand: [
         // // ================= 1

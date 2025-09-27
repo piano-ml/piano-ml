@@ -15,7 +15,7 @@ export interface NoteInPattern {
 export interface Exercise {
     title: string;
     deckName: string;
-    type: "chord" | "scale";
+    type: "chord" | "scale" | "melody";
     advice: string;
     measure: number;
     beat: ReducedFraction;
@@ -24,6 +24,7 @@ export interface Exercise {
     patternRightHand: NoteInPattern[];
     octaveShift: number;
     patternSize?: number;
+    repeat: number;
 }
 
 
