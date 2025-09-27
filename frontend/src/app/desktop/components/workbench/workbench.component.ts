@@ -42,6 +42,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   loading = false;
   isPlaying = false;
   tempo = 120;
+  title = '';
   maxStaveCount = 100; // Placeholder, should be set based on actual score data
 
   // Cache for parsed MIDI data
@@ -106,6 +107,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
     if (this.scoreData) {
+      this.title = this.scoreData.title || "";
       this.loading = true;
       this.changeDetector.detectChanges(); // Trigger change detection for loading state
 
@@ -139,6 +141,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     // starting from here we always have score data in local storage and the view is loaded
     const midi = this.getCachedMidi();
     this.tempo = Math.round(this.scoreData?.tempo || midi.header.tempos[0]?.bpm || 120);
+    this.title = this.scoreData?.title || midi.header.name || '';
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, midi);
     this.setupSlider();
     this.setupSubscription();
@@ -243,6 +246,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.setSliderState(true);
     if (this.playConfiguration.currentStave === this.playConfiguration.scoreRange[0]) {
       this.playConfiguration.scoreRange[0] = 0;
+      this.playConfiguration.scoreRange[1] = this.playConfiguration.maxStaveCount +1;
     }
     this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
     this.playerService.reset(this.playConfiguration);

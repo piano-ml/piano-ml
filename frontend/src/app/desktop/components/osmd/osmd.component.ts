@@ -57,7 +57,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
         this.error = null;
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
         this.osmd.setOptions({ // https://opensheetmusicdisplay.github.io/classdoc/interfaces/IOSMDOptions.html
-            drawingParameters: 'leadsheet',
+            drawingParameters: 'default',
             autoResize: true,
             autoBeam: true,
             alignRests: 1,
