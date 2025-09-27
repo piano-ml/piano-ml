@@ -160,7 +160,7 @@ function parseMidiMessage(event: MIDIMessageEvent): MidiEvent | null {
 export async function getMidiInputs(): Promise<MIDIInputMap> {
   const result = await navigator.permissions.query({ name: "midi" })
   if (result.state === "denied") {
-    alert(`Your browser is not allowing MIDI. Please check your browser settings.`);
+    alert(`Your browser is not allowing MIDI. Please consider enabling it in your browser settings.`);
     return new Map()
   }
   try {
@@ -182,7 +182,9 @@ export async function getMidiInputs(): Promise<MIDIInputMap> {
 
       setTimeout(() => {
         midiAccess.removeEventListener('statechange', checkDevices);
-        resolve(midiAccess.inputs as unknown as MIDIInputMap);
+        if (result.state !== "denied") {
+          resolve(midiAccess.inputs as unknown as MIDIInputMap);
+        }
       }, 2000);
     });
 

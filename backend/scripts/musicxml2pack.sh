@@ -1,5 +1,8 @@
 #!/bin/bash
 # Convert a Midi file to a suitable zipfile for pianoml
+export QT_QPA_PLATFORM=offscreen
+export QT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/x86_64-linux-gnu/qt5/plugins
+export DISPLAY=:99
 
 if [ $# -le 3 ]; then
   echo "Usage: $0 <PDFFILE> <TITLE> <COMPOSER>"
