@@ -19,6 +19,7 @@ import { Cursor, Note as OSMDNote } from 'opensheetmusicdisplay';
 
 const GOOD_RANGE = 0.2
 const PERFECT_RANGE = 0.05
+const TIME_COUNTER_TIMESTEP = 200
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +35,7 @@ export class PlayerService {
   private keyboardElement!: ElementRef;
   public measure = new BehaviorSubject<number>(0);
   public message = new BehaviorSubject<string>("");
+  public elapsedTime = new BehaviorSubject<number>(0);
 
 
   isWaiting = false
@@ -48,6 +50,7 @@ export class PlayerService {
   lateNotes: Map<number, lateNote[]> = new Map<number, lateNote[]>();
   piano: any;
   lastMidiEventTime = 0;
+  private timeCounterInterval?: number;
 
   constructor(private midiService: MidiServiceService) {
     this.initSoundFont();
@@ -114,14 +117,37 @@ export class PlayerService {
     this.piano.load()
   }
 
+  private setupTimeCounter() {
+    // Nettoyer l'ancien interval s'il existe
+    if (this.timeCounterInterval) {
+      clearInterval(this.timeCounterInterval);
+    }
+    
+    // Initialiser le compteur de temps
+    this.elapsedTime.next(0);
+    
+    // Créer un interval qui vérifie toutes les TIME_COUNTER_TIMESTEP ms l'état du transport
+    this.timeCounterInterval = window.setInterval(() => {
+      if (Tone.getTransport().state === "started" && (this.playConfiguration.waitForLeftHand || this.playConfiguration.waitForRightHand)) {
+        const currentTime = this.elapsedTime.value + TIME_COUNTER_TIMESTEP;
+        this.elapsedTime.next(currentTime);
+      }
+    }, TIME_COUNTER_TIMESTEP);
+  }
+
   setup() {
     if (this.midiFnHandle) {
       this.midiService.unsubscribe(this.midiFnHandle)
     }
+    
+    this.setupTimeCounter();
+    
     setTimeout(() => {
       this.midiFnHandle = this.midiService.subscribe((midiEvent) => this.processMidiEvent(midiEvent))
     }, 2000)
   }
+
+
 
   async initSoundFont() {
     if (this.spessasynth != null) {
@@ -496,6 +522,19 @@ export class PlayerService {
     keys.forEach((el: HTMLElement) => {
       clearClassesFromSVG(el, "note-on");
     });
+  }
+
+  /**
+   * Nettoie les ressources du service, notamment l'interval du compteur de temps
+   */
+  cleanup() {
+    if (this.timeCounterInterval) {
+      clearInterval(this.timeCounterInterval);
+      this.timeCounterInterval = undefined;
+    }
+    if (this.midiFnHandle) {
+      this.midiService.unsubscribe(this.midiFnHandle);
+    }
   }
 }
 

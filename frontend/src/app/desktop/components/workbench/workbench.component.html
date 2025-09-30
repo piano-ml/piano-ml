@@ -18,8 +18,13 @@
                             <div class="flex-grow overflow-clip overflow-hidden mr-2">
                                 {{ title }}
                             </div>
-                            <div class="flex-none">
-                                ♩{{ tempo }}
+                            <div class="flex-none flex flex-col text-sm">
+                                <div class="text-center">
+                                    {{ formatElapsedTime(elapsedTime | async) }}
+                                </div>
+                                <div class="text-center">
+                                    ♩{{ tempo }}
+                                </div>
                             </div>
                         </div>
                     </div>
