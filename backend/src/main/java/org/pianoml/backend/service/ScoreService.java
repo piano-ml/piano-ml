@@ -13,7 +13,6 @@ import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.repository.GenreRepository;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.ScoreRepositoryCustom;
-import org.pianoml.backend.repository.WorkloadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -66,9 +65,6 @@ public class ScoreService {
   @Autowired
   private PackService packService;
 
-  @Autowired
-  private WorkloadRepository workloadRepository;
-
   public static String makeBucketKeyFromScore(Score score) {
     return "scores/" + score.getOwner().getId() + "/" + score.getMbid() + "/" + score.getVersion() + ".zip";
   }
@@ -77,7 +73,7 @@ public class ScoreService {
   public ScoreApiInfo createScore(ScoreApiInfo scoreApiInfo, User userId) {
     if (scoreApiInfo.getVersion() == null) {
       // check if score exists
-      int candidateCount = scoreRepository.countScoreByMbidAndOwner(UUID.fromString(scoreApiInfo.getMbid()),userId);
+      int candidateCount = scoreRepository.countScoreByMbidAndOwner(UUID.fromString(scoreApiInfo.getMbid()), userId);
       scoreApiInfo.setVersion(candidateCount + 1);
     }
     Score score = scoreMapper.toScore(scoreApiInfo);
@@ -126,6 +122,11 @@ public class ScoreService {
             score.setGenre(null);
           }
         }
+        if (scoreApiInfo.getAuthorId() != null && !scoreApiInfo.getAuthorId().equals(score.getAuthor().getId().toString())) {
+          Author author = authorService.maybeCreateAuthor(UUID.fromString(scoreApiInfo.getAuthorId()));
+          score.setAuthor(author);
+        }
+        score.setAuthor(score.getAuthor());
         score.setGrade(scoreApiInfo.getGrade());
         score.setStudyTracks(ScoreMapper.integerListToString(scoreApiInfo.getStudyTracks()));
         score.setTempo(scoreApiInfo.getTempo());
@@ -164,6 +165,7 @@ public class ScoreService {
         log.info("successfully generated " + filename);
         s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(key).build(),
           RequestBody.fromFile(new File(filename)));
+        score = this.infosFromMetadata(score);
         score.setHasFiles(true);
         score.setUploadedAt(OffsetDateTime.now());
         scoreRepository.save(score);
@@ -173,11 +175,10 @@ public class ScoreService {
           Files.deleteIfExists(Paths.get(filename));
         }
       }
-      this.infosFromMetadata(score);
     }
   }
 
-  void infosFromMetadata(Score score) {
+  Score infosFromMetadata(Score score) {
     Optional<byte[]> optMetadata = null;
     try {
       optMetadata = getAttachmentFromScore(score, "metadata.json");
@@ -187,20 +188,20 @@ public class ScoreService {
         JsonNode node = mapper.readTree(metadataStr);
 
         Integer tracks = node.has("tracks_count") && !node.get("tracks_count").isNull()
-            ? node.get("tracks_count").asInt()
-            : null;
-        Integer durationSeconds = node.has("duration_seconds") && !node.get("duration_seconds").isNull()
-            ? node.get("duration_seconds").asInt()
-            : null;
+          ? node.get("tracks_count").asInt()
+          : 0;
+        int durationSeconds = node.has("duration_seconds") && !node.get("duration_seconds").isNull()
+          ? node.get("duration_seconds").asInt()
+          : 0;
         Integer measureCount = node.has("measures_count") && !node.get("measures_count").isNull()
-            ? node.get("measures_count").asInt()
-            : null;
+          ? node.get("measures_count").asInt()
+          : null;
         Integer tempo = node.has("tempo") && !node.get("tempo").isNull()
-            ? node.get("tempo").asInt()
-            : null;
+          ? node.get("tempo").asInt()
+          : null;
         Boolean hasLyrics = node.has("has_lyrics") && !node.get("has_lyrics").isNull()
-            ? node.get("has_lyrics").asBoolean()
-            : null;
+          ? node.get("has_lyrics").asBoolean()
+          : null;
 
         score.setTracksCount(tracks);
         score.setDuration(durationSeconds);
@@ -214,6 +215,7 @@ public class ScoreService {
     } catch (Exception e) {
       log.error("No metadata found for score:", e);
     }
+    return score;
   }
 
   public Optional<byte[]> getAttachmentFromScore(Score score, String type) throws IOException {

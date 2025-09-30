@@ -10,7 +10,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "generate:api": "openapi-generator-cli generate -i ../openapi/api.yaml -g typescript-angular -o src/app/core/api --additional-properties=ngVersion=17.0.0",
-    "prestart": "npm run generate:api && npm run shaders:manifest",
+    "prestart": "npm run generate:api",
     "shaders:manifest": "node scripts/generate-shader-manifest.js",
     "shaders:watch": "nodemon --watch src/assets/shader --ext glsl --exec \"npm run shaders:manifest\"",
     "dev": "concurrently \"npm run shaders:watch\" \"npm start\""
