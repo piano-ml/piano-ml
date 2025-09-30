@@ -49,6 +49,9 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   private cachedMidi: Midi.Midi | null = null;
   private cachedMusicXML: string | null = null;
   private subscriptions: Subscription[] = [];
+  
+  // Observable for elapsed time from PlayerService
+  elapsedTime!: any;
 
   // Reusable decoder and config cache
   private static readonly textDecoder = new TextDecoder();
@@ -91,6 +94,9 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     private changeDetector: ChangeDetectorRef,
     private scoreService: ScoreService
   ) {
+    // Initialize elapsed time observable
+    this.elapsedTime = this.playerService.elapsedTime;
+    
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.scoreData = navigation.extras.state['score'] as ScoreApiInfo;
@@ -407,6 +413,20 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       if (Number(a[i]) !== Number(b[i])) return false;
     }
     return true;
+  }
+
+  formatElapsedTime(timeInMs: number | null): string {
+    if (!timeInMs) return '00:00';
+    
+    const totalSeconds = Math.floor(timeInMs / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    if (hours > 0) {
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
   ngOnDestroy() {
