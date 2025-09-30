@@ -17,23 +17,24 @@ FROOT="${FROOT%.*}"
 ORI=$FROOT
 FROOT="${FROOT/upload_/}"
 
+mv $1 $FROOT.midi
+
 if [ -n "$TRACK_RIGHT" ]; then
-  echo "Extracting left/right hand track $TRACK_RIGHT $TRACK_LEFT for $1"
-  $HOME/shared-venv/bin/python ./scripts/extract_midi_tracks.py "$1" "$TRACK_RIGHT" "$TRACK_LEFT"
+  echo "Extracting left/right hand track $TRACK_RIGHT $TRACK_LEFT for $FROOT.midi"
+  $HOME/shared-venv/bin/python ./scripts/extract_midi_tracks.py "$FROOT".midi "$TRACK_RIGHT" "$TRACK_LEFT"
 else
   echo "No track specified in original midi file"
   exit 1
 fi
 
-#mv $ORI.musicxml $FROOT.musicxml
-sleep 1
+echo "Running pianoplayer for fingering detection"
+pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z
+
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
-sleep 1
+
 $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
 
 musescore3 -o $FROOT.pdf $FROOT.musicxml
-
-mv $1 "$FROOT.midi"
 
 $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml"
 
