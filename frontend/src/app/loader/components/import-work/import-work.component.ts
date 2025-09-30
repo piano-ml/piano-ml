@@ -188,11 +188,13 @@ export class ImportWorkComponent implements OnInit {
                 this.loading = false;
                 this.changeDetector.detectChanges();
             }, next: (data) => {
+                console.log("Score created, now uploading file");
+                console.log(data);
                     this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, type, data.version!, 0, blob).subscribe({
-                        next: (data) => {
+                        next: (data2) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();
-                            this.route.navigate([`/account/scores`]);
+                            this.route.navigate(['/browse', data.id, 'info']);
                         },
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);
@@ -265,11 +267,11 @@ export class ImportWorkComponent implements OnInit {
                     this.changeDetector.detectChanges();
                 },
                 next: (data) => {
-                    this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, "midi", 1, 0, blob).subscribe({
-                        next: (data) => {
+                    this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, "midi", data.version!, 0, blob).subscribe({
+                        next: (data2) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();
-                            this.route.navigate([`/account/scores`]);
+                            this.route.navigate(['/browse', data.id, 'info']);
                         },
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);
