@@ -27,12 +27,10 @@ else
   exit 1
 fi
 
-
 echo "Running pianoplayer for fingering detection"
 pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z
 
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
-
 
 $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
 

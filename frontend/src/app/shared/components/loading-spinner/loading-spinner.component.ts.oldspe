@@ -1,0 +1,49 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { LoadingSpinnerComponent } from './loading-spinner.component';
+import { LoadingService } from '../../services/loading.service';
+
+describe('LoadingSpinnerComponent', () => {
+  let component: LoadingSpinnerComponent;
+  let fixture: ComponentFixture<LoadingSpinnerComponent>;
+  let mockLoadingService: jasmine.SpyObj<LoadingService>;
+
+  beforeEach(async () => {
+    const spy = jasmine.createSpyObj('LoadingService', ['show', 'hide'], {
+      isLoading: signal(false)
+    });
+
+    await TestBed.configureTestingModule({
+      imports: [LoadingSpinnerComponent],
+      providers: [
+        { provide: LoadingService, useValue: spy }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(LoadingSpinnerComponent);
+    component = fixture.componentInstance;
+    mockLoadingService = TestBed.inject(LoadingService) as jasmine.SpyObj<LoadingService>;
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should display spinner when loading is true', () => {
+    // Simuler le loading à true
+    mockLoadingService.isLoading = signal(true);
+    fixture.detectChanges();
+
+    const loadingOverlay = fixture.nativeElement.querySelector('.loading-overlay');
+    expect(loadingOverlay).toBeTruthy();
+  });
+
+  it('should hide spinner when loading is false', () => {
+    // Simuler le loading à false
+    mockLoadingService.isLoading = signal(false);
+    fixture.detectChanges();
+
+    const loadingOverlay = fixture.nativeElement.querySelector('.loading-overlay');
+    expect(loadingOverlay).toBeFalsy();
+  });
+});
