@@ -1,4 +1,4 @@
-import { type ElementRef, Injectable } from '@angular/core';
+import { type ElementRef, Injectable, signal } from '@angular/core';
 import * as Tone from "tone";
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
@@ -34,7 +34,7 @@ export class PlayerService {
 
   private keyboardElement!: ElementRef;
   public measure = new BehaviorSubject<number>(0);
-  public message = new BehaviorSubject<string>("");
+  public message = signal<string>("");
   public elapsedTime = new BehaviorSubject<number>(0);
 
   duration = 0;
@@ -186,24 +186,26 @@ export class PlayerService {
     Tone.getDraw().dispose();
     Tone.getDraw().cancel();
     this.resetLateNotes();
-    this.lastMidiEventTime = 0;
+    this.lastMidiEventTime = -1;
     if (this.osmdCursor !== null) {
       this.osmdCursor.reset();
 
 
       for (let i = 0; i < this.playConfiguration.currentStave - 1; i++) {
+        console.log("advance to stave", i);
         this.osmdCursor.nextMeasure();
       }
       if (this.playConfiguration.currentStave > 0) {
-        this.osmdCursor.previous();
+        //this.osmdCursor.previous();
       }
     }
   }
 
   async play(playConfigurations: PlayConfiguration) {
-
-    //this.osmdCursor.previous();
-    this.lastMidiEventTime = -1;
+    if (this.lastMidiEventTime === -1) {
+      this.osmdCursor.previous();
+    }
+    //this.lastMidiEventTime = -1;
     this.resetLateNotes();
     const startOffset = this.calculateStartTime();
     const endCut = this.calculateEndTime();
@@ -221,7 +223,7 @@ export class PlayerService {
 
   scheduleLeftHand(midi: Midi.Track, startTime: number, endCut: number) {
     for (const note of midi.notes) {
-      if (this.isInPlayableRange(note, startTime,endCut)) {
+      if (this.isInPlayableRange(note, startTime, endCut)) {
         this.scheduleNote('lh', note, startTime);
       }
 
@@ -230,7 +232,7 @@ export class PlayerService {
   }
   scheduleRightHand(midi: Midi.Track, startTime: number, endCut: number) {
     for (const note of midi.notes) {
-      if (this.isInPlayableRange(note, startTime,endCut)) {
+      if (this.isInPlayableRange(note, startTime, endCut)) {
         this.scheduleNote('rh', note, startTime);
       }
     }
@@ -247,12 +249,12 @@ export class PlayerService {
 
   private isInPlayableRange(note: Note, startTime: number, endCut: number) {
     return !((note.time * this.getTimeFactor()) < (startTime)
-        || (note.time * this.getTimeFactor()) >= (endCut))
+      || (note.time * this.getTimeFactor()) >= (endCut))
   }
 
   private scheduleAccompanimentTrack(channel: number, track: Midi.Track, startTime: number, endCut: number) {
     for (const note of track.notes) {
-      if (this.isInPlayableRange(note, startTime,endCut)) {
+      if (this.isInPlayableRange(note, startTime, endCut)) {
         this.scheduleAccompanimentTrackNotes(channel, note, startTime);
       }
     }
@@ -275,14 +277,18 @@ export class PlayerService {
 
   private cursorMayBeAdvance(note: Note) {
     if (note.ticks > this.lastMidiEventTime) {
+      console.log("maybe advance cursor do it");
       this.osmdCursor.next();
+      this.lastMidiEventTime = note.ticks;
+      let safety = 0;
+      while (safety < 10 && this.osmdCursor.NotesUnderCursor().length  > 0 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
+        console.log("advance cursor do it again");
+        this.osmdCursor.next();
+        safety++;
+      }
     }
-    this.lastMidiEventTime = note.ticks;
-    let safety = 0;
-    while (safety < 10 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
-      this.osmdCursor.next();
-      safety++;
-    }
+
+
 
   }
 
@@ -385,21 +391,19 @@ export class PlayerService {
   private scheduleEnd(endTime: number) {
     Tone.getTransport().schedule(() => {
       this.spessasynth?.stopAll();
-      this.message.next("END");
+      this.message.set("END");
       this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
       this.reset(this.playConfiguration);
       if (this.playConfiguration.isLoop) {
         this.play(this.playConfiguration);
       }
-    }, endTime);
+      this.lastMidiEventTime = -1;
+    }, endTime + PERFECT_RANGE);
   }
 
 
   private setCurrentTick(bar: number) {
     if (Math.trunc(bar) !== this.measure.getValue()) {
-      if (Math.trunc(bar) < this.measure.getValue()) {
-        this.osmdCursor.next();
-      }
       this.measure.next(Math.trunc(bar));
     }
   }
@@ -467,8 +471,13 @@ export class PlayerService {
 
   private integrateMidiEventInLastNote(midiEvent: MidiStateEvent): number {
     let success = -1;
-    this.lateNotes.forEach((notes, key) => {
-      notes.forEach((ln, idx) => {
+    // Créer une copie des entrées pour éviter les problèmes de modification pendant l'itération
+    const entries = Array.from(this.lateNotes.entries());
+    
+    for (const [key, notes] of entries) {
+      // Itérer en sens inverse pour éviter les problèmes avec splice
+      for (let idx = notes.length - 1; idx >= 0; idx--) {
+        const ln = notes[idx];
         if (midiEvent.note === ln.note.midi) {
           notes.splice(idx, 1);
           this.removeMidiNoteFromKeyboard(ln.note.midi);
@@ -478,12 +487,12 @@ export class PlayerService {
             success = 0;
           }
         }
-      });
+      }
       if (notes.length === 0) {
         this.lateNotes.delete(key);
         success = 1;
       }
-    });
+    }
     return success;
   }
 
@@ -505,6 +514,14 @@ export class PlayerService {
         await Tone.start();
         Tone.getTransport().start();
         this.isWaiting = false;
+      }
+      if (hit < 1) {
+        console.log("miss", midiEvent.note);
+        this.message.set("BAD");
+        // Reset message after a brief moment to allow effect to trigger again
+        setTimeout(() => {
+          this.message.set("");
+        }, 10);
       }
     }
   }

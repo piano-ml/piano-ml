@@ -186,8 +186,8 @@
 }
 
 .bad {
-	background-color: var(--color-red-500);
-	transition: background-color 0.3s ease;
+	background-color: var(--color-red-100);
+	transition: background-color 0.25s ease;
 }
 
 

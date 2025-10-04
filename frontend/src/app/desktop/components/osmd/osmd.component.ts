@@ -47,12 +47,6 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     private async loadMusicXML() {
-        // if (!this.scoreData || !this.scoreData.owner_id || !this.scoreData.mbid) {
-        //     this.error = 'Score data is incomplete';
-        //     this.changeDetector.detectChanges();
-        //     return;
-        // }
-
         this.loading = true;
         this.error = null;
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
@@ -70,9 +64,9 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
             cursorsOptions: [
                 {
                     follow: true,
-                    color: "#FFAC2D",
-                    alpha: 1,
-                    type: 0,
+                    color: "#00AC00",
+                    alpha: .6,
+                    type: 0
                 }
             
             ] as CursorOptions[],
@@ -100,7 +94,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                 } else {
                     this.osmd!.cursor.show();
                     this.osmd!.cursor.reset();
-                    this.osmd!.cursor.previous();                    
+                    //this.osmd!.cursor.previous();                    
                     this.playerService.setOsmdCursor(this.osmd!.cursor);
                 }
             }, 20);
