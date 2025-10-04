@@ -118,7 +118,6 @@ export class BrowseComponent implements OnInit {
 
   onScoreInfo(score: ScoreApiInfo) {
     if (score.id) {
-      console.log('Score info clicked:', score);
       this.router.navigate([score.id, 'info'], { relativeTo: this.route });
     }
   }

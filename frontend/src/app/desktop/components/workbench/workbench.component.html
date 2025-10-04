@@ -1,7 +1,7 @@
 <div class="flex flex-col flex-grow h-dvh">
 
         <div class="flex-row  bg-black">
-            <div class="flex flex-col xl:flex-row mt-2 ">
+            <div class="flex flex-col xl:flex-row mt-2 pl-2 pr-2">
 
 
                 <div class="flex xl:w-1/2 ">
@@ -15,8 +15,10 @@
 
                     <div class="display flex-grow m-1 lcd-text">
                         <div class="flex flew-grow flex-row  m-1">
-                            <div class="flex-grow overflow-clip overflow-hidden mr-2">
-                                {{ title }}
+                            <div #titleContainer class="flex-grow overflow-hidden mr-2 marquee-container">
+                                <div #titleText [class.animate-marquee]="shouldScroll" class="title-text">
+                                    {{ title }}
+                                </div>
                             </div>
                             <div class="flex-none flex flex-col text-sm">
                                 <div class="text-center">
@@ -45,18 +47,18 @@
                     <div class="radio-input m-1">
                         <label class="label  p-1 pt-5">
                             <input type="radio" id="50pct" value="50pct" name="value-radio" value="value-1"
-                                (click)="setSpeed(0.5)" />
+                                (click)="setSpeed(0.5)" [disabled]="isPlaying" />
                             <span class="text">♩50%</span>
                         </label>
                         <label class="label p-2 pt-5">
                             <input type="radio" id="75pct" value="75pct" name="value-radio" value="value-1"
-                                (click)="setSpeed(0.75)" />
+                                (click)="setSpeed(0.75)" [disabled]="isPlaying"/>
                             <span class="text">♩75%</span>
                         </label>
 
                         <label class="label  p-2 pt-5">
                             <input type="radio" id="100pct" value="100pct" name="value-radio" value="value-1" checked
-                                (click)="setSpeed(1)" />
+                                (click)="setSpeed(1)" [disabled]="isPlaying"/>
                             <span class="text">♩100%</span>
                         </label>
 
@@ -66,7 +68,7 @@
 
                     <div class="checkbox-input m-1">
                         <label class="label svg-label">
-                            <input type="checkbox" id="loop" value="loop" name="loop-checkbox"
+                            <input type="checkbox" id="loop" value="loop" name="loop-checkbox" [disabled]="isPlaying"
                                 [checked]="playConfiguration.isLoop"
                                 (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
                                 <ng-icon name="bootstrapRepeat" class="svg-button p-2" />
@@ -87,7 +89,8 @@
                         <label class="label svg-label">
                             <input type="checkbox" id="left-hand" value="left-hand" name="leftHand"
                                 [checked]="playConfiguration.waitForLeftHand"
-                                (change)="playConfiguration.waitForLeftHand = !playConfiguration.waitForLeftHand" />
+                                (change)="playConfiguration.waitForLeftHand = !playConfiguration.waitForLeftHand" 
+                                [disabled]="isPlaying"/>
                                 <ng-icon name="lefthand" class="svg-button" />
                         </label>
                     </div>
@@ -95,7 +98,7 @@
                     <div class="checkbox-input m-1">
                         <label class="label svg-label">
                             <input type="checkbox" id="right-hand" value="right-hand" name="rightHand"
-                                [checked]="playConfiguration.waitForRightHand"
+                                [checked]="playConfiguration.waitForRightHand" [disabled]="isPlaying"
                                 (change)="playConfiguration.waitForRightHand = !playConfiguration.waitForRightHand" />
                                 <ng-icon name="righthand" class="svg-button" />
                         </label>
@@ -113,20 +116,20 @@
 
 
             </div>
-            <div class="p-2 mr-4 ml-4">
-                  <div  #range></div>
+            <div class="pl-2 pr-2 p-2 mr-4 ml-4">
+                  <div #range></div>
             </div>          
 
         </div>
 
 
     <!-- score -->
-    <div class="flex-none bg-black" *ngIf="!loading">
+    <div class="flex-none bg-black m-0 p-0" *ngIf="!loading">
         <app-osmd [scoreData]="scoreData"></app-osmd>
     </div>
 
     <!-- middle bar empty for now -->
-    <div #arena class=" flex-grow {{arenaClass}} text-center text-neutral-400 text-2xl">
+    <div #arena class=" flex-grow {{arenaClass}} text-center text-neutral-400 text-2xl bg-white border-t">
 
 {{ loading ? 'Loading score data...' : ''    }}
     </div>

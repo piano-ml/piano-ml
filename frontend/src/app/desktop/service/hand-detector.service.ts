@@ -132,10 +132,6 @@ export class HandDetectorService {
       }
 
     });
-    // DEBUG
-    // Object.keys(this.onsets).forEach((key) => {
-    //   console.log(key, this.onsets[Number(key)].map(n=> n.midi + "("+  (n.ticks + n.durationTicks) +")").join(" "))
-    // });
     const rightHandChords: Map<ReducedFraction, MidiChord> = new Map();
     for (const time in this.onsets) {
       const notes = this.onsets[time]

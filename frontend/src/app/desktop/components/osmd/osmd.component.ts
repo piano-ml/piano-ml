@@ -70,10 +70,12 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
             cursorsOptions: [
                 {
                     follow: true,
-                    color: "#fb2c36",
-                    alpha: 0.63,
-                    type: 4,
-                }] as CursorOptions[],
+                    color: "#FFAC2D",
+                    alpha: 1,
+                    type: 0,
+                }
+            
+            ] as CursorOptions[],
 
             drawTitle: false,
             darkMode: false,
@@ -97,9 +99,11 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                     console.warn("osmd.cursor is undefined!");
                 } else {
                     this.osmd!.cursor.show();
+                    this.osmd!.cursor.reset();
+                    this.osmd!.cursor.previous();                    
                     this.playerService.setOsmdCursor(this.osmd!.cursor);
                 }
-            }, 1000);
+            }, 20);
         }
     }
 }

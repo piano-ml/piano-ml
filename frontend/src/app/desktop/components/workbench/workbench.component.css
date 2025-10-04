@@ -44,6 +44,38 @@
 	text-overflow: ellipsis;
 }
 
+/* Marquee animation for title */
+@keyframes scroll-text {
+  0%, 30% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(var(--scroll-distance, -50%));
+  }
+}
+
+.marquee-container {
+  position: relative;
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scroll-text 6s ease-in-out forwards;
+  animation-delay: 1s;
+  width: max-content;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.title-text {
+  display: inline-block;
+  white-space: nowrap;
+  width: max-content;
+}
+
 
 /* From Uiverse.io by m1her */
 .radio-input {
