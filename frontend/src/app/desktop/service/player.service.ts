@@ -18,7 +18,7 @@ import { Cursor, Note as OSMDNote } from 'opensheetmusicdisplay';
 
 
 const GOOD_RANGE = 0.2
-const PERFECT_RANGE = 0.05
+const PERFECT_RANGE = 0.02
 const TIME_COUNTER_TIMESTEP = 200
 
 @Injectable({
@@ -36,6 +36,8 @@ export class PlayerService {
   public measure = new BehaviorSubject<number>(0);
   public message = new BehaviorSubject<string>("");
   public elapsedTime = new BehaviorSubject<number>(0);
+
+  duration = 0;
 
 
   isWaiting = false
@@ -77,7 +79,7 @@ export class PlayerService {
     playConfiguration.accompaniment = midiSplit.other;
     playConfiguration.midi = midiSplit.study;
 
-    playConfiguration.maxStaveCount = Math.ceil(Math.max(...midiAll.tracks.map(track =>
+    playConfiguration.maxStaveCount = Math.ceil(Math.max(...midiSplit.study.tracks.map(track =>
       track.notes.length > 0 ? track.notes[track.notes.length - 1].bars : 0
     )));
     playConfiguration.scoreRange[0] = 1;
@@ -89,8 +91,10 @@ export class PlayerService {
 
 
   splitMidi(json: Midi.MidiJSON, studies: number[]): { study: Midi.Midi, other: Midi.Midi } {
+
     const midiAll = new Midi.Midi();
     midiAll.fromJSON(json)
+    this.duration = midiAll.duration;
     if (midiAll.header.timeSignatures.length === 0) {
       midiAll.header.timeSignatures.push({ ticks: 0, timeSignature: [4, 4] });
     }
@@ -122,10 +126,10 @@ export class PlayerService {
     if (this.timeCounterInterval) {
       clearInterval(this.timeCounterInterval);
     }
-    
+
     // Initialiser le compteur de temps
     this.elapsedTime.next(0);
-    
+
     // Créer un interval qui vérifie toutes les TIME_COUNTER_TIMESTEP ms l'état du transport
     this.timeCounterInterval = window.setInterval(() => {
       if (Tone.getTransport().state === "started" && (this.playConfiguration.waitForLeftHand || this.playConfiguration.waitForRightHand)) {
@@ -139,9 +143,9 @@ export class PlayerService {
     if (this.midiFnHandle) {
       this.midiService.unsubscribe(this.midiFnHandle)
     }
-    
+
     this.setupTimeCounter();
-    
+
     setTimeout(() => {
       this.midiFnHandle = this.midiService.subscribe((midiEvent) => this.processMidiEvent(midiEvent))
     }, 2000)
@@ -186,60 +190,71 @@ export class PlayerService {
     if (this.osmdCursor !== null) {
       this.osmdCursor.reset();
 
-      if (this.playConfiguration.currentStave > 0) {
-        //    this.osmdCursor.previous();
-      }
+
       for (let i = 0; i < this.playConfiguration.currentStave - 1; i++) {
         this.osmdCursor.nextMeasure();
       }
-      //this.osmdCursor.previous();
+      if (this.playConfiguration.currentStave > 0) {
+        this.osmdCursor.previous();
+      }
     }
   }
 
   async play(playConfigurations: PlayConfiguration) {
 
-    this.osmdCursor.previous();
+    //this.osmdCursor.previous();
     this.lastMidiEventTime = -1;
     this.resetLateNotes();
     const startOffset = this.calculateStartTime();
     const endCut = this.calculateEndTime();
     this.playConfiguration = playConfigurations;
     await Tone.start();
-    this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], startOffset);
+    this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], startOffset, endCut);
     if (this.playConfiguration.midi!.tracks.length > 1) {
-      this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], startOffset);
+      this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], startOffset, endCut);
     }
-    this.scheduleAccompanimentTracks(this.playConfiguration.accompaniment!, startOffset);
+    this.scheduleAccompanimentTracks(this.playConfiguration.accompaniment!, startOffset, endCut);
     this.scheduleEnd(endCut - startOffset);
     //Tone.getContext().lookAhead = 0
     Tone.getTransport().start();
   }
 
-  scheduleLeftHand(midi: Midi.Track, startTime: number) {
+  scheduleLeftHand(midi: Midi.Track, startTime: number, endCut: number) {
     for (const note of midi.notes) {
-      this.scheduleNote('lh', note, startTime);
+      if (this.isInPlayableRange(note, startTime,endCut)) {
+        this.scheduleNote('lh', note, startTime);
+      }
+
+
     }
   }
-  scheduleRightHand(midi: Midi.Track, startTime: number) {
+  scheduleRightHand(midi: Midi.Track, startTime: number, endCut: number) {
     for (const note of midi.notes) {
-      if (note.time > startTime) {
+      if (this.isInPlayableRange(note, startTime,endCut)) {
         this.scheduleNote('rh', note, startTime);
       }
     }
   }
 
-  private scheduleAccompanimentTracks(midiOther: Midi.Midi, startTime: number) {
+  private scheduleAccompanimentTracks(midiOther: Midi.Midi, startTime: number, endCut: number) {
     let i = 0;
     for (const track of midiOther.tracks) {
       this.spessasynth?.programChange(midiOther.tracks[i].channel, track.instrument.number);
-      this.scheduleAccompanimentTrack(midiOther.tracks[i].channel, track, startTime);
+      this.scheduleAccompanimentTrack(midiOther.tracks[i].channel, track, startTime, endCut);
       i++;
     }
   }
 
-  private scheduleAccompanimentTrack(channel: number, track: Midi.Track, startTime: number) {
+  private isInPlayableRange(note: Note, startTime: number, endCut: number) {
+    return !((note.time * this.getTimeFactor()) < (startTime)
+        || (note.time * this.getTimeFactor()) >= (endCut))
+  }
+
+  private scheduleAccompanimentTrack(channel: number, track: Midi.Track, startTime: number, endCut: number) {
     for (const note of track.notes) {
-      this.scheduleAccompanimentTrackNotes(channel, note, startTime);
+      if (this.isInPlayableRange(note, startTime,endCut)) {
+        this.scheduleAccompanimentTrackNotes(channel, note, startTime);
+      }
     }
   }
 
@@ -257,21 +272,6 @@ export class PlayerService {
     }, noteStart + (note.duration * this.getTimeFactor()));
   }
 
-  private scheduleStave(notesArray: Note[][], hand: string, startTime: number) {
-    let i = 0;
-    for (const notes of notesArray) {
-      for (const note of notes) {
-        this.scheduleNote(hand, note, startTime);
-      }
-      i++;
-    }
-  }
-
-  public advance() {
-    if (this.osmdCursor !== null) {
-      this.osmdCursor.next();
-    }
-  }
 
   private cursorMayBeAdvance(note: Note) {
     if (note.ticks > this.lastMidiEventTime) {
@@ -295,12 +295,8 @@ export class PlayerService {
   private scheduleNote(hand: string, note: Note, startTime: number) {
 
     if (note.midi === 0) return;
-    if (note.time < startTime) {
-      return
-    }
     const noteTimeStart = (note.time * this.getTimeFactor()) - startTime;
     const noteTimeEnd = ((note.time * this.getTimeFactor()) - startTime + (note.duration * this.getTimeFactor()));
-
     // schedule watch, score advance and keyboard light on
     Tone.getTransport().schedule((time: number) => {
 
@@ -321,6 +317,7 @@ export class PlayerService {
           this.pushLateNote(note);
         }
         this.cursorMayBeAdvance(note);
+
         this.setCurrentTick(note.bars);
         if (this.isHandOk(hand) || this.zeroHand()) {
           this.noteOn(hand, note)
@@ -400,6 +397,9 @@ export class PlayerService {
 
   private setCurrentTick(bar: number) {
     if (Math.trunc(bar) !== this.measure.getValue()) {
+      if (Math.trunc(bar) < this.measure.getValue()) {
+        this.osmdCursor.next();
+      }
       this.measure.next(Math.trunc(bar));
     }
   }
@@ -419,25 +419,31 @@ export class PlayerService {
   }
 
   calculateStartTime() {
-    return this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[0],
+    const startTime = (this.calculateStartTimeInMsForMeasure(
+      this.playConfiguration.scoreRange[0] - 1,
       this.playConfiguration.midi!.header
-    ) * this.getTimeFactor();
+    ) * this.getTimeFactor());
+    return startTime;
   }
 
 
   calculateEndTime() {
-    return this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1] + 1,
+
+    if (this.playConfiguration.scoreRange[1] === this.playConfiguration.maxStaveCount + 1
+      && this.playConfiguration.scoreRange[0] === 1) {
+      return this.duration * this.getTimeFactor();
+    }
+    return (this.calculateStartTimeInMsForMeasure(
+      this.playConfiguration.scoreRange[1] - 1,
       this.playConfiguration.midi!.header
-    ) * this.getTimeFactor();
+    ) * this.getTimeFactor());
   }
 
 
   calculateStartTimeInMsForMeasure(start: number, midiHeader: Midi.Header): number {
     let timeSig: TimeSignatureEvent | undefined = midiHeader.timeSignatures[0];
     let elapsedTicks = 0;
-    for (let i = 0; i < start - 1; i++) {
+    for (let i = 0; i < start; i++) {
       timeSig = midiHeader.timeSignatures.filter((t) => t.ticks <= elapsedTicks).at(-1);
       elapsedTicks += getStaveDurationTick(reducedFraction(timeSig?.timeSignature[0] || 4, timeSig?.timeSignature[1] || 4), midiHeader.ppq);
     }
@@ -493,19 +499,13 @@ export class PlayerService {
       return
     }
     if (midiEvent.type === 'down' as MidiStateEvent['type']) {
-     
+
       const hit = this.integrateMidiEventInLastNote(midiEvent);
       if (this.lateNotes.size === 0 && this.isWaiting) {
         await Tone.start();
         Tone.getTransport().start();
         this.isWaiting = false;
       }
-      // else {
-      // console.log("pressed", midiEvent.note);
-      // this.lateNotes.forEach((notes, key) => {
-      //   console.log("late notes", notes.map(ln => ln.note.midi));
-      // });
-      // }
     }
   }
 

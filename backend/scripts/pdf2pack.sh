@@ -5,6 +5,7 @@
 export QT_QPA_PLATFORM=offscreen
 export QT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/x86_64-linux-gnu/qt5/plugins
 export DISPLAY=:99
+export PYTHONIOENCODING=utf-8
 
 if [ $# -ne 5 ]; then
   echo "Usage: $0 <PDF> <TITLE> <COMPOSER>"
@@ -24,9 +25,10 @@ sleep 1
 FILES=$(ls -p "$FROOT"*.png)
 pwd
 XMLFILES=""
+cd homr
 for FILE in $FILES; do
   echo "starting homr $FILE"
-  cd homr && poetry run homr "$FILE"
+   poetry run homr "$FILE"
   XML_FILE="${FILE%.png}.musicxml"
   if [ -z "$XMLFILES" ]; then
     XMLFILES="$XML_FILE"
@@ -40,7 +42,7 @@ cd ..
 pwd
 echo "Running relieur to merge musicxml files: $XMLFILES"
 
-$HOME/shared-venv/bin/python ./relieur/relieur/relieur.py $XMLFILES -o "$FROOT".musicxml
+$HOME/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES
 
 musescore3 -f -o "$FROOT".mid "$FROOT".musicxml
 mv "$FROOT".mid "$FROOT".midi

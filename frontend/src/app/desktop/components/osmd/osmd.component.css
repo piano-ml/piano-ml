@@ -11,6 +11,8 @@
 
 .osmd-container {
   overflow-x: hidden!important; 
+  padding: 0!important;
+  margin: 0!important;
 }
 
 .loading-container {
@@ -150,7 +152,5 @@
   }
 }
 
-#cursorImg-0 {
-    height: -webkit-fill-available!important;
-}
+
 

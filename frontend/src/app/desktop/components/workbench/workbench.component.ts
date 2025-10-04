@@ -85,8 +85,11 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   scoreRange = [0, 10, 80];
 
   @ViewChild('range') range!: ElementRef<HTMLDivElement>;
+  @ViewChild('titleContainer', { static: false }) titleContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('titleText', { static: false }) titleText!: ElementRef<HTMLDivElement>;
   slider: any;
   error: string | null = null;
+  shouldScroll = false;
 
   constructor(
     private router: Router,
@@ -114,6 +117,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit() {
     if (this.scoreData) {
       this.title = this.scoreData.title || "";
+      this.checkIfScrollNeeded();
       this.loading = true;
       this.changeDetector.detectChanges(); // Trigger change detection for loading state
 
@@ -134,28 +138,19 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         this.changeDetector.detectChanges();
         return;
       }
-    } else {
-      // const score = localStorage.getItem(MIDI_STORAGE_KEY);
-      // const midiJson = score ? JSON.parse(score) as Midi.MidiJSON : null;
-      // const midiObj = new Midi.Midi();
-      // midiObj.fromJSON(midiJson!);
-      // console.log("make from local storage");
-      // //this.playConfiguration.midi = midiObj;
-      // this.loading = false;
-    }
+    } 
 
     // starting from here we always have score data in local storage and the view is loaded
     const midi = this.getCachedMidi();
     this.tempo = Math.round(this.scoreData?.tempo || midi.header.tempos[0]?.bpm || 120);
     this.title = this.scoreData?.title || midi.header.name || '';
+    this.checkIfScrollNeeded();
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, midi);
     this.setupSlider();
     this.setupSubscription();
   }
 
-  public advance() {
-    this.playerService.advance();
-  }
+
 
   private getCachedMidi(): Midi.Midi {
     if (!this.cachedMidi) {
@@ -217,7 +212,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   ): Promise<void> {
     // Don't set loading here since it's managed at higher level
     return new Promise((resolve, reject) => {
-      this.scoreService.scoreOwnerMbidTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.mbid!, type, 1, 1).subscribe({
+      this.scoreService.scoreOwnerMbidTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.mbid!, type, scoreData.version || 1, 1).subscribe({
         next: async (data) => {
           try {
             await processor(data);
@@ -265,6 +260,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   setSpeed(speed: number) {
     this.playConfiguration.delayFactor = 1 / speed;
+    this.playerService.reset(this.playConfiguration);
   }
 
   start() {
@@ -427,6 +423,49 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  checkIfScrollNeeded(): void {
+    // Attendre que les éléments soient disponibles et que le titre soit défini
+    if (!this.title || !this.titleContainer || !this.titleText) {
+      this.shouldScroll = false;
+      return;
+    }
+
+    // Attendre le prochain cycle de détection des changements pour que le DOM soit mis à jour
+    setTimeout(() => {
+      try {
+        const containerWidth = this.titleContainer.nativeElement.clientWidth;
+        const textWidth = this.titleText.nativeElement.scrollWidth;
+        
+        // Si le texte est plus large que le conteneur (avec une marge de 10px), activer le scroll
+        if (textWidth > (containerWidth - 10)) {
+          this.shouldScroll = true;
+          
+          // Calculer la distance exacte à faire défiler
+          // On veut que la fin du texte soit visible, donc on défile de (textWidth - containerWidth)
+          const scrollDistance = textWidth - containerWidth + 20; // +20px de marge
+          const scrollPercentage = (scrollDistance / textWidth) * 100;
+          
+          // Définir la variable CSS custom pour la distance de scroll
+          this.titleText.nativeElement.style.setProperty('--scroll-distance', `-${scrollPercentage}%`);
+        } else {
+          this.shouldScroll = false;
+        }
+        
+        this.changeDetector.detectChanges();
+      } catch (error) {
+        // En cas d'erreur, on utilise la méthode de fallback
+        this.shouldScroll = this.title.length > 25;
+        if (this.shouldScroll && this.titleText?.nativeElement) {
+          this.titleText.nativeElement.style.setProperty('--scroll-distance', '-50%');
+        }
+      }
+    }, 0);
+  }
+
+  shouldScrollTitle(): boolean {
+    return this.shouldScroll;
   }
 
   ngOnDestroy() {

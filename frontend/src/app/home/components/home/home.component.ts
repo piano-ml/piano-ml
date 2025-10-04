@@ -156,12 +156,6 @@ export class HomeComponent implements AfterViewInit {
     if (this.availableShaders.length > 0) {
       const randomIndex = Math.floor(Math.random() * this.availableShaders.length);
       this.selectedShader = this.availableShaders[randomIndex];
-      
-      console.log('🎨 Random shader :', {
-        index: this.selectedShader.index,
-        name: this.selectedShader.name || 'Sans nom',
-        description: this.selectedShader.description || 'Pas de description'
-      });
     }
   }
 

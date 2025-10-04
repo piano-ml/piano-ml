@@ -188,8 +188,6 @@ export class ImportWorkComponent implements OnInit {
                 this.loading = false;
                 this.changeDetector.detectChanges();
             }, next: (data) => {
-                console.log("Score created, now uploading file");
-                console.log(data);
                     this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, type, data.version!, 0, blob).subscribe({
                         next: (data2) => {
                             this.loading = false;
