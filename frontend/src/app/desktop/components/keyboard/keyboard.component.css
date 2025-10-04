@@ -2,34 +2,34 @@
   
   /* Keyboard */
   .note-on-rh-velocity-1:not(.indicator) {
-    fill: #ffd9d9 !important;
+    fill: #fffee6 !important;
   }
   .note-on-rh-velocity-2:not(.indicator) {
-    fill: #ffc8c8 !important;
+    fill: #fffdd1 !important;
   }
   .note-on-rh-velocity-3:not(.indicator) {
-    fill: #ffb1b1 !important;
+    fill: #fffcbb !important;
   }
   .note-on-rh-velocity-4:not(.indicator) {
-    fill: #ff9496 !important;
+    fill: #fffaa6 !important;
   }
   .note-on-rh-velocity-5:not(.indicator) {
-    fill: #ff7d7d !important;
+    fill: #fff990 !important;
   }
   .note-on-rh-velocity-6:not(.indicator) {
-    fill: #ff6969 !important;
+    fill: #fff77a !important;
   }
   .note-on-rh-velocity-7:not(.indicator) {
-    fill: #ff5656 !important;
+    fill: #fff665 !important;
   }
   .note-on-rh-velocity-8:not(.indicator) {
-    fill: #ff3d3d !important;
+    fill: #fff44f !important;
   }
   .note-on-rh-velocity-9:not(.indicator) {
-    fill: #ff2020 !important;
+    fill: #fff339 !important;
   }
   .note-on-rh-velocity-10:not(.indicator) {
-    fill: red !important;
+    fill: #fff224 !important;
   }
   .note-on-lh-velocity-1:not(.indicator) {
     fill: #bdddff !important;

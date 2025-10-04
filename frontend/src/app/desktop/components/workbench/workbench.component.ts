@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -99,6 +99,23 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   ) {
     // Initialize elapsed time observable
     this.elapsedTime = this.playerService.elapsedTime;
+    
+    // Watch for message signal effects
+    effect(() => {
+      const message = this.playerService.message();
+      if (message === "END") {
+        this.isPlaying = false;
+        this.changeDetector.detectChanges();
+      } else if (message === "BAD") {
+        this.arenaClass = 'bad';
+        this.changeDetector.detectChanges();
+        // Remove the bad class after a short duration
+        setTimeout(() => {
+          this.arenaClass = '';
+          this.changeDetector.detectChanges();
+        }, 500);
+      }
+    });
     
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
