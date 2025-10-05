@@ -7,6 +7,7 @@ import { Header } from '@tonejs/midi';
 import { getNoteDuration, getNoteDurationTicks } from "../desktop/service/midi-maths";
 import { MusicXML, elements } from '@stringsync/musicxml';
 import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from "../desktop/model/model";
+import { at, create, sum } from "lodash";
 
 const keyToNote: { [key: string]: number } = {}
 
@@ -112,7 +113,7 @@ function generateExerciceAsMidi(exercice: Exercise, scaleOrChord: Scale | Chord,
   return midi.toJSON();
 }
 
-function generateExerciseAsMusicXML(exercice: Exercise, scaleOrChord: Scale | Chord, key: string): string {
+export function generateExerciseAsMusicXML(exercice: Exercise, scaleOrChord: Scale | Chord, key: string): string {
   const title = `${key} ${scaleOrChord.name}: ${exercice.title}`;
 
   // Create MusicXML using @stringsync/musicxml API
@@ -189,17 +190,108 @@ function createMusicXMLWithAPI(exercice: Exercise, scaleOrChord: Scale | Chord, 
   return musicXml;
 }
 
-function createPartWithAPI(
-  partId: string,
-  hand: string,
-  exercice: Exercise,
-  scaleOrChord: Scale | Chord,
-  key: string,
-  divisions: number
-): elements.PartPartwise {
-  const notesInPattern = hand === 'lh' ? exercice.patternLeftHand : exercice.patternRightHand;
-  const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift || 0);
 
+function createElementNote(numberInPattern: number, finger: number, duration: number, scaleOrChord: Scale | Chord, octave: number, key: string, isChord: boolean): elements.Note {
+  let midiNoteNum: number;
+  if (scaleOrChord.kind === "Scale") {
+    midiNoteNum = getScaleNotes(scaleOrChord, octave, key, numberInPattern);
+  } else {
+    midiNoteNum = getChordNote(getNote(`${key}${octave}`), numberInPattern, scaleOrChord.pattern);
+  }
+
+  const pitchInfo = midiNoteToPitch(midiNoteNum);
+  //const duration = convertDurationToMusicXML(noteInPattern.duration, divisions);
+
+  // Create notations with fingering if available
+  const notations: elements.Notations[] = [];
+  if (finger) {
+    const fingering = new elements.Fingering({
+      attributes: { alternate: 'no', substitution: 'no' },
+      contents: [finger.toString()],
+    });
+
+    const technical = new elements.Technical({
+      contents: [[fingering]],
+    });
+
+    notations.push(
+      new elements.Notations({
+        contents: [
+          null, // elements.Footnote
+          null, // elements.Level
+          [technical] // Array of notation elements
+        ],
+      })
+    );
+  }
+
+  const note = new elements.Note({
+    contents: [
+      [
+        isChord ? new elements.Chord({}) : null, // Chord element for notes after the first one
+        new elements.Pitch({
+          contents: [
+            new elements.Step({ contents: [pitchInfo.step as any] }),
+            pitchInfo.alter !== 0 ? new elements.Alter({ contents: [pitchInfo.alter] }) : null,
+            new elements.Octave({ contents: [pitchInfo.octave] }),
+          ],
+        }),
+        new elements.Duration({ contents: [duration] }),
+        [], // elements.Tie
+      ],
+      new Array<elements.Instrument>(),
+      null, // elements.Footnote
+      null, // elements.Level
+      null, // elements.Voice
+      null, // elements.Type
+      new Array<elements.Dot>(),
+      null, // elements.Accidental
+      null, // elements.TimeModification
+      null, // elements.Stem
+      null, // elements.Notehead
+      null, // elements.NoteheadText
+      null, // elements.Staff
+      [], // elements.Beam
+      notations,
+      new Array<elements.Lyric>(),
+      null, // elements.Play
+      null, // elements.Listen
+    ],
+  });
+  return note;
+}
+
+function createAttributeNextMeasure(hand: string, exercice: Exercise, divisions: number): elements.Attributes {
+
+  const attributesNextMeasure = new elements.Attributes({
+    contents: [
+      null, // elements.Footnote
+      null, // elements.Level
+      new elements.Divisions({ contents: [divisions] }),
+      new Array<elements.Key>(), // No key signature - default to C major
+      new Array<elements.Time>(),
+      null, // elements.Staves
+      null, // elements.PartSymbol
+      null, // elements.Instruments
+      new Array<elements.Clef>(
+        // new elements.Clef({
+        //   contents: [
+        //     new elements.Sign({ contents: [hand === 'rh' ? 'G' : 'F'] }),
+        //     new elements.Line({ contents: [hand === 'rh' ? 2 : 4] }),
+        //     null, // elements.ClefOctaveChange
+        //   ]
+        // }),
+      ),
+      new Array<elements.StaffDetails>(),
+      new Array<elements.Transpose>(),
+      new Array<elements.Directive>(),
+      new Array<elements.MeasureStyle>(),
+    ],
+  });
+  return attributesNextMeasure;
+}
+
+function createAttributeFirstMeasure(hand: string, exercice: Exercise, divisions: number): elements.Attributes {
   // Create attributes for the measure
   const attributesFirstMeasure = new elements.Attributes({
     contents: [
@@ -240,159 +332,36 @@ function createPartWithAPI(
       new Array<elements.MeasureStyle>(),
     ],
   });
+  return attributesFirstMeasure
+}
 
+function createPartWithAPI(
+  partId: string,
+  hand: string,
+  exercice: Exercise,
+  scaleOrChord: Scale | Chord,
+  key: string,
+  divisions: number
+): elements.PartPartwise {
+  const notesInPattern = hand === 'lh' ? exercice.patternLeftHand : exercice.patternRightHand;
+  const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift || 0);
 
   // Create attributes for the measure
-  const attributesNextMeasure = new elements.Attributes({
-    contents: [
-      null, // elements.Footnote
-      null, // elements.Level
-      new elements.Divisions({ contents: [divisions] }),
-      new Array<elements.Key>(), // No key signature - default to C major
-      new Array<elements.Time>(),
-      null, // elements.Staves
-      null, // elements.PartSymbol
-      null, // elements.Instruments
-      new Array<elements.Clef>(
-        // new elements.Clef({
-        //   contents: [
-        //     new elements.Sign({ contents: [hand === 'rh' ? 'G' : 'F'] }),
-        //     new elements.Line({ contents: [hand === 'rh' ? 2 : 4] }),
-        //     null, // elements.ClefOctaveChange
-        //   ]
-        // }),
-      ),
-      new Array<elements.StaffDetails>(),
-      new Array<elements.Transpose>(),
-      new Array<elements.Directive>(),
-      new Array<elements.MeasureStyle>(),
-    ],
-  });
-
-
-
-  // Generate notes for the pattern
-
-  //let counter = 0;
+  const attributesFirstMeasure = createAttributeFirstMeasure(hand, exercice, divisions);
+  const attributesNextMeasure = createAttributeNextMeasure(hand, exercice, divisions);
 
   // Create measure with attributes and notes
-
   const measures = [];
   let noteElements: elements.Note[] = [];
   let measureCounter = 0;
-
+  let sumDuration = 0;
   // Répéter le pattern selon exercice.repeat
   for (let repeat = 0; repeat < exercice.repeat; repeat++) {
     for (let i = 0; i < notesInPattern.length; i++) {
-      const noteInPattern = notesInPattern[i];
 
-
-      if (noteInPattern.note[0] !== 0) {
-        // Generate notes
-        for (let j = 0; j < noteInPattern.note.length; j++) {
-          let midiNoteNum: number;
-          if (scaleOrChord.kind === "Scale") {
-            midiNoteNum = getScaleNotes(scaleOrChord, octave, key, noteInPattern.note[j]);
-          } else {
-            midiNoteNum = getChordNote(getNote(`${key}${octave}`), noteInPattern.note[j], scaleOrChord.pattern);
-          }
-
-          const pitchInfo = midiNoteToPitch(midiNoteNum);
-          const duration = convertDurationToMusicXML(noteInPattern.duration, divisions);
-
-          // Create notations with fingering if available
-          const notations: elements.Notations[] = [];
-          if (noteInPattern.finger && noteInPattern.finger.length > j && noteInPattern.finger[j]) {
-            const fingering = new elements.Fingering({
-              attributes: { alternate: 'no', substitution: 'no' },
-              contents: [noteInPattern.finger[j].toString()],
-            });
-
-            const technical = new elements.Technical({
-              contents: [[fingering]],
-            });
-
-            notations.push(
-              new elements.Notations({
-                contents: [
-                  null, // elements.Footnote
-                  null, // elements.Level
-                  [technical] // Array of notation elements
-                ],
-              })
-            );
-          }
-
-          const note = new elements.Note({
-            contents: [
-              [
-                null, // elements.TiedNote
-                new elements.Pitch({
-                  contents: [
-                    new elements.Step({ contents: [pitchInfo.step as any] }),
-                    pitchInfo.alter !== 0 ? new elements.Alter({ contents: [pitchInfo.alter] }) : null,
-                    new elements.Octave({ contents: [pitchInfo.octave] }),
-                  ],
-                }),
-                new elements.Duration({ contents: [duration] }),
-                [], // elements.Tie
-              ],
-              new Array<elements.Instrument>(),
-              null, // elements.Footnote
-              null, // elements.Level
-              null, // elements.Voice
-              null, // elements.Type
-              new Array<elements.Dot>(),
-              null, // elements.Accidental
-              null, // elements.TimeModification
-              null, // elements.Stem
-              null, // elements.Notehead
-              null, // elements.NoteheadText
-              null, // elements.Staff
-              [], // elements.Beam
-              notations,
-              new Array<elements.Lyric>(),
-              null, // elements.Play
-              null, // elements.Listen
-            ],
-          });
-          noteElements.push(note);
-        }
-      } else {
-        // Generate rest
-        const duration = convertDurationToMusicXML(noteInPattern.duration, divisions);
-
-        const rest = new elements.Note({
-          contents: [
-            [
-              null, // elements.TiedNote
-              new elements.Rest({}),
-              new elements.Duration({ contents: [duration] }),
-              [], // elements.Tie
-            ],
-            new Array<elements.Instrument>(),
-            null, // elements.Footnote
-            null, // elements.Level
-            null, // elements.Voice
-            null, // elements.Type
-            new Array<elements.Dot>(),
-            null, // elements.Accidental
-            null, // elements.TimeModification
-            null, // elements.Stem
-            null, // elements.Notehead
-            null, // elements.NoteheadText
-            null, // elements.Staff
-            [], // elements.Beam
-            new Array<elements.Notations>(),
-            new Array<elements.Lyric>(),
-            null, // elements.Play
-            null, // elements.Listen
-          ],
-        });
-        noteElements.push(rest);
-      }
-
-      if (i > 0 && ((((i + 1) / noteInPattern.duration) % 1 === 0) || (i == notesInPattern.length - 1))) {
+      console.log(repeat, sumDuration)
+      // Create new measure based on noteInPattern loop, not note loop
+      if (sumDuration >= 1) {
         let attributes;
         if (measureCounter == 0) {
           attributes = attributesFirstMeasure
@@ -408,22 +377,91 @@ function createPartWithAPI(
         measures.push(newMeasure);
         noteElements = [];
         measureCounter = measureCounter + 1;
+        sumDuration = 0;
       }
 
-      //    counter = counter + 1 / noteInPattern.duration;
+      const noteInPattern = notesInPattern[i];
+      const duration = convertDurationToMusicXML(noteInPattern.duration, divisions);
+      if (noteInPattern.note[0] !== 0) {
+        // Generate notes as a chord if multiple notes, otherwise as a single note
+        for (let j = 0; j < noteInPattern.note.length; j++) {
+          //console.log("createElementNote", noteInPattern.note[j], noteInPattern.finger?.[j] || 0, duration, scaleOrChord, octave, key, j > 0);
+          const note = createElementNote(noteInPattern.note[j], noteInPattern.finger?.[j] || 0, duration, scaleOrChord, octave, key, j > 0);
+          noteElements.push(note);
+        }
+      } else {
+        const rest = createElementRest(duration)
+        noteElements.push(rest);
+      }
+      
+      sumDuration = sumDuration +  (1/noteInPattern.duration) ;
+
     }
+
+    // Add any remaining notes to a final measure
+    if (noteElements.length > 0) {
+      let attributes;
+      if (measureCounter == 0) {
+        attributes = attributesFirstMeasure
+      } else {
+        attributes = attributesNextMeasure
+      }
+      const newMeasure: elements.MeasurePartwise = new elements.MeasurePartwise({
+        attributes: { number: '' + (measures.length + 1) },
+        contents: [
+          [attributes, ...noteElements],
+        ],
+      })
+      measures.push(newMeasure);
+    }
+
+
+
   }
+
   return new elements.PartPartwise({
     attributes: { id: partId },
   }).setMeasures(measures);
 }
 
+function createElementRest(duration: number): elements.Note {
+  const rest = new elements.Note({
+    contents: [
+      [
+        null, // elements.TiedNote
+        new elements.Rest({}),
+        new elements.Duration({ contents: [duration] }),
+        [], // elements.Tie
+      ],
+      new Array<elements.Instrument>(),
+      null, // elements.Footnote
+      null, // elements.Level
+      null, // elements.Voice
+      null, // elements.Type
+      new Array<elements.Dot>(),
+      null, // elements.Accidental
+      null, // elements.TimeModification
+      null, // elements.Stem
+      null, // elements.Notehead
+      null, // elements.NoteheadText
+      null, // elements.Staff
+      [], // elements.Beam
+      new Array<elements.Notations>(),
+      new Array<elements.Lyric>(),
+      null, // elements.Play
+      null, // elements.Listen
+    ],
+  });
+  return rest
+}
+
+
 function midiNoteToPitch(midiNote: number): { step: string, octave: number, alter: number } {
   const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
   const octave = Math.floor(midiNote / 12) - 1;
   const noteIndex = midiNote % 12;
   const noteName = noteNames[noteIndex];
-
   if (noteName.includes('#')) {
     return {
       step: noteName[0],
@@ -442,7 +480,8 @@ function midiNoteToPitch(midiNote: number): { step: string, octave: number, alte
 function convertDurationToMusicXML(duration: number, divisions: number): number {
   // Convert duration to MusicXML divisions
   // Assuming duration is in quarter notes (1 = quarter note)
-  return Math.round(duration / divisions);
+  //console.log("divisions", divisions);
+  return 4 * divisions / duration; //Math.round(duration / divisions);
 }
 
 
@@ -466,10 +505,8 @@ function getScaleNotes(scale: Scale, octave: number, key: string, numberInPatter
   const index = adjustedNumberInPattern % scale.pattern.length;
   const midiStart = getNote(key + octaveWithShift)
   const result = getScale(midiStart, scale.pattern)[index]
-  return result
+  return result;
 }
-
-
 
 
 function getNote(key: string): number {

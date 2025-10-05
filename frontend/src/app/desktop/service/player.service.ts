@@ -189,14 +189,8 @@ export class PlayerService {
     this.lastMidiEventTime = -1;
     if (this.osmdCursor !== null) {
       this.osmdCursor.reset();
-
-
       for (let i = 0; i < this.playConfiguration.currentStave - 1; i++) {
-        console.log("advance to stave", i);
         this.osmdCursor.nextMeasure();
-      }
-      if (this.playConfiguration.currentStave > 0) {
-        //this.osmdCursor.previous();
       }
     }
   }
@@ -277,12 +271,10 @@ export class PlayerService {
 
   private cursorMayBeAdvance(note: Note) {
     if (note.ticks > this.lastMidiEventTime) {
-      console.log("maybe advance cursor do it");
       this.osmdCursor.next();
       this.lastMidiEventTime = note.ticks;
       let safety = 0;
       while (safety < 10 && this.osmdCursor.NotesUnderCursor().length  > 0 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
-        console.log("advance cursor do it again");
         this.osmdCursor.next();
         safety++;
       }
@@ -516,7 +508,6 @@ export class PlayerService {
         this.isWaiting = false;
       }
       if (hit < 1) {
-        console.log("miss", midiEvent.note);
         this.message.set("BAD");
         // Reset message after a brief moment to allow effect to trigger again
         setTimeout(() => {
