@@ -359,7 +359,6 @@ function createPartWithAPI(
   for (let repeat = 0; repeat < exercice.repeat; repeat++) {
     for (let i = 0; i < notesInPattern.length; i++) {
 
-      console.log(repeat, sumDuration)
       // Create new measure based on noteInPattern loop, not note loop
       if (sumDuration >= 1) {
         let attributes;
@@ -385,8 +384,16 @@ function createPartWithAPI(
       if (noteInPattern.note[0] !== 0) {
         // Generate notes as a chord if multiple notes, otherwise as a single note
         for (let j = 0; j < noteInPattern.note.length; j++) {
-          //console.log("createElementNote", noteInPattern.note[j], noteInPattern.finger?.[j] || 0, duration, scaleOrChord, octave, key, j > 0);
-          const note = createElementNote(noteInPattern.note[j], noteInPattern.finger?.[j] || 0, duration, scaleOrChord, octave, key, j > 0);
+          let noteStart = 0;
+          if (noteInPattern.progression) {
+            console.log("progression", noteInPattern.progression);
+            //let midiNoteNum = getScaleNotes(scaleOrChord, octave, key, noteInPattern);
+            //getScale(noteInPattern.note[j], noteInPattern.progression)
+            noteStart = noteInPattern.note[j];
+          } else {
+            noteStart = noteInPattern.note[j];
+          }
+          const note = createElementNote(noteStart, noteInPattern.finger?.[j] || 0, duration, scaleOrChord, octave, key, j > 0);
           noteElements.push(note);
         }
       } else {

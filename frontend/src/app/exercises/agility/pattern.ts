@@ -222,7 +222,7 @@ const exercice2 = {
 } as Exercise
 
 const exercice3 = {
-    title: "NEW",
+    title: "Arpeggio in root position, two octaves",
     measure: 4,
     type: "chord",
     patternSize: 3,
@@ -308,5 +308,56 @@ const exercice3 = {
     ]
 
 } as Exercise
+
+
+const exercice4 = {
+    title: "Chord inversions ",
+    measure: 4,
+    type: "chord",
+    patternSize: 3,
+    advice: "Pratice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple time.",
+    beat: reducedFraction(4, 4),
+    tempo: 60,
+    repeat: 1,
+    patternLeftHand: [
+        // root position
+        { note: [1,2,3], duration: 2, finger: [1,3,5] }, // CEG, root position
+        { note: [2,3,4], duration: 2, finger: [1,2,5] }, // EGC, 1st inversion     
+        { note: [3,4,5], duration: 2, finger: [1,3,5] }, // GCE, 2nd inversion    
+        // F
+        { note: [1,2,3], progression: 4, duration: 2, finger: [1,3,5] }, // CEG, root position
+        { note: [2,3,4], progression: 4, duration: 2, finger: [1,2,5] }, // EGC, 1st inversion     
+        { note: [3,4,5], progression: 4, duration: 2, finger: [1,3,5] }, // GCE, 2nd inversion    
+        // G
+        { note: [1,2,3], progression: 5, duration: 2, finger: [1,3,5] }, // CEG, root position
+        { note: [2,3,4], progression: 5, duration: 2, finger: [1,2,5] }, // EGC, 1st inversion     
+        { note: [3,4,5], progression: 5, duration: 2, finger: [1,3,5] }, // GCE, 2nd inversion  
+
+        { note: [0], progression: 5, duration: 2, finger: [1,3,5] }, // CEG, root position
+
+
+    ],
+    // I IV, V
+    patternRightHand: [
+        // root position
+        // C
+        { note: [1,2,3], duration: 2, finger: [1,3,5] }, // CEG, root position
+        { note: [2,3,4], duration: 2, finger: [1,2,5] }, // EGC, 1st inversion     
+        { note: [3,4,5], duration: 2, finger: [1,3,5] }, // GCE, 2nd inversion               
+        // F
+        { note: [1,2,3], progression: 4, duration: 2, finger: [1,3,5] }, // CEG, root position
+        { note: [2,3,4], progression: 4, duration: 2, finger: [1,2,5] }, // EGC, 1st inversion     
+        { note: [3,4,5], progression: 4, duration: 2, finger: [1,3,5] }, // GCE, 2nd inversion    
+        // G
+        { note: [1,2,3], progression: 5, duration: 2, finger: [1,3,5] }, // CEG, root position
+        { note: [2,3,4], progression: 5, duration: 2, finger: [1,2,5] }, // EGC, 1st inversion     
+        { note: [3,4,5], progression: 5, duration: 2, finger: [1,3,5] }, // GCE, 2nd inversion  
+
+        { note: [0], progression: 5, duration: 2, finger: [1,3,5] }, // CEG, root position
+
+    ]
+
+} as Exercise
+
 
 export const exercises = [exercice3, exercice1, exercice2];

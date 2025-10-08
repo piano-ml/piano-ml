@@ -10,6 +10,7 @@ export interface NoteInPattern {
     note: number[];
     duration: number;
     finger?: number[];
+    progression?: number; // 1: I, 4: IV, 5: V
 }
 
 export interface Exercise {
