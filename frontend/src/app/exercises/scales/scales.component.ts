@@ -19,9 +19,9 @@ export class ScalesComponent {
   scales = scales;
 
   myexcerices = exercises;
-  selectedExcercice: Exercise = exercises[0]
+  selectedExcercice: Exercise = exercises[2]
   selectedScale: Scale = scales[0]
-  selectedKey = keys[getWeekOfYear() % keys.length]
+  selectedKey = keys[0] // keys[getWeekOfYear() % keys.length]
   keys = keys
 
   constructor(private router: Router) { }

@@ -12,11 +12,11 @@ import { Router, RouterModule } from '@angular/router';
 export class SummaryComponent {
 
   summary = [
-    {
-      url: '../blog',
-      title: 'Blog',
-      description: 'Some news about the project',
-    },
+    // {
+    //   url: '../blog',
+    //   title: 'Blog',
+    //   description: 'Some news about the project',
+    // },
     
     {
       url: '/exercises/scale',
