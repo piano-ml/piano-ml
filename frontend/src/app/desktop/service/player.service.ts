@@ -289,8 +289,8 @@ export class PlayerService {
 }
 
 isSkipable(note:Note, n: OSMDNote): unknown {
-  console.log(Math.floor(note.bars)+1, n.SourceMeasure.MeasureNumber)
-  return n.isRest() || n.IsCueNote || n.NoteTie?.Notes.last() === n || (Math.floor(note.bars)+1 > n.SourceMeasure.MeasureNumber);
+  //console.log(Math.floor(note.bars)+1, n.SourceMeasure.MeasureNumber)
+  return n.isRest() || n.IsCueNote || n.NoteTie?.Notes.last() === n; // || (Math.floor(note.bars)+1 > n.SourceMeasure.MeasureNumber);
 }
 
 
