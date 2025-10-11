@@ -35,10 +35,13 @@ $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE
 
 $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
 
-musescore3 -o $FROOT.pdf $FROOT.musicxml
+cp "$FROOT.musicxml" ${FROOT}_filtered.musicxml
+$HOME/shared-venv/bin/python ./scripts/filter_tempo.py ${FROOT}_filtered.musicxml
+
+musescore3 -o "$FROOT.pdf" ${FROOT}_filtered.musicxml
 
 $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml"
 
 zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json" "metadata.json"
 
-#rm "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"
+rm "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json" "metadata.json" ${FROOT}_filtered.musicxml

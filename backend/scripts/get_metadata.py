@@ -5,59 +5,33 @@ from collections import defaultdict
 
 def extract_predominant_tempo(score):
     """
-    Extract the predominant tempo from the score based on duration coverage.
-    Returns the tempo that covers the most duration in the piece.
+    Calcule le tempo moyen de la partition, supprime tous les marquages de tempo,
+    et ajoute un seul tempo moyen au début.
     """
-    # Get all tempo markings with their positions
-    tempo_markings = []
-
-    # Check all parts for tempo markings
+    from music21 import tempo, stream
+    tempos = []
+    # Collecte tous les tempos
     for part in score.parts:
         for element in part.recurse():
             if isinstance(element, (tempo.TempoIndication, tempo.MetronomeMark)):
-                offset = element.offset
                 if hasattr(element, 'number') and element.number:
                     bpm = element.number
                 elif hasattr(element, 'getQuarterBPM'):
                     bpm = element.getQuarterBPM()
                 else:
                     continue
-                tempo_markings.append((offset, bpm))
-
-    # If no tempo markings found, try to get default tempo
-    if not tempo_markings:
-        try:
-            # Try to get tempo from metronome mark boundaries
-            boundaries = score.metronomeMarkBoundaries()
-            if boundaries:
-                return int(boundaries[0][2].getQuarterBPM())
-        except:
-            pass
-        return None
-
-    # Sort tempo markings by offset
-    tempo_markings.sort(key=lambda x: x[0])
-
-    # Calculate duration coverage for each tempo
-    tempo_durations = defaultdict(float)
-    total_duration = float(score.duration.quarterLength)
-
-    for i, (offset, bpm) in enumerate(tempo_markings):
-        # Calculate the duration this tempo is active
-        if i + 1 < len(tempo_markings):
-            duration = tempo_markings[i + 1][0] - offset
-        else:
-            # Last tempo marking lasts until the end
-            duration = total_duration - offset
-
-        tempo_durations[bpm] += duration
-
-    # Find the tempo with the longest duration
-    if tempo_durations:
-        predominant_tempo = max(tempo_durations.items(), key=lambda x: x[1])
-        return int(predominant_tempo[0])
-
-    return None
+                tempos.append(bpm)
+    # Si aucun tempo trouvé, valeur par défaut
+    if not tempos:
+        avg_tempo = 120
+    else:
+        avg_tempo = sum(tempos) / len(tempos)
+    # Supprime tous les marquages de tempo
+    for part in score.parts:
+        to_remove = []
+        for element in part.recurse():
+            if isinstance(element, (tempo.TempoIndication, tempo.MetronomeMark)):
+                to_remove.append(element)
 
 def main():
     if len(sys.argv) != 2:
