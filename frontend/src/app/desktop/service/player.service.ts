@@ -270,20 +270,22 @@ export class PlayerService {
 
 
   private cursorMayBeAdvance(note: Note) {
-    if (note.ticks > this.lastMidiEventTime) {
+    if ((note.ticks-PERFECT_RANGE) > this.lastMidiEventTime) {
       this.lastMidiEventTime = note.ticks;
-      if ((note.bars + 1 < this.osmdCursor.NotesUnderCursor().last()?.SourceMeasure.MeasureNumber)) {
-        return;
-      }
+      if (
+         (this.osmdCursor.NotesUnderCursor().at(0) 
+         && Math.floor(note.bars) + 1 < this.osmdCursor.NotesUnderCursor().at(0)!.SourceMeasure.MeasureNumber)) {        
+         return;
+       }
       this.osmdCursor.next();
       let safety = 0;
-      setTimeout(() => {
+//      setTimeout(() => {
         while (safety < 10 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(note, n))) {
           this.osmdCursor.next();
           safety++;
         }
-      }, PERFECT_RANGE);
-    }
+//      }, PERFECT_RANGE);
+    } 
 
 
 
