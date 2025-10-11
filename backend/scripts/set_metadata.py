@@ -16,4 +16,3 @@ score.metadata.title = title
 score.metadata.composer = composer
 
 score.write('musicxml', fp=musicxml)
-
