@@ -47,12 +47,17 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     private async loadMusicXML() {
+        
         this.loading = true;
         this.error = null;
+
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
+        this.osmd.EngravingRules.SheetMaximumWidth=8000000000000;
+        
         this.osmd.setOptions({ // https://opensheetmusicdisplay.github.io/classdoc/interfaces/IOSMDOptions.html
             drawingParameters: 'default',
-            autoResize: true,
+            pageFormat: 'Endless',
+            autoResize: false,
             autoBeam: true,
             alignRests: 1,
             drawLyricist: true,
@@ -85,7 +90,9 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
             followCursor: true,
         });
         if (localStorage.getItem(MUSIC_XML_STORAGE_KEY) !== null) {
-            await this.osmd.load(localStorage.getItem(MUSIC_XML_STORAGE_KEY)!);
+            await this.osmd.load(localStorage.getItem(MUSIC_XML_STORAGE_KEY)!).then(() => {
+                this.osmd!.EngravingRules.SheetMaximumWidth = Number.MAX_SAFE_INTEGER;
+            });
             this.osmd!.render();            
             setTimeout(() => {
                 this.loading = false;
@@ -93,8 +100,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                     console.warn("osmd.cursor is undefined!");
                 } else {
                     this.osmd!.cursor.show();
-                    this.osmd!.cursor.reset();
-                    //this.osmd!.cursor.previous();                    
+                    this.osmd!.cursor.reset();                  
                     this.playerService.setOsmdCursor(this.osmd!.cursor);
                 }
             }, 20);
