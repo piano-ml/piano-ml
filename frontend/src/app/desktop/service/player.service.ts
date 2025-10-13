@@ -54,7 +54,12 @@ export class PlayerService {
   lastMidiEventTime = 0;
   private timeCounterInterval?: number;
 
+  // Keyboard preferences loaded from localStorage
+  leftmostKey: number = 21;  // Default A0
+  rightmostKey: number = 108; // Default C8
+
   constructor(private midiService: MidiServiceService) {
+    this.loadKeyboardPreferences();
     this.initSoundFont();
     this.synth = new Tone.Synth().toDestination();
     this.initPiano();
@@ -270,22 +275,20 @@ export class PlayerService {
 
 
   private cursorMayBeAdvance(note: Note) {
-    if ((note.ticks-PERFECT_RANGE) > this.lastMidiEventTime) {
+    if ((note.ticks - PERFECT_RANGE) > this.lastMidiEventTime) {
       this.lastMidiEventTime = note.ticks;
       if (
-         (this.osmdCursor.NotesUnderCursor().at(0) 
-         && Math.floor(note.bars) + 1 < this.osmdCursor.NotesUnderCursor().at(0)!.SourceMeasure.MeasureNumber)) {        
-         return;
-       }
+        (this.osmdCursor.NotesUnderCursor().at(0)
+          && Math.floor(note.bars) + 1 < this.osmdCursor.NotesUnderCursor().at(0)!.SourceMeasure.MeasureNumber)) {
+        return;
+      }
       this.osmdCursor.next();
       let safety = 0;
-//      setTimeout(() => {
-        while (safety < 10 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(note, n))) {
-          this.osmdCursor.next();
-          safety++;
-        }
-//      }, PERFECT_RANGE);
-    } 
+      while (safety < 10 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(note, n))) {
+        this.osmdCursor.next();
+        safety++;
+      }
+    }
 
 
 
@@ -306,14 +309,12 @@ export class PlayerService {
     Tone.getTransport().schedule((time: number) => {
       Tone.getDraw().schedule(() => {
         this.cursorMayBeAdvance(note);
-        if (this.isHandOk(hand) || this.zeroHand()) {
-          this.noteOn(hand, note)
-        }
+        this.lightNoteOnKeyboard(hand, note)
         if (this.lateNotes.size > 0) {
           this.isWaiting = true;
           Tone.getTransport().pause();
         }
-        if (this.isHandOk(hand)) {
+        if (this.isHandOk(hand, note.midi)) {
           this.pushLateNote(note);
         }
         this.setCurrentTick(note.bars);
@@ -328,10 +329,6 @@ export class PlayerService {
         note: note.name,
         midi: note.midi
       });
-
-
-
-
     }, noteTimeStart);
 
     // schedule keyboard light off
@@ -345,7 +342,7 @@ export class PlayerService {
       });
 
       Tone.getDraw().schedule(() => {
-        if (!this.isHandOk(hand)) {
+        if (!this.isHandOk(hand, note.midi)) {
           // Vérifier d'abord si la note est en attente avant la recherche DOM
           const isNoteAwaited = Array.from(this.lateNotes.values())
             .some(lateNotesList =>
@@ -357,7 +354,7 @@ export class PlayerService {
               .getElementsByClassName(`key${note.midi}`)) as HTMLElement[];
             removeNoteFromKeyboard(key);
           } else {
-            this.noteOn('late', note);
+            this.lightNoteOnKeyboard('late', note);
           }
         }
       }, time);
@@ -375,7 +372,7 @@ export class PlayerService {
   }
 
 
-  private noteOn(hand: string, note: Note) {
+  private lightNoteOnKeyboard(hand: string, note: Note) {
     const velocityUI = Math.min(
       Math.max(Math.round(note.velocity * 10), 1),
       10
@@ -411,9 +408,12 @@ export class PlayerService {
     }
   }
 
-  private isHandOk(hand: string) {
-    return (hand === 'rh' && this.playConfiguration.waitForRightHand)
-      || (hand === 'lh' && this.playConfiguration.waitForLeftHand);
+  private isHandOk(hand: string, midiPitch: number) {
+    console.log(midiPitch >= this.leftmostKey && midiPitch <= this.rightmostKey)
+    return (((hand === 'rh' && this.playConfiguration.waitForRightHand)
+      || (hand === 'lh' && this.playConfiguration.waitForLeftHand))
+      && (midiPitch >= this.leftmostKey && midiPitch <= this.rightmostKey)
+    );
   }
 
 
@@ -511,7 +511,7 @@ export class PlayerService {
       return
     }
     if (midiEvent.type === 'down' as MidiStateEvent['type']) {
-
+      console.log(midiEvent.note)
       const hit = this.integrateMidiEventInLastNote(midiEvent);
       if (this.lateNotes.size === 0 && this.isWaiting) {
         await Tone.start();
@@ -541,6 +541,34 @@ export class PlayerService {
     keys.forEach((el: HTMLElement) => {
       clearClassesFromSVG(el, "note-on");
     });
+  }
+
+  /**
+   * Charge les préférences du clavier depuis localStorage
+   */
+  private loadKeyboardPreferences() {
+    try {
+      const preferences = localStorage.getItem('preferences');
+      if (preferences) {
+        const parsedPreferences = JSON.parse(preferences);
+        this.leftmostKey = parsedPreferences.leftmostKey || 21;
+        this.rightmostKey = parsedPreferences.rightmostKey || 108;
+        console.log(`Loaded keyboard preferences: leftmost=${this.leftmostKey}, rightmost=${this.rightmostKey}`);
+      }
+    } catch (error) {
+      console.error('Error loading keyboard preferences:', error);
+      // Keep default values in case of error
+      this.leftmostKey = 21;
+      this.rightmostKey = 108;
+    }
+  }
+
+  /**
+   * Recharge les préférences du clavier depuis localStorage
+   * Méthode publique pour permettre le rechargement à chaud
+   */
+  reloadKeyboardPreferences() {
+    this.loadKeyboardPreferences();
   }
 
   /**
