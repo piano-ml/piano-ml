@@ -48,6 +48,116 @@
             </form>
           </div>
         </div>
+
+        <!-- Keyboard Preferences -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">
+            Keyboard Range Preferences
+          </label>
+          <div *ngIf="!keyboardEditMode" class="flex items-center justify-between">
+            <div class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <span class="text-sm text-gray-600">Leftmost key:</span>
+                  <span class="ml-2 font-medium">{{ keyboardPreferencesForm.get('leftmostKey')?.value || 21 }}</span>
+                </div>
+                <div>
+                  <span class="text-sm text-gray-600">Rightmost key:</span>
+                  <span class="ml-2 font-medium">{{ keyboardPreferencesForm.get('rightmostKey')?.value || 108 }}</span>
+                </div>
+              </div>
+            </div>
+            <button 
+              type="button"
+              (click)="enableKeyboardEdit()" 
+              class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              title="Edit keyboard preferences">
+              Edit
+            </button>
+          </div>
+          <div *ngIf="keyboardEditMode">
+            <form [formGroup]="keyboardPreferencesForm" (ngSubmit)="saveKeyboardPreferences()" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="leftmostKey" class="block text-sm font-medium text-gray-300 mb-1">
+                    Leftmost key on the keyboard
+                    <span class="text-xs text-blue-400 ml-2">(Focus field and play MIDI note)</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="leftmostKey"
+                    formControlName="leftmostKey" 
+                    min="21"
+                    max="108"
+                    (focus)="onFieldFocus('leftmostKey')"
+                    (blur)="onFieldBlur()"
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                    [class.border-red-500]="keyboardPreferencesForm.get('leftmostKey')?.invalid && keyboardPreferencesForm.get('leftmostKey')?.touched"
+                    [class.border-green-400]="focusedField === 'leftmostKey'"
+                    placeholder="21">
+                  <div *ngIf="keyboardPreferencesForm.get('leftmostKey')?.invalid && keyboardPreferencesForm.get('leftmostKey')?.touched" 
+                       class="text-red-500 text-sm mt-1">
+                    <span *ngIf="keyboardPreferencesForm.get('leftmostKey')?.errors?.['required']">This field is required</span>
+                    <span *ngIf="keyboardPreferencesForm.get('leftmostKey')?.errors?.['min']">Value must be at least 21</span>
+                    <span *ngIf="keyboardPreferencesForm.get('leftmostKey')?.errors?.['max']">Value must be at most 108</span>
+                  </div>
+                </div>
+                <div>
+                  <label for="rightmostKey" class="block text-sm font-medium text-gray-300 mb-1">
+                    Rightmost key on the keyboard
+                    <span class="text-xs text-blue-400 ml-2">(Focus field and play MIDI note)</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="rightmostKey"
+                    formControlName="rightmostKey"
+                    min="21"
+                    max="108"
+                    (focus)="onFieldFocus('rightmostKey')"
+                    (blur)="onFieldBlur()"
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                    [class.border-red-500]="keyboardPreferencesForm.get('rightmostKey')?.invalid && keyboardPreferencesForm.get('rightmostKey')?.touched"
+                    [class.border-green-400]="focusedField === 'rightmostKey'"
+                    placeholder="108">
+                  <div *ngIf="keyboardPreferencesForm.get('rightmostKey')?.invalid && keyboardPreferencesForm.get('rightmostKey')?.touched" 
+                       class="text-red-500 text-sm mt-1">
+                    <span *ngIf="keyboardPreferencesForm.get('rightmostKey')?.errors?.['required']">This field is required</span>
+                    <span *ngIf="keyboardPreferencesForm.get('rightmostKey')?.errors?.['min']">Value must be at least 21</span>
+                    <span *ngIf="keyboardPreferencesForm.get('rightmostKey')?.errors?.['max']">Value must be at most 108</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- MIDI input indication -->
+              <div *ngIf="focusedField" class="text-green-400 text-sm">
+                🎹 Ready to capture MIDI input for {{ focusedField === 'leftmostKey' ? 'leftmost' : 'rightmost' }} key...
+              </div>
+              
+              <!-- Range validation error -->
+              <div *ngIf="keyboardPreferencesForm.errors?.['invalidRange'] && (keyboardPreferencesForm.get('leftmostKey')?.touched || keyboardPreferencesForm.get('rightmostKey')?.touched)" 
+                   class="text-red-500 text-sm">
+                Leftmost key must be less than rightmost key
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="flex gap-4">
+                <button 
+                  type="submit" 
+                  [disabled]="keyboardPreferencesForm.invalid"
+                  class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  title="Save keyboard preferences">
+                  Save
+                </button>
+                <button 
+                  type="button"
+                  (click)="keyboardEditMode = false"
+                  class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 
