@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -6,13 +6,15 @@ import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
 import { MidiStateEvent } from '../../../shared/model/webmidi';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-account-home',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, RouterModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccountHomeComponent implements OnDestroy {
   isLoggedIn$;
@@ -22,10 +24,17 @@ export class AccountHomeComponent implements OnDestroy {
   keyboardPreferencesForm: FormGroup;
   keyboardEditMode = false;
   
+  private destroy$ = new Subject<void>();
   midiFnHandle?: (e: MidiStateEvent) => void;
   focusedField: 'leftmostKey' | 'rightmostKey' | null = null;
 
-  constructor(private authService: AuthService, private fb: FormBuilder, private router: Router, private midiService: MidiServiceService) {
+  constructor(
+    private authService: AuthService, 
+    private fb: FormBuilder, 
+    private router: Router, 
+    private midiService: MidiServiceService,
+    private cdr: ChangeDetectorRef
+  ) {
     this.nameForm = this.fb.group({
       name: ['']
     });
@@ -35,33 +44,40 @@ export class AccountHomeComponent implements OnDestroy {
       rightmostKey: [108, [Validators.required, Validators.min(21), Validators.max(108)]]
     }, { validators: this.keyboardRangeValidator });
     this.isLoggedIn$ = this.authService.isLoggedIn;
-    this.isLoggedIn$.subscribe(isLoggedIn => {
+    this.isLoggedIn$.pipe(takeUntil(this.destroy$)).subscribe(isLoggedIn => {
       if (!isLoggedIn) {
         this.router.navigate(['/account/login']);
       }
     });
     this.loadUserInfo();
     this.loadKeyboardPreferences();
-    this.setup();
   }
 
   loadUserInfo() {
-    this.authService.getUserInfo().subscribe(data => {
+    this.authService.getUserInfo().pipe(takeUntil(this.destroy$)).subscribe(data => {
       this.userInfo = data;
       this.nameForm.patchValue({ name: data.name });
+      this.cdr.markForCheck(); // Trigger change detection with OnPush
     });
   }
 
   enableEdit() {
     this.editMode = true;
+    this.cdr.markForCheck();
+  }
+
+  cancelEdit() {
+    this.editMode = false;
+    this.nameForm.patchValue({ name: this.userInfo.name }); // Reset form
+    this.cdr.markForCheck();
   }
 
   savename() {
     const newname = this.nameForm.value.name;
-    this.authService.updateUserInfo({ name: newname }).subscribe(() => {
+    this.authService.updateUserInfo({ name: newname }).pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.userInfo.name = newname;
       this.editMode = false;
-      window.location.reload();
+      this.cdr.markForCheck(); // Much more performant than window.location.reload()
     });
   }
 
@@ -87,6 +103,8 @@ export class AccountHomeComponent implements OnDestroy {
 
   enableKeyboardEdit() {
     this.keyboardEditMode = true;
+    this.setupMidiListener();
+    this.cdr.markForCheck();
   }
 
   saveKeyboardPreferences() {
@@ -94,6 +112,22 @@ export class AccountHomeComponent implements OnDestroy {
       const preferences = this.keyboardPreferencesForm.value;
       localStorage.setItem('preferences', JSON.stringify(preferences));
       this.keyboardEditMode = false;
+      this.cleanupMidiListener(); // Clean up when exiting edit mode
+      this.cdr.markForCheck();
+    }
+  }
+
+  cancelKeyboardEdit() {
+    this.keyboardEditMode = false;
+    this.cleanupMidiListener();
+    this.loadKeyboardPreferences(); // Reset form values
+    this.cdr.markForCheck();
+  }
+
+  private cleanupMidiListener() {
+    if (this.midiFnHandle) {
+      this.midiService.unsubscribe(this.midiFnHandle);
+      this.midiFnHandle = undefined;
     }
   }
 
@@ -107,34 +141,65 @@ export class AccountHomeComponent implements OnDestroy {
     return null;
   }
 
-  setup() {
+  setupMidiListener() {
     if (this.midiFnHandle) {
       this.midiService.unsubscribe(this.midiFnHandle);
     }
 
     setTimeout(() => {
       this.midiFnHandle = this.midiService.subscribe((midiEvent) => this.processMidiEvent(midiEvent));
-    }, 2000);
+    }, 20);
+  }
+
+  // Getters for template optimization
+  get leftmostKeyValue(): number {
+    return this.keyboardPreferencesForm.get('leftmostKey')?.value || 21;
+  }
+
+  get rightmostKeyValue(): number {
+    return this.keyboardPreferencesForm.get('rightmostKey')?.value || 108;
+  }
+
+  get leftmostKeyControl() {
+    return this.keyboardPreferencesForm.get('leftmostKey');
+  }
+
+  get rightmostKeyControl() {
+    return this.keyboardPreferencesForm.get('rightmostKey');
+  }
+
+  get nameControl() {
+    return this.nameForm.get('name');
   }
 
   processMidiEvent(midiEvent: MidiStateEvent): void {
     console.log(midiEvent)
-    if (midiEvent.type === 'down' && this.focusedField && this.keyboardEditMode) {
+    if (midiEvent.type === 'down' && this.keyboardEditMode) {
+      if (midiEvent.note < 60) {
       this.keyboardPreferencesForm.patchValue({
-        [this.focusedField]: midiEvent.note
+        ['leftmostKey' ]: midiEvent.note
       });
+    } else {
+      this.keyboardPreferencesForm.patchValue({
+        ['rightmostKey']: midiEvent.note
+      });
+    }
+    this.cdr.markForCheck();
     }
   }
 
-  onFieldFocus(fieldName: 'leftmostKey' | 'rightmostKey'): void {
-    this.focusedField = fieldName;
-  }
+  // onFieldFocus(fieldName: 'leftmostKey' | 'rightmostKey'): void {
+  //   this.focusedField = fieldName;
+  // }
 
-  onFieldBlur(): void {
-    this.focusedField = null;
-  }
+  // onFieldBlur(): void {
+  //   this.focusedField = null;
+  // }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    
     if (this.midiFnHandle) {
       this.midiService.unsubscribe(this.midiFnHandle);
     }

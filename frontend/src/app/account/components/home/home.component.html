@@ -40,7 +40,7 @@
                 </button>
                 <button 
                   type="button"
-                  (click)="editMode = false"
+                  (click)="cancelEdit()"
                   class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
                   Cancel
                 </button>
@@ -59,11 +59,11 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <span class="text-sm text-gray-600">Leftmost key:</span>
-                  <span class="ml-2 font-medium">{{ keyboardPreferencesForm.get('leftmostKey')?.value || 21 }}</span>
+                  <span class="ml-2 font-medium">{{ leftmostKeyValue }}</span>
                 </div>
                 <div>
                   <span class="text-sm text-gray-600">Rightmost key:</span>
-                  <span class="ml-2 font-medium">{{ keyboardPreferencesForm.get('rightmostKey')?.value || 108 }}</span>
+                  <span class="ml-2 font-medium">{{ rightmostKeyValue }}</span>
                 </div>
               </div>
             </div>
@@ -89,17 +89,15 @@
                     formControlName="leftmostKey" 
                     min="21"
                     max="108"
-                    (focus)="onFieldFocus('leftmostKey')"
-                    (blur)="onFieldBlur()"
                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
-                    [class.border-red-500]="keyboardPreferencesForm.get('leftmostKey')?.invalid && keyboardPreferencesForm.get('leftmostKey')?.touched"
+                    [class.border-red-500]="leftmostKeyControl?.invalid && leftmostKeyControl?.touched"
                     [class.border-green-400]="focusedField === 'leftmostKey'"
                     placeholder="21">
-                  <div *ngIf="keyboardPreferencesForm.get('leftmostKey')?.invalid && keyboardPreferencesForm.get('leftmostKey')?.touched" 
+                  <div *ngIf="leftmostKeyControl?.invalid && leftmostKeyControl?.touched" 
                        class="text-red-500 text-sm mt-1">
-                    <span *ngIf="keyboardPreferencesForm.get('leftmostKey')?.errors?.['required']">This field is required</span>
-                    <span *ngIf="keyboardPreferencesForm.get('leftmostKey')?.errors?.['min']">Value must be at least 21</span>
-                    <span *ngIf="keyboardPreferencesForm.get('leftmostKey')?.errors?.['max']">Value must be at most 108</span>
+                    <span *ngIf="leftmostKeyControl?.errors?.['required']">This field is required</span>
+                    <span *ngIf="leftmostKeyControl?.errors?.['min']">Value must be at least 21</span>
+                    <span *ngIf="leftmostKeyControl?.errors?.['max']">Value must be at most 108</span>
                   </div>
                 </div>
                 <div>
@@ -113,17 +111,15 @@
                     formControlName="rightmostKey"
                     min="21"
                     max="108"
-                    (focus)="onFieldFocus('rightmostKey')"
-                    (blur)="onFieldBlur()"
                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
-                    [class.border-red-500]="keyboardPreferencesForm.get('rightmostKey')?.invalid && keyboardPreferencesForm.get('rightmostKey')?.touched"
+                    [class.border-red-500]="rightmostKeyControl?.invalid && rightmostKeyControl?.touched"
                     [class.border-green-400]="focusedField === 'rightmostKey'"
                     placeholder="108">
-                  <div *ngIf="keyboardPreferencesForm.get('rightmostKey')?.invalid && keyboardPreferencesForm.get('rightmostKey')?.touched" 
+                  <div *ngIf="rightmostKeyControl?.invalid && rightmostKeyControl?.touched" 
                        class="text-red-500 text-sm mt-1">
-                    <span *ngIf="keyboardPreferencesForm.get('rightmostKey')?.errors?.['required']">This field is required</span>
-                    <span *ngIf="keyboardPreferencesForm.get('rightmostKey')?.errors?.['min']">Value must be at least 21</span>
-                    <span *ngIf="keyboardPreferencesForm.get('rightmostKey')?.errors?.['max']">Value must be at most 108</span>
+                    <span *ngIf="rightmostKeyControl?.errors?.['required']">This field is required</span>
+                    <span *ngIf="rightmostKeyControl?.errors?.['min']">Value must be at least 21</span>
+                    <span *ngIf="rightmostKeyControl?.errors?.['max']">Value must be at most 108</span>
                   </div>
                 </div>
               </div>
@@ -134,7 +130,7 @@
               </div>
               
               <!-- Range validation error -->
-              <div *ngIf="keyboardPreferencesForm.errors?.['invalidRange'] && (keyboardPreferencesForm.get('leftmostKey')?.touched || keyboardPreferencesForm.get('rightmostKey')?.touched)" 
+              <div *ngIf="keyboardPreferencesForm.errors?.['invalidRange'] && (leftmostKeyControl?.touched || rightmostKeyControl?.touched)" 
                    class="text-red-500 text-sm">
                 Leftmost key must be less than rightmost key
               </div>
@@ -150,7 +146,7 @@
                 </button>
                 <button 
                   type="button"
-                  (click)="keyboardEditMode = false"
+                  (click)="cancelKeyboardEdit()"
                   class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
                   Cancel
                 </button>
