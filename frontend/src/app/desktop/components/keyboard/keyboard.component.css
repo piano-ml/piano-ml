@@ -110,10 +110,7 @@
   .middle-c {
     fill: #a6a6a6;
   }
-  .top-line {
-    stroke: #0a0a0a;
-    stroke-width: 2.1px;
-  }
+
   .note.indicator {
     stroke-width: 1.7px;
     fill: #fcfcfc;
@@ -138,5 +135,9 @@
 
   .keyboard-super {
     background-color: white;
+  }
+
+  .not-keyed {
+    opacity: 0.1;
   }
 

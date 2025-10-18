@@ -43,10 +43,13 @@ pwd
 echo "Running relieur to merge musicxml files: $XMLFILES"
 
 $HOME/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES
+musescore3 -f -o "$FROOT".mscz "$FROOT".musicxml
 
-musescore3 -f -o "$FROOT".mid "$FROOT".musicxml
+musescore3 -f -o "$FROOT".mid "$FROOT".mscz
+musescore3 -f -o "$FROOT".musicxml "$FROOT".mscz
+
 mv "$FROOT".mid "$FROOT".midi
-musescore3 -f -o "$FROOT".musicxml "$FROOT".midi
+#musescore3 -f -o "$FROOT".musicxml "$FROOT".midi
 
 echo "Running pianoplayer for fingering detection"
 pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z

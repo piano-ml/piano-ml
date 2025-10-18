@@ -14,7 +14,7 @@ import { Synthetizer } from "spessasynth_lib"
 import { Piano } from '@tonejs/piano'
 import { getStaveDuration, getStaveDurationTick, midiToPitch } from './midi-maths';
 import { ScoreApiInfo } from '../../core/api';
-import { Cursor, Note as OSMDNote } from 'opensheetmusicdisplay';
+import { Cursor, OpenSheetMusicDisplay, Note as OSMDNote } from 'opensheetmusicdisplay';
 
 
 const GOOD_RANGE = 0.2
@@ -26,11 +26,15 @@ const TIME_COUNTER_TIMESTEP = 200
 })
 export class PlayerService {
 
+  osmd: OpenSheetMusicDisplay | null = null;
+
   osmdCursor: Cursor = null as unknown as Cursor;
 
-  setOsmdCursor(cursor: Cursor) {
-    this.osmdCursor = cursor;
+  setOsmd(osmd: OpenSheetMusicDisplay) {
+    this.osmd = osmd;
+    this.osmdCursor = this.osmd.cursor;
   }
+
 
   private keyboardElement!: ElementRef;
   public measure = new BehaviorSubject<number>(0);
@@ -52,6 +56,7 @@ export class PlayerService {
   lateNotes: Map<number, lateNote[]> = new Map<number, lateNote[]>();
   piano: any;
   lastMidiEventTime = 0;
+  currentMeasure = -1;
   private timeCounterInterval?: number;
 
   // Keyboard preferences loaded from localStorage
@@ -275,29 +280,45 @@ export class PlayerService {
 
 
   private cursorMayBeAdvance(note: Note) {
-    if ((note.ticks - PERFECT_RANGE) > this.lastMidiEventTime) {
+
+
+    if (note.ticks > this.lastMidiEventTime) {
       this.lastMidiEventTime = note.ticks;
-      if (
-        (this.osmdCursor.NotesUnderCursor().at(0)
-          && Math.floor(note.bars) + 1 < this.osmdCursor.NotesUnderCursor().at(0)!.SourceMeasure.MeasureNumber)) {
-        return;
+
+      // BEGIN PROTECTION
+      let midiMeasure = Math.floor(note.bars) + 1
+      if (this.currentMeasure > 0 && this.currentMeasure < midiMeasure) {
+        if (this.osmdCursor.NotesUnderCursor().length > 0) {
+          let readMeasure = this.osmdCursor.NotesUnderCursor()[0].SourceMeasure.MeasureNumber
+          if (midiMeasure > readMeasure) {
+            this.osmdCursor.nextMeasure();
+            return
+          } else if (midiMeasure < readMeasure - 1) {
+            this.osmdCursor.previousMeasure();
+            return;
+          }
+
+        }
+        this.currentMeasure = midiMeasure;
       }
+      this.currentMeasure = Math.floor(note.bars) + 1;
+      // END PROTECTION
+
       this.osmdCursor.next();
       let safety = 0;
-      while (safety < 10 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(note, n))) {
-        this.osmdCursor.next();
-        safety++;
-      }
+      setTimeout(() => {
+        while (safety < 10 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
+          this.osmdCursor.next();
+          safety++;
+        }
+      }, 0);
     }
-
-
-
   }
 
-  isSkipable(note: Note, n: OSMDNote): unknown {
+  isSkipable(n: OSMDNote): unknown {
     return n.isRest()
-      || n.IsCueNote
       || (n.NoteTie && n.NoteTie?.Notes.at(0)?.NoteToGraphicalNoteObjectId !== n.NoteToGraphicalNoteObjectId)
+      || n.IsCueNote
   }
 
 
@@ -398,7 +419,7 @@ export class PlayerService {
         this.play(this.playConfiguration);
       }
       this.lastMidiEventTime = -1;
-    }, endTime + PERFECT_RANGE);
+    }, endTime + GOOD_RANGE);
   }
 
 
@@ -409,7 +430,7 @@ export class PlayerService {
   }
 
   private isHandOk(hand: string, midiPitch: number) {
-    console.log(midiPitch >= this.leftmostKey && midiPitch <= this.rightmostKey)
+    //    console.log(midiPitch >= this.leftmostKey && midiPitch <= this.rightmostKey)
     return (((hand === 'rh' && this.playConfiguration.waitForRightHand)
       || (hand === 'lh' && this.playConfiguration.waitForLeftHand))
       && (midiPitch >= this.leftmostKey && midiPitch <= this.rightmostKey)
@@ -435,13 +456,12 @@ export class PlayerService {
 
 
   calculateEndTime() {
-
     if (this.playConfiguration.scoreRange[1] === this.playConfiguration.maxStaveCount + 1
       && this.playConfiguration.scoreRange[0] === 1) {
       return this.duration * this.getTimeFactor();
     }
     return (this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1] - 1,
+      this.playConfiguration.scoreRange[1] + 1,
       this.playConfiguration.midi!.header
     ) * this.getTimeFactor());
   }
@@ -511,7 +531,7 @@ export class PlayerService {
       return
     }
     if (midiEvent.type === 'down' as MidiStateEvent['type']) {
-      console.log(midiEvent.note)
+
       const hit = this.integrateMidiEventInLastNote(midiEvent);
       if (this.lateNotes.size === 0 && this.isWaiting) {
         await Tone.start();
@@ -520,6 +540,29 @@ export class PlayerService {
       }
       if (hit < 1) {
         this.message.set("BAD");
+
+        // // Safely retrieve the first key/value from the lateNotes map (if any)
+        // const firstLateNoteKey = this.lateNotes.keys().next().value;
+        // const firstLateNotes = firstLateNoteKey !== undefined ? this.lateNotes.get(firstLateNoteKey) : undefined;
+        // let measureIdx: number = firstLateNotes?.at(0)?.note.bars || 0;
+        // const measure = this.osmd!.GraphicSheet.MeasureList[measureIdx][0];
+        // const se = measure.staffEntries[0];
+        // console.log("getLineWidth: " + measure.getLineWidth(0));
+        // const x = se.PositionAndShape.AbsolutePosition.x;
+        // const y = se.getHighestYAtEntry();
+        // console.log(`x: ${x}, y: ${y}`);
+        // this.osmd!.Drawer.DrawOverlayLine({
+        //   x: x - 0.5, y: y,
+        //   ToString: function (): string {
+        //     throw new Error('Function not implemented.');
+        //   }
+        // }, {
+        //   x: x + 0.5, y: y,
+        //   ToString: function (): string {
+        //     throw new Error('Function not implemented.');
+        //   }
+        // }, this.osmd!.GraphicSheet.MusicPages[0])
+
         // Reset message after a brief moment to allow effect to trigger again
         setTimeout(() => {
           this.message.set("");

@@ -16,9 +16,7 @@ body {
 	@apply text-neutral-400;
 }
 
-app-keyboard {
-	background-color: white;
-}
+
 
 @font-face {
 	font-family: "5x8 LCD";
@@ -42,7 +40,6 @@ app-keyboard {
 
 html,
 body {	
-	scroll-behavior: smooth;
 	margin: 0;
 	background-color: #4a4950;
 	font-size: 1.125rem; /* 18px - taille de base augmentée */
