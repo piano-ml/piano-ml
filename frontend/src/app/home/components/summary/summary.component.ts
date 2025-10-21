@@ -12,44 +12,54 @@ import { Router, RouterModule } from '@angular/router';
 export class SummaryComponent {
 
   summary = [
-    // {
-    //   url: '../blog',
-    //   title: 'Blog',
-    //   description: 'Some news about the project',
-    // },
-    
     {
       url: '/exercises/scale',
-      title: 'Exercises / Scale',
-      description: 'A scale is a series of notes that are played in a specific order. Scales are used to create melodies, harmonies, and chords.',
+      title: 'Scales',
+      description: 'Scales generator and exercises',
+      image: 'assets/images/keyboard.webp'
     },
     {
       url: '/exercises/agility',
-      title: 'Exercises / Agility',
-      description: 'Agility is the ability to move quickly and easily. It requires quick reflexes, coordination, balance, speed, and correct response to the changing situation.',
-    }, 
+      title: 'Agility',
+      description: 'Arpeggios, chords, and progression exercises',
+      image: 'assets/images/circle_of_fifths_deluxe.svg'
+    },
     {
       url: '/open',
-      title: 'Practice / Open File',
-      description: 'Practice using a midi file',
+      title: 'Practice',
+      description: 'Practice score from lib, upload PDF/MIDI/MusicXML files',
+      image: 'assets/images/midi.webp'
+    },
+    {
+      url: '/blog/methods',
+      title: 'Études for Pianists',
+      description: 'Collection of digitized musical books',
+      image: 'assets/images/Burgmuller-1.webp'
+    },
+    {
+      url: '/blog/help',
+      title: 'Help',
+      description: 'Some help and documentation about the application',
+      image: 'assets/images/cat.webp'
+    },
+    {
+      url: '/blog/thanks-and-acknowledgments',
+      title: 'Thanks and acknowledgments',
+      description: 'They did it !',
+      image: 'assets/images/one-piece-straw-hat-luffy-black-and-white-pfp-o546iu7rtqxomb0b.webp'
     }
   ]
   constructor(private route: Router) {
- {
-//      const currentScore = JSON.parse(localStorage.getItem("score") || "{}")
-//      const currentScoreName = currentScore.header?.name
-//      if (currentScoreName) {
-//        this.summary.push({
-//          url: "/desktop",
-//          title: `Practice / ${currentScoreName}`,
-//          description: ""
-//        })
-//      }
+    {
+      //      const currentScore = JSON.parse(localStorage.getItem("score") || "{}")
+      //      const currentScoreName = currentScore.header?.name
+      //      if (currentScoreName) {
+      //        this.summary.push({
+      //          url: "/desktop",
+      //          title: `Practice / ${currentScoreName}`,
+      //          description: ""
+      //        })
+      //      }
     }
-
-    
-
   }
-
-
 }

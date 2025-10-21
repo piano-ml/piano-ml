@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { ShareButtons } from 'ngx-sharebuttons/buttons';
+//import { ShareButtons } from 'ngx-sharebuttons/buttons';
 import {  bootstrapGithub } from '@ng-icons/bootstrap-icons';
 
 import { map, Observable, tap } from 'rxjs';
@@ -13,7 +13,7 @@ import { AuthService } from '../../../account/services/auth.service';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterModule, CommonModule,  ShareButtons, NgIcon],
+  imports: [RouterModule, CommonModule,   NgIcon],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
     viewProviders: [provideIcons({ bootstrapGithub })],

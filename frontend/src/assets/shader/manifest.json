@@ -38,6 +38,16 @@
         "fragment": "fragment_shader.glsl",
         "vertex": "vertex_shader.glsl"
       }
+    },
+    {
+      "id": 5,
+      "name": "Quaternionic Mandelbrot",
+      "description": "Complex 4D quaternionic mandelbrot with polar repetition and dynamic transformation",
+      "author": "philip.bertani@gmail.com",
+      "files": {
+        "fragment": "fragment_shader.glsl",
+        "vertex": "vertex_shader.glsl"
+      }
     }
   ]
 }

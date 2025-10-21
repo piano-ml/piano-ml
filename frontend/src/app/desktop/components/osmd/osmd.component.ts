@@ -71,7 +71,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                     follow: true,
                     color: "#B0F2B4",
                     alpha: .6,
-                    type: 4
+                    type: 3
                 },
                 {
                     follow: false,
