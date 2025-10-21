@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Smooth scroll behavior for all scroll navigation */
+:host {
+    scroll-behavior: smooth;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
 .gl-canvas {
 	display: block;
 	width: 100%;

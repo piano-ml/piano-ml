@@ -132,9 +132,6 @@ function generateAllSteps(exercise: Exercise) {
 // Appliquer la génération des étapes 2 à 8 pour exercice3
 generateAllSteps(exercice3);
 
-//exercice3.patternLeftHand = exercice3.patternRightHand
-// exercice3.patternRightHand = exercice3.patternLeftHand 
-
 
 const exercice2: Exercise = {
     title: "Parallel motion in octaves",
@@ -310,4 +307,4 @@ const exercice1: Exercise = {
 }
 
 
-export const exercises = [exercice1, exercice2,  exercice3];
+export const exercises = [  exercice3, exercice1, exercice2, ];

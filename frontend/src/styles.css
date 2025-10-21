@@ -2,15 +2,19 @@
 
 @import "tailwindcss";
 
+/* Smooth scroll behavior for the entire application */
+html {
+    scroll-behavior: smooth;
+}
+
+* {
+    scroll-behavior: smooth;
+}
+
 .btn {
 	@apply font-bold py-2 px-4 rounded tracking-[00.15rem] bg-neutral-600 text-white p-4;
 }
 
-
-
-body {
-	background-color: #4a4950;
-}
 
 body {
 	@apply text-neutral-400;
@@ -41,7 +45,7 @@ body {
 html,
 body {	
 	margin: 0;
-	background-color: #4a4950;
+	background-color: #4a4950; 
 	font-size: 1.125rem; /* 18px - taille de base augmentée */
 	line-height: 1.5;
 }

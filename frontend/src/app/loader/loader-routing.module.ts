@@ -5,6 +5,7 @@ import { LinkComponent } from './components/link/link.component';
 import { ImportWorkComponent } from './components/import-work/import-work.component';
 import { BrowseComponent } from './components/browse/browse.component';
 import { ScoreInfoComponent } from './components/score-info/score-info.component';
+import { SlugToWorkbenchComponent } from './components/slug-to-workbench/slug-to-workbench.component';
 
 export const loaderRouteList: Routes = [
   {
@@ -27,7 +28,7 @@ export const loaderRouteList: Routes = [
   },
   {
     path: ':slug',
-    component: ScoreInfoComponent
+    component: SlugToWorkbenchComponent
   }
 
 ];

@@ -278,40 +278,52 @@ export class PlayerService {
     }, noteStart + (note.duration * this.getTimeFactor()));
   }
 
+  private gotoMeasure(measureNumber: number, actualMeasureNumber: number) {
+    let delta = measureNumber - actualMeasureNumber;
+    while (delta > 0) {
+      this.osmdCursor.nextMeasure();
+      delta--;
+    }
+    while (delta < 0) {
+      this.osmdCursor.previousMeasure();
+      delta++;
+    }
+  }
 
   private cursorMayBeAdvance(note: Note) {
 
-
+    let readMeasure = -1;
     if (note.ticks > this.lastMidiEventTime) {
       this.lastMidiEventTime = note.ticks;
+      let midiMeasure = Math.floor(note.bars)
+      // if (this.osmdCursor.NotesUnderCursor().length > 0) {
+      //   let readMeasure = this.osmdCursor.NotesUnderCursor()[0].SourceMeasure.MeasureNumber;
+      //   console.log(`read ${readMeasure} midi ${midiMeasure} delta ${midiMeasure - readMeasure} `);
+      // }
+      // // BEGIN PROTECTION
 
-      // BEGIN PROTECTION
-      let midiMeasure = Math.floor(note.bars) + 1
-      if (this.currentMeasure > 0 && this.currentMeasure < midiMeasure) {
-        if (this.osmdCursor.NotesUnderCursor().length > 0) {
-          let readMeasure = this.osmdCursor.NotesUnderCursor()[0].SourceMeasure.MeasureNumber
-          if (midiMeasure > readMeasure) {
-            this.osmdCursor.nextMeasure();
-            return
-          } else if (midiMeasure < readMeasure - 1) {
-            this.osmdCursor.previousMeasure();
-            return;
-          }
-
-        }
-        this.currentMeasure = midiMeasure;
-      }
-      this.currentMeasure = Math.floor(note.bars) + 1;
+      // if (this.currentMeasure > 0 && this.currentMeasure < midiMeasure) {
+      //   if (this.osmdCursor.NotesUnderCursor().length > 0) {
+      //     console.log(`MEASURE CHANGE read ${readMeasure} midi ${midiMeasure} delta ${midiMeasure - readMeasure} `);
+      //   }
+      //   if (this.osmdCursor.NotesUnderCursor().length > 0) {
+      //     let readMeasure = this.osmdCursor.NotesUnderCursor()[0].SourceMeasure.MeasureNumber;
+      //     console.log(`Advancing cursor from measure ${readMeasure} to ${midiMeasure}`);
+      //     this.gotoMeasure(midiMeasure, readMeasure);
+      //   }
+      //   this.currentMeasure = midiMeasure;
+      // }
+      this.currentMeasure = Math.floor(note.bars);
       // END PROTECTION
 
       this.osmdCursor.next();
       let safety = 0;
-      setTimeout(() => {
-        while (safety < 10 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
+      //setTimeout(() => {
+        while (safety < 3 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
           this.osmdCursor.next();
           safety++;
         }
-      }, 0);
+      //}, 0);
     }
   }
 
@@ -419,7 +431,7 @@ export class PlayerService {
         this.play(this.playConfiguration);
       }
       this.lastMidiEventTime = -1;
-    }, endTime + GOOD_RANGE);
+    }, endTime + 3);
   }
 
 
