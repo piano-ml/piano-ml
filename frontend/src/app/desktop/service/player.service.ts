@@ -402,7 +402,7 @@ export class PlayerService {
             this.lightNoteOnKeyboard('late', note);
           }
         }
-      }, time - PERFECT_RANGE);
+      }, time);
     }, noteTimeEnd);
 
     Tone.getTransport().schedule((time: number) => {
