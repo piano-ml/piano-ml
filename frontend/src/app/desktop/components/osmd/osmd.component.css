@@ -91,6 +91,8 @@
 
 .osmd-container {
   overflow-x: hidden!important; 
+  overflow-y: clip!important;
+  position: relative;
 }
 
 /* Responsive */

@@ -45,7 +45,7 @@
 
 - [Op. 100: No. 20. Tarantelle](/work/burgmuller-friedrich-25-etudes-faciles-et-progressives-op-100-no-20-tarantelle)
 
-- [Op. 100: No. 21. L’Harmonie des Anges (Angelic Harmony)](https://pianoml.org/work/burgmuller-friedrich-25-etudes-faciles-et-progressives-op-100-no-21-l-harmonie-des-anges-angelic-harmony-2)
+- [Op. 100: No. 21. L’Harmonie des Anges (Angelic Harmony)](/work/burgmuller-friedrich-25-etudes-faciles-et-progressives-op-100-no-21-l-harmonie-des-anges-angelic-harmony-2)
 
 - [Op. 100: No. 22. Barcarolle](/work/burgmuller-friedrich-25-etudes-faciles-et-progressives-op-100-no-22-barcarolle)
 

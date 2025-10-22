@@ -146,11 +146,5 @@ input, textarea  {
 
 
 #cursorImg-0 {
-	/* transform: translateY(-30px); 
-	*/
-	height: 44%!important;
-	transition: all 0.2s step-start;
-
-/*	border: 1px solid #fb2c3666!important; */
-
+	height: 66%!important;
 }

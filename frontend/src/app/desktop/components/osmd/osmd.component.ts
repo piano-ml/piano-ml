@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { Subscription } from 'rxjs';
 import { Cursor, CursorOptions, OpenSheetMusicDisplay } from "opensheetmusicdisplay";
-import { environment } from '../../../../environments/environment';
 import { PlayerService } from '../../service/player.service';
 import { MUSIC_XML_STORAGE_KEY } from '../../model/model';
 
@@ -18,11 +17,13 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @Input() scoreData: ScoreApiInfo | null = null;
     @ViewChild('osmdContainer', { static: true }) osmdContainer!: ElementRef;
+    @ViewChild('scrollableElement') scrollableElement!: ElementRef<HTMLDivElement>;
 
     loading = false;
     error: string | null = null;
     private subscription?: Subscription;
     cursor: Cursor | null = null;
+    private mutationObserver?: MutationObserver;
 
     constructor(
         private playerService: PlayerService,
@@ -37,12 +38,15 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngAfterViewInit() {
-
+        this.createScrollIntoViewShim();
     }
 
     ngOnDestroy() {
         if (this.subscription) {
             this.subscription.unsubscribe();
+        }
+        if (this.mutationObserver) {
+            this.mutationObserver.disconnect();
         }
     }
 
@@ -55,30 +59,24 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
         this.osmd.EngravingRules.SheetMaximumWidth = 8000000000000;
 
         this.osmd.setOptions({ // https://opensheetmusicdisplay.github.io/classdoc/interfaces/IOSMDOptions.html
-            drawingParameters: 'default',
+            //drawingParameters: 'default',
             pageFormat: 'Endless',
-            autoResize: false,
-            autoBeam: true,
-            alignRests: 1,
+            //autoResize: true,
+            //autoBeam: true,
+            //alignRests: 0,
             drawLyricist: true,
             measureNumberInterval: 1,
-            spacingFactorSoftmax: 100,
-            useXMLMeasureNumbers: true,
-            disableCursor: false,
+            //spacingFactorSoftmax: 100,
+            //useXMLMeasureNumbers: true,
+            //disableCursor: false,
             backend: "svg",
             cursorsOptions: [
                 {
                     follow: true,
                     color: "#B0F2B4",
                     alpha: .6,
-                    type: 3
+                    type: 4
                 },
-                {
-                    follow: false,
-                    color: "#999",
-                    alpha: .1,
-                    type: 3
-                }
 
             ] as CursorOptions[],
 
@@ -105,11 +103,62 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                 if (!this.osmd!.cursor) {
                     console.warn("osmd.cursor is undefined!");
                 } else {
-                    this.osmd!.cursor.show();
-                    this.osmd!.cursor.reset();
+
+                    this.osmd!.cursors[0].SkipInvisibleNotes = true;
+                    this.osmd!.cursors[0].show();
+                    this.osmd!.cursors[0].reset();
                     this.playerService.setOsmd(this.osmd!);
                 }
             }, 20);
         }
+    }
+
+    private createScrollIntoViewShim() {
+        // Observer pour détecter quand l'élément cursorImg-0 est ajouté au DOM
+        this.mutationObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const element = node as Element;
+                        // Vérifier si c'est l'élément recherché ou s'il le contient
+                        const cursorElement = element.id === 'cursorImg-0' ? element : element.querySelector('#cursorImg-0');
+
+                        if (cursorElement) {
+                            this.applyScrollIntoViewShim(cursorElement as HTMLElement);
+                            // Nettoyer l'observer une fois le shim appliqué
+                            this.cleanupMutationObserver();
+                        }
+                    }
+                });
+            });
+        });
+
+        this.mutationObserver.observe(this.osmdContainer.nativeElement, {
+            childList: true,
+            subtree: true
+        });
+
+        setTimeout(() => {
+            const existingElement = document.getElementById('cursorImg-0');
+            if (existingElement) {
+                this.applyScrollIntoViewShim(existingElement);
+                this.cleanupMutationObserver();
+            }
+        }, 500);
+    }
+
+    private cleanupMutationObserver() {
+        if (this.mutationObserver) {
+            this.mutationObserver.disconnect();
+            this.mutationObserver = undefined;
+        }
+    }
+
+    private applyScrollIntoViewShim(element: HTMLElement) {
+        const originalScrollIntoView = element.scrollIntoView.bind(element);
+        element.scrollIntoView = (arg?: boolean | ScrollIntoViewOptions) => {
+            arg = { behavior: 'smooth', inline: 'center', block: 'end' }
+            originalScrollIntoView(arg);
+        };
     }
 }
