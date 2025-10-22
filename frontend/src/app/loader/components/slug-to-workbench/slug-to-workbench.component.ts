@@ -38,7 +38,9 @@ export class SlugToWorkbenchComponent implements OnInit {
       next: (score: ScoreApiInfo) => {
         // Navigate to workbench with score data
         this.router.navigate(['/play/workbench'], {
-          state: { score: score }
+          state: { score: score },
+          replaceUrl: true,
+          skipLocationChange: true
         });
       },
       error: (error) => {

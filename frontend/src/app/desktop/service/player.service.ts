@@ -33,6 +33,8 @@ export class PlayerService {
   setOsmd(osmd: OpenSheetMusicDisplay) {
     this.osmd = osmd;
     this.osmdCursor = this.osmd.cursor;
+    this.osmdCursor.CursorOptions.color = "#B0F2B4";
+    this.osmdCursor.CursorOptions.alpha = 0.6;
   }
 
 
@@ -280,14 +282,16 @@ export class PlayerService {
 
   private gotoMeasure(measureNumber: number, actualMeasureNumber: number) {
     let delta = measureNumber - actualMeasureNumber;
-    while (delta > 0) {
+    if (delta > 0) {
       this.osmdCursor.nextMeasure();
+      this.osmdCursor.previous();
       delta--;
     }
-    while (delta < 0) {
+    if (delta < 0) {
       this.osmdCursor.previousMeasure();
-      delta++;
+      this.osmdCursor.nextMeasure();
     }
+
   }
 
   private cursorMayBeAdvance(note: Note) {
@@ -295,36 +299,42 @@ export class PlayerService {
     let readMeasure = -1;
     if (note.ticks > this.lastMidiEventTime) {
       this.lastMidiEventTime = note.ticks;
-      let midiMeasure = Math.floor(note.bars)
-      // if (this.osmdCursor.NotesUnderCursor().length > 0) {
-      //   let readMeasure = this.osmdCursor.NotesUnderCursor()[0].SourceMeasure.MeasureNumber;
-      //   console.log(`read ${readMeasure} midi ${midiMeasure} delta ${midiMeasure - readMeasure} `);
-      // }
-      // // BEGIN PROTECTION
 
-      // if (this.currentMeasure > 0 && this.currentMeasure < midiMeasure) {
-      //   if (this.osmdCursor.NotesUnderCursor().length > 0) {
-      //     console.log(`MEASURE CHANGE read ${readMeasure} midi ${midiMeasure} delta ${midiMeasure - readMeasure} `);
-      //   }
-      //   if (this.osmdCursor.NotesUnderCursor().length > 0) {
-      //     let readMeasure = this.osmdCursor.NotesUnderCursor()[0].SourceMeasure.MeasureNumber;
-      //     console.log(`Advancing cursor from measure ${readMeasure} to ${midiMeasure}`);
-      //     this.gotoMeasure(midiMeasure, readMeasure);
-      //   }
-      //   this.currentMeasure = midiMeasure;
-      // }
       this.currentMeasure = Math.floor(note.bars);
       // END PROTECTION
-
+      //console.log("A",this.osmdCursor.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).some(n => n === note.midi)) ;
       this.osmdCursor.next();
       let safety = 0;
-      //setTimeout(() => {
-        while (safety < 3 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
+      while (safety < 100 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
+        //while (safety < 3 && !this.osmdCursor.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).some(n => n === note.midi -12)) {
+        this.osmdCursor.next();
+        safety++;
+      }
+
+      // sometimes a note is misaligned on one of the two staf try to repair
+      if (!this.isCursorOk(note)) {
+        this.osmdCursor.previous();
+        if (!this.isCursorOk(note)) {
           this.osmdCursor.next();
-          safety++;
+          this.osmdCursor.next();
+          if (!this.isCursorOk(note)) {
+            this.osmdCursor.previous();
+          }
         }
-      //}, 0);
+      }
+
+      if (!this.isCursorOk(note)) {
+        this.osmdCursor.CursorOptions.color = '#FFB3BA';
+        this.osmdCursor.CursorOptions.alpha = 0.1;
+      } else {
+        this.osmdCursor.CursorOptions.color = "#B0F2B4";
+        this.osmdCursor.CursorOptions.alpha = 0.6;
+      }
     }
+  }
+
+  isCursorOk(note: Note): boolean {
+    return this.osmdCursor.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).some(n => n === note.midi - 12);
   }
 
   isSkipable(n: OSMDNote): unknown {
@@ -341,7 +351,9 @@ export class PlayerService {
     // schedule watch, score advance and keyboard light on
     Tone.getTransport().schedule((time: number) => {
       Tone.getDraw().schedule(() => {
+        
         this.cursorMayBeAdvance(note);
+        
         this.lightNoteOnKeyboard(hand, note)
         if (this.lateNotes.size > 0) {
           this.isWaiting = true;
@@ -506,11 +518,9 @@ export class PlayerService {
 
   private integrateMidiEventInLastNote(midiEvent: MidiStateEvent): number {
     let success = -1;
-    // Créer une copie des entrées pour éviter les problèmes de modification pendant l'itération
     const entries = Array.from(this.lateNotes.entries());
 
     for (const [key, notes] of entries) {
-      // Itérer en sens inverse pour éviter les problèmes avec splice
       for (let idx = notes.length - 1; idx >= 0; idx--) {
         const ln = notes[idx];
         if (midiEvent.note === ln.note.midi) {
@@ -552,30 +562,6 @@ export class PlayerService {
       }
       if (hit < 1) {
         this.message.set("BAD");
-
-        // // Safely retrieve the first key/value from the lateNotes map (if any)
-        // const firstLateNoteKey = this.lateNotes.keys().next().value;
-        // const firstLateNotes = firstLateNoteKey !== undefined ? this.lateNotes.get(firstLateNoteKey) : undefined;
-        // let measureIdx: number = firstLateNotes?.at(0)?.note.bars || 0;
-        // const measure = this.osmd!.GraphicSheet.MeasureList[measureIdx][0];
-        // const se = measure.staffEntries[0];
-        // console.log("getLineWidth: " + measure.getLineWidth(0));
-        // const x = se.PositionAndShape.AbsolutePosition.x;
-        // const y = se.getHighestYAtEntry();
-        // console.log(`x: ${x}, y: ${y}`);
-        // this.osmd!.Drawer.DrawOverlayLine({
-        //   x: x - 0.5, y: y,
-        //   ToString: function (): string {
-        //     throw new Error('Function not implemented.');
-        //   }
-        // }, {
-        //   x: x + 0.5, y: y,
-        //   ToString: function (): string {
-        //     throw new Error('Function not implemented.');
-        //   }
-        // }, this.osmd!.GraphicSheet.MusicPages[0])
-
-        // Reset message after a brief moment to allow effect to trigger again
         setTimeout(() => {
           this.message.set("");
         }, 10);
@@ -658,4 +644,3 @@ function removeNoteFromKeyboard(keys: HTMLElement[]) {
     clearClassesFromSVG(el, "note-on");
   });
 }
-
