@@ -62,10 +62,13 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
             //drawingParameters: 'default',
             pageFormat: 'Endless',
             //autoResize: true,
-            //autoBeam: true,
+            autoBeam: true,
+            autoBeamOptions: {
+                groups: [[4,4]],
+            },
             //alignRests: 0,
             drawLyricist: true,
-            measureNumberInterval: 1,
+            measureNumberInterval: 5,
             //spacingFactorSoftmax: 100,
             //useXMLMeasureNumbers: true,
             //disableCursor: false,
@@ -77,9 +80,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                     alpha: .6,
                     type: 4
                 },
-
             ] as CursorOptions[],
-
             drawTitle: false,
             darkMode: false,
             renderSingleHorizontalStaffline: true,

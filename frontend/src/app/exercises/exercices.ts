@@ -8,6 +8,7 @@ import { getNoteDuration, getNoteDurationTicks } from "../desktop/service/midi-m
 import { MusicXML, elements } from '@stringsync/musicxml';
 import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from "../desktop/model/model";
 import { at, create, sum } from "lodash";
+import { keySignatureSharpFlats, MajorKeys } from "../desktop/service/music-theory";
 
 const keyToNote: { [key: string]: number } = {}
 
@@ -261,27 +262,20 @@ function createElementNote(numberInPattern: number, finger: number, duration: nu
   return note;
 }
 
-function createAttributeNextMeasure(hand: string, exercice: Exercise, divisions: number): elements.Attributes {
-
+function createAttributeNextMeasure(hand: string, exercice: Exercise, divisions: number, key: string): elements.Attributes {
+  const keySignature = createKeySignature(key);
+  
   const attributesNextMeasure = new elements.Attributes({
     contents: [
       null, // elements.Footnote
       null, // elements.Level
       new elements.Divisions({ contents: [divisions] }),
-      new Array<elements.Key>(), // No key signature - default to C major
+      keySignature, // Add key signature
       new Array<elements.Time>(),
       null, // elements.Staves
       null, // elements.PartSymbol
       null, // elements.Instruments
-      new Array<elements.Clef>(
-        // new elements.Clef({
-        //   contents: [
-        //     new elements.Sign({ contents: [hand === 'rh' ? 'G' : 'F'] }),
-        //     new elements.Line({ contents: [hand === 'rh' ? 2 : 4] }),
-        //     null, // elements.ClefOctaveChange
-        //   ]
-        // }),
-      ),
+      new Array<elements.Clef>(),
       new Array<elements.StaffDetails>(),
       new Array<elements.Transpose>(),
       new Array<elements.Directive>(),
@@ -291,14 +285,16 @@ function createAttributeNextMeasure(hand: string, exercice: Exercise, divisions:
   return attributesNextMeasure;
 }
 
-function createAttributeFirstMeasure(hand: string, exercice: Exercise, divisions: number): elements.Attributes {
+function createAttributeFirstMeasure(hand: string, exercice: Exercise, divisions: number, key: string): elements.Attributes {
+  const keySignature = createKeySignature(key);
+  
   // Create attributes for the measure
   const attributesFirstMeasure = new elements.Attributes({
     contents: [
       null, // elements.Footnote
       null, // elements.Level
       new elements.Divisions({ contents: [divisions] }),
-      new Array<elements.Key>(), // No key signature - default to C major
+      keySignature, // Add key signature
       new Array<elements.Time>(
         new elements.Time({
           contents: [
@@ -335,6 +331,33 @@ function createAttributeFirstMeasure(hand: string, exercice: Exercise, divisions
   return attributesFirstMeasure
 }
 
+function createKeySignature(key: string): Array<elements.Key> {
+  const majorKey = key as MajorKeys;
+  const sharpsFlats = keySignatureSharpFlats[majorKey];
+  
+  if (!sharpsFlats || sharpsFlats.length === 0) {
+    // C major - no sharps or flats
+    return new Array<elements.Key>();
+  }
+  
+  // Determine if it's sharps or flats based on the first accidental
+  const isFlats = sharpsFlats[0].includes('b');
+  const fifths = isFlats ? -sharpsFlats.length : sharpsFlats.length;
+  
+  const keyElement = new elements.Key({
+    contents: [
+      [
+        null, // Cancel
+        new elements.Fifths({ contents: [fifths] }),
+        null, // Mode
+      ],
+      new Array<elements.KeyOctave>()
+    ],
+  });
+  
+  return new Array<elements.Key>(keyElement);
+}
+
 function createPartWithAPI(
   partId: string,
   hand: string,
@@ -347,8 +370,8 @@ function createPartWithAPI(
   const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift || 0);
 
   // Create attributes for the measure
-  const attributesFirstMeasure = createAttributeFirstMeasure(hand, exercice, divisions);
-  const attributesNextMeasure = createAttributeNextMeasure(hand, exercice, divisions);
+  const attributesFirstMeasure = createAttributeFirstMeasure(hand, exercice, divisions, key);
+  const attributesNextMeasure = createAttributeNextMeasure(hand, exercice, divisions, key);
 
   // Create measure with attributes and notes
   const measures = [];
