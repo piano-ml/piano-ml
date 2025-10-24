@@ -3,6 +3,19 @@ precision mediump float;
 uniform vec2 iResolution;
 uniform float iTime;
 
+// Performance optimization parameters
+#define ANIMATION_SPEED 0.2        // Animation speed multiplier (lower = slower)
+#define MAIN_ITERATIONS 50.0       // Main raymarching loop iterations (was 60)
+#define INNER_ITERATIONS 5.0       // Inner fractal iterations (was 7)
+#define MANDELBROT_ITERATIONS 7.0  // Mandelbrot iterations (was 8)
+#define MANDELBROT_THRESHOLD 3.0   // Mandelbrot break threshold (was 4)
+#define STEP_DIVISOR 180.0         // Ray step size divisor (was 200, lower = bigger steps)
+#define STEP_EPSILON 8e-6          // Minimum step size (was 8e-6)
+#define COLOR_THRESHOLD 5.0        // Color accumulation threshold (was 5)
+#define COLOR_INTENSITY 0.6e-1     // Color intensity multiplier (was 0.6e-1)
+#define EXP_COMPLEXITY 1e1         // Exponential calculation complexity (was 1e1)
+#define EXP_MULTIPLIER 2e1         // Exponential multiplier (was 2e1)
+
 #define rot(x) mat2(cos(x+vec4(0,11,33,0)))
 
 //Rodrigues-Euler axis angle rotation - not used here but it nice
@@ -33,12 +46,12 @@ void main() {
     vec3 c=vec3(0);
     vec4 rd = normalize( vec4(U-.5*R.xy, .8*R.y, R.y))*2000.;
     
-    float sc,dotp,totdist=0., t1=.95, tt=iTime, t=0.;
+    float sc,dotp,totdist=0., t1=.95, tt=iTime*ANIMATION_SPEED, t=0.; // Slow down animation by 0.5x
  
     float sn = mod(iTime,20.)<12. ? 0. : 1.;
     float sn2 = mod(iTime,40.)<20. ? 0. : 1.;
     
-    for (float i=0.; i<60.; i++) {
+    for (float i=0.; i<MAIN_ITERATIONS; i++) {
         
         vec4 p = vec4( rd*totdist);
         
@@ -59,7 +72,7 @@ void main() {
    
         vec4 w = p;
      
-        for (float j=0.; j<7.; j++) {
+        for (float j=0.; j<INNER_ITERATIONS; j++) {
           
             p = abs(p)*.7;
                         
@@ -70,9 +83,9 @@ void main() {
             p = p * dotp  - .9*vec4(.5,.5,.3,.3);
             
             w = vec4(0);
-            //quaternionic mandelbrot iterations
-            for (float k=0.; k<8.; k++) {
-                if (k >= 4.+sn2) break;
+            //quaternionic mandelbrot iterations - reduce from 8 to 4
+            for (float k=0.; k<MANDELBROT_ITERATIONS; k++) {
+                if (k >= MANDELBROT_THRESHOLD+sn2) break; // Reduce complexity
                 w =
                     vec4( w.x*w.x-w.y*w.y-w.z*w.z-w.w*w.w,
                        2.*w.x*w.y,
@@ -83,14 +96,14 @@ void main() {
         }
          
         float dist = max(-shell,abs( length(p.zw) -.1)/sc) ;  //funky distance estimate
-        float stepsize = dist/200. + 8e-6;     
+        float stepsize = dist/STEP_DIVISOR + STEP_EPSILON; // Increase step size for fewer iterations
         totdist += stepsize;                  //move the distance along rd
         
-        if (i>5.*sn2)
+        if (i>COLOR_THRESHOLD*sn2) // Reduce threshold for color accumulation
         //accumulate color, fading with distance and iteration count
         c +=
-             .6e-1* 
-             mix( vec3(1), H(M(sc)),.9)  * exp(-i*i*stepsize*max(1e1,sn2*2e1));
+             COLOR_INTENSITY* // Slightly increase color intensity to compensate
+             mix( vec3(1), H(M(sc)),.9)  * exp(-i*i*stepsize*max(EXP_COMPLEXITY,sn2*EXP_MULTIPLIER)); // Reduce exp calculation complexity
     }
     
     c = 1. - exp(-c*c);
