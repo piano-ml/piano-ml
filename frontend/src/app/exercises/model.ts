@@ -26,6 +26,7 @@ export interface Exercise {
     octaveShift: number;
     patternSize?: number;
     repeat: number;
+    fingeringFn?: (key: string, exercise: Exercise) => void;
 }
 
 

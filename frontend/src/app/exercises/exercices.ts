@@ -1,5 +1,5 @@
 import type { Router } from "@angular/router";
-import { Chord, getChordNote, Scale } from "../desktop/service/music-theory";
+import { Chord, getChordNote, majorKeySpellings, MinorKeys, minorKeySignatureSharpFlats, minorKeySpellings, Scale } from "../desktop/service/music-theory";
 import type { Exercise } from "./model";
 import * as Midi from '@tonejs/midi';
 import { Header } from '@tonejs/midi';
@@ -7,8 +7,7 @@ import { Header } from '@tonejs/midi';
 import { getNoteDuration, getNoteDurationTicks } from "../desktop/service/midi-maths";
 import { MusicXML, elements } from '@stringsync/musicxml';
 import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from "../desktop/model/model";
-import { at, create, sum } from "lodash";
-import { keySignatureSharpFlats, MajorKeys } from "../desktop/service/music-theory";
+import { majorKeySignatureSharpFlats, MajorKeys } from "../desktop/service/music-theory";
 
 const keyToNote: { [key: string]: number } = {}
 
@@ -22,6 +21,9 @@ export function getWeekOfYear(): number {
 
 
 export function loadExercice(router: Router, exercice: Exercise, scaleOrChord: Scale | Chord, key: string) {
+
+
+
 
   const mxml = generateExerciseAsMusicXML(exercice, scaleOrChord, key);
   localStorage.setItem(MUSIC_XML_STORAGE_KEY, mxml);
@@ -65,7 +67,6 @@ function generateMidiTrack(hand: string, exercice: Exercise, scaleOrChord: Scale
         for (let j = 0; j < noteInPattern.note.length; j++) {
           let midiNoteNum: number;
           if (scaleOrChord.kind === "Scale") {
-
             midiNoteNum = getScaleNotes(scaleOrChord, octave, key, noteInPattern.note[j]);
           } else {
             midiNoteNum = getChordNote(getNote(`${key}${octave}`), noteInPattern.note[j], scaleOrChord.pattern)
@@ -116,6 +117,11 @@ function generateExerciceAsMidi(exercice: Exercise, scaleOrChord: Scale | Chord,
 
 export function generateExerciseAsMusicXML(exercice: Exercise, scaleOrChord: Scale | Chord, key: string): string {
   const title = `${key} ${scaleOrChord.name}: ${exercice.title}`;
+
+  // Call fingeringFn if it exists
+  if (exercice.fingeringFn) {
+    exercice.fingeringFn(key, exercice);
+  }
 
   // Create MusicXML using @stringsync/musicxml API
   const musicXML = createMusicXMLWithAPI(exercice, scaleOrChord, key, title);
@@ -200,7 +206,7 @@ function createElementNote(numberInPattern: number, finger: number, duration: nu
     midiNoteNum = getChordNote(getNote(`${key}${octave}`), numberInPattern, scaleOrChord.pattern);
   }
 
-  const pitchInfo = midiNoteToPitch(midiNoteNum);
+  const pitchInfo = midiNoteToPitch(midiNoteNum, key);
   //const duration = convertDurationToMusicXML(noteInPattern.duration, divisions);
 
   // Create notations with fingering if available
@@ -233,7 +239,7 @@ function createElementNote(numberInPattern: number, finger: number, duration: nu
         new elements.Pitch({
           contents: [
             new elements.Step({ contents: [pitchInfo.step as any] }),
-            pitchInfo.alter !== 0 ? new elements.Alter({ contents: [pitchInfo.alter] }) : null,
+            new elements.Alter({ contents: [pitchInfo.alter as any] }),
             new elements.Octave({ contents: [pitchInfo.octave] }),
           ],
         }),
@@ -264,7 +270,7 @@ function createElementNote(numberInPattern: number, finger: number, duration: nu
 
 function createAttributeNextMeasure(hand: string, exercice: Exercise, divisions: number, key: string): elements.Attributes {
   const keySignature = createKeySignature(key);
-  
+
   const attributesNextMeasure = new elements.Attributes({
     contents: [
       null, // elements.Footnote
@@ -287,7 +293,7 @@ function createAttributeNextMeasure(hand: string, exercice: Exercise, divisions:
 
 function createAttributeFirstMeasure(hand: string, exercice: Exercise, divisions: number, key: string): elements.Attributes {
   const keySignature = createKeySignature(key);
-  
+
   // Create attributes for the measure
   const attributesFirstMeasure = new elements.Attributes({
     contents: [
@@ -332,30 +338,45 @@ function createAttributeFirstMeasure(hand: string, exercice: Exercise, divisions
 }
 
 function createKeySignature(key: string): Array<elements.Key> {
-  const majorKey = key as MajorKeys;
-  const sharpsFlats = keySignatureSharpFlats[majorKey];
-  
+  if (key.includes('m')) {
+    return createMinorKeySignature(key);
+  }
+  return createMajorKeySignature(key);
+}
+
+function createMinorKeySignature(key: string): Array<elements.Key> {
+  const minorKey = key as MinorKeys;
+  const sharpsFlats = minorKeySignatureSharpFlats[minorKey];
+  return internalCreateKeySignature(sharpsFlats!, 'minor');
+}
+
+function internalCreateKeySignature(sharpsFlats: string[], mode: string): Array<elements.Key> {
   if (!sharpsFlats || sharpsFlats.length === 0) {
     // C major - no sharps or flats
     return new Array<elements.Key>();
   }
-  
+
   // Determine if it's sharps or flats based on the first accidental
   const isFlats = sharpsFlats[0].includes('b');
   const fifths = isFlats ? -sharpsFlats.length : sharpsFlats.length;
-  
+
   const keyElement = new elements.Key({
     contents: [
       [
         null, // Cancel
         new elements.Fifths({ contents: [fifths] }),
-        null, // Mode
+        new elements.Mode({ contents: [mode] }), // Mode
       ],
       new Array<elements.KeyOctave>()
     ],
   });
-  
   return new Array<elements.Key>(keyElement);
+}
+
+function createMajorKeySignature(key: string): Array<elements.Key> {
+  const majorKey = key as MajorKeys;
+  const sharpsFlats = majorKeySignatureSharpFlats[majorKey];
+  return internalCreateKeySignature(sharpsFlats!, 'major');
 }
 
 function createPartWithAPI(
@@ -367,7 +388,8 @@ function createPartWithAPI(
   divisions: number
 ): elements.PartPartwise {
   const notesInPattern = hand === 'lh' ? exercice.patternLeftHand : exercice.patternRightHand;
-  const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift || 0);
+  const m = getNote(`${key}4`);
+  const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift || 0) + (m < 65 ? 1 : 0);
 
   // Create attributes for the measure
   const attributesFirstMeasure = createAttributeFirstMeasure(hand, exercice, divisions, key);
@@ -423,8 +445,8 @@ function createPartWithAPI(
         const rest = createElementRest(duration)
         noteElements.push(rest);
       }
-      
-      sumDuration = sumDuration +  (1/noteInPattern.duration) ;
+
+      sumDuration = sumDuration + (1 / noteInPattern.duration);
 
     }
 
@@ -486,32 +508,21 @@ function createElementRest(duration: number): elements.Note {
 }
 
 
-function midiNoteToPitch(midiNote: number): { step: string, octave: number, alter: number } {
-  const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-
-  const octave = Math.floor(midiNote / 12) - 1;
+function midiNoteToPitch(midiNote: number, keySignature: String): { step: string, octave: number, alter?: number } {
+  let octave = Math.floor(midiNote / 12);
   const noteIndex = midiNote % 12;
-  const noteName = noteNames[noteIndex];
-  if (noteName.includes('#')) {
-    return {
-      step: noteName[0],
-      octave: octave,
-      alter: 1
-    };
-  } else {
-    return {
-      step: noteName,
-      octave: octave,
-      alter: 0
-    };
-  }
+  const scaleKey = keySignature.includes('m') ? keySignature as MinorKeys : keySignature as MajorKeys;
+  const spellings = keySignature.includes('m') ? minorKeySpellings[scaleKey as MinorKeys] : majorKeySpellings[scaleKey as MajorKeys];
+  const noteName = spellings[noteIndex];
+  return {
+    step: noteName[0],
+    octave: octave,
+    alter: noteName.includes('#') ? 1 : noteName.includes('b') ? -1 : 0
+  };
 }
 
 function convertDurationToMusicXML(duration: number, divisions: number): number {
-  // Convert duration to MusicXML divisions
-  // Assuming duration is in quarter notes (1 = quarter note)
-  //console.log("divisions", divisions);
-  return 4 * divisions / duration; //Math.round(duration / divisions);
+  return 4 * divisions / duration;
 }
 
 
@@ -530,16 +541,29 @@ function getScale(midiStart: number, scalePattern: number[]): number[] {
 }
 
 function getScaleNotes(scale: Scale, octave: number, key: string, numberInPattern: number): number {
+  const correctedKey = key.includes('m') ? key.slice(0, -1) : key;
   const adjustedNumberInPattern = numberInPattern - 1;
   const octaveWithShift = octave + Math.floor(adjustedNumberInPattern / scale.pattern.length);
   const index = adjustedNumberInPattern % scale.pattern.length;
-  const midiStart = getNote(key + octaveWithShift)
+  const midiStart = getNote(correctedKey + octaveWithShift)
   const result = getScale(midiStart, scale.pattern)[index]
   return result;
 }
 
 
 function getNote(key: string): number {
+  const equivalents = [
+    { src: 'Eb', dst: 'D#' },
+    { src: 'Ab', dst: 'G#' },
+    { src: 'Db', dst: 'C#' },
+    { src: 'Bb', dst: 'A#' }
+  ]
+  for (const equiv of equivalents) {
+    if (key.startsWith(equiv.src)) {
+      key = key.replace(equiv.src, equiv.dst);
+      break;
+    }
+  }
   if (Object.keys(keyToNote).length === 0) {
     const A0 = 21 // first note
     const C8 = 108 // last note

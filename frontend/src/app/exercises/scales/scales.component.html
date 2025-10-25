@@ -8,7 +8,7 @@
         <option *ngFor="let exercise of myexcerices" [ngValue]="exercise">{{exercise.title}}</option>
       </select>
   
-      <select [(ngModel)]="selectedScale">
+      <select [(ngModel)]="selectedScale" (ngModelChange)="onScaleChange()">
         <option *ngFor="let scale of scales" [ngValue]="scale">{{scale.name}}</option>
       </select>
   

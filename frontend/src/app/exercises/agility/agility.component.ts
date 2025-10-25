@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { keys, chords, Chord } from '../../desktop/service/music-theory';
+import { majorKeys, chords, Chord } from '../../desktop/service/music-theory';
 import type {  Exercise } from '../../exercises/model';
 import { exercises } from './pattern';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -22,8 +22,8 @@ export class AgilityComponent implements OnInit {
   myexcerices = exercises;
   selectedExcercice: Exercise = exercises[0]
   selectedChord: Chord = chords[0]
-  selectedKey = keys[getWeekOfYear() % keys.length]
-  keys = keys
+  selectedKey = majorKeys[getWeekOfYear() % majorKeys.length]
+  keys = majorKeys
   availableChords = chords
   
 
