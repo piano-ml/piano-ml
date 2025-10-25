@@ -1,4 +1,4 @@
-import { keySignatureSharpFlats, keySpelling, MajorKeys } from "./music-theory"
+import { majorKeySignatureSharpFlats, keySpelling, MajorKeys } from "./music-theory"
 import { Note } from "@tonejs/midi/dist/Note";
 
 interface KeyData {
@@ -66,5 +66,5 @@ export function detectKey(chords: Note[][] = []): MajorKeys {
 
 export function isAccentuationSuppressed(keySignature: MajorKeys, pitch: number): boolean {
     const spell = keySpelling[keySignature][pitch % 12]
-    return keySignatureSharpFlats[keySignature]?.indexOf(spell) !== -1
+    return majorKeySignatureSharpFlats[keySignature]?.indexOf(spell) !== -1
   }
