@@ -20,8 +20,15 @@ FROOT="${FROOT/upload_/}"
 
 mv $1 $FROOT.midi
 
+# sanitize file
+musescore3 -o $FROOT.musicxml $FROOT.midi
+musescore3 -o $FROOT.mid $FROOT.musicxml
+
+mv $FROOT.mid $FROOT.midi
+
 if [ -n "$TRACK_RIGHT" ]; then
   echo "Extracting left/right hand track $TRACK_RIGHT $TRACK_LEFT for $FROOT.midi"
+  # also does .midi -> .musicxml !
   $HOME/shared-venv/bin/python ./scripts/extract_midi_tracks.py "$FROOT".midi "$TRACK_RIGHT" "$TRACK_LEFT"
 else
   echo "No track specified in original midi file"
@@ -29,7 +36,7 @@ else
 fi
 
 echo "Running pianoplayer for fingering detection"
-pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z
+pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null 2>&1
 
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
@@ -45,3 +52,5 @@ $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml"
 zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json" "metadata.json"
 
 rm "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json" "metadata.json" ${FROOT}_filtered.musicxml
+
+echo "Done!"

@@ -296,31 +296,16 @@ export class PlayerService {
 
   private cursorMayBeAdvance(note: Note) {
 
-    let readMeasure = -1;
     if (note.ticks > this.lastMidiEventTime) {
       this.lastMidiEventTime = note.ticks;
 
       this.currentMeasure = Math.floor(note.bars);
-      // END PROTECTION
-      //console.log("A",this.osmdCursor.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).some(n => n === note.midi)) ;
+
       this.osmdCursor.next();
       let safety = 0;
       while (safety < 100 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
-        //while (safety < 3 && !this.osmdCursor.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).some(n => n === note.midi -12)) {
         this.osmdCursor.next();
         safety++;
-      }
-
-      // sometimes a note is misaligned on one of the two staf try to repair
-      if (!this.isCursorOk(note)) {
-        this.osmdCursor.previous();
-        if (!this.isCursorOk(note)) {
-          this.osmdCursor.next();
-          this.osmdCursor.next();
-          if (!this.isCursorOk(note)) {
-            this.osmdCursor.previous();
-          }
-        }
       }
 
       if (!this.isCursorOk(note)) {
@@ -454,16 +439,10 @@ export class PlayerService {
   }
 
   private isHandOk(hand: string, midiPitch: number) {
-    //    console.log(midiPitch >= this.leftmostKey && midiPitch <= this.rightmostKey)
     return (((hand === 'rh' && this.playConfiguration.waitForRightHand)
       || (hand === 'lh' && this.playConfiguration.waitForLeftHand))
       && (midiPitch >= this.leftmostKey && midiPitch <= this.rightmostKey)
     );
-  }
-
-
-  private zeroHand() {
-    return !(this.playConfiguration.waitForRightHand || this.playConfiguration.waitForLeftHand);
   }
 
   getTimeFactor() {
