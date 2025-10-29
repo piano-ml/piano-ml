@@ -361,7 +361,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [pdf, musicxml, midi, metadata]
+            enum: [pdf, musicxml, midi, metadata, image]
           description: The type of file being uploaded (e.g., pdf or mxml)
         - name: version
           in: path
@@ -813,6 +813,13 @@ components:
         tempo:
           type: integer
           format: int32
+        publicDomain:
+          type: boolean
+        exercise:
+          type: boolean
+        playCount:
+          type: integer
+          format: int64
 
     WorkloadApiInfo:
       type: object

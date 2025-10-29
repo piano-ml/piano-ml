@@ -87,4 +87,13 @@ public class Score {
   @Column(name = "tempo")
   private Integer tempo;
 
+  @Column(name = "public_domain")
+  private Boolean publicDomain = true;
+
+  @Column(name = "exercise")
+  private Boolean exercise = false;
+
+  @Column(name = "play_count")
+  private Long playCount = 0L;
+
 }

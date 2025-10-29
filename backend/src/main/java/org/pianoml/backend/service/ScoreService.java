@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -83,6 +84,15 @@ public class ScoreService {
       score.setAuthor(author);
     }
 
+    if (scoreApiInfo.getExercise() != null) {
+      score.setExercise(scoreApiInfo.getExercise());
+    } else {
+      score.setExercise(false);
+    }
+    if (score.getAuthor().getLifeSpanEnd()!=null) {
+      // set EU public domain status if possible
+      score.setPublicDomain(score.getAuthor().getLifeSpanEnd().isAfter(LocalDate.now().minusYears(70)));
+    }
     if (scoreApiInfo.getGenreId() != null) {
       Genre genre = genreRepository.findById(UUID.fromString(scoreApiInfo.getGenreId()))
         .orElseThrow(() -> new RuntimeException("Genre not found"));
@@ -126,6 +136,12 @@ public class ScoreService {
           Author author = authorService.maybeCreateAuthor(UUID.fromString(scoreApiInfo.getAuthorId()));
           score.setAuthor(author);
         }
+        if (scoreApiInfo.getExercise() != null) {
+          score.setExercise(scoreApiInfo.getExercise());
+        }
+        if (scoreApiInfo.getPublicDomain() != null) {
+          score.setPublicDomain(scoreApiInfo.getPublicDomain());
+        }
         score.setAuthor(score.getAuthor());
         score.setGrade(scoreApiInfo.getGrade());
         score.setStudyTracks(ScoreMapper.integerListToString(scoreApiInfo.getStudyTracks()));
@@ -135,8 +151,8 @@ public class ScoreService {
       });
   }
 
-  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
-    return scoreRepositoryCustom.findByCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit)
+  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user) {
+    return scoreRepositoryCustom.findByCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit, user )
       .stream()
       .map(scoreMapper::toScoreApiInfo)
       .collect(Collectors.toList());
@@ -151,6 +167,8 @@ public class ScoreService {
       // New workload-based processing for PDF
       packService.packPDFWorkload(packScriptDto, key);
       log.info("Successfully created PDF workload for score: {}", score.getId());
+    } else if (type.equals("image")) {
+      packService.packImageWorkload(packScriptDto, key);
     } else {
       // Existing logic for midi and musicxml
 

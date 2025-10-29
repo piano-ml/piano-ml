@@ -16,6 +16,7 @@ import java.time.OffsetDateTime;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static org.pianoml.backend.entity.Workload.KIND_OMR_IMAGE;
 import static org.pianoml.backend.entity.Workload.KIND_OMR_PDF;
 
 @Service
@@ -23,6 +24,8 @@ import static org.pianoml.backend.entity.Workload.KIND_OMR_PDF;
 public class PackService {
 
   public static final String ORIGINAL_PDF_FILENAME = "ori.pdf";
+
+  public static final String ORIGINAL_IMAGE_FILENAME = "ori.png";
 
   @Autowired
   private S3Client s3Client;
@@ -36,7 +39,26 @@ public class PackService {
   @Value("${aws.s3.bucket-name:'no-bucket'}")
   private String bucketName;
 
-  public String packPDF(PackScriptDto packScriptDto) throws IOException {
+  public String packArchive(PackScriptDto packScriptDto, String kind) throws IOException {
+    if (kind.equals(KIND_OMR_PDF)) {
+      return packPdf(packScriptDto);
+    } else if (kind.equals(KIND_OMR_IMAGE)) {
+      return packImage(packScriptDto);
+    } else {
+      throw new IllegalArgumentException("Unsupported kind for packing: " + kind);
+    }
+  }
+
+  public String packImage(PackScriptDto packScriptDto) throws IOException {
+    File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".png").toFile();
+    // Copy inputStream to tempFile
+    try (FileOutputStream out = new FileOutputStream(tempFile)) {
+      packScriptDto.getInputStream().transferTo(out);
+    }
+    return runPackScript("scripts/image2pack.sh", tempFile, packScriptDto);
+  }
+
+  public String packPdf(PackScriptDto packScriptDto) throws IOException {
     File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".pdf").toFile();
     // Copy inputStream to tempFile
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
@@ -44,6 +66,7 @@ public class PackService {
     }
     return runPackScript("scripts/pdf2pack.sh", tempFile, packScriptDto);
   }
+
 
   public String packMidi(PackScriptDto packScriptDto) throws IOException {
     File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".midi").toFile();
@@ -58,10 +81,7 @@ public class PackService {
     return runPackScript("scripts/mxml2pack.sh", tempFile, packScriptDto);
   }
 
-  public void packPDFWorkload(PackScriptDto packScriptDto, String s3Key) throws IOException {
-    // 1. Create zip file with PDF as "ori.pdf"
-    byte[] zipData = createZipWithPDF(packScriptDto.getInputStream());
-
+  private void uploadOriginalFileToS3(String s3Key, byte[] zipData) {
     // 2. Upload to S3
     s3Client.putObject(
       PutObjectRequest.builder()
@@ -70,29 +90,61 @@ public class PackService {
         .build(),
       RequestBody.fromBytes(zipData)
     );
-    log.info("Successfully uploaded PDF workload zip to S3: {}", s3Key);
+    log.info("Successfully uploaded workload zip to S3: {}", s3Key);
+  }
 
-    // 3. Create workload entry
-    Workload workload = new Workload();
-    workload.setKind(KIND_OMR_PDF);
-    workload.setScoreId(java.util.UUID.fromString(packScriptDto.getId()));
-    workload.setCreatedAt(OffsetDateTime.now().toLocalDateTime());
-    workload.setStatus(Workload.WorkloadStatus.PENDING);
-    workload.setWorkloadSize(zipData.length);
+  public void packImageWorkload(PackScriptDto packScriptDto, String s3Key) throws IOException {
+    // 1. Create zip file with PDF as "ori.pdf"
+    byte[] zipData = createZipWithOriginalFile(packScriptDto.getInputStream(), ORIGINAL_IMAGE_FILENAME);
+    uploadOriginalFileToS3(s3Key, zipData);
 
-    workloadRepository.save(workload);
+
+    Workload workload = createWorkload(KIND_OMR_IMAGE, packScriptDto,zipData.length );
     log.info("Created workload entry for PDF processing: scoreId={}", packScriptDto.getId());
 
     // 4. Trigger Cloud Run job execution
+    triggerCloudRunJob(packScriptDto,workload, s3Key);
+  }
+
+  public void packPDFWorkload(PackScriptDto packScriptDto, String s3Key) throws IOException {
+    // 1. Create zip file with PDF as "ori.pdf"
+    byte[] zipData = createZipWithOriginalFile(packScriptDto.getInputStream(), ORIGINAL_PDF_FILENAME);
+    uploadOriginalFileToS3(s3Key, zipData);
+
+
+    Workload workload = createWorkload(KIND_OMR_PDF, packScriptDto,zipData.length );
+    log.info("Created workload entry for PDF processing: scoreId={}", packScriptDto.getId());
+
+    // 4. Trigger Cloud Run job execution
+    triggerCloudRunJob(packScriptDto,workload, s3Key);
+
+  }
+
+  private Workload createWorkload(String kind, PackScriptDto packScriptDto, int length) {
+    // 3. Create workload entry
+    Workload workload = new Workload();
+    workload.setKind(kind);
+    workload.setScoreId(java.util.UUID.fromString(packScriptDto.getId()));
+    workload.setCreatedAt(OffsetDateTime.now().toLocalDateTime());
+    workload.setStatus(Workload.WorkloadStatus.PENDING);
+    workload.setWorkloadSize(length);
+    workloadRepository.save(workload);
+    return workload;
+  }
+
+
+  private void triggerCloudRunJob(PackScriptDto packScriptDto, Workload workload, String s3Key) {
     try {
       cloudRunJobService.executeJob(packScriptDto.getId(), s3Key)
         .whenComplete((executionName, throwable) -> {
           if (throwable != null) {
+            workload.setStatus(Workload.WorkloadStatus.FAILED);
             log.error("Failed to execute Cloud Run job for scoreId: {}", packScriptDto.getId(), throwable);
             workloadRepository.save(workload);
           } else {
             log.info("Cloud Run job execution started successfully for scoreId: {}, execution: {}",
               packScriptDto.getId(), executionName);
+            workload.setStatus(Workload.WorkloadStatus.RUNNING);
             workloadRepository.save(workload);
           }
         });
@@ -105,11 +157,11 @@ public class PackService {
     }
   }
 
-  private byte[] createZipWithPDF(InputStream pdfInputStream) throws IOException {
+  private byte[] createZipWithOriginalFile(InputStream pdfInputStream, String originalFilename) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try (ZipOutputStream zos = new ZipOutputStream(baos)) {
       // Add PDF file as "ori.pdf"
-      ZipEntry pdfEntry = new ZipEntry(ORIGINAL_PDF_FILENAME);
+      ZipEntry pdfEntry = new ZipEntry(originalFilename);
       zos.putNextEntry(pdfEntry);
 
       // Copy PDF content to zip
@@ -151,5 +203,6 @@ public class PackService {
       }
     }
   }
+
 
 }
