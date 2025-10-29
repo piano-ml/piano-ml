@@ -92,7 +92,12 @@ public class ScoreService {
     if (score.getAuthor().getLifeSpanEnd()!=null) {
       // set EU public domain status if possible
       score.setPublicDomain(score.getAuthor().getLifeSpanEnd().isAfter(LocalDate.now().minusYears(70)));
+    } else {
+      score.setPublicDomain(true);
     }
+    score.setPlayCount(0L);
+    
+
     if (scoreApiInfo.getGenreId() != null) {
       Genre genre = genreRepository.findById(UUID.fromString(scoreApiInfo.getGenreId()))
         .orElseThrow(() -> new RuntimeException("Genre not found"));
