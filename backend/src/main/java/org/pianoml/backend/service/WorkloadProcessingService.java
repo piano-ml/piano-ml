@@ -68,7 +68,7 @@ public class WorkloadProcessingService {
     log.info("Found {} pending workloads to process", pendingWorkloads.size());
 
     for (Workload workload : pendingWorkloads) {
-      processWorkloadLogic(workload);
+      processOpticalMusicRecognition(workload);
     }
 
     log.info("All workloads processed. Exiting.");
@@ -80,21 +80,14 @@ public class WorkloadProcessingService {
    * Implement the actual workload processing logic here
    * This method should contain the business logic for processing different workload types
    */
-  private void processWorkloadLogic(Workload workload) {
-    log.info("Processing workload of kind: {} with score ID: {}", workload.getKind(), workload.getScoreId());
-    if (Workload.KIND_OMR_PDF.equals(workload.getKind())) {
-      processOmrPdf(workload);
-    } else {
-      throw new IllegalArgumentException("Unknown workload kind: " + workload.getKind());
-    }
-  }
-
-  private void processOmrPdf(Workload workload) {
+  private void processOpticalMusicRecognition(Workload workload) {
     log.info("Processing OMR PDF for workload {}", workload.getId());
     try {
       // 1. Load Score from repository
       Optional<Score> scoreOptional = scoreRepository.findById(workload.getScoreId());
       if (scoreOptional.isEmpty()) {
+        workload.setStatus(Workload.WorkloadStatus.FAILED);
+        workloadRepository.save(workload);
         throw new RuntimeException("Score not found for ID: " + workload.getScoreId());
       }
       workload.setStatus(Workload.WorkloadStatus.RUNNING);
@@ -103,11 +96,19 @@ public class WorkloadProcessingService {
       // 2. Generate S3 key using ScoreService method
       String s3Key = makeBucketKeyFromScore(score);
       // 3. Download ZIP from S3 and extract PDF
-      InputStream pdfInputStream = extractPdfFromS3Zip(s3Key);
+      String originalFileName;
+      if (workload.getKind().equals(Workload.KIND_OMR_PDF)) {
+        originalFileName= PackService.ORIGINAL_PDF_FILENAME;
+      } else if (workload.getKind().equals(Workload.KIND_OMR_IMAGE)) {
+        originalFileName= PackService.ORIGINAL_IMAGE_FILENAME;
+      } else {
+        throw new IllegalArgumentException("Unsupported workload kind: " + workload.getKind());
+      }
+      InputStream inputStream = extractOriginalFileFromS3Zip(s3Key, originalFileName);
       // 4. Create PackScriptDto with PDF inputStream and score data
-      PackScriptDto packScriptDto = new PackScriptDto(pdfInputStream, score);
+      PackScriptDto packScriptDto = new PackScriptDto(inputStream, score);
       // 5. Call packPDF to process the PDF
-      String resultPath = packService.packPDF(packScriptDto);
+      String resultPath = packService.packArchive(packScriptDto, workload.getKind());
       log.info("Successfully processed OMR PDF for workload {}, result: {}", workload.getId(), resultPath);
       // upload resultPath to S3
       s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(s3Key).build(),
@@ -131,7 +132,7 @@ public class WorkloadProcessingService {
   /**
    * Download ZIP from S3 and extract the PDF file (using constant from PackService)
    */
-  private InputStream extractPdfFromS3Zip(String s3Key) throws IOException {
+  private InputStream extractOriginalFileFromS3Zip(String s3Key, String originalFileName) throws IOException {
     // Download ZIP from S3
     byte[] zipData = s3Client.getObject(GetObjectRequest.builder()
       .bucket(bucketName)
@@ -142,7 +143,7 @@ public class WorkloadProcessingService {
     try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipData))) {
       ZipEntry entry;
       while ((entry = zis.getNextEntry()) != null) {
-        if (PackService.ORIGINAL_PDF_FILENAME.equals(entry.getName())) {
+        if (originalFileName.equals(entry.getName())) {
           // Return the PDF content as InputStream
           byte[] pdfContent = zis.readAllBytes();
           return new ByteArrayInputStream(pdfContent);

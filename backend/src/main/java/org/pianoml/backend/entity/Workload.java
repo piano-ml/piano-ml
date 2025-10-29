@@ -13,6 +13,8 @@ public class Workload {
 
   public static final String KIND_OMR_PDF = "KIND_OMR_PDF";
 
+  public static final String KIND_OMR_IMAGE = "KIND_OMR_IMAGE";
+
   // Getters and Setters
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "workload_id_seq")

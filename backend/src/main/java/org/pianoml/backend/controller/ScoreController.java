@@ -5,6 +5,7 @@ import org.pianoml.backend.api.ScoreApi;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.exception.EntityAlreadyExistsException;
+import org.pianoml.backend.exception.UserNotLoggedInException;
 import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
@@ -105,7 +106,17 @@ public class ScoreController implements ScoreApi {
 
   @Override
   public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
-    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit);
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = null;
+    try {
+      // Use AccountService#getUserFromAuthentication which throws when the user is anonymous or not activated.
+      user = userService.getUserFromAuthentication(authentication);
+    } catch (UserNotLoggedInException e) {
+      // If the user is not logged in or cannot be resolved, keep user = null so only public scores are shown.
+      user = null;
+    }
+
+    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit ,user);
     return ResponseEntity.ok(scores);
   }
 

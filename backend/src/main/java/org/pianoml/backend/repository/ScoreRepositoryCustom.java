@@ -8,8 +8,10 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.pianoml.backend.entity.Score;
+import org.pianoml.backend.entity.User;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +21,7 @@ public class ScoreRepositoryCustom implements IScoreRepositoryCustom {
   @PersistenceContext
   private EntityManager em;
 
-  public List<Score> findByCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
+  public List<Score> findByCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Score> cq = cb.createQuery(Score.class);
     Root<Score> root = cq.from(Score.class);
@@ -50,12 +52,21 @@ public class ScoreRepositoryCustom implements IScoreRepositoryCustom {
       predicate = cb.and(predicate, cb.equal(root.get("etude"), etude));
     }
 
-/*    if (gradeStart != null) {
-      predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("grade"), gradeStart));
+    // Visibility rules:
+    // - unauthenticated users (user == null) see only publicDomain = true
+    // - authenticated non-admin users see scores where owner = user OR publicDomain = true
+    // - admin users see all scores (no extra restriction)
+    if (user == null) {
+      predicate = cb.and(predicate, cb.isTrue(root.get("publicDomain")));
+    } else {
+      boolean isAdmin = user.getRoles() != null && Arrays.stream(user.getRoles().split(","))
+        .anyMatch(role -> "ADMIN".equals(role.trim()));
+      if (!isAdmin) {
+        Predicate ownerIsUser = cb.equal(root.get("owner").get("id"), user.getId());
+        Predicate isPublic = cb.isTrue(root.get("publicDomain"));
+        predicate = cb.and(predicate, cb.or(ownerIsUser, isPublic));
+      }
     }
-    if (gradeEnd != null) {
-      predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("grade"), gradeEnd));
-    }*/
 
     cq.where(predicate);
 

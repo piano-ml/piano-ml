@@ -35,5 +35,8 @@ export interface ScoreApiInfo {
     mutableSlug?: string;
     immutableSlug?: string;
     tempo?: number;
+    publicDomain?: boolean;
+    exercise?: boolean;
+    playCount?: number;
 }
 

@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/changes/002-create-workload-table.yaml
   - include:
       file: db/changelog/changes/003-add-tempo-column.yaml
+  - include:
+      file: db/changelog/changes/004-add-score-columns.yaml
