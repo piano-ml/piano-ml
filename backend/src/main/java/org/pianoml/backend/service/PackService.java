@@ -144,7 +144,6 @@ public class PackService {
           } else {
             log.info("Cloud Run job execution started successfully for scoreId: {}, execution: {}",
               packScriptDto.getId(), executionName);
-            workload.setStatus(Workload.WorkloadStatus.RUNNING);
             workloadRepository.save(workload);
           }
         });
