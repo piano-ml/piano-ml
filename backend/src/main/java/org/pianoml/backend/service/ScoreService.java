@@ -96,7 +96,7 @@ public class ScoreService {
       score.setPublicDomain(true);
     }
     score.setPlayCount(0L);
-    
+
 
     if (scoreApiInfo.getGenreId() != null) {
       Genre genre = genreRepository.findById(UUID.fromString(scoreApiInfo.getGenreId()))
