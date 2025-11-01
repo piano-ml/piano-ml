@@ -132,7 +132,8 @@ export class LinkComponent implements OnInit {
 
   onWorkClick(work: SimplifiedWork) {
     this.router.navigate(['/open/import-work', work.mbid], {
-      state: { work: work }
+      state: { work: work },
+      skipLocationChange: true
     });
   }
 

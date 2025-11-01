@@ -1,4 +1,4 @@
-<MidiOptions>
+  <MidiOptions>
   <!--  Quantization:
       0 = 1/4
       1 = 1/8
@@ -21,13 +21,13 @@
   <Septuplets>true</Septuplets>
   <Nonuplets>true</Nonuplets>
   <!--  reduces accuracy in favor of readability  -->
-  <HumanPerformance>true</HumanPerformance>
+  <HumanPerformance>false</HumanPerformance>
   <!--  halves measure count obtained from using HumanPerformance=true  -->
   <MeasureCount2xLess>false</MeasureCount2xLess>
   <!--  mainly for piano/drum tracks  -->
   <SplitStaff>true</SplitStaff>
   <!--  small clefs can be insterted to keep chords closer to the 5 staff lines  -->
-  <ClefChanges>true</ClefChanges>
+  <ClefChanges>false</ClefChanges>
   <!--  reduces number of rests to more "simple" durations  -->
   <SimplifyDurations>true</SimplifyDurations>
   <!--  show/hide staccato markings  -->

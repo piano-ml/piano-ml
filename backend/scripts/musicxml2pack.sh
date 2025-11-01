@@ -16,7 +16,12 @@ FROOT="${FROOT%.*}"
 ORI=$FROOT
 FROOT="${FROOT/upload_/}"
 
+ls -lah $ORI.musicxml
+
 mv $ORI.musicxml $FROOT.musicxml
+
+echo "Running pianoplayer for fingering detection"
+pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null 2>&1
 
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"

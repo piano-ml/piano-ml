@@ -19,10 +19,9 @@ ORI=$FROOT
 FROOT="${FROOT/upload_/}"
 
 mv $1 $FROOT.midi
-
-# sanitize file
-musescore3 -o $FROOT.musicxml $FROOT.midi
-musescore3 -o $FROOT.mid $FROOT.musicxml
+# sanitize entry
+musescore3  -o $FROOT.musicxml $FROOT.midi
+musescore3  -o $FROOT.mid $FROOT.musicxml
 
 mv $FROOT.mid $FROOT.midi
 
