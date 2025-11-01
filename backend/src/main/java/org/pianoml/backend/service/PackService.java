@@ -77,8 +77,11 @@ public class PackService {
   }
 
   public String packMusicXml(PackScriptDto packScriptDto) throws IOException {
-    File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".midi").toFile();
-    return runPackScript("scripts/mxml2pack.sh", tempFile, packScriptDto);
+    File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".musicxml").toFile();
+    try (FileOutputStream out = new FileOutputStream(tempFile)) {
+      packScriptDto.getInputStream().transferTo(out);
+    }
+    return runPackScript("scripts/musicxml2pack.sh", tempFile, packScriptDto);
   }
 
   private void uploadOriginalFileToS3(String s3Key, byte[] zipData) {

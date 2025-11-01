@@ -103,7 +103,13 @@ export class PlayerService {
 
 
   splitMidi(json: Midi.MidiJSON, studies: number[]): { study: Midi.Midi, other: Midi.Midi } {
-
+   
+    // Remove tracks with no notes
+    json.tracks = json.tracks.filter(track => track.notes.length > 0);
+    
+    json.tracks.forEach((track, idx) => {
+      console.log(`Track ${idx}: ${track.name}, instrument: ${track.instrument.name}, notes: ${track.notes.length}`);
+    });
     const midiAll = new Midi.Midi();
     midiAll.fromJSON(json)
     this.duration = midiAll.duration;
@@ -303,6 +309,7 @@ export class PlayerService {
 
       this.osmdCursor.next();
       let safety = 0;
+      
       while (safety < 100 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
         this.osmdCursor.next();
         safety++;
@@ -310,7 +317,7 @@ export class PlayerService {
 
       if (!this.isCursorOk(note)) {
         this.osmdCursor.CursorOptions.color = '#FFB3BA';
-        this.osmdCursor.CursorOptions.alpha = 0.1;
+        this.osmdCursor.CursorOptions.alpha = 0.3;
       } else {
         this.osmdCursor.CursorOptions.color = "#B0F2B4";
         this.osmdCursor.CursorOptions.alpha = 0.6;

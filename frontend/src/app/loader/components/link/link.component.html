@@ -1,6 +1,5 @@
 <div class="bg-neutral-700 p-4">
-  <h3 class="text-xl font-bold mb-4">Link Music Works</h3>
-  
+  <h3 class="text-xl font-bold mb-4">Import Music Works</h3>
   <!-- Not Logged In Message -->
   <div *ngIf="!isLoggedIn" class="text-center text-yellow-400 py-8 bg-yellow-900 bg-opacity-20 rounded-lg">
     <div class="text-4xl mb-4">🔒</div>
@@ -19,7 +18,7 @@
     <div class="mb-6 bg-neutral-600 p-4 rounded-lg">
     <!-- Quick Search -->
     <div class="mb-4">
-      <label class="block text-sm font-medium mb-2">Quick Search</label>
+      <label class="block text-sm font-medium mb-2">Quick Search: select a work to define a title and author</label>
       <div class="flex gap-2">
         <input 
           [(ngModel)]="searchQuery" 
@@ -40,7 +39,7 @@
       </div>
     </div>
     
-    <!-- Advanced Search -->
+    <!-- Advanced Search 
     <div class="border-t border-gray-500 pt-4">
       <label class="block text-sm font-medium mb-2">Advanced Search</label>
       <div class="flex gap-2">
@@ -62,6 +61,7 @@
         </button>
       </div>
     </div>
+    -->
   </div>
 
   <!-- Results Info and Controls -->
