@@ -3,6 +3,11 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+export QT_QPA_PLATFORM=offscreen
+export QT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/x86_64-linux-gnu/qt5/plugins
+export DISPLAY=:99
+export PYTHONIOENCODING=utf-8
+
 # Script: `scripts/midi2pack.sh`
 usage() {
   printf "Usage: %s <INPUT_FILE> <TITLE> <COMPOSER> <TRACK_RIGHT> <TRACK_LEFT>\n" "$0" >&2
