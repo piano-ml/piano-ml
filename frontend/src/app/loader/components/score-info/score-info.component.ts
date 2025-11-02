@@ -153,9 +153,9 @@ export class ScoreInfoComponent implements OnInit {
 
     const revision = 1; // Default revision, adjust if needed
     
-    this.scoreService.scoreOwnerMbidTypeVersionRevisionGet(
+    this.scoreService.scoreOwnerIdTypeVersionRevisionGet(
       this.score.owner_id,
-      this.score.mbid,
+      this.score.id!,
       type,
       this.score.version,
       revision

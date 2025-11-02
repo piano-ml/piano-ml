@@ -1,10 +1,24 @@
 <!-- Navigation Link -->
-<div class="mt-6 mb-6 p-4 bg-neutral-600 navigation-section">
-  <h3 class="text-lg font-semibold mb-3 text-white">Contribute</h3>
-  <a routerLink="/open/link" 
-     class="import-link inline-flex items-center px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors font-medium">
-    <span class="mr-2 text-lg">🔗</span>
-    Import a new file
-  </a>
-  <p class="text-sm text-gray-300 mt-2">You will be prompted for a Score title and Author. Then you will be prompted for a Midi, PDF, or MusicXML file then PianoML will do Optical Music Recognition.</p>
-</div>
+
+<div class="bg-neutral-600 p-4 mt-4 mb-2 rounded-lg ">
+  <!-- Search Section -->
+  <div>
+    <div class="flex gap-2 justify-between items-center">
+      <p>
+      <span class=" text-gray-300">Bring your own score (MIDI, PDF, MusicXML, Image)</span><br>
+      <span class="text-sm">
+        You will be prompted for a Score title and Author. Then you will be prompted for file then. PianoML will do
+        Optical Music Recognition if needed.
+      </span>
+      </p>
+
+      <a routerLink="/open/link"
+        class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors font-medium whitespace-nowrap">
+        <span class="mr-2 text-lg">🔗</span>
+        Import a new file
+      </a>
+
+    </div>
+
+
+  </div>

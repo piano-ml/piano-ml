@@ -60,7 +60,7 @@ public class ScoreControllerAttachmentApiTest {
   void getAttachment_ok_returnsBytes() throws Exception {
     // Arrange
     UUID ownerId = UUID.randomUUID();
-    UUID mbid = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
     int version = 1;
     int revision = 0; // unused in controller
     String type = "midi";
@@ -70,18 +70,18 @@ public class ScoreControllerAttachmentApiTest {
 
     Score score = new Score();
     score.setOwner(owner);
-    score.setMbid(mbid);
+    score.setId(id);
     score.setVersion(version);
 
     byte[] payload = "test-midi".getBytes();
 
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
-    when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
+    when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
     when(scoreService.getAttachmentFromScore(eq(score), eq(type))).thenReturn(Optional.of(payload));
 
     // Act + Assert
-    mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, mbid, type, version, revision))
+    mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, id, type, version, revision))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaType.parseMediaType("audio/midi")))
       .andExpect(content().bytes(payload));
@@ -91,7 +91,7 @@ public class ScoreControllerAttachmentApiTest {
   void getAttachment_scoreNotFound_returns404() throws Exception {
     // Arrange
     UUID ownerId = UUID.randomUUID();
-    UUID mbid = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
     int version = 1;
     int revision = 0;
     String type = "midi";
@@ -100,11 +100,11 @@ public class ScoreControllerAttachmentApiTest {
     owner.setId(ownerId);
 
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
-    when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
+    when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.empty());
 
     // Act + Assert
-    mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, mbid, type, version, revision))
+    mockMvc.perform(get("/score/{owner}/{id}/{type}/{version}/{revision}", ownerId, id, type, version, revision))
       .andExpect(status().isNotFound());
   }
 
@@ -112,7 +112,7 @@ public class ScoreControllerAttachmentApiTest {
   void getAttachment_attachmentMissing_returns404() throws Exception {
     // Arrange
     UUID ownerId = UUID.randomUUID();
-    UUID mbid = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
     int version = 1;
     int revision = 0;
     String type = "midi";
@@ -122,16 +122,16 @@ public class ScoreControllerAttachmentApiTest {
 
     Score score = new Score();
     score.setOwner(owner);
-    score.setMbid(mbid);
+    score.setMbid(id);
     score.setVersion(version);
 
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
-    when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
+    when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
     when(scoreService.getAttachmentFromScore(eq(score), eq(type))).thenReturn(Optional.empty());
 
     // Act + Assert
-    mockMvc.perform(get("/score/{owner}/{mbid}/{type}/{version}/{revision}", ownerId, mbid, type, version, revision))
+    mockMvc.perform(get("/score/{owner}/{id}/{type}/{version}/{revision}", ownerId, id, type, version, revision))
       .andExpect(status().isNotFound());
   }
 }

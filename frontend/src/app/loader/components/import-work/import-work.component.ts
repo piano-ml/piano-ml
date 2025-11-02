@@ -158,18 +158,35 @@ export class ImportWorkComponent implements OnInit {
 
         if (this.fileName.endsWith('.midi') || this.fileName.endsWith('.mid')) {
             this.onMidiSent(input);
-        } else if (this.fileName.endsWith('.pdf') || this.fileName.endsWith('.musicxml') || this.fileName.endsWith('.mxml')) {
+        } else if (this.fileName.endsWith('.pdf') 
+            || this.fileName.endsWith('.musicxml') 
+            || this.fileName.endsWith('.mxml')
+            || this.fileName.endsWith('.png')
+            || this.fileName.endsWith('.jpg')
+            || this.fileName.endsWith('.jpeg')
+        ) {
             this.onFileSent(input);
         }
     }
+    getFileType(fileName: string): 'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image' {
+        if (fileName.endsWith('.mid') || fileName.endsWith('.midi')) {
+            return 'midi';
+        }
+        if (fileName.endsWith('.musicxml') || fileName.endsWith('.mxml')) {
+            return 'musicxml';
+        }
+        if (fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
+            return 'image';
+        }
+        return 'pdf';
+    }
+
     onFileSent(input: HTMLInputElement) {
         if (!input?.files?.length) return;
         this.loading = true;
         const file = input.files[0];
         const blob = new Blob([file], { type: file.type });
-        const type = this.fileName.endsWith('.mid') || this.fileName.endsWith('.midi') ? 'midi' : 
-                    this.fileName.endsWith('.musicxml') || this.fileName.endsWith('.mxml') ? 'musicxml' : 
-                    'pdf';
+        const type = this.getFileType(this.fileName);
         const scoreApiInfo = {
             mbid: this.work.mbid,
             title: this.work.title,
@@ -188,7 +205,7 @@ export class ImportWorkComponent implements OnInit {
                 this.loading = false;
                 this.changeDetector.detectChanges();
             }, next: (data) => {
-                    this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, type, data.version!, 0, blob).subscribe({
+                    this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, type, data.version!, 0, blob).subscribe({
                         next: (data2) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();
@@ -257,6 +274,7 @@ export class ImportWorkComponent implements OnInit {
             } as unknown as ScoreApiInfo
             this.scoreService.scorePost(scoreApiInfo).subscribe({
                 error: (error) => {
+                    console.error("Error creating score:", error);
                     this.error = error.error?.error || error;
                     this.modalContent = error.error?.error.message || 'An error occurred while creating the score.';
                     this.modalTitle = 'Creation Error';
@@ -265,7 +283,11 @@ export class ImportWorkComponent implements OnInit {
                     this.changeDetector.detectChanges();
                 },
                 next: (data) => {
-                    this.scoreService.scoreMbidTypeVersionRevisionPost(this.mbid, "midi", data.version!, 0, blob).subscribe({
+                    console.log("Score created:", data);
+                    if (data.version === null) {
+                        data.version = 1;
+                    }
+                    this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, "midi", data.version!, 0, blob).subscribe({
                         next: (data2) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();

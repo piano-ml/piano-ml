@@ -67,15 +67,20 @@ public class ScoreService {
   private PackService packService;
 
   public static String makeBucketKeyFromScore(Score score) {
-    return "scores/" + score.getOwner().getId() + "/" + score.getMbid() + "/" + score.getVersion() + ".zip";
+    String secondId= score.getMbid()!=null ? score.getMbid().toString() : score.getId().toString();
+    return "scores/" + score.getOwner().getId() + "/" + secondId + "/" + score.getVersion() + ".zip";
   }
 
   @Transactional
   public ScoreApiInfo createScore(ScoreApiInfo scoreApiInfo, User userId) {
     if (scoreApiInfo.getVersion() == null) {
       // check if score exists
-      int candidateCount = scoreRepository.countScoreByMbidAndOwner(UUID.fromString(scoreApiInfo.getMbid()), userId);
-      scoreApiInfo.setVersion(candidateCount + 1);
+      if (scoreApiInfo.getMbid() != null) {
+        int candidateCount = scoreRepository.countScoreByMbidAndOwner(UUID.fromString(scoreApiInfo.getMbid()), userId);
+        scoreApiInfo.setVersion(candidateCount + 1);
+      } else {
+        scoreApiInfo.setVersion(1); // TODO maybe increment on name ?
+      }
     }
     Score score = scoreMapper.toScore(scoreApiInfo);
     score.setOwner(userId);
@@ -127,6 +132,10 @@ public class ScoreService {
     return scoreRepository.findById(id)
       .map(score -> {
         // Update score fields from scoreApiInfo
+        if (scoreApiInfo.getVersion() == null) {
+          scoreApiInfo.setVersion(1);
+        }
+
         score.setTitle(scoreApiInfo.getTitle());
         if (scoreApiInfo.getGenreId() != null) {
           try {

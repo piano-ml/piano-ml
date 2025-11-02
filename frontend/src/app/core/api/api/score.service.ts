@@ -266,7 +266,7 @@ export class ScoreService extends BaseService {
 
     /**
      * Upload a binary file for a specific score
-     * @param mbid The ID of the score
+     * @param id The ID of the score
      * @param type The type of file being uploaded (e.g., pdf or mxml)
      * @param version The ID of the score
      * @param revision The ID of the score
@@ -276,24 +276,24 @@ export class ScoreService extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public scoreMbidTypeVersionRevisionPost(mbid: string, type: 'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public scoreMbidTypeVersionRevisionPost(mbid: string, type: 'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public scoreMbidTypeVersionRevisionPost(mbid: string, type: 'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public scoreMbidTypeVersionRevisionPost(mbid: string, type: 'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (mbid === null || mbid === undefined) {
-            throw new Error('Required parameter mbid was null or undefined when calling scoreMbidTypeVersionRevisionPost.');
+    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling scoreIdTypeVersionRevisionPost.');
         }
         if (type === null || type === undefined) {
-            throw new Error('Required parameter type was null or undefined when calling scoreMbidTypeVersionRevisionPost.');
+            throw new Error('Required parameter type was null or undefined when calling scoreIdTypeVersionRevisionPost.');
         }
         if (version === null || version === undefined) {
-            throw new Error('Required parameter version was null or undefined when calling scoreMbidTypeVersionRevisionPost.');
+            throw new Error('Required parameter version was null or undefined when calling scoreIdTypeVersionRevisionPost.');
         }
         if (revision === null || revision === undefined) {
-            throw new Error('Required parameter revision was null or undefined when calling scoreMbidTypeVersionRevisionPost.');
+            throw new Error('Required parameter revision was null or undefined when calling scoreIdTypeVersionRevisionPost.');
         }
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling scoreMbidTypeVersionRevisionPost.');
+            throw new Error('Required parameter body was null or undefined when calling scoreIdTypeVersionRevisionPost.');
         }
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
@@ -335,7 +335,7 @@ export class ScoreService extends BaseService {
             }
         }
 
-        let localVarPath = `/score/${this.configuration.encodeParam({name: "mbid", value: mbid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "type", value: type, in: "path", style: "simple", explode: false, dataType: "'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image'", dataFormat: undefined})}/${this.configuration.encodeParam({name: "version", value: version, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/${this.configuration.encodeParam({name: "revision", value: revision, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}`;
+        let localVarPath = `/score/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "type", value: type, in: "path", style: "simple", explode: false, dataType: "'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image'", dataFormat: undefined})}/${this.configuration.encodeParam({name: "version", value: version, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/${this.configuration.encodeParam({name: "revision", value: revision, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -355,31 +355,31 @@ export class ScoreService extends BaseService {
     /**
      * Download a file for a specific score
      * @param owner The User Id
-     * @param mbid The ID of the score
+     * @param id The ID of the score
      * @param type The type of file to download (e.g., pdf or mxml)
      * @param version The ID of the score
      * @param revision The ID of the score
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public scoreOwnerMbidTypeVersionRevisionGet(owner: string, mbid: string, type: 'pdf' | 'musicxml' | 'midi', version: number, revision: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream', context?: HttpContext, transferCache?: boolean}): Observable<Blob>;
-    public scoreOwnerMbidTypeVersionRevisionGet(owner: string, mbid: string, type: 'pdf' | 'musicxml' | 'midi', version: number, revision: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Blob>>;
-    public scoreOwnerMbidTypeVersionRevisionGet(owner: string, mbid: string, type: 'pdf' | 'musicxml' | 'midi', version: number, revision: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Blob>>;
-    public scoreOwnerMbidTypeVersionRevisionGet(owner: string, mbid: string, type: 'pdf' | 'musicxml' | 'midi', version: number, revision: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/octet-stream', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public scoreOwnerIdTypeVersionRevisionGet(owner: string, id: string, type: 'pdf' | 'musicxml' | 'midi', version: number, revision: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream', context?: HttpContext, transferCache?: boolean}): Observable<Blob>;
+    public scoreOwnerIdTypeVersionRevisionGet(owner: string, id: string, type: 'pdf' | 'musicxml' | 'midi', version: number, revision: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Blob>>;
+    public scoreOwnerIdTypeVersionRevisionGet(owner: string, id: string, type: 'pdf' | 'musicxml' | 'midi', version: number, revision: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Blob>>;
+    public scoreOwnerIdTypeVersionRevisionGet(owner: string, id: string, type: 'pdf' | 'musicxml' | 'midi', version: number, revision: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/octet-stream', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (owner === null || owner === undefined) {
-            throw new Error('Required parameter owner was null or undefined when calling scoreOwnerMbidTypeVersionRevisionGet.');
+            throw new Error('Required parameter owner was null or undefined when calling scoreOwnerIdTypeVersionRevisionGet.');
         }
-        if (mbid === null || mbid === undefined) {
-            throw new Error('Required parameter mbid was null or undefined when calling scoreOwnerMbidTypeVersionRevisionGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling scoreOwnerIdTypeVersionRevisionGet.');
         }
         if (type === null || type === undefined) {
-            throw new Error('Required parameter type was null or undefined when calling scoreOwnerMbidTypeVersionRevisionGet.');
+            throw new Error('Required parameter type was null or undefined when calling scoreOwnerIdTypeVersionRevisionGet.');
         }
         if (version === null || version === undefined) {
-            throw new Error('Required parameter version was null or undefined when calling scoreOwnerMbidTypeVersionRevisionGet.');
+            throw new Error('Required parameter version was null or undefined when calling scoreOwnerIdTypeVersionRevisionGet.');
         }
         if (revision === null || revision === undefined) {
-            throw new Error('Required parameter revision was null or undefined when calling scoreOwnerMbidTypeVersionRevisionGet.');
+            throw new Error('Required parameter revision was null or undefined when calling scoreOwnerIdTypeVersionRevisionGet.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -396,7 +396,7 @@ export class ScoreService extends BaseService {
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
 
-        let localVarPath = `/score/${this.configuration.encodeParam({name: "owner", value: owner, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "mbid", value: mbid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "type", value: type, in: "path", style: "simple", explode: false, dataType: "'pdf' | 'musicxml' | 'midi'", dataFormat: undefined})}/${this.configuration.encodeParam({name: "version", value: version, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/${this.configuration.encodeParam({name: "revision", value: revision, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}`;
+        let localVarPath = `/score/${this.configuration.encodeParam({name: "owner", value: owner, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "type", value: type, in: "path", style: "simple", explode: false, dataType: "'pdf' | 'musicxml' | 'midi'", dataFormat: undefined})}/${this.configuration.encodeParam({name: "version", value: version, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/${this.configuration.encodeParam({name: "revision", value: revision, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request('get', `${basePath}${localVarPath}`,
             {

@@ -343,14 +343,14 @@ paths:
         '404':
           description: Score not found
 
-  /score/{mbid}/{type}/{version}/{revision}:
+  /score/{id}/{type}/{version}/{revision}:
     post:
-      operationId: scoreMbidTypeVersionRevisionPost
+      operationId: scoreIdTypeVersionRevisionPost
       tags:
         - score
       summary: Upload a binary file for a specific score
       parameters:
-        - name: mbid
+        - name: id
           in: path
           required: true
           schema:
@@ -399,9 +399,9 @@ paths:
           description: Invalid input
         '404':
           description: ScoreApiInfo not found
-  /score/{owner}/{mbid}/{type}/{version}/{revision}:
+  /score/{owner}/{id}/{type}/{version}/{revision}:
     get:
-      operationId: scoreOwnerMbidTypeVersionRevisionGet
+      operationId: scoreOwnerIdTypeVersionRevisionGet
       tags:
         - score
       summary: Download a file for a specific score
@@ -412,7 +412,7 @@ paths:
           schema:
             type: string
           description: The User Id
-        - name: mbid
+        - name: id
           in: path
           required: true
           schema:

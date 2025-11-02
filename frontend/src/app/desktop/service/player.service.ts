@@ -66,6 +66,7 @@ export class PlayerService {
   rightmostKey: number = 108; // Default C8
 
   constructor(private midiService: MidiServiceService) {
+    midiService.setupMidiDeviceListeners();
     this.loadKeyboardPreferences();
     this.initSoundFont();
     this.synth = new Tone.Synth().toDestination();
@@ -110,6 +111,18 @@ export class PlayerService {
     json.tracks.forEach((track, idx) => {
       console.log(`Track ${idx}: ${track.name}, instrument: ${track.instrument.name}, notes: ${track.notes.length}`);
     });
+
+    // If studies.length === 1, include all tracks with the same instrument name
+    if (studies.length === 1) {
+      const studyTrackInstrument = json.tracks[studies[0]].instrument.name;
+      studies = json.tracks
+        .map((track, idx) => ({ idx, instrumentName: track.instrument.name }))
+        .filter(item => item.instrumentName === studyTrackInstrument)
+        .map(item => item.idx);
+      console.log(`Extended studies to all tracks with instrument "${studyTrackInstrument}":`, studies);
+    }
+
+    //studies = [0,1]
     const midiAll = new Midi.Midi();
     midiAll.fromJSON(json)
     this.duration = midiAll.duration;

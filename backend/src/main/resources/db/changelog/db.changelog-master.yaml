@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/changes/003-add-tempo-column.yaml
   - include:
       file: db/changelog/changes/004-add-score-columns.yaml
+  - include:
+      file: db/changelog/changes/005-make-score-mbid-nullable.yaml
