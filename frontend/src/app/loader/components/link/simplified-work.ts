@@ -1,5 +1,5 @@
 export interface SimplifiedWork {
-    mbid: string;
+    mbid?: string;
     title: string;
     artistMbId: string;
     artistName: string;

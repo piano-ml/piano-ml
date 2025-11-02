@@ -4,7 +4,6 @@ import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { Subscription } from 'rxjs';
 import { Cursor, CursorOptions, OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { PlayerService } from '../../service/player.service';
-import { MUSIC_XML_STORAGE_KEY } from '../../model/model';
 
 @Component({
     selector: 'app-osmd',
@@ -16,6 +15,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     osmd: OpenSheetMusicDisplay | null = null;
 
     @Input() scoreData: ScoreApiInfo | null = null;
+    @Input() musicXml: string | null = null;
     @ViewChild('osmdContainer', { static: true }) osmdContainer!: ElementRef;
     @ViewChild('scrollableElement') scrollableElement!: ElementRef<HTMLDivElement>;
 
@@ -94,8 +94,8 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
             coloringEnabled: true,
             followCursor: true,
         });
-        if (localStorage.getItem(MUSIC_XML_STORAGE_KEY) !== null) {
-            await this.osmd.load(localStorage.getItem(MUSIC_XML_STORAGE_KEY)!).then(() => {
+        if (this.musicXml) {
+            await this.osmd.load(this.musicXml).then(() => {
                 this.osmd!.EngravingRules.SheetMaximumWidth = Number.MAX_SAFE_INTEGER;
             });
             this.osmd!.render();

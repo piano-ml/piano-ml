@@ -37,6 +37,9 @@ public class AuthorService {
     } else {
       try {
         Author author = musicBrainzService.getAuthor(mbid);
+        if (author == null) {
+          throw new MusicBrainzException("MusicBrainz returned no author for mbid: " + mbid);
+        }
         author.setId(null);
         authorRepository.save(author);
         return author;

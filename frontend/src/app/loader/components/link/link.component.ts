@@ -2,7 +2,7 @@ import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { MusicbrainzService, MusicBrainzWork, MusicBrainzWorksResponse } from '../../../shared/services/musicbrainz.service';
+import { MusicbrainzService, MusicBrainzWork, MusicBrainzWorksResponse, MusicBrainzArtistsResponse, MusicBrainzArtistDetailed } from '../../../shared/services/musicbrainz.service';
 import { SimplifiedWork } from './simplified-work';
 import { AuthService } from '../../../account/services/auth.service';
 @Component({
@@ -13,14 +13,21 @@ import { AuthService } from '../../../account/services/auth.service';
 })
 export class LinkComponent implements OnInit {
   searchQuery = '';
-  artistQuery = '';
-  titleQuery = '';
   loading = false;
   error: string | null = null;
   response: MusicBrainzWorksResponse | null = null;
   displayedWorks: SimplifiedWork[] = [];
   showSongsOnly = true; // Par défaut, montrer seulement les chansons
   isLoggedIn = false;
+  hasSearched = false; // Track if a search has been performed
+
+  // Manual creation workflow
+  showManualCreation = false;
+  manualCreationStep: 'artist' | 'title' | null = null;
+  artistSearchQuery = '';
+  artistResponse: MusicBrainzArtistsResponse | null = null;
+  selectedArtist: MusicBrainzArtistDetailed | null = null;
+  workTitle = '';
 
   constructor(
     private musicbrainzService: MusicbrainzService,
@@ -68,6 +75,7 @@ export class LinkComponent implements OnInit {
     this.error = null;
     this.response = null;
     this.displayedWorks = [];
+    this.hasSearched = true; // Mark that a search has been performed
     this.changeDetector.detectChanges();
 
     this.musicbrainzService.searchWorks({ query: this.searchQuery, limit: 50 })
@@ -86,30 +94,7 @@ export class LinkComponent implements OnInit {
       });
   }
 
-  searchByArtistAndTitle() {
-    if (!this.artistQuery.trim() || !this.titleQuery.trim()) return;
 
-    this.loading = true;
-    this.error = null;
-    this.response = null;
-    this.displayedWorks = [];
-    this.changeDetector.detectChanges();
-
-    this.musicbrainzService.searchWorksByArtistAndTitle(this.artistQuery, this.titleQuery, 50)
-      .subscribe({
-        next: (response) => {
-          this.response = response;
-          this.updateDisplayedWorks();
-          this.loading = false;
-          this.changeDetector.detectChanges();
-        },
-        error: (error) => {
-          this.error = error.message || 'An error occurred while searching';
-          this.loading = false;
-          this.changeDetector.detectChanges();
-        }
-      });
-  }
 
   updateDisplayedWorks() {
     if (!this.response) {
@@ -144,11 +129,10 @@ export class LinkComponent implements OnInit {
 
   clearSearch() {
     this.searchQuery = '';
-    this.artistQuery = '';
-    this.titleQuery = '';
     this.response = null;
     this.displayedWorks = [];
     this.error = null;
+    this.hasSearched = false; // Reset search state
   }
 
   getComposers(work: MusicBrainzWork): string[] {
@@ -178,18 +162,75 @@ export class LinkComponent implements OnInit {
     return lyricists.length > 0 ? lyricists.join(', ') : 'N/A';
   }
 
-  // Méthode de debug pour vérifier l'état du bouton
-  isAdvancedSearchDisabled(): boolean {
-    const disabled = this.loading || !this.artistQuery.trim() || !this.titleQuery.trim();
-    return disabled;
+  // Manual creation workflow methods
+  startManualCreation() {
+    this.showManualCreation = true;
+    this.manualCreationStep = 'artist';
+    this.artistSearchQuery = '';
+    this.artistResponse = null;
+    this.selectedArtist = null;
+    this.workTitle = '';
+    this.error = null;
   }
 
-  // Méthodes de debug pour les inputs
-  onArtistQueryChange(event: any): void {
-    // Event handler for artist query changes
+  cancelManualCreation() {
+    this.showManualCreation = false;
+    this.manualCreationStep = null;
+    this.artistSearchQuery = '';
+    this.artistResponse = null;
+    this.selectedArtist = null;
+    this.workTitle = '';
   }
 
-  onTitleQueryChange(event: any): void {
-    // Event handler for title query changes
+  searchArtists() {
+    if (!this.artistSearchQuery.trim()) return;
+
+    this.loading = true;
+    this.error = null;
+    this.artistResponse = null;
+    this.changeDetector.detectChanges();
+
+    this.musicbrainzService.searchArtistsByName(this.artistSearchQuery, 50)
+      .subscribe({
+        next: (response) => {
+          this.artistResponse = response;
+          this.loading = false;
+          this.changeDetector.detectChanges();
+        },
+        error: (error) => {
+          this.error = error.message || 'An error occurred while searching artists';
+          this.loading = false;
+          this.changeDetector.detectChanges();
+        }
+      });
   }
+
+  onArtistSelect(artist: MusicBrainzArtistDetailed) {
+    this.selectedArtist = artist;
+    this.manualCreationStep = 'title';
+    this.workTitle = '';
+  }
+
+  backToArtistSearch() {
+    this.manualCreationStep = 'artist';
+    this.selectedArtist = null;
+    this.workTitle = '';
+  }
+
+  submitManualWork() {
+    if (!this.selectedArtist || !this.workTitle.trim()) return;
+
+    const manualWork: SimplifiedWork = {
+      // No MBID for manually created works - don't include it at all
+      title: this.workTitle.trim(),
+      artistMbId: this.selectedArtist.id,
+      artistName: this.selectedArtist.name,
+    };
+
+    this.router.navigate(['/open/import-work', 'manual'], {
+      state: { work: manualWork },
+      skipLocationChange: true
+    });
+  }
+
 }

@@ -44,14 +44,15 @@ echo "Running relieur to merge musicxml files: $XMLFILES"
 
 $HOME/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES
 
-musescore3 -f -o "$FROOT".mid "$FROOT".musicxml
-musescore3 -f -M ./scripts/midioperations.xml -o "$FROOT".musicxml "$FROOT".mid
+
+musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml"
+musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid"
 
 
 mv "$FROOT".mid "$FROOT".midi
 
 echo "Running pianoplayer for fingering detection"
-pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z
+pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null
 
 echo "TITLE: $TITLE"
 echo "COMPOSER: $COMPOSER"
@@ -59,7 +60,7 @@ echo "COMPOSER: $COMPOSER"
 $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
-musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
+musescore3 -f -o "$FROOT".pdf "$FROOT".midi
 
 $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml"
 

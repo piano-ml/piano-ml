@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
 import { PlayerService } from '../../service/player.service';
 import * as Midi from '@tonejs/midi';
-import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
+import { MIDI_STORAGE_KEY, PlayConfiguration } from '../../model/model';
 import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { Subscription } from 'rxjs';
@@ -47,8 +47,10 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   // Cache for parsed MIDI data
   private cachedMidi: Midi.Midi | null = null;
-  private cachedMusicXML: string | null = null;
   private subscriptions: Subscription[] = [];
+  
+  // MusicXML content to pass to osmd component
+  musicXml: string | null = null;
   
   // Observable for elapsed time from PlayerService
   elapsedTime!: any;
@@ -187,18 +189,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     return this.cachedMidi;
   }
 
-  private getCachedMusicXML(): string | null {
-    if (!this.cachedMusicXML) {
-      try {
-        this.cachedMusicXML = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
-      } catch (error) {
-        console.warn('Failed to load MusicXML from localStorage:', error);
-        this.cachedMusicXML = null;
-      }
-    }
-    return this.cachedMusicXML;
-  }
-
   async loadMidi(scoreData: ScoreApiInfo): Promise<void> {
     return this.loadScoreData(scoreData, 'midi', async (data) => {
       const arrayBuffer = await data.arrayBuffer();
@@ -216,9 +206,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     return this.loadScoreData(scoreData, 'musicxml', async (data) => {
       const arrayBuffer = await data.arrayBuffer();
       const xmlText = WorkbenchComponent.textDecoder.decode(arrayBuffer);
-      localStorage.setItem(MUSIC_XML_STORAGE_KEY, xmlText);
-      // Invalidate cache when new MusicXML is loaded
-      this.cachedMusicXML = null;
+      this.musicXml = xmlText;
     });
   }
 
@@ -229,7 +217,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   ): Promise<void> {
     // Don't set loading here since it's managed at higher level
     return new Promise((resolve, reject) => {
-      this.scoreService.scoreOwnerMbidTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.mbid!, type, scoreData.version || 1, 1).subscribe({
+      this.scoreService.scoreOwnerIdTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.id!, type, scoreData.version || 1, 1).subscribe({
         next: async (data) => {
           try {
             await processor(data);
@@ -506,7 +494,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
     // Clear caches
     this.cachedMidi = null;
-    this.cachedMusicXML = null;
+    this.musicXml = null;
     this.sliderConfigCache = null;
   }
 

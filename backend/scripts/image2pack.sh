@@ -18,15 +18,14 @@ COMPOSER="$3"
 FROOT="${IMAGE%.*}"
 FROOT="${FROOT/upload_/}"
 
+mv $IMAGE "$FROOT.png"
+
 cd homr
-poetry run homr "$IMAGE"
-
+poetry run homr "$FROOT.png"
 cd ..
-pwd
-echo "Running relieur to merge musicxml files: $XMLFILES"
 
+# sanitize files
 musescore3 -f -o "$FROOT".mscz "$FROOT".musicxml
-
 musescore3 -f -o "$FROOT".mid "$FROOT".mscz
 musescore3 -f -o "$FROOT".musicxml "$FROOT".mscz
 

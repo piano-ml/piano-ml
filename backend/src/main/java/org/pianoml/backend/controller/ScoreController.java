@@ -122,15 +122,15 @@ public class ScoreController implements ScoreApi {
 
 
   @Override
-  public ResponseEntity<Void> scoreMbidTypeVersionRevisionPost(String mbid, String type, Integer version, Integer revision, org.springframework.core.io.Resource body, Integer track1, Integer track2) {
+  public ResponseEntity<Void> scoreIdTypeVersionRevisionPost(String id, String type, Integer version, Integer revision, org.springframework.core.io.Resource body, Integer track1, Integer track2) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String id = authentication.getName();
-    User user = userRepository.findById(UUID.fromString(id)).orElseThrow(EntityNotFoundException::new);
-    Optional<Score> optScore = scoreRepository.findScoreByMbidAndOwnerAndVersion(UUID.fromString(mbid), user, version);
+    String userId = authentication.getName();
+    User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(EntityNotFoundException::new);
+    Optional<Score> optScore = scoreRepository.findScoreByIdAndOwnerAndVersion(UUID.fromString(id), user, version);
     if (optScore.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
-    if (!optScore.get().getOwner().getId().equals(UUID.fromString(id))) {
+    if (!optScore.get().getOwner().getId().equals(UUID.fromString(userId))) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
     try {
@@ -142,10 +142,10 @@ public class ScoreController implements ScoreApi {
   }
 
   @Override
-  public ResponseEntity<org.springframework.core.io.Resource> scoreOwnerMbidTypeVersionRevisionGet(String strOwner, String mbid, String type, Integer version, Integer revision) {
+  public ResponseEntity<org.springframework.core.io.Resource> scoreOwnerIdTypeVersionRevisionGet(String strOwner, String id, String type, Integer version, Integer revision) {
     try {
       User owner = userRepository.findById(UUID.fromString(strOwner)).orElseThrow(EntityNotFoundException::new);
-      Optional<Score> optScore = scoreRepository.findScoreByMbidAndOwnerAndVersion(UUID.fromString(mbid), owner, version);
+      Optional<Score> optScore = scoreRepository.findScoreByIdAndOwnerAndVersion(UUID.fromString(id), owner, version);
       if (optScore.isEmpty()) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
       }

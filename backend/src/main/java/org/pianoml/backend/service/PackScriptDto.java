@@ -8,7 +8,7 @@ import java.io.InputStream;
 @Data
 public class PackScriptDto {
   String id;
-  String mbid;
+  //String mbid;
   InputStream inputStream;
   String title;
   String composer;
@@ -18,7 +18,7 @@ public class PackScriptDto {
 
   public PackScriptDto(InputStream inputStream, Score score) {
     this.id = score.getId().toString();
-    this.mbid = score.getMbid().toString();
+    //this.mbid = score.getMbid().toString();
     this.inputStream = inputStream;
     this.title = score.getTitle();
     this.composer = score.getAuthor().getName();

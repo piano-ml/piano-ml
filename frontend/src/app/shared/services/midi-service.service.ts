@@ -17,7 +17,7 @@ export class MidiServiceService {
 
   constructor() {
     this.onMidiMessage = this.onMidiMessage.bind(this);
-    this.setupMidiDeviceListeners()
+    //this.setupMidiDeviceListeners()
   }
 
   press(note: number, velocity: number) {

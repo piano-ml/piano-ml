@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-make-score-mbid-nullable
+      author: eflorent2020
+      changes:
+        - dropNotNullConstraint:
+            tableName: score
+            columnName: mbid
+            columnDataType: varchar(255)
+      rollback:
+        - addNotNullConstraint:
+            tableName: score
+            columnName: mbid
+            columnDataType: varchar(255)
+

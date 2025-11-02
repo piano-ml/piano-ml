@@ -55,6 +55,47 @@ export interface MusicBrainzWorksResponse {
   works: MusicBrainzWork[];
 }
 
+export interface MusicBrainzArtistsResponse {
+  created: string;
+  count: number;
+  offset: number;
+  artists: MusicBrainzArtistDetailed[];
+}
+
+export interface MusicBrainzArtistDetailed {
+  id: string;
+  type?: string;
+  'type-id'?: string;
+  score: number;
+  name: string;
+  'sort-name': string;
+  country?: string;
+  area?: {
+    id: string;
+    name: string;
+    'sort-name': string;
+    'type-id'?: string;
+  };
+  'begin-area'?: {
+    id: string;
+    name: string;
+    'sort-name': string;
+  };
+  'life-span'?: {
+    begin?: string;
+    end?: string;
+    ended?: boolean;
+  };
+  disambiguation?: string;
+  aliases?: MusicBrainzAlias[];
+  tags?: Array<{
+    count: number;
+    name: string;
+  }>;
+  gender?: string;
+  'gender-id'?: string;
+}
+
 export interface MusicBrainzSearchParams {
   query: string;
   limit?: number;
@@ -119,6 +160,42 @@ export class MusicbrainzService {
   searchWorksByArtistAndTitle(artist: string, title: string, limit: number = 25, offset: number = 0): Observable<MusicBrainzWorksResponse> {
     const query = `artist:"${artist.replace(/"/g, '\\"')}" AND work:"${title.replace(/"/g, '\\"')}"`;
     return this.searchWorks({ query, limit, offset });
+  }
+
+  /**
+   * Search for artists in MusicBrainz
+   * @param searchParams Search parameters
+   * @returns Observable of MusicBrainz artists response
+   */
+  searchArtists(searchParams: MusicBrainzSearchParams): Observable<MusicBrainzArtistsResponse> {
+    let params = new HttpParams()
+      .set('query', searchParams.query)
+      .set('fmt', searchParams.format || 'json')
+      .set('limit', (searchParams.limit || 25).toString())
+      .set('offset', (searchParams.offset || 0).toString());
+
+    const headers = {
+      'Accept': 'application/json'
+    };
+
+    return this.http.get<MusicBrainzArtistsResponse>(`${this.baseUrl}/artist`, {
+      params,
+      headers
+    }).pipe(
+      catchError(this.handleError<MusicBrainzArtistsResponse>('searchArtists'))
+    );
+  }
+
+  /**
+   * Search for artists by name
+   * @param name The artist name to search for
+   * @param limit Maximum number of results (default: 25)
+   * @param offset Pagination offset (default: 0)
+   * @returns Observable of MusicBrainz artists response
+   */
+  searchArtistsByName(name: string, limit: number = 25, offset: number = 0): Observable<MusicBrainzArtistsResponse> {
+    const query = `artist:"${name.replace(/"/g, '\\"')}"`;
+    return this.searchArtists({ query, limit, offset });
   }
 
   /**
