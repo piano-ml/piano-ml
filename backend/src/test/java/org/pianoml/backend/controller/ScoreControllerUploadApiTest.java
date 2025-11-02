@@ -77,7 +77,7 @@ public class ScoreControllerUploadApiTest {
   void upload_ok_returns200() throws Exception {
     // Arrange
     UUID ownerId = UUID.randomUUID();
-    UUID mbid = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
     int version = 1;
     int revision = 0; // ignored by controller
     String type = "midi";
@@ -90,16 +90,16 @@ public class ScoreControllerUploadApiTest {
 
     Score score = new Score();
     score.setOwner(owner);
-    score.setMbid(mbid);
+    score.setMbid(id);
     score.setVersion(version);
 
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
-    when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
+    when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
     doNothing().when(scoreService).packAttachmentToScore(eq(score), eq(type), any());
 
     // Act + Assert
-    mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", mbid, type, version, revision)
+    mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", id, type, version, revision)
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .content(body))
       .andExpect(status().isOk());
@@ -108,7 +108,7 @@ public class ScoreControllerUploadApiTest {
   @Test
   void upload_scoreNotFound_returns404() throws Exception {
     UUID ownerId = UUID.randomUUID();
-    UUID mbid = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
     int version = 1;
     int revision = 0;
     String type = "midi";
@@ -119,10 +119,10 @@ public class ScoreControllerUploadApiTest {
     owner.setId(ownerId);
 
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
-    when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
+    when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.empty());
 
-    mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", mbid, type, version, revision)
+    mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", id, type, version, revision)
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .content("x".getBytes()))
       .andExpect(status().isNotFound());
@@ -132,7 +132,7 @@ public class ScoreControllerUploadApiTest {
   void upload_forbidden_returns403() throws Exception {
     UUID authUserId = UUID.randomUUID();
     UUID ownerId = UUID.randomUUID(); // different owner
-    UUID mbid = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
     int version = 1;
     int revision = 0;
     String type = "midi";
@@ -146,15 +146,15 @@ public class ScoreControllerUploadApiTest {
 
     Score score = new Score();
     score.setOwner(actualOwner); // owner is different from auth user
-    score.setMbid(mbid);
+    score.setId(id);
     score.setVersion(version);
 
     when(userRepository.findById(eq(authUserId))).thenReturn(Optional.of(authUser));
     // Even though repository takes (mbid, authUser, version), we return a score owned by someone else to trigger 403.
-    when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(authUser), eq(version)))
+    when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(authUser), eq(version)))
       .thenReturn(Optional.of(score));
 
-    mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", mbid, type, version, revision)
+    mockMvc.perform(post("/score/{id}/{type}/{version}/{revision}", id, type, version, revision)
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .content("x".getBytes()))
       .andExpect(status().isForbidden());
@@ -163,7 +163,7 @@ public class ScoreControllerUploadApiTest {
   @Test
   void upload_ioError_returns500() throws Exception {
     UUID ownerId = UUID.randomUUID();
-    UUID mbid = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
     int version = 1;
     int revision = 0;
     String type = "midi";
@@ -176,15 +176,15 @@ public class ScoreControllerUploadApiTest {
 
     Score score = new Score();
     score.setOwner(owner);
-    score.setMbid(mbid);
+    score.setId(id);
     score.setVersion(version);
 
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
-    when(scoreRepository.findScoreByMbidAndOwnerAndVersion(eq(mbid), eq(owner), eq(version)))
+    when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
     doThrow(new java.io.IOException("boom")).when(scoreService).packAttachmentToScore(eq(score), eq(type), any());
 
-    mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", mbid, type, version, revision)
+    mockMvc.perform(post("/score/{id}/{type}/{version}/{revision}", id, type, version, revision)
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .content(body))
       .andExpect(status().isInternalServerError());
