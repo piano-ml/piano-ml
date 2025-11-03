@@ -389,7 +389,7 @@ function createPartWithAPI(
 ): elements.PartPartwise {
   const notesInPattern = hand === 'lh' ? exercice.patternLeftHand : exercice.patternRightHand;
   const m = getNote(`${key}4`);
-  const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift || 0) + (m < 65 ? 1 : 0);
+  const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift -2 || 0) + (m < 65 ? 1 : 0);
 
   // Create attributes for the measure
   const attributesFirstMeasure = createAttributeFirstMeasure(hand, exercice, divisions, key);

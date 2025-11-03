@@ -90,7 +90,7 @@ const exercice2: Exercise = {
     measure: 4,
     beat: reducedFraction(4, 4),
     tempo: 60,
-    octaveShift: -2,
+    octaveShift: 0,
     repeat: 1,
     fingeringFn: scaleFingering,
     patternRightHand: [
@@ -174,7 +174,7 @@ const exercice1: Exercise = {
     measure: 4,
     beat: reducedFraction(4, 4),
     tempo: 60,
-    octaveShift: -2,
+    octaveShift: 0,
     repeat: 1,
     fingeringFn: scaleFingering,    
     patternRightHand: [

@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
 import { PlayerService } from '../../service/player.service';
 import * as Midi from '@tonejs/midi';
-import { MIDI_STORAGE_KEY, PlayConfiguration } from '../../model/model';
+import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
 import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { Subscription } from 'rxjs';
@@ -39,6 +39,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   // Score data from state
   scoreData: ScoreApiInfo | null = null;
+  fromStorage = false;
   loading = false;
   isPlaying = false;
   tempo = 120;
@@ -122,19 +123,44 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.scoreData = navigation.extras.state['score'] as ScoreApiInfo;
+      this.fromStorage = navigation.extras.state['fromStorage'] === true;
     } else {
       const state = window.history.state;
       if (state && state.score) {
         this.scoreData = state.score as ScoreApiInfo;
       }
+      if (state && state.fromStorage === true) {
+        this.fromStorage = true;
+      }
     }
-    if (!this.scoreData) {
-      // in that case we come from excercice (scale & agility) and we have data in local storage
+    if (!this.scoreData && this.fromStorage) {
+      // in that case we come from exercice (scale & agility) and we have data in local storage
+      // Create a minimal scoreData object for exercise mode with title from MIDI
+      let exerciseTitle = 'Exercise';
+      try {
+        const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
+        if (midiScore) {
+          const midiJson = JSON.parse(midiScore);
+          exerciseTitle = midiJson.header?.name || 'Exercise';
+        }
+      } catch (error) {
+        console.warn('Failed to load MIDI title from localStorage:', error);
+      }
+      
+      this.scoreData = {
+        id: 'exercise',
+        title: exerciseTitle,
+        owner_id: 'local'
+      } as ScoreApiInfo;
+      
+      // Enable loop/repeat for exercises
+      this.playConfiguration.isLoop = true;
     }
   }
 
   async ngAfterViewInit() {
-    if (this.scoreData) {
+    if (this.scoreData && !this.fromStorage) {
+      // Load score data from API
       this.title = this.scoreData.title || "";
       this.checkIfScrollNeeded();
       this.loading = true;
@@ -157,7 +183,25 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         this.changeDetector.detectChanges();
         return;
       }
-    } 
+    } else if (this.fromStorage) {
+      // Load from localStorage (for exercises)
+      this.loading = true;
+      this.changeDetector.detectChanges();
+      
+      try {
+        await this.loadFromLocalStorage();
+        
+        requestAnimationFrame(() => {
+          this.loading = false;
+          this.changeDetector.detectChanges();
+        });
+      } catch (error) {
+        console.error('Error loading from localStorage:', error);
+        this.loading = false;
+        this.changeDetector.detectChanges();
+        return;
+      }
+    }
 
     // starting from here we always have score data in local storage and the view is loaded
     const midi = this.getCachedMidi();
@@ -187,6 +231,30 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       }
     }
     return this.cachedMidi;
+  }
+
+  async loadFromLocalStorage(): Promise<void> {
+    try {
+      // Load MusicXML from localStorage
+      const musicXmlData = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
+      if (musicXmlData) {
+        this.musicXml = musicXmlData;
+      } else {
+        throw new Error('No MusicXML found in localStorage');
+      }
+
+      // MIDI is already handled by getCachedMidi(), but we need to invalidate cache
+      this.cachedMidi = null;
+      
+      // Verify MIDI exists in localStorage
+      const midiData = localStorage.getItem(MIDI_STORAGE_KEY);
+      if (!midiData) {
+        throw new Error('No MIDI found in localStorage');
+      }
+    } catch (error) {
+      console.error('Error loading from localStorage:', error);
+      throw error;
+    }
   }
 
   async loadMidi(scoreData: ScoreApiInfo): Promise<void> {

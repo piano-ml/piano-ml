@@ -110,7 +110,7 @@ export class BrowseComponent implements OnInit {
   onScoreClick(score: ScoreApiInfo) {
 
     if (score.id) {
-      this.router.navigate(['/desktop/workbench'], { 
+      this.router.navigate(['/desktop/workbench'], {
         state: { score: score }
       });
     }
