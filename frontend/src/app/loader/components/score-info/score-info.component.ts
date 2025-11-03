@@ -146,7 +146,7 @@ export class ScoreInfoComponent implements OnInit {
   }
 
   downloadFile(type: 'pdf' | 'musicxml' | 'midi') {
-    if (!this.score?.owner_id || !this.score?.mbid || !this.score?.version) {
+    if (!this.score?.owner_id || !this.score?.id || !this.score?.version) {
       this.error = 'Missing required information for download';
       return;
     }

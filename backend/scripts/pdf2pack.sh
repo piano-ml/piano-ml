@@ -60,7 +60,7 @@ echo "COMPOSER: $COMPOSER"
 $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
-musescore3 -f -o "$FROOT".pdf "$FROOT".midi
+musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
 
 $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml"
 
