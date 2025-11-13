@@ -1,11 +1,10 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat,  bootstrapInfoCircle } from '@ng-icons/bootstrap-icons';
 import { ScoreApiInfo, ScoreService } from '../../../core/api';
 import { OsmdComponent } from '../osmd/osmd.component';
-//import { NouisliderComponent, NouisliderModule } from 'ng2-nouislider';
 import { FormsModule } from '@angular/forms';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
 import { PlayerService } from '../../service/player.service';
@@ -13,12 +12,13 @@ import * as Midi from '@tonejs/midi';
 import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
 import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
-import { Subscription } from 'rxjs';
+import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
+
 
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent,],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, ElapsedTimePipe],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -58,6 +58,13 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   // Reusable decoder and config cache
   private static readonly textDecoder = new TextDecoder();
   private sliderConfigCache: any = null;
+
+  /**
+   * Invalidate slider configuration cache when values change
+   */
+  private invalidateSliderCache(): void {
+    this.sliderConfigCache = null;
+  }
 
   // Configuration
   playConfiguration: PlayConfiguration = {
@@ -107,14 +114,14 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       const message = this.playerService.message();
       if (message === "END") {
         this.isPlaying = false;
-        this.changeDetector.detectChanges();
+        this.changeDetector.markForCheck();
       } else if (message === "BAD") {
         this.arenaClass = 'bad';
-        this.changeDetector.detectChanges();
+        this.changeDetector.markForCheck();
         // Remove the bad class after a short duration
         setTimeout(() => {
           this.arenaClass = '';
-          this.changeDetector.detectChanges();
+          this.changeDetector.markForCheck();
         }, 500);
       }
     });
@@ -125,7 +132,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       // Mettre à jour la configuration et le slider
       this.playConfiguration.currentStave = measure + 1;
       this.updateSlider();
-      this.changeDetector.detectChanges();
+      this.changeDetector.markForCheck();
     });
     
     const navigation = this.router.getCurrentNavigation();
@@ -218,7 +225,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.checkIfScrollNeeded();
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, midi);
     this.setupSlider();
-    this.setupSubscription();
   }
 
 
@@ -334,8 +340,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.playerService.reset(this.playConfiguration);
     this.isPlaying = false;
 
-    // Invalidate config cache since values changed
-    this.sliderConfigCache = null;
+    this.invalidateSliderCache();
     this.updateSlider();
   }
 
@@ -362,11 +367,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     } else {
       this.slider.disable();
     }
-  }
-
-  setupSubscription() {
-    // L'effect pour measure est maintenant dans le constructeur
-    // Cette méthode est conservée pour compatibilité mais ne fait plus rien
   }
 
   setupSlider() {
@@ -409,9 +409,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         this.playConfiguration.currentStave = newCurrent;
         this.playConfiguration.scoreRange[1] = end;
 
-        // Invalidate slider config cache
-        this.sliderConfigCache = null;
-
+        this.invalidateSliderCache();
         this.updateSlider();
         this.playerService.reset(this.playConfiguration);
       }
@@ -478,25 +476,15 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     if (!a || !b) return false; // Null/undefined check
     if (a.length !== b.length) return false;
 
+    // Convert arrays once, then compare
+    const aNumbers = a.map(Number);
+    const bNumbers = b.map(Number);
+
     // Early return on first difference
-    for (let i = 0; i < a.length; i++) {
-      if (Number(a[i]) !== Number(b[i])) return false;
+    for (let i = 0; i < aNumbers.length; i++) {
+      if (aNumbers[i] !== bNumbers[i]) return false;
     }
     return true;
-  }
-
-  formatElapsedTime(timeInMs: number | null): string {
-    if (!timeInMs) return '00:00';
-    
-    const totalSeconds = Math.floor(timeInMs / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    
-    if (hours > 0) {
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
   checkIfScrollNeeded(): void {
@@ -506,8 +494,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // Attendre le prochain cycle de détection des changements pour que le DOM soit mis à jour
-    setTimeout(() => {
+    // Utiliser requestAnimationFrame pour optimiser le calcul de layout
+    requestAnimationFrame(() => {
       try {
         const containerWidth = this.titleContainer.nativeElement.clientWidth;
         const textWidth = this.titleText.nativeElement.scrollWidth;
@@ -527,7 +515,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
           this.shouldScroll = false;
         }
         
-        this.changeDetector.detectChanges();
+        this.changeDetector.markForCheck();
       } catch (error) {
         // En cas d'erreur, on utilise la méthode de fallback
         this.shouldScroll = this.title.length > 25;
@@ -535,11 +523,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
           this.titleText.nativeElement.style.setProperty('--scroll-distance', '-50%');
         }
       }
-    }, 0);
-  }
-
-  shouldScrollTitle(): boolean {
-    return this.shouldScroll;
+    });
   }
 
   ngOnDestroy() {

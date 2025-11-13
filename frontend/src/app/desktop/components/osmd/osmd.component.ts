@@ -1,9 +1,9 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
-import { Subscription } from 'rxjs';
-import { Cursor, CursorOptions, OpenSheetMusicDisplay } from "opensheetmusicdisplay";
+import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { PlayerService } from '../../service/player.service';
+import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
 
 @Component({
     selector: 'app-osmd',
@@ -23,19 +23,16 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     loading = false;
     error: string | null = null;
     
-    cursor: Cursor | null = null;
     private mutationObserver?: MutationObserver;
+    private cursorElement?: HTMLElement;
+    private originalScrollIntoView?: (arg?: boolean | ScrollIntoViewOptions) => void;
 
     constructor(
         private playerService: PlayerService,
-        private changeDetector: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
-        setTimeout(() => {
-            this.loadMusicXML();
-        }, 100);
-
+        this.loadMusicXML();
     }
 
     ngAfterViewInit() {
@@ -43,8 +40,17 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngOnDestroy() {
+        // Restaurer la méthode scrollIntoView originale avant de détruire le composant
+        this.restoreScrollIntoView();
+        
         if (this.mutationObserver) {
             this.mutationObserver.disconnect();
+        }
+        
+        // Nettoyer l'instance OSMD
+        if (this.osmd) {
+            this.osmd.clear();
+            this.osmd = null;
         }
     }
 
@@ -54,49 +60,16 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
         this.error = null;
 
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
-        this.osmd.EngravingRules.SheetMaximumWidth = 8000000000000;
+        this.osmd.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
 
-        this.osmd.setOptions({ // https://opensheetmusicdisplay.github.io/classdoc/interfaces/IOSMDOptions.html
-            //drawingParameters: 'default',
-            pageFormat: 'Endless',
-            //autoResize: true,
-            autoBeam: true,
-            autoBeamOptions: {
-                groups: [[4,4]],
-            },
-            //alignRests: 0,
-            drawLyricist: true,
-            measureNumberInterval: 5,
-            //spacingFactorSoftmax: 100,
-            //useXMLMeasureNumbers: true,
-            //disableCursor: false,
-            backend: "svg",
-            cursorsOptions: [
-                {
-                    follow: true,
-                    color: "#B0F2B4",
-                    alpha: .6,
-                    type: 4
-                },
-            ] as CursorOptions[],
-            drawTitle: false,
-            darkMode: false,
-            renderSingleHorizontalStaffline: true,
-            drawCredits: false,
-            drawComposer: false,
-            drawPartNames: false,
-            drawMeasureNumbers: true,
-            drawFingerings: true,
-            drawLyrics: true,
-            drawMetronomeMarks: false,
-            coloringEnabled: true,
-            followCursor: true,
-        });
+        this.osmd.setOptions(DEFAULT_OSMD_OPTIONS);
+        
         if (this.musicXml) {
             await this.osmd.load(this.musicXml).then(() => {
-                this.osmd!.EngravingRules.SheetMaximumWidth = Number.MAX_SAFE_INTEGER;
+                this.osmd!.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
             });
             this.osmd!.render();
+            // there is not onRenderComplete callback, so we use a timeout ...
             setTimeout(() => {
                 this.loading = false;
                 if (!this.osmd!.cursor) {
@@ -108,7 +81,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                     this.osmd!.cursors[0].reset();
                     this.playerService.setOsmd(this.osmd!);
                 }
-            }, 20);
+            }, 100);
         }
     }
 
@@ -137,13 +110,11 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
             subtree: true
         });
 
-        setTimeout(() => {
-            const existingElement = document.getElementById('cursorImg-0');
-            if (existingElement) {
-                this.applyScrollIntoViewShim(existingElement);
-                this.cleanupMutationObserver();
-            }
-        }, 500);
+        const existingElement = document.getElementById('cursorImg-0');
+        if (existingElement) {
+            this.applyScrollIntoViewShim(existingElement);
+            this.cleanupMutationObserver();
+        }
     }
 
     private cleanupMutationObserver() {
@@ -154,10 +125,23 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     private applyScrollIntoViewShim(element: HTMLElement) {
-        const originalScrollIntoView = element.scrollIntoView.bind(element);
+        // Sauvegarder la référence à l'élément et à la fonction originale
+        this.cursorElement = element;
+        this.originalScrollIntoView = element.scrollIntoView.bind(element);
+        
+        // Appliquer le shim
         element.scrollIntoView = (arg?: boolean | ScrollIntoViewOptions) => {
-            arg = { behavior: 'smooth', inline: 'center', block: 'end' }
-            originalScrollIntoView(arg);
+            const options: ScrollIntoViewOptions = { behavior: 'smooth', inline: 'center', block: 'end' };
+            this.originalScrollIntoView!(options);
         };
+    }
+
+    private restoreScrollIntoView() {
+        // Restaurer la méthode originale si elle existe
+        if (this.cursorElement && this.originalScrollIntoView) {
+            this.cursorElement.scrollIntoView = this.originalScrollIntoView;
+            this.cursorElement = undefined;
+            this.originalScrollIntoView = undefined;
+        }
     }
 }

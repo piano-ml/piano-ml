@@ -1,10 +1,10 @@
 <div class="flex flex-col flex-grow h-dvh">
 
         <div class="flex-row  bg-black">
-            <div class="flex flex-col xl:flex-row mt-2 pl-2 pr-2">
+            <div class="flex flex-col lg:flex-row xl:flex-row mt-2 pl-2 pr-2">
 
 
-                <div class="flex xl:w-1/2 ">
+                <div class="flex lg:w-1/2 xl:w-1/2 ">
 
                     <div class="flex-none ">
                         <button (click)="summary()" class="btn btn-desktop m-1" [disabled]="isPlaying" 
@@ -22,7 +22,7 @@
                             </div>
                             <div class="flex-none flex flex-col text-sm">
                                 <div class="text-center">
-                                    {{ formatElapsedTime(elapsedTime | async) }}
+                                    {{ (elapsedTime | async) | elapsedTime }}
                                 </div>
                                 <div class="text-center">
                                     ♩{{ tempo }}
@@ -33,7 +33,7 @@
 
 
                 </div>
-                <div class="flex xl:w-1/2 items-end justify-end">
+                <div class="flex lg:w-1/2 xl:w-1/2 items-end justify-end">
 
 
                     <button (click)="showInfo()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
