@@ -2,7 +2,7 @@ import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewIn
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat,  bootstrapInfoCircle } from '@ng-icons/bootstrap-icons';
+import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat,  bootstrapInfoCircle, bootstrapFullscreen, bootstrapFullscreenExit } from '@ng-icons/bootstrap-icons';
 import { ScoreApiInfo, ScoreService } from '../../../core/api';
 import { OsmdComponent } from '../osmd/osmd.component';
 import { FormsModule } from '@angular/forms';
@@ -30,7 +30,9 @@ import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
       bootstrapPlayFill,
       bootstrapPauseFill,
       bootstrapRepeat,
-      bootstrapInfoCircle
+      bootstrapInfoCircle,
+      bootstrapFullscreen,
+      bootstrapFullscreenExit
     })
   ]
 })
@@ -85,6 +87,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   // UI state
   hideKeyboard = false;
   arenaClass = '';
+  isFullscreen = false;
 
   // Modal
   isModalOpen = false;
@@ -347,6 +350,26 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   setSpeed(speed: number) {
     this.playConfiguration.delayFactor = 1 / speed;
     this.playerService.reset(this.playConfiguration);
+  }
+
+  toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      document.documentElement.requestFullscreen().then(() => {
+        this.isFullscreen = true;
+        this.changeDetector.markForCheck();
+      }).catch((err) => {
+        console.error('Error attempting to enable fullscreen:', err);
+      });
+    } else {
+      // Exit fullscreen
+      document.exitFullscreen().then(() => {
+        this.isFullscreen = false;
+        this.changeDetector.markForCheck();
+      }).catch((err) => {
+        console.error('Error attempting to exit fullscreen:', err);
+      });
+    }
   }
 
   start() {

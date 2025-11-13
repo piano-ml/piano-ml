@@ -90,7 +90,17 @@
 
 
 .osmd-container {
-  overflow-x: hidden!important; 
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  
+  /* Masquer les barres de défilement */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE et Edge */
+}
+
+/* Masquer les barres de défilement pour Chrome, Safari et Opera */
+.osmd-container::-webkit-scrollbar {
+  display: none;
 }
 
 /* Responsive */

@@ -23,9 +23,10 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     loading = false;
     error: string | null = null;
     
-    private mutationObserver?: MutationObserver;
-    private cursorElement?: HTMLElement;
-    private originalScrollIntoView?: (arg?: boolean | ScrollIntoViewOptions) => void;
+    private cursorObserver?: MutationObserver;
+    private lastScrollLeft: number = 0;
+    private lastCursorLeft: number = 0;
+    private scrollAnimationFrame?: number;
 
     constructor(
         private playerService: PlayerService,
@@ -36,15 +37,83 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.createScrollIntoViewShim();
+        this.setupCursorFollowing();
+    }
+
+    private setupCursorFollowing() {
+        // Attendre que le curseur soit créé
+        setTimeout(() => {
+            const cursor = document.getElementById('cursorImg-0');
+            if (!cursor) return;
+
+            // Observer les changements de position du curseur avec debouncing via requestAnimationFrame
+            this.cursorObserver = new MutationObserver((mutations) => {
+                // Vérifier si c'est bien un changement de position X (left)
+                const hasLeftChanged = mutations.some(mutation => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        const target = mutation.target as HTMLElement;
+                        const currentLeft = parseFloat(target.style.left) || 0;
+                        if (Math.abs(currentLeft - this.lastCursorLeft) > 5) {
+                            this.lastCursorLeft = currentLeft;
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+
+                if (!hasLeftChanged) return;
+
+                // Annuler le précédent frame si un nouveau changement arrive
+                if (this.scrollAnimationFrame) {
+                    cancelAnimationFrame(this.scrollAnimationFrame);
+                }
+                
+                // Utiliser requestAnimationFrame pour synchroniser avec le repaint du navigateur
+                this.scrollAnimationFrame = requestAnimationFrame(() => {
+                    this.scrollCursorIntoView(cursor);
+                });
+            });
+
+            this.cursorObserver.observe(cursor, {
+                attributes: true,
+                attributeFilter: ['style'] // Observer uniquement les changements de style
+            });
+        }, 200);
+    }
+
+    private scrollCursorIntoView(cursorElement: HTMLElement) {
+        const container = this.osmdContainer.nativeElement;
+        if (!container) return;
+
+        const cursorRect = cursorElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        // Calculer la position du curseur relative au conteneur
+        const cursorLeft = cursorRect.left - containerRect.left + container.scrollLeft;
+        const viewportWidth = containerRect.width;
+        
+        // Centrer le curseur horizontalement
+        const targetScrollLeft = Math.max(0, cursorLeft - (viewportWidth / 2));
+        
+        // Optimisation : ne scroller que si nécessaire (éviter les micro-scrolls)
+        if (Math.abs(this.lastScrollLeft - targetScrollLeft) > 20) {
+            this.lastScrollLeft = targetScrollLeft;
+            
+            container.scrollTo({
+                left: targetScrollLeft,
+                top: 0, // Toujours garder top à 0
+                behavior: 'smooth'
+            });
+        }
     }
 
     ngOnDestroy() {
-        // Restaurer la méthode scrollIntoView originale avant de détruire le composant
-        this.restoreScrollIntoView();
+        if (this.cursorObserver) {
+            this.cursorObserver.disconnect();
+        }
         
-        if (this.mutationObserver) {
-            this.mutationObserver.disconnect();
+        if (this.scrollAnimationFrame) {
+            cancelAnimationFrame(this.scrollAnimationFrame);
         }
         
         // Nettoyer l'instance OSMD
@@ -82,66 +151,6 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                     this.playerService.setOsmd(this.osmd!);
                 }
             }, 100);
-        }
-    }
-
-    private createScrollIntoViewShim() {
-        // Observer pour détecter quand l'élément cursorImg-0 est ajouté au DOM
-        this.mutationObserver = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                mutation.addedNodes.forEach((node) => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        const element = node as Element;
-                        // Vérifier si c'est l'élément recherché ou s'il le contient
-                        const cursorElement = element.id === 'cursorImg-0' ? element : element.querySelector('#cursorImg-0');
-
-                        if (cursorElement) {
-                            this.applyScrollIntoViewShim(cursorElement as HTMLElement);
-                            // Nettoyer l'observer une fois le shim appliqué
-                            this.cleanupMutationObserver();
-                        }
-                    }
-                });
-            });
-        });
-
-        this.mutationObserver.observe(this.osmdContainer.nativeElement, {
-            childList: true,
-            subtree: true
-        });
-
-        const existingElement = document.getElementById('cursorImg-0');
-        if (existingElement) {
-            this.applyScrollIntoViewShim(existingElement);
-            this.cleanupMutationObserver();
-        }
-    }
-
-    private cleanupMutationObserver() {
-        if (this.mutationObserver) {
-            this.mutationObserver.disconnect();
-            this.mutationObserver = undefined;
-        }
-    }
-
-    private applyScrollIntoViewShim(element: HTMLElement) {
-        // Sauvegarder la référence à l'élément et à la fonction originale
-        this.cursorElement = element;
-        this.originalScrollIntoView = element.scrollIntoView.bind(element);
-        
-        // Appliquer le shim
-        element.scrollIntoView = (arg?: boolean | ScrollIntoViewOptions) => {
-            const options: ScrollIntoViewOptions = { behavior: 'smooth', inline: 'center', block: 'end' };
-            this.originalScrollIntoView!(options);
-        };
-    }
-
-    private restoreScrollIntoView() {
-        // Restaurer la méthode originale si elle existe
-        if (this.cursorElement && this.originalScrollIntoView) {
-            this.cursorElement.scrollIntoView = this.originalScrollIntoView;
-            this.cursorElement = undefined;
-            this.originalScrollIntoView = undefined;
         }
     }
 }

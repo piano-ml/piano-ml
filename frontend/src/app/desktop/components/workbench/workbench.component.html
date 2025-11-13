@@ -7,8 +7,7 @@
                 <div class="flex lg:w-1/2 xl:w-1/2 ">
 
                     <div class="flex-none ">
-                        <button (click)="summary()" class="btn btn-desktop m-1" [disabled]="isPlaying" 
-                            [ngStyle]="{ 'opacity': isPlaying ? '0' : '1' }">
+                        <button (click)="summary()" class="btn btn-desktop m-1" [disabled]="isPlaying" >
                             <ng-icon name="bootstrapHouse" class="svg-button" />
                         </button>
                     </div>
@@ -35,6 +34,14 @@
                 </div>
                 <div class="flex lg:w-1/2 xl:w-1/2 items-end justify-end">
 
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="fullscreen" value="fullscreen" name="fullscreen-checkbox"
+                                [checked]="isFullscreen"
+                                (change)="toggleFullscreen()" />
+                                <ng-icon name="bootstrapFullscreen" class="svg-button p-2" />
+                        </label>
+                    </div>
 
                     <button (click)="showInfo()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
                         <ng-icon name="bootstrapInfoCircle" class="svg-button" />
@@ -129,7 +136,7 @@
     </div>
 
     <!-- middle bar empty for now -->
-    <div #arena class=" flex-grow {{arenaClass}} text-center text-neutral-400 text-2xl bg-white border-t">
+    <div #arena class="flex flex-grow {{arenaClass}} text-center text-neutral-400 text-2xl ">
 
 {{ loading ? 'Loading score data...' : ''    }}
     </div>
