@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import type { MidiEvent, MidiStateEvent } from '../model/webmidi';
 
 @Injectable({
@@ -11,9 +11,11 @@ export class MidiServiceService {
   octave = 4
   pressedNotes = new Map<number, { time: number; vel: number }>()
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
-  listeners: Array<Function> = []
   private midiSetupRetries = 0
   private readonly maxRetries = 3
+  
+  // Signal pour émettre les événements MIDI
+  public midiEvent = signal<MidiStateEvent | null>(null)
 
   constructor() {
     this.onMidiMessage = this.onMidiMessage.bind(this);
@@ -49,20 +51,10 @@ export class MidiServiceService {
   }
 
   notify(e: MidiStateEvent) {
-    // biome-ignore lint/complexity/noForEach: <explanation>
-    this.listeners.forEach((fn) => fn(e))
+    // Émettre via le signal
+    this.midiEvent.set(e);
   }
 
-  subscribe(cb: (e: MidiStateEvent) => void) {
-    this.listeners.push(cb)
-    return cb;
-  }
-
-  // biome-ignore lint/complexity/noBannedTypes: <explanation>
-  unsubscribe(cb: Function) {
-    const i = this.listeners.indexOf(cb)
-    this.listeners.splice(i, 1)
-  }
 
   onMidiMessage(e: MIDIMessageEvent) {
     const msg: MidiEvent | null = parseMidiMessage(e)
@@ -87,7 +79,13 @@ export class MidiServiceService {
           this.midiSetupRetries++;
           console.log(`No MIDI devices found. Retry attempt ${this.midiSetupRetries}/${this.maxRetries}`);
           setTimeout(() => {
-            this.setupMidiDeviceListeners();
+            try {
+              this.setupMidiDeviceListeners();
+            } catch (error) {
+              this.midiSetupRetries=1000;
+              console.error('Error during MIDI setup retry:', error);
+            }
+            
           }, 100);
         } else {
           console.warn(`No MIDI devices found after ${this.maxRetries} attempts. Stopping retry loop.`);
@@ -96,13 +94,14 @@ export class MidiServiceService {
       }
       
       // Reset retry counter on success
-      this.midiSetupRetries = 0;
+      //this.midiSetupRetries = 0;
       for (const device of inputs.values()) {
         this.enableInputMidiDevice(device);
       }
     }).catch((error) => {
       console.error('Erreur lors de la configuration des appareils MIDI:', error);
-      if (this.midiSetupRetries < this.maxRetries) {
+      if (false) {
+      //if (this.midiSetupRetries < this.maxRetries) {
         this.midiSetupRetries++;
         console.log(`MIDI setup error. Retry attempt ${this.midiSetupRetries}/${this.maxRetries}`);
         setTimeout(() => {
@@ -161,7 +160,7 @@ export async function getMidiInputs(): Promise<MIDIInputMap> {
   const result = await navigator.permissions.query({ name: "midi" })
   if (result.state === "denied") {
     alert(`Your browser is not allowing MIDI. Please consider enabling it in your browser settings.`);
-    return new Map()
+    throw new Error('MIDI permission denied');
   }
   try {
     const midiAccess = await navigator.requestMIDIAccess()
@@ -191,6 +190,6 @@ export async function getMidiInputs(): Promise<MIDIInputMap> {
 
   } catch (error) {
     alert(`Error accessing MIDI devices: ${error}`)
-    return new Map()
+    throw error;
   }
 }

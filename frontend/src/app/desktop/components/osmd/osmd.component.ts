@@ -1,15 +1,16 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
-import { Subscription } from 'rxjs';
-import { Cursor, CursorOptions, OpenSheetMusicDisplay } from "opensheetmusicdisplay";
+import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { PlayerService } from '../../service/player.service';
+import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
 
 @Component({
     selector: 'app-osmd',
     imports: [CommonModule],
     templateUrl: './osmd.component.html',
-    styleUrl: './osmd.component.css'
+    styleUrl: './osmd.component.css',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     osmd: OpenSheetMusicDisplay | null = null;
@@ -21,32 +22,104 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
 
     loading = false;
     error: string | null = null;
-    private subscription?: Subscription;
-    cursor: Cursor | null = null;
-    private mutationObserver?: MutationObserver;
+    
+    private cursorObserver?: MutationObserver;
+    private lastScrollLeft: number = 0;
+    private lastCursorLeft: number = 0;
+    private scrollAnimationFrame?: number;
 
     constructor(
         private playerService: PlayerService,
-        private changeDetector: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
-        setTimeout(() => {
-            this.loadMusicXML();
-        }, 100);
-
+        this.loadMusicXML();
     }
 
     ngAfterViewInit() {
-        this.createScrollIntoViewShim();
+        this.setupCursorFollowing();
+    }
+
+    private setupCursorFollowing() {
+        // Attendre que le curseur soit créé
+        setTimeout(() => {
+            const cursor = document.getElementById('cursorImg-0');
+            if (!cursor) return;
+
+            // Observer les changements de position du curseur avec debouncing via requestAnimationFrame
+            this.cursorObserver = new MutationObserver((mutations) => {
+                // Vérifier si c'est bien un changement de position X (left)
+                const hasLeftChanged = mutations.some(mutation => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        const target = mutation.target as HTMLElement;
+                        const currentLeft = parseFloat(target.style.left) || 0;
+                        if (Math.abs(currentLeft - this.lastCursorLeft) > 5) {
+                            this.lastCursorLeft = currentLeft;
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+
+                if (!hasLeftChanged) return;
+
+                // Annuler le précédent frame si un nouveau changement arrive
+                if (this.scrollAnimationFrame) {
+                    cancelAnimationFrame(this.scrollAnimationFrame);
+                }
+                
+                // Utiliser requestAnimationFrame pour synchroniser avec le repaint du navigateur
+                this.scrollAnimationFrame = requestAnimationFrame(() => {
+                    this.scrollCursorIntoView(cursor);
+                });
+            });
+
+            this.cursorObserver.observe(cursor, {
+                attributes: true,
+                attributeFilter: ['style'] // Observer uniquement les changements de style
+            });
+        }, 200);
+    }
+
+    private scrollCursorIntoView(cursorElement: HTMLElement) {
+        const container = this.osmdContainer.nativeElement;
+        if (!container) return;
+
+        const cursorRect = cursorElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        // Calculer la position du curseur relative au conteneur
+        const cursorLeft = cursorRect.left - containerRect.left + container.scrollLeft;
+        const viewportWidth = containerRect.width;
+        
+        // Centrer le curseur horizontalement
+        const targetScrollLeft = Math.max(0, cursorLeft - (viewportWidth / 2));
+        
+        // Optimisation : ne scroller que si nécessaire (éviter les micro-scrolls)
+        if (Math.abs(this.lastScrollLeft - targetScrollLeft) > 20) {
+            this.lastScrollLeft = targetScrollLeft;
+            
+            container.scrollTo({
+                left: targetScrollLeft,
+                top: 0, // Toujours garder top à 0
+                behavior: 'smooth'
+            });
+        }
     }
 
     ngOnDestroy() {
-        if (this.subscription) {
-            this.subscription.unsubscribe();
+        if (this.cursorObserver) {
+            this.cursorObserver.disconnect();
         }
-        if (this.mutationObserver) {
-            this.mutationObserver.disconnect();
+        
+        if (this.scrollAnimationFrame) {
+            cancelAnimationFrame(this.scrollAnimationFrame);
+        }
+        
+        // Nettoyer l'instance OSMD
+        if (this.osmd) {
+            this.osmd.clear();
+            this.osmd = null;
         }
     }
 
@@ -56,49 +129,16 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
         this.error = null;
 
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
-        this.osmd.EngravingRules.SheetMaximumWidth = 8000000000000;
+        this.osmd.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
 
-        this.osmd.setOptions({ // https://opensheetmusicdisplay.github.io/classdoc/interfaces/IOSMDOptions.html
-            //drawingParameters: 'default',
-            pageFormat: 'Endless',
-            //autoResize: true,
-            autoBeam: true,
-            autoBeamOptions: {
-                groups: [[4,4]],
-            },
-            //alignRests: 0,
-            drawLyricist: true,
-            measureNumberInterval: 5,
-            //spacingFactorSoftmax: 100,
-            //useXMLMeasureNumbers: true,
-            //disableCursor: false,
-            backend: "svg",
-            cursorsOptions: [
-                {
-                    follow: true,
-                    color: "#B0F2B4",
-                    alpha: .6,
-                    type: 4
-                },
-            ] as CursorOptions[],
-            drawTitle: false,
-            darkMode: false,
-            renderSingleHorizontalStaffline: true,
-            drawCredits: false,
-            drawComposer: false,
-            drawPartNames: false,
-            drawMeasureNumbers: true,
-            drawFingerings: true,
-            drawLyrics: true,
-            drawMetronomeMarks: false,
-            coloringEnabled: true,
-            followCursor: true,
-        });
+        this.osmd.setOptions(DEFAULT_OSMD_OPTIONS);
+        
         if (this.musicXml) {
             await this.osmd.load(this.musicXml).then(() => {
-                this.osmd!.EngravingRules.SheetMaximumWidth = Number.MAX_SAFE_INTEGER;
+                this.osmd!.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
             });
             this.osmd!.render();
+            // there is not onRenderComplete callback, so we use a timeout ...
             setTimeout(() => {
                 this.loading = false;
                 if (!this.osmd!.cursor) {
@@ -110,56 +150,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                     this.osmd!.cursors[0].reset();
                     this.playerService.setOsmd(this.osmd!);
                 }
-            }, 20);
+            }, 100);
         }
-    }
-
-    private createScrollIntoViewShim() {
-        // Observer pour détecter quand l'élément cursorImg-0 est ajouté au DOM
-        this.mutationObserver = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                mutation.addedNodes.forEach((node) => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        const element = node as Element;
-                        // Vérifier si c'est l'élément recherché ou s'il le contient
-                        const cursorElement = element.id === 'cursorImg-0' ? element : element.querySelector('#cursorImg-0');
-
-                        if (cursorElement) {
-                            this.applyScrollIntoViewShim(cursorElement as HTMLElement);
-                            // Nettoyer l'observer une fois le shim appliqué
-                            this.cleanupMutationObserver();
-                        }
-                    }
-                });
-            });
-        });
-
-        this.mutationObserver.observe(this.osmdContainer.nativeElement, {
-            childList: true,
-            subtree: true
-        });
-
-        setTimeout(() => {
-            const existingElement = document.getElementById('cursorImg-0');
-            if (existingElement) {
-                this.applyScrollIntoViewShim(existingElement);
-                this.cleanupMutationObserver();
-            }
-        }, 500);
-    }
-
-    private cleanupMutationObserver() {
-        if (this.mutationObserver) {
-            this.mutationObserver.disconnect();
-            this.mutationObserver = undefined;
-        }
-    }
-
-    private applyScrollIntoViewShim(element: HTMLElement) {
-        const originalScrollIntoView = element.scrollIntoView.bind(element);
-        element.scrollIntoView = (arg?: boolean | ScrollIntoViewOptions) => {
-            arg = { behavior: 'smooth', inline: 'center', block: 'end' }
-            originalScrollIntoView(arg);
-        };
     }
 }

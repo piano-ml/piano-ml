@@ -6,14 +6,13 @@ import * as Midi from '@tonejs/midi';
 import { type FormGroup, type FormArray, ReactiveFormsModule, FormBuilder } from '@angular/forms'
 // biome-ignore lint/style/useImportType: Angular API
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalComponent } from "../../../desktop/components/modal/modal.component";
 import { bootstrapFloppy } from '@ng-icons/bootstrap-icons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { ScoreApiInfo, ScoreService } from '../../../core/api';
 
 @Component({
     selector: 'app-import-work',
-    imports: [CommonModule, ReactiveFormsModule, ModalComponent, NgIcon],
+    imports: [CommonModule, ReactiveFormsModule, NgIcon],
     templateUrl: './import-work.component.html',
     styleUrl: './import-work.component.css',
     viewProviders: [provideIcons({ bootstrapFloppy })],
