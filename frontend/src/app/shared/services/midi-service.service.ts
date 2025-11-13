@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import type { MidiEvent, MidiStateEvent } from '../model/webmidi';
 
 @Injectable({
@@ -11,9 +11,11 @@ export class MidiServiceService {
   octave = 4
   pressedNotes = new Map<number, { time: number; vel: number }>()
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
-  listeners: Array<Function> = []
   private midiSetupRetries = 0
   private readonly maxRetries = 3
+  
+  // Signal pour émettre les événements MIDI
+  public midiEvent = signal<MidiStateEvent | null>(null)
 
   constructor() {
     this.onMidiMessage = this.onMidiMessage.bind(this);
@@ -49,20 +51,10 @@ export class MidiServiceService {
   }
 
   notify(e: MidiStateEvent) {
-    // biome-ignore lint/complexity/noForEach: <explanation>
-    this.listeners.forEach((fn) => fn(e))
+    // Émettre via le signal
+    this.midiEvent.set(e);
   }
 
-  subscribe(cb: (e: MidiStateEvent) => void) {
-    this.listeners.push(cb)
-    return cb;
-  }
-
-  // biome-ignore lint/complexity/noBannedTypes: <explanation>
-  unsubscribe(cb: Function) {
-    const i = this.listeners.indexOf(cb)
-    this.listeners.splice(i, 1)
-  }
 
   onMidiMessage(e: MIDIMessageEvent) {
     const msg: MidiEvent | null = parseMidiMessage(e)

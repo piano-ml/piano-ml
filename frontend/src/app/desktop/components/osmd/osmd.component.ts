@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { Subscription } from 'rxjs';
@@ -9,7 +9,8 @@ import { PlayerService } from '../../service/player.service';
     selector: 'app-osmd',
     imports: [CommonModule],
     templateUrl: './osmd.component.html',
-    styleUrl: './osmd.component.css'
+    styleUrl: './osmd.component.css',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     osmd: OpenSheetMusicDisplay | null = null;
@@ -21,7 +22,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
 
     loading = false;
     error: string | null = null;
-    private subscription?: Subscription;
+    
     cursor: Cursor | null = null;
     private mutationObserver?: MutationObserver;
 
@@ -42,9 +43,6 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngOnDestroy() {
-        if (this.subscription) {
-            this.subscription.unsubscribe();
-        }
         if (this.mutationObserver) {
             this.mutationObserver.disconnect();
         }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, effect, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -25,7 +25,7 @@ export class AccountHomeComponent implements OnDestroy {
   keyboardEditMode = false;
   
   private destroy$ = new Subject<void>();
-  midiFnHandle?: (e: MidiStateEvent) => void;
+  private midiListeningEnabled = signal<boolean>(false);
   focusedField: 'leftmostKey' | 'rightmostKey' | null = null;
 
   constructor(
@@ -51,6 +51,19 @@ export class AccountHomeComponent implements OnDestroy {
     });
     this.loadUserInfo();
     this.loadKeyboardPreferences();
+    
+    // Effet pour écouter les événements MIDI uniquement quand l'édition est activée
+    effect(() => {
+      if (this.midiListeningEnabled()) {
+        const midiEvent = this.midiService.midiEvent();
+        console.log(midiEvent)
+        if (midiEvent) {
+          this.processMidiEvent(midiEvent);
+        }
+      } else {
+        console.log('MIDI listening disabled');
+      }
+    });
   }
 
   loadUserInfo() {
@@ -103,7 +116,7 @@ export class AccountHomeComponent implements OnDestroy {
 
   enableKeyboardEdit() {
     this.keyboardEditMode = true;
-    this.setupMidiListener();
+    this.midiListeningEnabled.set(true);
     this.cdr.markForCheck();
   }
 
@@ -112,23 +125,16 @@ export class AccountHomeComponent implements OnDestroy {
       const preferences = this.keyboardPreferencesForm.value;
       localStorage.setItem('preferences', JSON.stringify(preferences));
       this.keyboardEditMode = false;
-      this.cleanupMidiListener(); // Clean up when exiting edit mode
+      this.midiListeningEnabled.set(false);
       this.cdr.markForCheck();
     }
   }
 
   cancelKeyboardEdit() {
     this.keyboardEditMode = false;
-    this.cleanupMidiListener();
+    this.midiListeningEnabled.set(false);
     this.loadKeyboardPreferences(); // Reset form values
     this.cdr.markForCheck();
-  }
-
-  private cleanupMidiListener() {
-    if (this.midiFnHandle) {
-      this.midiService.unsubscribe(this.midiFnHandle);
-      this.midiFnHandle = undefined;
-    }
   }
 
   keyboardRangeValidator(control: AbstractControl): ValidationErrors | null {
@@ -139,16 +145,6 @@ export class AccountHomeComponent implements OnDestroy {
       return { invalidRange: true };
     }
     return null;
-  }
-
-  setupMidiListener() {
-    if (this.midiFnHandle) {
-      this.midiService.unsubscribe(this.midiFnHandle);
-    }
-
-    setTimeout(() => {
-      this.midiFnHandle = this.midiService.subscribe((midiEvent) => this.processMidiEvent(midiEvent));
-    }, 20);
   }
 
   // Getters for template optimization
@@ -199,9 +195,6 @@ export class AccountHomeComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    
-    if (this.midiFnHandle) {
-      this.midiService.unsubscribe(this.midiFnHandle);
-    }
+    this.midiListeningEnabled.set(false);
   }
 }

@@ -1,10 +1,10 @@
-import { type ElementRef, Injectable, signal } from '@angular/core';
+import { type ElementRef, Injectable, signal, effect } from '@angular/core';
 import * as Tone from "tone";
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
 import type { Note } from '@tonejs/midi/dist/Note';
 import { BehaviorSubject } from 'rxjs';
-import type { lateNote, PlayConfiguration, StaveAndStaveNotesPair } from '../model/model';
+import type { lateNote, PlayConfiguration } from '../model/model';
 // biome-ignore lint/style/useImportType: <explanation>
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import type { MidiStateEvent } from '../../shared/model/webmidi';
@@ -12,7 +12,7 @@ import { reducedFraction } from '../model/reduced-fraction';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import { Synthetizer } from "spessasynth_lib"
 import { Piano } from '@tonejs/piano'
-import { getStaveDuration, getStaveDurationTick, midiToPitch } from './midi-maths';
+import { getStaveDurationTick} from './midi-maths';
 import { ScoreApiInfo } from '../../core/api';
 import { Cursor, OpenSheetMusicDisplay, Note as OSMDNote } from 'opensheetmusicdisplay';
 
@@ -39,7 +39,7 @@ export class PlayerService {
 
 
   private keyboardElement!: ElementRef;
-  public measure = new BehaviorSubject<number>(0);
+  public measure = signal<number>(0);
   public message = signal<string>("");
   public elapsedTime = new BehaviorSubject<number>(0);
 
@@ -49,7 +49,7 @@ export class PlayerService {
   isWaiting = false
   currentTime = 0;
   playConfiguration!: PlayConfiguration;
-  midiFnHandle?: (e: MidiStateEvent) => void;
+  private midiSetupTimeout?: number;
   synth: Tone.Synth<Tone.SynthOptions> | undefined;
   soundFontArrayBuffer!: ArrayBuffer;
   spessasynth?: Synthetizer;
@@ -72,6 +72,14 @@ export class PlayerService {
     this.synth = new Tone.Synth().toDestination();
     this.initPiano();
     this.reset = this.reset.bind(this);
+    
+    // Effet pour traiter les événements MIDI via signal
+    effect(() => {
+      const midiEvent = this.midiService.midiEvent();
+      if (midiEvent) {
+        this.processMidiEvent(midiEvent);
+      }
+    });
   }
 
   preconfigurePlayConfiguration(scoreApiInfo: ScoreApiInfo, playConfiguration: PlayConfiguration, midiAll: Midi.Midi): PlayConfiguration {
@@ -171,15 +179,8 @@ export class PlayerService {
   }
 
   setup() {
-    if (this.midiFnHandle) {
-      this.midiService.unsubscribe(this.midiFnHandle)
-    }
-
     this.setupTimeCounter();
-
-    setTimeout(() => {
-      this.midiFnHandle = this.midiService.subscribe((midiEvent) => this.processMidiEvent(midiEvent))
-    }, 2000)
+    // L'effet MIDI est maintenant géré dans le constructeur via le signal
   }
 
 
@@ -453,8 +454,9 @@ export class PlayerService {
 
 
   private setCurrentTick(bar: number) {
-    if (Math.trunc(bar) !== this.measure.getValue()) {
-      this.measure.next(Math.trunc(bar));
+    const truncatedBar = Math.trunc(bar);
+    if (truncatedBar !== this.measure()) {
+      this.measure.set(truncatedBar);
     }
   }
 
@@ -619,8 +621,9 @@ export class PlayerService {
       clearInterval(this.timeCounterInterval);
       this.timeCounterInterval = undefined;
     }
-    if (this.midiFnHandle) {
-      this.midiService.unsubscribe(this.midiFnHandle);
+    if (this.midiSetupTimeout) {
+      clearTimeout(this.midiSetupTimeout);
+      this.midiSetupTimeout = undefined;
     }
   }
 }

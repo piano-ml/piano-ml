@@ -14,7 +14,7 @@ import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../.
 import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-workbench',
@@ -48,7 +48,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   // Cache for parsed MIDI data
   private cachedMidi: Midi.Midi | null = null;
-  private subscriptions: Subscription[] = [];
   
   // MusicXML content to pass to osmd component
   musicXml: string | null = null;
@@ -118,6 +117,15 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
           this.changeDetector.detectChanges();
         }, 500);
       }
+    });
+
+    // Watch for measure signal changes
+    effect(() => {
+      const measure = this.playerService.measure();
+      // Mettre à jour la configuration et le slider
+      this.playConfiguration.currentStave = measure + 1;
+      this.updateSlider();
+      this.changeDetector.detectChanges();
     });
     
     const navigation = this.router.getCurrentNavigation();
@@ -357,15 +365,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   setupSubscription() {
-    const measureSub = this.playerService.measure
-      .pipe(debounceTime(16)) // ~60fps limit
-      .subscribe((measure) => {
-        this.playConfiguration.currentStave = measure + 1;
-        this.updateSlider();
-        this.changeDetector.detectChanges();
-      });
-
-    this.subscriptions.push(measureSub);
+    // L'effect pour measure est maintenant dans le constructeur
+    // Cette méthode est conservée pour compatibilité mais ne fait plus rien
   }
 
   setupSlider() {
@@ -542,14 +543,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Clean up subscriptions
-    this.subscriptions.forEach(sub => {
-      if (sub && !sub.closed) {
-        sub.unsubscribe();
-      }
-    });
-    this.subscriptions.length = 0;
-
     // Clean up slider
     if (this.slider) {
       try {
