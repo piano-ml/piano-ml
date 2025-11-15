@@ -1,6 +1,7 @@
 # ![25 études faciles et progressive pour le piano](/assets/images/Burgmuller-1.webp) 
 
 
+
 -  [Op. 100: No. 1. La Candeur (Openness)](work/burgmller-friedrich-25-tudes-faciles-et-progressives-op-100-no-1-la-candeur-openness)
 
 - [Op. 100: No. 2. Arabesque](/work/burgmller-friedrich-25-tudes-faciles-et-progressives-op-100-no-2-arabesque)
@@ -56,3 +57,4 @@
 
 - [Op. 100: No. 25. La Chevaleresque (The Knight Errant)](/work/burgmuller-friedrich-25-etudes-faciles-et-progressives-op-100-no-25-la-chevaleresque-the-knight-errant)
 
+[W](https://en.wikipedia.org/wiki/Friedrich_Burgm%C3%BCller)

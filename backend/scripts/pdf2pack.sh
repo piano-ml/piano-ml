@@ -18,7 +18,7 @@ COMPOSER="$3"
 FROOT="${PDF%.*}"
 FROOT="${FROOT/upload_/}"
 
-pdftoppm -rx 300 -ry 300 -gray -png "$PDF" "$FROOT"
+pdftoppm  -png "$PDF" "$FROOT"
 
 sleep 1
 
@@ -28,7 +28,7 @@ XMLFILES=""
 cd homr
 for FILE in $FILES; do
   echo "starting homr $FILE"
-   poetry run homr "$FILE"
+   poetry run homr "$FILE" > /dev/null
   XML_FILE="${FILE%.png}.musicxml"
   if [ -z "$XMLFILES" ]; then
     XMLFILES="$XML_FILE"
@@ -42,23 +42,19 @@ cd ..
 pwd
 echo "Running relieur to merge musicxml files: $XMLFILES"
 
-$HOME/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES
+$HOME/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES > /dev/null
 
+$HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
-musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml"
-musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid"
-
+musescore3 -M ./scripts/midioperations.xml -o "${FROOT}.mid" "${FROOT}.musicxml"
+musescore3 -M ./scripts/midioperations.xml -o "${FROOT}.musicxml" "${FROOT}.mid"
 
 mv "$FROOT".mid "$FROOT".midi
 
 echo "Running pianoplayer for fingering detection"
 pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null
 
-echo "TITLE: $TITLE"
-echo "COMPOSER: $COMPOSER"
-
 $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
-$HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
 musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
 
