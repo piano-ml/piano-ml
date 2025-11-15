@@ -3,11 +3,19 @@ FROM debian:12-slim
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install essential packages, including Python, pip, git, Java, and pipx
+# Ensure container uses UTF-8 locales by default
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV PYTHONUTF8=1
+ENV JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
+
+# Install essential packages, including locales for UTF-8 support
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    vim \
-    joe \
+        locales \
+        vim \
+        joe \
         python3.11 \
         python3-pip \
         python3-venv \
@@ -20,6 +28,11 @@ RUN apt-get update && \
         curl \
         ca-certificates \
         sudo && \
+    # Enable common UTF-8 locales and generate them
+    sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
+    sed -i 's/^# *\(fr_FR.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
+    locale-gen en_US.UTF-8 fr_FR.UTF-8 || true && \
+    update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
 
