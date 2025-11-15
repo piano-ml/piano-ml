@@ -74,5 +74,7 @@
 
 -  [Free Canon, N°36](work/bartok-bela-153-progressive-piano-pieces-free-canon-n-36)
 
+ *"technical and theoretical instructions have been omitted, in the belief that these are more appropriately left for the teacher to explain to the student."*
 
 [Wikipedia](https://en.wikipedia.org/wiki/Mikrokosmos_(Bart%C3%B3k))
+/ [Youtube](https://www.youtube.com/watch?v=kPRxjd2ETSo&list=RDkPRxjd2ETSo&start_radio=1)
