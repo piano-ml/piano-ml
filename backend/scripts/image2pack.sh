@@ -24,6 +24,8 @@ cd homr
 poetry run homr "$FROOT.png"
 cd ..
 
+$HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
+
 # sanitize files
 musescore3 -f -o "$FROOT".mscz "$FROOT".musicxml
 musescore3 -f -o "$FROOT".mid "$FROOT".mscz
@@ -34,11 +36,9 @@ mv "$FROOT".mid "$FROOT".midi
 echo "Running pianoplayer for fingering detection"
 pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z
 
-echo "TITLE: $TITLE"
-echo "COMPOSER: $COMPOSER"
 
 $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
-$HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
+
 
 musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
 
