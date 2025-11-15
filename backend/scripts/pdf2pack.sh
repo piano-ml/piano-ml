@@ -46,8 +46,8 @@ $HOME/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml c
 
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
 
-musescore3 -M ./scripts/midioperations.xml -o "${FROOT}.mid" "${FROOT}.musicxml"
-musescore3 -M ./scripts/midioperations.xml -o "${FROOT}.musicxml" "${FROOT}.mid"
+musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml"
+musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid"
 
 mv "$FROOT".mid "$FROOT".midi
 
