@@ -596,10 +596,8 @@ export class PlayerService {
         Tone.getTransport().start();
         this.isWaiting = false;
       } else {
-        console.log(`Remaining late notes: ${this.lateNotes.size}`);
         this.lateNotes.forEach((lateNotesList) => {
           lateNotesList.forEach((lateNote) => {
-            console.log(` - Note still awaited: MIDI ${lateNote.note.midi} (${lateNote.note.name}) at time ${lateNote.note.time}`);
             this.lightNoteOnKeyboard('rh', lateNote.note); // todo assign hand properly
           });
         });
