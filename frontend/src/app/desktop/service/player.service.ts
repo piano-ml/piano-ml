@@ -53,8 +53,6 @@ export class PlayerService {
 
   midiPressedNotes: Set<number> = new Set<number>();
   lateNotes: Map<number, lateNote[]> = new Map<number, lateNote[]>();
-  // Direct index by MIDI note for faster lookup
-  //private _lateNotesByMidi = new Map<number, lateNote>();
   piano: any;
   lastMidiEventTime = 0;
   currentMeasure = -1;
@@ -542,7 +540,6 @@ export class PlayerService {
 
   resetLateNotes() {
     this.lateNotes = new Map<number, lateNote[]>();
-    //this._lateNotesByMidi.clear();
     this.removeAllNotesFromKeyboard();
     this.midiPressedNotes = new Set<number>();
   }
@@ -556,9 +553,6 @@ export class PlayerService {
       this.lateNotes.set(note.ticks, []);
     }
     this.lateNotes.get(note.ticks)!.push(lateNoteEntry);
-    
-    // Add to direct MIDI index for O(1) lookup
-    //this._lateNotesByMidi.set(note.midi, lateNoteEntry);
   }
 
   private integrateMidiEventInLastNote(midiEvent: MidiStateEvent): number {
