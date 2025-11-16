@@ -1,4 +1,3 @@
-
 # ![Mikrokosmos: 153 Progressive Piano Pieces](/assets/images/mikrokosmos.jpg) 
 
 
@@ -74,7 +73,12 @@
 
 -  [Free Canon, N°36](work/bartok-bela-153-progressive-piano-pieces-free-canon-n-36)
 
- *"technical and theoretical instructions have been omitted, in the belief that these are more appropriately left for the teacher to explain to the student."*
+ Quote from the preface: *"technical and theoretical instructions have been omitted, in the belief that these are more appropriately left for the teacher to explain to the student."*
 
-[Wikipedia](https://en.wikipedia.org/wiki/Mikrokosmos_(Bart%C3%B3k))
-/ [Youtube](https://www.youtube.com/watch?v=kPRxjd2ETSo&list=RDkPRxjd2ETSo&start_radio=1)
+---
+
+[Mikrokosmos on Wikipedia](https://en.wikipedia.org/wiki/Mikrokosmos_(Bart%C3%B3k))
+/ [Mikrokosmos on Youtube](https://www.youtube.com/watch?v=kPRxjd2ETSo&list=RDkPRxjd2ETSo&start_radio=1)
+/ [source (ISMLP)](https://imslp.org/wiki/Mikrokosmos,_Sz.107_(Bart%C3%B3k,_B%C3%A9la))
+
+---

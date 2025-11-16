@@ -53,8 +53,6 @@ export class PlayerService {
 
   midiPressedNotes: Set<number> = new Set<number>();
   lateNotes: Map<number, lateNote[]> = new Map<number, lateNote[]>();
-  // Direct index by MIDI note for faster lookup
-  private _lateNotesByMidi = new Map<number, lateNote>();
   piano: any;
   lastMidiEventTime = 0;
   currentMeasure = -1;
@@ -542,7 +540,6 @@ export class PlayerService {
 
   resetLateNotes() {
     this.lateNotes = new Map<number, lateNote[]>();
-    this._lateNotesByMidi.clear();
     this.removeAllNotesFromKeyboard();
     this.midiPressedNotes = new Set<number>();
   }
@@ -556,39 +553,31 @@ export class PlayerService {
       this.lateNotes.set(note.ticks, []);
     }
     this.lateNotes.get(note.ticks)!.push(lateNoteEntry);
-    
-    // Add to direct MIDI index for O(1) lookup
-    this._lateNotesByMidi.set(note.midi, lateNoteEntry);
   }
 
   private integrateMidiEventInLastNote(midiEvent: MidiStateEvent): number {
-    // Direct O(1) lookup by MIDI note instead of O(n) iteration
-    const lateNote = this._lateNotesByMidi.get(midiEvent.note);
-    
-    if (!lateNote) {
-      return -1; // Note not found
-    }
-    
-    // Remove from direct index
-    this._lateNotesByMidi.delete(midiEvent.note);
-    
-    // Remove from keyboard display
-    this.removeMidiNoteFromKeyboard(lateNote.note.midi);
-    
-    // Clean up from ticks-based structure
-    // Find and remove from the array in lateNotes
-    for (const [ticks, notes] of this.lateNotes.entries()) {
-      const idx = notes.findIndex(n => n.note.midi === midiEvent.note);
-      if (idx !== -1) {
-        notes.splice(idx, 1);
-        if (notes.length === 0) {
-          this.lateNotes.delete(ticks);
+    let success = -1;
+    const entries = Array.from(this.lateNotes.entries());
+
+    for (const [key, notes] of entries) {
+      for (let idx = notes.length - 1; idx >= 0; idx--) {
+        const ln = notes[idx];
+        if (midiEvent.note === ln.note.midi) {
+          notes.splice(idx, 1);
+          this.removeMidiNoteFromKeyboard(ln.note.midi);
+          if (idx === 0) {
+            success = 1;
+          } else {
+            success = 0;
+          }
         }
-        break; // Early exit once found
+      }
+      if (notes.length === 0) {
+        this.lateNotes.delete(key);
+        success = 1;
       }
     }
-    
-    return 1; // Success
+    return success;
   }
 
 
@@ -606,6 +595,12 @@ export class PlayerService {
         await Tone.start();
         Tone.getTransport().start();
         this.isWaiting = false;
+      } else {
+        this.lateNotes.forEach((lateNotesList) => {
+          lateNotesList.forEach((lateNote) => {
+            this.lightNoteOnKeyboard('rh', lateNote.note); // todo assign hand properly
+          });
+        });
       }
       if (hit < 1) {
         this.message.set("BAD");
