@@ -29,38 +29,6 @@ export class PlayerService {
 
   osmdCursor: Cursor = null as unknown as Cursor;
 
-  setOsmd(osmd: OpenSheetMusicDisplay) {
-    this.osmd = osmd;
-    this.osmdCursor = this.osmd.cursor;
-    this.osmdCursor.CursorOptions.color = "#B0F2B4";
-    this.osmdCursor.CursorOptions.alpha = 0.6;
-    this.hydrateRepetitionInstructions();
-    this.osmdCursor.reset();
-  }
-
-  hydrateRepetitionInstructions() {
-    // iterate throught this.osmdCursor.iterator.CurrentMeasure 
-    while (!this.osmdCursor.iterator.EndReached) {
-      const m = this.osmdCursor.iterator.CurrentMeasure;
-      if (m.FirstRepetitionInstructions.length > 0) {
-        for (const instr of m.FirstRepetitionInstructions) {
-          this.repetitionInstructions.add(instr);
-        }
-      }
-      if (m.LastRepetitionInstructions.length > 0) {
-        for (const instr of m.LastRepetitionInstructions) {
-          this.repetitionInstructions.add(instr);
-        }
-      }
-      this.osmdCursor.iterator.moveToNext();
-    }
-    // Get all relevant repetition instructions
-    Array.from(this.repetitionInstructions).forEach(instr => {
-      console.log(instr);
-    });
-  }
-
-
   private keyboardElement!: ElementRef;
   public measure = signal<number>(0);
   public message = signal<string>("");
@@ -98,6 +66,9 @@ export class PlayerService {
   private _activeKeyboardElements = new Set<HTMLElement>();
 
   private passCount = 1;
+  private repetitionInstructions = new Set<RepetitionInstruction>();
+  // Track which repetitions have been taken (measure number -> pass count)
+  private repetitionPasses = new Map<number, number>();
 
   constructor(private midiService: MidiServiceService) {
     midiService.setupMidiDeviceListeners();
@@ -214,10 +185,7 @@ export class PlayerService {
 
   setup() {
     this.setupTimeCounter();
-    // L'effet MIDI est maintenant géré dans le constructeur via le signal
   }
-
-
 
   async initSoundFont() {
     if (this.spessasynth != null) {
@@ -259,7 +227,6 @@ export class PlayerService {
     this.lastMidiEventTime = -1;
     // Reset repetition tracking
     this.repetitionPasses.clear();
-    this.repetitionStartMeasure = null;
     this.repetitionInstructions.clear();
     if (this.osmdCursor !== null) {
       this.hydrateRepetitionInstructions();
@@ -274,7 +241,6 @@ export class PlayerService {
     if (this.lastMidiEventTime === -1) {
       this.osmdCursor.previous();
     }
-    //this.lastMidiEventTime = -1;
     this.resetLateNotes();
     const startOffset = this.calculateStartTime();
     const endCut = this.calculateEndTime();
@@ -287,7 +253,6 @@ export class PlayerService {
     }
     this.scheduleAccompanimentTracks(this.playConfiguration.accompaniment!, startOffset, endCut);
     this.scheduleEnd(endCut - startOffset);
-    //Tone.getContext().lookAhead = 0
     Tone.getTransport().start();
   }
 
@@ -296,10 +261,9 @@ export class PlayerService {
       if (this.isInPlayableRange(note, startTime, endCut)) {
         this.scheduleNote('lh', note, startTime);
       }
-
-
     }
   }
+
   scheduleRightHand(midi: Midi.Track, startTime: number, endCut: number) {
     for (const note of midi.notes) {
       if (this.isInPlayableRange(note, startTime, endCut)) {
@@ -342,45 +306,37 @@ export class PlayerService {
     }, noteStart + (note.duration * this.getTimeFactor()));
   }
 
-  private gotoMeasure(measureNumber: number, actualMeasureNumber: number) {
-    let delta = measureNumber - actualMeasureNumber;
-    if (delta > 0) {
-      this.osmdCursor.nextMeasure();
-      this.osmdCursor.previous();
-      delta--;
-    }
-    if (delta < 0) {
-      this.osmdCursor.previousMeasure();
-      this.osmdCursor.nextMeasure();
-    }
 
+  setOsmd(osmd: OpenSheetMusicDisplay) {
+    this.osmd = osmd;
+    this.osmdCursor = this.osmd.cursor;
+    this.osmdCursor.CursorOptions.color = "#B0F2B4";
+    this.osmdCursor.CursorOptions.alpha = 0.6;
+    this.hydrateRepetitionInstructions();
+    this.osmdCursor.reset();
   }
 
-  repetitionInstructions = new Set<RepetitionInstruction>();
-
-  // Track which repetitions have been taken (measure number -> pass count)
-  private repetitionPasses = new Map<number, number>();
-
-  // Track if we're in a repetition section
-  private repetitionStartMeasure: number | null = null;
-
-  // export enum RepetitionInstructionEnum {
-  //     0 StartLine,
-  //     1 ForwardJump,
-  //     2 BackJumpLine,
-  //     3 Ending,
-  //     DaCapo,
-  //     DalSegno,
-  //     Fine,
-  //     ToCoda,
-  //     DalSegnoAlFine,
-  //     DaCapoAlFine,
-  //     DalSegnoAlCoda,
-  //     DaCapoAlCoda,
-  //     Coda,
-  //     Segno,
-  //     None,
-  // }
+  hydrateRepetitionInstructions() {
+    this.repetitionInstructions.clear();
+    while (!this.osmdCursor.iterator.EndReached) {
+      const m = this.osmdCursor.iterator.CurrentMeasure;
+      if (m.FirstRepetitionInstructions.length > 0) {
+        for (const instr of m.FirstRepetitionInstructions) {
+          this.repetitionInstructions.add(instr);
+        }
+      }
+      if (m.LastRepetitionInstructions.length > 0) {
+        for (const instr of m.LastRepetitionInstructions) {
+          this.repetitionInstructions.add(instr);
+        }
+      }
+      this.osmdCursor.iterator.moveToNext();
+    }
+    // Get all relevant repetition instructions
+    Array.from(this.repetitionInstructions).forEach(instr => {
+      console.log(instr);
+    });
+  }
 
   private backToMeasure(measureIndex: number) {
     console.log("BACK TO MEASURE", measureIndex);
@@ -399,15 +355,12 @@ export class PlayerService {
     while (this.osmdCursor.iterator.CurrentMeasure.MeasureNumber < measureIndex +1) {
       this.osmdCursor.nextMeasure();
     }
-
-    setTimeout(() => {
-      //this.osmdCursor.next();
-    }, 250);
   }
  
+  // When we are moving and at the BEGIN of a measure
   private maybeMoveToMeasureOnBegin(iterator: MusicPartManagerIterator): boolean {
         const currentMeasureNumber = iterator.CurrentMeasure.MeasureNumber -1;
-      // At the BEGIN of a measure
+     
        console.log("first note of measure", currentMeasureNumber, "pass:", this.passCount);
       // Check if this measure is an ending that we should skip
       const currentEnding = Array.from(this.repetitionInstructions).find(
@@ -421,15 +374,14 @@ export class PlayerService {
       if (currentEnding) {
         console.log("goto skip volta at measure", currentMeasureNumber, "pass:", this.passCount);
         console.log(currentEnding)
-        //this.pause()
         this.nextToMeasure(currentEnding.measureIndex+1);
-        //this.osmdCursor.previous();
         this.maybeMoveToMeasureOnBegin(iterator);
         return true;
       }
       return false;
   }
 
+    // When we are moving and at the END of a measure
   private maybeMoveToMeasureOnEnd(iterator: MusicPartManagerIterator) {
         const currentMeasureNumber = iterator.CurrentMeasure.MeasureNumber -1 ;
        console.log("last note of measure", currentMeasureNumber, "pass:", this.passCount);
@@ -558,8 +510,6 @@ export class PlayerService {
       || (n.NoteTie && n.NoteTie?.Notes.at(0)?.NoteToGraphicalNoteObjectId !== n.NoteToGraphicalNoteObjectId)
       || n.IsCueNote
   }
-
-
 
   private scheduleNote(hand: string, note: Note, startTime: number) {
     const noteTimeStart = (note.time * this.getTimeFactor()) - startTime;
@@ -883,6 +833,3 @@ export class PlayerService {
     this._activeKeyboardElements.clear();
   }
 }
-
-
-
