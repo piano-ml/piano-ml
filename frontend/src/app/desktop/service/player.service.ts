@@ -12,9 +12,9 @@ import { reducedFraction } from '../model/reduced-fraction';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import { Synthetizer } from "spessasynth_lib"
 import { Piano } from '@tonejs/piano'
-import { getStaveDurationTick} from './midi-maths';
+import { getStaveDurationTick } from './midi-maths';
 import { ScoreApiInfo } from '../../core/api';
-import { Cursor, OpenSheetMusicDisplay, Note as OSMDNote } from 'opensheetmusicdisplay';
+import { AlignmentType, Cursor, MusicPartManagerIterator, OpenSheetMusicDisplay, Note as OSMDNote, RepetitionInstruction, RepetitionInstructionEnum, SourceMeasure } from 'opensheetmusicdisplay';
 
 
 const GOOD_RANGE = 0.2
@@ -34,6 +34,30 @@ export class PlayerService {
     this.osmdCursor = this.osmd.cursor;
     this.osmdCursor.CursorOptions.color = "#B0F2B4";
     this.osmdCursor.CursorOptions.alpha = 0.6;
+    this.hydrateRepetitionInstructions();
+    this.osmdCursor.reset();
+  }
+
+  hydrateRepetitionInstructions() {
+    // iterate throught this.osmdCursor.iterator.CurrentMeasure 
+    while (!this.osmdCursor.iterator.EndReached) {
+      const m = this.osmdCursor.iterator.CurrentMeasure;
+      if (m.FirstRepetitionInstructions.length > 0) {
+        for (const instr of m.FirstRepetitionInstructions) {
+          this.repetitionInstructions.add(instr);
+        }
+      }
+      if (m.LastRepetitionInstructions.length > 0) {
+        for (const instr of m.LastRepetitionInstructions) {
+          this.repetitionInstructions.add(instr);
+        }
+      }
+      this.osmdCursor.iterator.moveToNext();
+    }
+    // Get all relevant repetition instructions
+    Array.from(this.repetitionInstructions).forEach(instr => {
+      console.log(instr);
+    });
   }
 
 
@@ -69,9 +93,11 @@ export class PlayerService {
 
   // DOM elements cache for keyboard keys (by MIDI note number)
   private _keyboardElementsCache = new Map<number, HTMLElement[]>();
-  
+
   // Track active notes with classes to avoid expensive DOM queries
   private _activeKeyboardElements = new Set<HTMLElement>();
+
+  private passCount = 1;
 
   constructor(private midiService: MidiServiceService) {
     midiService.setupMidiDeviceListeners();
@@ -80,7 +106,7 @@ export class PlayerService {
     this.synth = new Tone.Synth().toDestination();
     this.initPiano();
     this.reset = this.reset.bind(this);
-    
+
     // Effet pour traiter les événements MIDI via signal
     effect(() => {
       const midiEvent = this.midiService.midiEvent();
@@ -120,10 +146,10 @@ export class PlayerService {
 
 
   splitMidi(json: Midi.MidiJSON, studies: number[]): { study: Midi.Midi, other: Midi.Midi } {
-   
+
     // Remove tracks with no notes
     json.tracks = json.tracks.filter(track => track.notes.length > 0);
-    
+
     json.tracks.forEach((track, idx) => {
       console.log(`Track ${idx}: ${track.name}, instrument: ${track.instrument.name}, notes: ${track.notes.length}`);
     });
@@ -221,6 +247,7 @@ export class PlayerService {
   }
 
   async reset(playConfiguration: PlayConfiguration) {
+    this.passCount = 1;
     this.playConfiguration = playConfiguration;
     this.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
     Tone.getTransport().stop();
@@ -230,6 +257,10 @@ export class PlayerService {
     Tone.getDraw().cancel();
     this.resetLateNotes();
     this.lastMidiEventTime = -1;
+    // Reset repetition tracking
+    this.repetitionPasses.clear();
+    this.repetitionStartMeasure = null;
+    this.repetitionInstructions.clear();
     if (this.osmdCursor !== null) {
       this.osmdCursor.reset();
       for (let i = 0; i < this.playConfiguration.currentStave - 1; i++) {
@@ -324,20 +355,217 @@ export class PlayerService {
 
   }
 
+  repetitionInstructions = new Set<RepetitionInstruction>();
+
+  // Track which repetitions have been taken (measure number -> pass count)
+  private repetitionPasses = new Map<number, number>();
+
+  // Track if we're in a repetition section
+  private repetitionStartMeasure: number | null = null;
+
+  // export enum RepetitionInstructionEnum {
+  //     0 StartLine,
+  //     1 ForwardJump,
+  //     2 BackJumpLine,
+  //     3 Ending,
+  //     DaCapo,
+  //     DalSegno,
+  //     Fine,
+  //     ToCoda,
+  //     DalSegnoAlFine,
+  //     DaCapoAlFine,
+  //     DalSegnoAlCoda,
+  //     DaCapoAlCoda,
+  //     Coda,
+  //     Segno,
+  //     None,
+  // }
+
+  private backToMeasure(measureIndex: number) {
+    console.log("BACK TO MEASURE", measureIndex);
+    while (this.osmdCursor.iterator.CurrentMeasure.MeasureNumber > measureIndex + 1) {
+      this.osmdCursor.previousMeasure();
+    }
+    setTimeout(() => {
+      this.osmdCursor.previous();
+    }, 0);
+  }
+
+
+
+  private nextToMeasure(measureIndex: number) {
+    console.log("FORWARD TO MEASURE", measureIndex);
+    while (this.osmdCursor.iterator.CurrentMeasure.MeasureNumber < measureIndex + 1) {
+      this.osmdCursor.nextMeasure();
+    }
+    setTimeout(() => {
+      this.osmdCursor.previous();
+    }, 0);
+  }
+
+
+  private maybeMoveToMeasure(iterator: MusicPartManagerIterator) {
+    const currentMeasureNumber = iterator.CurrentMeasure.MeasureNumber;
+    console.log(this.passCount, currentMeasureNumber)
+    //console.log(this.passCount, currentMeasureNumber)
+
+
+
+
+    if (this.isLastNoteOfMeasure(iterator)) {
+      console.log("last note of measure", this.passCount, currentMeasureNumber)
+      const currentJumbBack = Array.from(this.repetitionInstructions).filter(
+        instr =>
+          instr.measureIndex === currentMeasureNumber - 1
+          && instr.type === RepetitionInstructionEnum.BackJumpLine
+          && instr.alignment === AlignmentType.End
+      );
+      console.log(currentJumbBack)
+
+      if (currentJumbBack[this.passCount - 1]) {
+        console.log(currentJumbBack)
+        console.log("currentJumbBack!!!!!!!!!!!" + this.passCount, currentMeasureNumber)
+        // Find the start line
+        const startLine = Array.from(this.repetitionInstructions).filter(
+          instr =>
+            instr.type === RepetitionInstructionEnum.StartLine
+            && instr.alignment === AlignmentType.Begin
+            && instr.measureIndex === currentMeasureNumber
+        ).at(this.passCount - 1);
+        const targetMeasure = startLine ? startLine.measureIndex : 0;
+        this.backToMeasure(targetMeasure);
+        this.passCount++;
+        return true;
+      }
+    }
+
+
+    if (this.passCount > 1 && this.isFirstNoteOfMeasure(iterator)) {
+      console.log("first note of measure", this.passCount, currentMeasureNumber)
+      // Get all relevant repetition instructions
+      const currentJumpNext = Array.from(this.repetitionInstructions).find(
+        instr => instr.type === RepetitionInstructionEnum.Ending
+          && instr.measureIndex === currentMeasureNumber - 1
+          && instr.alignment === AlignmentType.Begin
+        //&& !(instr.endingIndices?.includes(this.passCount))
+      );
+
+      if (currentJumpNext) {
+
+
+        // Find the start line
+        const startLine = Array.from(this.repetitionInstructions).filter(
+          instr =>
+            instr.type === RepetitionInstructionEnum.Ending
+            && instr.endingIndices?.includes(this.passCount)
+            && instr.alignment === AlignmentType.End
+        ).pop()
+        const targetMeasure = startLine ? startLine.measureIndex : 0;
+        console.log(currentJumpNext)
+        console.log("currentJumpNext!!!!!!!!!!!" + this.passCount, currentMeasureNumber)
+        this.nextToMeasure(targetMeasure);
+
+        return true;
+      }
+    }
+
+
+
+    return false;
+  }
+
+  //   // // Handle case: we're at the end of an ending
+  //   // if (currentEnding) {
+  //   //   const endingNumbers = currentEnding.endingIndices || [1];
+  //   //   const isLastEnding = !allEndings.some(e =>
+  //   //     (e.endingIndices || [1]).some(num => num > Math.max(...endingNumbers))
+  //   //   );
+
+  //   //   //console.log(`At ending ${endingNumbers.join(',')}, pass count: ${passCount}, has BackJump: ${!!backJump}, isLastEnding: ${isLastEnding}`);
+
+  //   //   // If this ending has a backJump and it's not the last ending
+  //   //   if (backJump && !isLastEnding) {
+  //   //     // Increment pass count for next iteration
+  //   //     this.repetitionPasses.set(currentEnding.measureIndex, passCount + 1);
+
+
+  //   //     console.log(`Ending ${endingNumbers.join(',')} completed, jumping back to measure ${targetMeasure} (next pass: ${passCount + 1})`);
+
+
+  //   //     // If it's the last ending, just continue normally
+  //   //     if (isLastEnding) {
+  //   //       console.log(`Playing last ending ${endingNumbers.join(',')}, continuing forward`);
+  //   //       // Continue normally
+  //   //     }
+  //   //   } else if (backJump) {
+  //   //     // BackJump without ending (simple repeat without volta brackets)
+  //   //     passCount = this.repetitionPasses.get(currentMeasureNumber) || 0;
+
+  //   //     if (passCount < 1) {
+  //   //       this.repetitionPasses.set(currentMeasureNumber, passCount + 1);
+
+  //   //       const startLine = Array.from(this.repetitionInstructions).find(
+  //   //         instr => instr.type === RepetitionInstructionEnum.StartLine &&
+  //   //           instr.measureIndex < currentMeasureNumber
+  //   //       );
+
+  //   //       const targetMeasure = startLine ? startLine.measureIndex : 0;
+  //   //       // console.log(`Simple repeat: jumping back from measure ${currentMeasureNumber} to ${targetMeasure} (pass ${passCount + 1})`);
+  //   //       this.backToMeasure(targetMeasure);
+  //   //       this.repetitionStartMeasure = targetMeasure;
+  //   //       return;
+  //   //     } else {
+  //   //       console.log(`Already repeated measure ${currentMeasureNumber}, continuing forward`);
+  //   //       this.repetitionStartMeasure = null;
+  //   //     }
+  //   //   }
+  //   // }
+
+  //   // if (this.isFirstNoteOfMeasure(iterator)) {
+  //   //   // Check for start of repetition section
+  //   //   const startLine = Array.from(this.repetitionInstructions).find(
+  //   //     instr => instr.type === RepetitionInstructionEnum.StartLine &&
+  //   //       instr.measureIndex === currentMeasureNumber
+  //   //   );
+
+  //   //   if (startLine) {
+  //   //     this.repetitionStartMeasure = currentMeasureNumber;
+  //   //     console.log(`Entering repetition section at measure ${currentMeasureNumber}`);
+  //   //   }
+  //   // }
+  // }
+
   private cursorMayBeAdvance(note: Note) {
 
     if (note.ticks > this.lastMidiEventTime) {
+
       this.lastMidiEventTime = note.ticks;
 
       this.currentMeasure = Math.floor(note.bars);
 
       this.osmdCursor.next();
+
+
+      setTimeout(() => {
+        this.maybeMoveToMeasure(this.osmdCursor.iterator);
+      }, 0);
+
       let safety = 0;
-      
       while (safety < 100 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
+        this.maybeMoveToMeasure(this.osmdCursor.iterator);
         this.osmdCursor.next();
         safety++;
       }
+
+      if (false) {
+        // setTimeout(() => {
+        //   this.osmdCursor.previous();
+        // }, 0);
+      }
+
+
+
+
 
       if (!this.isCursorOk(note)) {
         this.osmdCursor.CursorOptions.color = '#FFB3BA';
@@ -348,6 +576,26 @@ export class PlayerService {
       }
     }
   }
+
+
+  isLastNoteOfMeasure(iterator: MusicPartManagerIterator) {
+    const currentMeasure = this.osmdCursor.iterator.CurrentMeasure.MeasureNumber;
+    this.osmdCursor.next();
+    const nextMeasure = this.osmdCursor.iterator.CurrentMeasure.MeasureNumber;
+    this.osmdCursor.previous();
+    //console.log("CURRENT", currentMeasure, "NEXT", nextMeasure);
+    return currentMeasure < nextMeasure;
+  }
+
+  isFirstNoteOfMeasure(iterator: MusicPartManagerIterator) {
+    const currentMeasure = this.osmdCursor.iterator.CurrentMeasure.MeasureNumber;
+    this.osmdCursor.previous();
+    const previousMeasure = this.osmdCursor.iterator.CurrentMeasure.MeasureNumber;
+    //console.log("CURRENT", currentMeasure, "NEXT", previousMeasure);
+    this.osmdCursor.next();
+    return currentMeasure > previousMeasure;
+  }
+
 
   isCursorOk(note: Note): boolean {
     return this.osmdCursor.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).some(n => n === note.midi - 12);
@@ -367,9 +615,9 @@ export class PlayerService {
     // schedule watch, score advance and keyboard light on
     Tone.getTransport().schedule((time: number) => {
       Tone.getDraw().schedule(() => {
-        
+
         this.cursorMayBeAdvance(note);
-        
+
         this.lightNoteOnKeyboard(hand, note)
         if (this.lateNotes.size > 0) {
           this.isWaiting = true;
@@ -451,7 +699,7 @@ export class PlayerService {
 
     const class1 = `note-on-${hand}`;
     const class2 = `note-on-${hand}-velocity-${velocityUI}`;
-    
+
     for (const el of keys) {
       el.classList.add(class1, class2);
       this._activeKeyboardElements.add(el); // Track active element
@@ -489,9 +737,9 @@ export class PlayerService {
 
   getTimeFactor() {
     // Check if cache is invalid
-    if (this._timeFactorCache === undefined 
-        || this._lastTempoFactor !== this.playConfiguration.tempoFactor
-        || this._lastDelayFactor !== this.playConfiguration.delayFactor) {
+    if (this._timeFactorCache === undefined
+      || this._lastTempoFactor !== this.playConfiguration.tempoFactor
+      || this._lastDelayFactor !== this.playConfiguration.delayFactor) {
       // Recalculate and cache
       this._timeFactorCache = 1 / (this.playConfiguration.tempoFactor / this.playConfiguration.delayFactor);
       this._lastTempoFactor = this.playConfiguration.tempoFactor;
@@ -547,7 +795,7 @@ export class PlayerService {
 
   pushLateNote(note: Note) {
     const lateNoteEntry: lateNote = { note: note, pressed: false };
-    
+
     // Add to both structures for backward compatibility and fast lookup
     if (!this.lateNotes.has(note.ticks)) {
       this.lateNotes.set(note.ticks, []);
@@ -683,3 +931,6 @@ export class PlayerService {
     this._activeKeyboardElements.clear();
   }
 }
+
+
+

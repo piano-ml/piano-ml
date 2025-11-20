@@ -33,6 +33,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     drawMetronomeMarks: false,
     coloringEnabled: true,
     followCursor: false,  // Désactivé - on gère le scroll nous-mêmes
+    //useXMLMeasureNumbers: false,
 };
 
 /**
