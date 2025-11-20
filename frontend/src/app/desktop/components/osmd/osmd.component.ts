@@ -22,7 +22,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
 
     loading = false;
     error: string | null = null;
-    
+
     private cursorObserver?: MutationObserver;
     private lastScrollLeft: number = 0;
     private lastCursorLeft: number = 0;
@@ -67,7 +67,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                 if (this.scrollAnimationFrame) {
                     cancelAnimationFrame(this.scrollAnimationFrame);
                 }
-                
+
                 // Utiliser requestAnimationFrame pour synchroniser avec le repaint du navigateur
                 this.scrollAnimationFrame = requestAnimationFrame(() => {
                     this.scrollCursorIntoView(cursor);
@@ -91,18 +91,17 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
         // Calculer la position du curseur relative au conteneur
         const cursorLeft = cursorRect.left - containerRect.left + container.scrollLeft;
         const viewportWidth = containerRect.width;
-        
+
         // Centrer le curseur horizontalement
         const targetScrollLeft = Math.max(0, cursorLeft - (viewportWidth / 2));
-        
+
         // Optimisation : ne scroller que si nécessaire (éviter les micro-scrolls)
         if (Math.abs(this.lastScrollLeft - targetScrollLeft) > 20) {
             this.lastScrollLeft = targetScrollLeft;
-            
             container.scrollTo({
                 left: targetScrollLeft,
                 top: 0, // Toujours garder top à 0
-                behavior: 'smooth'
+                behavior: targetScrollLeft < 50 ? 'instant' : 'smooth'
             });
         }
     }
@@ -111,11 +110,11 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
         if (this.cursorObserver) {
             this.cursorObserver.disconnect();
         }
-        
+
         if (this.scrollAnimationFrame) {
             cancelAnimationFrame(this.scrollAnimationFrame);
         }
-        
+
         // Nettoyer l'instance OSMD
         if (this.osmd) {
             this.osmd.clear();
@@ -132,7 +131,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
         this.osmd.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
 
         this.osmd.setOptions(DEFAULT_OSMD_OPTIONS);
-        
+
         if (this.musicXml) {
             await this.osmd.load(this.musicXml).then(() => {
                 this.osmd!.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
