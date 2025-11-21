@@ -8,11 +8,13 @@ import org.pianoml.backend.entity.Author;
 import org.pianoml.backend.entity.Genre;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
+import org.pianoml.backend.mapper.AuthorMapper;
 import org.pianoml.backend.mapper.ScoreMapper;
+import org.pianoml.backend.model.AuthorWithScoreCount;
+import org.pianoml.backend.model.AuthorApiInfo;
 import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.repository.GenreRepository;
 import org.pianoml.backend.repository.ScoreRepository;
-import org.pianoml.backend.repository.ScoreRepositoryCustom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -52,9 +54,6 @@ public class ScoreService {
   private ScoreRepository scoreRepository;
 
   @Autowired
-  private ScoreRepositoryCustom scoreRepositoryCustom;
-
-  @Autowired
   private AuthorService authorService;
 
   @Autowired
@@ -62,6 +61,9 @@ public class ScoreService {
 
   @Autowired
   private ScoreMapper scoreMapper;
+
+  @Autowired
+  private AuthorMapper authorMapper;
 
   @Autowired
   private PackService packService;
@@ -166,7 +168,7 @@ public class ScoreService {
   }
 
   public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user) {
-    return scoreRepositoryCustom.findByCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit, user )
+    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit, user )
       .stream()
       .map(scoreMapper::toScoreApiInfo)
       .collect(Collectors.toList());
@@ -211,9 +213,8 @@ public class ScoreService {
   }
 
   Score infosFromMetadata(Score score) {
-    Optional<byte[]> optMetadata = null;
     try {
-      optMetadata = getAttachmentFromScore(score, "metadata.json");
+      Optional<byte[]> optMetadata = getAttachmentFromScore(score, "metadata.json");
       if (optMetadata.isPresent()) {
         String metadataStr = new String(optMetadata.get());
         ObjectMapper mapper = new ObjectMapper();
@@ -242,7 +243,7 @@ public class ScoreService {
         score.setTempo(tempo);
         scoreRepository.save(score);
       } else {
-        log.warn("No metadata found for score: " + score.getId());
+        log.warn("No metadata found for score: {}", score.getId());
       }
     } catch (Exception e) {
       log.error("No metadata found for score:", e);
@@ -263,7 +264,7 @@ public class ScoreService {
         }
       }
     } catch (S3Exception e) {
-      e.printStackTrace();
+      log.warn("S3Exception while getting object {}: {}", key, e.getMessage());
       if (e.statusCode() == 404) {
         return Optional.empty();
       }
@@ -309,5 +310,25 @@ public class ScoreService {
     scoreRepository.delete(score);
     log.info("Successfully deleted score: " + id);
     return true;
+  }
+
+  public List<AuthorWithScoreCount> getAuthorsWithScoreCounts() {
+    return getAuthorsWithScoreCounts(null, null);
+  }
+
+  public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(Integer offset, Integer limit) {
+    int off = offset != null ? Math.max(0, offset) : 0;
+    Integer lim = limit != null && limit > 0 ? limit : null;
+
+    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(lim == null ? null : off, lim);
+    return rows.stream().map(row -> {
+      org.pianoml.backend.entity.Author author = (org.pianoml.backend.entity.Author) row[0];
+      Long count = (Long) row[1];
+      AuthorApiInfo authorApiInfo = authorMapper.toAuthorApiInfo(author);
+      AuthorWithScoreCount out = new AuthorWithScoreCount();
+      out.setAuthor(authorApiInfo);
+      out.setCount(count);
+      return out;
+    }).toList();
   }
 }

@@ -26,9 +26,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 public class ScoreController implements ScoreApi {
+
+  private static final Logger log = LoggerFactory.getLogger(ScoreController.class);
 
   @Autowired
   private ScoreService scoreService;
@@ -66,7 +70,11 @@ public class ScoreController implements ScoreApi {
     String userid = authentication.getName();
     User user = userRepository.findById(UUID.fromString(userid)).orElseThrow(EntityNotFoundException::new);
 
-    ScoreApiInfo score = scoreService.getScore(UUID.fromString(id)).get();
+    Optional<ScoreApiInfo> optScore = scoreService.getScore(UUID.fromString(id));
+    if (optScore.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+    ScoreApiInfo score = optScore.get();
     if (!score.getOwnerId().equals(user.getId().toString())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
@@ -99,7 +107,7 @@ public class ScoreController implements ScoreApi {
       ScoreApiInfo createdScore = scoreService.createScore(scoreApiInfo, user);
       return new ResponseEntity<>(createdScore, HttpStatus.CREATED);
     } catch (DataIntegrityViolationException e) {
-      e.printStackTrace();
+      log.error("Data integrity violation during scorePost:", e);
       throw new EntityAlreadyExistsException("You have already created this score, please consider edit it in account/scores page.");
     }
   }
@@ -107,7 +115,7 @@ public class ScoreController implements ScoreApi {
   @Override
   public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    User user = null;
+    User user;
     try {
       // Use AccountService#getUserFromAuthentication which throws when the user is anonymous or not activated.
       user = userService.getUserFromAuthentication(authentication);
@@ -137,6 +145,7 @@ public class ScoreController implements ScoreApi {
       scoreService.packAttachmentToScore(optScore.get(), type, body.getInputStream());
       return ResponseEntity.ok().build();
     } catch (java.io.IOException e) {
+      log.error("IOException while packing attachment to score", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
@@ -150,16 +159,21 @@ public class ScoreController implements ScoreApi {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
       }
       MediaType mediaType;
-      if (type.equals("musicxml")) {
-        mediaType = MediaType.APPLICATION_XML;
-      } else if (type.equals("midi")) {
-        mediaType = MediaType.parseMediaType("audio/midi");
-      } else if (type.equals("pdf")) {
-        mediaType = MediaType.APPLICATION_PDF;
-      } else if (type.equals("metadata")) {
-        mediaType = MediaType.APPLICATION_JSON;
-      } else {
-        mediaType = MediaType.APPLICATION_OCTET_STREAM;
+      switch (type) {
+        case "musicxml":
+          mediaType = MediaType.APPLICATION_XML;
+          break;
+        case "midi":
+          mediaType = MediaType.parseMediaType("audio/midi");
+          break;
+        case "pdf":
+          mediaType = MediaType.APPLICATION_PDF;
+          break;
+        case "metadata":
+          mediaType = MediaType.APPLICATION_JSON;
+          break;
+        default:
+          mediaType = MediaType.APPLICATION_OCTET_STREAM;
       }
       return scoreService.getAttachmentFromScore(optScore.get(), type)
         .map(bytes -> ResponseEntity.ok()
@@ -167,6 +181,7 @@ public class ScoreController implements ScoreApi {
           .body((org.springframework.core.io.Resource) new ByteArrayResource(bytes)))
         .orElse(ResponseEntity.notFound().build()); // TODO throw a specific exception
     } catch (IOException e) {
+      log.error("IOException while getting attachment from score", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
@@ -189,5 +204,15 @@ public class ScoreController implements ScoreApi {
       }
       throw e;
     }
+  }
+
+  @Override
+  public ResponseEntity<List<org.pianoml.backend.model.AuthorWithScoreCount>> scoreAuthorBrowseGet(Integer offset, Integer limit) {
+    // Normalize pagination params
+    int off = offset != null && offset >= 0 ? offset : 0;
+    Integer lim = limit != null && limit > 0 ? limit : null;
+
+    List<org.pianoml.backend.model.AuthorWithScoreCount> list = scoreService.getAuthorsWithScoreCounts(off, lim);
+    return ResponseEntity.ok(list);
   }
 }

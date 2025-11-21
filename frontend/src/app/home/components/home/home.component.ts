@@ -366,6 +366,12 @@ export class HomeComponent implements AfterViewInit {
   }
 
   async ngAfterViewInit(): Promise<void> {
+    // Warm up the server (ignore response and errors)
+    this.http.get('/account/userinfo').subscribe({
+      next: () => {},
+      error: () => {}
+    });
+
     // Chargement dynamique des shaders au démarrage
     await this.loadAvailableShaders();
     

@@ -13,11 +13,72 @@
         [disabled]="loading">
         {{ loading ? 'Searching...' : 'Search' }}
       </button>
+      <button 
+        *ngIf="activeSearchKeyword"
+        (click)="clearSearchFilter()" 
+        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+        Clear
+      </button>
     </div>
   </div>
 
-  <!-- Quick Actions -->
-  <app-quick-actions></app-quick-actions>
+
+
+  <!-- Active Search Keyword Capsule 
+  <div *ngIf="activeSearchKeyword && !selectedAuthor" class="mb-6 bg-neutral-800 rounded-lg p-4">
+    <div class="inline-flex bg-green-600 text-white rounded-md px-4 py-2 items-center gap-3">
+      <span class="font-medium">Search: "{{ activeSearchKeyword }}"</span>
+      <button 
+        (click)="clearSearchFilter()"
+        class="text-green-200 hover:text-white transition-colors duration-200 p-1 hover:bg-green-700 rounded-md ml-1"
+        title="Clear search">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+-->
+  <app-quick-actions *ngIf="!(activeSearchKeyword || selectedAuthor)"></app-quick-actions>
+
+  <!-- Selected Author Capsule -->
+  <div *ngIf="selectedAuthor" class="mb-6 bg-neutral-800 rounded-lg p-4">
+    <div class="inline-flex bg-blue-600 text-white rounded-md px-4 py-2 items-center gap-3">
+      <span class="font-medium">{{ selectedAuthor.author.name }}</span>
+      <span class="text-xs text-blue-200">({{ selectedAuthor.count }} {{ selectedAuthor.count === 1 ? 'score' : 'scores' }})</span>
+      <button 
+        (click)="clearAuthorFilter()"
+        class="text-blue-200 hover:text-white transition-colors duration-200 p-1 hover:bg-blue-700 rounded-md ml-1"
+        title="Clear filter">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Popular Authors Section -->
+  <div *ngIf="!selectedAuthor && !activeSearchKeyword" class="mb-6 bg-neutral-800 rounded-lg p-4">
+    <h2 class="text-xl font-semibold text-white mb-4">Browse by Artist</h2>
+    
+    <div *ngIf="loadingAuthors" class="text-gray-400 text-center py-4">
+      Loading artists...
+    </div>
+    
+    <div *ngIf="!loadingAuthors && authors.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <button 
+        *ngFor="let author of authors"
+        (click)="onAuthorClick(author)"
+        class="bg-neutral-700 hover:bg-blue-600 text-white rounded-lg p-3 transition-colors duration-200 text-left group">
+        <div class="font-medium text-sm truncate group-hover:text-blue-100">
+          {{ author.author.name }}
+        </div>
+        <div class="text-xs text-gray-400 mt-1">
+          {{ author.count }} {{ author.count === 1 ? 'score' : 'scores' }}
+        </div>
+      </button>
+    </div>
+  </div>
 
   <!-- Results Table -->
   <app-score-table
@@ -44,5 +105,9 @@
   <div class="mt-2 text-sm text-gray-400" *ngIf="scores.length > 0">
     Showing {{ scores.length }} scores
   </div>
+
+  <!-- Quick Actions -->
+  <app-quick-actions *ngIf="activeSearchKeyword || selectedAuthor"></app-quick-actions>
+
 
 </div>

@@ -94,4 +94,17 @@ public class AccountService {
     user.setName(userApiInfo.getName());
     userRepository.save(user);
   }
+
+  public String renewToken(String token) {
+    if (token == null || token.trim().isEmpty()) {
+      throw new IllegalArgumentException("token is required");
+    }
+    // Validate token
+    if (!tokenProvider.validateToken(token)) {
+      throw new RuntimeException("Invalid or expired token");
+    }
+    String userId = tokenProvider.getUserIdFromJWT(token);
+    User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(() -> new RuntimeException("User not found"));
+    return tokenProvider.generateToken(user);
+  }
 }
