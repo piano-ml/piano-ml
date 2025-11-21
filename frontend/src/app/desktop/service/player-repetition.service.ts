@@ -185,7 +185,7 @@ export class PlayerRepetitionService {
         ...allEndings.flatMap(e => e.endingIndices || [1])
       );
 
-      console.log(`Current ending: ${currentEnding?.endingIndices}, max ending: ${maxEndingNumber}, passCount: ${this.passCount}`);
+      //console.log(`Current ending: ${currentEnding?.endingIndices}, max ending: ${maxEndingNumber}, passCount: ${this.passCount}`);
 
       // If we haven't reached the last ending yet, jump back
       if (this.passCount <= maxEndingNumber) {
