@@ -17,11 +17,13 @@ model/accountCreatePostRequest.ts
 model/accountLoginPost200Response.ts
 model/accountLoginPostRequest.ts
 model/accountPasswordResetPostRequest.ts
+model/accountTokenRenewGet200Response.ts
 model/allWorksApiInfo.ts
 model/allWorksApiInfoWorksInner.ts
 model/allWorksApiInfoWorksInnerRelationsInner.ts
 model/allWorksApiInfoWorksInnerRelationsInnerArtist.ts
 model/authorApiInfo.ts
+model/authorWithScoreCount.ts
 model/errorApiInfo.ts
 model/errorApiInfoError.ts
 model/genreApiInfo.ts

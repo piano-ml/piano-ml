@@ -45,5 +45,10 @@ public class Author {
   @Column(name = "life_span_ended")
   private Boolean lifeSpanEnded;
 
+  @Column(name = "image", length = 255, nullable = true)
+  private String image;
+
+  @Column(name = "image_hq", length = 255, nullable = true)
+  private String imageHq;
 
 }

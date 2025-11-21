@@ -162,7 +162,26 @@ paths:
           description: Successfully logged out
         '401':
           description: Unauthorized
-
+  /account/token/renew:
+    get:
+      operationId: accountTokenRenewGet
+      tags:
+        - account
+      summary: Renew an authentication token
+      responses:
+        '200':
+          description: New token issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
   /score:
     post:
       operationId: scorePost
@@ -568,6 +587,34 @@ paths:
                   $ref: '#/components/schemas/AuthorApiInfo'
         '404':
           description: AuthorApiInfo not found
+  /score/author/browse:
+    get:
+      operationId: scoreAuthorBrowseGet
+      tags:
+        - score
+      summary: Browse authors with their score counts
+      parameters:
+        - name: offset
+          in: query
+          schema:
+            type: integer
+          description: Result offset (default 0)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          description: "Maximum number of results to return (default: all)"
+      responses:
+        '200':
+          description: List of authors with score counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorWithScoreCount'
+        '400':
+          description: Bad request
   /genre:
     get:
       operationId: genreGet
@@ -749,6 +796,18 @@ components:
           format: date
         lifeSpanEnded:
           type: boolean
+    AuthorWithScoreCount:
+      type: object
+      properties:
+        author:
+          $ref: '#/components/schemas/AuthorApiInfo'
+        count:
+          type: integer
+          format: int64
+          description: Number of scores by this author
+      required:
+        - author
+        - count
     ScoreApiInfo:
       type: object
       properties:

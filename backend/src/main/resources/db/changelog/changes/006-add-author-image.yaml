@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 6
+      author: jules
+      changes:
+        - addColumn:
+            schemaName: pianoml
+            tableName: "author"
+            columns:
+              - column:
+                  name: image
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: image_hq
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+

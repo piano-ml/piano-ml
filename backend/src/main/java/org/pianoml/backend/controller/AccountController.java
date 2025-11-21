@@ -8,6 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import jakarta.servlet.http.HttpServletRequest;
+
+import static org.pianoml.backend.security.JwtAuthenticationFilter.getJwtFromRequest;
 
 @RestController
 public class AccountController implements AccountApi {
@@ -39,6 +44,26 @@ public class AccountController implements AccountApi {
   @Override
   public ResponseEntity<Void> accountPasswordResetPost(AccountPasswordResetPostRequest accountPasswordResetPostRequest) {
     return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public ResponseEntity<AccountTokenRenewGet200Response> accountTokenRenewGet() {
+    ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    if (attrs == null) {
+      return ResponseEntity.badRequest().build();
+    }
+    HttpServletRequest currentRequest = attrs.getRequest();
+    String token = getJwtFromRequest(currentRequest);
+    AccountTokenRenewGet200Response accountTokenRenewGet200Response = new AccountTokenRenewGet200Response();
+    try {
+      String newToken = accountService.renewToken(token);
+      accountTokenRenewGet200Response.setToken(newToken);
+      return ResponseEntity.ok(accountTokenRenewGet200Response);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().build();
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
   }
 
   @Override
