@@ -77,7 +77,7 @@ public class ScoreRepositoryCustom implements IScoreRepositoryCustom {
     if (limit != null) {
       query.setMaxResults(limit);
     } else {
-      query.setMaxResults(100); // Default limit if not specified
+      query.setMaxResults(200); // Default limit if not specified
     }
 
     return query.getResultList();
