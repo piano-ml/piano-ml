@@ -1,9 +1,7 @@
 import { type ElementRef, Injectable, signal, effect } from '@angular/core';
-import * as Tone from "tone";
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
 import type { Note } from '@tonejs/midi/dist/Note';
-import { BehaviorSubject } from 'rxjs';
 import type { lateNote, PlayConfiguration } from '../model/model';
 // biome-ignore lint/style/useImportType: <explanation>
 import { MidiServiceService } from '../../shared/services/midi-service.service';
@@ -12,7 +10,7 @@ import { reducedFraction } from '../model/reduced-fraction';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import { getStaveDurationTick } from './midi-maths';
 import { ScoreApiInfo } from '../../core/api';
-import { Cursor, OpenSheetMusicDisplay, Note as OSMDNote } from 'opensheetmusicdisplay';
+import { OpenSheetMusicDisplay, Note as OSMDNote } from 'opensheetmusicdisplay';
 import { PlayerStateService } from './player-state.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
 import { PlayerRepetitionService } from './player-repetition.service';
@@ -155,7 +153,7 @@ export class PlayerService {
 
     // Créer un interval qui vérifie toutes les TIME_COUNTER_TIMESTEP ms l'état du transport
     this.timeCounterInterval = window.setInterval(() => {
-      if (Tone.getTransport().state === "started" && (this.playConfiguration.waitForLeftHand || this.playConfiguration.waitForRightHand)) {
+      if (this.audio.isPlaying() && (this.playConfiguration.waitForLeftHand || this.playConfiguration.waitForRightHand)) {
         const currentTime = this.elapsedTime.value + TIME_COUNTER_TIMESTEP;
         this.elapsedTime.next(currentTime);
       }
@@ -177,19 +175,14 @@ export class PlayerService {
   }
 
   pause() {
-    this.audio.stopAll();
-    Tone.getTransport().pause();
+    this.audio.pause();
     this.keyboard.removeAllNotesFromKeyboard();
   }
 
   async reset(playConfiguration: PlayConfiguration) {
     this.playConfiguration = playConfiguration;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
-    Tone.getTransport().stop();
-    Tone.getTransport().position = 0;
-    Tone.getTransport().cancel();
-    Tone.getDraw().dispose();
-    Tone.getDraw().cancel();
+    this.audio.stop();
     this.resetLateNotes();
     this.lastMidiEventTime = -1;
     // Reset repetition tracking
@@ -212,66 +205,101 @@ export class PlayerService {
     const endCut = this.calculateEndTime();
     this.playConfiguration = playConfigurations;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
-    await Tone.start();
+    
+    await this.audio.start();
+    
     this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], startOffset, endCut);
     if (this.playConfiguration.midi!.tracks.length > 1) {
       this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], startOffset, endCut);
     }
-    this.scheduleAccompanimentTracks(this.playConfiguration.accompaniment!, startOffset, endCut);
-    this.scheduleEnd(endCut - startOffset);
-    Tone.getTransport().start();
+    
+    // Déléguer le scheduling de l'accompagnement au service audio
+    this.audio.scheduleAccompanimentTracks(
+      this.playConfiguration.accompaniment!,
+      startOffset,
+      endCut,
+      this.state.getTimeFactor()
+    );
+    
+    // Déléguer le scheduling de fin
+    this.audio.scheduleEnd(endCut - startOffset, () => {
+      this.message.set("END");
+      this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
+      this.reset(this.playConfiguration);
+      if (this.playConfiguration.isLoop) {
+        this.play(this.playConfiguration);
+      }
+      this.lastMidiEventTime = -1;
+    });
   }
 
   scheduleLeftHand(midi: Midi.Track, startTime: number, endCut: number) {
-    for (const note of midi.notes) {
-      if (this.isInPlayableRange(note, startTime, endCut)) {
-        this.scheduleNote('lh', note, startTime);
+    this.audio.scheduleHandTrack(
+      'lh',
+      midi,
+      startTime,
+      endCut,
+      this.state.getTimeFactor(),
+      GOOD_RANGE,
+      {
+        onNoteStart: (time, note) => this.handleNoteStart('lh', note),
+        onNoteEnd: (time, note) => this.handleNoteEnd('lh', note),
+        beforeGoodRange: (time, note) => this.handleBeforeGoodRange(note)
       }
-    }
+    );
   }
 
   scheduleRightHand(midi: Midi.Track, startTime: number, endCut: number) {
-    for (const note of midi.notes) {
-      if (this.isInPlayableRange(note, startTime, endCut)) {
-        this.scheduleNote('rh', note, startTime);
+    this.audio.scheduleHandTrack(
+      'rh',
+      midi,
+      startTime,
+      endCut,
+      this.state.getTimeFactor(),
+      GOOD_RANGE,
+      {
+        onNoteStart: (time, note) => this.handleNoteStart('rh', note),
+        onNoteEnd: (time, note) => this.handleNoteEnd('lh', note),
+        beforeGoodRange: (time, note) => this.handleBeforeGoodRange(note)
+      }
+    );
+  }
+
+  private handleNoteStart(hand: string, note: Note) {
+    this.cursorMayBeAdvance(note);
+    this.keyboard.lightNoteOnKeyboard(hand, note);
+    if (this.lateNotes.size > 0) {
+      this.isWaiting = true;
+      this.audio.pause();
+    }
+    if (this.isHandOk(hand, note.midi)) {
+      this.pushLateNote(note);
+    }
+    this.setCurrentTick(note.bars);
+  }
+
+  private handleNoteEnd(hand: string, note: Note) {
+    if (!this.isHandOk(hand, note.midi)) {
+      // Vérifier d'abord si la note est en attente avant la recherche DOM
+      const isNoteAwaited = Array.from(this.lateNotes.values())
+        .some(lateNotesList =>
+          lateNotesList.some(lateNote => lateNote.note.midi === note.midi)
+        );
+
+      if (!isNoteAwaited) {
+        this.keyboard.removeMidiNoteFromKeyboard(note.midi);
+      } else {
+        this.keyboard.lightNoteOnKeyboard('late', note);
       }
     }
   }
 
-  private scheduleAccompanimentTracks(midiOther: Midi.Midi, startTime: number, endCut: number) {
-    for (const track of midiOther.tracks) {
-      this.audio.programChange(track.channel, track.instrument.number);
-      this.scheduleAccompanimentTrack(track.channel, track, startTime, endCut);
+  private handleBeforeGoodRange(note: Note) {
+    if (this.lateNotes.size > 1) {
+      this.isWaiting = true;
+      this.audio.pause();
     }
   }
-
-  private isInPlayableRange(note: Note, startTime: number, endCut: number) {
-    const noteTime = note.time * this.getTimeFactor();
-    return noteTime >= startTime && noteTime < endCut;
-  }
-
-  private scheduleAccompanimentTrack(channel: number, track: Midi.Track, startTime: number, endCut: number) {
-    for (const note of track.notes) {
-      if (this.isInPlayableRange(note, startTime, endCut)) {
-        this.scheduleAccompanimentTrackNotes(channel, note, startTime);
-      }
-    }
-  }
-
-  private scheduleAccompanimentTrackNotes(channel: number, note: Note, startOffset: number) {
-    if (note.time < startOffset) return;
-    if (note.midi === 0) return; // skip rest notes
-    const noteStart = (note.time * this.getTimeFactor()) - startOffset;
-    // note on
-    Tone.getTransport().schedule(() => {
-      this.audio.noteOn(channel, note.midi, Math.round(note.velocity * 127));
-    }, noteStart);
-    // note off
-    Tone.getTransport().schedule(() => {
-      this.audio.noteOff(channel, note.midi);
-    }, noteStart + (note.duration * this.getTimeFactor()));
-  }
-
 
   setOsmd(osmd: OpenSheetMusicDisplay) {
     this.state.osmd = osmd;
@@ -280,10 +308,6 @@ export class PlayerService {
     this.state.osmdCursor.CursorOptions.alpha = 0.6;
     this.repetition.hydrateRepetitionInstructions();
     this.state.osmdCursor.reset();
-  }
-
-  hydrateRepetitionInstructions() {
-    this.repetition.hydrateRepetitionInstructions();
   }
 
   private cursorMayBeAdvance(note: Note) {
@@ -325,95 +349,6 @@ export class PlayerService {
       || n.IsCueNote
   }
 
-  private scheduleNote(hand: string, note: Note, startTime: number) {
-    const noteTimeStart = (note.time * this.getTimeFactor()) - startTime;
-    const noteTimeEnd = ((note.time * this.getTimeFactor()) - startTime + (note.duration * this.getTimeFactor()));
-    // schedule watch, score advance and keyboard light on
-    Tone.getTransport().schedule((time: number) => {
-      Tone.getDraw().schedule(() => {
-
-        this.cursorMayBeAdvance(note);
-
-        this.lightNoteOnKeyboard(hand, note)
-        if (this.lateNotes.size > 0) {
-          this.isWaiting = true;
-          Tone.getTransport().pause();
-        }
-        if (this.isHandOk(hand, note.midi)) {
-          this.pushLateNote(note);
-        }
-        this.setCurrentTick(note.bars);
-      }, time);
-    }, noteTimeStart);
-
-    Tone.getTransport().schedule((time: number) =>  {
-
-      this.audio.pianoKeyDown({
-        time: time,
-        velocity: note.velocity,
-        note: note.name,
-        midi: note.midi
-      });
-    }, noteTimeStart);
-
-    // schedule keyboard light off
-    Tone.getTransport().schedule((time: number) => {
-
-      this.audio.pianoKeyUp({
-        time: time + note.duration,
-        velocity: note.velocity,
-        note: note.name,
-        midi: note.midi
-      });
-
-      Tone.getDraw().schedule(() => {
-        if (!this.isHandOk(hand, note.midi)) {
-          // Vérifier d'abord si la note est en attente avant la recherche DOM
-          const isNoteAwaited = Array.from(this.lateNotes.values())
-            .some(lateNotesList =>
-              lateNotesList.some(lateNote => lateNote.note.midi === note.midi)
-            );
-
-          if (!isNoteAwaited) {
-            this.removeMidiNoteFromKeyboard(note.midi);
-          } else {
-            this.lightNoteOnKeyboard('late', note);
-          }
-        }
-      }, time);
-    }, noteTimeEnd);
-
-    Tone.getTransport().schedule((time: number) => {
-      Tone.getDraw().schedule(() => {
-
-        if (this.lateNotes.size > 1) {
-          this.isWaiting = true;
-          Tone.getTransport().pause();
-        }
-      }, time);
-    }, Math.max(noteTimeStart - GOOD_RANGE, 0));
-  }
-
-
-  private lightNoteOnKeyboard(hand: string, note: Note) {
-    this.keyboard.lightNoteOnKeyboard(hand, note);
-  }
-
-
-  private scheduleEnd(endTime: number) {
-    Tone.getTransport().schedule(() => {
-      this.audio.stopAll();
-      this.message.set("END");
-      this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
-      this.reset(this.playConfiguration);
-      if (this.playConfiguration.isLoop) {
-        this.play(this.playConfiguration);
-      }
-      this.lastMidiEventTime = -1;
-    }, endTime + 3);
-  }
-
-
   private setCurrentTick(bar: number) {
     const truncatedBar = Math.trunc(bar);
     if (truncatedBar !== this.measure()) {
@@ -428,19 +363,11 @@ export class PlayerService {
     );
   }
 
-  getTimeFactor() {
-    return this.state.getTimeFactor();
-  }
-
-  private invalidateTimeFactorCache() {
-    this.state.invalidateTimeFactorCache();
-  }
-
   calculateStartTime() {
     const startTime = (this.calculateStartTimeInMsForMeasure(
       this.playConfiguration.scoreRange[0] - 1,
       this.playConfiguration.midi!.header
-    ) * this.getTimeFactor());
+    ) * this.state.getTimeFactor());
     return startTime;
   }
 
@@ -448,12 +375,12 @@ export class PlayerService {
   calculateEndTime() {
     if (this.playConfiguration.scoreRange[1] === this.playConfiguration.maxStaveCount + 1
       && this.playConfiguration.scoreRange[0] === 1) {
-      return this.duration * this.getTimeFactor();
+      return this.duration * this.state.getTimeFactor();
     }
     return (this.calculateStartTimeInMsForMeasure(
       this.playConfiguration.scoreRange[1] + 1,
       this.playConfiguration.midi!.header
-    ) * this.getTimeFactor());
+    ) * this.state.getTimeFactor());
   }
 
 
@@ -493,7 +420,7 @@ export class PlayerService {
         const ln = notes[idx];
         if (midiEvent.note === ln.note.midi) {
           notes.splice(idx, 1);
-          this.removeMidiNoteFromKeyboard(ln.note.midi);
+          this.keyboard.removeMidiNoteFromKeyboard(ln.note.midi);
           if (idx === 0) {
             success = 1;
           } else {
@@ -521,13 +448,12 @@ export class PlayerService {
 
       const hit = this.integrateMidiEventInLastNote(midiEvent);
       if (this.lateNotes.size === 0 && this.isWaiting) {
-        await Tone.start();
-        Tone.getTransport().start();
+        await this.audio.start();
         this.isWaiting = false;
       } else {
         this.lateNotes.forEach((lateNotesList) => {
           lateNotesList.forEach((lateNote) => {
-            this.lightNoteOnKeyboard('rh', lateNote.note); // todo assign hand properly
+            this.keyboard.lightNoteOnKeyboard('rh', lateNote.note); // todo assign hand properly
           });
         });
       }
@@ -538,18 +464,6 @@ export class PlayerService {
         }, 10);
       }
     }
-  }
-
-  private removeMidiNoteFromKeyboard(midiNote: number) {
-    this.keyboard.removeMidiNoteFromKeyboard(midiNote);
-  }
-
-  /**
-   * Recharge les préférences du clavier depuis localStorage
-   * Méthode publique pour permettre le rechargement à chaud
-   */
-  reloadKeyboardPreferences() {
-    this.keyboard.reloadKeyboardPreferences();
   }
 
   /**
