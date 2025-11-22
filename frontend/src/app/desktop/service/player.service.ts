@@ -58,7 +58,7 @@ export class PlayerService {
     midiService.setupMidiDeviceListeners();
     this.reset = this.reset.bind(this);
 
-    // Effet pour traiter les événements MIDI via signal
+    // Effect to process MIDI events via signal
     effect(() => {
       const midiEvent = this.midiService.midiEvent();
       if (midiEvent) {
@@ -148,10 +148,10 @@ export class PlayerService {
       clearInterval(this.timeCounterInterval);
     }
 
-    // Initialiser le compteur de temps
+    // Initialize the time counter
     this.elapsedTime.next(0);
 
-    // Créer un interval qui vérifie toutes les TIME_COUNTER_TIMESTEP ms l'état du transport
+    // Create an interval that checks the transport state every TIME_COUNTER_TIMESTEP ms
     this.timeCounterInterval = window.setInterval(() => {
       if (this.audio.isPlaying() && (this.playConfiguration.waitForLeftHand || this.playConfiguration.waitForRightHand)) {
         const currentTime = this.elapsedTime.value + TIME_COUNTER_TIMESTEP;
@@ -213,7 +213,7 @@ export class PlayerService {
       this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], startOffset, endCut);
     }
     
-    // Déléguer le scheduling de l'accompagnement au service audio
+    // Delegate accompaniment scheduling to the audio service
     this.audio.scheduleAccompanimentTracks(
       this.playConfiguration.accompaniment!,
       startOffset,
@@ -221,7 +221,7 @@ export class PlayerService {
       this.state.getTimeFactor()
     );
     
-    // Déléguer le scheduling de fin
+    // Delegate end scheduling
     this.audio.scheduleEnd(endCut - startOffset, () => {
       this.message.set("END");
       this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
@@ -280,7 +280,7 @@ export class PlayerService {
 
   private handleNoteEnd(hand: string, note: Note) {
     if (!this.isHandOk(hand, note.midi)) {
-      // Vérifier d'abord si la note est en attente avant la recherche DOM
+      // First check if the note is awaited before DOM search
       const isNoteAwaited = Array.from(this.lateNotes.values())
         .some(lateNotesList =>
           lateNotesList.some(lateNote => lateNote.note.midi === note.midi)
@@ -312,8 +312,6 @@ export class PlayerService {
 
   private cursorMayBeAdvance(note: Note) {
     if (note.ticks > this.lastMidiEventTime) {
-      //console.log('currentMesure',this.osmdCursor.iterator.CurrentMeasure.measureListIndex);
-      //console.log('currentMesure',this.osmdCursor.iterator.CurrentMeasure);
       this.lastMidiEventTime = note.ticks;
       this.currentMeasure = Math.floor(note.bars);
 

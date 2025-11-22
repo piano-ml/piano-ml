@@ -124,6 +124,6 @@ export function getNoteDuration(theoricalDuration: number, timeSignature: Reduce
 
 export function midiToPitch(midi: number): string {
     const pitchClass = midi % 12;
-    const octave = Math.floor(midi / 12) - 1; // Calcule l'octave (MIDI commence à C-1)
+    const octave = Math.floor(midi / 12) - 1; // Calculate the octave (MIDI starts at C-1)
     return `${flatSpelling[pitchClass]}${octave}`;
   }

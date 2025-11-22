@@ -97,7 +97,7 @@ export class PlayerRepetitionService {
   /**
    * Check if we are at the first note of a measure
    */
-  isFirstNoteOfMeasure(iterator: MusicPartManagerIterator): boolean {
+  isFirstNoteOfMeasure(): boolean {
     const cursor = this.state.osmdCursor;
     const currentMeasure = cursor.iterator.CurrentMeasure.measureListIndex;
     cursor.previous();
@@ -109,7 +109,7 @@ export class PlayerRepetitionService {
   /**
    * Check if we are at the last note of a measure
    */
-  isLastNoteOfMeasure(iterator: MusicPartManagerIterator): boolean {
+  isLastNoteOfMeasure(): boolean {
     const cursor = this.state.osmdCursor;
     const currentMeasure = cursor.iterator.CurrentMeasure.measureListIndex;
     cursor.next();
@@ -200,7 +200,7 @@ export class PlayerRepetitionService {
    */
   maybeMoveToMeasure(iterator: MusicPartManagerIterator): void {
     // ✅ First handle backjumps (end of measure)
-    if (this.isLastNoteOfMeasure(iterator)) {
+    if (this.isLastNoteOfMeasure()) {
       const didBackJump = this.maybeMoveToMeasureOnEnd(iterator);
       if (didBackJump) {
         return; // ✅ Don't process voltas if we just did a backjump
@@ -208,7 +208,7 @@ export class PlayerRepetitionService {
     }
 
     // ✅ Then handle voltas (beginning of measure)
-    if (this.isFirstNoteOfMeasure(iterator)) {
+    if (this.isFirstNoteOfMeasure()) {
       this.maybeMoveToMeasureOnBegin(iterator);
     }
   }
