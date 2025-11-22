@@ -18,7 +18,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
             follow: false,  // Désactivé - on gère le scroll nous-mêmes
             color: "#B0F2B4",
             alpha: 0.6,
-            type: 4
+            type: 3
         },
     ] as CursorOptions[],
     drawTitle: false,
