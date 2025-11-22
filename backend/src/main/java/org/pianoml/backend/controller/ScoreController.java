@@ -211,8 +211,16 @@ public class ScoreController implements ScoreApi {
     // Normalize pagination params
     int off = offset != null && offset >= 0 ? offset : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
-
-    List<org.pianoml.backend.model.AuthorWithScoreCount> list = scoreService.getAuthorsWithScoreCounts(off, lim);
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user;
+    try {
+      // Use AccountService#getUserFromAuthentication which throws when the user is anonymous or not activated.
+      user = userService.getUserFromAuthentication(authentication);
+    } catch (UserNotLoggedInException e) {
+      // If the user is not logged in or cannot be resolved, keep user = null so only public scores are shown.
+      user = null;
+    }
+    List<org.pianoml.backend.model.AuthorWithScoreCount> list = scoreService.getAuthorsWithScoreCounts(user, off, lim);
     return ResponseEntity.ok(list);
   }
 }

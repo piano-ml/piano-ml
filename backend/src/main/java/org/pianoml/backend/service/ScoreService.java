@@ -313,14 +313,14 @@ public class ScoreService {
   }
 
   public List<AuthorWithScoreCount> getAuthorsWithScoreCounts() {
-    return getAuthorsWithScoreCounts(null, null);
+    return getAuthorsWithScoreCounts(null, null, null);
   }
 
-  public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(Integer offset, Integer limit) {
+  public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit) {
     int off = offset != null ? Math.max(0, offset) : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
 
-    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(lim == null ? null : off, lim);
+    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(user, lim == null ? null : off, lim);
     return rows.stream().map(row -> {
       org.pianoml.backend.entity.Author author = (org.pianoml.backend.entity.Author) row[0];
       Long count = (Long) row[1];

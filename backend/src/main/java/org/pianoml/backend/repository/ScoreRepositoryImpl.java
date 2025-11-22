@@ -78,9 +78,28 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   }
 
   @Override
-  public List<Object[]> countScoresGroupedByAuthor(Integer offset, Integer limit) {
-    String jpql = "SELECT s.author, COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) GROUP BY s.author ORDER BY s.author.sortName ASC, COUNT(s) DESC";
-    TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
+  public List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit) {
+    // Build JPQL with the same visibility rules as findWithSomeCriterias
+    boolean isAdmin = false;
+    if (user != null) {
+      isAdmin = user.getRoles() != null && Arrays.stream(user.getRoles().split(","))
+        .anyMatch(role -> "ADMIN".equals(role.trim()));
+    }
+
+    StringBuilder jpql = new StringBuilder("SELECT s.author, COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL)");
+
+    if (user == null) {
+      jpql.append(" AND s.publicDomain = true");
+    } else if (!isAdmin) {
+      jpql.append(" AND (s.publicDomain = true OR s.owner.id = :userId)");
+    }
+
+    jpql.append(" GROUP BY s.author ORDER BY s.author.sortName ASC, COUNT(s) DESC");
+
+    TypedQuery<Object[]> query = em.createQuery(jpql.toString(), Object[].class);
+    if (user != null && !isAdmin) {
+      query.setParameter("userId", user.getId());
+    }
     if (offset != null) query.setFirstResult(offset);
     if (limit != null) query.setMaxResults(limit);
     return query.getResultList();
