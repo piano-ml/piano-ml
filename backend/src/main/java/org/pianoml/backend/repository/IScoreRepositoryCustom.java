@@ -10,5 +10,5 @@ import java.util.List;
 public interface IScoreRepositoryCustom {
   List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user);
 
-  List<Object[]> countScoresGroupedByAuthor(Integer offset, Integer limit);
+  List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit);
 }

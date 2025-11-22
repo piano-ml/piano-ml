@@ -124,7 +124,8 @@ export class BrowseComponent implements OnInit {
 
   loadAuthors() {
     this.loadingAuthors = true;
-    this.scoreService.scoreAuthorBrowseGet(0, 20).subscribe({
+    //this.scoreService.scoreAuthorBrowseGet(0, 20).subscribe({
+    this.scoreService.scoreAuthorBrowseGet().subscribe({
       next: (data) => {
         this.authors = data;
         this.loadingAuthors = false;
