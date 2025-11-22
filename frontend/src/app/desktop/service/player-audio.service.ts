@@ -51,48 +51,6 @@ export class PlayerAudioService {
   }
 
   /**
-   * Arrête tous les sons en cours
-   */
-  stopAll(): void {
-    this.spessasynth?.stopAll();
-  }
-
-  /**
-   * Change le programme MIDI pour un canal donné
-   */
-  programChange(channel: number, program: number): void {
-    this.spessasynth?.programChange(channel, program);
-  }
-
-  /**
-   * Déclenche une note MIDI
-   */
-  noteOn(channel: number, midiNote: number, velocity: number): void {
-    this.spessasynth?.noteOn(channel, midiNote, velocity);
-  }
-
-  /**
-   * Arrête une note MIDI
-   */
-  noteOff(channel: number, midiNote: number): void {
-    this.spessasynth?.noteOff(channel, midiNote);
-  }
-
-  /**
-   * Déclenche une touche du piano
-   */
-  pianoKeyDown(params: { time: number; velocity: number; note: string; midi: number }): void {
-    this.piano.keyDown(params);
-  }
-
-  /**
-   * Relâche une touche du piano
-   */
-  pianoKeyUp(params: { time: number; velocity: number; note: string; midi: number }): void {
-    this.piano.keyUp(params);
-  }
-
-  /**
    * Schedule une note d'accompagnement
    */
   scheduleAccompanimentNote(
@@ -109,12 +67,12 @@ export class PlayerAudioService {
     
     // Note on
     Tone.getTransport().schedule(() => {
-      this.noteOn(channel, note.midi, Math.round(note.velocity * 127));
+      this.spessasynth?.noteOn(channel, note.midi, Math.round(note.velocity * 127));
     }, noteStart);
     
     // Note off
     Tone.getTransport().schedule(() => {
-      this.noteOff(channel, note.midi);
+      this.spessasynth?.noteOff(channel, note.midi);
     }, noteStart + noteDuration);
   }
 
@@ -147,7 +105,7 @@ export class PlayerAudioService {
     timeFactor: number
   ): void {
     for (const track of midi.tracks) {
-      this.programChange(track.channel, track.instrument.number);
+      this.spessasynth?.programChange(track.channel, track.instrument.number);
       this.scheduleAccompanimentTrack(
         track.channel,
         track,
@@ -177,7 +135,7 @@ export class PlayerAudioService {
    * Met en pause le transport
    */
   pause(): void {
-    this.stopAll();
+    this.spessasynth?.stopAll();
     Tone.getTransport().pause();
   }
 
@@ -197,7 +155,7 @@ export class PlayerAudioService {
    */
   scheduleEnd(endTime: number, onEndCallback: () => void): void {
     Tone.getTransport().schedule(() => {
-      this.stopAll();
+      this.spessasynth?.stopAll();
       onEndCallback();
     }, endTime + 3);
   }
@@ -257,7 +215,7 @@ export class PlayerAudioService {
 
     // Schedule piano audio start
     this.schedule((time: number) => {
-      this.pianoKeyDown({
+      this.piano.keyDown({
         time: time,
         velocity: note.velocity,
         note: note.name,
@@ -267,7 +225,7 @@ export class PlayerAudioService {
 
     // Schedule note end (keyboard light off, piano audio stop)
     this.schedule((time: number) => {
-      this.pianoKeyUp({
+      this.piano.keyUp({
         time: time + note.duration,
         velocity: note.velocity,
         note: note.name,

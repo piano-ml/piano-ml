@@ -82,24 +82,24 @@ export const majorKeySignatureSharpFlats: { [key in MajorKeys]?: string[] } = {
 }
 
 export const minorKeySignatureSharpFlats: { [key in MinorKeys]?: string[] } = {
-  // Tonalités mineures avec bémols
-  [MinorKeys.D]: ["Bb"], // Ré mineur - 1 bémol
-  [MinorKeys.G]: ["Bb", "Eb"], // Sol mineur - 2 bémols
-  [MinorKeys.C]: ["Bb", "Eb", "Ab"], // Do mineur - 3 bémols
-  [MinorKeys.F]: ["Bb", "Eb", "Ab", "Db"], // Fa mineur - 4 bémols
-  [MinorKeys.Bb]: ["Bb", "Eb", "Ab", "Db", "Gb"], // Sib mineur - 5 bémols
-  [MinorKeys.Eb]: ["Bb", "Eb", "Ab", "Db", "Gb", "Cb"], // Mib mineur - 6 bémols
-  [MinorKeys.Ab]: ["Bb", "Eb", "Ab", "Db", "Gb", "Cb", "Fb"], // Lab mineur - 7 bémols
+  // Minor keys with flats
+  [MinorKeys.D]: ["Bb"], // D minor - 1 flat
+  [MinorKeys.G]: ["Bb", "Eb"], // G minor - 2 flats
+  [MinorKeys.C]: ["Bb", "Eb", "Ab"], // C minor - 3 flats
+  [MinorKeys.F]: ["Bb", "Eb", "Ab", "Db"], // F minor - 4 flats
+  [MinorKeys.Bb]: ["Bb", "Eb", "Ab", "Db", "Gb"], // Bb minor - 5 flats
+  [MinorKeys.Eb]: ["Bb", "Eb", "Ab", "Db", "Gb", "Cb"], // Eb minor - 6 flats
+  [MinorKeys.Ab]: ["Bb", "Eb", "Ab", "Db", "Gb", "Cb", "Fb"], // Ab minor - 7 flats
   
-  // Tonalités mineures sans altération ou avec dièses
-  [MinorKeys.A]: [], // La mineur - 0 altération
-  [MinorKeys.E]: ["F#"], // Mi mineur - 1 dièse
-  [MinorKeys.B]: ["F#", "C#"], // Si mineur - 2 dièses
-  [MinorKeys.FSharp]: ["F#", "C#", "G#"], // Fa# mineur - 3 dièses
-  [MinorKeys.CSharp]: ["F#", "C#", "G#", "D#"], // Do# mineur - 4 dièses
-  [MinorKeys.GSharp]: ["F#", "C#", "G#", "D#", "A#"], // Sol# mineur - 5 dièses
-  [MinorKeys.DSharp]: ["F#", "C#", "G#", "D#", "A#", "E#"], // Ré# mineur - 6 dièses
-  [MinorKeys.ASharp]: ["F#", "C#", "G#", "D#", "A#", "E#", "B#"] // La# mineur - 7 dièses
+  // Minor keys with no accidentals or sharps
+  [MinorKeys.A]: [], // A minor - 0 accidentals
+  [MinorKeys.E]: ["F#"], // E minor - 1 sharp
+  [MinorKeys.B]: ["F#", "C#"], // B minor - 2 sharps
+  [MinorKeys.FSharp]: ["F#", "C#", "G#"], // F# minor - 3 sharps
+  [MinorKeys.CSharp]: ["F#", "C#", "G#", "D#"], // C# minor - 4 sharps
+  [MinorKeys.GSharp]: ["F#", "C#", "G#", "D#", "A#"], // G# minor - 5 sharps
+  [MinorKeys.DSharp]: ["F#", "C#", "G#", "D#", "A#", "E#"], // D# minor - 6 sharps
+  [MinorKeys.ASharp]: ["F#", "C#", "G#", "D#", "A#", "E#", "B#"] // A# minor - 7 sharps
 }
 
 
@@ -123,10 +123,10 @@ export const majorKeySpellings: { [key in MajorKeys]: string[] } = {
 
 
 export const minorKeySpellings: { [key in MinorKeys]: string[] } = {
-  // Tonalités mineures sans altération
+  // Minor keys with no accidentals
   [MinorKeys.A]:      ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
   
-  // Tonalités mineures avec dièses
+  // Minor keys with sharps
   [MinorKeys.E]:      ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
   [MinorKeys.B]:      ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
   [MinorKeys.FSharp]: ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
@@ -135,7 +135,7 @@ export const minorKeySpellings: { [key in MinorKeys]: string[] } = {
   [MinorKeys.DSharp]: ["B#", "C#", "D", "D#", "E", "E#", "F#", "G", "G#", "A", "A#", "B"],
   [MinorKeys.ASharp]: ["B#", "C#", "D", "D#", "E#", "E#", "F#", "G", "G#", "A", "A#", "B#"],
   
-  // Tonalités mineures avec bémols
+  // Minor keys with flats
   [MinorKeys.D]:      ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"],
   [MinorKeys.G]:      ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"],
   [MinorKeys.C]:      ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"],
