@@ -312,6 +312,7 @@ export class PlayerService {
 
   private cursorMayBeAdvance(note: Note) {
     if (note.ticks > this.lastMidiEventTime) {
+      console.log('currentMesure',this.osmdCursor.iterator.CurrentMeasure.MeasureNumber);
       this.lastMidiEventTime = note.ticks;
       this.currentMeasure = Math.floor(note.bars);
 

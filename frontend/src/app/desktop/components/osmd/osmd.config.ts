@@ -11,7 +11,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
         groups: [[4, 4]],
     },
     drawLyricist: true,
-    measureNumberInterval: 5,
+    measureNumberInterval: 1,
     backend: "svg",
     cursorsOptions: [
         {
