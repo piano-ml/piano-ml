@@ -73,12 +73,12 @@ export class PlayerRepetitionService {
     console.log("BACK TO MEASURE", measureIndex);
     const cursor = this.state.osmdCursor;
 
-    while (cursor.iterator.CurrentMeasure.MeasureNumber > measureIndex + 1) {
+    while (cursor.iterator.CurrentMeasure.measureListIndex > measureIndex && !cursor.iterator.FrontReached) {
       cursor.previousMeasure();
-            console.log("+")
+      console.log("-")
     }
     //cursor.previousMeasure();
-    console.log("Cursor moved back to measure", cursor.iterator.CurrentMeasure.MeasureNumber);
+    console.log("Cursor moved back to measure", cursor.iterator.CurrentMeasure.measureListIndex);
     let safety = 0;
     // while (safety < 100 && cursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
     //   cursor.next();
@@ -93,22 +93,26 @@ export class PlayerRepetitionService {
     }, 0);
   }
 
-    isSkipable(n: OSMDNote): unknown {
-      return n.isRest()
-        || (n.NoteTie && n.NoteTie?.Notes.at(0)?.NoteToGraphicalNoteObjectId !== n.NoteToGraphicalNoteObjectId)
-        || n.IsCueNote
-    }
-
   /**
    * Avance le curseur à une mesure spécifique
    */
   private nextToMeasure(measureIndex: number): void {
-    //console.log("FORWARD TO MEASURE", measureIndex);
+    console.log("FORWARD TO MEASURE", measureIndex);
     const cursor = this.state.osmdCursor;
 
-    while (cursor.iterator.CurrentMeasure.MeasureNumber < measureIndex + 1) {
+    while (cursor.iterator.CurrentMeasure.measureListIndex < measureIndex + 1 && !cursor.iterator.EndReached) {
       cursor.nextMeasure();
+      console.log("+")
     }
+    setTimeout(() => {
+      cursor.next()
+    }, 0);
+  }
+
+  isSkipable(n: OSMDNote): unknown {
+    return n.isRest()
+      || (n.NoteTie && n.NoteTie?.Notes.at(0)?.NoteToGraphicalNoteObjectId !== n.NoteToGraphicalNoteObjectId)
+      || n.IsCueNote
   }
 
   /**
@@ -116,9 +120,9 @@ export class PlayerRepetitionService {
    */
   isFirstNoteOfMeasure(iterator: MusicPartManagerIterator): boolean {
     const cursor = this.state.osmdCursor;
-    const currentMeasure = cursor.iterator.CurrentMeasure.MeasureNumber;
+    const currentMeasure = cursor.iterator.CurrentMeasure.measureListIndex;
     cursor.previous();
-    const previousMeasure = cursor.iterator.CurrentMeasure.MeasureNumber;
+    const previousMeasure = cursor.iterator.CurrentMeasure.measureListIndex;
     cursor.next();
     return currentMeasure > previousMeasure;
   }
@@ -128,9 +132,9 @@ export class PlayerRepetitionService {
    */
   isLastNoteOfMeasure(iterator: MusicPartManagerIterator): boolean {
     const cursor = this.state.osmdCursor;
-    const currentMeasure = cursor.iterator.CurrentMeasure.MeasureNumber;
+    const currentMeasure = cursor.iterator.CurrentMeasure.measureListIndex;
     cursor.next();
-    const nextMeasure = cursor.iterator.CurrentMeasure.MeasureNumber;
+    const nextMeasure = cursor.iterator.CurrentMeasure.measureListIndex;
     const result = currentMeasure < nextMeasure || cursor.iterator.EndReached;
     cursor.previous();
     return result;
@@ -140,7 +144,7 @@ export class PlayerRepetitionService {
    * Gère le déplacement au début d'une mesure (voltas)
    */
   private maybeMoveToMeasureOnBegin(iterator: MusicPartManagerIterator): boolean {
-    const currentMeasureNumber = iterator.CurrentMeasure.MeasureNumber - 1;
+    const currentMeasureNumber = iterator.CurrentMeasure.measureListIndex;
 
     //console.log("first note of measure", currentMeasureNumber, "pass:", this.passCount);
 
@@ -161,9 +165,9 @@ export class PlayerRepetitionService {
           && instr.endingIndices.includes(currentVoltaStart.endingIndices[0]) // todo better than [0] ?
         //&& (currentMeasureNumber >= instr.measureIndex && currentMeasureNumber <= instr.measureIndex) 
       );
-      console.log("skip volta at measure", currentMeasureNumber, "to: ", currentVoltaEnd!.measureIndex + 1, "pass:", this.passCount);
+      console.log("skip volta at measure", currentMeasureNumber, "to: ", currentVoltaEnd!.measureIndex, "pass:", this.passCount);
       console.log(currentVoltaStart);
-      this.nextToMeasure(currentVoltaEnd!.measureIndex + 1);
+      this.nextToMeasure(currentVoltaEnd!.measureIndex);
       //this.maybeMoveToMeasure(iterator);
       return true;
     }
@@ -174,14 +178,14 @@ export class PlayerRepetitionService {
    * Gère le déplacement à la fin d'une mesure (back jumps)
    */
   private maybeMoveToMeasureOnEnd(iterator: MusicPartManagerIterator): void {
-    const currentMeasureNumber = iterator.CurrentMeasure.MeasureNumber ;
+    const currentMeasureNumber = iterator.CurrentMeasure.measureListIndex;
     console.log("last note of measure", currentMeasureNumber, "pass:", this.passCount);
 
     // Check if there's a BackJumpLine at the END of this measure
     const backJump = Array.from(this.repetitionInstructions).find(
       instr =>
         instr.type === RepetitionInstructionEnum.BackJumpLine &&
-        instr.measureIndex +1  === currentMeasureNumber &&
+        instr.measureIndex === currentMeasureNumber &&
         instr.alignment === AlignmentType.End
     );
 
@@ -235,6 +239,8 @@ export class PlayerRepetitionService {
   maybeMoveToMeasure(iterator: MusicPartManagerIterator): void {
     let onVolta = false;
 
+
+
     // At the BEGIN of a measure
     if (this.isFirstNoteOfMeasure(iterator)) {
       onVolta = this.maybeMoveToMeasureOnBegin(iterator);
@@ -244,5 +250,7 @@ export class PlayerRepetitionService {
     if (!onVolta && this.isLastNoteOfMeasure(iterator)) {
       this.maybeMoveToMeasureOnEnd(iterator);
     }
+
+
   }
 }
