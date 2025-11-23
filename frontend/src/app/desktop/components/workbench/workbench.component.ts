@@ -127,15 +127,20 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
           this.changeDetector.markForCheck();
         }, 500);
       }
+      // Don't mark for check if message is irrelevant
     });
 
     // Watch for measure signal changes
     effect(() => {
       const measure = this.playerService.measure();
-      // Mettre à jour la configuration et le slider
-      this.playConfiguration.currentStave = measure + 1;
-      this.updateSlider();
-      this.changeDetector.markForCheck();
+      const newStave = measure + 1;
+      
+      // Only update if value actually changed
+      if (this.playConfiguration.currentStave !== newStave) {
+        this.playConfiguration.currentStave = newStave;
+        this.updateSlider();
+        this.changeDetector.markForCheck();
+      }
     });
     
     const navigation = this.router.getCurrentNavigation();
@@ -251,26 +256,18 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   async loadFromLocalStorage(): Promise<void> {
-    try {
-      // Load MusicXML from localStorage
-      const musicXmlData = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
-      if (musicXmlData) {
-        this.musicXml = musicXmlData;
-      } else {
-        throw new Error('No MusicXML found in localStorage');
-      }
+    // Load MusicXML from localStorage
+    const musicXmlData = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
+    if (!musicXmlData) {
+      throw new Error('No MusicXML found in localStorage');
+    }
+    this.musicXml = musicXmlData;
 
-      // MIDI is already handled by getCachedMidi(), but we need to invalidate cache
-      this.cachedMidi = null;
-      
-      // Verify MIDI exists in localStorage
-      const midiData = localStorage.getItem(MIDI_STORAGE_KEY);
-      if (!midiData) {
-        throw new Error('No MIDI found in localStorage');
-      }
-    } catch (error) {
-      console.error('Error loading from localStorage:', error);
-      throw error;
+    // Invalidate MIDI cache and verify it exists
+    this.cachedMidi = null;
+    
+    if (!localStorage.getItem(MIDI_STORAGE_KEY)) {
+      throw new Error('No MIDI found in localStorage');
     }
   }
 
@@ -499,19 +496,15 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     if (!a || !b) return false; // Null/undefined check
     if (a.length !== b.length) return false;
 
-    // Convert arrays once, then compare
-    const aNumbers = a.map(Number);
-    const bNumbers = b.map(Number);
-
-    // Early return on first difference
-    for (let i = 0; i < aNumbers.length; i++) {
-      if (aNumbers[i] !== bNumbers[i]) return false;
+    // Direct comparison without array conversion for better performance
+    for (let i = 0; i < a.length; i++) {
+      if (Number(a[i]) !== Number(b[i])) return false;
     }
     return true;
   }
 
   checkIfScrollNeeded(): void {
-    // Attendre que les éléments soient disponibles et que le titre soit défini
+    // Early return si les éléments ne sont pas disponibles
     if (!this.title || !this.titleContainer || !this.titleText) {
       this.shouldScroll = false;
       return;
@@ -519,31 +512,42 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
     // Utiliser requestAnimationFrame pour optimiser le calcul de layout
     requestAnimationFrame(() => {
+      // Double check après l'async callback
+      if (!this.titleContainer || !this.titleText) {
+        return;
+      }
+
       try {
         const containerWidth = this.titleContainer.nativeElement.clientWidth;
         const textWidth = this.titleText.nativeElement.scrollWidth;
         
         // Si le texte est plus large que le conteneur (avec une marge de 10px), activer le scroll
-        if (textWidth > (containerWidth - 10)) {
-          this.shouldScroll = true;
-          
-          // Calculer la distance exacte à faire défiler
-          // On veut que la fin du texte soit visible, donc on défile de (textWidth - containerWidth)
-          const scrollDistance = textWidth - containerWidth + 20; // +20px de marge
-          const scrollPercentage = (scrollDistance / textWidth) * 100;
-          
-          // Définir la variable CSS custom pour la distance de scroll
-          this.titleText.nativeElement.style.setProperty('--scroll-distance', `-${scrollPercentage}%`);
-        } else {
-          this.shouldScroll = false;
-        }
+        const needsScroll = textWidth > (containerWidth - 10);
         
-        this.changeDetector.markForCheck();
+        // Seulement mettre à jour si l'état a changé
+        if (this.shouldScroll !== needsScroll) {
+          this.shouldScroll = needsScroll;
+          
+          if (needsScroll) {
+            // Calculer la distance exacte à faire défiler
+            const scrollDistance = textWidth - containerWidth + 20; // +20px de marge
+            const scrollPercentage = (scrollDistance / textWidth) * 100;
+            
+            // Définir la variable CSS custom pour la distance de scroll
+            this.titleText.nativeElement.style.setProperty('--scroll-distance', `-${scrollPercentage}%`);
+          }
+          
+          this.changeDetector.markForCheck();
+        }
       } catch (error) {
         // En cas d'erreur, on utilise la méthode de fallback
-        this.shouldScroll = this.title.length > 25;
-        if (this.shouldScroll && this.titleText?.nativeElement) {
-          this.titleText.nativeElement.style.setProperty('--scroll-distance', '-50%');
+        const needsScroll = this.title.length > 25;
+        if (this.shouldScroll !== needsScroll) {
+          this.shouldScroll = needsScroll;
+          if (needsScroll && this.titleText?.nativeElement) {
+            this.titleText.nativeElement.style.setProperty('--scroll-distance', '-50%');
+          }
+          this.changeDetector.markForCheck();
         }
       }
     });

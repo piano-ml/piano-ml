@@ -47,10 +47,8 @@ export class PlayerKeyboardService {
    * Allume une note sur le clavier visuel avec la vélocité appropriée
    */
   lightNoteOnKeyboard(hand: string, note: Note): void {
-    const velocityUI = Math.min(
-      Math.max(Math.round(note.velocity * 10), 1),
-      10
-    );
+    // Clamp velocity to 1-10 range directly
+    const velocityUI = Math.round(Math.min(Math.max(note.velocity * 10, 1), 10));
 
     const keys = this.getKeyboardElements(note.midi);
 
@@ -68,13 +66,12 @@ export class PlayerKeyboardService {
    */
   private clearClassesFromElement(el: HTMLElement, prefix: string): void {
     const classList = el.classList;
-    const classesToRemove: string[] = [];
-    for (let i = 0; i < classList.length; i++) {
+    // Iterate backwards to avoid issues when removing classes during iteration
+    for (let i = classList.length - 1; i >= 0; i--) {
       if (classList[i].startsWith(prefix)) {
-        classesToRemove.push(classList[i]);
+        classList.remove(classList[i]);
       }
     }
-    classesToRemove.forEach(className => classList.remove(className));
   }
 
   /**
