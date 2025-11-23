@@ -36,35 +36,37 @@
 
                     <div class="checkbox-input m-1">
                         <label class="label svg-label">
-                            <input type="checkbox" id="fullscreen" value="fullscreen" name="fullscreen-checkbox"
+                            <input type="checkbox" id="fullscreen" 
                                 [checked]="isFullscreen"
                                 (change)="toggleFullscreen()" />
                                 <ng-icon name="bootstrapFullscreen" class="svg-button p-2" />
                         </label>
                     </div>
 
-                    <button (click)="showInfo()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
-                        <ng-icon name="bootstrapInfoCircle" class="svg-button" />
-                    </button>
+                    @if (!isPlaying) {
+                        <button (click)="showInfo()" class="btn btn-desktop m-1">
+                            <ng-icon name="bootstrapInfoCircle" class="svg-button" />
+                        </button>
 
-                    <button (click)="reset()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
-                        <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
-                    </button>
+                        <button (click)="reset()" class="btn btn-desktop m-1">
+                            <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
+                        </button>
+                    }
 
                     <div class="radio-input m-1">
-                        <label class="label  p-1 pt-5">
-                            <input type="radio" id="50pct" value="50pct" name="value-radio" value="value-1"
+                        <label class="label p-1 pt-5">
+                            <input type="radio" id="50pct" name="value-radio"
                                 (click)="setSpeed(0.5)" [disabled]="isPlaying" />
                             <span class="text">♩50%</span>
                         </label>
                         <label class="label p-2 pt-5">
-                            <input type="radio" id="75pct" value="75pct" name="value-radio" value="value-1"
+                            <input type="radio" id="75pct" name="value-radio"
                                 (click)="setSpeed(0.75)" [disabled]="isPlaying"/>
                             <span class="text">♩75%</span>
                         </label>
 
-                        <label class="label  p-2 pt-5">
-                            <input type="radio" id="100pct" value="100pct" name="value-radio" value="value-1" checked
+                        <label class="label p-2 pt-5">
+                            <input type="radio" id="100pct" name="value-radio" checked
                                 (click)="setSpeed(1)" [disabled]="isPlaying"/>
                             <span class="text">♩100%</span>
                         </label>
@@ -75,7 +77,7 @@
 
                     <div class="checkbox-input m-1">
                         <label class="label svg-label">
-                            <input type="checkbox" id="loop" value="loop" name="loop-checkbox" [disabled]="isPlaying"
+                            <input type="checkbox" id="loop" [disabled]="isPlaying"
                                 [checked]="playConfiguration.isLoop"
                                 (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
                                 <ng-icon name="bootstrapRepeat" class="svg-button p-2" />
@@ -85,7 +87,7 @@
 
                     <div class="checkbox-input m-1">
                         <label class="label svg-label ">
-                            <input type="checkbox" id="hideKeyboard" value="hideKeyboard" name="hideKeyboard"
+                            <input type="checkbox" id="hideKeyboard"
                                 [checked]="!hideKeyboard" (change)="hideKeyboard = !hideKeyboard" />
                                 <ng-icon name="keyboard" class="svg-button p-2" />
                         </label>
@@ -94,30 +96,32 @@
 
                     <div class="checkbox-input m-1">
                         <label class="label svg-label">
-                            <input type="checkbox" id="left-hand" value="left-hand" name="leftHand"
+                            <input type="checkbox" id="left-hand" [disabled]="isPlaying"
                                 [checked]="playConfiguration.waitForLeftHand"
-                                (change)="playConfiguration.waitForLeftHand = !playConfiguration.waitForLeftHand" 
-                                [disabled]="isPlaying"/>
+                                (change)="playConfiguration.waitForLeftHand = !playConfiguration.waitForLeftHand" />
                                 <ng-icon name="lefthand" class="svg-button" />
                         </label>
                     </div>
 
                     <div class="checkbox-input m-1">
                         <label class="label svg-label">
-                            <input type="checkbox" id="right-hand" value="right-hand" name="rightHand"
-                                [checked]="playConfiguration.waitForRightHand" [disabled]="isPlaying"
+                            <input type="checkbox" id="right-hand" [disabled]="isPlaying"
+                                [checked]="playConfiguration.waitForRightHand"
                                 (change)="playConfiguration.waitForRightHand = !playConfiguration.waitForRightHand" />
                                 <ng-icon name="righthand" class="svg-button" />
                         </label>
                     </div>
 
 
-                    <button (click)="start()" class="btn btn-desktop m-1" *ngIf="!isPlaying">
-                        <ng-icon name="bootstrapPlayFill" class="svg-button" />
-                    </button>
-                    <button (click)="stop()" class="btn btn-desktop m-1" *ngIf="isPlaying">
-                        <ng-icon name="bootstrapPauseFill" class="svg-button" />
-                    </button>
+                    @if (!isPlaying) {
+                        <button (click)="start()" class="btn btn-desktop m-1">
+                            <ng-icon name="bootstrapPlayFill" class="svg-button" />
+                        </button>
+                    } @else {
+                        <button (click)="stop()" class="btn btn-desktop m-1">
+                            <ng-icon name="bootstrapPauseFill" class="svg-button" />
+                        </button>
+                    }
 
                 </div>
 
@@ -131,23 +135,27 @@
 
 
     <!-- score -->
-    <div class="flex-none bg-white m-0 p-0" *ngIf="!loading">
-        <app-osmd [scoreData]="scoreData" [musicXml]="musicXml"></app-osmd>
-    </div>
+    @if (!loading) {
+        <div class="flex-none bg-white m-0 p-0">
+            <app-osmd [scoreData]="scoreData" [musicXml]="musicXml"></app-osmd>
+        </div>
+    }
 
     <!-- middle bar empty for now -->
-    <div #arena class="flex flex-grow {{arenaClass}} bg-white text-center text-neutral-400 text-2xl ">
-
-{{ loading ? 'Loading score data...' : ''    }}
+    <div #arena class="flex flex-grow {{arenaClass}} bg-white text-center text-neutral-400 text-2xl">
+        @if (loading) {
+            Loading score data...
+        }
     </div>
 
     <!-- keyboard -->
-    <div class="flex-none">
-        <app-keyboard [ngClass]="{'hide': hideKeyboard}"></app-keyboard>
-    </div>
+    @if (!hideKeyboard) {
+        <div class="flex-none">
+            <app-keyboard></app-keyboard>
+        </div>
+    }
 
 </div>
-
 <!-- Modal placeholder -->
 <div *ngIf="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
