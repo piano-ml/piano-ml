@@ -7,6 +7,7 @@ import org.pianoml.backend.entity.User;
 import org.pianoml.backend.exception.EntityAlreadyExistsException;
 import org.pianoml.backend.exception.UserNotLoggedInException;
 import org.pianoml.backend.model.ScoreApiInfo;
+import org.pianoml.backend.model.ScoreStatsGet200Response;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.service.AccountService;
@@ -222,5 +223,11 @@ public class ScoreController implements ScoreApi {
     }
     List<org.pianoml.backend.model.AuthorWithScoreCount> list = scoreService.getAuthorsWithScoreCounts(user, off, lim);
     return ResponseEntity.ok(list);
+  }
+
+  @Override
+  public ResponseEntity<ScoreStatsGet200Response> scoreStatsGet() {
+    ScoreStatsGet200Response stats = scoreService.getScoreStats();
+    return ResponseEntity.ok(stats);
   }
 }

@@ -20,6 +20,11 @@
         Clear
       </button>
     </div>
+    
+    <!-- Stats Line -->
+    <div *ngIf="stats" class="mt-2 text-sm text-gray-300">
+      <span>Scores in database: <span class="font-semibold text-white">{{ stats['public-domain'] + stats.copyrighted }}</span> (<span class="font-semibold text-green-400">{{ stats['public-domain'] }}</span> public domain, <span class="font-semibold text-blue-400">{{ stats.copyrighted }}</span> copyrighted)</span>
+    </div>
   </div>
 
 

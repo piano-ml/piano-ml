@@ -9,13 +9,14 @@
  */
 
 
-export interface GenreApiInfo { 
-    id?: string;
-    mbid?: string;
-    name?: string;
+export interface ScoreStatsGet200Response { 
     /**
-     * Number of scores linked to this genre (non-deleted)
+     * Number of public domain scores
      */
-    scoreCount?: number;
+    'public-domain': number;
+    /**
+     * Number of copyrighted scores
+     */
+    copyrighted: number;
 }
 

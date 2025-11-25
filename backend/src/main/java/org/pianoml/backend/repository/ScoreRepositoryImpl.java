@@ -104,4 +104,15 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     if (limit != null) query.setMaxResults(limit);
     return query.getResultList();
   }
+
+  @Override
+  public Long[] countPublicAndCopyrighted() {
+    // For stats endpoint we return global counts visible to the public. Do not filter by user or admin.
+    String jpql = "SELECT SUM(CASE WHEN s.publicDomain = true THEN 1 ELSE 0 END), SUM(CASE WHEN s.publicDomain = false THEN 1 ELSE 0 END) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL)";
+    TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
+    Object[] result = query.getSingleResult();
+    long publicDomainCount = result[0] != null ? ((Number) result[0]).longValue() : 0L;
+    long copyrightedCount = result[1] != null ? ((Number) result[1]).longValue() : 0L;
+    return new Long[]{publicDomainCount, copyrightedCount};
+  }
 }

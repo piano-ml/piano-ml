@@ -11,4 +11,10 @@ public interface IScoreRepositoryCustom {
   List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user);
 
   List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit);
+
+  /**
+   * Count visible scores split between public-domain and copyrighted based on visibility rules.
+   * Returns an array of two Longs: [publicDomainCount, copyrightedCount]
+   */
+  Long[] countPublicAndCopyrighted();
 }
