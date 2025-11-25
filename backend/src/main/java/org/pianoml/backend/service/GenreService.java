@@ -28,13 +28,29 @@ public class GenreService {
   }
 
   public Optional<GenreApiInfo> getGenre(UUID id) {
-    return genreRepository.findByMbid(id)
-      .map(genreMapper::toGenreApiInfo);
+    Optional<Object[]> raw = genreRepository.findByMbidWithScoreCountRaw(id);
+    return raw.map(a -> {
+      GenreApiInfo info = new GenreApiInfo();
+      if (a[0] != null) info.setId(a[0].toString());
+      if (a[1] != null) info.setMbid(a[1].toString());
+      if (a[2] != null) info.setName(a[2].toString());
+      Long count = a[3] == null ? 0L : ((Number) a[3]).longValue();
+      info.setScoreCount(count.intValue());
+      return info;
+    });
   }
 
   public List<GenreApiInfo> getAllGenres() {
-    return StreamSupport.stream(genreRepository.findAll().spliterator(), false)
-      .map(genreMapper::toGenreApiInfo)
+    return genreRepository.findAllWithScoreCountRaw().stream()
+      .map(a -> {
+        GenreApiInfo info = new GenreApiInfo();
+        if (a[0] != null) info.setId(a[0].toString());
+        if (a[1] != null) info.setMbid(a[1].toString());
+        if (a[2] != null) info.setName(a[2].toString());
+        Long count = a[3] == null ? 0L : ((Number) a[3]).longValue();
+        info.setScoreCount(count.intValue());
+        return info;
+      })
       .collect(Collectors.toList());
   }
 
