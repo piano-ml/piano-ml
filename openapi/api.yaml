@@ -267,6 +267,35 @@ paths:
         '400':
           description: Bad request
 
+  /score/stats:
+    get:
+      operationId: scoreStatsGet
+      tags:
+        - score
+      summary: Get counts of public-domain and copyrighted scores
+      description: Returns the number of public-domain and copyrighted scores available.
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  "public-domain":
+                    type: integer
+                    format: int64
+                    description: Number of public domain scores
+                  copyrighted:
+                    type: integer
+                    format: int64
+                    description: Number of copyrighted scores
+                required:
+                  - "public-domain"
+                  - copyrighted
+        '400':
+          description: Bad request
+
   /score/{id}/info:
     get:
       operationId: scoreIdGet

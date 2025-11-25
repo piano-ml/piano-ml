@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ScoreService } from '../../../core/api/api/score.service';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { AuthorWithScoreCount } from '../../../core/api/model/authorWithScoreCount';
+import { ScoreStatsGet200Response } from '../../../core/api/model/scoreStatsGet200Response';
 import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn } from '../../../shared/components/score-table/score-table.component';
 import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
 
@@ -23,6 +24,8 @@ export class BrowseComponent implements OnInit {
   loading = false;
   loadingAuthors = false;
   searchKeyword = '';
+  stats: ScoreStatsGet200Response | null = null;
+  loadingStats = false;
 
   // Pagination
   currentPage = 0;
@@ -57,6 +60,7 @@ export class BrowseComponent implements OnInit {
 
   ngOnInit() {
     this.loadAuthors();
+    this.loadStats();
     
     // Subscribe to query params to handle browser back/forward navigation
     this.route.queryParams.subscribe(params => {
@@ -134,6 +138,22 @@ export class BrowseComponent implements OnInit {
       error: (error) => {
         console.error('Error loading authors:', error);
         this.loadingAuthors = false;
+        this.changeDetector.detectChanges();
+      }
+    });
+  }
+
+  loadStats() {
+    this.loadingStats = true;
+    this.scoreService.scoreStatsGet().subscribe({
+      next: (data) => {
+        this.stats = data;
+        this.loadingStats = false;
+        this.changeDetector.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error loading stats:', error);
+        this.loadingStats = false;
         this.changeDetector.detectChanges();
       }
     });

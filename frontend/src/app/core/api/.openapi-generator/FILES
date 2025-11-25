@@ -32,6 +32,7 @@ model/models.ts
 model/musicBrainzService.ts
 model/musicBrainzServiceLifeSpan.ts
 model/scoreApiInfo.ts
+model/scoreStatsGet200Response.ts
 model/userApiInfo.ts
 model/workloadApiInfo.ts
 param.ts

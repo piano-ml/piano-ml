@@ -13,6 +13,7 @@ import org.pianoml.backend.mapper.ScoreMapper;
 import org.pianoml.backend.model.AuthorWithScoreCount;
 import org.pianoml.backend.model.AuthorApiInfo;
 import org.pianoml.backend.model.ScoreApiInfo;
+import org.pianoml.backend.model.ScoreStatsGet200Response;
 import org.pianoml.backend.repository.GenreRepository;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -330,5 +331,16 @@ public class ScoreService {
       out.setCount(count);
       return out;
     }).toList();
+  }
+
+  /**
+   * Return counts of visible public-domain and copyrighted scores as the API model.
+   */
+  public ScoreStatsGet200Response getScoreStats() {
+    Long[] counts = scoreRepository.countPublicAndCopyrighted();
+    ScoreStatsGet200Response resp = new ScoreStatsGet200Response();
+    resp.setPublicDomain(counts[0]);
+    resp.setCopyrighted(counts[1]);
+    return resp;
   }
 }
