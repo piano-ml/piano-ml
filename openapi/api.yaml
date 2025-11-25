@@ -937,6 +937,10 @@ components:
           type: string
         name:
           type: string
+        scoreCount:
+          type: integer
+          format: int32
+          description: Number of scores linked to this genre (non-deleted)
     MusicBrainzService:
       type: object
       properties:
