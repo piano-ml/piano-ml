@@ -329,13 +329,13 @@ export class PlayerService {
       }
 
       // // Update cursor color based on correctness
-      // if (!this.isCursorOk(note)) {
+      //  if (!this.isCursorOk(note)) {
       //   this.osmdCursor.CursorOptions.color = '#FFB3BA';
-      //   this.osmdCursor.CursorOptions.alpha = 0.3;
-      // } else {
-      //   this.osmdCursor.CursorOptions.color = "#B0F2B4";
-      //   this.osmdCursor.CursorOptions.alpha = 0.6;
-      // }
+      //    this.osmdCursor.CursorOptions.alpha = 0.3;
+      //  } else {
+      //    this.osmdCursor.CursorOptions.color = "#B0F2B4";
+      //    this.osmdCursor.CursorOptions.alpha = 0.6;
+      //  }
     }
   }
 
