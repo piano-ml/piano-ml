@@ -66,12 +66,10 @@ export class PlayerRepetitionService {
       }
       cursor.iterator.moveToNext();
     }
-
     // deduplicate this.repetitionInstructions
     this.repetitionInstructions = Array.from(
       new Map(this.repetitionInstructions.map(instr => [instr, instr])).values()
     );
-
     // Log all relevant repetition instructions
     this.repetitionInstructions.forEach(instr => {
       console.log(instr);
@@ -174,49 +172,41 @@ export class PlayerRepetitionService {
     );
 
     if (backJump) {
-      //console.log(`Passcount: ${this.passCount} - BackJumpLine found at measure ${currentMeasureNumber}, jumping back`);
-
-      // Get all voltas to determine if we should continue repeating
-      const allVoltas = this.repetitionInstructions
-        .filter(instr => instr.type === RepetitionInstructionEnum.Ending)
-        .sort((a, b) => a.measureIndex - b.measureIndex);
-      const maxVoltasNumber = Math.max(
-        ...allVoltas.flatMap(e => e.endingIndices || [1])
-      );
-
+      console.log('BackJumpLine found at measure', currentMeasureNumber,'- pass count:', this.passCount);
       // Find the corresponding StartLine at the BEGIN
       const startLine = this.repetitionInstructions.find(
         instr =>
           instr.type === RepetitionInstructionEnum.StartLine &&
           instr.measureIndex < currentMeasureNumber
       );
+
       const targetMeasure = startLine ? startLine.measureIndex : 0;
 
-      if (allVoltas.length === 0) {
+      // Get all endings to determine if we should continue repeating
+      const allEndings = this.repetitionInstructions
+        .filter(instr => instr.type === RepetitionInstructionEnum.Ending)
+        .sort((a, b) => a.measureIndex - b.measureIndex);
 
-        const allRepetitionBars = this.repetitionInstructions
-          .filter(instr => instr.type === RepetitionInstructionEnum.BackJumpLine)
-          .sort((a, b) => a.measureIndex - b.measureIndex);
+      let maxEndingNumber: number;
 
-        if (this.passCount /2  < allRepetitionBars.length  ) {
-          this.backToMeasure(targetMeasure);
-          this.passCount++;
-          return true;
-        } else {
-          //console.log(`Last ending reached (${this.passCount}), continuing forward`);
-        }
+      if (allEndings.length > 0) {
+        // Cas avec voltas : nombre de passes = max numéro de volta
+        maxEndingNumber = Math.max(
+          ...allEndings.flatMap(e => e.endingIndices || [1])
+        );
+      } else {
+        // Cas sans Ending : simple reprise -> 2 passages
+        maxEndingNumber = 2;
+      }
 
-      } else if (this.passCount <= maxVoltasNumber) {
-        //console.log(`Jumping back to measure ${startLine ? startLine.measureIndex : 0}`);
+      // Si on n'a pas encore atteint le nombre de passages, on saute en arrière
+      if (this.passCount < maxEndingNumber) {
         this.backToMeasure(targetMeasure);
         this.passCount++;
         return true;
+      } else {
+        this.passCount = 1; // Reset for future repetitions
       }
-      else {
-        //console.log(`Last ending reached (${this.passCount}), continuing forward`);
-        // Continue normally after the last ending
-      }
-
     }
     return false;
   }
