@@ -27,6 +27,9 @@ export class PlayerRepetitionService {
   // Track which repetitions have been taken (measure number -> pass count)
   private repetitionPasses = new Map<number, number>();
 
+  // Last Segno (repetition marker) measure index, if any
+  private segnoMeasureIndex: number | null = null;
+
   constructor(
     private state: PlayerStateService
   ) { }
@@ -41,6 +44,7 @@ export class PlayerRepetitionService {
     this.previousMeasureIndex = -1;
     this.isAtMeasureStart = false;
     this.isAtMeasureEnd = false;
+    this.segnoMeasureIndex = null;
   }
 
   /**
@@ -70,10 +74,32 @@ export class PlayerRepetitionService {
     this.repetitionInstructions = Array.from(
       new Map(this.repetitionInstructions.map(instr => [instr, instr])).values()
     );
+
+    // Track the last Segno instruction, if any
+    const segnos = this.repetitionInstructions
+      .filter(instr => instr.type === RepetitionInstructionEnum.Segno)
+      .sort((a, b) => a.measureIndex - b.measureIndex);
+
+    this.segnoMeasureIndex = segnos.length > 0
+      ? segnos[segnos.length - 1].measureIndex
+      : null;
+
     // Log all relevant repetition instructions
     this.repetitionInstructions.forEach(instr => {
       console.log(instr);
     });
+  }
+
+  /**
+   * Jump back to the last Segno marker (if present)
+   */
+  private jumpToSegno(): boolean {
+    if (this.segnoMeasureIndex != null) {
+      this.backToMeasure(this.segnoMeasureIndex);
+      this.passCount = 1;
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -94,6 +120,7 @@ export class PlayerRepetitionService {
    * Move the cursor forward to a specific measure
    */
   private nextToMeasure(measureIndex: number): void {
+    //console.log(`Next to measure ${measureIndex}`);
     const cursor = this.state.osmdCursor;
     while (cursor.iterator.CurrentMeasure.measureListIndex < measureIndex + 1 && !cursor.iterator.EndReached) {
       cursor.nextMeasure();
@@ -163,6 +190,38 @@ export class PlayerRepetitionService {
    */
   private maybeMoveToMeasureOnEnd(iterator: MusicPartManagerIterator): boolean {
     const currentMeasureNumber = iterator.CurrentMeasure.measureListIndex;
+    // Special cases: Da Capo / Dal Segno instructions at measure end
+    const daCapoLike = this.repetitionInstructions.find(
+      instr =>
+        (instr.type === RepetitionInstructionEnum.DaCapo
+          || instr.type === RepetitionInstructionEnum.DaCapoAlFine
+          || instr.type === RepetitionInstructionEnum.DaCapoAlCoda) &&
+        instr.measureIndex === currentMeasureNumber &&
+        instr.alignment === AlignmentType.End
+    );
+
+    if (daCapoLike) {
+      // Simple Da Capo behavior: jump back to the beginning of the score
+      this.backToMeasure(0);
+      this.passCount = 1;
+      return true;
+    }
+
+    const dalSegnoLike = this.repetitionInstructions.find(
+      instr =>
+        (instr.type === RepetitionInstructionEnum.DalSegno
+          || instr.type === RepetitionInstructionEnum.DalSegnoAlFine
+          || instr.type === RepetitionInstructionEnum.DalSegnoAlCoda) &&
+        instr.measureIndex === currentMeasureNumber &&
+        instr.alignment === AlignmentType.End
+    );
+
+    if (dalSegnoLike) {
+      // Dal Segno behavior: jump back to last Segno marker if available
+      if (this.jumpToSegno()) {
+        return true;
+      }
+    }
     // Check if there's a BackJumpLine at the END of this measure
     const backJump = this.repetitionInstructions.find(
       instr =>
@@ -171,46 +230,70 @@ export class PlayerRepetitionService {
         instr.alignment === AlignmentType.End
     );
 
-    if (backJump) {
-      console.log('BackJumpLine found at measure', currentMeasureNumber,'- pass count:', this.passCount);
-      // Find the corresponding StartLine at the BEGIN
-      const startLine = this.repetitionInstructions.find(
+    if (!backJump) {
+      return false;
+    }
+
+    // 1. Chercher un StartLine explicite avant cette mesure (quel que soit l'alignment)
+    let targetMeasure: number;
+    const previousStartLine = this.repetitionInstructions
+      .filter(
         instr =>
           instr.type === RepetitionInstructionEnum.StartLine &&
           instr.measureIndex < currentMeasureNumber
-      );
+      )
+      .sort((a, b) => b.measureIndex - a.measureIndex)[0];
 
-      const targetMeasure = startLine ? startLine.measureIndex : 0;
+    if (previousStartLine) {
+      // On repart du début de cette section de reprise
+      targetMeasure = previousStartLine.measureIndex;
+    } else {
+      // 2. Pas de StartLine : on cherche la précédente BackJumpLine
+      const previousBackJump = this.repetitionInstructions
+        .filter(
+          instr =>
+            instr.type === RepetitionInstructionEnum.BackJumpLine &&
+            instr.measureIndex < currentMeasureNumber &&
+            instr.alignment === AlignmentType.End
+        )
+        .sort((a, b) => b.measureIndex - a.measureIndex)[0];
 
-      // Get all endings to determine if we should continue repeating
-      const allEndings = this.repetitionInstructions
-        .filter(instr => instr.type === RepetitionInstructionEnum.Ending)
-        .sort((a, b) => a.measureIndex - b.measureIndex);
-
-      let maxEndingNumber: number;
-
-      if (allEndings.length > 0) {
-        // Cas avec voltas : nombre de passes = max numéro de volta
-        maxEndingNumber = Math.max(
-          ...allEndings.flatMap(e => e.endingIndices || [1])
-        );
+      if (previousBackJump) {
+        // On repart juste après la précédente backjump
+        targetMeasure = previousBackJump.measureIndex + 1;
       } else {
-        // Cas sans Ending : simple reprise -> 2 passages
-        maxEndingNumber = 2;
-      }
-
-      // Si on n'a pas encore atteint le nombre de passages, on saute en arrière
-      if (this.passCount < maxEndingNumber) {
-        this.backToMeasure(targetMeasure);
-        this.passCount++;
-        return true;
-      } else {
-        this.passCount = 1; // Reset for future repetitions
+        // 3. Aucune backjump précédente : on repart du début
+        targetMeasure = 0;
       }
     }
+
+    // Get all endings to determine if we should continue repeating
+    const allEndings = this.repetitionInstructions
+      .filter(instr => instr.type === RepetitionInstructionEnum.Ending)
+      .sort((a, b) => a.measureIndex - b.measureIndex);
+
+    let maxEndingNumber: number;
+
+    if (allEndings.length > 0) {
+      maxEndingNumber = Math.max(
+        ...allEndings.flatMap(e => e.endingIndices || [1])
+      );
+    } else {
+      // Cas sans Ending : simple reprise, par défaut 2 passages
+      maxEndingNumber = 2;
+    }
+    //console.log(`BackJump at measure ${currentMeasureNumber}, pass ${this.passCount}/${maxEndingNumber} ${targetMeasure}`);
+
+    if (this.passCount < maxEndingNumber) {
+      this.backToMeasure(targetMeasure);
+      this.passCount++;
+      return true;
+    } else {
+      this.passCount = 1; // Reset for future repetitions
+    }
+
     return false;
   }
-
   /**
    * Handle potential measure movement (repetitions)
    */
