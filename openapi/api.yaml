@@ -296,6 +296,29 @@ paths:
         '400':
           description: Bad request
 
+  /score/play/stats:
+    post:
+      operationId: scorePlayStatsPost
+      tags:
+        - score
+      summary: Register that a score has been played
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+      responses:
+        '200':
+          description: Play count registered successfully
+        '400':
+          description: Bad request
+
   /score/{id}/info:
     get:
       operationId: scoreIdGet

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat,  bootstrapInfoCircle, bootstrapFullscreen, bootstrapFullscreenExit } from '@ng-icons/bootstrap-icons';
-import { ScoreApiInfo, ScoreService } from '../../../core/api';
+import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 import { OsmdComponent } from '../osmd/osmd.component';
 import { FormsModule } from '@angular/forms';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
@@ -373,6 +373,13 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.isPlaying = true;
     this.playerService.play(this.playConfiguration);
     this.setSliderState(false);
+    if (this.scoreData?.id && this.scoreData.id !== 'exercise' && this.playConfiguration.scoreRange[0] === 1) {
+      const request: ScorePlayStatsPostRequest = { id: this.scoreData.id };
+      this.scoreService.scorePlayStatsPost(request).subscribe({
+        next: () => {},
+        error: (error) => console.warn('Failed to register play stats:', error)
+      });
+    }
   }
 
   stop() {

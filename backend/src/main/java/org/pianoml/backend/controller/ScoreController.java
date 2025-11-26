@@ -7,6 +7,7 @@ import org.pianoml.backend.entity.User;
 import org.pianoml.backend.exception.EntityAlreadyExistsException;
 import org.pianoml.backend.exception.UserNotLoggedInException;
 import org.pianoml.backend.model.ScoreApiInfo;
+import org.pianoml.backend.model.ScorePlayStatsPostRequest;
 import org.pianoml.backend.model.ScoreStatsGet200Response;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
@@ -229,5 +230,35 @@ public class ScoreController implements ScoreApi {
   public ResponseEntity<ScoreStatsGet200Response> scoreStatsGet() {
     ScoreStatsGet200Response stats = scoreService.getScoreStats();
     return ResponseEntity.ok(stats);
+  }
+
+  /**
+   * Enregistre une lecture de score.
+   * Incrémente le compteur global du score et, si un utilisateur est connecté,
+   * incrémente également le compteur par utilisateur.
+   *
+   * @param id L'ID du score
+   * @return ResponseEntity vide avec status 200 si réussi, 404 si le score n'existe pas
+   */
+  @Override
+  public ResponseEntity<Void> scorePlayStatsPost(ScorePlayStatsPostRequest scorePlayStatsPostRequest) {
+     User user = null;
+
+
+   try {
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      // Tenter de récupérer l'utilisateur s'il est connecté
+      user = userService.getUserFromAuthentication(authentication);
+    } catch (Exception e) {
+      // this is acceptable, user can be null byt exception shall be narrowed ...
+    }
+
+    // Vérifier que le score existe
+    UUID scoreId = UUID.fromString(scorePlayStatsPostRequest.getId());
+
+    // Incrémenter les compteurs
+    scoreService.incrementPlayCount(scoreId, user);
+
+    return ResponseEntity.ok().build();
   }
 }

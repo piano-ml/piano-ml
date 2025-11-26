@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: jules
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            schemaName: pianoml
+            tableName: score
+        - tableExists:
+            schemaName: pianoml
+            tableName: user
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: "user_play_count"
+            columns:
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: score_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: count
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_on
+                  type: DATE
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: "user_play_count"
+            columnNames: user_id,score_id
+            constraintName: pk_user_play_count
+            schemaName: pianoml
+        - addForeignKeyConstraint:
+            baseTableName: "user_play_count"
+            baseColumnNames: user_id
+            constraintName: fk_user_play_count_user
+            referencedTableName: "user"
+            referencedColumnNames: id
+            baseTableSchemaName: pianoml
+            referencedTableSchemaName: pianoml
+        - addForeignKeyConstraint:
+            baseTableName: "user_play_count"
+            baseColumnNames: score_id
+            constraintName: fk_user_play_count_score
+            referencedTableName: "score"
+            referencedColumnNames: id
+            baseTableSchemaName: pianoml
+            referencedTableSchemaName: pianoml
+  - changeSet:
+      id: 2
+      author: jules
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            schemaName: pianoml
+            tableName: score
+      changes:
+        - addColumn:
+            schemaName: pianoml
+            tableName: "score"
+            columns:
+              - column:
+                  name: play_count
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+

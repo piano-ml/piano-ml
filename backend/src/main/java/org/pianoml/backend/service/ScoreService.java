@@ -16,6 +16,7 @@ import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.model.ScoreStatsGet200Response;
 import org.pianoml.backend.repository.GenreRepository;
 import org.pianoml.backend.repository.ScoreRepository;
+import org.pianoml.backend.repository.UserPlayCountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,9 @@ public class ScoreService {
 
   @Autowired
   private ScoreRepository scoreRepository;
+
+  @Autowired
+  private UserPlayCountRepository userPlayCountRepository;
 
   @Autowired
   private AuthorService authorService;
@@ -342,5 +346,23 @@ public class ScoreService {
     resp.setPublicDomain(counts[0]);
     resp.setCopyrighted(counts[1]);
     return resp;
+  }
+
+  /**
+   * Incrémente le compteur de lecture pour un score donné.
+   * Si un utilisateur est fourni, incrémente également le compteur par utilisateur.
+   *
+   * @param scoreId L'ID du score
+   * @param user L'utilisateur (optionnel, peut être null)
+   */
+  @Transactional
+  public void incrementPlayCount(UUID scoreId, User user) {
+    // Incrémenter le compteur global du score
+    scoreRepository.incrementPlayCount(scoreId);
+
+    // Si un utilisateur est connecté, incrémenter aussi le compteur par utilisateur
+    if (user != null) {
+      userPlayCountRepository.incrementPlayCount(user.getId(), scoreId);
+    }
   }
 }
