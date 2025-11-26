@@ -250,8 +250,7 @@ public class ScoreController implements ScoreApi {
       // Tenter de récupérer l'utilisateur s'il est connecté
       user = userService.getUserFromAuthentication(authentication);
     } catch (Exception e) {
-      // L'utilisateur n'est pas connecté, ce qui est acceptable
-      log.info("Play count increment for score  without authenticated user");
+      // this is acceptable, user can be null byt exception shall be narrowed ...
     }
 
     // Vérifier que le score existe

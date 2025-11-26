@@ -373,9 +373,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.isPlaying = true;
     this.playerService.play(this.playConfiguration);
     this.setSliderState(false);
-    
-    // Enregistrer que le score a été joué
-    console.log(this.playConfiguration.scoreRange)
     if (this.scoreData?.id && this.scoreData.id !== 'exercise' && this.playConfiguration.scoreRange[0] === 1) {
       const request: ScorePlayStatsPostRequest = { id: this.scoreData.id };
       this.scoreService.scorePlayStatsPost(request).subscribe({
