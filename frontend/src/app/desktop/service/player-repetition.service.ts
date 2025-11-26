@@ -174,7 +174,7 @@ export class PlayerRepetitionService {
     );
 
     if (backJump) {
-      console.log(`Passcount: ${this.passCount} - BackJumpLine found at measure ${currentMeasureNumber}, jumping back`);
+      //console.log(`Passcount: ${this.passCount} - BackJumpLine found at measure ${currentMeasureNumber}, jumping back`);
 
       // Get all voltas to determine if we should continue repeating
       const allVoltas = this.repetitionInstructions
@@ -197,30 +197,23 @@ export class PlayerRepetitionService {
         const allRepetitionBars = this.repetitionInstructions
           .filter(instr => instr.type === RepetitionInstructionEnum.BackJumpLine)
           .sort((a, b) => a.measureIndex - b.measureIndex);
-        console.log(`No voltas found, using BackJumpLines for repetition count allRepetitionBars.length=${allRepetitionBars.length} `);
-        const maxRepetitionNumber = Math.max(
-          ...allRepetitionBars.flatMap(e => e.endingIndices || [1])
-        );
-        console.log(this.passCount /2  , allRepetitionBars.length   )
+
         if (this.passCount /2  < allRepetitionBars.length  ) {
           this.backToMeasure(targetMeasure);
           this.passCount++;
           return true;
         } else {
-          console.log(`Last ending reached (${this.passCount}), continuing forward`);
+          //console.log(`Last ending reached (${this.passCount}), continuing forward`);
         }
 
-        //this.backToMeasure(targetMeasure);
       } else if (this.passCount <= maxVoltasNumber) {
-
-        console.log(`Jumping back to measure ${startLine ? startLine.measureIndex : 0}`);
-
+        //console.log(`Jumping back to measure ${startLine ? startLine.measureIndex : 0}`);
         this.backToMeasure(targetMeasure);
         this.passCount++;
         return true;
       }
       else {
-        console.log(`Last ending reached (${this.passCount}), continuing forward`);
+        //console.log(`Last ending reached (${this.passCount}), continuing forward`);
         // Continue normally after the last ending
       }
 
