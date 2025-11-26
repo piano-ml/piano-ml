@@ -4,15 +4,15 @@ name: Build and Push to Artifact Registry
 on:
   push:
     branches: ["main", "deploy"]
-  pull_request:
-    branches: ["main", "deploy"]
+#  pull_request:
+#    branches: ["main", "deploy"]
 
 env:
   PROJECT_ID: sectrack
   REGION: northamerica-northeast1
   REPO_NAME: images
   SERVICE_ACCOUNT: my-service-account
-  PROVIDER_ID: projects/189831140484/locations/global/workloadIdentityPools/my-pool/providers/github-actions-provider 
+  PROVIDER_ID: projects/189831140484/locations/global/workloadIdentityPools/my-pool/providers/github-actions-provider
 
 
 
@@ -62,5 +62,5 @@ jobs:
         working-directory: ./backend
 
       - name: Push image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest 
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest
 

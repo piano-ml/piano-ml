@@ -64,7 +64,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     }
 
     cq.where(predicate);
-    cq.orderBy(cb.desc(root.get("uploadedAt")));
+    cq.orderBy(cb.desc(root.get("playCount")), cb.desc(root.get("uploadedAt")));
 
     TypedQuery<Score> query = em.createQuery(cq);
     if (offset != null) query.setFirstResult(offset);
