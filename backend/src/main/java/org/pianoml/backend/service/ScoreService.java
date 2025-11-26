@@ -296,6 +296,10 @@ public class ScoreService {
       throw new RuntimeException("Unauthorized: Only owner or admin can delete this score");
     }
 
+    // Delete user play counts first to avoid foreign key constraint violation
+    userPlayCountRepository.deleteByScoreId(id);
+    log.info("Successfully deleted user play counts for score: " + id);
+
     // Delete from S3 if files exist
     if (score.getHasFiles() != null && score.getHasFiles()) {
       try {

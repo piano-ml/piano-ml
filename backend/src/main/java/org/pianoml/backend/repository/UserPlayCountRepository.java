@@ -33,5 +33,15 @@ public interface UserPlayCountRepository extends CrudRepository<UserPlayCount, U
         updated_on = CURRENT_DATE
       """, nativeQuery = true)
   void incrementPlayCount(@Param("userId") UUID userId, @Param("scoreId") UUID scoreId);
+
+  /**
+   * Supprime tous les enregistrements de compteur de lecture pour un score donné.
+   *
+   * @param scoreId L'ID du score
+   */
+  @Transactional
+  @Modifying
+  @Query(value = "DELETE FROM pianoml.user_play_count WHERE score_id = :scoreId", nativeQuery = true)
+  void deleteByScoreId(@Param("scoreId") UUID scoreId);
 }
 
