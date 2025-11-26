@@ -15,3 +15,5 @@ databaseChangeLog:
       file: db/changelog/changes/005-make-score-mbid-nullable.yaml
   - include:
       file: db/changelog/changes/006-add-author-image.yaml
+  - include:
+      file: db/changelog/changes/007-user-play-count.yaml

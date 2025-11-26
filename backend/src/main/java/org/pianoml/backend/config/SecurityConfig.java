@@ -46,7 +46,11 @@ public class SecurityConfig {
       .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .authorizeHttpRequests(authz -> authz
         .requestMatchers(HttpMethod.GET, "/**").permitAll()
-        .requestMatchers(HttpMethod.POST, "/account/login", "/account/create").permitAll()
+        .requestMatchers(HttpMethod.POST,
+          "/account/login",
+          "/account/create",
+          "/score/play/stats"
+        ).permitAll()
         .anyRequest().authenticated()
       );
 
