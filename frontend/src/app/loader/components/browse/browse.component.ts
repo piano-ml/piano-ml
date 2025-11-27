@@ -34,10 +34,10 @@ export class BrowseComponent implements OnInit {
 
   // Table configuration
   tableColumns: ScoreTableColumn[] = [
+    { key: 'playCount', label: 'Play#', visible: true },
     { key: 'title', label: 'Title', visible: true },
     { key: 'author', label: 'Artist', visible: true },
     { key: 'genre', label: 'Genre', visible: true },
-    { key: 'grade', label: 'Grade', visible: true },
     { key: 'duration', label: 'Duration', visible: true },
     { key: 'tracks_count', label: 'Tracks', visible: true }
   ];
