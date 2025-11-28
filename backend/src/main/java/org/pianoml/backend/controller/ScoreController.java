@@ -115,7 +115,7 @@ public class ScoreController implements ScoreApi {
   }
 
   @Override
-  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
+  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user;
     try {
@@ -126,7 +126,7 @@ public class ScoreController implements ScoreApi {
       user = null;
     }
 
-    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit ,user);
+    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, tempo, offset, limit ,user);
     return ResponseEntity.ok(scores);
   }
 

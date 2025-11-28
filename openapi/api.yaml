@@ -244,6 +244,10 @@ paths:
           in: query
           schema:
             type: integer
+        - name: tempo
+          in: query
+          schema:
+            type: string
           description: the level
         - name: offset
           in: query
