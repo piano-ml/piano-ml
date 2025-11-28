@@ -23,7 +23,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   @PersistenceContext
   private EntityManager em;
 
-  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user) {
+  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Score> cq = cb.createQuery(Score.class);
     Root<Score> root = cq.from(Score.class);
@@ -49,6 +49,13 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
 
     if (etude != null) {
       predicate = cb.and(predicate, cb.equal(root.get("etude"), etude));
+    }
+
+    // New: handle tempo parameter. If tempo == "NONE" then filter where tempo IS NULL in DB.
+    if (tempo != null && !tempo.isEmpty()) {
+      if ("NONE".equalsIgnoreCase(tempo)) {
+        predicate = cb.and(predicate, cb.isNull(root.get("tempo")));
+      }
     }
 
     if (user == null) {

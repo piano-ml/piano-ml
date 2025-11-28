@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface IScoreRepositoryCustom {
-  List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user);
+  List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user);
 
   List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit);
 
