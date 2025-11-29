@@ -75,7 +75,6 @@ export class BrowseComponent implements OnInit {
       const keyword = params['search'] || '';
       const authorId = params['author'] || '';
       const genreId = params['genre'] || '';
-      console.log('Query params changed:', { keyword, authorId, genreId });
       if (keyword) {
         this.searchKeyword = keyword;
         this.activeSearchKeyword = keyword;
@@ -313,7 +312,7 @@ export class BrowseComponent implements OnInit {
     this.selectedAuthor = null;
     this.searchKeyword = '';
     this.activeSearchKeyword = '';
-    console.log('Genre clicked2:', { genre: genre.genre?.id, search: null, author: null });
+
     // Update URL with genre parameter, clear search and author parameters
     this.router.navigate([], {
       relativeTo: this.route,
