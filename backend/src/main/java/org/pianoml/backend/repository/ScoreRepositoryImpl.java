@@ -23,7 +23,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   @PersistenceContext
   private EntityManager em;
 
-  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user) {
+  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user, List<Integer> tracks) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Score> cq = cb.createQuery(Score.class);
     Root<Score> root = cq.from(Score.class);
@@ -40,7 +40,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     }
 
     if (genreId != null && !genreId.isEmpty()) {
-      predicate = cb.and(predicate, cb.equal(root.get("genreId"), genreId));
+      predicate = cb.and(predicate, cb.equal(root.get("genre").get("id"), UUID.fromString(genreId)));
     }
 
     if (artist != null && !artist.isEmpty()) {
@@ -56,6 +56,19 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       if ("NONE".equalsIgnoreCase(tempo)) {
         predicate = cb.and(predicate, cb.isNull(root.get("tempo")));
       }
+    }
+
+
+    // New: handle tempo parameter. If tempo == "NONE" then filter where tempo IS NULL in DB.
+    if (tempo != null && !tempo.isEmpty()) {
+      if ("NONE".equalsIgnoreCase(tempo)) {
+        predicate = cb.and(predicate, cb.isNull(root.get("tempo")));
+      }
+    }
+
+    // New: filter by tracks list if provided. If tracks == null do nothing. Otherwise accept scores whose tracksCount is in the list.
+    if (tracks != null && !tracks.isEmpty()) {
+      predicate = cb.and(predicate, root.get("tracksCount").in(tracks));
     }
 
     if (user == null) {
@@ -89,7 +102,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   }
 
   @Override
-  public List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit) {
+  public List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit, java.util.List<Integer> tracks) {
     // Build JPQL with the same visibility rules as findWithSomeCriterias
     boolean isAdmin = false;
     if (user != null) {
@@ -105,15 +118,110 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       jpql.append(" AND (s.publicDomain = true OR s.owner.id = :userId)");
     }
 
+    // Add tracks filter when provided: only include scores whose tracksCount is in the provided list
+    if (tracks != null && !tracks.isEmpty()) {
+      jpql.append(" AND s.tracksCount IN :tracksList");
+    }
+
     jpql.append(" GROUP BY s.author ORDER BY s.author.sortName ASC, COUNT(s) DESC");
 
     TypedQuery<Object[]> query = em.createQuery(jpql.toString(), Object[].class);
     if (user != null && !isAdmin) {
       query.setParameter("userId", user.getId());
     }
+    if (tracks != null && !tracks.isEmpty()) {
+      query.setParameter("tracksList", tracks);
+    }
     if (offset != null) query.setFirstResult(offset);
     if (limit != null) query.setMaxResults(limit);
     return query.getResultList();
+  }
+
+  @Override
+  public List<Object[]> countScoresGroupedByGenre(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter) {
+    // Build JPQL with the same visibility rules as findWithSomeCriterias
+    boolean isAdmin = false;
+    if (user != null) {
+      isAdmin = user.getRoles() != null && Arrays.stream(user.getRoles().split(","))
+        .anyMatch(role -> "ADMIN".equals(role.trim()));
+    }
+
+    // First: Get count of scores with NULL genre (GROUP BY doesn't handle NULL correctly in JPA)
+    StringBuilder nullJpql = new StringBuilder("SELECT COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.genre IS NULL");
+    if (user == null) {
+      nullJpql.append(" AND s.publicDomain = true");
+    } else if (!isAdmin) {
+      nullJpql.append(" AND (s.publicDomain = true OR s.owner.id = :userId)");
+    }
+    nullJpql.append(" AND s.hasFiles = true");
+    if (tracks != null && !tracks.isEmpty()) {
+      nullJpql.append(" AND s.tracksCount IN :tracksList");
+    }
+
+    TypedQuery<Long> nullQuery = em.createQuery(nullJpql.toString(), Long.class);
+    if (user != null && !isAdmin) {
+      nullQuery.setParameter("userId", user.getId());
+    }
+    if (tracks != null && !tracks.isEmpty()) {
+      nullQuery.setParameter("tracksList", tracks);
+    }
+    Long nullGenreCount = nullQuery.getSingleResult();
+
+    // Second: Get counts for scores WITH a genre (GROUP BY works fine for non-NULL)
+    StringBuilder jpql = new StringBuilder("SELECT s.genre, COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.genre IS NOT NULL");
+
+    if (user == null) {
+      jpql.append(" AND s.publicDomain = true");
+    } else if (!isAdmin) {
+      jpql.append(" AND (s.publicDomain = true OR s.owner.id = :userId)");
+    }
+
+    jpql.append(" AND s.hasFiles = true");
+
+    if (tracks != null && !tracks.isEmpty()) {
+      jpql.append(" AND s.tracksCount IN :tracksList");
+    }
+
+    if (genreFilter != null && !genreFilter.isEmpty()) {
+      jpql.append(" AND s.genre.id IN :genreList");
+    }
+
+    jpql.append(" GROUP BY s.genre ORDER BY COUNT(s) DESC");
+
+    TypedQuery<Object[]> query = em.createQuery(jpql.toString(), Object[].class);
+    if (user != null && !isAdmin) {
+      query.setParameter("userId", user.getId());
+    }
+    if (tracks != null && !tracks.isEmpty()) {
+      query.setParameter("tracksList", tracks);
+    }
+    if (genreFilter != null && !genreFilter.isEmpty()) {
+      query.setParameter("genreList", genreFilter);
+    }
+
+    List<Object[]> results = query.getResultList();
+
+    // Add NULL genre entry if there are scores without genre
+    if (nullGenreCount > 0) {
+      // Check if we should include NULL genre based on genreFilter
+      boolean includeNull = genreFilter == null || genreFilter.isEmpty();
+      if (includeNull) {
+        results.add(new Object[]{null, nullGenreCount});
+      }
+    }
+
+    // Apply pagination AFTER combining results (since we can't paginate two separate queries correctly)
+    if (offset != null || limit != null) {
+      int start = offset != null ? offset : 0;
+      int end = limit != null ? Math.min(start + limit, results.size()) : results.size();
+      if (start < results.size()) {
+        results = results.subList(start, end);
+      } else {
+        results = List.of();
+      }
+    }
+
+    return results;
   }
 
   @Override

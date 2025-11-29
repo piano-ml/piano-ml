@@ -1,0 +1,50 @@
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output, OnInit, OnChanges, ChangeDetectorRef } from '@angular/core';
+import { AuthorWithScoreCount } from '../../../core/api/model/authorWithScoreCount';
+import { ScoreService } from '../../../core/api/api/score.service';
+
+@Component({
+  selector: 'app-browse-by-authors',
+  imports: [CommonModule],
+  templateUrl: './browse-by-authors.component.html',
+  styleUrl: './browse-by-authors.component.css'
+})
+export class BrowseByAuthorsComponent implements OnInit, OnChanges {
+  authors: AuthorWithScoreCount[] = [];
+  loadingAuthors = false;
+  @Input() trackFilter: number[] | undefined;
+  @Output() authorClick = new EventEmitter<AuthorWithScoreCount>();
+
+  constructor(
+    private scoreService: ScoreService,
+    private changeDetector: ChangeDetectorRef
+  ) {}
+
+  ngOnInit() {
+    this.loadAuthors();
+  }
+
+  ngOnChanges() {
+    this.loadAuthors();
+  }
+
+  loadAuthors() {
+    this.loadingAuthors = true;
+    this.scoreService.scoreAuthorBrowseGet(this.trackFilter).subscribe({
+      next: (data) => {
+        this.authors = data;
+        this.loadingAuthors = false;
+        this.changeDetector.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error loading authors:', error);
+        this.loadingAuthors = false;
+        this.changeDetector.detectChanges();
+      }
+    });
+  }
+
+  onAuthorClick(author: AuthorWithScoreCount) {
+    this.authorClick.emit(author);
+  }
+}

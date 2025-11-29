@@ -115,7 +115,7 @@ public class ScoreController implements ScoreApi {
   }
 
   @Override
-  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit) {
+  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, List<Integer> tracks) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user;
     try {
@@ -126,7 +126,7 @@ public class ScoreController implements ScoreApi {
       user = null;
     }
 
-    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, tempo, offset, limit ,user);
+    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, tempo, offset, limit , user, tracks);
     return ResponseEntity.ok(scores);
   }
 
@@ -208,8 +208,7 @@ public class ScoreController implements ScoreApi {
     }
   }
 
-  @Override
-  public ResponseEntity<List<org.pianoml.backend.model.AuthorWithScoreCount>> scoreAuthorBrowseGet(Integer offset, Integer limit) {
+  public ResponseEntity<List<org.pianoml.backend.model.AuthorWithScoreCount>> scoreAuthorBrowseGet(java.util.List<Integer> tracks, Integer offset, Integer limit) {
     // Normalize pagination params
     int off = offset != null && offset >= 0 ? offset : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
@@ -222,7 +221,25 @@ public class ScoreController implements ScoreApi {
       // If the user is not logged in or cannot be resolved, keep user = null so only public scores are shown.
       user = null;
     }
-    List<org.pianoml.backend.model.AuthorWithScoreCount> list = scoreService.getAuthorsWithScoreCounts(user, off, lim);
+    List<org.pianoml.backend.model.AuthorWithScoreCount> list = scoreService.getAuthorsWithScoreCounts(user, off, lim, tracks);
+    return ResponseEntity.ok(list);
+  }
+
+  @Override
+  public ResponseEntity<List<org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner>> scoreGenreBrowseGet(java.util.List<Integer> tracks, java.util.List<UUID> genre, Integer offset, Integer limit) {
+    // Normalize pagination params
+    int off = offset != null && offset >= 0 ? offset : 0;
+    Integer lim = limit != null && limit > 0 ? limit : null;
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user;
+    try {
+      // Use AccountService#getUserFromAuthentication which throws when the user is anonymous or not activated.
+      user = userService.getUserFromAuthentication(authentication);
+    } catch (UserNotLoggedInException e) {
+      // If the user is not logged in or cannot be resolved, keep user = null so only public scores are shown.
+      user = null;
+    }
+    List<org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner> list = scoreService.getGenresWithScoreCounts(user, off, lim, tracks, genre);
     return ResponseEntity.ok(list);
   }
 
@@ -237,7 +254,7 @@ public class ScoreController implements ScoreApi {
    * Incrémente le compteur global du score et, si un utilisateur est connecté,
    * incrémente également le compteur par utilisateur.
    *
-   * @param id L'ID du score
+   * @param scorePlayStatsPostRequest L'ID du score
    * @return ResponseEntity vide avec status 200 si réussi, 404 si le score n'existe pas
    */
   @Override
