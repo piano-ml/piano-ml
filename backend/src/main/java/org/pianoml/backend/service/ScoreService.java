@@ -9,10 +9,13 @@ import org.pianoml.backend.entity.Genre;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.mapper.AuthorMapper;
+import org.pianoml.backend.mapper.GenreMapper;
 import org.pianoml.backend.mapper.ScoreMapper;
 import org.pianoml.backend.model.AuthorWithScoreCount;
 import org.pianoml.backend.model.AuthorApiInfo;
+import org.pianoml.backend.model.GenreApiInfo;
 import org.pianoml.backend.model.ScoreApiInfo;
+import org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner;
 import org.pianoml.backend.model.ScoreStatsGet200Response;
 import org.pianoml.backend.repository.GenreRepository;
 import org.pianoml.backend.repository.ScoreRepository;
@@ -66,6 +69,9 @@ public class ScoreService {
 
   @Autowired
   private ScoreMapper scoreMapper;
+
+  @Autowired
+  private GenreMapper genreMapper;
 
   @Autowired
   private AuthorMapper authorMapper;
@@ -172,8 +178,13 @@ public class ScoreService {
       });
   }
 
+<<<<<<< Updated upstream
   public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user) {
     return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit, user )
+=======
+  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, java.util.List<Integer> tracks, User user) {
+    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, tempo, offset, limit, tracks, user )
+>>>>>>> Stashed changes
       .stream()
       .map(scoreMapper::toScoreApiInfo)
       .collect(Collectors.toList());
@@ -321,21 +332,40 @@ public class ScoreService {
     return true;
   }
 
-  public List<AuthorWithScoreCount> getAuthorsWithScoreCounts() {
-    return getAuthorsWithScoreCounts(null, null, null);
-  }
 
-  public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit) {
+  public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks) {
     int off = offset != null ? Math.max(0, offset) : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
 
-    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(user, lim == null ? null : off, lim);
+    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(user, lim == null ? null : off, lim, tracks);
     return rows.stream().map(row -> {
       org.pianoml.backend.entity.Author author = (org.pianoml.backend.entity.Author) row[0];
       Long count = (Long) row[1];
       AuthorApiInfo authorApiInfo = authorMapper.toAuthorApiInfo(author);
       AuthorWithScoreCount out = new AuthorWithScoreCount();
       out.setAuthor(authorApiInfo);
+      out.setCount(count);
+      return out;
+    }).toList();
+  }
+
+
+  public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter) {
+    int off = offset != null ? Math.max(0, offset) : 0;
+    Integer lim = limit != null && limit > 0 ? limit : null;
+
+    List<Object[]> rows = scoreRepository.countScoresGroupedByGenre(user, lim == null ? null : off, lim, tracks, genreFilter);
+    return rows.stream().map(row -> {
+      Genre genre = (Genre) row[0];
+      Long count = (Long) row[1];
+      ScoreGenreBrowseGet200ResponseInner out = new ScoreGenreBrowseGet200ResponseInner();
+      if (genre != null) {
+        GenreApiInfo genreApiInfo = genreMapper.toGenreApiInfo(genre);
+        out.setGenre(genreApiInfo);
+      } else {
+        // Cas spécial : genre est null
+        out.setGenre(null);
+      }
       out.setCount(count);
       return out;
     }).toList();

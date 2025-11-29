@@ -16,6 +16,7 @@ export * from './mbAuthorApiInfo';
 export * from './musicBrainzService';
 export * from './musicBrainzServiceLifeSpan';
 export * from './scoreApiInfo';
+export * from './scoreGenreBrowseGet200ResponseInner';
 export * from './scorePlayStatsPostRequest';
 export * from './scoreStatsGet200Response';
 export * from './userApiInfo';

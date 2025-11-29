@@ -1,6 +1,9 @@
-<div class="bg-neutral-700 p-4">
+<div class="bg-neutral-700 p-4 pb-1">
+
+  <app-quick-actions *ngIf="!(activeSearchKeyword || selectedAuthor || selectedGenre)"></app-quick-actions>
+
   <!-- Search Section -->
-  <div class="mb-6">
+  <div class="">
     <div class="flex gap-2">
       <input 
         [(ngModel)]="searchKeyword" 
@@ -22,33 +25,20 @@
     </div>
     
     <!-- Stats Line -->
-    <div *ngIf="stats" class="mt-2 text-sm text-gray-300">
+    <div *ngIf="stats" class="mt-2 text-sm text-gray-300 flex items-center gap-4">
       <span>Scores in database: <span class="font-semibold text-white">{{ stats['public-domain'] + stats.copyrighted }}</span> (<span class="font-semibold text-green-400">{{ stats['public-domain'] }}</span> public domain, <span class="font-semibold text-blue-400">{{ stats.copyrighted }}</span> copyrighted)</span>
-    </div>
-  </div>
+      <label class="flex items-center gap-1 cursor-pointer">
+        <input type="checkbox" [(ngModel)]="filterOneHand" (change)="applyFilters()" class="cursor-pointer">
+        <span>One hand</span>
+      </label>
+      <label class="flex items-center gap-1 cursor-pointer">
+        <input type="checkbox" [(ngModel)]="filterTwoHands" (change)="applyFilters()" class="cursor-pointer">
+        <span>Two hands</span>
+      </label>
 
-
-
-  <!-- Active Search Keyword Capsule 
-  <div *ngIf="activeSearchKeyword && !selectedAuthor" class="mb-6 bg-neutral-800 rounded-lg p-4">
-    <div class="inline-flex bg-green-600 text-white rounded-md px-4 py-2 items-center gap-3">
-      <span class="font-medium">Search: "{{ activeSearchKeyword }}"</span>
-      <button 
-        (click)="clearSearchFilter()"
-        class="text-green-200 hover:text-white transition-colors duration-200 p-1 hover:bg-green-700 rounded-md ml-1"
-        title="Clear search">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-  </div>
--->
-  <app-quick-actions *ngIf="!(activeSearchKeyword || selectedAuthor)"></app-quick-actions>
-
-  <!-- Selected Author Capsule -->
-  <div *ngIf="selectedAuthor" class="mb-6 bg-neutral-800 rounded-lg p-4">
-    <div class="inline-flex bg-blue-600 text-white rounded-md px-4 py-2 items-center gap-3">
+  <!-- Selected Author Capsule  class="mb-6 bg-neutral-800 rounded-lg p-4"> -->
+  <span *ngIf="selectedAuthor"> 
+    <div class="inline-flex bg-blue-600 text-white rounded-md px-1 py-1 m-2 items-center gap-3">
       <span class="font-medium">{{ selectedAuthor.author.name }}</span>
       <span class="text-xs text-blue-200">({{ selectedAuthor.count }} {{ selectedAuthor.count === 1 ? 'score' : 'scores' }})</span>
       <button 
@@ -60,28 +50,70 @@
         </svg>
       </button>
     </div>
+  </span>
+
+  <!-- Selected Genre Capsule -->
+  <span *ngIf="selectedGenre" >
+    <div class="inline-flex bg-green-600 text-white rounded-md px-1 py-1 m-2 items-center gap-3">
+      <span class="font-medium">{{ selectedGenre.genre?.name || "genre not specified" }}</span>
+      <span class="text-xs text-green-200">({{ selectedGenre.count }} {{ selectedGenre.count === 1 ? 'score' : 'scores' }})</span>
+      <button 
+        (click)="clearGenreFilter()"
+        class="text-green-200 hover:text-white transition-colors duration-200 p-1 hover:bg-green-700 rounded-md ml-1"
+        title="Clear filter">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </span>
+
+
+    </div>
   </div>
 
-  <!-- Popular Authors Section -->
-  <div *ngIf="!selectedAuthor && !activeSearchKeyword" class="mb-6 bg-neutral-800 rounded-lg p-4">
-    <h2 class="text-xl font-semibold text-white mb-4">Browse by Artist</h2>
-    
-    <div *ngIf="loadingAuthors" class="text-gray-400 text-center py-4">
-      Loading artists...
-    </div>
-    
-    <div *ngIf="!loadingAuthors && authors.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+
+
+
+
+
+  <!-- Tabs Section -->
+  <div *ngIf="!selectedAuthor && !selectedGenre && !activeSearchKeyword" class="mb-6">
+    <!-- Tab Headers -->
+    <div class="flex border-b border-neutral-600">
       <button 
-        *ngFor="let author of authors"
-        (click)="onAuthorClick(author)"
-        class="bg-neutral-700 hover:bg-blue-600 text-white rounded-lg p-3 transition-colors duration-200 text-left group">
-        <div class="font-medium text-sm truncate group-hover:text-blue-100">
-          {{ author.author.name }}
-        </div>
-        <div class="text-xs text-gray-400 mt-1">
-          {{ author.count }} {{ author.count === 1 ? 'score' : 'scores' }}
-        </div>
+        (click)="setActiveTab('authors')"
+        [class.border-blue-500]="activeTab === 'authors'"
+        [class.text-white]="activeTab === 'authors'"
+        [class.text-gray-400]="activeTab !== 'authors'"
+        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+        Browse by Artist
       </button>
+      <button 
+        (click)="setActiveTab('genres')"
+        [class.border-green-500]="activeTab === 'genres'"
+        [class.text-white]="activeTab === 'genres'"
+        [class.text-gray-400]="activeTab !== 'genres'"
+        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+        Browse by Genres
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="mt-4">
+      <!-- Popular Authors Section -->
+      <app-browse-by-authors 
+        *ngIf="activeTab === 'authors'"
+        [trackFilter]="getTrackCountFilter()"
+        (authorClick)="onAuthorClick($event)">
+      </app-browse-by-authors>
+
+      <!-- Browse by Genre Section -->
+      <app-browse-by-genre 
+        *ngIf="activeTab === 'genres'"
+        [trackFilter]="getTrackCountFilter()"
+        (genreClick)="onGenreClick($event)">
+      </app-browse-by-genre>
     </div>
   </div>
 
@@ -107,12 +139,12 @@
   </div>
 
   <!-- Results Count -->
-  <div class="mt-2 text-sm text-gray-400" *ngIf="scores.length > 0">
+  <div class="m-2 text-sm text-gray-400" *ngIf="scores.length > 0">
     Showing {{ scores.length }} scores
   </div>
 
   <!-- Quick Actions -->
-  <app-quick-actions *ngIf="activeSearchKeyword || selectedAuthor"></app-quick-actions>
+  <app-quick-actions *ngIf="activeSearchKeyword || selectedAuthor || selectedGenre"></app-quick-actions>
 
 
 </div>

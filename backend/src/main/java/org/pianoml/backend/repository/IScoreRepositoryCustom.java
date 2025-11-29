@@ -5,16 +5,20 @@ import org.pianoml.backend.entity.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface IScoreRepositoryCustom {
+<<<<<<< Updated upstream
   List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user);
+=======
+>>>>>>> Stashed changes
 
-  List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit);
+  List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, java.util.List<Integer> tracks, User user);
 
-  /**
-   * Count visible scores split between public-domain and copyrighted based on visibility rules.
-   * Returns an array of two Longs: [publicDomainCount, copyrightedCount]
-   */
+  List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit, java.util.List<Integer> tracks);
+
+  List<Object[]> countScoresGroupedByGenre(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter);
+
   Long[] countPublicAndCopyrighted();
 }

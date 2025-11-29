@@ -255,6 +255,16 @@ paths:
           schema:
             type: integer
           description: limit results count
+        - name: tracks
+          in: query
+          description: "List of track numbers to filter by (nullable). Examples: null, [1], [1,2]"
+          schema:
+            type: array
+            items:
+              type: integer
+            nullable: true
+          style: form
+          explode: true
       responses:
         '200':
           description: ScoreApiInfo retrieved successfully
@@ -646,6 +656,16 @@ paths:
         - score
       summary: Browse authors with their score counts
       parameters:
+        - name: tracks
+          in: query
+          description: "List of track numbers to filter by (nullable). Examples: null, [1], [1,2]"
+          schema:
+            type: array
+            items:
+              type: integer
+            nullable: true
+          style: form
+          explode: true
         - name: offset
           in: query
           schema:
@@ -665,6 +685,64 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AuthorWithScoreCount'
+        '400':
+          description: Bad request
+
+  /score/genre/browse:
+    get:
+      operationId: scoreGenreBrowseGet
+      tags:
+        - score
+      summary: Browse genres with their score counts
+      parameters:
+        - name: tracks
+          in: query
+          description: "List of track numbers to filter by (nullable). Examples: null, [1], [1,2]"
+          schema:
+            type: array
+            items:
+              type: integer
+            nullable: true
+          style: form
+          explode: true
+        - name: genre
+          in: query
+          description: "List of genre UUIDs to filter by (nullable). Examples: null, [uuid1], [uuid1,uuid2]"
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+            nullable: true
+          style: form
+          explode: true
+        - name: offset
+          in: query
+          schema:
+            type: integer
+          description: Result offset (default 0)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          description: "Maximum number of results to return (default: all)"
+      responses:
+        '200':
+          description: List of genres with score counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    genre:
+                      $ref: '#/components/schemas/GenreApiInfo'
+                    count:
+                      type: integer
+                      format: int64
+                  required:
+                    - count
         '400':
           description: Bad request
   /genre:
