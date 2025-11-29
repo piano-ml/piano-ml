@@ -31,7 +31,7 @@ export class BrowseComponent implements OnInit {
 
   // Pagination
   currentPage = 0;
-  pageSize = 10;
+  pageSize = 100;
   hasMore = true;
 
   // Tab selection
@@ -75,7 +75,6 @@ export class BrowseComponent implements OnInit {
       const keyword = params['search'] || '';
       const authorId = params['author'] || '';
       const genreId = params['genre'] || '';
-
       if (keyword) {
         this.searchKeyword = keyword;
         this.activeSearchKeyword = keyword;
@@ -145,11 +144,11 @@ export class BrowseComponent implements OnInit {
           this.loadScoresByGenre(genre);
         } else {
           // Genre not found, clear filters and load all scores
-          this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: {}
-          });
-          this.loadScores(true);
+          // this.router.navigate([], {
+          //   relativeTo: this.route,
+          //   queryParams: {}
+          // });
+          // this.loadScores(true);
         }
         this.loading = false;
         this.changeDetector.detectChanges();
@@ -313,7 +312,7 @@ export class BrowseComponent implements OnInit {
     this.selectedAuthor = null;
     this.searchKeyword = '';
     this.activeSearchKeyword = '';
-    
+
     // Update URL with genre parameter, clear search and author parameters
     this.router.navigate([], {
       relativeTo: this.route,

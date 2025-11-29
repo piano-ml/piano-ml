@@ -40,7 +40,11 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     }
 
     if (genreId != null && !genreId.isEmpty()) {
-      predicate = cb.and(predicate, cb.equal(root.get("genre").get("id"), UUID.fromString(genreId)));
+      if (genreId.equals("NONE")) {
+        predicate = cb.and(predicate, cb.isNull(root.get("genre")));
+      } else {
+        predicate = cb.and(predicate, cb.equal(root.get("genre").get("id"), UUID.fromString(genreId)));
+      }
     }
 
     if (artist != null && !artist.isEmpty()) {
@@ -51,7 +55,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       predicate = cb.and(predicate, cb.equal(root.get("etude"), etude));
     }
 
-    // New: handle tempo parameter. If tempo == "NONE" then filter where tempo IS NULL in DB.
+    // New: handle tempo parameter. If tempo == "NONE" then filter where tit sempo IS NULL in DB.
     if (tempo != null && !tempo.isEmpty()) {
       if ("NONE".equalsIgnoreCase(tempo)) {
         predicate = cb.and(predicate, cb.isNull(root.get("tempo")));
@@ -84,11 +88,14 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     }
 
     cq.where(predicate);
-
-    if (user == null) {
-      cq.orderBy(cb.desc(root.get("playCount")));
+    if (artist != null && !artist.isEmpty()) {
+      cq.orderBy(cb.desc(root.get("title")));
     } else {
-      cq.orderBy(cb.asc(root.get("playCount")), cb.desc(root.get("uploadedAt")));
+      if (user == null) {
+        cq.orderBy(cb.desc(root.get("playCount")));
+      } else {
+        cq.orderBy(cb.asc(root.get("playCount")), cb.desc(root.get("uploadedAt")));
+      }
     }
     TypedQuery<Score> query = em.createQuery(cq);
     if (offset != null) query.setFirstResult(offset);
