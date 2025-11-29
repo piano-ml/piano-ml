@@ -9,12 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface IScoreRepositoryCustom {
-<<<<<<< Updated upstream
-  List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user);
-=======
->>>>>>> Stashed changes
-
-  List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, java.util.List<Integer> tracks, User user);
+  List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user, List<Integer> tracks);
 
   List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit, java.util.List<Integer> tracks);
 

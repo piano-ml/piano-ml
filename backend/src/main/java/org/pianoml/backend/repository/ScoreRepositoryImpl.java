@@ -23,11 +23,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   @PersistenceContext
   private EntityManager em;
 
-<<<<<<< Updated upstream
-  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user) {
-=======
-  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, java.util.List<Integer> tracks, User user) {
->>>>>>> Stashed changes
+  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user, List<Integer> tracks) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Score> cq = cb.createQuery(Score.class);
     Root<Score> root = cq.from(Score.class);
@@ -44,7 +40,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     }
 
     if (genreId != null && !genreId.isEmpty()) {
-      predicate = cb.and(predicate, cb.equal(root.get("genreId"), genreId));
+      predicate = cb.and(predicate, cb.equal(root.get("genre").get("id"), UUID.fromString(genreId)));
     }
 
     if (artist != null && !artist.isEmpty()) {
@@ -55,8 +51,14 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       predicate = cb.and(predicate, cb.equal(root.get("etude"), etude));
     }
 
-<<<<<<< Updated upstream
-=======
+    // New: handle tempo parameter. If tempo == "NONE" then filter where tempo IS NULL in DB.
+    if (tempo != null && !tempo.isEmpty()) {
+      if ("NONE".equalsIgnoreCase(tempo)) {
+        predicate = cb.and(predicate, cb.isNull(root.get("tempo")));
+      }
+    }
+
+
     // New: handle tempo parameter. If tempo == "NONE" then filter where tempo IS NULL in DB.
     if (tempo != null && !tempo.isEmpty()) {
       if ("NONE".equalsIgnoreCase(tempo)) {
@@ -69,7 +71,6 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       predicate = cb.and(predicate, root.get("tracksCount").in(tracks));
     }
 
->>>>>>> Stashed changes
     if (user == null) {
       predicate = cb.and(predicate, cb.isTrue(root.get("publicDomain")));
     } else {

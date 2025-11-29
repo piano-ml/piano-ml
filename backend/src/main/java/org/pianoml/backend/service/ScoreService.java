@@ -178,13 +178,8 @@ public class ScoreService {
       });
   }
 
-<<<<<<< Updated upstream
-  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit, User user) {
-    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit, user )
-=======
-  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, java.util.List<Integer> tracks, User user) {
-    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, tempo, offset, limit, tracks, user )
->>>>>>> Stashed changes
+  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user, List<Integer> tracks) {
+    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, tempo, offset, limit, user, tracks )
       .stream()
       .map(scoreMapper::toScoreApiInfo)
       .collect(Collectors.toList());

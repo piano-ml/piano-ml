@@ -57,6 +57,7 @@ public class ScoreController implements ScoreApi {
   }
 
   // Méthode temporaire sans @Override - sera corrigée une fois que l'interface ScoreApi sera régénérée
+  @Override
   public ResponseEntity<ScoreApiInfo> scoreGetBySlug(@PathVariable String slug) {
     return scoreService.getScoreBySlug(slug)
       .map(ResponseEntity::ok)
@@ -114,26 +115,18 @@ public class ScoreController implements ScoreApi {
   }
 
   @Override
-<<<<<<< Updated upstream
-  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, Integer offset, Integer limit) {
-=======
-  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, java.util.List<Integer> tracks) {
->>>>>>> Stashed changes
+  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, List<Integer> tracks) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-     User user;
-     try {
-       // Use AccountService#getUserFromAuthentication which throws when the user is anonymous or not activated.
-       user = userService.getUserFromAuthentication(authentication);
-     } catch (UserNotLoggedInException e) {
-       // If the user is not logged in or cannot be resolved, keep user = null so only public scores are shown.
-       user = null;
-     }
+    User user;
+    try {
+      // Use AccountService#getUserFromAuthentication which throws when the user is anonymous or not activated.
+      user = userService.getUserFromAuthentication(authentication);
+    } catch (UserNotLoggedInException e) {
+      // If the user is not logged in or cannot be resolved, keep user = null so only public scores are shown.
+      user = null;
+    }
 
-<<<<<<< Updated upstream
-    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, offset, limit ,user);
-=======
-    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, tempo, offset, limit, tracks ,user);
->>>>>>> Stashed changes
+    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, tempo, offset, limit , user, tracks);
     return ResponseEntity.ok(scores);
   }
 
