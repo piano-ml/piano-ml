@@ -78,7 +78,7 @@
 
 
   <!-- Tabs Section -->
-  <div class="mb-6">
+  <div class="mb-6" *ngIf=" !(selectedAuthor || selectedGenre)">
     <!-- Tab Headers -->
     <div class="flex border-b border-neutral-600">
       <button 
@@ -101,7 +101,7 @@
     </div>
 
     <!-- Tab Content -->
-    <div class="mt-4">
+    <div class="mt-4" >
       <!-- Popular Authors Section -->
       <app-browse-by-authors 
         *ngIf="activeTab === 'authors'"
