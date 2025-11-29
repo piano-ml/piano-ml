@@ -35,7 +35,7 @@ export class BrowseComponent implements OnInit {
   hasMore = true;
 
   // Tab selection
-  activeTab: 'authors' | 'genres' = 'authors';
+  activeTab: 'authors' | 'genres' = 'genres';
 
   // Track count filters
   filterOneHand = false;

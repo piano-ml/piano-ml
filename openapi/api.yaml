@@ -955,6 +955,8 @@ components:
           type: string
         author_id:
           type: string
+        author_mbid:
+          type: string
         sortName:
           type: string
         version:

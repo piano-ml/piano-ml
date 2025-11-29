@@ -15,6 +15,7 @@ export interface ScoreApiInfo {
     title?: string;
     author?: string;
     author_id?: string;
+    author_mbid?: string;
     sortName?: string;
     version?: number;
     tracks_count?: number;
