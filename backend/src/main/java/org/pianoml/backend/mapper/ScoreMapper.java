@@ -35,6 +35,7 @@ public interface ScoreMapper {
   @Mapping(source = "author.name", target = "author")
   @Mapping(source = "author.id", target = "authorId")
   @Mapping(source = "author.sortName", target = "sortName")
+  @Mapping(source = "author.mbid", target = "authorMbid")
   @Mapping(source = "genre.name", target = "genre")
   @Mapping(source = "genre.id", target = "genreId")
   @Mapping(source = "owner.id", target = "ownerId")

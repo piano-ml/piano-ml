@@ -78,17 +78,9 @@
 
 
   <!-- Tabs Section -->
-  <div *ngIf="!selectedAuthor && !selectedGenre && !activeSearchKeyword" class="mb-6">
+  <div class="mb-6">
     <!-- Tab Headers -->
     <div class="flex border-b border-neutral-600">
-      <button 
-        (click)="setActiveTab('authors')"
-        [class.border-blue-500]="activeTab === 'authors'"
-        [class.text-white]="activeTab === 'authors'"
-        [class.text-gray-400]="activeTab !== 'authors'"
-        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
-        Browse by Artist
-      </button>
       <button 
         (click)="setActiveTab('genres')"
         [class.border-green-500]="activeTab === 'genres'"
@@ -97,6 +89,15 @@
         class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
         Browse by Genres
       </button>
+      <button 
+        (click)="setActiveTab('authors')"
+        [class.border-blue-500]="activeTab === 'authors'"
+        [class.text-white]="activeTab === 'authors'"
+        [class.text-gray-400]="activeTab !== 'authors'"
+        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+        Browse by Artist
+      </button>
+
     </div>
 
     <!-- Tab Content -->
