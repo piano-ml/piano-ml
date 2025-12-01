@@ -4,30 +4,42 @@ export interface CustomIcon {
   data: string;
 }
 
-// SVG content for keyboard icon
+// SVG content for piano keyboard icon (simplified, 3 white + 2 black keys)
 export const keyboard: CustomIcon = {
   name: 'keyboard',
   data: `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-    <rect y="40.257" fill="currentColor" width="512" height="431.489"/>
-    <polygon fill="#3E3D43" points="208.389,297.128 240.635,297.128 240.635,471.747 271.971,471.747 271.971,297.128 304.206,297.128 304.206,40.253 208.389,40.253"/>
-    <rect x="255.937" y="40.257" fill="currentColor" width="256.063" height="431.489"/>
-    <polygon fill="#2B292C" points="304.204,40.257 304.204,297.124 271.971,297.124 271.971,471.747 255.937,471.747 255.937,40.257"/>
+    <!-- Simplified piano keyboard -->
+    <g>
+      <!-- Background frame -->
+      <rect x="32" y="96" width="448" height="320" fill="#333" rx="16"/>
+      
+      <!-- White keys (3 keys) -->
+      <rect x="48" y="112" width="144" height="288" fill="white" stroke="#333" stroke-width="4" rx="6"/>
+      <rect x="192" y="112" width="144" height="288" fill="white" stroke="#333" stroke-width="4" rx="6"/>
+      <rect x="336" y="112" width="128" height="288" fill="white" stroke="#333" stroke-width="4" rx="6"/>
+      
+      <!-- Black keys (2 keys) -->
+      <rect x="158" y="112" width="84" height="180" fill="#1a1a1a" rx="5"/>
+      <rect x="302" y="112" width="84" height="180" fill="#1a1a1a" rx="5"/>
+    </g>
   </svg>`
 };
 
-// SVG content for left hand icon
-export const lefthand: CustomIcon = {
-  name: 'lefthand',
-  data: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path fill="currentColor" d="M9,2A1,1 0 0,1 10,3V7.5A0.5,0.5 0 0,0 10.5,8A0.5,0.5 0 0,0 11,7.5V3A1,1 0 0,1 12,2A1,1 0 0,1 13,3V7.5A0.5,0.5 0 0,0 13.5,8A0.5,0.5 0 0,0 14,7.5V3A1,1 0 0,1 15,2A1,1 0 0,1 16,3V7.5A0.5,0.5 0 0,0 16.5,8A0.5,0.5 0 0,0 17,7.5V5A1,1 0 0,1 18,4A1,1 0 0,1 19,5V12A6,6 0 0,1 13,18H9A4,4 0 0,1 5,14V10A1,1 0 0,1 6,9H7A1,1 0 0,1 8,10V12H9V3A1,1 0 0,1 9,2Z"/>
-  </svg>`
-};
-
-// SVG content for right hand icon (mirrored left hand)
+// SVG content for right hand icon (FontAwesome faHand mirrored)
 export const righthand: CustomIcon = {
   name: 'righthand',
-  data: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path fill="currentColor" d="M15,2A1,1 0 0,0 14,3V7.5A0.5,0.5 0 0,1 13.5,8A0.5,0.5 0 0,1 13,7.5V3A1,1 0 0,0 12,2A1,1 0 0,0 11,3V7.5A0.5,0.5 0 0,1 10.5,8A0.5,0.5 0 0,1 10,7.5V3A1,1 0 0,0 9,2A1,1 0 0,0 8,3V7.5A0.5,0.5 0 0,1 7.5,8A0.5,0.5 0 0,1 7,7.5V5A1,1 0 0,0 6,4A1,1 0 0,0 5,5V12A6,6 0 0,0 11,18H15A4,4 0 0,0 19,14V10A1,1 0 0,0 18,9H17A1,1 0 0,0 16,10V12H15V3A1,1 0 0,0 15,2Z"/>
+  data: `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <g transform="scale(-1, 1) translate(-512, 0)">
+      <path fill="currentColor" d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-176c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 176c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-112c0-17.7-14.3-32-32-32s-32 14.3-32 32L32 288c0 88.4 71.6 160 160 160l1.6 0c88.4 0 160-71.6 160-160l0-176c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 112c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208z"/>
+    </g>
+  </svg>`
+};
+
+// SVG content for left hand icon (FontAwesome faHand)
+export const lefthand: CustomIcon = {
+  name: 'lefthand',
+  data: `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-176c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 176c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-112c0-17.7-14.3-32-32-32s-32 14.3-32 32L32 288c0 88.4 71.6 160 160 160l1.6 0c88.4 0 160-71.6 160-160l0-176c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 112c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208z"/>
   </svg>`
 };
 

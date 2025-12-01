@@ -1,6 +1,6 @@
-<div class="flex flex-col flex-grow h-dvh">
+<div class="flex flex-col flex-grow h-dvh bg-white">
 
-        <div class="flex-row  bg-black">
+        <div class="flex-row  bg-black ">
             <div class="flex flex-col lg:flex-row xl:flex-row mt-2 pl-2 pr-2">
 
 
@@ -39,13 +39,14 @@
                             <input type="checkbox" id="fullscreen" 
                                 [checked]="isFullscreen"
                                 (change)="toggleFullscreen()" />
-                                <ng-icon name="bootstrapFullscreen" class="svg-button p-2" />
+                                <ng-icon name="bootstrapFullscreen" class="svg-button" />
                         </label>
                     </div>
 
                     @if (!isPlaying) {
+
                         <button (click)="showInfo()" class="btn btn-desktop m-1">
-                            <ng-icon name="bootstrapInfoCircle" class="svg-button" />
+                            <ng-icon name="bootstrapEyeFill" class="svg-button" />
                         </button>
 
                         <button (click)="reset()" class="btn btn-desktop m-1">
@@ -80,7 +81,7 @@
                             <input type="checkbox" id="loop" [disabled]="isPlaying"
                                 [checked]="playConfiguration.isLoop"
                                 (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
-                                <ng-icon name="bootstrapRepeat" class="svg-button p-2" />
+                                <ng-icon name="bootstrapRepeat" class="svg-button" />
 
                         </label>
                     </div>
@@ -89,7 +90,7 @@
                         <label class="label svg-label ">
                             <input type="checkbox" id="hideKeyboard"
                                 [checked]="!hideKeyboard" (change)="hideKeyboard = !hideKeyboard" />
-                                <ng-icon name="keyboard" class="svg-button p-2" />
+                                <ng-icon name="keyboard" class="svg-button" />
                         </label>
                     </div>
 
@@ -136,18 +137,18 @@
 
     <!-- score -->
     @if (!loading) {
-        <div style="height: 48px;" class="bg-white"></div>
-        <div class="flex-none bg-white">
+        <div class="bg-white flex-grow overflow-y-auto">
             <app-osmd [scoreData]="scoreData" [musicXml]="musicXml"></app-osmd>
+   
         </div>
     }
 
-    <!-- middle bar empty for now -->
-    <div #arena class="flex flex-grow {{arenaClass}} bg-white text-center text-neutral-400 text-2xl">
+    <!-- middle bar empty for now 
+    <div #arena class="flex {{arenaClass}} bg-grey-100 h-30 text-center text-neutral-400 text-2xl">
         @if (loading) {
             Loading score data...
         }
-    </div>
+    </div>-->
 
     <!-- keyboard -->
     @if (!hideKeyboard) {
