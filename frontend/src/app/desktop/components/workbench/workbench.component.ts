@@ -2,7 +2,8 @@ import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewIn
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat,  bootstrapInfoCircle, bootstrapFullscreen, bootstrapFullscreenExit } from '@ng-icons/bootstrap-icons';
+import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat,  bootstrapEyeFill, bootstrapFullscreen, bootstrapFullscreenExit } from '@ng-icons/bootstrap-icons';
+import { keyboard, lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 import { OsmdComponent } from '../osmd/osmd.component';
 import { FormsModule } from '@angular/forms';
@@ -30,9 +31,12 @@ import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
       bootstrapPlayFill,
       bootstrapPauseFill,
       bootstrapRepeat,
-      bootstrapInfoCircle,
+      bootstrapEyeFill,
       bootstrapFullscreen,
-      bootstrapFullscreenExit
+      bootstrapFullscreenExit,
+      keyboard: keyboard.data,
+      lefthand: lefthand.data,
+      righthand: righthand.data
     })
   ]
 })

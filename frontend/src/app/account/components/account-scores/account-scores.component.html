@@ -33,17 +33,22 @@
     <!-- Stats -->
     <div *ngIf="!loading && !error && scores.length > 0" class="mt-6 text-sm text-gray-400">
       Total: {{ scores.length }} score{{ scores.length !== 1 ? 's' : '' }}
-    </div>
 
-  <div class="">
     <button 
       (click)="navigateToOpen()" 
-      class="btn btn-blue mt-4"
+      class="ml-6 bg-blue-600 font-bold hover:bg-blue-700 px-3 py-1 rounded text-sm text-white transition-colors"
       [disabled]="loading">
       <span *ngIf="loading" class="animate-spin inline-block mr-2">⟳</span>
       Browse all Scores
     </button>
+
+    </div>
+
+  <div class="mb-2">
+
   </div>
+  
+  <div class="divider"></div>
 
   <!-- Quick Actions Section -->
   <app-quick-actions></app-quick-actions>

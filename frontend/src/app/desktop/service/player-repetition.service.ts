@@ -107,12 +107,18 @@ export class PlayerRepetitionService {
    */
   private backToMeasure(measureIndex: number): void {
     const cursor = this.state.osmdCursor;
-
+    let doPrevious = true;
+    if (cursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
+      doPrevious = false;
+    }
     while (cursor.iterator.CurrentMeasure.measureListIndex > measureIndex && !cursor.iterator.FrontReached) {
       cursor.previousMeasure();
     }
+
     setTimeout(() => {
-      cursor.previous();
+      if (doPrevious) {
+        cursor.previous();
+      }
     }, 0);
   }
 
