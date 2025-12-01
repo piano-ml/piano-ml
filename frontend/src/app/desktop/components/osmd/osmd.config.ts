@@ -15,15 +15,15 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     backend: "svg",
     cursorsOptions: [
         {
-            follow: false,  // Désactivé - on gère le scroll nous-mêmes
+            follow: true,  // Désactivé - on gère le scroll nous-mêmes
             color: "#B0F2B4",
             alpha: 0.6,
-            type: 3
+            //type: 2
         },
     ] as CursorOptions[],
     drawTitle: false,
     darkMode: false,
-    renderSingleHorizontalStaffline: true,
+    renderSingleHorizontalStaffline: false,
     drawCredits: false,
     drawComposer: false,
     drawPartNames: false,
@@ -32,7 +32,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     drawLyrics: true,
     drawMetronomeMarks: false,
     coloringEnabled: true,
-    followCursor: false,  // Désactivé - on gère le scroll nous-mêmes
+    followCursor: true,  // Désactivé - on gère le scroll nous-mêmes
     //useXMLMeasureNumbers: false,
 };
 

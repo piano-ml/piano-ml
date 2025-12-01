@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
-import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
+import { OpenSheetMusicDisplay, PointF2D } from "opensheetmusicdisplay";
 import { PlayerService } from '../../service/player.service';
 import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
 
@@ -37,7 +37,7 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.setupCursorFollowing();
+        //this.setupCursorFollowing();
     }
 
     private setupCursorFollowing() {
@@ -143,8 +143,26 @@ export class OsmdComponent implements OnInit, OnDestroy, AfterViewInit {
                 if (!this.osmd!.cursor) {
                     console.warn("osmd.cursor is undefined!");
                 } else {
+                    // caqlculate Y
+                    const partCount = this.osmd!.GraphicSheet.MeasureList[0].length;
+                    const positionAndShape = this.osmd!.GraphicSheet.MeasureList[0][partCount - 1].PositionAndShape;
+                    console.log("positionAndShape=", positionAndShape);
+                    let y = 100;
+                    if (partCount === 1) {
+                        y = positionAndShape.Parent.BoundingMarginRectangle.height * 1.1
+                    } else {
+                        y = positionAndShape.AbsolutePosition.y + positionAndShape.BoundingRectangle.height;
+                    }
+                    // set cursor height
+                    const cursorElement = document.getElementById('cursorImg-0');
+                    if (cursorElement) {
+                        cursorElement.style.setProperty('height', y * 50 / 100 * 10 + "px", 'important');
+                    }
+                    // set frame height
+                    this.osmdContainer.nativeElement.style.maxHeight = y * 10 + "px";
 
-                    this.osmd!.cursors[0].SkipInvisibleNotes = true;
+
+                    //this.osmd!.cursors[0].SkipInvisibleNotes = true;
                     this.osmd!.cursors[0].show();
                     this.osmd!.cursors[0].reset();
                     this.playerService.setOsmd(this.osmd!);
