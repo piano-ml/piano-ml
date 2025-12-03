@@ -292,7 +292,7 @@ export class PlayerService {
       setTimeout(() => {
         //this.keyboard.removeAllNotesFromKeyboard();
         this.lightExpectedNotesOnKeyboard(liveStatus);
-        console.log("midi event await:", liveStatus.expectations.map(e => e.note.midi));
+        //console.log("midi event await:", liveStatus.expectations.map(e => e.note.midi));
       }, GOOD_RANGE);
     }
   }
@@ -305,7 +305,7 @@ export class PlayerService {
         this.keyboard.removeAllNotesFromKeyboard();
         this.lightExpectedNotesOnKeyboard(liveStatus);
       }, GOOD_RANGE);
-      console.log("scheduler await:", liveStatus.expectations.map(e => e.note.midi));
+      //console.log("scheduler await:", liveStatus.expectations.map(e => e.note.midi));
 
     } else {
       if (this.isWaiting) {
@@ -326,8 +326,8 @@ export class PlayerService {
     let velocityUI = 1;
     let i = 255;
 
-    console.log(liveStatus.expectations)
-    console.log(liveStatus.expectations.map(n => n.note.midi + "@" + n.note.time));
+    // console.log(liveStatus.expectations)
+    // console.log(liveStatus.expectations.map(n => n.note.midi + "@" + n.note.time));
 
     let previousTime = liveStatus.expectations[0]?.note.time || 0;
     for (const expected of liveStatus.expectations) {
@@ -337,7 +337,7 @@ export class PlayerService {
       }
       expected.note.velocity = velocityUI;
       this.keyboard.lightNoteOnKeyboard(expected.hand, expected.note);
-      console.log(expected.note.midi, expected.note.time, expected.note.velocity);
+      //console.log(expected.note.midi, expected.note.time, expected.note.velocity);
       previousTime = expected.note.time;
     }
   }

@@ -74,14 +74,13 @@ export class PlayerAssessService {
 
   getNewActual(midiEvent: MidiStateEvent): LiveStatus {
     if (midiEvent.type !== this.EVENT_DOWN && midiEvent.type !== this.EVENT_UP) {
-      console.warn("asse receive unknown midi event type: ", midiEvent.type);
       return this.liveStatus;
     }
 
     if (midiEvent.type === this.EVENT_UP) {
       return this.liveStatus;
     }
-    console.log("processing actual midi event: ", midiEvent.note);
+
     this.actuals.push(midiEvent);
     // remove from expectations note that match midi and are within good range or on top of the list
     const expectationsBefore = this.expectations.length;
@@ -94,13 +93,13 @@ export class PlayerAssessService {
       existing.push(exp);
       expectationMap.set(roundedTime, existing);
     }
-    console.log("expectationMap:", expectationMap);
+
     // set found to true of midiEvent match the lowest key in expectationMap
     const lowestKey = Math.min(...expectationMap.keys());
     const matchedExpectations = expectationMap.get(lowestKey) || [];
-    console.log("matchedExpectations:", matchedExpectations);
+
     const found = matchedExpectations.find(e => e.note === midiEvent.note);
-    console.log('found', found !== undefined);
+
     // if found = true remove the first elements of expectations
     if (found) {
       this.expectations = this.expectations.filter(e => e !== found);
