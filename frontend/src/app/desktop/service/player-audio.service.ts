@@ -4,6 +4,7 @@ import { Piano } from '@tonejs/piano';
 import { Synthetizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
+import { GOOD_RANGE, LiveStatus, PlayerAssessService } from './player-assess.service';
 
 /**
  * Service responsable de la gestion de l'audio, des synthétiseurs et du scheduling des notes
@@ -16,7 +17,7 @@ export class PlayerAudioService {
   spessasynth?: Synthetizer;
   piano: any;
 
-  constructor() {
+  constructor(private assess: PlayerAssessService,) {
     this.initSoundFont();
     this.initPiano();
     this.synth = new Tone.Synth().toDestination();
@@ -29,10 +30,10 @@ export class PlayerAudioService {
     if (this.spessasynth != null) {
       return; // already initialized
     }
-    
+
     const ctx = new AudioContext();
     await ctx.audioWorklet.addModule("/assets/soundfonts/worklet_processor.min.js");
-    
+
     fetch("assets/soundfonts/GeneralUserGS.sf3").then(async response => {
       const sfont = await response.arrayBuffer();
       this.spessasynth = new Synthetizer(ctx.destination, sfont, false);
@@ -61,15 +62,15 @@ export class PlayerAudioService {
   ): void {
     if (note.time < startOffset) return;
     if (note.midi === 0) return; // skip rest notes
-    
+
     const noteStart = (note.time * timeFactor) - startOffset;
     const noteDuration = note.duration * timeFactor;
-    
+
     // Note on
     Tone.getTransport().schedule(() => {
       this.spessasynth?.noteOn(channel, note.midi, Math.round(note.velocity * 127));
     }, noteStart);
-    
+
     // Note off
     Tone.getTransport().schedule(() => {
       this.spessasynth?.noteOff(channel, note.midi);
@@ -196,20 +197,20 @@ export class PlayerAudioService {
     note: Note,
     startTime: number,
     timeFactor: number,
-    goodRange: number,
     callbacks: {
-      onNoteStart: (time: number, note: Note) => void;
+      onNoteStart: (time: number, note: Note, liveStatus: LiveStatus) => void;
       onNoteEnd: (time: number, note: Note) => void;
-      beforeGoodRange: (time: number, note: Note) => void;
     }
   ): void {
     const noteTimeStart = (note.time * timeFactor) - startTime;
+    const noteAssessmentStart = Math.max(0, (note.time * timeFactor) - startTime - GOOD_RANGE);
     const noteTimeEnd = noteTimeStart + (note.duration * timeFactor);
 
     // Schedule note start (UI updates, cursor advance, keyboard light on)
     this.schedule((time: number) => {
       this.scheduleDraw(() => {
-        callbacks.onNoteStart(time, note);
+        const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), noteTimeEnd, note, hand);
+        callbacks.onNoteStart(time, note, liveStatus);
       }, time);
     }, noteTimeStart);
 
@@ -237,12 +238,7 @@ export class PlayerAudioService {
       }, time);
     }, noteTimeEnd);
 
-    // Schedule "good range" check (before the note should be played)
-    this.schedule((time: number) => {
-      this.scheduleDraw(() => {
-        callbacks.beforeGoodRange(time, note);
-      }, time);
-    }, Math.max(noteTimeStart - goodRange, 0));
+
   }
 
   /**
@@ -254,17 +250,15 @@ export class PlayerAudioService {
     startTime: number,
     endCut: number,
     timeFactor: number,
-    goodRange: number,
     callbacks: {
-      onNoteStart: (time: number, note: Note) => void;
+      onNoteStart: (time: number, note: Note, liveStatus: LiveStatus) => void;
       onNoteEnd: (time: number, note: Note) => void;
-      beforeGoodRange: (time: number, note: Note) => void;
     }
   ): void {
     for (const note of track.notes) {
       const noteTime = note.time * timeFactor;
       if (noteTime >= startTime && noteTime < endCut) {
-        this.scheduleHandNote(hand, note, startTime, timeFactor, goodRange, callbacks);
+        this.scheduleHandNote(hand, note, startTime, timeFactor, callbacks);
       }
     }
   }

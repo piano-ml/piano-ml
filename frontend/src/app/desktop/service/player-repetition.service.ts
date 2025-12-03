@@ -7,6 +7,7 @@ import {
   RepetitionInstructionEnum,
   Note as OSMDNote
 } from 'opensheetmusicdisplay';
+import { PlayerService } from './player.service';
 
 
 /**
@@ -93,9 +94,9 @@ export class PlayerRepetitionService {
   /**
    * Jump back to the last Segno marker (if present)
    */
-  private jumpToSegno(): boolean {
+  private jumpToSegno(playerService: PlayerService): boolean {
     if (this.segnoMeasureIndex != null) {
-      this.backToMeasure(this.segnoMeasureIndex);
+      this.backToMeasure(this.segnoMeasureIndex, playerService);
       this.passCount = 1;
       return true;
     }
@@ -105,7 +106,8 @@ export class PlayerRepetitionService {
   /**
    * Move the cursor back to a specific measure
    */
-  private backToMeasure(measureIndex: number): void {
+  private backToMeasure(measureIndex: number, playerService: PlayerService): void {
+    playerService.pause();
     const cursor = this.state.osmdCursor;
     let doPrevious = true;
     if (cursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
@@ -119,6 +121,7 @@ export class PlayerRepetitionService {
       if (doPrevious) {
         cursor.previous();
       }
+      playerService.play(playerService.playConfiguration);
     }, 0);
   }
 
@@ -194,7 +197,7 @@ export class PlayerRepetitionService {
   /**
    * Handle movement at the end of a measure (back jumps)
    */
-  private maybeMoveToMeasureOnEnd(iterator: MusicPartManagerIterator): boolean {
+  private maybeMoveToMeasureOnEnd(iterator: MusicPartManagerIterator, playerService: PlayerService): boolean {
     const currentMeasureNumber = iterator.CurrentMeasure.measureListIndex;
     // Special cases: Da Capo / Dal Segno instructions at measure end
     const daCapoLike = this.repetitionInstructions.find(
@@ -208,7 +211,7 @@ export class PlayerRepetitionService {
 
     if (daCapoLike) {
       // Simple Da Capo behavior: jump back to the beginning of the score
-      this.backToMeasure(0);
+      this.backToMeasure(0, playerService);
       this.passCount = 1;
       return true;
     }
@@ -224,7 +227,7 @@ export class PlayerRepetitionService {
 
     if (dalSegnoLike) {
       // Dal Segno behavior: jump back to last Segno marker if available
-      if (this.jumpToSegno()) {
+      if (this.jumpToSegno(playerService)) {
         return true;
       }
     }
@@ -291,7 +294,7 @@ export class PlayerRepetitionService {
     //console.log(`BackJump at measure ${currentMeasureNumber}, pass ${this.passCount}/${maxEndingNumber} ${targetMeasure}`);
 
     if (this.passCount < maxEndingNumber) {
-      this.backToMeasure(targetMeasure);
+      this.backToMeasure(targetMeasure, playerService);
       this.passCount++;
       return true;
     } else {
@@ -303,13 +306,13 @@ export class PlayerRepetitionService {
   /**
    * Handle potential measure movement (repetitions)
    */
-  maybeMoveToMeasure(iterator: MusicPartManagerIterator): void {
+  maybeMoveToMeasure(iterator: MusicPartManagerIterator, playerService: PlayerService): void {
     // Update boundaries once per call
     this.updateMeasureBoundaries();
 
     // ✅ First handle backjumps (end of measure)
     if (this.isAtMeasureEnd) {
-      const didBackJump = this.maybeMoveToMeasureOnEnd(iterator);
+      const didBackJump = this.maybeMoveToMeasureOnEnd(iterator, playerService);
       if (didBackJump) {
         return; // ✅ Don't process voltas if we just did a backjump
       }

@@ -77,8 +77,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     maxStaveCount: 100,
     currentStave: 1,
     doSound: true,
-    waitForLeftHand: false,
-    waitForRightHand: false,
+    waitForLeftHand: true,
+    waitForRightHand: true, // fixme automate me
     delayFactor: 1,
     tempoFactor: 1,
     scoreRange: [1, 100],

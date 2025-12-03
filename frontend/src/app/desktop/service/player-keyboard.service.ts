@@ -89,7 +89,6 @@ export class PlayerKeyboardService {
    * Éteint toutes les notes du clavier visuel
    */
   removeAllNotesFromKeyboard(): void {
-    // Use the tracked set instead of expensive DOM query
     for (const el of this._activeKeyboardElements) {
       this.clearClassesFromElement(el, "note-on");
     }
