@@ -46,7 +46,7 @@
                     @if (!isPlaying) {
 
                         <button (click)="showInfo()" class="btn btn-desktop m-1">
-                            <ng-icon name="bootstrapEyeFill" class="svg-button" />
+                            <ng-icon name="bootstrapInfoCircleFill" class="svg-button" />
                         </button>
 
                         <button (click)="reset()" class="btn btn-desktop m-1">
@@ -143,12 +143,12 @@
         </div>
     }
 
-    <!-- middle bar empty for now 
+    <!-- middle bar empty for now -->
     <div #arena class="flex {{arenaClass}} bg-grey-100 h-30 text-center text-neutral-400 text-2xl">
         @if (loading) {
             Loading score data...
         }
-    </div>-->
+    </div>
 
     <!-- keyboard -->
     @if (!hideKeyboard) {

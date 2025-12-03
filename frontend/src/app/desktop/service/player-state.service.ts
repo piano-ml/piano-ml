@@ -25,11 +25,12 @@ export class PlayerStateService {
   isWaiting = false;
   playConfiguration!: PlayConfiguration;
   currentMeasure = -1;
-  lastMidiEventTime = 0;
+  lastMidiEventTime = 0; // TODO: duplicate of currentTick?
 
   // MIDI tracking
-  midiPressedNotes: Set<number> = new Set<number>();
-  lateNotes: Map<number, lateNote[]> = new Map<number, lateNote[]>();
+  //midiPressedNotes: Set<number> = new Set<number>();
+  //lateNotes: Map<number, lateNote[]> = new Map<number, lateNote[]>();
+  ticks: number = 0;
 
   // Keyboard preferences
   leftmostKey: number = 21;  // Default A0
@@ -39,6 +40,7 @@ export class PlayerStateService {
   private _timeFactorCache?: number;
   private _lastTempoFactor?: number;
   private _lastDelayFactor?: number;
+  tick: any;
 
   constructor() {}
 
@@ -67,19 +69,11 @@ export class PlayerStateService {
     this._lastDelayFactor = undefined;
   }
 
-  /**
-   * Réinitialise les notes en retard
-   */
-  resetLateNotes(): void {
-    this.lateNotes = new Map<number, lateNote[]>();
-    this.midiPressedNotes = new Set<number>();
-  }
 
   /**
    * Réinitialise l'état de base
    */
   reset(): void {
     this.lastMidiEventTime = -1;
-    this.resetLateNotes();
   }
 }

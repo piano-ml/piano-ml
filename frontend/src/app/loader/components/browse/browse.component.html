@@ -25,7 +25,7 @@
     </div>
     
     <!-- Stats Line -->
-    <div *ngIf="stats" class="mt-2 text-sm text-gray-300 flex items-center gap-4">
+    <div *ngIf="stats" class="mt-2 mb-2 text-sm text-gray-300 flex items-center gap-4">
       <span>Scores in database: <span class="font-semibold text-white">{{ stats['public-domain'] + stats.copyrighted }}</span> (<span class="font-semibold text-green-400">{{ stats['public-domain'] }}</span> public domain, <span class="font-semibold text-blue-400">{{ stats.copyrighted }}</span> copyrighted)</span>
       <label class="flex items-center gap-1 cursor-pointer">
         <input type="checkbox" [(ngModel)]="filterOneHand" (change)="applyFilters()" class="cursor-pointer">
@@ -78,7 +78,7 @@
 
 
   <!-- Tabs Section -->
-  <div class="mb-6" *ngIf=" !(selectedAuthor || selectedGenre)">
+  <div class="mb-6" *ngIf=" !(selectedAuthor || selectedGenre || activeSearchKeyword)">
     <!-- Tab Headers -->
     <div class="flex border-b border-neutral-600">
       <button 
