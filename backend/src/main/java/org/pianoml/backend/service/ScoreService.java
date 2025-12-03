@@ -111,7 +111,7 @@ public class ScoreService {
       // set EU public domain status if possible
       score.setPublicDomain(score.getAuthor().getLifeSpanEnd().isBefore (LocalDate.now().minusYears(70)));
     } else {
-      score.setPublicDomain(true);
+      score.setPublicDomain(false);
     }
     score.setPlayCount(0L);
 
