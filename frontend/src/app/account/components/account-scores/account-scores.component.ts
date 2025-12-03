@@ -25,13 +25,17 @@ export class AccountScoresComponent implements OnInit {
       visible: true,
       formatter: (value, score) => score.has_files === false ? '⚠️' : '✅'
     },
+    { key: 'playCount', label: '#played', visible: true },
     { key: 'version', label: 'Version', visible: true },
+    { key: 'publicDomain', label: 'Public Domain', visible: true },
     {
       key: 'title',
       label: 'Title',
-      visible: true
+      visible: true,
+      formatter: (value, score) => score.publicDomain ? (score.title || '') : '🔒' + (score.title || '')
     },
     { key: 'author', label: 'Author', visible: true },
+    { key: 'genre', label: 'Genre', visible: true },
 
     {
       key: 'uploaded_at',

@@ -1,5 +1,5 @@
 <div class="px-6 pt-2 pb-0">
-    <div class="page-title">Account</div>
+    <div class="page-title">User informations and preferences</div>
     <hr>
     
     <div class="bg-neutral-700 p-4 rounded mb-6">
@@ -21,6 +21,9 @@
               Edit
             </button>
           </div>
+          
+          <div>{{ userInfo.email }}</div>
+          
           <div *ngIf="editMode">
             <form [formGroup]="nameForm" (ngSubmit)="savename()" class="space-y-4">
               <input
@@ -52,18 +55,30 @@
         <!-- Keyboard Preferences -->
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-2">
-            Keyboard Range Preferences
+            Workbench Preferences
           </label>
           <div *ngIf="!keyboardEditMode" class="flex items-center justify-between">
-            <div class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700">
+            <div class="w-full px-3 py-2 border rounded-lg ">
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <span class="text-sm text-gray-600">Leftmost key:</span>
+                  <span class="text-sm ">Midi lowest key:</span>
                   <span class="ml-2 font-medium">{{ leftmostKeyValue }}</span>
                 </div>
                 <div>
-                  <span class="text-sm text-gray-600">Rightmost key:</span>
+                  <span class="text-sm">Midi highest key:</span>
                   <span class="ml-2 font-medium">{{ rightmostKeyValue }}</span>
+                </div>
+                <div>
+                  <span class="text-sm">Draw Fingering:</span>
+                  <span class="ml-2 font-medium">{{ drawFingeringControl?.value ? 'Yes' : 'No' }}</span>
+                </div>
+                <div>
+                  <span class="text-sm">Draw Lyrics:</span>
+                  <span class="ml-2 font-medium">{{ drawLyricsControl?.value ? 'Yes' : 'No' }}</span>
+                </div>
+                <div>
+                  <span class="text-sm">Show Keyboard:</span>
+                  <span class="ml-2 font-medium">{{ showKeyboardControl?.value ? 'Yes' : 'No' }}</span>
                 </div>
               </div>
             </div>
@@ -76,7 +91,7 @@
             </button>
           </div>
           <div *ngIf="keyboardEditMode">
-            <form [formGroup]="keyboardPreferencesForm" (ngSubmit)="saveKeyboardPreferences()" class="space-y-4">
+            <form [formGroup]="keyboardPreferencesForm" (ngSubmit)="savePreferences()" class="space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label for="leftmostKey" class="block text-sm font-medium text-gray-300 mb-1">
@@ -124,6 +139,40 @@
                 </div>
               </div>
               
+              <!-- Checkbox options -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="drawFingering"
+                    formControlName="drawFingering"
+                    class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                  <label for="drawFingering" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
+                    Draw Fingering
+                  </label>
+                </div>
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="drawLyrics"
+                    formControlName="drawLyrics"
+                    class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                  <label for="drawLyrics" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
+                    Draw Lyrics
+                  </label>
+                </div>
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="showKeyboard"
+                    formControlName="showKeyboard"
+                    class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                  <label for="showKeyboard" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
+                    Show Keyboard
+                  </label>
+                </div>
+              </div>
+              
               <!-- MIDI input indication -->
               <div *ngIf="focusedField" class="text-green-400 text-sm">
                 🎹 Ready to capture MIDI input for {{ focusedField === 'leftmostKey' ? 'leftmost' : 'rightmost' }} key...
@@ -157,14 +206,15 @@
       </div>
     </div>
 
-    <ul class="ml-2">
-      <li class="mb-4 mt-4">
-        <a routerLink="/account/scores" class="text-xl mb-4 mt-4">My Scores</a>
-      </li>
-      <li class="mb-4 mt-4">
-        <button (click)="logout()" class="text-xl mb-4 mt-4 text-red-500 hover:text-red-700 bg-transparent border-none cursor-pointer">
-          Logout
-        </button>
-      </li>
-    </ul>
+    <div class="ml-2 flex gap-4">
+
+      <button (click)="logout()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer">
+        Logout
+      </button>
+
+      <button routerLink="/account/scores" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer">
+        My Scores
+      </button>
+
+    </div>
 </div>

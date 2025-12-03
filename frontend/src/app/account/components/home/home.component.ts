@@ -41,7 +41,10 @@ export class AccountHomeComponent implements OnDestroy {
     
     this.keyboardPreferencesForm = this.fb.group({
       leftmostKey: [21, [Validators.required, Validators.min(21), Validators.max(108)]],
-      rightmostKey: [108, [Validators.required, Validators.min(21), Validators.max(108)]]
+      rightmostKey: [108, [Validators.required, Validators.min(21), Validators.max(108)]],
+      drawFingering: [true],
+      drawLyrics: [true],
+      showKeyboard: [true]
     }, { validators: this.keyboardRangeValidator });
     this.isLoggedIn$ = this.authService.isLoggedIn;
     this.isLoggedIn$.pipe(takeUntil(this.destroy$)).subscribe(isLoggedIn => {
@@ -50,7 +53,7 @@ export class AccountHomeComponent implements OnDestroy {
       }
     });
     this.loadUserInfo();
-    this.loadKeyboardPreferences();
+    this.loadPreferences();
     
     // Effet pour écouter les événements MIDI uniquement quand l'édition est activée
     effect(() => {
@@ -99,14 +102,17 @@ export class AccountHomeComponent implements OnDestroy {
     this.router.navigate(['/account/login']);
   }
 
-  loadKeyboardPreferences() {
+  loadPreferences() {
     const preferences = localStorage.getItem('preferences');
     if (preferences) {
       try {
         const parsedPreferences = JSON.parse(preferences);
         this.keyboardPreferencesForm.patchValue({
           leftmostKey: parsedPreferences.leftmostKey || 21,
-          rightmostKey: parsedPreferences.rightmostKey || 108
+          rightmostKey: parsedPreferences.rightmostKey || 108,
+          drawFingering: parsedPreferences.drawFingering !== undefined ? parsedPreferences.drawFingering : true,
+          drawLyrics: parsedPreferences.drawLyrics !== undefined ? parsedPreferences.drawLyrics : true,
+          showKeyboard: parsedPreferences.showKeyboard !== undefined ? parsedPreferences.showKeyboard : true
         });
       } catch (error) {
         console.error('Error parsing keyboard preferences:', error);
@@ -120,7 +126,7 @@ export class AccountHomeComponent implements OnDestroy {
     this.cdr.markForCheck();
   }
 
-  saveKeyboardPreferences() {
+  savePreferences() {
     if (this.keyboardPreferencesForm.valid) {
       const preferences = this.keyboardPreferencesForm.value;
       localStorage.setItem('preferences', JSON.stringify(preferences));
@@ -133,7 +139,7 @@ export class AccountHomeComponent implements OnDestroy {
   cancelKeyboardEdit() {
     this.keyboardEditMode = false;
     this.midiListeningEnabled.set(false);
-    this.loadKeyboardPreferences(); // Reset form values
+    this.loadPreferences(); // Reset form values
     this.cdr.markForCheck();
   }
 
@@ -166,6 +172,18 @@ export class AccountHomeComponent implements OnDestroy {
 
   get nameControl() {
     return this.nameForm.get('name');
+  }
+
+  get drawFingeringControl() {
+    return this.keyboardPreferencesForm.get('drawFingering');
+  }
+
+  get drawLyricsControl() {
+    return this.keyboardPreferencesForm.get('drawLyrics');
+  }
+
+  get showKeyboardControl() {
+    return this.keyboardPreferencesForm.get('showKeyboard');
   }
 
   processMidiEvent(midiEvent: MidiStateEvent): void {
