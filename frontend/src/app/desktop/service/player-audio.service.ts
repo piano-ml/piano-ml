@@ -220,14 +220,16 @@ export class PlayerAudioService {
     this.schedule((time: number) => {
       this.scheduleDraw(() => {
         if (this.isHandOk(hand, note.midi)) {
+          console.log('Scheduling note with assess', hand, note.midi);
           const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), noteTimeEnd, note, hand);
           callbacks.onNoteStart(time, note, liveStatus);
         } else {
-          callbacks.onNoteStart(time, note, {} as LiveStatus);
+          const liveStatus = this.assess.getExpectation();
+          callbacks.onNoteStart(time, note, liveStatus);
         }
         
       }, time);
-    }, noteTimeStart - GOOD_RANGE > 0 ? noteTimeStart - GOOD_RANGE : 0);
+    }, noteTimeStart - PERFECT_RANGE > 0 ? noteTimeStart - PERFECT_RANGE : 0);
 
     // Schedule piano audio start
     this.schedule((time: number) => {

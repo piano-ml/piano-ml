@@ -51,16 +51,27 @@ export class PlayerAssessService {
       time: noteTimeStart,
       hand: hand
     };
-    this.liveStatus.shouldPause = this.expectations.length > 0;
+    //this.liveStatus.shouldPause = this.expectations.length > 0;
     this.expectations.push(midiEventStart);
-    this.liveStatus.expectations = this.expectations.map(e => ({
-      hand: e.hand,
-      note: { midi: e.note, time: e.time } as Note
-    })).sort((a, b) => a.note.midi - b.note.midi).sort((a, b) => a.note.time - b.note.time);
+    console.log('Added expectation', midiEventStart.note);
+    // this.liveStatus.expectations = this.expectations.map(e => ({
+    //   hand: e.hand,
+    //   note: { midi: e.note, time: e.time } as Note
+    // })).sort((a, b) => a.note.midi - b.note.midi).sort((a, b) => a.note.time - b.note.time);
 
     // should pause if there are still expectations not in GOOD_RANGE time
     this.liveStatus.shouldPause = this.expectations.filter(e => Math.abs(e.time - noteTimeStart) > GOOD_RANGE).length > 0;
 
+    return this.liveStatus;
+  }
+
+  getExpectation(): LiveStatus {
+    this.liveStatus.shouldPause = this.expectations.length > 0;
+    this.liveStatus.expectations = this.expectations.map(e => ({
+      hand: e.hand,
+      note: { midi: e.note, time: Math.round(e.time / PERFECT_RANGE) * PERFECT_RANGE } as Note
+    })).sort((a, b) => a.note.midi - b.note.midi).sort((a, b) => a.note.time - b.note.time);
+    console.log('Getting expectation, shouldPause=',this.expectations.length, this.liveStatus.shouldPause);
     return this.liveStatus;
   }
 

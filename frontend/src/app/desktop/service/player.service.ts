@@ -181,7 +181,7 @@ export class PlayerService {
 
   pause() {
     this.audio.pause();
-    this.keyboard.removeAllNotesFromKeyboard();
+    //this.keyboard.removeAllNotesFromKeyboard();
   }
 
   async reset(playConfiguration: PlayConfiguration) {
@@ -279,7 +279,7 @@ export class PlayerService {
 
     if (midiEvent.type === 'down' as MidiStateEvent['type']) {
       const liveStatus = this.assess.getNewActual(midiEvent);
-      if (!liveStatus.shouldPause) { 
+      if (!liveStatus.shouldPause) {
         await this.audio.start();
         this.isWaiting = false;
       }
@@ -291,28 +291,27 @@ export class PlayerService {
       } else {
         this.keyboard.removeMidiNoteFromKeyboard(midiEvent.note);
       }
-      setTimeout(() => {
-        this.lightExpectedNotesOnKeyboard(liveStatus);
-      }, GOOD_RANGE);
+      this.lightExpectedNotesOnKeyboard(liveStatus);
     }
   }
 
   private handleNoteStart(hand: string, note: Note, liveStatus?: LiveStatus) {
-    if (this.isHandOk(hand, note.midi) && liveStatus?.shouldPause) {
-      this.audio.pause();
+    console.log(liveStatus?.shouldPause)
+    // look for player
+    if (liveStatus?.shouldPause) {
       this.isWaiting = true;
-      setTimeout(() => {
-        //this.keyboard.removeAllNotesFromKeyboard();
-        this.lightExpectedNotesOnKeyboard(liveStatus);
-      }, 0); //GOOD_RANGE);
+      this.audio.pause();
+      this.lightExpectedNotesOnKeyboard(liveStatus);
     }
+    // normal operations
     this.cursorMayBeAdvance(note);
     this.keyboard.lightNoteOnKeyboard(hand, note);
     this.setCurrentTick(note);
   }
 
   private handleNoteEnd(hand: string, note: Note) {
-    if (!this.isWaiting) {    
+    if (!this.isWaiting) {
+      console.log("noteEnd", note.midi)
       this.keyboard.removeMidiNoteFromKeyboard(note.midi);
     }
   }
