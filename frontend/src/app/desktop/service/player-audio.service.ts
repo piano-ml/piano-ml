@@ -4,7 +4,8 @@ import { Piano } from '@tonejs/piano';
 import { Synthetizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
-import { GOOD_RANGE, LiveStatus, PlayerAssessService } from './player-assess.service';
+import { GOOD_RANGE, LiveStatus, PERFECT_RANGE, PlayerAssessService } from './player-assess.service';
+import { PlayerStateService } from './player-state.service';
 
 /**
  * Service responsable de la gestion de l'audio, des synthétiseurs et du scheduling des notes
@@ -17,7 +18,10 @@ export class PlayerAudioService {
   spessasynth?: Synthetizer;
   piano: any;
 
-  constructor(private assess: PlayerAssessService,) {
+  constructor(
+    private assess: PlayerAssessService,
+    private state: PlayerStateService,
+  ) {
     this.initSoundFont();
     this.initPiano();
     this.synth = new Tone.Synth().toDestination();
@@ -189,6 +193,13 @@ export class PlayerAudioService {
     Tone.getDraw().schedule(callback, time);
   }
 
+  private isHandOk(hand: string, midiPitch: number) {
+    return (((hand === 'rh' && this.state.playConfiguration.waitForRightHand)
+      || (hand === 'lh' && this.state.playConfiguration.waitForLeftHand))
+      && (midiPitch >= this.state.leftmostKey && midiPitch <= this.state.rightmostKey)
+    );
+  }
+
   /**
    * Schedule une note de main (gauche ou droite) avec tous ses événements
    */
@@ -203,16 +214,21 @@ export class PlayerAudioService {
     }
   ): void {
     const noteTimeStart = (note.time * timeFactor) - startTime;
-    const noteAssessmentStart = Math.max(0, (note.time * timeFactor) - startTime - GOOD_RANGE);
     const noteTimeEnd = noteTimeStart + (note.duration * timeFactor);
 
     // Schedule note start (UI updates, cursor advance, keyboard light on)
     this.schedule((time: number) => {
       this.scheduleDraw(() => {
-        const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), noteTimeEnd, note, hand);
-        callbacks.onNoteStart(time, note, liveStatus);
+        if (this.isHandOk(hand, note.midi)) {
+          const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), noteTimeEnd, note, hand);
+          callbacks.onNoteStart(time, note, liveStatus);
+        } else {
+          const liveStatus = this.assess.getExpectation();
+          callbacks.onNoteStart(time, note, liveStatus);
+        }
+        
       }, time);
-    }, noteTimeStart);
+    }, noteTimeStart - PERFECT_RANGE > 0 ? noteTimeStart - PERFECT_RANGE : 0);
 
     // Schedule piano audio start
     this.schedule((time: number) => {
