@@ -296,7 +296,6 @@ export class PlayerService {
   }
 
   private handleNoteStart(hand: string, note: Note, liveStatus?: LiveStatus) {
-    console.log(liveStatus?.shouldPause)
     // look for player
     if (liveStatus?.shouldPause) {
       this.isWaiting = true;
@@ -311,7 +310,6 @@ export class PlayerService {
 
   private handleNoteEnd(hand: string, note: Note) {
     if (!this.isWaiting) {
-      console.log("noteEnd", note.midi)
       this.keyboard.removeMidiNoteFromKeyboard(note.midi);
     }
   }
@@ -381,20 +379,11 @@ export class PlayerService {
   }
 
   private setCurrentTick(note: Note) {
-    //console.log(note.ticks)
-
     const bar = note.bars;
     const truncatedBar = Math.trunc(bar);
     if (truncatedBar !== this.measure()) {
       this.measure.set(truncatedBar);
     }
-  }
-
-  private isHandOk(hand: string, midiPitch: number) {
-    return (((hand === 'rh' && this.playConfiguration.waitForRightHand)
-      || (hand === 'lh' && this.playConfiguration.waitForLeftHand))
-      && (midiPitch >= this.state.leftmostKey && midiPitch <= this.state.rightmostKey)
-    );
   }
 
   calculateStartTime() {

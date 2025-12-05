@@ -220,7 +220,6 @@ export class PlayerAudioService {
     this.schedule((time: number) => {
       this.scheduleDraw(() => {
         if (this.isHandOk(hand, note.midi)) {
-          console.log('Scheduling note with assess', hand, note.midi);
           const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), noteTimeEnd, note, hand);
           callbacks.onNoteStart(time, note, liveStatus);
         } else {
