@@ -94,7 +94,7 @@ export class AccountScoresComponent implements OnInit {
   }
 
   navigateToOpen() {
-    this.router.navigate(['/open']);
+    this.router.navigate(['/library']);
   }
 
   onScoreClick(score: ScoreApiInfo) {
@@ -109,7 +109,7 @@ export class AccountScoresComponent implements OnInit {
 
   viewScore(score: ScoreApiInfo) {
     if (score.id) {
-      this.router.navigate(['/browse', score.id, 'info']);
+      this.router.navigate(['/library', score.id, 'info']);
     } else {
       console.error('Score ID is missing');
     }

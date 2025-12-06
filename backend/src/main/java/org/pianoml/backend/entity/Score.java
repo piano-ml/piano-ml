@@ -96,4 +96,13 @@ public class Score {
   @Column(name = "play_count")
   private Long playCount = 0L;
 
+  @Column(name = "tonic", length = 10)
+  private String tonic;
+
+  @Column(name = "mode", length = 10)
+  private String mode;
+
+  @Column(name = "full_key", length = 50)
+  private String fullKey;
+
 }

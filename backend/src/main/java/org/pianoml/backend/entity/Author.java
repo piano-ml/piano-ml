@@ -51,4 +51,7 @@ public class Author {
   @Column(name = "image_hq", length = 255, nullable = true)
   private String imageHq;
 
+  @Column(name = "slug", length = 255, unique = true)
+  private String slug;
+
 }

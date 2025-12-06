@@ -17,5 +17,9 @@ export interface GenreApiInfo {
      * Number of scores linked to this genre (non-deleted)
      */
     scoreCount?: number;
+    /**
+     * URL-friendly slug for the genre
+     */
+    slug?: string;
 }
 

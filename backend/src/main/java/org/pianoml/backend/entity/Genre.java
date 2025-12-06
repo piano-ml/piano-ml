@@ -20,4 +20,7 @@ public class Genre {
   @Column(nullable = false)
   private String name;
 
+  @Column(name = "slug", length = 255, unique = true)
+  private String slug;
+
 }

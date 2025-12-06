@@ -199,7 +199,7 @@ export class ScoreInfoComponent implements OnInit {
   }
 
   onBack() {
-    this.router.navigate(['/browse']);
+    this.router.navigate(['/library']);
   }
 
   editScore() {

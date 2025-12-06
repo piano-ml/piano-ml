@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/changes/006-add-author-image.yaml
   - include:
       file: db/changelog/changes/007-user-play-count.yaml
+  - include:
+      file: db/changelog/changes/008-add-tonic-mode-key-slug.yaml

@@ -15,22 +15,22 @@ export const routes: Routes = [
     // },
     {
         component: LayoutComponent,
-        path: 'open',
-        loadChildren: () => import('./loader/loader.module').then(m => m.LoaderModule),
+        path: 'library',
+        loadChildren: () => import('./library/library.module').then(m => m.LibraryModule),
         data: { breadcrumb: 'Practice' }
     },
     {
         component: LayoutComponent,
         path: 'work',
-        loadChildren: () => import('./loader/loader.module').then(m => m.LoaderModule),
+        loadChildren: () => import('./library/library.module').then(m => m.LibraryModule),
         data: { breadcrumb: 'Practice' }
-    },    
+    },
     {
         component: LayoutComponent,
-        path: 'browse',
-        loadChildren: () => import('./loader/loader.module').then(m => m.LoaderModule),
-        data: { breadcrumb: 'Practice' }
-    },       
+        path: 'import',
+        loadChildren: () => import('./import/import.module').then(m => m.ImportModule),
+        data: { breadcrumb: 'Import' }
+    },
     {
         component: LayoutComponent,
         path: 'exercises',

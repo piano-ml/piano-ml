@@ -26,7 +26,7 @@ export class SlugToWorkbenchComponent implements OnInit {
     
     if (!slug) {
       console.error('No slug provided');
-      this.router.navigate(['/browse']);
+      this.router.navigate(['/library']);
       return;
     }
 
@@ -46,7 +46,7 @@ export class SlugToWorkbenchComponent implements OnInit {
       error: (error) => {
         console.error('Error loading score:', error);
         // Fallback to score info page if workbench fails
-        this.router.navigate(['/open', slug]);
+        this.router.navigate(['/library', slug]);
       }
     });
   }

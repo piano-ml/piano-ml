@@ -39,5 +39,17 @@ export interface ScoreApiInfo {
     publicDomain?: boolean;
     exercise?: boolean;
     playCount?: number;
+    /**
+     * The tonic note of the piece (e.g., C, D, E)
+     */
+    tonic?: string;
+    /**
+     * The mode of the piece (e.g., major, minor)
+     */
+    mode?: string;
+    /**
+     * The full key signature (e.g., C major, D minor)
+     */
+    fullKey?: string;
 }
 
