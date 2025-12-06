@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, type Routes } from '@angular/router';
-import { LoaderHomeComponent } from './components/loader-home/loader-home.component';
+import { BrowseComponent } from './components/browse/browse.component';
 import { LinkComponent } from './components/link/link.component';
 import { ImportWorkComponent } from './components/import-work/import-work.component';
-import { BrowseComponent } from './components/browse/browse.component';
+import { GenreBrowseComponent } from './components/genre-browse/genre-browse.component';
+import { ArtistBrowseComponent } from './components/artist-browse/artist-browse.component';
 import { ScoreInfoComponent } from './components/score-info/score-info.component';
 import { SlugToWorkbenchComponent } from './components/slug-to-workbench/slug-to-workbench.component';
 
@@ -11,7 +12,11 @@ export const loaderRouteList: Routes = [
   {
     path: '',
     component: BrowseComponent,
-    data: { breadcrumb: 'Browse' }
+    children: [
+      { path: '', redirectTo: 'genres', pathMatch: 'full' },
+      { path: 'genres', component: GenreBrowseComponent, data: { breadcrumb: 'Genres' } },
+      { path: 'artists', component: ArtistBrowseComponent, data: { breadcrumb: 'Artists' } }
+    ]
   },
   {
     path: ':id/info',
@@ -30,7 +35,6 @@ export const loaderRouteList: Routes = [
     path: ':slug',
     component: SlugToWorkbenchComponent
   }
-
 ];
 
 @NgModule({

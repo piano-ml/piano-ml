@@ -4,6 +4,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { LoaderRoutingModule } from './loader-routing.module';
 import { BrowseComponent } from './components/browse/browse.component';
 import { ScoreInfoComponent } from './components/score-info/score-info.component';
+import { GenreBrowseComponent } from './components/genre-browse/genre-browse.component';
+import { ArtistBrowseComponent } from './components/artist-browse/artist-browse.component';
 
 
 @NgModule({
@@ -13,7 +15,9 @@ import { ScoreInfoComponent } from './components/score-info/score-info.component
     ReactiveFormsModule,
     LoaderRoutingModule,
     BrowseComponent,
-    ScoreInfoComponent
+    ScoreInfoComponent,
+    GenreBrowseComponent,
+    ArtistBrowseComponent
   ]
 })
 export class LoaderModule { }

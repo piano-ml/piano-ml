@@ -72,49 +72,29 @@
     </div>
   </div>
 
-
-
-
-
-
   <!-- Tabs Section -->
-  <div class="mb-6" *ngIf=" !(selectedAuthor || selectedGenre || activeSearchKeyword)">
+  <div class="mb-6" *ngIf="!(selectedAuthor || selectedGenre || activeSearchKeyword)">
     <!-- Tab Headers -->
     <div class="flex border-b border-neutral-600">
-      <button 
-        (click)="setActiveTab('genres')"
-        [class.border-green-500]="activeTab === 'genres'"
-        [class.text-white]="activeTab === 'genres'"
-        [class.text-gray-400]="activeTab !== 'genres'"
+      <a
+        routerLink="genres"
+        routerLinkActive="border-green-500 text-white"
+        [class.text-gray-400]="!isActive('genres')"
         class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
         Browse by Genres
-      </button>
-      <button 
-        (click)="setActiveTab('authors')"
-        [class.border-blue-500]="activeTab === 'authors'"
-        [class.text-white]="activeTab === 'authors'"
-        [class.text-gray-400]="activeTab !== 'authors'"
+      </a>
+      <a
+        routerLink="artists"
+        routerLinkActive="border-blue-500 text-white"
+        [class.text-gray-400]="!isActive('artists')"
         class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
         Browse by Artist
-      </button>
-
+      </a>
     </div>
 
     <!-- Tab Content -->
-    <div class="mt-4" >
-      <!-- Popular Authors Section -->
-      <app-browse-by-authors 
-        *ngIf="activeTab === 'authors'"
-        [trackFilter]="getTrackCountFilter()"
-        (authorClick)="onAuthorClick($event)">
-      </app-browse-by-authors>
-
-      <!-- Browse by Genre Section -->
-      <app-browse-by-genre 
-        *ngIf="activeTab === 'genres'"
-        [trackFilter]="getTrackCountFilter()"
-        (genreClick)="onGenreClick($event)">
-      </app-browse-by-genre>
+    <div class="mt-4">
+      <router-outlet></router-outlet>
     </div>
   </div>
 
@@ -146,6 +126,5 @@
 
   <!-- Quick Actions -->
   <app-quick-actions *ngIf="activeSearchKeyword || selectedAuthor || selectedGenre"></app-quick-actions>
-
 
 </div>

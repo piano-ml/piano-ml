@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ScoreService } from '../../../core/api/api/score.service';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
@@ -9,14 +9,13 @@ import { ScoreGenreBrowseGet200ResponseInner } from '../../../core/api/model/sco
 import { ScoreStatsGet200Response } from '../../../core/api/model/scoreStatsGet200Response';
 import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn } from '../../../shared/components/score-table/score-table.component';
 import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
-import { BrowseByAuthorsComponent } from '../browse-by-authors/browse-by-authors.component';
-import { BrowseByGenreComponent } from '../browse-by-genre/browse-by-genre.component';
 
 @Component({
   selector: 'app-browse',
-  imports: [CommonModule, FormsModule, ScoreTableComponent, QuickActionsComponent, BrowseByAuthorsComponent, BrowseByGenreComponent],
+  imports: [CommonModule, FormsModule, ScoreTableComponent, QuickActionsComponent, RouterModule],
   templateUrl: './browse.component.html',
-  styleUrl: './browse.component.css'
+  styleUrl: './browse.component.css',
+  standalone: true
 })
 export class BrowseComponent implements OnInit {
 
@@ -33,9 +32,6 @@ export class BrowseComponent implements OnInit {
   currentPage = 0;
   pageSize = 100;
   hasMore = true;
-
-  // Tab selection
-  activeTab: 'authors' | 'genres' = 'genres';
 
   // Track count filters
   filterOneHand = false;
@@ -70,7 +66,6 @@ export class BrowseComponent implements OnInit {
   ngOnInit() {
     this.loadStats();
     
-    // Subscribe to query params to handle browser back/forward navigation
     this.route.queryParams.subscribe(params => {
       const keyword = params['search'] || '';
       const authorId = params['author'] || '';
@@ -82,13 +77,10 @@ export class BrowseComponent implements OnInit {
         this.selectedGenre = null;
         this.loadScores(true);
       } else if (authorId) {
-        // Load author info and then filter scores
         this.loadAuthorAndFilter(authorId);
       } else if (genreId) {
-        // Load genre info and then filter scores
         this.loadGenreAndFilter(genreId);
       } else {
-        // No filters, load all scores
         this.activeSearchKeyword = '';
         this.searchKeyword = '';
         this.selectedAuthor = null;
@@ -99,7 +91,6 @@ export class BrowseComponent implements OnInit {
   }
 
   loadAuthorAndFilter(authorId: string) {
-    // Load author info from API
     this.loading = true;
     this.scoreService.scoreAuthorBrowseGet(undefined, 0, 100).subscribe({
       next: (data) => {
@@ -111,7 +102,6 @@ export class BrowseComponent implements OnInit {
           this.searchKeyword = '';
           this.loadScoresByAuthor(author);
         } else {
-          // Author not found, clear filters and load all scores
           this.router.navigate([], {
             relativeTo: this.route,
             queryParams: {}
@@ -131,7 +121,6 @@ export class BrowseComponent implements OnInit {
   }
 
   loadGenreAndFilter(genreId: string) {
-    // Load genre info from API
     this.loading = true;
     this.scoreService.scoreGenreBrowseGet(undefined, undefined, 0, 100).subscribe({
       next: (data) => {
@@ -143,12 +132,11 @@ export class BrowseComponent implements OnInit {
           this.searchKeyword = '';
           this.loadScoresByGenre(genre);
         } else {
-          // Genre not found, clear filters and load all scores
-          // this.router.navigate([], {
-          //   relativeTo: this.route,
-          //   queryParams: {}
-          // });
-          // this.loadScores(true);
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {}
+          });
+          this.loadScores(true);
         }
         this.loading = false;
         this.changeDetector.detectChanges();
@@ -189,18 +177,17 @@ export class BrowseComponent implements OnInit {
 
     this.loading = true;
     const offset = this.currentPage * this.pageSize;
-
     const trackCount = this.getTrackCountFilter();
 
     this.scoreService.scoreSearchGet(
       this.searchKeyword || undefined,
-      undefined, // ownerId
-      undefined, // genreId
-      undefined, // artist
-      undefined, // etude
-      undefined, // gradeStart
-      undefined, // gradeEnd
-      undefined, // tempo
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
       offset,
       this.pageSize,
       trackCount
@@ -223,7 +210,6 @@ export class BrowseComponent implements OnInit {
         this.changeDetector.detectChanges();
       }
     });
-
   }
 
   onSearch() {
@@ -231,7 +217,6 @@ export class BrowseComponent implements OnInit {
     this.selectedAuthor = null;
     this.selectedGenre = null;
     
-    // Update URL with search parameter, clear author and genre parameters
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { search: this.searchKeyword, author: null, genre: null }
@@ -262,7 +247,6 @@ export class BrowseComponent implements OnInit {
     this.searchKeyword = '';
     this.activeSearchKeyword = '';
     
-    // Update URL with author parameter, clear search and genre parameters
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { author: author.author.id, search: null, genre: null }
@@ -276,21 +260,20 @@ export class BrowseComponent implements OnInit {
     this.scores = [];
     this.hasMore = true;
     this.loading = true;
-
     const trackCount = this.getTrackCountFilter();
 
     this.scoreService.scoreSearchGet(
-      undefined, // keyword
-      undefined, // ownerId
-      undefined, // genreId
-      author.author.id, // artist (using author ID)
-      undefined, // etude
-      undefined, // gradeStart
-      undefined, // gradeEnd
-      undefined, // tempo
-      0, // offset
+      undefined,
+      undefined,
+      undefined,
+      author.author.id,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      0,
       this.pageSize,
-      trackCount // tracks
+      trackCount
     ).subscribe({
       next: (data) => {
         this.scores = data;
@@ -313,7 +296,6 @@ export class BrowseComponent implements OnInit {
     this.searchKeyword = '';
     this.activeSearchKeyword = '';
 
-    // Update URL with genre parameter, clear search and author parameters
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { genre: genre.genre?.id, search: null, author: null }
@@ -327,21 +309,20 @@ export class BrowseComponent implements OnInit {
     this.scores = [];
     this.hasMore = true;
     this.loading = true;
-
     const trackCount = this.getTrackCountFilter();
 
     this.scoreService.scoreSearchGet(
-      undefined, // keyword
-      undefined, // ownerId
-      genre.genre?.id, // genreId
-      undefined, // artist
-      undefined, // etude
-      undefined, // gradeStart
-      undefined, // gradeEnd
-      undefined, // tempo
-      0, // offset
+      undefined,
+      undefined,
+      genre.genre?.id,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      0,
       this.pageSize,
-      trackCount // tracks
+      trackCount
     ).subscribe({
       next: (data) => {
         this.scores = data;
@@ -360,43 +341,34 @@ export class BrowseComponent implements OnInit {
 
   clearAuthorFilter() {
     this.selectedAuthor = null;
-    
-    // Clear URL parameters
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {}
     });
-    
     this.loadScores(true);
   }
 
   clearGenreFilter() {
     this.selectedGenre = null;
-    
-    // Clear URL parameters
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {}
     });
-    
     this.loadScores(true);
   }
 
   clearSearchFilter() {
     this.activeSearchKeyword = '';
     this.searchKeyword = '';
-    
-    // Clear URL parameters
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {}
     });
-    
     this.loadScores(true);
   }
 
-  setActiveTab(tab: 'authors' | 'genres') {
-    this.activeTab = tab;
+  isActive(route: string): boolean {
+    return this.router.url.includes(route);
   }
 
   getTrackCountFilter(): number[] | undefined {
@@ -411,7 +383,6 @@ export class BrowseComponent implements OnInit {
   }
 
   applyFilters() {
-    // Reload scores with the new filter
     if (this.selectedAuthor) {
       this.loadScoresByAuthor(this.selectedAuthor);
     } else if (this.selectedGenre) {

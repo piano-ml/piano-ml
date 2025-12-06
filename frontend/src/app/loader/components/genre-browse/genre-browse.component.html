@@ -1,0 +1,7 @@
+<div *ngIf="loading" class="text-center">Loading genres...</div>
+<div *ngIf="!loading && genres.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div *ngFor="let genre of genres" (click)="onGenreClick(genre)" class="cursor-pointer p-4 bg-neutral-800 rounded-lg hover:bg-neutral-700 transition-colors">
+    <h3 class="text-lg font-semibold text-green-400">{{ genre.genre?.name }}</h3>
+    <p class="text-gray-400">{{ genre.count }} scores</p>
+  </div>
+</div>
