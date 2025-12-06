@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
-import { LoaderHomeComponent } from './loader-home.component';
+import { LibraryHomeComponent } from './library-home.component';
 
-describe('LoaderHomeComponent', () => {
-  let component: LoaderHomeComponent;
-  let fixture: ComponentFixture<LoaderHomeComponent>;
+describe('LibraryHomeComponent', () => {
+  let component: LibraryHomeComponent;
+  let fixture: ComponentFixture<LibraryHomeComponent>;
   let mockActivatedRoute: any;
 
   beforeEach(async () => {
@@ -14,14 +14,14 @@ describe('LoaderHomeComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [LoaderHomeComponent],
+      imports: [LibraryHomeComponent],
       providers: [
         { provide: ActivatedRoute, useValue: mockActivatedRoute }
       ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(LoaderHomeComponent);
+    fixture = TestBed.createComponent(LibraryHomeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -32,14 +32,14 @@ describe('LoaderHomeComponent', () => {
 
   it('should display import link', () => {
     const compiled = fixture.nativeElement;
-    const importLink = compiled.querySelector('a[routerLink="/loader/link"]');
+    const importLink = compiled.querySelector('a[routerLink="/import/link"]');
     expect(importLink).toBeTruthy();
     expect(importLink.textContent).toContain('Import a new file');
   });
 
   it('should have correct routing for import link', () => {
     const compiled = fixture.nativeElement;
-    const importLink = compiled.querySelector('a[routerLink="/loader/link"]');
-    expect(importLink.getAttribute('routerLink')).toBe('/loader/link');
+    const importLink = compiled.querySelector('a[routerLink="/import/link"]');
+    expect(importLink.getAttribute('routerLink')).toBe('/import/link');
   });
 });

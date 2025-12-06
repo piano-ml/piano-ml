@@ -1,6 +1,7 @@
 import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat,  bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit } from '@ng-icons/bootstrap-icons';
 import { keyboard, lefthand, righthand } from '../../../shared/icons/custom-icons';
@@ -111,7 +112,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     private router: Router,
     private playerService: PlayerService,
     private changeDetector: ChangeDetectorRef,
-    private scoreService: ScoreService
+    private scoreService: ScoreService,
+    private titleService: Title
   ) {
     // Initialize elapsed time observable
     this.elapsedTime = this.playerService.elapsedTime;
@@ -234,6 +236,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     const midi = this.getCachedMidi();
     this.tempo = Math.round(this.scoreData?.tempo || midi.header.tempos[0]?.bpm || 120);
     this.title = this.scoreData?.title || midi.header.name || '';
+    this.updatePageTitle();
     this.checkIfScrollNeeded();
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, midi);
     this.setupSlider();
@@ -319,7 +322,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   private handleLoadError(error: any, scoreData: ScoreApiInfo, reject: (reason?: any) => void): void {
     if (error.status === 404) {
-      this.router.navigate(['/open', scoreData.id, 'info']);
+      this.router.navigate(['/library', scoreData.id, 'info']);
     }
     reject(error);
   }
@@ -330,7 +333,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   showInfo() {
     if (this.scoreData?.id) {
-      this.router.navigate(['/open', this.scoreData.id, 'info']);
+      this.router.navigate(['/library', this.scoreData.id, 'info']);
     }
   }
 
@@ -562,6 +565,21 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         }
       }
     });
+  }
+
+  updatePageTitle() {
+    if (this.scoreData) {
+      const author = this.scoreData.author || '';
+      const title = this.scoreData.title || this.title || '';
+      
+      if (author && title) {
+        this.titleService.setTitle(`PianoML: ${author} - ${title}`);
+      } else if (title) {
+        this.titleService.setTitle(`PianoML: ${title}`);
+      } else {
+        this.titleService.setTitle('PianoML');
+      }
+    }
   }
 
   ngOnDestroy() {

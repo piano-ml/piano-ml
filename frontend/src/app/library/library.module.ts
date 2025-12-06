@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { LoaderRoutingModule } from './loader-routing.module';
+import { LibraryRoutingModule } from './library-routing.module';
 import { BrowseComponent } from './components/browse/browse.component';
 import { ScoreInfoComponent } from './components/score-info/score-info.component';
 
@@ -11,9 +11,9 @@ import { ScoreInfoComponent } from './components/score-info/score-info.component
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    LoaderRoutingModule,
+    LibraryRoutingModule,
     BrowseComponent,
     ScoreInfoComponent
   ]
 })
-export class LoaderModule { }
+export class LibraryModule { }

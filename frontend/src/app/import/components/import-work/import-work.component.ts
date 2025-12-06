@@ -208,7 +208,7 @@ export class ImportWorkComponent implements OnInit {
                         next: (data2) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();
-                            this.route.navigate(['/browse', data.id, 'info']);
+                            this.route.navigate(['/library', data.id, 'info']);
                         },
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);
@@ -290,7 +290,7 @@ export class ImportWorkComponent implements OnInit {
                         next: (data2) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();
-                            this.route.navigate(['/browse', data.id, 'info']);
+                            this.route.navigate(['/library', data.id, 'info']);
                         },
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);

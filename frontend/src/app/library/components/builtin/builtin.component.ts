@@ -36,7 +36,7 @@ export class BuiltinComponent {
 
 
   onSongClick(providedSong: ProvidedSong) {
-    this.router.navigate(['/open', providedSong.filename]);
+    this.router.navigate(['/library', providedSong.filename]);
   }
 
 

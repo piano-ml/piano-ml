@@ -23,7 +23,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   @PersistenceContext
   private EntityManager em;
 
-  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user, List<Integer> tracks) {
+  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user, List<Integer> tracks) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Score> cq = cb.createQuery(Score.class);
     Root<Score> root = cq.from(Score.class);
@@ -49,6 +49,14 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
 
     if (artist != null && !artist.isEmpty()) {
       predicate = cb.and(predicate, cb.equal(root.get("author").get("id"), UUID.fromString(artist) ));
+    }
+
+    if (artistSlug != null && !artistSlug.isEmpty()) {
+      predicate = cb.and(predicate, cb.equal(root.get("author").get("slug"), artistSlug));
+    }
+
+    if (genreSlug != null && !genreSlug.isEmpty()) {
+      predicate = cb.and(predicate, cb.equal(root.get("genre").get("slug"), genreSlug));
     }
 
     if (etude != null) {

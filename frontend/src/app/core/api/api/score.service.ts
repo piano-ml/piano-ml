@@ -691,6 +691,8 @@ export class ScoreService extends BaseService {
      * @param ownerId owner
      * @param genreId genre
      * @param artist artist name
+     * @param artistSlug artist slug
+     * @param genreSlug genre slug
      * @param etude filter by etude type
      * @param gradeStart 
      * @param gradeEnd 
@@ -701,10 +703,10 @@ export class ScoreService extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, artist?: string, etude?: boolean, gradeStart?: number, gradeEnd?: number, tempo?: string, offset?: number, limit?: number, tracks?: Array<number>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ScoreApiInfo>>;
-    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, artist?: string, etude?: boolean, gradeStart?: number, gradeEnd?: number, tempo?: string, offset?: number, limit?: number, tracks?: Array<number>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ScoreApiInfo>>>;
-    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, artist?: string, etude?: boolean, gradeStart?: number, gradeEnd?: number, tempo?: string, offset?: number, limit?: number, tracks?: Array<number>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ScoreApiInfo>>>;
-    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, artist?: string, etude?: boolean, gradeStart?: number, gradeEnd?: number, tempo?: string, offset?: number, limit?: number, tracks?: Array<number>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, artist?: string, artistSlug?: string, genreSlug?: string, etude?: boolean, gradeStart?: number, gradeEnd?: number, tempo?: string, offset?: number, limit?: number, tracks?: Array<number>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ScoreApiInfo>>;
+    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, artist?: string, artistSlug?: string, genreSlug?: string, etude?: boolean, gradeStart?: number, gradeEnd?: number, tempo?: string, offset?: number, limit?: number, tracks?: Array<number>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ScoreApiInfo>>>;
+    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, artist?: string, artistSlug?: string, genreSlug?: string, etude?: boolean, gradeStart?: number, gradeEnd?: number, tempo?: string, offset?: number, limit?: number, tracks?: Array<number>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ScoreApiInfo>>>;
+    public scoreSearchGet(keyword?: string, ownerId?: string, genreId?: string, artist?: string, artistSlug?: string, genreSlug?: string, etude?: boolean, gradeStart?: number, gradeEnd?: number, tempo?: string, offset?: number, limit?: number, tracks?: Array<number>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
@@ -715,6 +717,10 @@ export class ScoreService extends BaseService {
           <any>genreId, 'genreId');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>artist, 'artist');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>artistSlug, 'artist_slug');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>genreSlug, 'genre_slug');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>etude, 'etude');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,

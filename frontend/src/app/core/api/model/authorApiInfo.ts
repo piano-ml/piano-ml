@@ -20,5 +20,9 @@ export interface AuthorApiInfo {
     lifeSpanBegin?: string;
     lifeSpanEnd?: string;
     lifeSpanEnded?: boolean;
+    /**
+     * URL-friendly slug for the author
+     */
+    slug?: string;
 }
 

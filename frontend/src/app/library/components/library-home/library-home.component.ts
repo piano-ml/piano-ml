@@ -6,12 +6,12 @@ import { QuickActionsComponent } from '../../../shared/components/quick-actions/
 import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../../../desktop/model/model';
 
 @Component({
-  selector: 'app-loader-home',
+  selector: 'app-library-home',
   imports: [BrowseComponent, RouterModule, QuickActionsComponent],
-  templateUrl: './loader-home.component.html',
-  styleUrl: './loader-home.component.css'
+  templateUrl: './library-home.component.html',
+  styleUrl: './library-home.component.css'
 })
-export class LoaderHomeComponent implements OnInit {
+export class LibraryHomeComponent implements OnInit {
 
   filename = '';
   

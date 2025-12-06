@@ -236,6 +236,16 @@ paths:
           schema:
             type: string
           description: artist name
+        - name: artist_slug
+          in: query
+          schema:
+            type: string
+          description: artist slug
+        - name: genre_slug
+          in: query
+          schema:
+            type: string
+          description: genre slug
         - name: etude
           in: query
           schema:
@@ -935,6 +945,10 @@ components:
           format: date
         lifeSpanEnded:
           type: boolean
+        slug:
+          type: string
+          maxLength: 255
+          description: URL-friendly slug for the author
     AuthorWithScoreCount:
       type: object
       properties:
@@ -1020,6 +1034,18 @@ components:
         playCount:
           type: integer
           format: int64
+        tonic:
+          type: string
+          maxLength: 10
+          description: The tonic note of the piece (e.g., C, D, E)
+        mode:
+          type: string
+          maxLength: 10
+          description: The mode of the piece (e.g., major, minor)
+        fullKey:
+          type: string
+          maxLength: 50
+          description: The full key signature (e.g., C major, D minor)
 
     WorkloadApiInfo:
       type: object
@@ -1082,6 +1108,10 @@ components:
           type: integer
           format: int32
           description: Number of scores linked to this genre (non-deleted)
+        slug:
+          type: string
+          maxLength: 255
+          description: URL-friendly slug for the genre
     MusicBrainzService:
       type: object
       properties:

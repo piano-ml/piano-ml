@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
 
@@ -50,8 +51,9 @@ export class HomeComponent implements AfterViewInit {
 
 
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private titleService: Title) {
     this.render = this.render.bind(this);
+    this.titleService.setTitle('PianoML: Learn Piano with Smart Sheet Music & Practice Tools');
   }
 
   /**

@@ -180,8 +180,8 @@ public class ScoreService {
       });
   }
 
-  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user, List<Integer> tracks) {
-    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, etude, gradeStart, gradeEnd, tempo, offset, limit, user, tracks )
+  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user, List<Integer> tracks) {
+    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, artistSlug, genreSlug, etude, gradeStart, gradeEnd, tempo, offset, limit, user, tracks )
       .stream()
       .map(scoreMapper::toScoreApiInfo)
       .collect(Collectors.toList());

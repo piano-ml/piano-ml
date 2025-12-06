@@ -1,4 +1,4 @@
-# ![25 études faciles et progressive pour le piano](/assets/images/Burgmuller-1.webp) 
+# ![Frederick Burgmüller: 25 études faciles et progressive pour le piano](/assets/images/Burgmuller-1.webp) 
 
 
 

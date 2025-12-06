@@ -1,0 +1,181 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-add-score-musical-fields
+      author: ssb2dmba
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: score
+                columnName: tonic
+      changes:
+        - addColumn:
+            tableName: score
+            columns:
+              - column:
+                  name: tonic
+                  type: varchar(10)
+              - column:
+                  name: mode
+                  type: varchar(10)
+              - column:
+                  name: full_key
+                  type: varchar(50)
+
+  - changeSet:
+      id: 008-add-author-slug
+      author: ssb2dmba
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: author
+                columnName: slug
+      changes:
+        - addColumn:
+            tableName: author
+            columns:
+              - column:
+                  name: slug
+                  type: varchar(255)
+        - addUniqueConstraint:
+            tableName: author
+            columnNames: slug
+            constraintName: uk_author_slug
+
+  - changeSet:
+      id: 008-add-genre-slug
+      author: ssb2dmba
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: genre
+                columnName: slug
+      changes:
+        - addColumn:
+            tableName: genre
+            columns:
+              - column:
+                  name: slug
+                  type: varchar(255)
+        - addUniqueConstraint:
+            tableName: genre
+            columnNames: slug
+            constraintName: uk_genre_slug
+
+  - changeSet:
+      id: 008-enable-unaccent-extension
+      author: ssb2dmba
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - sqlCheck:
+                expectedResult: 1
+                sql: SELECT COUNT(*) FROM pg_extension WHERE extname = 'unaccent'
+      changes:
+        - sql:
+            sql: CREATE EXTENSION IF NOT EXISTS unaccent;
+
+  - changeSet:
+      id: 008-generate-author-slugs
+      author: ssb2dmba
+      preConditions:
+        - onFail: MARK_RAN
+        - columnExists:
+            tableName: author
+            columnName: slug
+      changes:
+        - sql:
+            sql: >
+              WITH base_slugs AS (
+                SELECT
+                  id,
+                  CASE
+                    WHEN REGEXP_REPLACE(unaccent(TRIM(name)), '[^a-zA-Z0-9]+', '', 'g') = '' THEN
+                      COALESCE(
+                        NULLIF(LOWER(REGEXP_REPLACE(unaccent(TRIM(sort_name)), '[^a-zA-Z0-9]+', '-', 'g')), ''),
+                        'author-' || REPLACE(CAST(id AS TEXT), '-', '')
+                      )
+                    ELSE
+                      LOWER(REGEXP_REPLACE(unaccent(TRIM(name)), '[^a-zA-Z0-9]+', '-', 'g'))
+                  END as base_slug
+                FROM author
+                WHERE name IS NOT NULL AND slug IS NULL
+              ),
+              numbered_slugs AS (
+                SELECT
+                  id,
+                  base_slug,
+                  ROW_NUMBER() OVER (PARTITION BY base_slug ORDER BY id) - 1 as slug_num
+                FROM base_slugs
+              ),
+              final_slugs AS (
+                SELECT
+                  ns.id,
+                  CASE
+                    WHEN ns.slug_num = 0 AND NOT EXISTS (
+                      SELECT 1 FROM author a WHERE a.slug = ns.base_slug
+                    ) THEN ns.base_slug
+                    ELSE ns.base_slug || '-' || (
+                      ns.slug_num + COALESCE((
+                        SELECT COUNT(*)
+                        FROM author a
+                        WHERE a.slug ~ ('^' || ns.base_slug || '(-[0-9]+)?$')
+                      ), 0)
+                    )
+                  END as final_slug
+                FROM numbered_slugs ns
+              )
+              UPDATE author
+              SET slug = fs.final_slug
+              FROM final_slugs fs
+              WHERE author.id = fs.id;
+
+  - changeSet:
+      id: 008-generate-genre-slugs
+      author: ssb2dmba
+      preConditions:
+        - onFail: MARK_RAN
+        - columnExists:
+            tableName: genre
+            columnName: slug
+      changes:
+        - sql:
+            sql: >
+              WITH base_slugs AS (
+                SELECT
+                  id,
+                  LOWER(REGEXP_REPLACE(unaccent(TRIM(name)), '[^a-zA-Z0-9]+', '-', 'g')) as base_slug
+                FROM genre
+                WHERE name IS NOT NULL AND slug IS NULL
+              ),
+              numbered_slugs AS (
+                SELECT
+                  id,
+                  base_slug,
+                  ROW_NUMBER() OVER (PARTITION BY base_slug ORDER BY id) - 1 as slug_num
+                FROM base_slugs
+              ),
+              final_slugs AS (
+                SELECT
+                  ns.id,
+                  CASE
+                    WHEN ns.slug_num = 0 AND NOT EXISTS (
+                      SELECT 1 FROM genre g WHERE g.slug = ns.base_slug
+                    ) THEN ns.base_slug
+                    ELSE ns.base_slug || '-' || (
+                      ns.slug_num + COALESCE((
+                        SELECT COUNT(*)
+                        FROM genre g
+                        WHERE g.slug ~ ('^' || ns.base_slug || '(-[0-9]+)?$')
+                      ), 0)
+                    )
+                  END as final_slug
+                FROM numbered_slugs ns
+              )
+              UPDATE genre
+              SET slug = fs.final_slug
+              FROM final_slugs fs
+              WHERE genre.id = fs.id;
+
