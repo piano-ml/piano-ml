@@ -67,6 +67,7 @@ databaseChangeLog:
   - changeSet:
       id: 008-enable-unaccent-extension
       author: ssb2dmba
+      dbms: postgresql
       preConditions:
         - onFail: MARK_RAN
         - not:
@@ -80,6 +81,7 @@ databaseChangeLog:
   - changeSet:
       id: 008-generate-author-slugs
       author: ssb2dmba
+      dbms: postgresql
       preConditions:
         - onFail: MARK_RAN
         - columnExists:
@@ -133,6 +135,31 @@ databaseChangeLog:
               WHERE author.id = fs.id;
 
   - changeSet:
+      id: 008-generate-author-slugs-hsqldb
+      author: ssb2dmba
+      dbms: hsqldb
+      preConditions:
+        - onFail: MARK_RAN
+        - columnExists:
+            tableName: author
+            columnName: slug
+      changes:
+        - sql:
+            sql: >
+              UPDATE author
+              SET slug = CASE
+                WHEN REGEXP_REPLACE(TRIM(name), '[^a-zA-Z0-9]+', '', 'g') = '' THEN
+                  COALESCE(
+                    NULLIF(LOWER(REGEXP_REPLACE(TRIM(sort_name), '[^a-zA-Z0-9]+', '-', 'g')), ''),
+                    'author-' || REPLACE(CAST(id AS VARCHAR(255)), '-', '')
+                  )
+                ELSE
+                  LOWER(REGEXP_REPLACE(TRIM(name), '[^a-zA-Z0-9]+', '-', 'g'))
+              END
+              WHERE name IS NOT NULL AND slug IS NULL;
+
+  - changeSet:
+      dbms: postgresql
       id: 008-generate-genre-slugs
       author: ssb2dmba
       preConditions:
@@ -178,4 +205,20 @@ databaseChangeLog:
               SET slug = fs.final_slug
               FROM final_slugs fs
               WHERE genre.id = fs.id;
+
+  - changeSet:
+      id: 008-generate-genre-slugs-hsqldb
+      author: ssb2dmba
+      dbms: hsqldb
+      preConditions:
+        - onFail: MARK_RAN
+        - columnExists:
+            tableName: genre
+            columnName: slug
+      changes:
+        - sql:
+            sql: >
+              UPDATE genre
+              SET slug = LOWER(REGEXP_REPLACE(TRIM(name), '[^a-zA-Z0-9]+', '-', 'g'))
+              WHERE name IS NOT NULL AND slug IS NULL;
 
