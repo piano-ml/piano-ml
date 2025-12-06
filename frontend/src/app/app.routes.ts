@@ -15,7 +15,7 @@ export const routes: Routes = [
     // },
     {
         component: LayoutComponent,
-        path: 'open',
+        path: 'browse',
         loadChildren: () => import('./loader/loader.module').then(m => m.LoaderModule),
         data: { breadcrumb: 'Practice' }
     },

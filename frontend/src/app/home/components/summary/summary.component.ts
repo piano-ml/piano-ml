@@ -25,7 +25,7 @@ export class SummaryComponent {
       image: 'assets/images/circle_of_fifths_deluxe.svg'
     },
     {
-      url: '/open',
+      url: '/browse',
       title: 'Practice',
       description: 'Practice score from lib, upload PDF/MIDI/MusicXML files',
       image: 'assets/images/midi.webp'

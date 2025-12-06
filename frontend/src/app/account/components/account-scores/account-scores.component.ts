@@ -94,7 +94,7 @@ export class AccountScoresComponent implements OnInit {
   }
 
   navigateToOpen() {
-    this.router.navigate(['/open']);
+    this.router.navigate(['/browse']);
   }
 
   onScoreClick(score: ScoreApiInfo) {

@@ -116,7 +116,7 @@ export class LinkComponent implements OnInit {
   }
 
   onWorkClick(work: SimplifiedWork) {
-    this.router.navigate(['/open/import-work', work.mbid], {
+    this.router.navigate(['/browse/import-work', work.mbid], {
       state: { work: work },
       skipLocationChange: true
     });
@@ -227,7 +227,7 @@ export class LinkComponent implements OnInit {
       artistName: this.selectedArtist.name,
     };
 
-    this.router.navigate(['/open/import-work', 'manual'], {
+    this.router.navigate(['/browse/import-work', 'manual'], {
       state: { work: manualWork },
       skipLocationChange: true
     });
