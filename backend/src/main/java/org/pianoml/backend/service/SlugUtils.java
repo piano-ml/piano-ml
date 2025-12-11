@@ -23,29 +23,28 @@ public class SlugUtils {
     return baseSlug;
   }
 
-  public static String createUniqueSlug(Score score, ScoreRepository scoreRepository) {
+  public static Score createUniqueSlug(Score score, ScoreRepository scoreRepository) {
     String baseSlug = createSlug(score);
 
     // Chercher tous les scores avec un immutable_slug commençant par baseSlug
     List<Score> existingSlugs = scoreRepository.findByImmutableSlugStartingWith(baseSlug);
 
-    // Si aucun slug similaire n'existe, retourner le slug de base
-    if (existingSlugs.isEmpty()) {
-      return baseSlug;
-    }
-
     // Filtrer pour ne garder que ceux qui correspondent exactement au pattern baseSlug ou baseSlug-{number}
+    String finalBaseSlug = baseSlug;
     long conflictCount = existingSlugs.stream()
       .map(Score::getImmutableSlug)
-      .filter(slug -> slug.equals(baseSlug) || slug.matches(baseSlug + "-\\d+"))
+      .filter(slug -> slug.equals(finalBaseSlug) || slug.matches(finalBaseSlug + "-\\d+"))
       .count();
 
     // Si il y a des conflits, ajouter un compteur
     if (conflictCount > 0) {
-      return baseSlug + "-" + conflictCount;
+      baseSlug = baseSlug + "-" + conflictCount;
+      score.setVersion((int) (conflictCount + 1));
     }
+    score.setImmutableSlug(baseSlug);
+    score.setMutableSlug(baseSlug);
 
-    return baseSlug;
+    return score;
   }
 
   private static String createSlug(String author, String title) {
