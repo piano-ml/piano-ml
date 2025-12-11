@@ -125,9 +125,7 @@ public class ScoreService {
     }
 
     // Generate unique immutable slug
-    String uniqueSlug = SlugUtils.createUniqueSlug(score, scoreRepository);
-    score.setImmutableSlug(uniqueSlug);
-    score.setMutableSlug(uniqueSlug); // Initially, mutable slug is the same as immutable slug
+    SlugUtils.createUniqueSlug(score, scoreRepository);
     Score savedScore = scoreRepository.save(score);
     return scoreMapper.toScoreApiInfo(savedScore);
 

@@ -140,10 +140,10 @@ class SlugUtilsTest {
             .thenReturn(existingScores);
 
         // When
-        String result = SlugUtils.createUniqueSlug(score, repository);
+        SlugUtils.createUniqueSlug(score, repository);
 
         // Then
-        assertEquals("bach-invention-2", result);
+        assertEquals("bach-invention-2", score.getImmutableSlug());
     }
 
     @Test
@@ -163,10 +163,10 @@ class SlugUtilsTest {
             .thenReturn(new ArrayList<>());
 
         // When
-        String result = SlugUtils.createUniqueSlug(score, repository);
+        SlugUtils.createUniqueSlug(score, repository);
 
         // Then
-        assertEquals("debussy-clair-de-lune", result);
+        assertEquals("debussy-clair-de-lune", score.getImmutableSlug());
     }
 
     @Test
