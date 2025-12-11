@@ -86,6 +86,7 @@ public class ScoreService {
 
   @Transactional
   public ScoreApiInfo createScore(ScoreApiInfo scoreApiInfo, User userId) {
+
     if (scoreApiInfo.getVersion() == null) {
       // check if score exists
       if (scoreApiInfo.getMbid() != null) {
@@ -96,6 +97,21 @@ public class ScoreService {
       }
     }
     Score score = scoreMapper.toScore(scoreApiInfo);
+
+    // Generate unique immutable slug
+    String uniqueSlug = SlugUtils.createUniqueSlug(score, scoreRepository);
+    score.setImmutableSlug(uniqueSlug);
+    score.setMutableSlug(uniqueSlug); // Initially, mutable slug is the same as immutable slug
+
+    int candidateCount = scoreRepository.countScoreByImmutableSlug(score.getImmutableSlug());
+    if (candidateCount > 0) {
+      scoreApiInfo.setVersion(candidateCount + 1);
+      String uniqueSlug2 = SlugUtils.createUniqueSlug(score, scoreRepository);
+      score.setImmutableSlug(uniqueSlug2);
+      score.setMutableSlug(uniqueSlug);
+    }
+
+
     score.setOwner(userId);
     if (scoreApiInfo.getAuthorId() != null) {
       Author author = authorService.maybeCreateAuthor(UUID.fromString(scoreApiInfo.getAuthorId()));
@@ -124,10 +140,7 @@ public class ScoreService {
       score.setGenre(genre);
     }
 
-    // Generate unique immutable slug
-    String uniqueSlug = SlugUtils.createUniqueSlug(score, scoreRepository);
-    score.setImmutableSlug(uniqueSlug);
-    score.setMutableSlug(uniqueSlug); // Initially, mutable slug is the same as immutable slug
+
     Score savedScore = scoreRepository.save(score);
     return scoreMapper.toScoreApiInfo(savedScore);
 

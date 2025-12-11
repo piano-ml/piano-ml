@@ -24,6 +24,9 @@ public interface ScoreRepository extends CrudRepository<Score, UUID>, IScoreRepo
 
   Optional<Score> findByImmutableSlug(String immutableSlug);
 
+  // Count scores with the given immutable slug (Spring Data will derive the query)
+  Integer countScoreByImmutableSlug(String immutableSlug);
+
   Optional<Score> findScoreByIdAndOwnerAndVersion(UUID uuid, User user, Integer version);
 
   /**
