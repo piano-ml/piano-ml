@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-remove-unique-constraint-score-mbid-owner-version
+      author: ef
+      preConditions:
+        - onFail: MARK_RAN
+        - uniqueConstraintExists:
+            schemaName: pianoml
+            tableName: score
+            constraintName: uq_score_mbid_owner_version
+      changes:
+        - dropUniqueConstraint:
+            schemaName: pianoml
+            tableName: score
+            constraintName: uq_score_mbid_owner_version
+

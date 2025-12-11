@@ -19,3 +19,5 @@ databaseChangeLog:
       file: db/changelog/changes/007-user-play-count.yaml
   - include:
       file: db/changelog/changes/008-add-tonic-mode-key-slug.yaml
+  - include:
+      file: db/changelog/changes/009-remove-unique-constraint-score-mbid-owner-version.yaml
