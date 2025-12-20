@@ -1,5 +1,5 @@
 {
-  "generated": "2025-10-05T08:38:53.633Z",
+  "generated": "2025-12-20T16:24:41.871Z",
   "shaders": [
     {
       "id": 1,
@@ -41,9 +41,8 @@
     },
     {
       "id": 5,
-      "name": "Quaternionic Mandelbrot",
-      "description": "Complex 4D quaternionic mandelbrot with polar repetition and dynamic transformation",
-      "author": "philip.bertani@gmail.com",
+      "name": "Performance optimization parameters",
+      "description": "Colorful animated shader with dynamic gradients",
       "files": {
         "fragment": "fragment_shader.glsl",
         "vertex": "vertex_shader.glsl"

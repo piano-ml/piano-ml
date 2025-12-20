@@ -20,6 +20,14 @@ export class PlayerRepetitionService {
   private passCount = 1;
   private repetitionInstructions: RepetitionInstruction[] = [];
 
+  /**
+   * When we take a back-jump repeat, we keep an "active" repeat anchor so that
+   * we can reset passCount after playing the last ending, even if the last pass
+   * does not land on the BackJumpLine measure.
+   */
+  private activeRepeatAnchorMeasureIndex: number | null = null;
+  private activeRepeatMaxEndingNumber: number | null = null;
+
   // Cache for measure boundary detection
   private previousMeasureIndex = -1;
   private isAtMeasureStart = false;
@@ -46,6 +54,36 @@ export class PlayerRepetitionService {
     this.isAtMeasureStart = false;
     this.isAtMeasureEnd = false;
     this.segnoMeasureIndex = null;
+    this.activeRepeatAnchorMeasureIndex = null;
+    this.activeRepeatMaxEndingNumber = null;
+  }
+
+  private getRepeatAnchorForMeasure(measureIndex: number): number | null {
+    const anchor = this.repetitionInstructions
+      .filter(
+        instr =>
+          instr.type === RepetitionInstructionEnum.BackJumpLine &&
+          instr.alignment === AlignmentType.End &&
+          instr.measureIndex <= measureIndex
+      )
+      .sort((a, b) => b.measureIndex - a.measureIndex)[0];
+
+    return anchor ? anchor.measureIndex : null;
+  }
+
+  private getMaxEndingNumberForAnchor(anchorMeasureIndex: number): number {
+    const anchoredEndings = this.repetitionInstructions
+      .filter(instr => instr.type === RepetitionInstructionEnum.Ending)
+      .filter(instr => this.getRepeatAnchorForMeasure(instr.measureIndex) === anchorMeasureIndex);
+
+    if (anchoredEndings.length === 0) {
+      // No explicit Ending instructions anchored to this repeat -> default to 2 passes
+      return 2;
+    }
+
+    return Math.max(
+      ...anchoredEndings.flatMap(e => e.endingIndices || [1])
+    );
   }
 
   /**
@@ -131,9 +169,13 @@ export class PlayerRepetitionService {
   private nextToMeasure(measureIndex: number): void {
     //console.log(`Next to measure ${measureIndex}`);
     const cursor = this.state.osmdCursor;
-    while (cursor.iterator.CurrentMeasure.measureListIndex < measureIndex + 1 && !cursor.iterator.EndReached) {
+    while (cursor.iterator.CurrentMeasure.measureListIndex < measureIndex  && !cursor.iterator.EndReached) {
       cursor.nextMeasure();
+
     }
+    // if (cursor.iterator.CurrentMeasure.measureListIndex == measureIndex + 1) {
+    //   cursor.previous();
+    // }
   }
 
   isSkipable(n: OSMDNote): unknown {
@@ -182,13 +224,17 @@ export class PlayerRepetitionService {
     );
 
     if (currentVoltaStart) {
+      const anchor = this.getRepeatAnchorForMeasure(currentVoltaStart.measureIndex);
       const currentVoltaEnd = this.repetitionInstructions.find(
         instr =>
           instr.type === RepetitionInstructionEnum.Ending
           && instr.alignment === AlignmentType.End
           && instr.endingIndices.includes(currentVoltaStart.endingIndices[0]) // todo better than [0] ?
+          && (anchor == null || this.getRepeatAnchorForMeasure(instr.measureIndex) === anchor)
       );
-      this.nextToMeasure(currentVoltaEnd!.measureIndex);
+      // Move to the first measure AFTER the ending.
+      // (Jumping to the ending end measure itself is a no-op when we're already on it.)
+      this.nextToMeasure((currentVoltaEnd?.measureIndex ?? currentVoltaStart.measureIndex) + 1);
       return true;
     }
     return false;
@@ -199,6 +245,30 @@ export class PlayerRepetitionService {
    */
   private maybeMoveToMeasureOnEnd(iterator: MusicPartManagerIterator, playerService: PlayerService): boolean {
     const currentMeasureNumber = iterator.CurrentMeasure.measureListIndex;
+
+    // If we're on the last pass of an active repeat, reset passCount when we reach
+    // the end of the last ending (this often happens on a measure that is NOT the backjump sign).
+    if (
+      this.activeRepeatAnchorMeasureIndex != null &&
+      this.activeRepeatMaxEndingNumber != null &&
+      this.passCount === this.activeRepeatMaxEndingNumber
+    ) {
+      const endingEnd = this.repetitionInstructions.find(
+        instr =>
+          instr.type === RepetitionInstructionEnum.Ending &&
+          instr.alignment === AlignmentType.End &&
+          instr.measureIndex === currentMeasureNumber &&
+          (instr.endingIndices || []).includes(this.passCount) &&
+          this.getRepeatAnchorForMeasure(instr.measureIndex) === this.activeRepeatAnchorMeasureIndex
+      );
+
+      if (endingEnd) {
+        this.passCount = 1;
+        this.activeRepeatAnchorMeasureIndex = null;
+        this.activeRepeatMaxEndingNumber = null;
+      }
+    }
+
     // Special cases: Da Capo / Dal Segno instructions at measure end
     const daCapoLike = this.repetitionInstructions.find(
       instr =>
@@ -243,8 +313,8 @@ export class PlayerRepetitionService {
       return false;
     }
 
-    // 1. Chercher un StartLine explicite avant cette mesure (quel que soit l'alignment)
-    let targetMeasure: number;
+    // Find an explicit StartLine before this measure; default to the beginning otherwise
+    let targetMeasure = 0;
     const previousStartLine = this.repetitionInstructions
       .filter(
         instr =>
@@ -254,43 +324,15 @@ export class PlayerRepetitionService {
       .sort((a, b) => b.measureIndex - a.measureIndex)[0];
 
     if (previousStartLine) {
-      // On repart du début de cette section de reprise
+      // Resume from the beginning of this repeat section
       targetMeasure = previousStartLine.measureIndex;
-    } else {
-      // 2. Pas de StartLine : on cherche la précédente BackJumpLine
-      const previousBackJump = this.repetitionInstructions
-        .filter(
-          instr =>
-            instr.type === RepetitionInstructionEnum.BackJumpLine &&
-            instr.measureIndex < currentMeasureNumber &&
-            instr.alignment === AlignmentType.End
-        )
-        .sort((a, b) => b.measureIndex - a.measureIndex)[0];
-
-      if (previousBackJump) {
-        // On repart juste après la précédente backjump
-        targetMeasure = previousBackJump.measureIndex + 1;
-      } else {
-        // 3. Aucune backjump précédente : on repart du début
-        targetMeasure = 0;
-      }
     }
 
-    // Get all endings to determine if we should continue repeating
-    const allEndings = this.repetitionInstructions
-      .filter(instr => instr.type === RepetitionInstructionEnum.Ending)
-      .sort((a, b) => a.measureIndex - b.measureIndex);
+    const anchorMeasureIndex = backJump.measureIndex;
+    const maxEndingNumber = this.getMaxEndingNumberForAnchor(anchorMeasureIndex);
 
-    let maxEndingNumber: number;
-
-    if (allEndings.length > 0) {
-      maxEndingNumber = Math.max(
-        ...allEndings.flatMap(e => e.endingIndices || [1])
-      );
-    } else {
-      // Cas sans Ending : simple reprise, par défaut 2 passages
-      maxEndingNumber = 2;
-    }
+    this.activeRepeatAnchorMeasureIndex = anchorMeasureIndex;
+    this.activeRepeatMaxEndingNumber = maxEndingNumber;
     //console.log(`BackJump at measure ${currentMeasureNumber}, pass ${this.passCount}/${maxEndingNumber} ${targetMeasure}`);
 
     if (this.passCount < maxEndingNumber) {
@@ -299,6 +341,8 @@ export class PlayerRepetitionService {
       return true;
     } else {
       this.passCount = 1; // Reset for future repetitions
+      this.activeRepeatAnchorMeasureIndex = null;
+      this.activeRepeatMaxEndingNumber = null;
     }
 
     return false;
