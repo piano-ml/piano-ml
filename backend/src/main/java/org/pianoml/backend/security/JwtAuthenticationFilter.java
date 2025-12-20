@@ -2,6 +2,7 @@ package org.pianoml.backend.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.pianoml.backend.service.CustomUserDetailsService;
@@ -46,10 +47,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   public static String getJwtFromRequest(HttpServletRequest request) {
+    // First check Authorization header
     String bearerToken = request.getHeader("Authorization");
-    if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-      return bearerToken.substring(7);
+    if (StringUtils.hasText(bearerToken)) {
+      if (bearerToken.startsWith("Bearer ")) {
+        return bearerToken.substring(7);
+      }
+      return bearerToken;
     }
+
+    // Fallback: check cookies for an Authorization cookie
+    if (request.getCookies() != null) {
+      for (Cookie cookie : request.getCookies()) {
+        if ("Authorization".equals(cookie.getName())) {
+          String value = cookie.getValue();
+          if (StringUtils.hasText(value)) {
+            if (value.startsWith("Bearer ")) {
+              return value.substring(7);
+            }
+            return value;
+          }
+        }
+      }
+    }
+
     return null;
   }
 }

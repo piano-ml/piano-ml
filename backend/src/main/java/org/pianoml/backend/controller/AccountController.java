@@ -4,7 +4,9 @@ import org.pianoml.backend.api.AccountApi;
 import org.pianoml.backend.model.*;
 import org.pianoml.backend.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +30,48 @@ public class AccountController implements AccountApi {
 
   @Override
   public ResponseEntity<AccountLoginPost200Response> accountLoginPost(AccountLoginPostRequest accountLoginPostRequest) {
-    return ResponseEntity.ok(accountService.loginUser(accountLoginPostRequest));
+    // Perform login and obtain token
+    AccountLoginPost200Response response = accountService.loginUser(accountLoginPostRequest);
+    String token = response.getToken();
+    String bearer = token != null ? "Bearer " + token : "";
+
+    // Guard: ensure token is present before setting cookie. If missing, return 500 to avoid setting invalid cookie.
+    if (token == null || token.isBlank()) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    // Build secure HttpOnly cookie for cross-site usage. SameSite=None and Secure are required for cross-site cookies.
+    // Determine origin to optionally set cookie domain (allow sharing across subdomains like api.pianoml.org -> pianoml.org)
+    ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    String origin = null;
+    if (attrs != null) {
+      origin = attrs.getRequest().getHeader("Origin");
+    }
+
+    // Determine secure / samesite behavior: browsers require SameSite=None together with Secure=true.
+    // For local HTTP development we switch to SameSite=Lax and Secure=false so the browser accepts the cookie.
+    boolean isLocalHttp = origin != null && (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1"));
+    boolean isSecure = !isLocalHttp;
+    String sameSite = isSecure ? "None" : "Lax";
+
+    // RFC2616 forbids spaces in cookie values; store the raw token (no "Bearer " prefix) in the cookie.
+    ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from("Authorization", token)
+      .httpOnly(true)
+      .sameSite(sameSite)
+      .path("/")
+      .maxAge(7 * 24 * 60 * 60) // 7 days; adjust to match token lifetime if needed
+      .secure(isSecure);
+
+    // If request comes from a pianoml.org origin, set Domain to .pianoml.org so subdomains share the cookie.
+    if (origin != null && (origin.contains("pianoml.org") || origin.contains("www.pianoml.org"))) {
+      cookieBuilder = cookieBuilder.domain(".pianoml.org");
+    }
+
+    ResponseCookie cookie = cookieBuilder.build();
+
+    return ResponseEntity.ok()
+      .header(HttpHeaders.SET_COOKIE, cookie.toString())
+      .body(response);
   }
 
   @Override
@@ -38,7 +81,31 @@ public class AccountController implements AccountApi {
 
   @Override
   public ResponseEntity<Void> accountLogoutGet() {
-    return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    // Clear the Authorization cookie on logout
+    ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    String origin = null;
+    if (attrs != null) {
+      origin = attrs.getRequest().getHeader("Origin");
+    }
+
+    // Logout cookie: same logic for SameSite and Secure as login
+    boolean isLocalHttpLogout = origin != null && (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1"));
+    boolean isSecureLogout = !isLocalHttpLogout;
+    String sameSiteLogout = isSecureLogout ? "None" : "Lax";
+
+    ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from("Authorization", "")
+      .httpOnly(true)
+      .sameSite(sameSiteLogout)
+      .path("/")
+      .maxAge(0)
+      .secure(isSecureLogout);
+
+    if (origin != null && (origin.contains("pianoml.org") || origin.contains("www.pianoml.org"))) {
+      cookieBuilder = cookieBuilder.domain(".pianoml.org");
+    }
+
+    ResponseCookie cookie = cookieBuilder.build();
+    return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
   }
 
   @Override

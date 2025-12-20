@@ -1,41 +1,28 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, tap, interval, map, Observable } from 'rxjs';
-import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService } from '../../core/api';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService, UserApiInfo } from '../../core/api';
 
-
+interface SessionLike {
+  userId?: string | null;
+  username?: string | null;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private loggedIn = new BehaviorSubject<boolean>(this.hasValidToken());
+  private loggedIn = new BehaviorSubject<boolean>(this.hasStoredSession());
 
   constructor(
     private accountService: AccountService,
     private router: Router
-  ) { 
-    // Vérifier l'expiration du token toutes les minutes
-    interval(60000).subscribe(() => {
-      this.checkTokenExpiry();
-    });
+  ) {
+    this.refreshSessionFromServer();
   }
 
   get isLoggedIn(): Observable<boolean> {
-    return this.loggedIn.asObservable().pipe(
-      map(isLoggedIn => {
-        if (isLoggedIn) {
-          // Vérifier si le token est toujours valide
-          const token = this.getToken();
-          if (token && this.isTokenExpired(token)) {
-            console.log('Token expiré détecté, déconnexion automatique');
-            this.logout();
-            return false;
-          }
-        }
-        return isLoggedIn;
-      })
-    );
+    return this.loggedIn.asObservable();
   }
 
   getUserId(): string | null {
@@ -45,102 +32,23 @@ export class AuthService {
   login(user: AccountLoginPostRequest) {
     return this.accountService.accountLoginPost(user).pipe(
       tap(response => {
-        if (response.token) {
-          // Vérifier si le token reçu n'est pas déjà expiré
-          if (!this.isTokenExpired(response.token)) {
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('username', response.username!);
-            localStorage.setItem('userId', response.userId!);
-            this.loggedIn.next(true);
-            this.router.navigate(['/']);
-          } else {
-            console.error('Token reçu déjà expiré');
-            this.loggedIn.next(false);
-          }
-        }
+        this.persistSessionData({
+          userId: response.userId ?? null,
+          username: response.username ?? null
+        });
+        this.loggedIn.next(true);
+        this.router.navigate(['/']);
+        // Refresh ensures we sync with cookie-backed session state
+        this.refreshSessionFromServer();
       })
     );
   }
 
-  logout() {
-    localStorage.removeItem('token');
-    this.loggedIn.next(false);
-    this.router.navigate(['/account/login']);
-  }
-
-  getToken(): string | null {
-    return localStorage.getItem('token');
-  }
-
-  getTokenExpirationInfo(): { isExpired: boolean; expiresAt?: Date; timeUntilExpiry?: number } {
-    const token = this.getToken();
-    if (!token) {
-      return { isExpired: true };
-    }
-
-    try {
-      const payload = this.decodeJwtPayload(token);
-      if (!payload.exp) {
-        return { isExpired: false };
-      }
-
-      const expiresAt = new Date(payload.exp * 1000);
-      const currentTime = Date.now();
-      const timeUntilExpiry = expiresAt.getTime() - currentTime;
-      const isExpired = timeUntilExpiry <= 0;
-
-      return {
-        isExpired,
-        expiresAt,
-        timeUntilExpiry: Math.max(0, timeUntilExpiry)
-      };
-    } catch (error) {
-      return { isExpired: true };
-    }
-  }
-
-  private hasToken(): boolean {
-    return !!localStorage.getItem('token');
-  }
-
-  private hasValidToken(): boolean {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      return false;
-    }
-    return !this.isTokenExpired(token);
-  }
-
-  private isTokenExpired(token: string): boolean {
-    try {
-      const payload = this.decodeJwtPayload(token);
-      if (!payload.exp) {
-        return false; // Si pas d'expiration, considérer comme valide
-      }
-      
-      const currentTime = Math.floor(Date.now() / 1000);
-      return payload.exp < currentTime;
-    } catch (error) {
-      console.error('Erreur lors du décodage du JWT:', error);
-      return true; // En cas d'erreur, considérer comme expiré
-    }
-  }
-
-  private decodeJwtPayload(token: string): any {
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      throw new Error('Token JWT invalide');
-    }
-    
-    const payload = parts[1];
-    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(decoded);
-  }
-
-  private checkTokenExpiry(): void {
-    // Force une vérification en émettant la valeur actuelle
-    // Cela déclenchera la vérification dans l'observable isLoggedIn
-    this.loggedIn.next(this.loggedIn.value);
+  logout(): void {
+    this.accountService.accountLogoutGet().subscribe({
+      next: () => this.clearSession(true),
+      error: () => this.clearSession(true)
+    });
   }
 
   register(user: AccountCreatePostRequest) {
@@ -153,5 +61,61 @@ export class AuthService {
   
   updateUserInfo(data: any) {
     return this.accountService.accountUserinfoPut(data);
+  }
+
+  handleUnauthorized(): void {
+    this.clearSession(true);
+  }
+
+  private hasStoredSession(): boolean {
+    return !!localStorage.getItem('userId');
+  }
+
+  private refreshSessionFromServer(): void {
+    this.accountService.accountUserinfoGet().subscribe({
+      next: (userInfo: UserApiInfo) => {
+        this.persistSessionData({
+          userId: userInfo.id ?? null,
+          username: userInfo.name ?? null
+        });
+        this.loggedIn.next(true);
+      },
+      error: error => {
+        if (error?.status === 401 || error?.status === 403) {
+          this.clearSession(false);
+        }
+      }
+    });
+  }
+
+  private persistSessionData(session: SessionLike): void {
+    if ('userId' in session) {
+      if (session.userId) {
+        localStorage.setItem('userId', session.userId);
+      } else {
+        localStorage.removeItem('userId');
+      }
+    }
+    if ('username' in session) {
+      if (session.username) {
+        localStorage.setItem('username', session.username);
+      } else {
+        localStorage.removeItem('username');
+      }
+    }
+  }
+
+  private clearSession(redirect: boolean): void {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    if (this.loggedIn.value) {
+      this.loggedIn.next(false);
+    }
+    if (redirect) {
+      const target = '/account/login';
+      if (this.router.url !== target) {
+        this.router.navigate([target]);
+      }
+    }
   }
 }

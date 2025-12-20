@@ -34,7 +34,7 @@ export const appConfig: ApplicationConfig = {
       useValue: navigator.language || 'en-US'
     },
     provideHttpClient(withInterceptors([authInterceptor])),
-    provideApi(environment.api),
+    provideApi({ basePath: environment.api, withCredentials: true }),
     provideNgIconLoader(name => {
       const http = inject(HttpClient);
       return http.get(`/assets/svg/${name}.svg`, { responseType: 'text' });
