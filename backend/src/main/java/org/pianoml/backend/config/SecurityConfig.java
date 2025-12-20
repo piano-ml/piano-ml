@@ -62,9 +62,20 @@ public class SecurityConfig {
   private CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     // configuration.setAllowedOrigins(List.of("https://pianoml.org", "http://localhost:4200", "http://127.0.0.1:4200"));
-    configuration.setAllowedOrigins(List.of("*"));
+    // When allowCredentials is true the origin cannot be "*". Use allowedOriginPatterns to accept specific
+    // hostnames and wildcard patterns (useful for netlify preview domains).
+    configuration.setAllowedOriginPatterns(List.of(
+      "https://pianoml.org",
+      "https://www.pianoml.org",
+      "https://pianoml.netlify.app",
+      "https://*.netlify.app",
+      "http://localhost:4200",
+      "http://127.0.0.1:4200"
+    ));
+    configuration.setAllowCredentials(true); // necessary for httpOnly cookies
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
+    configuration.setMaxAge(3600L);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
