@@ -152,13 +152,11 @@ export class PlayerRepetitionService {
       doPrevious = false;
     }
     while (cursor.iterator.CurrentMeasure.measureListIndex > measureIndex && !cursor.iterator.FrontReached) {
-      console.log("previous measure1");
       cursor.previousMeasure();
     }
 
     setTimeout(() => {
       if (doPrevious) {
-        console.log("previous cursor2");
         cursor.previous();
       }
       playerService.play(playerService.playConfiguration);
@@ -172,8 +170,6 @@ export class PlayerRepetitionService {
     //console.log(`Next to measure ${measureIndex}`);
     const cursor = this.state.osmdCursor;
     while (cursor.iterator.CurrentMeasure.measureListIndex < measureIndex  && !cursor.iterator.EndReached) {
-      console.log(`Next to measure ${cursor.iterator.CurrentMeasure.measureListIndex} --> ${measureIndex}`);
-      console.log("next measure2");
       cursor.nextMeasure();
 
     }
