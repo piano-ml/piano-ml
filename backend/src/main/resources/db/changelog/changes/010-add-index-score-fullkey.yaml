@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-add-index-score-fullkey
+      author: auto
+      dbms: postgresql
+      runInTransaction: false
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - indexExists:
+                tableName: score
+                indexName: idx_score_full_key
+                schemaName: pianoml
+      changes:
+        - sql:
+            sql: >-
+              CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_score_full_key
+              ON pianoml.score (full_key)
+              WHERE full_key IS NOT NULL;
+
+  - changeSet:
+      id: 010-add-index-score-fullkey-generic
+      author: auto
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - indexExists:
+                tableName: score
+                indexName: idx_score_full_key
+                schemaName: pianoml
+      changes:
+        - createIndex:
+            schemaName: pianoml
+            tableName: score
+            indexName: idx_score_full_key
+            columns:
+              - column:
+                  name: full_key

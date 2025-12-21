@@ -13,6 +13,7 @@ export class BrowseByAuthorsComponent implements OnInit, OnChanges {
   authors: AuthorWithScoreCount[] = [];
   loadingAuthors = false;
   @Input() trackFilter: number[] | undefined;
+  @Input() fullKeyFilter: string | undefined;
   @Output() authorClick = new EventEmitter<AuthorWithScoreCount>();
 
   constructor(
@@ -30,7 +31,7 @@ export class BrowseByAuthorsComponent implements OnInit, OnChanges {
 
   loadAuthors() {
     this.loadingAuthors = true;
-    this.scoreService.scoreAuthorBrowseGet(this.trackFilter).subscribe({
+    this.scoreService.scoreAuthorBrowseGet(this.trackFilter, this.fullKeyFilter).subscribe({
       next: (data) => {
         this.authors = data;
         this.loadingAuthors = false;

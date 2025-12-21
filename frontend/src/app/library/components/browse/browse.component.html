@@ -35,6 +35,17 @@
         <input type="checkbox" [(ngModel)]="filterTwoHands" (change)="applyFilters()" class="cursor-pointer">
         <span>Two hands</span>
       </label>
+      <label class="flex items-center gap-2">
+        <span>Key</span>
+        <select
+          [(ngModel)]="selectedFullKey"
+          (change)="applyFilters()"
+          [disabled]="loadingFullKeys"
+          class="px-2 py-1 rounded-md text-black focus:outline-none focus:ring focus:border-blue-300">
+          <option value="">All keys</option>
+          <option *ngFor="let key of fullKeyOptions" [value]="key">{{ key }}</option>
+        </select>
+      </label>
 
   <!-- Selected Author Capsule  class="mb-6 bg-neutral-800 rounded-lg p-4"> -->
   <span *ngIf="selectedAuthor"> 
@@ -106,6 +117,7 @@
       <app-browse-by-authors 
         *ngIf="activeTab === 'authors'"
         [trackFilter]="getTrackCountFilter()"
+        [fullKeyFilter]="getFullKeyFilter()"
         (authorClick)="onAuthorClick($event)">
       </app-browse-by-authors>
 
@@ -113,6 +125,7 @@
       <app-browse-by-genre 
         *ngIf="activeTab === 'genres'"
         [trackFilter]="getTrackCountFilter()"
+        [fullKeyFilter]="getFullKeyFilter()"
         (genreClick)="onGenreClick($event)">
       </app-browse-by-genre>
     </div>

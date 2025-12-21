@@ -126,6 +126,17 @@ public class ScoreService {
 
     // Generate unique immutable slug
     SlugUtils.createUniqueSlug(score, scoreRepository);
+    // Propagate optional musical fields from API model if provided
+    if (scoreApiInfo.getTonic() != null) {
+      score.setTonic(scoreApiInfo.getTonic());
+    }
+    if (scoreApiInfo.getMode() != null) {
+      score.setMode(scoreApiInfo.getMode());
+    }
+    if (scoreApiInfo.getFullKey() != null) {
+      score.setFullKey(scoreApiInfo.getFullKey());
+    }
+
     Score savedScore = scoreRepository.save(score);
     return scoreMapper.toScoreApiInfo(savedScore);
 
@@ -173,16 +184,30 @@ public class ScoreService {
         score.setGrade(scoreApiInfo.getGrade());
         score.setStudyTracks(ScoreMapper.integerListToString(scoreApiInfo.getStudyTracks()));
         score.setTempo(scoreApiInfo.getTempo());
+        // Update optional musical fields only when provided (avoid overwriting with null)
+        if (scoreApiInfo.getTonic() != null) {
+          score.setTonic(scoreApiInfo.getTonic());
+        }
+        if (scoreApiInfo.getMode() != null) {
+          score.setMode(scoreApiInfo.getMode());
+        }
+        if (scoreApiInfo.getFullKey() != null) {
+          score.setFullKey(scoreApiInfo.getFullKey());
+        }
         Score updatedScore = scoreRepository.save(score);
         return scoreMapper.toScoreApiInfo(updatedScore);
       });
   }
 
-  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user, List<Integer> tracks) {
-    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, artistSlug, genreSlug, etude, gradeStart, gradeEnd, tempo, offset, limit, user, tracks )
+  public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, String fullKey, Integer offset, Integer limit, User user, List<Integer> tracks) {
+    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, artistSlug, genreSlug, etude, gradeStart, gradeEnd, tempo, fullKey, offset, limit, user, tracks )
       .stream()
       .map(scoreMapper::toScoreApiInfo)
       .collect(Collectors.toList());
+  }
+
+  public List<String> getFullKeys() {
+    return scoreRepository.findDistinctFullKeys();
   }
 
   public void packAttachmentToScore(Score score, String type, InputStream inputStream) throws IOException {
@@ -234,9 +259,15 @@ public class ScoreService {
         Integer tracks = node.has("tracks_count") && !node.get("tracks_count").isNull()
           ? node.get("tracks_count").asInt()
           : 0;
-        int durationSeconds = node.has("duration_seconds") && !node.get("duration_seconds").isNull()
-          ? node.get("duration_seconds").asInt()
-          : 0;
+        int durationSeconds = 0;
+        if (node.has("duration_seconds") && !node.get("duration_seconds").isNull()) {
+          // duration_seconds may be integer or floating in the metadata; handle both
+          try {
+            durationSeconds = (int) Math.round(node.get("duration_seconds").asDouble(0));
+          } catch (Exception ex) {
+            durationSeconds = node.get("duration_seconds").asInt(0);
+          }
+        }
         Integer measureCount = node.has("measures_count") && !node.get("measures_count").isNull()
           ? node.get("measures_count").asInt()
           : null;
@@ -252,6 +283,33 @@ public class ScoreService {
         score.setMeasuresCount(measureCount);
         score.setHasLyrics(hasLyrics);
         score.setTempo(tempo);
+
+        // New: parse optional analysis block and set tonic/mode/fullKey
+        if (node.has("analysis") && node.get("analysis").isObject()) {
+          JsonNode analysis = node.get("analysis");
+          String tonic = analysis.has("tonic") && !analysis.get("tonic").isNull()
+            ? analysis.get("tonic").asText()
+            : null;
+          String mode = analysis.has("mode") && !analysis.get("mode").isNull()
+            ? analysis.get("mode").asText()
+            : null;
+          String fullKey = null;
+          if (analysis.has("full_key") && !analysis.get("full_key").isNull()) {
+            fullKey = analysis.get("full_key").asText();
+          } else if (analysis.has("fullKey") && !analysis.get("fullKey").isNull()) {
+            fullKey = analysis.get("fullKey").asText();
+          } else if (analysis.has("key") && !analysis.get("key").isNull()) {
+            fullKey = analysis.get("key").asText();
+          }
+
+          // Only set if at least one of the fields is present to avoid overwriting existing data with nulls
+          if (tonic != null || mode != null || fullKey != null) {
+            score.setTonic(tonic);
+            score.setMode(mode);
+            score.setFullKey(fullKey);
+          }
+        }
+
         scoreRepository.save(score);
       } else {
         log.warn("No metadata found for score: {}", score.getId());
@@ -329,42 +387,49 @@ public class ScoreService {
 
 
   public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks) {
+    return getAuthorsWithScoreCounts(user, offset, limit, tracks, null);
+  }
+
+  public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey) {
     int off = offset != null ? Math.max(0, offset) : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
 
-    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(user, lim == null ? null : off, lim, tracks);
+    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(user, lim == null ? null : off, lim, tracks, fullKey);
     return rows.stream().map(row -> {
-      org.pianoml.backend.entity.Author author = (org.pianoml.backend.entity.Author) row[0];
-      Long count = (Long) row[1];
-      AuthorApiInfo authorApiInfo = authorMapper.toAuthorApiInfo(author);
-      AuthorWithScoreCount out = new AuthorWithScoreCount();
-      out.setAuthor(authorApiInfo);
-      out.setCount(count);
-      return out;
-    }).toList();
-  }
-
+       org.pianoml.backend.entity.Author author = (org.pianoml.backend.entity.Author) row[0];
+       Long count = (Long) row[1];
+       AuthorApiInfo authorApiInfo = authorMapper.toAuthorApiInfo(author);
+       AuthorWithScoreCount out = new AuthorWithScoreCount();
+       out.setAuthor(authorApiInfo);
+       out.setCount(count);
+       return out;
+     }).toList();
+   }
 
   public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter) {
+    return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, null);
+  }
+
+  public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey) {
     int off = offset != null ? Math.max(0, offset) : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
 
-    List<Object[]> rows = scoreRepository.countScoresGroupedByGenre(user, lim == null ? null : off, lim, tracks, genreFilter);
-    return rows.stream().map(row -> {
-      Genre genre = (Genre) row[0];
-      Long count = (Long) row[1];
-      ScoreGenreBrowseGet200ResponseInner out = new ScoreGenreBrowseGet200ResponseInner();
-      if (genre != null) {
-        GenreApiInfo genreApiInfo = genreMapper.toGenreApiInfo(genre);
-        out.setGenre(genreApiInfo);
-      } else {
-        // Cas spécial : genre est null
-        out.setGenre(null);
-      }
-      out.setCount(count);
-      return out;
-    }).toList();
-  }
+    List<Object[]> rows = scoreRepository.countScoresGroupedByGenre(user, lim == null ? null : off, lim, tracks, genreFilter, fullKey);
+     return rows.stream().map(row -> {
+       Genre genre = (Genre) row[0];
+       Long count = (Long) row[1];
+       ScoreGenreBrowseGet200ResponseInner out = new ScoreGenreBrowseGet200ResponseInner();
+       if (genre != null) {
+         GenreApiInfo genreApiInfo = genreMapper.toGenreApiInfo(genre);
+         out.setGenre(genreApiInfo);
+       } else {
+         // Cas spécial : genre est null
+         out.setGenre(null);
+       }
+       out.setCount(count);
+       return out;
+     }).toList();
+   }
 
   /**
    * Return counts of visible public-domain and copyrighted scores as the API model.

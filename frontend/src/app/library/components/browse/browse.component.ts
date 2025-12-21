@@ -41,6 +41,9 @@ export class BrowseComponent implements OnInit {
   // Track count filters
   filterOneHand = false;
   filterTwoHands = false;
+  fullKeyOptions: string[] = [];
+  selectedFullKey = '';
+  loadingFullKeys = false;
 
   // Table configuration
   tableColumns: ScoreTableColumn[] = [
@@ -70,6 +73,7 @@ export class BrowseComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.loadFullKeys();
     this.loadStats();
     this.updatePageTitle();
     // Read the URL path to set active tab
@@ -90,6 +94,7 @@ export class BrowseComponent implements OnInit {
         const keyword = queryParams['search'] || '';
         this.filterOneHand = queryParams['oneHand'] === 'true';
         this.filterTwoHands = queryParams['twoHands'] === 'true';
+        this.selectedFullKey = queryParams['fullKey'] || '';
         
         if (keyword) {
           this.searchKeyword = keyword;
@@ -118,7 +123,7 @@ export class BrowseComponent implements OnInit {
   loadAuthorAndFilter(artistSlug: string) {
     // Load author info from API
     this.loading = true;
-    this.scoreService.scoreAuthorBrowseGet(undefined, 0, 100).subscribe({
+    this.scoreService.scoreAuthorBrowseGet(this.getTrackCountFilter(), this.getFullKeyFilter(), 0, 100).subscribe({
       next: (data) => {
         const author = data.find(a => a.author.slug === artistSlug);
         if (author) {
@@ -151,7 +156,7 @@ export class BrowseComponent implements OnInit {
   loadGenreAndFilter(genreSlug: string) {
     // Load genre info from API
     this.loading = true;
-    this.scoreService.scoreGenreBrowseGet(undefined, undefined, 0, 100).subscribe({
+    this.scoreService.scoreGenreBrowseGet(this.getTrackCountFilter(), this.getFullKeyFilter(), undefined, 0, 100).subscribe({
       next: (data) => {
         const genre = data.find(g => g.genre?.slug === genreSlug);
         if (genre) {
@@ -222,6 +227,7 @@ export class BrowseComponent implements OnInit {
       undefined, // gradeStart
       undefined, // gradeEnd
       undefined, // tempo
+      this.getFullKeyFilter(), // fullKey
       offset, // offset
       this.pageSize, // limit
       trackCount // tracks
@@ -258,7 +264,8 @@ export class BrowseComponent implements OnInit {
       queryParams: { 
         search: this.searchKeyword,
         oneHand: this.filterOneHand || null,
-        twoHands: this.filterTwoHands || null
+        twoHands: this.filterTwoHands || null,
+        fullKey: this.getFullKeyFilter() || null
       }
     });
     
@@ -292,7 +299,8 @@ export class BrowseComponent implements OnInit {
     this.router.navigate(['/library/artists', author.author.slug], {
       queryParams: { 
         oneHand: this.filterOneHand || null,
-        twoHands: this.filterTwoHands || null
+        twoHands: this.filterTwoHands || null,
+        fullKey: this.getFullKeyFilter() || null
       }
     });
     
@@ -318,6 +326,7 @@ export class BrowseComponent implements OnInit {
       undefined, // gradeStart
       undefined, // gradeEnd
       undefined, // tempo
+      this.getFullKeyFilter(), // fullKey
       0, // offset
       this.pageSize, // limit
       trackCount // tracks
@@ -348,7 +357,8 @@ export class BrowseComponent implements OnInit {
     this.router.navigate(['/library/genres', genre.genre?.slug], {
       queryParams: { 
         oneHand: this.filterOneHand || null,
-        twoHands: this.filterTwoHands || null
+        twoHands: this.filterTwoHands || null,
+        fullKey: this.getFullKeyFilter() || null
       }
     });
     
@@ -374,6 +384,7 @@ export class BrowseComponent implements OnInit {
       undefined, // gradeStart
       undefined, // gradeEnd
       undefined, // tempo
+      this.getFullKeyFilter(), // fullKey
       0, // offset
       this.pageSize, // limit
       trackCount // tracks
@@ -445,13 +456,18 @@ export class BrowseComponent implements OnInit {
     return tracks.length > 0 ? tracks : undefined;
   }
 
+  getFullKeyFilter(): string | undefined {
+    return this.selectedFullKey || undefined;
+  }
+
   applyFilters() {
     // Update URL with current filter state, preserving route params
     if (this.selectedAuthor) {
       this.router.navigate(['/library/artists', this.selectedAuthor.author.slug], {
         queryParams: { 
           oneHand: this.filterOneHand || null,
-          twoHands: this.filterTwoHands || null
+          twoHands: this.filterTwoHands || null,
+          fullKey: this.getFullKeyFilter() || null
         }
       });
       this.loadScoresByAuthor(this.selectedAuthor);
@@ -459,7 +475,8 @@ export class BrowseComponent implements OnInit {
       this.router.navigate(['/library/genres', this.selectedGenre.genre?.slug], {
         queryParams: { 
           oneHand: this.filterOneHand || null,
-          twoHands: this.filterTwoHands || null
+          twoHands: this.filterTwoHands || null,
+          fullKey: this.getFullKeyFilter() || null
         }
       });
       this.loadScoresByGenre(this.selectedGenre);
@@ -468,12 +485,32 @@ export class BrowseComponent implements OnInit {
       this.router.navigate([basePath], {
         queryParams: { 
           oneHand: this.filterOneHand || null,
-          twoHands: this.filterTwoHands || null
+          twoHands: this.filterTwoHands || null,
+          fullKey: this.getFullKeyFilter() || null
         },
         queryParamsHandling: 'merge'
       });
       this.loadScores(true);
     }
+  }
+
+  loadFullKeys() {
+    this.loadingFullKeys = true;
+    this.scoreService.scoreGetFullKeyGet().subscribe({
+      next: (keys) => {
+        this.fullKeyOptions = Array.isArray(keys) ? [...keys].sort((a, b) => a.localeCompare(b)) : [];
+        if (this.selectedFullKey && !this.fullKeyOptions.includes(this.selectedFullKey)) {
+          this.selectedFullKey = '';
+        }
+        this.loadingFullKeys = false;
+        this.changeDetector.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error loading full keys:', error);
+        this.loadingFullKeys = false;
+        this.changeDetector.detectChanges();
+      }
+    });
   }
 
   updatePageTitle() {
