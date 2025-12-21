@@ -5,12 +5,13 @@ meta {
 }
 
 get {
-  url: http://localhost:8080/score/search
+  url: http://localhost:8080/score/search?fullKey=
   body: none
   auth: inherit
 }
 
 params:query {
+  fullKey: 
   ~keyword: "redemption"
   ~genreId: {{genreId}}
   ~gradeStart: {{gradeStart}}

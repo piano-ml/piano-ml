@@ -23,7 +23,8 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   @PersistenceContext
   private EntityManager em;
 
-  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, Integer offset, Integer limit, User user, List<Integer> tracks) {
+  // Updated signature with fullKey parameter
+  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, String fullKey, Integer offset, Integer limit, User user, List<Integer> tracks) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Score> cq = cb.createQuery(Score.class);
     Root<Score> root = cq.from(Score.class);
@@ -63,22 +64,21 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       predicate = cb.and(predicate, cb.equal(root.get("etude"), etude));
     }
 
-    // New: handle tempo parameter. If tempo == "NONE" then filter where tit sempo IS NULL in DB.
     if (tempo != null && !tempo.isEmpty()) {
       if ("NONE".equalsIgnoreCase(tempo)) {
         predicate = cb.and(predicate, cb.isNull(root.get("tempo")));
       }
     }
 
-
-    // New: handle tempo parameter. If tempo == "NONE" then filter where tempo IS NULL in DB.
-    if (tempo != null && !tempo.isEmpty()) {
-      if ("NONE".equalsIgnoreCase(tempo)) {
-        predicate = cb.and(predicate, cb.isNull(root.get("tempo")));
+    // New: filter by fullKey if provided. Special token NONE means full_key IS NULL.
+    if (fullKey != null && !fullKey.isEmpty()) {
+      if ("NONE".equalsIgnoreCase(fullKey)) {
+        predicate = cb.and(predicate, cb.isNull(root.get("fullKey")));
+      } else {
+        predicate = cb.and(predicate, cb.equal(root.get("fullKey"), fullKey));
       }
     }
 
-    // New: filter by tracks list if provided. If tracks == null do nothing. Otherwise accept scores whose tracksCount is in the list.
     if (tracks != null && !tracks.isEmpty()) {
       predicate = cb.and(predicate, root.get("tracksCount").in(tracks));
     }
@@ -117,43 +117,55 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   }
 
   @Override
-  public List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit, java.util.List<Integer> tracks) {
-    // Build JPQL with the same visibility rules as findWithSomeCriterias
-    boolean isAdmin = false;
-    if (user != null) {
-      isAdmin = user.getRoles() != null && Arrays.stream(user.getRoles().split(","))
-        .anyMatch(role -> "ADMIN".equals(role.trim()));
-    }
+  public List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey) {
+     // Build JPQL with the same visibility rules as findWithSomeCriterias
+     boolean isAdmin = false;
+     if (user != null) {
+       isAdmin = user.getRoles() != null && Arrays.stream(user.getRoles().split(","))
+         .anyMatch(role -> "ADMIN".equals(role.trim()));
+     }
 
-    StringBuilder jpql = new StringBuilder("SELECT s.author, COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL)");
+     StringBuilder jpql = new StringBuilder("SELECT s.author, COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL)");
 
-    if (user == null) {
-      jpql.append(" AND s.publicDomain = true");
-    } else if (!isAdmin) {
-      jpql.append(" AND (s.publicDomain = true OR s.owner.id = :userId)");
-    }
+     if (user == null) {
+       jpql.append(" AND s.publicDomain = true");
+     } else if (!isAdmin) {
+       jpql.append(" AND (s.publicDomain = true OR s.owner.id = :userId)");
+     }
 
-    // Add tracks filter when provided: only include scores whose tracksCount is in the provided list
-    if (tracks != null && !tracks.isEmpty()) {
-      jpql.append(" AND s.tracksCount IN :tracksList");
-    }
+     // Add tracks filter when provided: only include scores whose tracksCount is in the provided list
+     if (tracks != null && !tracks.isEmpty()) {
+       jpql.append(" AND s.tracksCount IN :tracksList");
+     }
 
-    jpql.append(" GROUP BY s.author ORDER BY s.author.sortName ASC, COUNT(s) DESC");
+     // Add fullKey filter when provided
+     if (fullKey != null && !fullKey.isEmpty()) {
+       if ("NONE".equalsIgnoreCase(fullKey)) {
+         jpql.append(" AND s.fullKey IS NULL");
+       } else {
+         jpql.append(" AND s.fullKey = :fullKey");
+       }
+     }
 
-    TypedQuery<Object[]> query = em.createQuery(jpql.toString(), Object[].class);
-    if (user != null && !isAdmin) {
-      query.setParameter("userId", user.getId());
-    }
-    if (tracks != null && !tracks.isEmpty()) {
-      query.setParameter("tracksList", tracks);
-    }
-    if (offset != null) query.setFirstResult(offset);
-    if (limit != null) query.setMaxResults(limit);
-    return query.getResultList();
-  }
+     jpql.append(" GROUP BY s.author ORDER BY s.author.sortName ASC, COUNT(s) DESC");
+
+     TypedQuery<Object[]> query = em.createQuery(jpql.toString(), Object[].class);
+     if (user != null && !isAdmin) {
+       query.setParameter("userId", user.getId());
+     }
+     if (tracks != null && !tracks.isEmpty()) {
+       query.setParameter("tracksList", tracks);
+     }
+     if (fullKey != null && !fullKey.isEmpty() && !"NONE".equalsIgnoreCase(fullKey)) {
+       query.setParameter("fullKey", fullKey);
+     }
+     if (offset != null) query.setFirstResult(offset);
+     if (limit != null) query.setMaxResults(limit);
+     return query.getResultList();
+   }
 
   @Override
-  public List<Object[]> countScoresGroupedByGenre(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter) {
+  public List<Object[]> countScoresGroupedByGenre(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey) {
     // Build JPQL with the same visibility rules as findWithSomeCriterias
     boolean isAdmin = false;
     if (user != null) {
@@ -172,6 +184,13 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     if (tracks != null && !tracks.isEmpty()) {
       nullJpql.append(" AND s.tracksCount IN :tracksList");
     }
+    if (fullKey != null && !fullKey.isEmpty()) {
+      if ("NONE".equalsIgnoreCase(fullKey)) {
+        nullJpql.append(" AND s.fullKey IS NULL");
+      } else {
+        nullJpql.append(" AND s.fullKey = :fullKey");
+      }
+    }
 
     TypedQuery<Long> nullQuery = em.createQuery(nullJpql.toString(), Long.class);
     if (user != null && !isAdmin) {
@@ -179,6 +198,9 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     }
     if (tracks != null && !tracks.isEmpty()) {
       nullQuery.setParameter("tracksList", tracks);
+    }
+    if (fullKey != null && !fullKey.isEmpty() && !"NONE".equalsIgnoreCase(fullKey)) {
+      nullQuery.setParameter("fullKey", fullKey);
     }
     Long nullGenreCount = nullQuery.getSingleResult();
 
@@ -201,6 +223,14 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       jpql.append(" AND s.genre.id IN :genreList");
     }
 
+    if (fullKey != null && !fullKey.isEmpty()) {
+      if ("NONE".equalsIgnoreCase(fullKey)) {
+        jpql.append(" AND s.fullKey IS NULL");
+      } else {
+        jpql.append(" AND s.fullKey = :fullKey");
+      }
+    }
+
     jpql.append(" GROUP BY s.genre ORDER BY COUNT(s) DESC");
 
     TypedQuery<Object[]> query = em.createQuery(jpql.toString(), Object[].class);
@@ -212,6 +242,9 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     }
     if (genreFilter != null && !genreFilter.isEmpty()) {
       query.setParameter("genreList", genreFilter);
+    }
+    if (fullKey != null && !fullKey.isEmpty() && !"NONE".equalsIgnoreCase(fullKey)) {
+      query.setParameter("fullKey", fullKey);
     }
 
     List<Object[]> results = query.getResultList();
@@ -248,5 +281,12 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     long publicDomainCount = result[0] != null ? ((Number) result[0]).longValue() : 0L;
     long copyrightedCount = result[1] != null ? ((Number) result[1]).longValue() : 0L;
     return new Long[]{publicDomainCount, copyrightedCount};
+  }
+
+  @Override
+  public List<String> findDistinctFullKeys() {
+    String jpql = "SELECT DISTINCT s.fullKey FROM Score s WHERE s.fullKey IS NOT NULL ORDER BY s.fullKey ASC";
+    TypedQuery<String> query = em.createQuery(jpql, String.class);
+    return query.getResultList();
   }
 }

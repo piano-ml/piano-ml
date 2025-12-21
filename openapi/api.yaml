@@ -264,6 +264,11 @@ paths:
           schema:
             type: string
           description: the level
+        - name: fullKey
+          in: query
+          schema:
+            type: string
+          description: 'Filter by musical full key (example: "D minor" or "D major")'
         - name: offset
           in: query
           schema:
@@ -293,6 +298,25 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ScoreApiInfo'
+        '400':
+          description: Bad request
+
+  /score/getFullKey:
+    get:
+      operationId: scoreGetFullKeyGet
+      tags:
+        - score
+      summary: Get available fullKey values
+      description: Returns the list of distinct fullKey values stored for scores (e.g. "D major", "D minor").
+      responses:
+        '200':
+          description: List of fullKey strings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
         '400':
           description: Bad request
 
@@ -685,6 +709,11 @@ paths:
             nullable: true
           style: form
           explode: true
+        - name: fullKey
+          in: query
+          schema:
+            type: string
+          description: 'Filter by musical full key (example: "D minor" or "D major")'
         - name: offset
           in: query
           schema:
@@ -724,6 +753,11 @@ paths:
             nullable: true
           style: form
           explode: true
+        - name: fullKey
+          in: query
+          schema:
+            type: string
+          description: 'Filter by musical full key (example: "D minor" or "D major")'
         - name: genre
           in: query
           description: "List of genre UUIDs to filter by (nullable). Examples: null, [uuid1], [uuid1,uuid2]"
