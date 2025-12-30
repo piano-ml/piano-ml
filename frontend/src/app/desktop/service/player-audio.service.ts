@@ -210,7 +210,7 @@ export class PlayerAudioService {
     timeFactor: number,
     callbacks: {
       onNoteStart: (time: number, note: Note, liveStatus: LiveStatus) => void;
-      onNoteEnd: (time: number, note: Note) => void;
+      onNoteEnd: (time: number, note: Note, liveStatus: LiveStatus) => void;
     }
   ): void {
     const noteTimeStart = (note.time * timeFactor) - startTime;
@@ -250,7 +250,9 @@ export class PlayerAudioService {
       });
 
       this.scheduleDraw(() => {
-        callbacks.onNoteEnd(time, note);
+        //const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), noteTimeEnd, note, hand);
+        const liveStatus = this.assess.getExpectation();
+        callbacks.onNoteEnd(time, note, liveStatus);
       }, time);
     }, noteTimeEnd);
 
@@ -268,7 +270,7 @@ export class PlayerAudioService {
     timeFactor: number,
     callbacks: {
       onNoteStart: (time: number, note: Note, liveStatus: LiveStatus) => void;
-      onNoteEnd: (time: number, note: Note) => void;
+      onNoteEnd: (time: number, note: Note, liveStatus: LiveStatus) => void;
     }
   ): void {
     for (const note of track.notes) {

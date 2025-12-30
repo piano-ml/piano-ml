@@ -80,6 +80,7 @@
             },
             "development": {
               "buildTarget": "piano-ml:build:development"
+             ,"proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
