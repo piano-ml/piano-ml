@@ -53,6 +53,7 @@ export class PlayerAudioService {
       velocities: 1
     }).toDestination();
     this.piano.load();
+    console.log('Piano loaded');
   }
 
   /**

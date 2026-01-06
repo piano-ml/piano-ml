@@ -341,9 +341,9 @@ export class PlayerService {
   }
 
   private lightExpectedNotesOnKeyboard(liveStatus: LiveStatus) {
-    const keys = Object.keys(liveStatus.expectations).map(Number);
+    const keys = Array.from(liveStatus.expectations.keys());
     const oldestKey = Math.min(...keys);
-    const oldestValue = liveStatus.expectations[oldestKey];
+    const oldestValue = liveStatus.expectations.get(oldestKey);
     if (oldestValue) {
       for (const expected of oldestValue) {
         this.keyboard.lightNoteOnKeyboard(expected[0], { midi: expected[1], velocity: 255 } as Note);
