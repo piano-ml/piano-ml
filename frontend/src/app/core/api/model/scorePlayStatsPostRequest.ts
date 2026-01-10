@@ -7,9 +7,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { ScorePlayStatsPostRequestAssessment } from './scorePlayStatsPostRequestAssessment';
 
 
 export interface ScorePlayStatsPostRequest { 
     id: string;
+    assessment?: ScorePlayStatsPostRequestAssessment;
 }
 

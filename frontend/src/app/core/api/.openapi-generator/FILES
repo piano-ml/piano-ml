@@ -34,6 +34,7 @@ model/musicBrainzServiceLifeSpan.ts
 model/scoreApiInfo.ts
 model/scoreGenreBrowseGet200ResponseInner.ts
 model/scorePlayStatsPostRequest.ts
+model/scorePlayStatsPostRequestAssessment.ts
 model/scoreStatsGet200Response.ts
 model/userApiInfo.ts
 model/workloadApiInfo.ts

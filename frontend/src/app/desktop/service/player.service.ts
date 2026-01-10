@@ -207,6 +207,7 @@ export class PlayerService {
     if (this.lastMidiEventTime === -1) {
       this.osmdCursor.previous();
     }
+    this.unHightlightBadNote();
     this.assess.reset();
     const startOffset = this.calculateStartTime();
     const endCut = this.calculateEndTime();
@@ -276,9 +277,9 @@ export class PlayerService {
     ) {
       return
     }
-    midiEvent.time = this.audio.getCurrentTime();
 
     if (midiEvent.type === 'down' as MidiStateEvent['type']) {
+      midiEvent.time = this.audio.getCurrentTime();
       const liveStatus = this.assess.getNewActual(midiEvent);
       if (liveStatus === null) {
         return;
@@ -315,6 +316,22 @@ export class PlayerService {
     }, 500);
   }
 
+  private unHightlightBadNote() {
+    this.osmd?.GraphicSheet.MeasureList.forEach(measure => {
+      measure.forEach(graphicalMeasure => {
+        graphicalMeasure.staffEntries.forEach(staffEntry => {
+          staffEntry.graphicalVoiceEntries.forEach(voiceEntry => {
+            voiceEntry.notes.forEach(graphicalNote => {
+              graphicalNote.setColor("black", {});
+            });
+          });
+        });
+      });
+    });
+  }
+
+
+
   private handleNoteStart(hand: string, note: Note, liveStatus?: LiveStatus) {
     // look for playerhand
     if (liveStatus?.shouldPause) {
@@ -335,7 +352,7 @@ export class PlayerService {
       this.lightExpectedNotesOnKeyboard(liveStatus);
     } else {
       //if (!this.isWaiting) {
-        this.keyboard.removeMidiNoteFromKeyboard(note.midi);
+      this.keyboard.removeMidiNoteFromKeyboard(note.midi);
       //}
     }
   }
@@ -359,7 +376,7 @@ export class PlayerService {
     this.repetition.hydrateRepetitionInstructions();
     this.state.osmdCursor.reset();
     // half tone pixel shift calculation
-    this.verticalPixelShiftValue = this.state.osmd!.EngravingRules.StaffDistance / 2; 
+    this.verticalPixelShiftValue = this.state.osmd!.EngravingRules.StaffDistance / 2;
   }
 
   private cursorMayBeAdvance(note: Note) {
@@ -389,6 +406,10 @@ export class PlayerService {
         this.osmdCursor.CursorOptions.alpha = 0.6;
       }
     }
+  }
+
+  public getAssess(): PlayerAssessService {
+    return this.assess;
   }
 
   private isCursorOk(note: Note): boolean {
@@ -424,7 +445,7 @@ export class PlayerService {
       return this.duration * this.state.getTimeFactor();
     }
     return (this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1] + 1,
+      this.playConfiguration.scoreRange[1] -1,
       this.playConfiguration.midi!.header
     ) * this.state.getTimeFactor());
   }
