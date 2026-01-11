@@ -10,10 +10,11 @@
 
 
 export interface ScorePlayStatsPostRequestAssessment { 
-    start?: number;
-    end?: number;
+    accuracy?: number;
     bad?: number;
     late?: number;
+    start?: number;
+    end?: number;
     total?: number;
 }
 

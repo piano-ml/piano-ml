@@ -204,7 +204,7 @@ export class PlayerService {
   }
 
   async play(playConfigurations: PlayConfiguration) {
-    if (this.lastMidiEventTime === -1) {
+    if (this.lastMidiEventTime === -1 && this.osmdCursor) {
       this.osmdCursor.previous();
     }
     this.unHightlightBadNote();
@@ -319,13 +319,21 @@ export class PlayerService {
   private unHightlightBadNote() {
     this.osmd?.GraphicSheet.MeasureList.forEach(measure => {
       measure.forEach(graphicalMeasure => {
-        graphicalMeasure.staffEntries.forEach(staffEntry => {
-          staffEntry.graphicalVoiceEntries.forEach(voiceEntry => {
-            voiceEntry.notes.forEach(graphicalNote => {
-              graphicalNote.setColor("black", {});
+        if (graphicalMeasure && graphicalMeasure.staffEntries) {
+          graphicalMeasure.staffEntries.forEach(staffEntry => {
+            staffEntry.graphicalVoiceEntries.forEach(voiceEntry => {
+              if (voiceEntry.notes) {
+                voiceEntry.notes.forEach(graphicalNote => {
+                  try {
+                    graphicalNote.setColor("black", {});
+                  } catch (e) {
+                    // Ignore errors
+                  }
+                });
+              }
             });
           });
-        });
+        }
       });
     });
   }
@@ -445,7 +453,7 @@ export class PlayerService {
       return this.duration * this.state.getTimeFactor();
     }
     return (this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1] -1,
+      this.playConfiguration.scoreRange[1] - 1,
       this.playConfiguration.midi!.header
     ) * this.state.getTimeFactor());
   }
