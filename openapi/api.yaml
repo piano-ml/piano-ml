@@ -364,6 +364,21 @@ paths:
               properties:
                 id:
                   type: string
+                assessment:
+                  type: object
+                  properties:
+                    accuracy:
+                      type: number
+                    bad:
+                      type: integer
+                    late:
+                      type: integer
+                    start:
+                      type: integer
+                    end:
+                      type: integer
+                    total:
+                      type: integer
               required:
                 - id
       responses:

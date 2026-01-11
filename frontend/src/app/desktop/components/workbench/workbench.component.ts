@@ -124,6 +124,25 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       if (message === "END") {
         this.isPlaying = false;
         this.changeDetector.markForCheck();
+        
+        // POST user stats when ending play
+        if (this.scoreData?.id && this.scoreData.id !== 'exercise') {
+          const request: ScorePlayStatsPostRequest = { 
+            id: this.scoreData.id,
+            assessment: {
+              start: this.playConfiguration.scoreRange[0],
+              end: this.playConfiguration.scoreRange[1],
+              bad: this.playerService.getAssess().liveStatus.badCount,
+              late :this.playerService.getAssess().liveStatus.late,
+              total: this.playerService.getAssess().liveStatus.total
+            } 
+           };
+          console.log('Submitting play stats:', request);
+          this.scoreService.scorePlayStatsPost(request).subscribe({
+            next: () => {},
+            error: (error) => console.warn('Failed to register play stats:', error)
+          });
+        }
       } else if (message === "BAD") {
         this.arenaClass = 'bad';
         this.changeDetector.markForCheck();
