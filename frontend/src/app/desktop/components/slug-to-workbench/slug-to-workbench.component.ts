@@ -37,7 +37,7 @@ export class SlugToWorkbenchComponent implements OnInit {
     this.scoreService.scoreGetBySlug(slug).subscribe({
       next: (score: ScoreApiInfo) => {
         // Navigate to workbench with score data
-        this.router.navigate(['/play/workbench'], {
+        this.router.navigate(['/desktop/workbench'], {
           state: { score: score },
           replaceUrl: true,
           skipLocationChange: true

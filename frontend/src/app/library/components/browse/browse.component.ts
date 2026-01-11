@@ -36,7 +36,7 @@ export class BrowseComponent implements OnInit {
   hasMore = true;
 
   // Tab selection
-  activeTab: 'authors' | 'genres' = 'genres';
+  activeTab: 'artists' | 'genres' | 'popular' = 'popular';
 
   // Track count filters
   filterOneHand = false;
@@ -78,24 +78,24 @@ export class BrowseComponent implements OnInit {
     this.updatePageTitle();
     // Read the URL path to set active tab
     const path = this.route.snapshot.url[0]?.path;
-    if (path === 'genres') {
-      this.activeTab = 'genres';
-    } else if (path === 'artists') {
-      this.activeTab = 'authors';
+    if (path) {
+      this.activeTab = path as 'artists' | 'genres' | 'popular';
+    } else {
+      this.activeTab = 'popular';
     }
-    
+
     // Subscribe to both params and query params to handle browser back/forward navigation
     this.route.params.subscribe(params => {
       const artistSlug = params['artistSlug'] || '';
       const genreSlug = params['genreSlug'] || '';
-      
+
       // Hydrate track count filters from URL
       this.route.queryParams.subscribe(queryParams => {
         const keyword = queryParams['search'] || '';
         this.filterOneHand = queryParams['oneHand'] === 'true';
         this.filterTwoHands = queryParams['twoHands'] === 'true';
         this.selectedFullKey = queryParams['fullKey'] || '';
-        
+
         if (keyword) {
           this.searchKeyword = keyword;
           this.activeSearchKeyword = keyword;
@@ -228,6 +228,7 @@ export class BrowseComponent implements OnInit {
       undefined, // gradeEnd
       undefined, // tempo
       this.getFullKeyFilter(), // fullKey
+      undefined, // sortBy
       offset, // offset
       this.pageSize, // limit
       trackCount // tracks
@@ -257,18 +258,18 @@ export class BrowseComponent implements OnInit {
     this.activeSearchKeyword = this.searchKeyword;
     this.selectedAuthor = null;
     this.selectedGenre = null;
-    
+
     // Navigate to base browse route with search query param
-    const basePath = this.activeTab === 'authors' ? '/library/artists' : '/library/genres';
+    const basePath = '/library/' + this.activeTab;
     this.router.navigate([basePath], {
-      queryParams: { 
+      queryParams: {
         search: this.searchKeyword,
         oneHand: this.filterOneHand || null,
         twoHands: this.filterTwoHands || null,
         fullKey: this.getFullKeyFilter() || null
       }
     });
-    
+
     this.loadScores(true);
   }
 
@@ -294,16 +295,16 @@ export class BrowseComponent implements OnInit {
     this.searchKeyword = '';
     this.activeSearchKeyword = '';
     this.updatePageTitle();
-    
+
     // Navigate to /library/artists/:artistSlug
     this.router.navigate(['/library/artists', author.author.slug], {
-      queryParams: { 
+      queryParams: {
         oneHand: this.filterOneHand || null,
         twoHands: this.filterTwoHands || null,
         fullKey: this.getFullKeyFilter() || null
       }
     });
-    
+
     this.loadScoresByAuthor(author);
   }
 
@@ -327,6 +328,7 @@ export class BrowseComponent implements OnInit {
       undefined, // gradeEnd
       undefined, // tempo
       this.getFullKeyFilter(), // fullKey
+      undefined, // sortBy
       0, // offset
       this.pageSize, // limit
       trackCount // tracks
@@ -355,13 +357,13 @@ export class BrowseComponent implements OnInit {
 
     // Navigate to /library/genres/:genreSlug
     this.router.navigate(['/library/genres', genre.genre?.slug], {
-      queryParams: { 
+      queryParams: {
         oneHand: this.filterOneHand || null,
         twoHands: this.filterTwoHands || null,
         fullKey: this.getFullKeyFilter() || null
       }
     });
-    
+
     this.loadScoresByGenre(genre);
   }
 
@@ -385,6 +387,7 @@ export class BrowseComponent implements OnInit {
       undefined, // gradeEnd
       undefined, // tempo
       this.getFullKeyFilter(), // fullKey
+      undefined, // sortBy
       0, // offset
       this.pageSize, // limit
       trackCount // tracks
@@ -407,20 +410,20 @@ export class BrowseComponent implements OnInit {
   clearAuthorFilter() {
     this.selectedAuthor = null;
     this.updatePageTitle();
-    
+
     // Navigate back to /library/artists
     this.router.navigate(['/library/artists']);
-    
+
     this.loadScores(true);
   }
 
   clearGenreFilter() {
     this.selectedGenre = null;
     this.updatePageTitle();
-    
+
     // Navigate back to /library/genres
     this.router.navigate(['/library/genres']);
-    
+
     this.loadScores(true);
   }
 
@@ -428,18 +431,18 @@ export class BrowseComponent implements OnInit {
     this.activeSearchKeyword = '';
     this.searchKeyword = '';
     this.updatePageTitle();
-    
+
     // Navigate to base browse route
-    const basePath = this.activeTab === 'authors' ? '/library/artists' : '/library/genres';
+    const basePath = '/library/' + this.activeTab;
     this.router.navigate([basePath]);
-    
+
     this.loadScores(true);
   }
 
-  setActiveTab(tab: 'authors' | 'genres') {
+  setActiveTab(tab: 'artists' | 'genres' | 'popular') {
     this.activeTab = tab;
     // Navigate to the corresponding route
-    const path = tab === 'authors' ? '/library/artists' : '/library/genres';
+    const path = '/library/' + tab;
     this.router.navigate([path], {
       queryParamsHandling: 'preserve'
     });
@@ -464,7 +467,7 @@ export class BrowseComponent implements OnInit {
     // Update URL with current filter state, preserving route params
     if (this.selectedAuthor) {
       this.router.navigate(['/library/artists', this.selectedAuthor.author.slug], {
-        queryParams: { 
+        queryParams: {
           oneHand: this.filterOneHand || null,
           twoHands: this.filterTwoHands || null,
           fullKey: this.getFullKeyFilter() || null
@@ -473,7 +476,7 @@ export class BrowseComponent implements OnInit {
       this.loadScoresByAuthor(this.selectedAuthor);
     } else if (this.selectedGenre) {
       this.router.navigate(['/library/genres', this.selectedGenre.genre?.slug], {
-        queryParams: { 
+        queryParams: {
           oneHand: this.filterOneHand || null,
           twoHands: this.filterTwoHands || null,
           fullKey: this.getFullKeyFilter() || null
@@ -481,9 +484,10 @@ export class BrowseComponent implements OnInit {
       });
       this.loadScoresByGenre(this.selectedGenre);
     } else {
-      const basePath = this.activeTab === 'authors' ? '/library/artists' : '/library/genres';
+      const basePath = this.activeTab === 'popular' ? '/library/' : '/library/' + this.activeTab;
+      console.log('Navigating to base path:', basePath);
       this.router.navigate([basePath], {
-        queryParams: { 
+        queryParams: {
           oneHand: this.filterOneHand || null,
           twoHands: this.filterTwoHands || null,
           fullKey: this.getFullKeyFilter() || null

@@ -67,7 +67,7 @@ public class SlugUtils {
    * @param preserveSpacesAsHyphens si true, remplace les espaces par des tirets, sinon traite tout comme des caractères non-alphanumériques
    * @return la chaîne normalisée en slug
    */
-  private static String normalizeToSlug(String input, boolean preserveSpacesAsHyphens) {
+  public static String normalizeToSlug(String input, boolean preserveSpacesAsHyphens) {
     if (input == null || input.trim().isEmpty()) {
       return "";
     }

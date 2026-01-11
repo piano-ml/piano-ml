@@ -7,11 +7,12 @@ import { ShareButtons } from 'ngx-sharebuttons/buttons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard } from '@ng-icons/bootstrap-icons';
 import { environment } from '../../../../environments/environment';
+import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
 
 @Component({
   selector: 'app-score-info',
   standalone: true,
-  imports: [CommonModule, ShareButtons, NgIcon],
+  imports: [CommonModule, ShareButtons, NgIcon, ScoreBasicInfoComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
   viewProviders: [provideIcons({ bootstrapClipboard })]

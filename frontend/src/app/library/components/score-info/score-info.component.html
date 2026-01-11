@@ -186,28 +186,10 @@
           <p class="text-gray-400 text-sm mt-2">Digital audio format</p>
         </div>
       </div>
-
-
     </div>
-
 
     <!-- Score Basic Info Display -->
-    <div class="bg-neutral-600 p-4 rounded">
-      <h3 class="text-lg font-semibold mb-4 text-white">Score additional Information</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
-        <div><strong>Uploaded:</strong> {{ score.uploaded_at | date:'medium' }}</div>
-        <div><strong>Tracks:</strong> {{ score.tracks_count || 0 }}</div>
-        <div><strong>Version:</strong> {{ score.version || 1 }}</div>
-        <div><strong>Owner:</strong> {{ score.owner }}</div>
-        <div><strong>Has Lyrics:</strong> {{ score.has_lyrics ? 'Yes' : 'No' }}</div>
-
-        <div><strong>Duration:</strong> {{ score.duration ? (score.duration + ' seconds') : 'N/A' }}</div>
-        <div><strong>Measures:</strong> {{ score.measures || 'N/A' }}</div>
-        <div><strong>Tempo:</strong> {{ score.tempo ? (score.tempo) : 'N/A' }}</div>
-
-      </div>
-    </div>
-
+    <app-score-basic-info [score]="score"></app-score-basic-info>
 
     <!-- Action Buttons -->
     <div class="flex gap-4 mt-6 justify-end">

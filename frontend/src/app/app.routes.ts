@@ -8,36 +8,12 @@ export const routes: Routes = [
         loadChildren: () => import('./home/home.module').then(m => m.HomeModule),
         data: { breadcrumb: 'Home' }
     },
-    // {
-    //     path: 'account/home',
-    //     loadComponent: () => import('./account/components/home/home.component').then(m => m.AccountHomeComponent),
-    //     data: { breadcrumb: 'Account Home' }
-    // },
     {
         component: LayoutComponent,
-        path: 'library',
-        loadChildren: () => import('./library/library.module').then(m => m.LibraryModule),
-        data: { breadcrumb: 'Practice' }
-    },
-    {
-        component: LayoutComponent,
-        path: 'work',
-        loadChildren: () => import('./library/library.module').then(m => m.LibraryModule),
-        data: { breadcrumb: 'Practice' }
-    },
-    {
-        component: LayoutComponent,
-        path: 'import',
-        loadChildren: () => import('./import/import.module').then(m => m.ImportModule),
-        data: { breadcrumb: 'Import' }
-    },
-    {
-        component: LayoutComponent,
-        path: 'exercises',
-        loadChildren: () => import('./exercises/exercises.module').then(m => m.ExercisesModule),
-        data: { breadcrumb: 'Exercises' }
-
-    },
+        path: 'account',
+        loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
+        data: { breadcrumb: 'Account' }
+    },    
     {
         component: LayoutComponent,
         path: 'blog',
@@ -47,22 +23,43 @@ export const routes: Routes = [
     },
     {
         component: LayoutComponent,
-        path: 'account',
-        loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
-        data: { breadcrumb: 'Account' }
+        path: 'import',
+        loadChildren: () => import('./import/import.module').then(m => m.ImportModule),
+        data: { breadcrumb: 'Import' }
+    },  
+    {
+        component: LayoutComponent,
+        path: 'library',
+        loadChildren: () => import('./library/library.module').then(m => m.LibraryModule),
+        data: { breadcrumb: 'Practice' }
+    },
+    {
+        component: LayoutComponent,
+        path: 'work',
+      loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
+//        loadChildren: () => import('./library/library.module').then(m => m.LibraryModule),
+        data: { breadcrumb: 'Practice' }
+    },
+    {
+        component: LayoutComponent,
+        path: 'exercises',
+        loadChildren: () => import('./exercises/exercises.module').then(m => m.ExercisesModule),
+        data: { breadcrumb: 'Exercises' }
+
     },
     {
         // this component does not need a LayoutComponent !
         path: 'desktop',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
         data: { breadcrumb: 'Desktop' }
-    },
-        {
-        // this component does not need a LayoutComponent !
-        path: 'play',
-        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Desktop' }
-    },
+    },  
+
+    //     {
+    //     // this component does not need a LayoutComponent !
+    //     path: 'play',
+    //     loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
+    //     data: { breadcrumb: 'Desktop' }
+    // },
     {
         path: 'error',
         loadComponent: () => import('./shared/components/error/error.component').then(m => m.ErrorComponent),

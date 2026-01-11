@@ -94,10 +94,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   arenaClass = '';
   isFullscreen = false;
 
-  // Modal
-  isModalOpen = false;
-  modalTitle = '';
-  modalContent = '';
 
   scoreRange = [0, 10, 80];
 

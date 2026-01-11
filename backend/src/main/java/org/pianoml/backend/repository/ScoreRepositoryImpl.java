@@ -24,7 +24,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   private EntityManager em;
 
   // Updated signature with fullKey parameter
-  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, String fullKey, Integer offset, Integer limit, User user, List<Integer> tracks) {
+  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, String fullKey, String orderBy, Integer offset, Integer limit, User user, List<Integer> tracks) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Score> cq = cb.createQuery(Score.class);
     Root<Score> root = cq.from(Score.class);
@@ -70,7 +70,6 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       }
     }
 
-    // New: filter by fullKey if provided. Special token NONE means full_key IS NULL.
     if (fullKey != null && !fullKey.isEmpty()) {
       if ("NONE".equalsIgnoreCase(fullKey)) {
         predicate = cb.and(predicate, cb.isNull(root.get("fullKey")));
@@ -96,13 +95,46 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     }
 
     cq.where(predicate);
-    if (artist != null && !artist.isEmpty()) {
-      cq.orderBy(cb.desc(root.get("title")));
-    } else {
-      if (user == null) {
-        cq.orderBy(cb.desc(root.get("playCount")));
+    if (orderBy==null) {
+      if (artist != null && !artist.isEmpty()) {
+        cq.orderBy(cb.desc(root.get("title")));
       } else {
-        cq.orderBy(cb.asc(root.get("playCount")), cb.desc(root.get("uploadedAt")));
+        if (user == null) {
+          cq.orderBy(cb.desc(root.get("playCount")));
+        } else {
+          cq.orderBy(cb.asc(root.get("playCount")), cb.desc(root.get("uploadedAt")));
+        }
+      }
+    } else {
+      switch (orderBy) {
+        case "title_asc":
+          cq.orderBy(cb.asc(root.get("title")));
+          break;
+        case "title_desc":
+          cq.orderBy(cb.desc(root.get("title")));
+          break;
+        case "grade_asc":
+          cq.orderBy(cb.asc(root.get("grade")));
+          break;
+        case "grade_desc":
+          cq.orderBy(cb.desc(root.get("grade")));
+          break;
+        case "uploadedAt_asc":
+          cq.orderBy(cb.asc(root.get("uploadedAt")));
+          break;
+        case "uploadedAt_desc":
+          cq.orderBy(cb.desc(root.get("uploadedAt")));
+          break;
+        case "playCount_asc":
+          cq.orderBy(cb.asc(root.get("playCount")));
+          break;
+        case "playCount_desc":
+          cq.orderBy(cb.desc(root.get("playCount")));
+          break;
+        default:
+          // Default ordering if unrecognized orderBy value
+          cq.orderBy(cb.desc(root.get("playCount")));
+          break;
       }
     }
     TypedQuery<Score> query = em.createQuery(cq);

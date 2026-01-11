@@ -16,6 +16,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static org.pianoml.backend.service.SlugUtils.normalizeToSlug;
+
 
 @Service
 public class AuthorService {
@@ -41,6 +43,7 @@ public class AuthorService {
           throw new MusicBrainzException("MusicBrainz returned no author for mbid: " + mbid);
         }
         author.setId(null);
+        author.setSlug(normalizeToSlug(author.getSortName(), true));
         authorRepository.save(author);
         return author;
       } catch (HttpClientErrorException e) {

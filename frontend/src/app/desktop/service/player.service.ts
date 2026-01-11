@@ -207,7 +207,7 @@ export class PlayerService {
     if (this.lastMidiEventTime === -1 && this.osmdCursor) {
       this.osmdCursor.previous();
     }
-    this.unHightlightBadNote();
+    this.unHighlightBadNote();
     this.assess.reset();
     const startOffset = this.calculateStartTime();
     const endCut = this.calculateEndTime();
@@ -316,7 +316,7 @@ export class PlayerService {
     }, 500);
   }
 
-  private unHightlightBadNote() {
+  private unHighlightBadNote() {
     this.osmd?.GraphicSheet.MeasureList.forEach(measure => {
       measure.forEach(graphicalMeasure => {
         if (graphicalMeasure && graphicalMeasure.staffEntries) {

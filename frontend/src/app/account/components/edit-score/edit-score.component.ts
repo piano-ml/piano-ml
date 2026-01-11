@@ -5,10 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo } from '../../../core/api';
 import { AuthService } from '../../services/auth.service';
 import { AuthorSearchModalComponent } from '../author-search-modal/author-search-modal.component';
+import { ScoreBasicInfoComponent } from "../../../library/components/score-basic-info/score-basic-info.component";
 
 @Component({
   selector: 'app-edit-score',
-  imports: [CommonModule, ReactiveFormsModule, AuthorSearchModalComponent],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, AuthorSearchModalComponent, ScoreBasicInfoComponent],
   templateUrl: './edit-score.component.html',
   styleUrl: './edit-score.component.css'
 })
