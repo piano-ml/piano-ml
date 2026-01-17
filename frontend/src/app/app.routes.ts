@@ -13,7 +13,7 @@ export const routes: Routes = [
         path: 'account',
         loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
         data: { breadcrumb: 'Account' }
-    },    
+    },
     {
         component: LayoutComponent,
         path: 'blog',
@@ -26,18 +26,17 @@ export const routes: Routes = [
         path: 'import',
         loadChildren: () => import('./import/import.module').then(m => m.ImportModule),
         data: { breadcrumb: 'Import' }
-    },  
+    },
     {
-        component: LayoutComponent,
         path: 'library',
+        component: LayoutComponent,
         loadChildren: () => import('./library/library.module').then(m => m.LibraryModule),
         data: { breadcrumb: 'Practice' }
     },
     {
         component: LayoutComponent,
         path: 'work',
-      loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-//        loadChildren: () => import('./library/library.module').then(m => m.LibraryModule),
+        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
         data: { breadcrumb: 'Practice' }
     },
     {
@@ -52,14 +51,15 @@ export const routes: Routes = [
         path: 'desktop',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
         data: { breadcrumb: 'Desktop' }
-    },  
+    },
 
-    //     {
-    //     // this component does not need a LayoutComponent !
-    //     path: 'play',
-    //     loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-    //     data: { breadcrumb: 'Desktop' }
-    // },
+    {
+        // Same workbench experience as `/desktop`, but with a shorter URL.
+        // This route does not need a LayoutComponent.
+        path: 'workbench',
+        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
+        data: { breadcrumb: 'Workbench' }
+    },
     {
         path: 'error',
         loadComponent: () => import('./shared/components/error/error.component').then(m => m.ErrorComponent),

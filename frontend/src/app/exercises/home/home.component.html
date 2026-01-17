@@ -3,7 +3,7 @@
     <hr>
     <ul>
       <li *ngFor="let item of summary" class="mb-4 mt-4">
-        <a [routerLink]="item.url" class="text-xl mb-4 mt-4">{{ item.title }}</a>
+        <button [routerLink]="item.url" class="w-64 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded tracking-[00.15rem] transition-colors">{{ item.title }}</button>
       </li>
     </ul>
   </div>

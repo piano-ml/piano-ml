@@ -10,7 +10,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     autoBeamOptions: {
         groups: [[4, 4]],
     },
-    drawLyricist: true,
+    drawLyricist: false,
     measureNumberInterval: 1,
     backend: "svg",
     cursorsOptions: [
@@ -29,7 +29,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     drawPartNames: false,
     drawMeasureNumbers: true,
     drawFingerings: true,
-    drawLyrics: true,
+    drawLyrics: false,
     drawMetronomeMarks: false,
     coloringEnabled: true,
     followCursor: true, 

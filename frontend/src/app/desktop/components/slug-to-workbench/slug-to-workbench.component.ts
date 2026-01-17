@@ -19,11 +19,11 @@ export class SlugToWorkbenchComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private scoreService: ScoreService
-  ) {}
+  ) { }
 
   ngOnInit() {
     const slug = this.route.snapshot.paramMap.get('slug');
-    
+
     if (!slug) {
       console.error('No slug provided');
       this.router.navigate(['/library']);
@@ -34,19 +34,20 @@ export class SlugToWorkbenchComponent implements OnInit {
   }
 
   private loadScoreAndNavigate(slug: string) {
+    console.log(`Loading score with slug: ${slug}`);
     this.scoreService.scoreGetBySlug(slug).subscribe({
       next: (score: ScoreApiInfo) => {
         // Navigate to workbench with score data
         this.router.navigate(['/desktop/workbench'], {
           state: { score: score },
-          replaceUrl: true,
-          skipLocationChange: true
+          replaceUrl: false,
+          skipLocationChange: false
         });
       },
       error: (error) => {
         console.error('Error loading score:', error);
         // Fallback to score info page if workbench fails
-        this.router.navigate(['/library', slug]);
+        //this.router.navigate(['/library', slug]);
       }
     });
   }

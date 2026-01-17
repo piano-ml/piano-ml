@@ -2,20 +2,35 @@
   <div class="page-title">Agility</div>
   <div class="page-sub-title">Please select an exercise and a chord</div>
   <hr>
-  <div >
+  <div class="flex flex-col md:flex-row gap-6">
 
-    <select [(ngModel)]="selectedExcercice" (ngModelChange)="onSelectedExerciceChange()">
-      <option *ngFor="let exercise of myexcerices" [ngValue]="exercise" >{{ exercise.title }}</option>
-    </select>
+    <div class="md:w-1/2 flex flex-col gap-3">
+      <select [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()">
+        <option *ngFor="let key of keys" [ngValue]="key">{{ key }}</option>
+      </select>
 
-    <select [(ngModel)]="selectedKey">
-      <option *ngFor="let key of keys" [ngValue]="key">{{ key }}</option>
-    </select>
+      <select [(ngModel)]="selectedChord" (ngModelChange)="onChordChange()">
+        <option *ngFor="let chord of this.availableChords" [ngValue]="chord">{{ selectedKey }} {{ chord.name }}</option>
+      </select>
 
-    <select [(ngModel)]="selectedChord">
-      <option *ngFor="let chord of this.availableChords" [ngValue]="chord" >{{ selectedKey }} {{ chord.name }}</option>
-    </select>
-    <button (click)="load()" class="btn btn-blue  m-4">Load</button>
+      <select [(ngModel)]="selectedExcercice" (ngModelChange)="onSelectedExerciceChange()">
+        <option *ngFor="let exercise of myexcerices" [ngValue]="exercise">{{ exercise.title }}</option>
+      </select>
+    </div>
+
+    <div class="md:w-1/2">
+      <div class="bg-neutral-700 rounded p-4 text-sm text-neutral-100 whitespace-pre-wrap">
+        <div class="font-semibold mb-2">{{ selectedKey }} {{ selectedChord.name }} {{ selectedExcercice.title }}</div>
+        {{ selectedExcercice.advice || 'No description available.' }}
+      </div>
+
   </div>
+
+</div>
+
+<button (click)="load()"
+  class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded tracking-[00.15rem] transition-colors">
+  Start
+</button>
 
 </div>

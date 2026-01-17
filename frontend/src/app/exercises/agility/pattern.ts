@@ -363,4 +363,4 @@ const exercice4 = {
 } as Exercise
 
 
-export const exercises = [exercice3, exercice1, exercice2];
+export const exercises = [exercice3, exercice1];

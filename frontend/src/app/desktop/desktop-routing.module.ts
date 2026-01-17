@@ -10,7 +10,11 @@ export const desktopRouteList: Routes = [
         component: WorkbenchComponent
     },
     {
-        path: 'workbench',
+        path: 'scale/:scaleKey/:selectedKey/:exerciseKey',
+        component: WorkbenchComponent
+    },  
+    {
+        path: 'chord/:chordKey/:selectedKey/:exerciseKey',
         component: WorkbenchComponent
     },
    {

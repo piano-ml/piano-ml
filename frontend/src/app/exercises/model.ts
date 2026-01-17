@@ -14,6 +14,7 @@ export interface NoteInPattern {
 }
 
 export interface Exercise {
+    key?: string;
     title: string;
     deckName: string;
     type: "chord" | "scale" | "melody";
