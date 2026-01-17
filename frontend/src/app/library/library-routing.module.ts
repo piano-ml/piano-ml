@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, type Routes } from '@angular/router';
 import { BrowseComponent } from './components/browse/browse.component';
-import { ScoreInfoComponent } from './components/score-info/score-info.component';
 
 export const libraryRouteList: Routes = [
   {
@@ -35,9 +34,9 @@ export const libraryRouteList: Routes = [
     data: { breadcrumb: 'Browse' }
   },
   {
-    path: ':id/info',
-    component: ScoreInfoComponent,
-    data: { breadcrumb: 'Score Info' }
+    path: ':slug/info',
+    redirectTo: '/score/:slug',
+    pathMatch: 'full'
   }
 ];
 

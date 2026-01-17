@@ -46,7 +46,6 @@ export class BrowseByAuthorsComponent implements OnInit, OnChanges {
   }
 
   onAuthorClick(author: AuthorWithScoreCount) {
-    console.log("author clicked:", author);
     this.authorClick.emit(author);
   }
 }

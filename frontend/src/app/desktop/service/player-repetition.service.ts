@@ -124,9 +124,9 @@ export class PlayerRepetitionService {
       : null;
 
     // Log all relevant repetition instructions
-    this.repetitionInstructions.forEach(instr => {
-      console.log(instr);
-    });
+    // this.repetitionInstructions.forEach(instr => {
+    //   console.log(instr);
+    // });
   }
 
   /**

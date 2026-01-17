@@ -137,7 +137,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
               total: this.playerService.getAssess().liveStatus.total
             } 
            };
-          console.log('Submitting play stats:', request);
           this.scoreService.scorePlayStatsPost(request).subscribe({
             next: () => {},
             error: (error) => console.warn('Failed to register play stats:', error)
@@ -370,7 +369,24 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   private handleLoadError(error: any, scoreData: ScoreApiInfo, reject: (reason?: any) => void): void {
     if (error.status === 404) {
-      this.router.navigate(['/library', scoreData.id, 'info']);
+      const slug = scoreData.immutableSlug || scoreData.mutableSlug;
+      if (slug) {
+        this.router.navigate(['/score', slug]);
+      } else if (scoreData.id) {
+        this.scoreService.scoreIdGet(scoreData.id).subscribe({
+          next: (fullScore) => {
+            const fallbackSlug = fullScore.immutableSlug || fullScore.mutableSlug;
+            if (fallbackSlug) {
+              this.router.navigate(['/score', fallbackSlug]);
+            } else {
+              this.router.navigate(['/library']);
+            }
+          },
+          error: () => this.router.navigate(['/library'])
+        });
+      } else {
+        this.router.navigate(['/library']);
+      }
     }
     reject(error);
   }
@@ -380,8 +396,23 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   showInfo() {
+    const slug = this.scoreData?.immutableSlug || this.scoreData?.mutableSlug;
+    if (slug) {
+      this.router.navigate(['/score', slug]);
+      return;
+    }
     if (this.scoreData?.id) {
-      this.router.navigate(['/library', this.scoreData.id, 'info']);
+      this.scoreService.scoreIdGet(this.scoreData.id).subscribe({
+        next: (fullScore) => {
+          const fallbackSlug = fullScore.immutableSlug || fullScore.mutableSlug;
+          if (fallbackSlug) {
+            this.router.navigate(['/score', fallbackSlug]);
+          } else {
+            this.router.navigate(['/library']);
+          }
+        },
+        error: () => this.router.navigate(['/library'])
+      });
     }
   }
 

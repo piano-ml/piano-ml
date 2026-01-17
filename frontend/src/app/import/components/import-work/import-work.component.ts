@@ -208,7 +208,26 @@ export class ImportWorkComponent implements OnInit {
                         next: (data2) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();
-                            this.route.navigate(['/library', data.id, 'info']);
+                            const slug = data.immutableSlug || data.mutableSlug;
+                            if (slug) {
+                                this.route.navigate(['/score', slug]);
+                                return;
+                            }
+                            if (data.id) {
+                                this.scoreService.scoreIdGet(data.id).subscribe({
+                                    next: (fullScore) => {
+                                        const fallbackSlug = fullScore.immutableSlug || fullScore.mutableSlug;
+                                        if (fallbackSlug) {
+                                            this.route.navigate(['/score', fallbackSlug]);
+                                        } else {
+                                            this.route.navigate(['/library']);
+                                        }
+                                    },
+                                    error: () => this.route.navigate(['/library'])
+                                });
+                                return;
+                            }
+                            this.route.navigate(['/library']);
                         },
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);
@@ -282,7 +301,6 @@ export class ImportWorkComponent implements OnInit {
                     this.changeDetector.detectChanges();
                 },
                 next: (data) => {
-                    console.log("Score created:", data);
                     if (data.version === null) {
                         data.version = 1;
                     }
@@ -290,7 +308,26 @@ export class ImportWorkComponent implements OnInit {
                         next: (data2) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();
-                            this.route.navigate(['/library', data.id, 'info']);
+                            const slug = data.immutableSlug || data.mutableSlug;
+                            if (slug) {
+                                this.route.navigate(['/score', slug]);
+                                return;
+                            }
+                            if (data.id) {
+                                this.scoreService.scoreIdGet(data.id).subscribe({
+                                    next: (fullScore) => {
+                                        const fallbackSlug = fullScore.immutableSlug || fullScore.mutableSlug;
+                                        if (fallbackSlug) {
+                                            this.route.navigate(['/score', fallbackSlug]);
+                                        } else {
+                                            this.route.navigate(['/library']);
+                                        }
+                                    },
+                                    error: () => this.route.navigate(['/library'])
+                                });
+                                return;
+                            }
+                            this.route.navigate(['/library']);
                         },
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);

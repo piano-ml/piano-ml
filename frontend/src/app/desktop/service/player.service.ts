@@ -118,7 +118,6 @@ export class PlayerService {
         .map((track, idx) => ({ idx, instrumentName: track.instrument.name }))
         .filter(item => item.instrumentName === studyTrackInstrument)
         .map(item => item.idx);
-      console.log(`Extended studies to all tracks with instrument "${studyTrackInstrument}":`, studies);
     }
 
     //studies = [0,1]

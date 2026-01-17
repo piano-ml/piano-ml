@@ -275,13 +275,16 @@ export class BrowseComponent implements OnInit {
 
   onScoreClick(score: ScoreApiInfo) {
     if (score.immutableSlug) {
-      this.router.navigate(['/work', score.immutableSlug]);
+      this.router.navigate(['/score', score.immutableSlug]);
     }
   }
 
   onScoreInfo(score: ScoreApiInfo) {
-    if (score.id) {
-      this.router.navigate([score.id, 'info'], { relativeTo: this.route });
+    const slug = score.immutableSlug || score.mutableSlug;
+    if (slug) {
+      this.router.navigate(['/score', slug]);
+    } else {
+      console.error('Score slug is missing');
     }
   }
 
@@ -485,7 +488,6 @@ export class BrowseComponent implements OnInit {
       this.loadScoresByGenre(this.selectedGenre);
     } else {
       const basePath = this.activeTab === 'popular' ? '/library/' : '/library/' + this.activeTab;
-      console.log('Navigating to base path:', basePath);
       this.router.navigate([basePath], {
         queryParams: {
           oneHand: this.filterOneHand || null,

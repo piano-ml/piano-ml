@@ -48,12 +48,10 @@ export class SlugToWorkbenchComponent implements OnInit {
   }
 
   private loadScoreAndNavigate(slug: string) {
-    console.log(`Loading score with slug: ${slug}`);
+    console.log('Loading score for slug:', slug);
     this.scoreService.scoreGetBySlug(slug).subscribe({
       next: (score: ScoreApiInfo) => {
-        // WorkbenchComponent récupère le score via navigation extras state ou window.history.state.
-        // Ici on hydrate window.history.state AVANT de créer <app-workbench>.
-        console.log('Score loaded successfully:', score);
+            console.log('Ok:', score);
         try {
           window.history.replaceState(
             {
@@ -66,16 +64,14 @@ export class SlugToWorkbenchComponent implements OnInit {
         } catch (e) {
           console.warn('Failed to set history state for Workbench:', e);
         }
-
         this.loaded = true;
-        console.log("loaded set to true, navigating to WorkbenchComponent", this.loaded);
-
         // Dans certains setups (events coalescing / transitions), le template peut rester figé
         // sans un tick explicite.
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error loading score:', error);
+        console.log("Bad:", error);
+        alert('Error loading score:' + error);
         this.error = 'Unable to load score.';
         // Fallback: retourner à la bibliothèque si le slug est invalide.
         this.router.navigate(['/library']);

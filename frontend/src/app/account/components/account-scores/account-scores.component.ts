@@ -108,10 +108,11 @@ export class AccountScoresComponent implements OnInit {
   }
 
   viewScore(score: ScoreApiInfo) {
-    if (score.id) {
-      this.router.navigate(['/library', score.id, 'info']);
+    const slug = score.immutableSlug || score.mutableSlug;
+    if (slug) {
+      this.router.navigate(['/score', slug]);
     } else {
-      console.error('Score ID is missing');
+      console.error('Score slug is missing');
     }
   }
 }
