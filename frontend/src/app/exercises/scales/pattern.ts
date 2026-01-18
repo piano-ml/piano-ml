@@ -82,7 +82,94 @@ function scaleFingering(key: string, exercise: Exercise): void {
  * A -Major shift -2
  * B Major shift -2
  */
+
 const exercice2: Exercise = {
+    key: "Contrary motion starting on the same note.",
+    title: "Contrary motion starting on the same note.",
+    deckName: "Furious Shirley",
+    type: "scale",
+    advice: "Both thumbs play the same note. Up then down.",
+    measure: 4,
+    beat: reducedFraction(4, 4),
+    tempo: 60,
+    octaveShift: -1,
+    repeat: 1,
+    fingeringFn: scaleFingering,    
+        patternRightHand: [
+        // ================= 1
+        { note: [1+7], duration: 8, finger: [1] },
+        { note: [2+7], duration: 8, finger: [2] },
+        { note: [3+7], duration: 8, finger: [3] },
+        { note: [4+7], duration: 8, finger: [1] },
+        { note: [5+7], duration: 8, finger: [2] },
+        { note: [6+7], duration: 8, finger: [3] },
+        { note: [7+7], duration: 8, finger: [4] },
+        { note: [8+7], duration: 8, finger: [1] },
+        // ================= 2
+        { note: [9+7], duration: 8, finger: [2] },
+        { note: [10+7], duration: 8, finger: [3] },
+        { note: [11+7], duration: 8, finger: [1] },
+        { note: [12+7], duration: 8, finger: [2] },
+        { note: [13+7], duration: 8, finger: [3] },
+        { note: [14+7], duration: 8, finger: [4] },
+        { note: [15+7], duration: 8, finger: [5] },
+        { note: [14+7], duration: 8, finger: [4] },
+        // ================= 2
+        { note: [13+7], duration: 8, finger: [3] },
+        { note: [12+7], duration: 8, finger: [2] },
+        { note: [11+7], duration: 8, finger: [1] },
+        { note: [10+7], duration: 8, finger: [3] },
+        { note: [9+7], duration: 8, finger: [3] },
+        { note: [8+7], duration: 8, finger: [1] },
+        { note: [7+7], duration: 8, finger: [4] },
+        { note: [6+7], duration: 8, finger: [3] },
+        // ================= 2
+        { note: [5+7], duration: 8, finger: [1] },
+        { note: [4+7], duration: 8, finger: [1] },
+        { note: [3+7], duration: 8, finger: [3] },
+        { note: [2+7], duration: 8, finger: [2] },
+        { note: [1+7], duration: 2, finger: [1] },
+    ],
+    patternLeftHand: [
+        // ================= 1
+        { note: [15], duration: 8, finger: [5] },
+        { note: [14], duration: 8, finger: [4] },
+        { note: [13], duration: 8, finger: [3] },
+        { note: [12], duration: 8, finger: [2] },
+        { note: [11], duration: 8, finger: [1] },
+        { note: [10], duration: 8, finger: [3] },
+        { note: [9], duration: 8, finger: [2] },
+        { note: [8], duration: 8, finger: [1] },
+        // ================= 2
+        { note: [7], duration: 8, finger: [4] },
+        { note: [6], duration: 8, finger: [3] },
+        { note: [5], duration: 8, finger: [2] },
+        { note: [4], duration: 8, finger: [1] },
+        { note: [3], duration: 8, finger: [3] },
+        { note: [2], duration: 8, finger: [2] },
+        { note: [1], duration: 8, finger: [1] },
+        { note: [2], duration: 8, finger: [2] },
+        // ================= 2
+        { note: [3], duration: 8, finger: [3] },
+        { note: [4], duration: 8, finger: [1] },
+        { note: [5], duration: 8, finger: [2] },
+        { note: [6], duration: 8, finger: [3] },
+        { note: [7], duration: 8, finger: [4] },
+        { note: [8], duration: 8, finger: [1] },
+        { note: [9], duration: 8, finger: [2] },
+        { note: [10], duration: 8, finger: [3] },
+        // ================= 2
+        { note: [11], duration: 8, finger: [1] },
+        { note: [12], duration: 8, finger: [2] },
+        { note: [13], duration: 8, finger: [3] },
+        { note: [14], duration: 8, finger: [4] },
+        { note: [15], duration: 2, finger: [5] },
+    ]
+}
+
+
+const exercice4: Exercise = {
+    key: "parallel_motion_in_octaves",
     title: "Parallel motion in octaves",
     deckName: "Awesome Hamilton",
     type: "scale",
@@ -166,7 +253,8 @@ const exercice2: Exercise = {
 
 }
 
-const exercice1: Exercise = {
+const exercice3: Exercise = {
+    key: "left_than_right",
     title: "Left than Right",
     deckName: "Furious Shirley",
     type: "scale",
@@ -256,7 +344,8 @@ const exercice1: Exercise = {
     ]
 }
 
-const exercice3: Exercise = {
+const exercice1: Exercise = {
+    key: "intervals",
     title: "Intervals",
     deckName: "Awesome Hamilton",
     type: "scale",
@@ -358,7 +447,7 @@ function generateAllSteps(exercise: Exercise) {
 }
 
 // Appliquer la génération des étapes 2 à 8 pour exercice3
-generateAllSteps(exercice3);
+generateAllSteps(exercice1);
 
 
-export const exercises = [exercice3, exercice1, exercice2,];
+export const exercises = [exercice1, exercice2, exercice3, exercice4,];

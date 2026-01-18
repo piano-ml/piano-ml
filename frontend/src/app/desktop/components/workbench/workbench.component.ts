@@ -1,6 +1,6 @@
 import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat,  bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit } from '@ng-icons/bootstrap-icons';
@@ -15,6 +15,9 @@ import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../.
 import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
+import { scales as theoryScales } from '../../service/music-theory';
+import { exercises as scaleExercises } from '../../../exercises/scales/pattern';
+import { saveExerciseToStorage } from '../../../exercises/exercices';
 
 
 
@@ -94,10 +97,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   arenaClass = '';
   isFullscreen = false;
 
-  // Modal
-  isModalOpen = false;
-  modalTitle = '';
-  modalContent = '';
 
   scoreRange = [0, 10, 80];
 
@@ -110,6 +109,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private playerService: PlayerService,
     private changeDetector: ChangeDetectorRef,
     private scoreService: ScoreService,
@@ -137,7 +137,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
               total: this.playerService.getAssess().liveStatus.total
             } 
            };
-          console.log('Submitting play stats:', request);
           this.scoreService.scorePlayStatsPost(request).subscribe({
             next: () => {},
             error: (error) => console.warn('Failed to register play stats:', error)
@@ -181,6 +180,24 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         this.fromStorage = true;
       }
     }
+
+    // Deep-link support for exercises: allow refreshing `/workbench/scale/...`.
+    // On refresh, navigation state is lost; we reconstruct localStorage from URL params.
+    const scaleKey = this.route.snapshot.paramMap.get('scaleKey');
+    const selectedKey = this.route.snapshot.paramMap.get('selectedKey');
+    const exerciseKey = this.route.snapshot.paramMap.get('exerciseKey');
+    if (scaleKey && selectedKey && exerciseKey) {
+      const foundScale = theoryScales.find((s) => this.normalizeKey(s.key ?? s.name) === this.normalizeKey(scaleKey));
+      const foundExercise = scaleExercises.find(
+        (e) => this.normalizeKey(e.key ?? e.title) === this.normalizeKey(exerciseKey)
+      );
+
+      if (foundScale && foundExercise) {
+        saveExerciseToStorage(foundExercise, foundScale, selectedKey);
+        this.fromStorage = true;
+      }
+    }
+
     if (!this.scoreData && this.fromStorage) {
       // in that case we come from exercice (scale & agility) and we have data in local storage
       // Create a minimal scoreData object for exercise mode with title from MIDI
@@ -204,6 +221,17 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       // Enable loop/repeat for exercises
       this.playConfiguration.isLoop = true;
     }
+  }
+
+  private normalizeKey(value: string): string {
+    return value
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .replace(/_{2,}/g, '_');
   }
 
   async ngAfterViewInit() {
@@ -341,7 +369,24 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   private handleLoadError(error: any, scoreData: ScoreApiInfo, reject: (reason?: any) => void): void {
     if (error.status === 404) {
-      this.router.navigate(['/library', scoreData.id, 'info']);
+      const slug = scoreData.immutableSlug || scoreData.mutableSlug;
+      if (slug) {
+        this.router.navigate(['/score', slug]);
+      } else if (scoreData.id) {
+        this.scoreService.scoreIdGet(scoreData.id).subscribe({
+          next: (fullScore) => {
+            const fallbackSlug = fullScore.immutableSlug || fullScore.mutableSlug;
+            if (fallbackSlug) {
+              this.router.navigate(['/score', fallbackSlug]);
+            } else {
+              this.router.navigate(['/library']);
+            }
+          },
+          error: () => this.router.navigate(['/library'])
+        });
+      } else {
+        this.router.navigate(['/library']);
+      }
     }
     reject(error);
   }
@@ -351,8 +396,23 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   showInfo() {
+    const slug = this.scoreData?.immutableSlug || this.scoreData?.mutableSlug;
+    if (slug) {
+      this.router.navigate(['/score', slug]);
+      return;
+    }
     if (this.scoreData?.id) {
-      this.router.navigate(['/library', this.scoreData.id, 'info']);
+      this.scoreService.scoreIdGet(this.scoreData.id).subscribe({
+        next: (fullScore) => {
+          const fallbackSlug = fullScore.immutableSlug || fullScore.mutableSlug;
+          if (fallbackSlug) {
+            this.router.navigate(['/score', fallbackSlug]);
+          } else {
+            this.router.navigate(['/library']);
+          }
+        },
+        error: () => this.router.navigate(['/library'])
+      });
     }
   }
 

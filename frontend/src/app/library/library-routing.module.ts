@@ -1,9 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, type Routes } from '@angular/router';
-import { LibraryHomeComponent } from './components/library-home/library-home.component';
 import { BrowseComponent } from './components/browse/browse.component';
-import { ScoreInfoComponent } from './components/score-info/score-info.component';
-import { SlugToWorkbenchComponent } from './components/slug-to-workbench/slug-to-workbench.component';
 
 export const libraryRouteList: Routes = [
   {
@@ -27,20 +24,20 @@ export const libraryRouteList: Routes = [
     data: { breadcrumb: 'Browse' }
   },
   {
+    path: 'popular',
+    component: BrowseComponent,
+    data: { breadcrumb: 'Browse' }
+  },  
+  {
     path: 'artists/:artistSlug',
     component: BrowseComponent,
     data: { breadcrumb: 'Browse' }
   },
   {
-    path: ':id/info',
-    component: ScoreInfoComponent,
-    data: { breadcrumb: 'Score Info' }
-  },
-  {
-    path: ':slug',
-    component: SlugToWorkbenchComponent
+    path: ':slug/info',
+    redirectTo: '/score/:slug',
+    pathMatch: 'full'
   }
-
 ];
 
 @NgModule({

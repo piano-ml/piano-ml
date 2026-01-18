@@ -1,0 +1,44 @@
+<div class="bg-neutral-600 p-4 rounded">
+  <h3 class="text-lg font-semibold mb-4 text-white">Score additional Information</h3>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
+    <div><strong>Genre:</strong> {{ score.genre || 'N/A' }}</div>
+    <div><strong>Tempo:</strong> {{ score.tempo ? (score.tempo) : 'N/A' }}</div>
+    <div><strong>Key:</strong> {{ score.fullKey ? (score.fullKey) : 'N/A' }}</div>
+
+    <div><strong>Tracks:</strong> {{ score.tracks_count || 0 }}</div>
+    <div><strong>Measure:</strong> {{ score.measures || 'N/A' }}</div>
+    <div><strong>Duration:</strong> {{ score.duration ? (score.duration + ' seconds') : 'N/A' }}</div>
+
+    <div>
+      <strong>MusicBrainz: </strong>
+      <ng-container *ngIf="(score.author_mbid); else noAuthorMbid">
+        <a class="underline" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank">author</a>
+      </ng-container>
+      <ng-template #noAuthorMbid>Author Mbid N/A</ng-template>
+    </div>
+
+    <div>
+      <strong>MusicBrainz: </strong>
+      <ng-container *ngIf="score.mbid; else noWorkMbid">
+        <a class="underline" href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank">work</a>
+      </ng-container>
+      <ng-template #noWorkMbid>Work MbID N/A</ng-template>
+    </div>
+    <div><strong>Grade:</strong> {{ score.grade !== undefined && score.grade !== null ? score.grade : 'N/A' }}</div>
+
+    <div><strong>Uploaded:</strong> {{ score.uploaded_at | date:'medium' }}</div>
+    <div><strong>Owner:</strong> {{ score.owner }}</div>
+    <div><strong>Version:</strong> {{ score.version || 1 }}</div>
+
+    <div><strong>Has Lyrics:</strong> {{ score.has_lyrics ? 'Yes' : 'No' }}</div>
+
+        <div>
+          <strong>Public Domain: </strong>
+          <span *ngIf="score.publicDomain; else notPublicDomain">Yes</span>
+          <ng-template #notPublicDomain>
+            <span class="text-red-500 font-bold"> no / downloads is disabled</span>
+          </ng-template>
+        </div>
+
+  </div>
+</div>

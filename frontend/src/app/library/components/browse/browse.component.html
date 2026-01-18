@@ -84,14 +84,18 @@
   </div>
 
 
-
-
-
-
   <!-- Tabs Section -->
   <div class="mb-6" *ngIf=" !(selectedAuthor || selectedGenre || activeSearchKeyword)">
     <!-- Tab Headers -->
     <div class="flex border-b border-neutral-600">
+      <button 
+        (click)="setActiveTab('popular')"
+        [class.border-green-500]="activeTab === 'popular'"
+        [class.text-white]="activeTab === 'popular'"
+        [class.text-gray-400]="activeTab !== 'popular'"
+        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+        Popular
+      </button>
       <button 
         (click)="setActiveTab('genres')"
         [class.border-green-500]="activeTab === 'genres'"
@@ -101,10 +105,10 @@
         Browse by Genres
       </button>
       <button 
-        (click)="setActiveTab('authors')"
-        [class.border-blue-500]="activeTab === 'authors'"
-        [class.text-white]="activeTab === 'authors'"
-        [class.text-gray-400]="activeTab !== 'authors'"
+        (click)="setActiveTab('artists')"
+        [class.border-blue-500]="activeTab === 'artists'"
+        [class.text-white]="activeTab === 'artists'"
+        [class.text-gray-400]="activeTab !== 'artists'"
         class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
         Browse by Artist
       </button>
@@ -113,9 +117,10 @@
 
     <!-- Tab Content -->
     <div class="mt-4" >
+
       <!-- Popular Authors Section -->
       <app-browse-by-authors 
-        *ngIf="activeTab === 'authors'"
+        *ngIf="activeTab === 'artists'"
         [trackFilter]="getTrackCountFilter()"
         [fullKeyFilter]="getFullKeyFilter()"
         (authorClick)="onAuthorClick($event)">

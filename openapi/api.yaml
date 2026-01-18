@@ -269,6 +269,12 @@ paths:
           schema:
             type: string
           description: 'Filter by musical full key (example: "D minor" or "D major")'
+        - name: orderBy
+          in: query
+          schema:
+            type: string
+            enum: [title_asc, title_desc, grade_asc, grade_desc, uploadedAt_asc, uploadedAt_desc, playCount_asc, playCount_desc]
+          description: 'Order results by specified field (optional, no default ordering if not set)'
         - name: offset
           in: query
           schema:

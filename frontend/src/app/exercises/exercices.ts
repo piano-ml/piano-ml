@@ -21,23 +21,59 @@ export function getWeekOfYear(): number {
 
 
 export function loadExercice(router: Router, exercice: Exercise, scaleOrChord: Scale | Chord, key: string) {
+  const midi = saveExerciseToStorage(exercice, scaleOrChord, key);
+  if (midi) {
+    if (scaleOrChord.kind === 'Scale') {
+      const scaleKey = normalizeKey(scaleOrChord.key ?? scaleOrChord.name);
+      const exerciseKey = normalizeKey(exercice.key ?? exercice.title);
 
+      router.navigate(['/', 'workbench', 'scale', scaleKey, key, exerciseKey], {
+        state: {
+          fromStorage: true
+        }
+      });
+      return;
+    } else if (scaleOrChord.kind === 'Chord') {
+            const scaleKey = normalizeKey(scaleOrChord.name );
+      const exerciseKey = normalizeKey(exercice.key ?? exercice.title);
+          router.navigate(['/', 'workbench', 'chord', scaleKey, key, exerciseKey], {
+        state: {
+          fromStorage: true
+        }
+      });
+      return;
+    }
 
+    // router.navigate(['/desktop/workbench'], {
+    //   state: {
+    //     fromStorage: true
+    //   }
+    // });
+  }
+}
 
-
+export function saveExerciseToStorage(exercice: Exercise, scaleOrChord: Scale | Chord, key: string): Midi.MidiJSON | null {
   const mxml = generateExerciseAsMusicXML(exercice, scaleOrChord, key);
   localStorage.setItem(MUSIC_XML_STORAGE_KEY, mxml);
 
   const midi = generateExerciceAsMidi(exercice, scaleOrChord, key);
-  localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi));
-
-  if (midi) {
-    router.navigate(['/desktop/workbench'], {
-      state: {
-        fromStorage: true
-      }
-    });
+  if (!midi) {
+    return null;
   }
+
+  localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi));
+  return midi;
+}
+
+function normalizeKey(value: string): string {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .replace(/_{2,}/g, '_');
 }
 
 function generateMidiTracks(exercice: Exercise, key: string, header: Midi.Header, scaleOrChord: Scale | Chord): Midi.Track[] {
@@ -92,11 +128,6 @@ function generateMidiTrack(hand: string, exercice: Exercise, scaleOrChord: Scale
   return track;
 }
 
-// function loadMidi(midi: Midi.MidiJSON) {
-//   localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi));
-//   localStorage.setItem("studies", JSON.stringify([0, 1]));
-//   localStorage.setItem("splitVoices", JSON.stringify(false));
-// }
 
 function generateMidiHeader(excercice: Exercise, name: string): Midi.Header {
   const header = new Header();

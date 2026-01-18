@@ -1,17 +1,18 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
 import { ShareButtons } from 'ngx-sharebuttons/buttons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard } from '@ng-icons/bootstrap-icons';
-import { environment } from '../../../../environments/environment';
+import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
 
 @Component({
   selector: 'app-score-info',
   standalone: true,
-  imports: [CommonModule, ShareButtons, NgIcon],
+  imports: [CommonModule, ShareButtons, NgIcon, ScoreBasicInfoComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
   viewProviders: [provideIcons({ bootstrapClipboard })]
@@ -19,8 +20,8 @@ import { environment } from '../../../../environments/environment';
 export class ScoreInfoComponent implements OnInit {
   loading = false;
   error: string | null = null;
-  scoreId: string | null = null;
   score: ScoreApiInfo | null = null;
+  pageTitle = 'Score';
   genres: GenreApiInfo[] = [];
   loadingGenres = false;
   selectedGenre: GenreApiInfo | null = null;
@@ -33,6 +34,7 @@ export class ScoreInfoComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private title: Title,
     private scoreService: ScoreService,
     private genreService: GenreService,
     private workloadService: WorkloadService,
@@ -41,16 +43,13 @@ export class ScoreInfoComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.scoreId = this.route.snapshot.paramMap.get('id');
     this.slug = this.route.snapshot.paramMap.get('slug');
     this.loadGenres();
-    if (this.scoreId) {
-      this.loadScore();
-    } else if (this.slug) {
-      this.loadScoreBySlug(this.slug);
-    } else {
-      this.error = 'No score ID provided';
+    if (!this.slug) {
+      this.error = 'No score slug provided';
+      return;
     }
+    this.loadScoreBySlug(this.slug);
   }
 
 
@@ -72,16 +71,15 @@ export class ScoreInfoComponent implements OnInit {
     });
   }
 
-  loadScore() {
-    if (!this.scoreId) return;
-
+  loadScoreBySlug(slug: string) {
     this.loading = true;
     this.error = null;
     this.cdr.detectChanges();
 
-    this.scoreService.scoreIdGet(this.scoreId).subscribe({
+    this.scoreService.scoreGetBySlug(slug).subscribe({
       next: (score) => {
         this.score = score;
+        this.updatePageTitle(score);
         this.updateSelectedGenre();
         this.loading = false;
         // Load workload info if score doesn't have files
@@ -99,25 +97,22 @@ export class ScoreInfoComponent implements OnInit {
     });
   }
 
-  loadScoreBySlug(slug: string) {
-    this.scoreService.scoreGetBySlug(slug).subscribe({
-      next: (score) => {
-        this.score = score;
-        this.updateSelectedGenre();
-        this.loading = false;
-        // Load workload info if score doesn't have files
-        if (!score.has_files && score.id) {
-          this.loadWorkload(score.id);
-        }
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        this.error = error.message || 'Failed to load score';
-        this.loading = false;
-        console.error('Error loading score:', error);
-        this.cdr.detectChanges();
-      }
-    });
+  private buildScorePageTitle(score: ScoreApiInfo | null): string {
+    if (!score) {
+      return 'Score';
+    }
+
+    const authorName = (score.author || '').trim();
+    const scoreName = (score.title || '').trim();
+
+    const base = `${authorName} - ${scoreName}`.trim();
+    return base ? `${base} piano score` : 'Score';
+  }
+
+  private updatePageTitle(score: ScoreApiInfo | null) {
+    const nextTitle = this.buildScorePageTitle(score);
+    this.pageTitle = nextTitle;
+    this.title.setTitle(nextTitle);
   }
 
 
@@ -146,6 +141,10 @@ export class ScoreInfoComponent implements OnInit {
   }
 
   downloadFile(type: 'pdf' | 'musicxml' | 'midi') {
+    if (!this.score?.publicDomain) {
+      return;
+    }
+
     if (!this.score?.owner_id || !this.score?.id || !this.score?.version) {
       this.error = 'Missing required information for download';
       return;
@@ -203,16 +202,14 @@ export class ScoreInfoComponent implements OnInit {
   }
 
   editScore() {
-    if (this.scoreId) {
-      this.router.navigate(['/account/score/edit', this.scoreId]);
+    if (this.score?.id) {
+      this.router.navigate(['/account/score/edit', this.score.id]);
     }
   }
 
   playScore() {
     if (this.score) {
-      this.router.navigate(['/desktop/workbench'], {
-        state: { score: this.score }
-      });
+      this.router.navigate(['/work/' + this.score.immutableSlug]);
     }
   }
 
@@ -225,7 +222,7 @@ export class ScoreInfoComponent implements OnInit {
     if (!this.score?.immutableSlug) {
       return null;
     }
-    return `${this.siteUrl}/work/${this.score.immutableSlug}`;
+    return `${this.siteUrl}/score/${this.score.immutableSlug}`;
   }
 
   copyUrlToClipboard(): void {

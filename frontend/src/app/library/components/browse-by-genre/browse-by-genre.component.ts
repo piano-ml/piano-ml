@@ -46,7 +46,6 @@ export class BrowseByGenreComponent implements OnInit, OnChanges {
   }
 
   onGenreClick(genre: ScoreGenreBrowseGet200ResponseInner) {
-    console.log('Genre clicked:', genre);
     if (genre.genre==null) {
       genre.genre= { id: 'NONE' };
     }
