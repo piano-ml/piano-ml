@@ -14,7 +14,7 @@
       <ng-container *ngIf="(score.author_mbid); else noAuthorMbid">
         <a class="underline" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank">author</a>
       </ng-container>
-      <ng-template #noAuthorMbid>N/A</ng-template>
+      <ng-template #noAuthorMbid>Author Mbid N/A</ng-template>
     </div>
 
     <div>
@@ -22,7 +22,7 @@
       <ng-container *ngIf="score.mbid; else noWorkMbid">
         <a class="underline" href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank">work</a>
       </ng-container>
-      <ng-template #noWorkMbid>N/A</ng-template>
+      <ng-template #noWorkMbid>Work MbID N/A</ng-template>
     </div>
     <div><strong>Grade:</strong> {{ score.grade !== undefined && score.grade !== null ? score.grade : 'N/A' }}</div>
 
@@ -31,5 +31,14 @@
     <div><strong>Version:</strong> {{ score.version || 1 }}</div>
 
     <div><strong>Has Lyrics:</strong> {{ score.has_lyrics ? 'Yes' : 'No' }}</div>
+
+        <div>
+          <strong>Public Domain: </strong>
+          <span *ngIf="score.publicDomain; else notPublicDomain">Yes</span>
+          <ng-template #notPublicDomain>
+            <span class="text-red-500 font-bold"> no / downloads is disabled</span>
+          </ng-template>
+        </div>
+
   </div>
 </div>
