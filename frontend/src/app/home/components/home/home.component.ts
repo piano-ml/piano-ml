@@ -4,6 +4,7 @@ import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef
 import { Title } from '@angular/platform-browser';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
+import { noop } from 'rxjs';
 
 
 interface ShaderManifest {
@@ -378,9 +379,9 @@ export class HomeComponent implements AfterViewInit {
 
   async ngAfterViewInit(): Promise<void> {
     // Warm up the server (ignore response and errors)
-    this.http.get('/account/userinfo').subscribe({
-      next: () => {},
-      error: () => {}
+    void this.http.get('/account/userinfo').subscribe({
+      next: noop,
+      error: noop
     });
 
     if (!this.isBrowser) {
