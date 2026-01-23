@@ -82,7 +82,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       predicate = cb.and(predicate, root.get("tracksCount").in(tracks));
     }
 
-    if (user == null) {
+/*    if (user == null) {
       predicate = cb.and(predicate, cb.isTrue(root.get("publicDomain")));
     } else {
       boolean isAdmin = user.getRoles() != null && Arrays.stream(user.getRoles().split(","))
@@ -92,7 +92,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
         Predicate isPublic = cb.isTrue(root.get("publicDomain"));
         predicate = cb.and(predicate, cb.or(ownerIsUser, isPublic));
       }
-    }
+    }*/
 
     cq.where(predicate);
     if (orderBy==null) {
@@ -159,11 +159,11 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
 
      StringBuilder jpql = new StringBuilder("SELECT s.author, COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL)");
 
-     if (user == null) {
+/*     if (user == null) {
        jpql.append(" AND s.publicDomain = true");
      } else if (!isAdmin) {
        jpql.append(" AND (s.publicDomain = true OR s.owner.id = :userId)");
-     }
+     }*/
 
      // Add tracks filter when provided: only include scores whose tracksCount is in the provided list
      if (tracks != null && !tracks.isEmpty()) {
@@ -239,11 +239,13 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     // Second: Get counts for scores WITH a genre (GROUP BY works fine for non-NULL)
     StringBuilder jpql = new StringBuilder("SELECT s.genre, COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.genre IS NOT NULL");
 
+/*
     if (user == null) {
       jpql.append(" AND s.publicDomain = true");
     } else if (!isAdmin) {
       jpql.append(" AND (s.publicDomain = true OR s.owner.id = :userId)");
     }
+*/
 
     jpql.append(" AND s.hasFiles = true");
 
