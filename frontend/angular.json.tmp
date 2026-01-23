@@ -2,7 +2,6 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "newProjectRoot": "projects",
-
   "projects": {
     "piano-ml": {
       "projectType": "application",
@@ -10,9 +9,7 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
-   
       "architect": {
-        
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
@@ -38,14 +35,8 @@
             "styles": [
               "./node_modules/nouislider/dist/nouislider.min.css",
               "src/styles.css"
-            ],
-            "server": "src/main.server.ts",
-            "prerender": false,
-            "ssr": {
-              "entry": "src/server.ts"
-            }
+            ]
           },
-          
           "configurations": {
             "production": {
               "optimization": true,
@@ -84,8 +75,8 @@
               "buildTarget": "piano-ml:build:production"
             },
             "development": {
-              "buildTarget": "piano-ml:build:development"
-             ,"proxyConfig": "proxy.conf.json"
+              "buildTarget": "piano-ml:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

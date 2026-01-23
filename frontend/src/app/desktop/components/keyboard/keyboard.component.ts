@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, type ElementRef, ViewChild, signal, effect, type EffectRef, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, type ElementRef, ViewChild, signal, effect, type EffectRef, OnDestroy, PLATFORM_ID, inject } from "@angular/core";
+import { isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import { PlayerService } from "../../service/player.service";
 import { MidiServiceService } from "../../../shared/services/midi-service.service";
@@ -13,6 +14,7 @@ import { MidiServiceService } from "../../../shared/services/midi-service.servic
 })
 export class KeyboardComponent implements OnDestroy {
 
+  private platformId = inject(PLATFORM_ID);
   keyPressed = signal<{ key: number; timestamp: number } | null>(null);
   keyReleased = signal<{ key: number; timestamp: number } | null>(null);
   currentlyPressedKeys = signal<Set<number>>(new Set());
@@ -116,6 +118,9 @@ export class KeyboardComponent implements OnDestroy {
   }
 
   private applyKeyRangePreferences(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
     try {
       const preferences = localStorage.getItem("preferences");
       if (preferences) {

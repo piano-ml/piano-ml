@@ -1,6 +1,9 @@
-<div class="px-6 pt-2 pb-0">
+<article class="px-6 pt-2 pb-0">
+  <!-- H1 for SEO - hidden visually but accessible -->
+  <h1 class="sr-only" *ngIf="score">{{ score.title }} by {{ score.author }} - Piano Score</h1>
+  
   <div class="flex items-center justify-between gap-4">
-    <div class="page-title">{{ pageTitle }}</div>
+    <div class="page-title" role="heading" aria-level="2">{{ pageTitle }}</div>
 
     <div class="flex items-center justify-end gap-2" *ngIf="!loading && score">
       <span></span>
@@ -14,9 +17,9 @@
     </div>
   </div>
 
-</div>
+</article>
 
-<div class="bg-neutral-700 p-4">
+<section class="bg-neutral-700 p-4" aria-label="Score details and actions">
   <!-- Loading State -->
   <div *ngIf="loading" class="text-center py-8">
     <div
@@ -170,4 +173,4 @@
 
 
   </div>
-</div>
+</section>

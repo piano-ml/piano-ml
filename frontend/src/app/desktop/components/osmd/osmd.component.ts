@@ -1,5 +1,6 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { PlayerService } from '../../service/player.service';
@@ -13,6 +14,7 @@ import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OsmdComponent implements OnInit, OnDestroy{
+    private platformId = inject(PLATFORM_ID);
     osmd: OpenSheetMusicDisplay | null = null;
 
     @Input() scoreData: ScoreApiInfo | null = null;
@@ -30,10 +32,17 @@ export class OsmdComponent implements OnInit, OnDestroy{
 
     constructor(
         private playerService: PlayerService,
-    ) { }
+    ) {
+        // Initialiser uniquement côté client après le rendu
+        afterNextRender(() => {
+            if (isPlatformBrowser(this.platformId)) {
+                this.loadMusicXML();
+            }
+        });
+    }
 
     ngOnInit() {
-        this.loadMusicXML();
+        // Ne pas initialiser ici pour éviter l'exécution côté serveur
     }
 
     ngOnDestroy() {
@@ -53,6 +62,9 @@ export class OsmdComponent implements OnInit, OnDestroy{
     }
 
     private async loadMusicXML() {
+        if (!isPlatformBrowser(this.platformId)) {
+            return;
+        }
 
         this.loading = true;
         this.error = null;

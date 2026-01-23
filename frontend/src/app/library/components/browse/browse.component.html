@@ -1,9 +1,17 @@
-<div class="bg-neutral-700 p-4 pb-1">
+<article class="bg-neutral-700 p-4 pb-1">
+
+  <!-- Page Title (h1) for SEO - visible for screen readers, styled for visual users -->
+  <h1 class="sr-only" *ngIf="selectedGenre">{{ selectedGenre.genre?.name }} Piano Scores</h1>
+  <h1 class="sr-only" *ngIf="selectedAuthor">{{ selectedAuthor.author.name }} Piano Works</h1>
+  <h1 class="sr-only" *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'genres'">Browse Piano Scores by Genre</h1>
+  <h1 class="sr-only" *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'artists'">Browse Piano Scores by Composer & Artist</h1>
+  <h1 class="sr-only" *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'popular'">Popular Piano Scores</h1>
+  <h1 class="sr-only" *ngIf="activeSearchKeyword">Search Results for "{{ activeSearchKeyword }}"</h1>
 
   <app-quick-actions *ngIf="!(activeSearchKeyword || selectedAuthor || selectedGenre)"></app-quick-actions>
 
   <!-- Search Section -->
-  <div class="">
+  <section aria-label="Search piano scores" class="">
     <div class="flex gap-2">
       <input 
         [(ngModel)]="searchKeyword" 
@@ -81,11 +89,11 @@
 
 
     </div>
-  </div>
+  </section>
 
 
   <!-- Tabs Section -->
-  <div class="mb-6" *ngIf=" !(selectedAuthor || selectedGenre || activeSearchKeyword)">
+  <nav class="mb-6" aria-label="Browse options" *ngIf=" !(selectedAuthor || selectedGenre || activeSearchKeyword)">
     <!-- Tab Headers -->
     <div class="flex border-b border-neutral-600">
       <button 
@@ -134,7 +142,18 @@
         (genreClick)="onGenreClick($event)">
       </app-browse-by-genre>
     </div>
-  </div>
+  </nav>
+
+  <!-- Results Section -->
+  <section aria-label="Piano score results" class="">
+  <h2 class="sr-only">
+    <span *ngIf="selectedGenre">{{ selectedGenre.genre?.name }} Piano Scores Collection</span>
+    <span *ngIf="selectedAuthor">{{ selectedAuthor.author.name }} Piano Works Collection</span>
+    <span *ngIf="activeSearchKeyword">Piano Score Search Results</span>
+    <span *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'genres'">Available Music Genres</span>
+    <span *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'artists'">Featured Composers and Artists</span>
+    <span *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'popular'">Most Popular Piano Scores</span>
+  </h2>
 
   <!-- Results Table -->
   <app-score-table
@@ -165,5 +184,6 @@
   <!-- Quick Actions -->
   <app-quick-actions *ngIf="activeSearchKeyword || selectedAuthor || selectedGenre"></app-quick-actions>
 
+  </section>
 
-</div>
+</article>

@@ -1,10 +1,13 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import type { MidiEvent, MidiStateEvent } from '../model/webmidi';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MidiServiceService {
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
 
   enabledInputDevices: Map<string, MIDIInput> = new Map()
   enabledOutputDevices: Map<string, MIDIOutput> = new Map()
@@ -18,17 +21,20 @@ export class MidiServiceService {
   public midiEvent = signal<MidiStateEvent | null>(null)
 
   constructor() {
+    this.isBrowser = isPlatformBrowser(this.platformId);
     this.onMidiMessage = this.onMidiMessage.bind(this);
     //this.setupMidiDeviceListeners()
   }
 
   press(note: number, velocity: number) {
+    if (!this.isBrowser) return;
     const time = Date.now()
     this.pressedNotes.set(note, { time, vel: velocity })
     this.notify({ note, velocity, type: 'down', time })
   }
 
   pressOutput(note: number, volume: number) {
+    if (!this.isBrowser) return;
     for (const output of this.enabledOutputDevices) {
       const midiNoteOnCh1 = 144
       const velocity = volume * 127
@@ -38,11 +44,13 @@ export class MidiServiceService {
   }
 
   release(note: number) {
+    if (!this.isBrowser) return;
     this.pressedNotes.delete(note)
     this.notify({ note, type: 'up', time: Date.now() })
   }
 
   releaseOutput(note: number) {
+    if (!this.isBrowser) return;
     const midiNoteOffCh1 = 128
     for (const output of this.enabledOutputDevices) {
       const data = [midiNoteOffCh1, note, 127]
@@ -73,6 +81,10 @@ export class MidiServiceService {
 
 
   setupMidiDeviceListeners() {
+    if (!this.isBrowser) {
+      console.log('MIDI setup skipped on server');
+      return;
+    }
     getMidiInputs().then((inputs) => {
       if (inputs.size === 0) {
         if (this.midiSetupRetries < this.maxRetries) {
@@ -114,6 +126,7 @@ export class MidiServiceService {
   }
 
   enableInputMidiDevice(device: MIDIInput) {
+    if (!this.isBrowser) return;
     device.open()
     device.addEventListener('midimessage', this.onMidiMessage)
     this.enabledInputDevices.set(device.id, device)
@@ -127,6 +140,7 @@ export class MidiServiceService {
 
 
   disableInputMidiDevice(deviceParam: MIDIInput) {
+    if (!this.isBrowser) return;
     const device = this.enabledInputDevices.get(deviceParam.id)
     if (!device) {
       return

@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService, UserApiInfo } from '../../core/api';
@@ -13,12 +14,17 @@ interface SessionLike {
 })
 export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(this.hasStoredSession());
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
 
   constructor(
     private accountService: AccountService,
     private router: Router
   ) {
-    this.refreshSessionFromServer();
+    this.isBrowser = isPlatformBrowser(this.platformId);
+    if (this.isBrowser) {
+      this.refreshSessionFromServer();
+    }
   }
 
   get isLoggedIn(): Observable<boolean> {
@@ -26,6 +32,9 @@ export class AuthService {
   }
 
   getUserId(): string | null {
+    if (!this.isBrowser) {
+      return null;
+    }
     return localStorage.getItem('userId');
   }
 
@@ -38,8 +47,9 @@ export class AuthService {
         });
         this.loggedIn.next(true);
         this.router.navigate(['/']);
-        // Refresh ensures we sync with cookie-backed session state
-        this.refreshSessionFromServer();
+        if (this.isBrowser) {
+          this.refreshSessionFromServer();
+        }
       })
     );
   }
@@ -68,10 +78,17 @@ export class AuthService {
   }
 
   private hasStoredSession(): boolean {
+    if (!this.isBrowser) {
+      return false;
+    }
     return !!localStorage.getItem('userId');
   }
 
   private refreshSessionFromServer(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+    
     this.accountService.accountUserinfoGet().subscribe({
       next: (userInfo: UserApiInfo) => {
         this.persistSessionData({
@@ -89,6 +106,10 @@ export class AuthService {
   }
 
   private persistSessionData(session: SessionLike): void {
+    if (!this.isBrowser) {
+      return;
+    }
+    
     if ('userId' in session) {
       if (session.userId) {
         localStorage.setItem('userId', session.userId);
@@ -106,12 +127,16 @@ export class AuthService {
   }
 
   private clearSession(redirect: boolean): void {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('username');
+    if (this.isBrowser) {
+      localStorage.removeItem('userId');
+      localStorage.removeItem('username');
+    }
+    
     if (this.loggedIn.value) {
       this.loggedIn.next(false);
     }
-    if (redirect) {
+    
+    if (redirect && this.isBrowser) {
       const target = '/account/login';
       if (this.router.url !== target) {
         this.router.navigate([target]);

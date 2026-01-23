@@ -12,6 +12,7 @@ import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn } from '../../.
 import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
 import { BrowseByAuthorsComponent } from '../browse-by-authors/browse-by-authors.component';
 import { BrowseByGenreComponent } from '../browse-by-genre/browse-by-genre.component';
+import { SeoService } from '../../../shared/services/seo.service';
 
 @Component({
   selector: 'app-browse',
@@ -69,13 +70,14 @@ export class BrowseComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private changeDetector: ChangeDetectorRef,
-    private titleService: Title
+    private titleService: Title,
+    private seo: SeoService
   ) { }
 
   ngOnInit() {
     this.loadFullKeys();
     this.loadStats();
-    this.updatePageTitle();
+    
     // Read the URL path to set active tab
     const path = this.route.snapshot.url[0]?.path;
     if (path) {
@@ -116,6 +118,9 @@ export class BrowseComponent implements OnInit {
           this.selectedGenre = null;
           this.loadScores(true);
         }
+        
+        // Update SEO after route params are processed
+        this.updatePageTitle();
       });
     });
   }
@@ -520,12 +525,122 @@ export class BrowseComponent implements OnInit {
   }
 
   updatePageTitle() {
+    const baseUrl = 'https://pianoml.org';
+    let title: string;
+    let description: string;
+    let url: string;
+    let keywords: string;
+    let structuredData: any;
+
     if (this.selectedGenre?.genre?.name) {
-      this.titleService.setTitle(`PianoML: ${this.selectedGenre.genre.name} piano scores`);
+      const genreName = this.selectedGenre.genre.name;
+      const scoreCount = this.selectedGenre.count;
+      title = `${genreName} Piano Scores | PianoML - ${scoreCount} Free Sheet Music`;
+      description = `Discover ${scoreCount} ${genreName} piano scores on PianoML. Practice with hands-separated sheet music, adjustable speed, and MIDI support. Free access to ${genreName} piano music.`;
+      url = `${baseUrl}/library/genres/${this.selectedGenre.genre.slug}`;
+      keywords = `${genreName} piano, ${genreName} sheet music, ${genreName} piano scores, piano practice`;
+      
+      structuredData = this.seo.generateMusicCollectionStructuredData(
+        this.scores,
+        `${genreName} Piano Scores`,
+        description
+      );
     } else if (this.selectedAuthor?.author?.name) {
-      this.titleService.setTitle(`PianoML: ${this.selectedAuthor.author.name} piano scores`);
+      const authorName = this.selectedAuthor.author.name;
+      const scoreCount = this.selectedAuthor.count;
+      title = `${authorName} Piano Scores | PianoML - ${scoreCount} Free Sheet Music`;
+      description = `Play ${scoreCount} ${authorName} piano scores on PianoML. Interactive sheet music with hands-separated practice, loop sections, and adjustable playback speed. Free ${authorName} piano music.`;
+      url = `${baseUrl}/library/artists/${this.selectedAuthor.author.slug}`;
+      keywords = `${authorName} piano, ${authorName} sheet music, ${authorName} compositions, piano practice`;
+      
+      structuredData = this.seo.generateMusicCollectionStructuredData(
+        this.scores,
+        `${authorName} Piano Works`,
+        description
+      );
+    } else if (this.activeSearchKeyword) {
+      title = `Search: "${this.activeSearchKeyword}" | PianoML Piano Scores`;
+      description = `Search results for "${this.activeSearchKeyword}" - Browse piano scores and sheet music on PianoML with interactive practice tools.`;
+      url = `${baseUrl}/library/popular?search=${encodeURIComponent(this.activeSearchKeyword)}`;
+      keywords = `piano search, ${this.activeSearchKeyword}, piano scores, sheet music`;
+      
+      structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'SearchResultsPage',
+        'name': title,
+        'description': description
+      };
+    } else if (this.activeTab === 'genres') {
+      // Browse by Genres page
+      const totalScores = this.stats ? this.stats['public-domain'] + this.stats.copyrighted : 3000;
+      title = `Browse Piano Scores by Genre | PianoML - Classical, Jazz, Pop & More`;
+      description = `Explore ${totalScores}+ piano scores organized by genre on PianoML. Find classical, romantic, jazz, pop, baroque, and contemporary piano music. Learn piano with AI-powered sheet music and interactive practice tools.`;
+      url = `${baseUrl}/library/genres`;
+      keywords = 'piano genres, classical piano, jazz piano, pop piano, baroque music, romantic piano, sheet music by genre, piano learning machine';
+      
+      structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        'name': 'Browse Piano Scores by Genre',
+        'description': description,
+        'numberOfItems': totalScores,
+        'about': {
+          '@type': 'Thing',
+          'name': 'Piano Music Genres',
+          'description': 'Collection of piano music organized by musical genre and style'
+        }
+      };
+    } else if (this.activeTab === 'artists') {
+      // Browse by Artists page
+      const totalScores = this.stats ? this.stats['public-domain'] + this.stats.copyrighted : 3000;
+      title = `Browse Piano Scores by Composer & Artist | PianoML - Bach, Chopin, Mozart & More`;
+      description = `Discover ${totalScores}+ piano scores from famous composers and artists on PianoML. Learn works by Bach, Beethoven, Chopin, Mozart, Debussy, and more. AI-powered piano learning machine with hands-separated practice.`;
+      url = `${baseUrl}/library/artists`;
+      keywords = 'piano composers, famous pianists, Bach piano, Chopin piano, Mozart piano, Beethoven piano, classical composers, piano learning machine';
+      
+      structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        'name': 'Browse Piano Scores by Composer',
+        'description': description,
+        'numberOfItems': totalScores,
+        'about': {
+          '@type': 'Thing',
+          'name': 'Piano Composers and Artists',
+          'description': 'Collection of piano works organized by composer and artist'
+        }
+      };
     } else {
-      this.titleService.setTitle('PianoML: piano scores');
+      // Popular scores (default)
+      const totalScores = this.stats ? this.stats['public-domain'] + this.stats.copyrighted : 3000;
+      title = `Popular Piano Scores | PianoML - ${totalScores}+ Free Sheet Music`;
+      description = `Browse ${totalScores}+ popular piano scores on PianoML. AI-powered interactive sheet music with hands-separated practice, adjustable speed, loopable sections, and MIDI keyboard support. Transform your piano learning with our machine learning tools. Public domain and licensed music.`;
+      url = `${baseUrl}/library`;
+      keywords = 'piano scores, sheet music, piano practice, free piano music, piano learning, interactive sheet music, piano learning machine, AI piano, machine learning piano';
+      
+      structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        'name': 'Popular Piano Score Library',
+        'description': description,
+        'numberOfItems': totalScores,
+        'about': {
+          '@type': 'SoftwareApplication',
+          'name': 'PianoML - AI Piano Learning Machine',
+          'applicationCategory': 'Music Education',
+          'description': 'AI-powered piano learning platform with machine learning features for interactive practice'
+        }
+      };
     }
+
+    this.seo.updateMetaTags({
+      title,
+      description,
+      keywords,
+      url,
+      type: 'website',
+      image: `${baseUrl}/assets/images/pianoml-og-image.png`,
+      structuredData
+    });
   }
 }

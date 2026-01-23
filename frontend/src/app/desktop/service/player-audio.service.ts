@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import * as Tone from "tone";
 import { Piano } from '@tonejs/piano';
 import { Synthetizer } from "spessasynth_lib";
@@ -14,6 +15,7 @@ import { PlayerStateService } from './player-state.service';
   providedIn: 'root'
 })
 export class PlayerAudioService {
+  private platformId = inject(PLATFORM_ID);
   synth: Tone.Synth<Tone.SynthOptions> | undefined;
   spessasynth?: Synthetizer;
   piano: any;
@@ -22,15 +24,21 @@ export class PlayerAudioService {
     private assess: PlayerAssessService,
     private state: PlayerStateService,
   ) {
-    this.initSoundFont();
-    this.initPiano();
-    this.synth = new Tone.Synth().toDestination();
+    if (isPlatformBrowser(this.platformId)) {
+      this.initSoundFont();
+      this.initPiano();
+      this.synth = new Tone.Synth().toDestination();
+    }
   }
 
   /**
    * Initialise le soundfont Spessasynth
    */
   async initSoundFont(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) {
+      console.log('SoundFont initialization skipped on server');
+      return;
+    }
     if (this.spessasynth != null) {
       return; // already initialized
     }
@@ -49,6 +57,10 @@ export class PlayerAudioService {
    * Initialise le piano Tone.js
    */
   initPiano(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      console.log('Piano initialization skipped on server');
+      return;
+    }
     this.piano = new Piano({
       velocities: 1
     }).toDestination();

@@ -1,6 +1,6 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnInit, ViewChild, inject, PLATFORM_ID } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
@@ -34,6 +34,8 @@ export class HomeComponent implements AfterViewInit {
   @ViewChild('glCanvas') canvas!: ElementRef<HTMLCanvasElement>;
 
   private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
 
   gl!: WebGLRenderingContext
   program!: WebGLProgram
@@ -52,6 +54,7 @@ export class HomeComponent implements AfterViewInit {
 
 
   constructor(private router: Router, private titleService: Title) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
     this.render = this.render.bind(this);
     this.titleService.setTitle('PianoML: Learn Piano with Smart Sheet Music & Practice Tools');
   }
@@ -221,6 +224,10 @@ export class HomeComponent implements AfterViewInit {
   }
 
   async initGlAndProgram() {
+    if (!this.isBrowser) {
+      return;
+    }
+    
     // S'assurer que les shaders sont chargés
     if (!this.selectedShader) {
       console.error('❌ Aucun shader sélectionné. Chargement des shaders...');
@@ -300,7 +307,9 @@ export class HomeComponent implements AfterViewInit {
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-    window.onresize = this.resize;
+    if (this.isBrowser) {
+      window.onresize = this.resize;
+    }
     this.resize();
     this.isInitialized = true;
     requestAnimationFrame(this.render);
@@ -308,7 +317,7 @@ export class HomeComponent implements AfterViewInit {
 
 
   resize() {
-    if (!this.canvas) {
+    if (!this.isBrowser || !this.canvas) {
       return;
     }
     const vp_size = [window.innerWidth, window.innerHeight];
@@ -373,6 +382,10 @@ export class HomeComponent implements AfterViewInit {
       next: () => {},
       error: () => {}
     });
+
+    if (!this.isBrowser) {
+      return;
+    }
 
     // Chargement dynamique des shaders au démarrage
     await this.loadAvailableShaders();

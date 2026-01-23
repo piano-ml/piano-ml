@@ -1,5 +1,5 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -47,6 +47,7 @@ import { saveExerciseToStorage } from '../../../exercises/exercices';
 
 export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
+  private platformId = inject(PLATFORM_ID);
   // Score data from state
   scoreData: ScoreApiInfo | null = null;
   fromStorage = false;
@@ -171,7 +172,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     if (navigation?.extras.state) {
       this.scoreData = navigation.extras.state['score'] as ScoreApiInfo;
       this.fromStorage = navigation.extras.state['fromStorage'] === true;
-    } else {
+    } else if (isPlatformBrowser(this.platformId)) {
       const state = window.history.state;
       if (state && state.score) {
         this.scoreData = state.score as ScoreApiInfo;
@@ -202,14 +203,16 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       // in that case we come from exercice (scale & agility) and we have data in local storage
       // Create a minimal scoreData object for exercise mode with title from MIDI
       let exerciseTitle = 'Exercise';
-      try {
-        const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
-        if (midiScore) {
-          const midiJson = JSON.parse(midiScore);
-          exerciseTitle = midiJson.header?.name || 'Exercise';
+      if (isPlatformBrowser(this.platformId)) {
+        try {
+          const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
+          if (midiScore) {
+            const midiJson = JSON.parse(midiScore);
+            exerciseTitle = midiJson.header?.name || 'Exercise';
+          }
+        } catch (error) {
+          console.warn('Failed to load MIDI title from localStorage:', error);
         }
-      } catch (error) {
-        console.warn('Failed to load MIDI title from localStorage:', error);
       }
       
       this.scoreData = {
@@ -293,16 +296,20 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   private getCachedMidi(): Midi.Midi {
     if (!this.cachedMidi) {
-      try {
-        const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
-        if (midiScore) {
-          this.cachedMidi = new Midi.Midi();
-          this.cachedMidi.fromJSON(JSON.parse(midiScore));
-        } else {
+      if (isPlatformBrowser(this.platformId)) {
+        try {
+          const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
+          if (midiScore) {
+            this.cachedMidi = new Midi.Midi();
+            this.cachedMidi.fromJSON(JSON.parse(midiScore));
+          } else {
+            this.cachedMidi = new Midi.Midi();
+          }
+        } catch (error) {
+          console.warn('Failed to load MIDI from localStorage:', error);
           this.cachedMidi = new Midi.Midi();
         }
-      } catch (error) {
-        console.warn('Failed to load MIDI from localStorage:', error);
+      } else {
         this.cachedMidi = new Midi.Midi();
       }
     }
@@ -310,6 +317,9 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   async loadFromLocalStorage(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) {
+      throw new Error('localStorage not available on server');
+    }
     // Load MusicXML from localStorage
     const musicXmlData = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
     if (!musicXmlData) {
@@ -332,7 +342,9 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       if (!(scoreData.study_tracks && scoreData.study_tracks.length > 0)) {
         midi.tracks = midi.tracks.filter(track => track.notes.length > 0);
       }
-      localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi.toJSON()));
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi.toJSON()));
+      }
       // Invalidate cache when new MIDI is loaded
       this.cachedMidi = null;
     });

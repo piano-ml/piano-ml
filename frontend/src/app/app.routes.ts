@@ -46,30 +46,10 @@ export const routes: Routes = [
     },
     {
         component: LayoutComponent,
-        path: 'work',
-        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Practice' }
-    },
-    {
-        component: LayoutComponent,
         path: 'exercises',
         loadChildren: () => import('./exercises/exercises.module').then(m => m.ExercisesModule),
         data: { breadcrumb: 'Exercises' }
 
-    },
-    {
-        // this component does not need a LayoutComponent !
-        path: 'desktop',
-        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Desktop' }
-    },
-
-    {
-        // Same workbench experience as `/desktop`, but with a shorter URL.
-        // This route does not need a LayoutComponent.
-        path: 'workbench',
-        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Workbench' }
     },
     {
         path: 'error',

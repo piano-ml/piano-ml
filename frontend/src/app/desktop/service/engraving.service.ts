@@ -1,4 +1,5 @@
-import { type ElementRef, Injectable } from '@angular/core';
+import { type ElementRef, Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Accidental, Annotation, BarlineType, Beam, Dot, KeySignature, type RenderContext, Renderer, Stave, StaveConnector, StaveNote, type StemmableNote, type Tickable, TickContext, Voice } from 'vexflow';
 import type * as Midi from '@tonejs/midi';
 import type { Note } from '@tonejs/midi/dist/Note';
@@ -16,6 +17,9 @@ import { detectDuration, getBar, getStaveDurationTick } from './midi-maths';
   providedIn: 'root'
 })
 export class EngravingService {
+
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
 
   width = 64596;
   height = 320;
@@ -44,7 +48,15 @@ export class EngravingService {
   fingering: number[][][] | undefined;
   scale = 1.2;
 
+  constructor() {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
+
   renderScore(nativeElementRef: ElementRef, width: number) {
+    if (!this.isBrowser) {
+      console.warn('renderScore called on server - skipping');
+      return;
+    }
     if (!this.midiObj) {
       console.error("midi object not loaded in vexflow service")
       return;
