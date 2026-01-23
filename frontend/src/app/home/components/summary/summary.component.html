@@ -1,18 +1,21 @@
-<div class="px-2 sm:px-4 pt-1 pb-0 max-w-full overflow-hidden">
-  <div class="page-title">Piano Machine Learning</div>
+<section class="px-2 sm:px-4 pt-1 pb-0 max-w-full overflow-hidden" aria-labelledby="main-heading">
+  <h1 id="main-heading" class="page-title">Piano Machine Learning</h1>
   <hr>
   
   <!-- Cards Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4 w-full auto-rows-fr">
-    <div *ngFor="let item of summary" class="group w-full h-full">
-      <a [routerLink]="item.url" class="block w-full h-full">
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4 w-full auto-rows-fr" role="list">
+    <article *ngFor="let item of summary; let i = index" class="group w-full h-full" role="listitem">
+      <a [routerLink]="item.url" class="block w-full h-full" [attr.aria-label]="item.title + ': ' + item.description">
         <!-- Card Container with shadow effects -->
         <div class="rounded border border-grey-200 relative bg-gray-200 shadow-md hover:shadow-xl transition-shadow duration-300 ease-out overflow-hidden  w-full h-full flex flex-col">
           
           <!-- Background Image Container -->
           <div class="relative aspect-[3/1] w-full overflow-hidden flex-shrink-0">
             <div class="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent z-10"></div>
-            <img [src]="item.image" [alt]="item.title" 
+            <img [src]="item.image" [alt]="item.title + ' - ' + item.description" 
+                 [attr.loading]="i === 2 ? 'eager' : 'lazy'"
+                 [attr.fetchpriority]="i === 3 ? 'high' : 'auto'"
+                 [attr.decoding]="'async'"
                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out">
             
             <!-- Glass effect overlay -->
@@ -22,9 +25,9 @@
           <!-- Content -->
           <div class="p-4 relative flex-1 flex flex-col">
             <!-- Title -->
-            <h3 class="text-base font-normal text-gray-800 mb-2 group-hover:text-red-500 transition-colors duration-300 line-clamp-1 font-['Swiss911'] tracking-[00.15rem] flex-shrink-0">
+            <h2 class="text-base font-normal text-gray-800 mb-2 group-hover:text-red-500 transition-colors duration-300 line-clamp-1 font-['Swiss911'] tracking-[00.15rem] flex-shrink-0">
               {{ item.title }}
-            </h3>
+            </h2>
             
             <!-- Description -->
             <p class="text-gray-600 text-xs leading-relaxed line-clamp-3 tracking-[00.15rem] flex-1">
@@ -36,6 +39,6 @@
           <div class="absolute bottom-0 left-0 right-0 h-1 bg-red-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
         </div>
       </a>
-    </div>
+    </article>
   </div>
-</div>
+</section>

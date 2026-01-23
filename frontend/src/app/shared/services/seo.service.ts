@@ -1,6 +1,6 @@
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, Inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 
 export interface SeoData {
   title?: string;
@@ -19,6 +19,7 @@ export class SeoService {
   private meta = inject(Meta);
   private titleService = inject(Title);
   private platformId = inject(PLATFORM_ID);
+  private document = inject(DOCUMENT);
   private isBrowser: boolean;
 
   constructor() {
@@ -79,16 +80,12 @@ export class SeoService {
    * Met à jour l'URL canonique
    */
   private updateCanonicalUrl(url: string): void {
-    if (!this.isBrowser) {
-      return;
-    }
-
-    let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
+    let link: HTMLLinkElement | null = this.document.querySelector('link[rel="canonical"]');
     
     if (!link) {
-      link = document.createElement('link');
+      link = this.document.createElement('link');
       link.setAttribute('rel', 'canonical');
-      document.head.appendChild(link);
+      this.document.head.appendChild(link);
     }
     
     link.setAttribute('href', url);
@@ -98,22 +95,18 @@ export class SeoService {
    * Met à jour les données structurées JSON-LD
    */
   private updateStructuredData(data: any): void {
-    if (!this.isBrowser) {
-      return;
-    }
-
     // Supprimer l'ancien script JSON-LD s'il existe
-    const existingScript = document.querySelector('script[type="application/ld+json"][data-dynamic="true"]');
+    const existingScript = this.document.querySelector('script[type="application/ld+json"][data-dynamic="true"]');
     if (existingScript) {
       existingScript.remove();
     }
 
     // Créer un nouveau script JSON-LD
-    const script = document.createElement('script');
+    const script = this.document.createElement('script');
     script.type = 'application/ld+json';
     script.setAttribute('data-dynamic', 'true');
     script.text = JSON.stringify(data);
-    document.head.appendChild(script);
+    this.document.head.appendChild(script);
   }
 
   /**

@@ -9,7 +9,10 @@ export const routes: Routes = [
         children: [
             {
                 path: ':slug',
-                loadComponent: () => import('./library/components/score-info/score-info.component').then(m => m.ScoreInfoComponent)
+                loadComponent: () => import('./library/components/score-info/score-info.component').then(m => m.ScoreInfoComponent),
+                resolve: {
+                    score: () => import('./library/resolvers/score-info.resolver').then(m => m.scoreInfoResolver)
+                }
             }
         ]
     },

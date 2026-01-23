@@ -1,6 +1,13 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: '/',
+  server: {
+    fs: {
+      // Permettre de servir des fichiers en dehors de la racine si nécessaire
+      strict: false
+    }
+  },
   ssr: {
     // Ne pas externaliser ces modules CommonJS - les bundler à la place
     noExternal: [
