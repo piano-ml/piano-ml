@@ -32,19 +32,19 @@
     <div class="flex-grow pt-16 pb-16">
         <router-outlet />
     </div>
-    <footer class="text-sm bg-black fixed bottom-0 w-full h-12 text-white p-3 flex justify-center items-center z-3 ">
+    <footer class="text-sm bg-black fixed bottom-0 w-full h-12 text-white p-3 flex justify-center items-center z-3 gap-2">
 
-        <a href="/blog/legal" class="pr-1">
+        <a href="/blog/legal" class="px-2 py-2 inline-block">
             Legal Notice
         </a> 
-        &copy; 
-        PianoML 2024 - General Public License v3
+        <span class="px-1">&copy;</span>
+        <span class="px-1">PianoML 2024 - General Public License v3</span>
         
-        <a class="pl-1" href="https://github.com/piano-ml/piano-ml">
+        <a class="px-2 py-2 inline-block" href="https://github.com/piano-ml/piano-ml" aria-label="View source on GitHub">
             <ng-icon name="bootstrapGithub"></ng-icon>
         </a>
              
-        <a class="pl-1" href="https://github.com/piano-ml/piano-ml/issues">
+        <a class="px-2 py-2 inline-block" href="https://github.com/piano-ml/piano-ml/issues">
             Report an issue
         </a>
     </footer>

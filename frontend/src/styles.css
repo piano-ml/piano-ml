@@ -17,7 +17,7 @@
 
 
 body {
-	@apply text-neutral-400;
+	@apply text-neutral-200;
 }
 
 
@@ -57,7 +57,7 @@ body {
 html,
 body {	
 	margin: 0;
-	background-color: #4a4950; 
+	background-color: #2d2d32; 
 	font-size: 1.125rem; /* 18px - taille de base augmentée */
 	line-height: 1.5;
 }

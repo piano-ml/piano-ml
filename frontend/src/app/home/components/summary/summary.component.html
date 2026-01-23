@@ -3,8 +3,8 @@
   <hr>
   
   <!-- Cards Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4 w-full auto-rows-fr" role="list">
-    <article *ngFor="let item of summary; let i = index" class="group w-full h-full" role="listitem">
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4 w-full auto-rows-fr">
+    <article *ngFor="let item of summary; let i = index" class="group w-full h-full">
       <a [routerLink]="item.url" class="block w-full h-full" [attr.aria-label]="item.title + ': ' + item.description">
         <!-- Card Container with shadow effects -->
         <div class="rounded border border-grey-200 relative bg-gray-200 shadow-md hover:shadow-xl transition-shadow duration-300 ease-out overflow-hidden  w-full h-full flex flex-col">
