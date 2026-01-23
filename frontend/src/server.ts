@@ -1,47 +1,26 @@
 import { APP_BASE_HREF } from '@angular/common';
-import { renderApplication } from '@angular/platform-server';
-import express from 'express';
+import { CommonEngine } from '@angular/ssr/node'
+import { render } from '@netlify/angular-runtime/common-engine.mjs'
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFileSync } from 'node:fs';
 import bootstrap from './main.server';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
-const indexHtml = readFileSync(join(browserDistFolder, 'index.csr.html'), 'utf-8');
+const indexHtml = join(browserDistFolder, 'index.csr.html');
 
-const app = express();
-
-/**
- * Serve static files from /browser
- */
-app.get('*.*', express.static(browserDistFolder, {
-  maxAge: '1y'
-}));
-
-/**
- * Handle all other requests by rendering the Angular application.
- */
-app.get('*', async (req, res, next) => {
-  try {
-    const html = await renderApplication(bootstrap, {
-      document: indexHtml,
-      url: req.url,
-      platformProviders: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }]
-    });
-    
-    res.send(html);
-  } catch (err) {
-    next(err);
-  }
+const commonEngine = new CommonEngine({
+  bootstrap,
+  providers: [{ provide: APP_BASE_HREF, useValue: '/' }]
 });
 
-/**
- * Start the server if this module is the main entry point.
- */
-const port = process.env['PORT'] || 4000;
-app.listen(port, () => {
-  console.log(`Node Express server listening on http://localhost:${port}`);
-});
+export async function netlifyCommonEngineHandler(request: Request, context: any): Promise<Response> {
+  // Example API endpoints can be defined here.
+  // Uncomment and define endpoints as necessary.
+  // const pathname = new URL(request.url).pathname;
+  // if (pathname === '/api/hello') {
+  //   return Response.json({ message: 'Hello from the API' });
+  // }
 
-
+  return await render(commonEngine);
+}
