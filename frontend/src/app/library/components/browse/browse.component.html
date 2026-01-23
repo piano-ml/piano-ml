@@ -1,4 +1,4 @@
-<article class="bg-neutral-700 p-4 pb-1">
+<article class="bg-neutral-800 p-4 pb-1">
 
   <!-- Page Title (h1) for SEO - visible for screen readers, styled for visual users -->
   <h1 class="sr-only" *ngIf="selectedGenre">{{ selectedGenre.genre?.name }} Piano Scores</h1>
@@ -20,7 +20,7 @@
         class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black">
       <button 
         (click)="onSearch()" 
-        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
         [disabled]="loading">
         {{ loading ? 'Searching...' : 'Search' }}
       </button>
@@ -34,7 +34,7 @@
     
     <!-- Stats Line -->
     <div *ngIf="stats" class="mt-2 mb-2 text-sm text-gray-300 flex items-center gap-4">
-      <span>Scores in database: <span class="font-semibold text-white">{{ stats['public-domain'] + stats.copyrighted }}</span> (<span class="font-semibold text-green-400">{{ stats['public-domain'] }}</span> public domain, <span class="font-semibold text-blue-400">{{ stats.copyrighted }}</span> copyrighted)</span>
+      <span>Scores in database: <span class="font-semibold text-white">{{ stats['public-domain'] + stats.copyrighted }}</span> (<span class="font-semibold text-green-400">{{ stats['public-domain'] }}</span> public domain, <span class="font-semibold text-blue-300">{{ stats.copyrighted }}</span> copyrighted)</span>
       <label class="flex items-center gap-1 cursor-pointer">
         <input type="checkbox" [(ngModel)]="filterOneHand" (change)="applyFilters()" class="cursor-pointer">
         <span>One hand</span>
@@ -100,7 +100,7 @@
         (click)="setActiveTab('popular')"
         [class.border-green-500]="activeTab === 'popular'"
         [class.text-white]="activeTab === 'popular'"
-        [class.text-gray-400]="activeTab !== 'popular'"
+        [class.text-gray-300]="activeTab !== 'popular'"
         class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
         Popular
       </button>
@@ -108,7 +108,7 @@
         (click)="setActiveTab('genres')"
         [class.border-green-500]="activeTab === 'genres'"
         [class.text-white]="activeTab === 'genres'"
-        [class.text-gray-400]="activeTab !== 'genres'"
+        [class.text-gray-300]="activeTab !== 'genres'"
         class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
         Browse by Genres
       </button>
@@ -116,7 +116,7 @@
         (click)="setActiveTab('artists')"
         [class.border-blue-500]="activeTab === 'artists'"
         [class.text-white]="activeTab === 'artists'"
-        [class.text-gray-400]="activeTab !== 'artists'"
+        [class.text-gray-300]="activeTab !== 'artists'"
         class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
         Browse by Artist
       </button>
@@ -170,14 +170,14 @@
   <div class="mt-4 text-center" *ngIf="hasMore && scores.length > 0">
     <button 
       (click)="loadMore()" 
-      class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
+      class="px-6 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
       [disabled]="loading">
       {{ loading ? 'Loading...' : 'Load More' }}
     </button>
   </div>
 
   <!-- Results Count -->
-  <div class="m-2 text-sm text-gray-400" *ngIf="scores.length > 0">
+  <div class="m-2 text-sm text-gray-300" *ngIf="scores.length > 0">
     Showing {{ scores.length }} scores
   </div>
 

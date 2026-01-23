@@ -25,7 +25,7 @@
     <div
       class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full">
     </div>
-    <p class="mt-2 text-gray-400">Loading score...</p>
+    <p class="mt-2 text-gray-300">Loading score...</p>
   </div>
 
   <!-- Error State -->
@@ -44,7 +44,7 @@
         <div
           class="animate-spin inline-block w-6 h-6 border-4 border-current border-t-transparent text-blue-600 rounded-full">
         </div>
-        <p class="mt-2 text-gray-400">Loading processing status...</p>
+        <p class="mt-2 text-gray-300">Loading processing status...</p>
       </div>
 
       <!-- Workload information -->
@@ -87,7 +87,7 @@
       </div>
 
       <!-- No workload info available -->
-      <div *ngIf="!loadingWorkload && !workload" class="text-center py-4 text-gray-400">
+      <div *ngIf="!loadingWorkload && !workload" class="text-center py-4 text-gray-300">
         <p>No processing information available for this score.</p>
         <p class="text-sm mt-2">Files may not have been processed yet.</p>
       </div>
@@ -109,7 +109,7 @@
             <i class="fas fa-music mr-2"></i>
             Download MIDI
           </button>
-          <p class="text-gray-400 text-sm mt-2">Digital audio format</p>
+          <p class="text-gray-300 text-sm mt-2">Digital audio format</p>
         </div>
 
         <!-- MusicXML Download -->
@@ -123,7 +123,7 @@
             <i class="fas fa-code mr-2"></i>
             MusicXML
           </button>
-          <p class="text-gray-400 text-sm mt-2">Editable music notation</p>
+          <p class="text-gray-300 text-sm mt-2">Editable music notation</p>
         </div>
 
         <!-- PDF Download -->
@@ -132,12 +132,12 @@
             [disabled]="!score.publicDomain"
             [class.opacity-50]="!score.publicDomain"
             [class.cursor-not-allowed]="!score.publicDomain"
-            class="w-full px-4 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+            class="w-full px-4 py-3 bg-green-700 text-white rounded hover:bg-green-800 transition-colors">
             <span *ngIf="!score.publicDomain" class="mr-2">🔒</span>
             <i class="fas fa-file-pdf mr-2"></i>
             Download PDF
           </button>
-          <p class="text-gray-400 text-sm mt-2">Sheet music in PDF format</p>
+          <p class="text-gray-300 text-sm mt-2">Sheet music in PDF format</p>
         </div>
 
 
@@ -150,7 +150,7 @@
             <i class="fas fa-keyboard mr-2"></i>
             🔥 Practice
           </button>
-          <p class="text-gray-400 text-sm mt-2">Open in the Practice Studio</p>
+          <p class="text-gray-300 text-sm mt-2">Open in the Practice Studio</p>
         </div>
       </div>
     </div>
