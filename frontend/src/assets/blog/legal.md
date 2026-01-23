@@ -9,7 +9,7 @@
 
 Le site [pianoml.org] (ci-après « le Site ») est édité et exploité par **Emmanuel Florent** (individu)
 
-Adresse : Cabinet d'avocat - 123 rue Garibaldi, 69 006 Lyon.
+Adresse : Emmanuel Florent - 3 rue font de la Cure - 69210 Savigny - France
 
 Contact pour toute question ou réclamation : via le formulaire GitHub https://github.com/piano-ml/piano-ml/issues
 
