@@ -199,6 +199,7 @@ function generateSitemap(genres, authors, scores) {
  * Main function
  */
 async function main() {
+  /** 
   try {
     console.log('Fetching genres from API...');
     const genres = await fetchFromApi(GENRE_API_URL);
@@ -228,6 +229,7 @@ async function main() {
     console.error('✗ Error generating sitemap:', error.message);
     process.exit(1);
   }
+    */
 }
 
 
