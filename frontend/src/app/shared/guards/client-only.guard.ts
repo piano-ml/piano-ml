@@ -8,15 +8,5 @@ import { isPlatformBrowser } from '@angular/common';
  */
 export const clientOnlyGuard: CanMatchFn = (route) => {
   const platformId = inject(PLATFORM_ID);
-  const isBrowser = isPlatformBrowser(platformId);
-  
-  if (!isBrowser) {
-    console.warn(`[clientOnlyGuard] Blocked server-side access to route: ${route.path}`);
-  } else {
-        console.warn(`[clientOnlyGuard] Allowed client-side access to route: ${route.path}`);
-  }
-  
-  // Retourner true uniquement côté client
-  // Côté serveur, cela empêchera le chargement du module
-  return isBrowser;
+  return isPlatformBrowser(platformId);
 };

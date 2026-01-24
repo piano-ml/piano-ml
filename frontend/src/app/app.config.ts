@@ -32,6 +32,9 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
  * Initializer pour charger les routes browser-only dynamiquement
  * Ces routes ne doivent être ajoutées que côté client pour éviter
  * les erreurs SSR liées à __dirname, Web Audio API, etc.
+ * 
+ * Côté serveur, des stubs sont utilisés. Côté client, on les remplace
+ * par les vraies routes desktop.
  */
 function loadBrowserOnlyRoutes() {
   const platformId = inject(PLATFORM_ID);
@@ -40,18 +43,28 @@ function loadBrowserOnlyRoutes() {
   return () => {
     if (isPlatformBrowser(platformId)) {
       // Charger les routes browser-only uniquement côté client
-      import('./app.routes.browser').then(m => {
+      return import('./app.routes.browser').then(m => {
         const config = router.config;
-        // Insérer les routes avant la route wildcard (**)
-        const wildcardIndex = config.findIndex(r => r.path === '**');
-        if (wildcardIndex !== -1) {
-          config.splice(wildcardIndex, 0, ...m.browserOnlyRoutes);
-        } else {
-          config.push(...m.browserOnlyRoutes);
+        
+        // Remplacer les routes stub par les vraies routes
+        const workIndex = config.findIndex(r => r.path === 'work');
+        const desktopIndex = config.findIndex(r => r.path === 'desktop');
+        const workbenchIndex = config.findIndex(r => r.path === 'workbench');
+        
+        if (workIndex !== -1) {
+          config[workIndex] = m.browserOnlyRoutes[0];
         }
+        if (desktopIndex !== -1) {
+          config[desktopIndex] = m.browserOnlyRoutes[1];
+        }
+        if (workbenchIndex !== -1) {
+          config[workbenchIndex] = m.browserOnlyRoutes[2];
+        }
+        
         router.resetConfig(config);
       });
     }
+    return Promise.resolve();
   };
 }
 
