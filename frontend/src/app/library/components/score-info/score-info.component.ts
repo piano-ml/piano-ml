@@ -1,5 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo } from '../../../core/api';
@@ -8,11 +8,13 @@ import { ShareButtons } from 'ngx-sharebuttons/buttons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
+import { SeoService } from '../../../shared/services/seo.service';
+import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in-key/exercises-in-key.component';
 
 @Component({
   selector: 'app-score-info',
   standalone: true,
-  imports: [CommonModule, ShareButtons, NgIcon, ScoreBasicInfoComponent],
+  imports: [CommonModule, ShareButtons, NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
   viewProviders: [provideIcons({ bootstrapClipboard })]
@@ -27,9 +29,11 @@ export class ScoreInfoComponent implements OnInit {
   selectedGenre: GenreApiInfo | null = null;
   workload: WorkloadApiInfo | null = null;
   loadingWorkload = false;
-  siteUrl = `${window.location.protocol}//${window.location.host}`;
+  siteUrl = '';
   shareLinks = ['facebook','x','reddit','xing']
   slug: string | null = null;
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
 
   constructor(
     private route: ActivatedRoute,
@@ -39,8 +43,16 @@ export class ScoreInfoComponent implements OnInit {
     private genreService: GenreService,
     private workloadService: WorkloadService,
     private cdr: ChangeDetectorRef,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private seo: SeoService
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+    if (this.isBrowser) {
+      this.siteUrl = `${window.location.protocol}//${window.location.host}`;
+    } else {
+      this.siteUrl = 'https://pianoml.org';
+    }
+  }
 
   ngOnInit() {
     this.slug = this.route.snapshot.paramMap.get('slug');
@@ -110,9 +122,93 @@ export class ScoreInfoComponent implements OnInit {
   }
 
   private updatePageTitle(score: ScoreApiInfo | null) {
-    const nextTitle = this.buildScorePageTitle(score);
-    this.pageTitle = nextTitle;
-    this.title.setTitle(nextTitle);
+    if (!score) {
+      this.pageTitle = 'Score';
+      return;
+    }
+
+    const authorName = (score.author || 'Unknown Artist').trim();
+    const scoreName = (score.title || 'Untitled').trim();
+    const genreName = this.selectedGenre?.name || score.genre || '';
+    const duration = score.duration ? Math.round(score.duration) : 0;
+    const tracks = score.tracks_count || 0;
+
+    // Build SEO-friendly title
+    const title = `${scoreName} by ${authorName} | Free Piano Sheet Music - PianoML`;
+    this.pageTitle = `${authorName} - ${scoreName} piano score`;
+
+    // Build rich description
+    let description = `Play ${scoreName} by ${authorName} on PianoML. `;
+    if (genreName) {
+      description += `${genreName} piano music. `;
+    }
+    description += `Interactive sheet music with hands-separated practice, adjustable speed, loop sections, and MIDI support. `;
+    if (score.publicDomain) {
+      description += `Free public domain piano score. `;
+    }
+    if (duration > 0) {
+      description += `Duration: ${duration}s. `;
+    }
+    if (tracks > 0) {
+      description += `${tracks} ${tracks === 1 ? 'track' : 'tracks'}.`;
+    }
+
+    // Keywords
+    const keywords = [
+      `${scoreName} piano`,
+      `${authorName} piano`,
+      `${scoreName} sheet music`,
+      `${authorName} compositions`,
+      'piano score',
+      'piano practice',
+      'interactive sheet music',
+      'piano learning machine'
+    ];
+    if (genreName) {
+      keywords.push(`${genreName} piano`);
+    }
+    if (score.publicDomain) {
+      keywords.push('public domain piano', 'free piano music');
+    }
+
+    // URL
+    const url = `${this.siteUrl}/score/${score.immutableSlug || score.mutableSlug || this.slug}`;
+
+    // Structured Data
+    const structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'MusicComposition',
+      'name': scoreName,
+      'composer': {
+        '@type': 'Person',
+        'name': authorName
+      },
+      'inLanguage': 'en',
+      'url': url
+    };
+
+    // if (genreName) {
+    //   structuredData['genre'] = genreName;
+    // }
+
+    // if (duration > 0) {
+    //   structuredData['duration'] = `PT${duration}S`;
+    // }
+
+    // if (score.publicDomain) {
+    //   structuredData['license'] = 'https://creativecommons.org/publicdomain/zero/1.0/';
+    // }
+
+    // Update SEO tags
+    this.seo.updateMetaTags({
+      title,
+      description: description.trim(),
+      keywords: keywords.join(', '),
+      url,
+      type: 'music.song',
+      image: `${this.siteUrl}/assets/images/pianoml-og-image.jpg`,
+      structuredData
+    });
   }
 
 
@@ -171,6 +267,10 @@ export class ScoreInfoComponent implements OnInit {
   }
 
   private downloadBlob(blob: Blob, type: string) {
+    if (!this.isBrowser) {
+      return;
+    }
+    
     if (type === 'pdf') {
       // For PDF, create a new blob with correct MIME type and open inline
       const pdfBlob = new Blob([blob], { type: 'application/pdf' });
@@ -226,6 +326,10 @@ export class ScoreInfoComponent implements OnInit {
   }
 
   copyUrlToClipboard(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+    
     const url = this.getPublicUrl();
     if (url) {
       navigator.clipboard.writeText(url).then(() => {

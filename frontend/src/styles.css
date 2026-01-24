@@ -17,7 +17,7 @@
 
 
 body {
-	@apply text-neutral-400;
+	@apply text-neutral-200;
 }
 
 
@@ -31,6 +31,12 @@ body {
 		format("svg");
 	font-weight: normal;
 	font-style: normal;
+	font-display: swap;
+	/* Font metric overrides to reduce layout shifts; adjust as needed */
+	ascent-override: 88%;
+	descent-override: 12%;
+	line-gap-override: 0%;
+	size-adjust: 100%;
 }
 
 
@@ -39,13 +45,19 @@ body {
 	src:  url("/assets/fonts/Swiss911.otf") format("truetype");
 	font-weight: normal;
 	font-style: normal;
+	font-display: swap;
+	/* Align metrics closer to fallback sans-serif; adjust empirically */
+	ascent-override: 92%;
+	descent-override: 8%;
+	line-gap-override: 0%;
+	size-adjust: 98%;
 }
 
 
 html,
 body {	
 	margin: 0;
-	background-color: #4a4950; 
+	background-color: #2d2d32; 
 	font-size: 1.125rem; /* 18px - taille de base augmentée */
 	line-height: 1.5;
 }

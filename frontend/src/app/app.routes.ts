@@ -3,13 +3,85 @@ import { LayoutComponent } from './shared/components/layout/layout.component';
 
 export const routes: Routes = [
     {
+        path: 'work',
+        loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent),
+        data: { breadcrumb: 'Practice' },
+        children: [
+            {
+                path: '',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            },
+            {
+                path: 'scale/:scaleKey/:selectedKey/:exerciseKey',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            },
+            {
+                path: 'chord/:chordKey/:selectedKey/:exerciseKey',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            },
+            {
+                path: ':slug',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            }
+        ]
+    },
+    {
+        path: 'desktop',
+        loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent),
+        data: { breadcrumb: 'Desktop' },
+        children: [
+            {
+                path: '',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            },
+            {
+                path: 'scale/:scaleKey/:selectedKey/:exerciseKey',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            },
+            {
+                path: 'chord/:chordKey/:selectedKey/:exerciseKey',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            },
+            {
+                path: ':slug',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            }
+        ]
+    },
+    {
+        path: 'workbench',
+        loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent),
+        data: { breadcrumb: 'Workbench' },
+        children: [
+            {
+                path: '',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            },
+            {
+                path: 'scale/:scaleKey/:selectedKey/:exerciseKey',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            },
+            {
+                path: 'chord/:chordKey/:selectedKey/:exerciseKey',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            },
+            {
+                path: ':slug',
+                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
+            }
+        ]
+    },
+    {
         component: LayoutComponent,
         path: 'score',
         data: { breadcrumb: 'Score' },
         children: [
             {
                 path: ':slug',
-                loadComponent: () => import('./library/components/score-info/score-info.component').then(m => m.ScoreInfoComponent)
+                loadComponent: () => import('./library/components/score-info/score-info.component').then(m => m.ScoreInfoComponent),
+                resolve: {
+                    score: () => import('./library/resolvers/score-info.resolver').then(m => m.scoreInfoResolver)
+                }
             }
         ]
     },
@@ -42,13 +114,7 @@ export const routes: Routes = [
         path: 'library',
         component: LayoutComponent,
         loadChildren: () => import('./library/library.module').then(m => m.LibraryModule),
-        data: { breadcrumb: 'Practice' }
-    },
-    {
-        component: LayoutComponent,
-        path: 'work',
-        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Practice' }
+        data: { breadcrumb: 'Library' }
     },
     {
         component: LayoutComponent,
@@ -56,20 +122,6 @@ export const routes: Routes = [
         loadChildren: () => import('./exercises/exercises.module').then(m => m.ExercisesModule),
         data: { breadcrumb: 'Exercises' }
 
-    },
-    {
-        // this component does not need a LayoutComponent !
-        path: 'desktop',
-        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Desktop' }
-    },
-
-    {
-        // Same workbench experience as `/desktop`, but with a shorter URL.
-        // This route does not need a LayoutComponent.
-        path: 'workbench',
-        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Workbench' }
     },
     {
         path: 'error',

@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo } from '../../../core/api';
 import { WorkbenchComponent } from '../workbench/workbench.component';
@@ -25,6 +25,7 @@ import { WorkbenchComponent } from '../workbench/workbench.component';
 })
 export class SlugToWorkbenchComponent implements OnInit {
 
+  private platformId = inject(PLATFORM_ID);
   loaded = false;
   error: string | null = null;
 
@@ -52,17 +53,19 @@ export class SlugToWorkbenchComponent implements OnInit {
     this.scoreService.scoreGetBySlug(slug).subscribe({
       next: (score: ScoreApiInfo) => {
             console.log('Ok:', score);
-        try {
-          window.history.replaceState(
-            {
-              ...window.history.state,
-              score,
-              fromStorage: false
-            },
-            ''
-          );
-        } catch (e) {
-          console.warn('Failed to set history state for Workbench:', e);
+        if (isPlatformBrowser(this.platformId)) {
+          try {
+            window.history.replaceState(
+              {
+                ...window.history.state,
+                score,
+                fromStorage: false
+              },
+              ''
+            );
+          } catch (e) {
+            console.warn('Failed to set history state for Workbench:', e);
+          }
         }
         this.loaded = true;
         // Dans certains setups (events coalescing / transitions), le template peut rester figé

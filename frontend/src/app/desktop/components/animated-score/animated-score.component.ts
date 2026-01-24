@@ -1,6 +1,6 @@
 // biome-ignore lint/style/useImportType: <explanation>
-import { type AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, type ElementRef, HostListener, Input, OnDestroy, type OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { type AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, type ElementRef, HostListener, Input, OnDestroy, type OnInit, ViewChild, ViewEncapsulation, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import { EngravingService } from '../../service/engraving.service';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -20,6 +20,7 @@ import { Router } from '@angular/router';
 })
 export class AnimatedScoreComponent implements AfterViewInit, OnDestroy {
 
+  private platformId = inject(PLATFORM_ID);
   paused = false;
 
   xposition = 0;
@@ -63,6 +64,9 @@ export class AnimatedScoreComponent implements AfterViewInit, OnDestroy {
   }
 
   getStartOffset(): number {
+    if (!isPlatformBrowser(this.platformId)) {
+      return 0;
+    }
     const pixelRatio = 1;
     if (window.innerHeight > window.innerWidth) {
       return ((window.innerHeight / pixelRatio) / 2);

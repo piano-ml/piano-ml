@@ -8,11 +8,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { getWeekOfYear, loadExercice } from '../exercices';
+import { SeoService } from '../../shared/services/seo.service';
+import { PopularScoresInKeyComponent } from '../../shared/components/popular-scores-in-key/popular-scores-in-key.component';
 
 
 @Component({
   selector: 'app-agility',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PopularScoresInKeyComponent],
   templateUrl: './agility.component.html',
   styleUrl: './agility.component.css'
 })
@@ -26,6 +28,8 @@ export class AgilityComponent implements OnInit {
   selectedKey = majorKeys[getWeekOfYear() % majorKeys.length]
   keys = majorKeys
   availableChords = chords
+  fullKey = '';
+  componentKey = 0;
 
   private isHydratingFromUrl = false;
   
@@ -33,7 +37,8 @@ export class AgilityComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private titleService: Title
+    private titleService: Title,
+    private seo: SeoService
   ) {
 
   }
@@ -48,6 +53,7 @@ export class AgilityComponent implements OnInit {
         // If the user lands on `/exercises/agility` without params, reflect the
         // current default state in the URL.
         this.filterAvailableChords();
+        this.updateFullKey();
         this.updateUrlFromState();
         this.updatePageTitle();
         return;
@@ -56,7 +62,7 @@ export class AgilityComponent implements OnInit {
       this.isHydratingFromUrl = true;
 
       const foundExercise = this.myexcerices.find(
-        (e) => this.normalizeKey(e.key ?? e.title) === this.normalizeKey(exerciseKey)
+        (e) => e.key === exerciseKey
       );
       if (foundExercise) {
         this.selectedExcercice = foundExercise;
@@ -69,7 +75,7 @@ export class AgilityComponent implements OnInit {
       this.filterAvailableChords();
 
       const foundChord = this.availableChords.find(
-        (c) => this.normalizeKey(c.name) === this.normalizeKey(chordKey)
+        (c) => c.name.toLowerCase() === chordKey.toLowerCase()
       );
       if (foundChord) {
         this.selectedChord = foundChord;
@@ -77,6 +83,7 @@ export class AgilityComponent implements OnInit {
 
       this.isHydratingFromUrl = false;
 
+      this.updateFullKey();
       this.updatePageTitle();
     });
   }
@@ -93,16 +100,19 @@ export class AgilityComponent implements OnInit {
       this.filterAvailableChords()
     }
 
+    this.updateFullKey();
     this.updateUrlFromState();
     this.updatePageTitle();
   }
 
   onKeyChange() {
+    this.updateFullKey();
     this.updateUrlFromState();
     this.updatePageTitle();
   }
 
   onChordChange() {
+    this.updateFullKey();
     this.updateUrlFromState();
     this.updatePageTitle();
   }
@@ -116,8 +126,8 @@ export class AgilityComponent implements OnInit {
       return;
     }
 
-    const exerciseKey = this.normalizeKey(this.selectedExcercice.key ?? this.selectedExcercice.title);
-    const chordKey = this.normalizeKey(this.selectedChord.name);
+    const exerciseKey = this.selectedExcercice.key;
+    const chordKey = this.selectedChord.name.toLowerCase();
 
     if (!exerciseKey || !this.selectedKey || !chordKey) {
       return;
@@ -128,33 +138,110 @@ export class AgilityComponent implements OnInit {
     });
   }
 
-  private normalizeKey(value: string): string {
-    return value
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/&/g, ' and ')
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '')
-      .replace(/_{2,}/g, '_');
-  }
-
   private updatePageTitle() {
     const chordName = this.selectedChord?.name;
     const exerciseName = this.selectedExcercice?.title;
     const selectedKey = this.selectedKey;
+    const baseUrl = 'https://pianoml.org';
+
+    let title: string;
+    let description: string;
+    let url: string;
+    let keywords: string;
+    let structuredData: any;
 
     if (chordName && selectedKey && exerciseName) {
-      this.titleService.setTitle(`Chord of ${selectedKey} ${chordName} - ${exerciseName}`);
-      return;
+      const exerciseKey = this.selectedExcercice.key;
+      const chordKey = chordName.toLowerCase();
+      
+      title = `${selectedKey} ${chordName} - ${exerciseName} | Piano Agility Exercise | PianoML`;
+      description = `Practice piano agility with ${selectedKey} ${chordName} chord in ${exerciseName}. Improve your piano technique with interactive exercises and real-time feedback.`;
+      url = `${baseUrl}/exercises/agility/${selectedKey}/${chordKey}/${exerciseKey}`;
+      keywords = `piano agility, ${chordName} chord, ${selectedKey} key, ${exerciseName}, piano exercises, chord progressions, piano practice`;
+      
+      structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'Course',
+        'name': `${selectedKey} ${chordName} - ${exerciseName}`,
+        'description': description,
+        'educationalLevel': 'Beginner to Advanced',
+        'teaches': `Piano agility using ${selectedKey} ${chordName} chord in ${exerciseName} pattern`,
+        'provider': {
+          '@type': 'Organization',
+          'name': 'PianoML',
+          'url': baseUrl
+        }
+      };
+    } else if (chordName && selectedKey) {
+      title = `${selectedKey} ${chordName} Chord | Piano Agility Exercises | PianoML`;
+      description = `Learn and practice ${selectedKey} ${chordName} chord progressions with interactive piano agility exercises. Improve finger dexterity and chord transitions.`;
+      url = `${baseUrl}/exercises/agility`;
+      keywords = `piano agility, ${chordName} chord, ${selectedKey} key, piano exercises, chord practice, piano technique`;
+      
+      structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'Course',
+        'name': `Piano Agility Exercises - ${selectedKey} ${chordName}`,
+        'description': description,
+        'educationalLevel': 'Beginner to Advanced',
+        'provider': {
+          '@type': 'Organization',
+          'name': 'PianoML',
+          'url': baseUrl
+        }
+      };
+    } else {
+      title = 'Piano Agility Exercises | PianoML - Improve Piano Technique & Finger Dexterity';
+      description = 'Practice piano agility with interactive exercises. Develop finger dexterity, speed, and accuracy.';
+      url = `${baseUrl}/exercises/agility`;
+      keywords = 'circle of fifths, scales and arpeggios, arpeggio in root position two octaves, two octave arpeggios root 1st and 2nd inversions,  piano agility, piano exercises, finger dexterity, chord progressions, piano technique, piano practice';
+      
+      structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'Course',
+        'name': 'Piano Agility Exercises',
+        'description': description,
+        'educationalLevel': 'Beginner to Advanced',
+        'coursePrerequisites': 'Basic piano knowledge',
+        'provider': {
+          '@type': 'Organization',
+          'name': 'PianoML',
+          'url': baseUrl
+        }
+      };
     }
 
-    if (chordName && selectedKey) {
-      this.titleService.setTitle(`Chord of ${selectedKey} ${chordName}`);
-      return;
-    }
+    this.seo.updateMetaTags({
+      title,
+      description,
+      keywords,
+      url,
+      type: 'website',
+      image: `${baseUrl}/assets/images/pianoml-og-image.jpg`,
+      structuredData
+    });
+  }
 
-    this.titleService.setTitle('PianoML');
+  private updateFullKey(): void {
+    let note = this.selectedKey;
+    
+    // Replace 'b' with '-' for flats (e.g., "Db" -> "D-", "Bb" -> "B-")
+    note = note.replace(/b/g, '-');
+    
+    // Determine if the chord is minor based on the chord name property
+    const isMinor = this.selectedChord.name === 'Minor';
+    
+    // Format: note is uppercase for Major, lowercase for Minor
+    const formattedNote = isMinor
+      ? note.charAt(0).toLowerCase() + note.slice(1)
+      : note.charAt(0).toUpperCase() + note.slice(1);
+    
+    const scaleType = isMinor ? 'minor' : 'major';
+    
+    this.fullKey = `${formattedNote} ${scaleType}`;
+    // Force component recreation by incrementing the key
+    this.componentKey++;
+    console.log('updateFullKey called (agility), selectedKey:', this.selectedKey, 'selectedChord:', this.selectedChord.name, 'fullKey:', this.fullKey, 'componentKey:', this.componentKey);
   }
 
 }

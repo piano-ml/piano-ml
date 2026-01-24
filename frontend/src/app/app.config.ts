@@ -1,7 +1,7 @@
-import { type ApplicationConfig, inject, provideZoneChangeDetection, LOCALE_ID } from '@angular/core';
+import { type ApplicationConfig, inject, provideZoneChangeDetection, LOCALE_ID, PLATFORM_ID, APP_INITIALIZER } from '@angular/core';
 import { IsActiveMatchOptions, provideRouter, Router, withInMemoryScrolling, withRouterConfig, withViewTransitions } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { registerLocaleData } from '@angular/common';
+import { registerLocaleData, isPlatformBrowser } from '@angular/common';
 
 // Load common locales
 import localeEn from '@angular/common/locales/en';
@@ -26,9 +26,55 @@ import { provideShareButtonsOptions } from 'ngx-sharebuttons';
 import { shareIcons } from 'ngx-sharebuttons/icons';
 import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+
+/**
+ * Initializer to dynamically load browser-only routes
+ * These routes should only be added on the client side to avoid
+ * SSR errors related to __dirname, Web Audio API, etc.
+ * 
+ * On the server side, stubs are used. On the client side, they are replaced
+ * by the real desktop routes.
+ */
+function loadBrowserOnlyRoutes() {
+  const platformId = inject(PLATFORM_ID);
+  const router = inject(Router);
+  
+  return () => {
+    if (isPlatformBrowser(platformId)) {
+      // Load browser-only routes on client side only
+      return import('./app.routes.browser').then(m => {
+        const config = router.config;
+        
+        // Replace stub routes with the real routes
+        const workIndex = config.findIndex(r => r.path === 'work');
+        const desktopIndex = config.findIndex(r => r.path === 'desktop');
+        const workbenchIndex = config.findIndex(r => r.path === 'workbench');
+        
+        if (workIndex !== -1) {
+          config[workIndex] = m.browserOnlyRoutes[0];
+        }
+        if (desktopIndex !== -1) {
+          config[desktopIndex] = m.browserOnlyRoutes[1];
+        }
+        if (workbenchIndex !== -1) {
+          config[workbenchIndex] = m.browserOnlyRoutes[2];
+        }
+        
+        router.resetConfig(config);
+      });
+    }
+    return Promise.resolve();
+  };
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    {
+      provide: APP_INITIALIZER,
+      useFactory: loadBrowserOnlyRoutes,
+      multi: true
+    },
     {
       provide: LOCALE_ID,
       useValue: navigator.language || 'en-US'
@@ -73,6 +119,6 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideShareButtonsOptions(
       shareIcons()
-    )
+    ), provideClientHydration(withEventReplay())
   ]
 };

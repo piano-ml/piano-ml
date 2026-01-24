@@ -37,9 +37,6 @@ export class LayoutComponent {
       }),
       map(user => user?.name || null)
     );
-    if (window.innerWidth < 768) {
-      this.shareLinks = this.shareLinks.splice(0, 2);
-    }
   }
 
   logout() {

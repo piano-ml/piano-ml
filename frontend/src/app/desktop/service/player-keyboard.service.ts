@@ -1,4 +1,5 @@
-import { type ElementRef, Injectable } from '@angular/core';
+import { type ElementRef, Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import type { Note } from '@tonejs/midi/dist/Note';
 import { PlayerStateService } from './player-state.service';
 
@@ -9,6 +10,7 @@ import { PlayerStateService } from './player-state.service';
   providedIn: 'root'
 })
 export class PlayerKeyboardService {
+  private platformId = inject(PLATFORM_ID);
   private keyboardElement!: ElementRef;
 
   // DOM elements cache for keyboard keys (by MIDI note number)
@@ -99,6 +101,10 @@ export class PlayerKeyboardService {
    * Charge les préférences du clavier depuis localStorage
    */
   private loadKeyboardPreferences(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      console.log('Keyboard preferences loading skipped on server');
+      return;
+    }
     try {
       const preferences = localStorage.getItem('preferences');
       if (preferences) {

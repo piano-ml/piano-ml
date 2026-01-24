@@ -1,0 +1,12 @@
+<div *ngIf="exercises.length > 0" class="mt-6">
+  <div class="bg-neutral-700 rounded p-4 text-sm">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-neutral-300 font-semibold">Practice exercises in this scale:</span>
+    </div>
+    <span *ngFor="let exercise of exercises; let last = last">
+      <a [href]="getExerciseUrl(exercise)" class="text-blue-300 hover:text-blue-200 hover:underline">
+        <span class="font-semibold">{{ exercise.title }}</span>
+        <span class="text-neutral-400"> ({{ getExerciseTypeLabel(exercise.exerciseType) }})</span></a><span *ngIf="!last" class="text-neutral-400">, </span>
+    </span>
+  </div>
+</div>

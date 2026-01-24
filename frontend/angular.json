@@ -16,9 +16,9 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "loader":  {
+            "loader": {
               ".glsl": "text"
-          }, 
+            },
             "outputPath": "dist/piano-ml",
             "index": "src/index.html",
             "browser": "src/main.ts",
@@ -37,8 +37,13 @@
             ],
             "styles": [
               "./node_modules/nouislider/dist/nouislider.min.css",
-              "src/styles.css"              
-            ]
+              "src/styles.css"
+            ],
+            "server": "src/main.server.ts",
+            "prerender": false,
+            "ssr": {
+              "entry": "src/server.ts"
+            }
           },
           
           "configurations": {

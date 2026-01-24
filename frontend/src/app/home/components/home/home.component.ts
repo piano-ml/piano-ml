@@ -1,9 +1,10 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnInit, ViewChild, inject } from '@angular/core';
-import { Title } from '@angular/platform-browser';
+import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnInit, ViewChild, inject, PLATFORM_ID } from '@angular/core';
+import { Title, Meta } from '@angular/platform-browser';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
+import { noop } from 'rxjs';
 
 
 interface ShaderManifest {
@@ -34,6 +35,8 @@ export class HomeComponent implements AfterViewInit {
   @ViewChild('glCanvas') canvas!: ElementRef<HTMLCanvasElement>;
 
   private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
 
   gl!: WebGLRenderingContext
   program!: WebGLProgram
@@ -51,9 +54,30 @@ export class HomeComponent implements AfterViewInit {
 
 
 
-  constructor(private router: Router, private titleService: Title) {
+  constructor(private router: Router, private titleService: Title, private metaService: Meta) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
     this.render = this.render.bind(this);
+    
+    // SEO: Page Title
     this.titleService.setTitle('PianoML: Learn Piano with Smart Sheet Music & Practice Tools');
+    
+    // SEO: Meta Tags
+    this.metaService.addTags([
+      { name: 'description', content: 'Learn piano with PianoML: A free, open-source web app supporting MusicXML, MIDI, and PDF sheet music. Practice scales, get instant feedback, and build your personal music library with OMR technology.' },
+      { name: 'keywords', content: 'piano software, piano education software, piano lessons, piano learning app' },
+      { name: 'author', content: 'PianoML' },
+      { name: 'robots', content: 'index, follow' },
+      { property: 'og:title', content: 'PianoML: Learn Piano with Smart Sheet Music & Practice Tools' },
+      { property: 'og:description', content: 'Free piano learning app supporting MusicXML, MIDI, and PDF files. Practice scales, get instant feedback, and organize your music library.' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: 'https://www.pianoml.com' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'PianoML: Learn Piano with Smart Sheet Music & Practice Tools' },
+      { name: 'twitter:description', content: 'Free piano learning app supporting MusicXML, MIDI, and PDF files. Practice scales and get instant feedback.' },
+      { name: 'application-name', content: 'PianoML' },
+      { name: 'apple-mobile-web-app-title', content: 'PianoML' },
+      { name: 'apple-mobile-web-app-capable', content: 'yes' }
+    ]);
   }
 
   /**
@@ -221,6 +245,10 @@ export class HomeComponent implements AfterViewInit {
   }
 
   async initGlAndProgram() {
+    if (!this.isBrowser) {
+      return;
+    }
+    
     // S'assurer que les shaders sont chargés
     if (!this.selectedShader) {
       console.error('❌ Aucun shader sélectionné. Chargement des shaders...');
@@ -300,7 +328,9 @@ export class HomeComponent implements AfterViewInit {
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-    window.onresize = this.resize;
+    if (this.isBrowser) {
+      window.onresize = this.resize;
+    }
     this.resize();
     this.isInitialized = true;
     requestAnimationFrame(this.render);
@@ -308,7 +338,7 @@ export class HomeComponent implements AfterViewInit {
 
 
   resize() {
-    if (!this.canvas) {
+    if (!this.isBrowser || !this.canvas) {
       return;
     }
     const vp_size = [window.innerWidth, window.innerHeight];
@@ -369,10 +399,14 @@ export class HomeComponent implements AfterViewInit {
 
   async ngAfterViewInit(): Promise<void> {
     // Warm up the server (ignore response and errors)
-    this.http.get('/account/userinfo').subscribe({
-      next: () => {},
-      error: () => {}
+    void this.http.get('/account/userinfo').subscribe({
+      next: noop,
+      error: noop
     });
+
+    if (!this.isBrowser) {
+      return;
+    }
 
     // Chargement dynamique des shaders au démarrage
     await this.loadAvailableShaders();

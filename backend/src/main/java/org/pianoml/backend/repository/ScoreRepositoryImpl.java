@@ -10,6 +10,7 @@ import jakarta.persistence.criteria.Root;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -149,7 +150,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   }
 
   @Override
-  public List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey) {
+  public List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey, String slug) {
      // Build JPQL with the same visibility rules as findWithSomeCriterias
      boolean isAdmin = false;
      if (user != null) {
@@ -157,7 +158,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
          .anyMatch(role -> "ADMIN".equals(role.trim()));
      }
 
-     StringBuilder jpql = new StringBuilder("SELECT s.author, COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL)");
+     StringBuilder jpql = new StringBuilder("SELECT s.author, COUNT(s), MAX(s.uploadedAt) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL)");
 
 /*     if (user == null) {
        jpql.append(" AND s.publicDomain = true");
@@ -168,6 +169,11 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
      // Add tracks filter when provided: only include scores whose tracksCount is in the provided list
      if (tracks != null && !tracks.isEmpty()) {
        jpql.append(" AND s.tracksCount IN :tracksList");
+     }
+
+     // Add slug filter when provided
+     if (slug != null && !slug.isEmpty()) {
+       jpql.append(" AND s.author.slug = :slug");
      }
 
      // Add fullKey filter when provided
@@ -188,6 +194,9 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
      if (tracks != null && !tracks.isEmpty()) {
        query.setParameter("tracksList", tracks);
      }
+     if (slug != null && !slug.isEmpty()) {
+       query.setParameter("slug", slug);
+     }
      if (fullKey != null && !fullKey.isEmpty() && !"NONE".equalsIgnoreCase(fullKey)) {
        query.setParameter("fullKey", fullKey);
      }
@@ -197,7 +206,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
    }
 
   @Override
-  public List<Object[]> countScoresGroupedByGenre(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey) {
+  public List<Object[]> countScoresGroupedByGenre(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey, String slug) {
     // Build JPQL with the same visibility rules as findWithSomeCriterias
     boolean isAdmin = false;
     if (user != null) {
@@ -206,7 +215,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     }
 
     // First: Get count of scores with NULL genre (GROUP BY doesn't handle NULL correctly in JPA)
-    StringBuilder nullJpql = new StringBuilder("SELECT COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.genre IS NULL");
+    StringBuilder nullJpql = new StringBuilder("SELECT COUNT(s), MAX(s.uploadedAt) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.genre IS NULL");
     if (user == null) {
       nullJpql.append(" AND s.publicDomain = true");
     } else if (!isAdmin) {
@@ -223,8 +232,9 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
         nullJpql.append(" AND s.fullKey = :fullKey");
       }
     }
+    // Note: slug filter is not applicable when genre IS NULL (handled later in the code)
 
-    TypedQuery<Long> nullQuery = em.createQuery(nullJpql.toString(), Long.class);
+    TypedQuery<Object[]> nullQuery = em.createQuery(nullJpql.toString(), Object[].class);
     if (user != null && !isAdmin) {
       nullQuery.setParameter("userId", user.getId());
     }
@@ -234,10 +244,12 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     if (fullKey != null && !fullKey.isEmpty() && !"NONE".equalsIgnoreCase(fullKey)) {
       nullQuery.setParameter("fullKey", fullKey);
     }
-    Long nullGenreCount = nullQuery.getSingleResult();
+    Object[] nullResult = nullQuery.getSingleResult();
+    Long nullGenreCount = (Long) nullResult[0];
+    OffsetDateTime nullGenreMaxUploadedAt = (OffsetDateTime) nullResult[1];
 
     // Second: Get counts for scores WITH a genre (GROUP BY works fine for non-NULL)
-    StringBuilder jpql = new StringBuilder("SELECT s.genre, COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.genre IS NOT NULL");
+    StringBuilder jpql = new StringBuilder("SELECT s.genre, COUNT(s), MAX(s.uploadedAt) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.genre IS NOT NULL");
 
 /*
     if (user == null) {
@@ -255,6 +267,10 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
 
     if (genreFilter != null && !genreFilter.isEmpty()) {
       jpql.append(" AND s.genre.id IN :genreList");
+    }
+
+    if (slug != null && !slug.isEmpty()) {
+      jpql.append(" AND s.genre.slug = :slug");
     }
 
     if (fullKey != null && !fullKey.isEmpty()) {
@@ -277,6 +293,9 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     if (genreFilter != null && !genreFilter.isEmpty()) {
       query.setParameter("genreList", genreFilter);
     }
+    if (slug != null && !slug.isEmpty()) {
+      query.setParameter("slug", slug);
+    }
     if (fullKey != null && !fullKey.isEmpty() && !"NONE".equalsIgnoreCase(fullKey)) {
       query.setParameter("fullKey", fullKey);
     }
@@ -285,10 +304,11 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
 
     // Add NULL genre entry if there are scores without genre
     if (nullGenreCount > 0) {
-      // Check if we should include NULL genre based on genreFilter
-      boolean includeNull = genreFilter == null || genreFilter.isEmpty();
+      // Check if we should include NULL genre based on genreFilter and slug
+      // NULL genre should be excluded if slug is provided (since NULL genre has no slug)
+      boolean includeNull = (genreFilter == null || genreFilter.isEmpty()) && (slug == null || slug.isEmpty());
       if (includeNull) {
-        results.add(new Object[]{null, nullGenreCount});
+        results.add(new Object[]{null, nullGenreCount, nullGenreMaxUploadedAt});
       }
     }
 

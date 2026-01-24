@@ -387,37 +387,48 @@ public class ScoreService {
 
 
   public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks) {
-    return getAuthorsWithScoreCounts(user, offset, limit, tracks, null);
+    return getAuthorsWithScoreCounts(user, offset, limit, tracks, null, null);
   }
 
   public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey) {
+    return getAuthorsWithScoreCounts(user, offset, limit, tracks, fullKey, null);
+  }
+
+  public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey, String slug) {
     int off = offset != null ? Math.max(0, offset) : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
 
-    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(user, lim == null ? null : off, lim, tracks, fullKey);
+    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(user, lim == null ? null : off, lim, tracks, fullKey, slug);
     return rows.stream().map(row -> {
        org.pianoml.backend.entity.Author author = (org.pianoml.backend.entity.Author) row[0];
        Long count = (Long) row[1];
+       OffsetDateTime maxUploadedAt = (OffsetDateTime) row[2];
        AuthorApiInfo authorApiInfo = authorMapper.toAuthorApiInfo(author);
        AuthorWithScoreCount out = new AuthorWithScoreCount();
        out.setAuthor(authorApiInfo);
        out.setCount(count);
+       out.setUpdatedAt(maxUploadedAt);
        return out;
      }).toList();
    }
 
   public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter) {
-    return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, null);
+    return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, null, null);
   }
 
   public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey) {
+    return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, fullKey, null);
+  }
+
+  public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey, String slug) {
     int off = offset != null ? Math.max(0, offset) : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
 
-    List<Object[]> rows = scoreRepository.countScoresGroupedByGenre(user, lim == null ? null : off, lim, tracks, genreFilter, fullKey);
+    List<Object[]> rows = scoreRepository.countScoresGroupedByGenre(user, lim == null ? null : off, lim, tracks, genreFilter, fullKey, slug);
      return rows.stream().map(row -> {
        Genre genre = (Genre) row[0];
        Long count = (Long) row[1];
+       OffsetDateTime maxUploadedAt = (OffsetDateTime) row[2];
        ScoreGenreBrowseGet200ResponseInner out = new ScoreGenreBrowseGet200ResponseInner();
        if (genre != null) {
          GenreApiInfo genreApiInfo = genreMapper.toGenreApiInfo(genre);
@@ -427,6 +438,7 @@ public class ScoreService {
          out.setGenre(null);
        }
        out.setCount(count);
+       out.setUpdatedAt(maxUploadedAt);
        return out;
      }).toList();
    }

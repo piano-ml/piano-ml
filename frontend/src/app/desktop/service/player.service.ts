@@ -1,4 +1,5 @@
-import { type ElementRef, Injectable, signal, effect } from '@angular/core';
+import { type ElementRef, Injectable, signal, effect, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
 import type { Note } from '@tonejs/midi/dist/Note';
@@ -27,6 +28,8 @@ const TIME_COUNTER_TIMESTEP = 200
 })
 export class PlayerService {
 
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
   private midiSetupTimeout?: number;
   private timeCounterInterval?: number;
   verticalPixelShiftValue: number = 1;
@@ -61,7 +64,10 @@ export class PlayerService {
     private assess: PlayerAssessService,
     private audio: PlayerAudioService
   ) {
-    midiService.setupMidiDeviceListeners();
+    this.isBrowser = isPlatformBrowser(this.platformId);
+    if (this.isBrowser) {
+      midiService.setupMidiDeviceListeners();
+    }
     this.reset = this.reset.bind(this);
 
     // Effect to process MIDI events via signal
@@ -155,6 +161,10 @@ export class PlayerService {
 
     // Initialize the time counter
     this.elapsedTime.next(0);
+
+    if (!this.isBrowser) {
+      return;
+    }
 
     // Create an interval that checks the transport state every TIME_COUNTER_TIMESTEP ms
     this.timeCounterInterval = window.setInterval(() => {

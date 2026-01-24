@@ -4,6 +4,7 @@ import type { Exercise } from "../model";
 
 
 const exercice1 = {
+    key: "two_octave_arpeggios",
     title: "Two-octave Arpeggios, root, 1st and 2nd inversions",
     measure: 4,
     type: "chord",
@@ -135,6 +136,7 @@ const exercice1 = {
 } as Exercise
 
 const exercice2 = {
+    key: "dominant_seventh",
     title: "Dominant Seventh Arpeggios (root position)",
     measure: 4,
     type: "chord",
@@ -224,6 +226,7 @@ const exercice2 = {
 } as Exercise
 
 const exercice3 = {
+    key: "arpeggio_root_position",
     title: "Arpeggio in root position, two octaves",
     measure: 4,
     type: "chord",
@@ -314,6 +317,7 @@ const exercice3 = {
 
 
 const exercice4 = {
+    key: "chord_inversions",
     title: "Chord inversions ",
     measure: 4,
     type: "chord",

@@ -27,7 +27,7 @@ const routes: Routes = [
     data: { breadcrumb: 'Scales' }
   },
   {
-    path: 'scale/:scaleKey/:selectedKey/:exerciseKey',
+    path: 'scale/:selectedKey/:scaleKey/:exerciseKey',
     component: ScalesComponent,
     data: { breadcrumb: 'Scales' }
   },
