@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-const SITEMAP_PATH = path.join(__dirname, '../src/assets/sitemap.xml');
+const SITEMAP_PATH = path.join(__dirname, '../src/sitemap.xml');
 const BASE_URL = 'https://pianoml.org';
 const GENRE_API_URL = 'https://api.pianoml.org/score/genre/browse';
 const AUTHOR_API_URL = 'https://api.pianoml.org/score/author/browse';
