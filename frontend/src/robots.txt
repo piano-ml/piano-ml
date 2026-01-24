@@ -5,4 +5,4 @@ Disallow: /desktop/
 Disallow: /workbench/
 
 # This is the only place you "list" something: the link to your Sitemap
-Sitemap: https://pianoml.org/sitemap.xml
+Sitemap: https://pianoml.org/assets/sitemap.xml
