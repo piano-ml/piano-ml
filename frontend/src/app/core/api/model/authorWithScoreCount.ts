@@ -16,5 +16,9 @@ export interface AuthorWithScoreCount {
      * Number of scores by this author
      */
     count: number;
+    /**
+     * Last update time for this author\'s score count
+     */
+    updatedAt?: string;
 }
 

@@ -735,6 +735,11 @@ paths:
           schema:
             type: string
           description: 'Filter by musical full key (example: "D minor" or "D major")'
+        - name: slug
+          in: query
+          schema:
+            type: string
+          description: 'Filter by author slug to retrieve a specific author'
         - name: offset
           in: query
           schema:
@@ -779,6 +784,11 @@ paths:
           schema:
             type: string
           description: 'Filter by musical full key (example: "D minor" or "D major")'
+        - name: slug
+          in: query
+          schema:
+            type: string
+          description: 'Filter by genre slug to retrieve a specific genre'
         - name: genre
           in: query
           description: "List of genre UUIDs to filter by (nullable). Examples: null, [uuid1], [uuid1,uuid2]"
@@ -815,8 +825,13 @@ paths:
                     count:
                       type: integer
                       format: int64
+                    updatedAt:
+                      type: string
+                      format: date-time                   
                   required:
                     - count
+                    - genre
+                    - updatedAt                   
         '400':
           description: Bad request
   /genre:
@@ -1013,6 +1028,10 @@ components:
           type: integer
           format: int64
           description: Number of scores by this author
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update time for this author's score count      
       required:
         - author
         - count
@@ -1031,6 +1050,8 @@ components:
           type: string
         author_mbid:
           type: string
+        author_slug:
+          type: string          
         sortName:
           type: string
         version:
@@ -1053,6 +1074,8 @@ components:
           type: string
         genre_id:
           type: string
+        genre_slug:
+          type: string          
         grade:
           type: integer
           format: int32
@@ -1162,7 +1185,6 @@ components:
         scoreCount:
           type: integer
           format: int32
-          description: Number of scores linked to this genre (non-deleted)
         slug:
           type: string
           maxLength: 255

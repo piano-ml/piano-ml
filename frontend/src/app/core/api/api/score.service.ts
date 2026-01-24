@@ -47,15 +47,16 @@ export class ScoreService extends BaseService {
      * Browse authors with their score counts
      * @param tracks List of track numbers to filter by (nullable). Examples: null, [1], [1,2]
      * @param fullKey Filter by musical full key (example: \&quot;D minor\&quot; or \&quot;D major\&quot;)
+     * @param slug Filter by author slug to retrieve a specific author
      * @param offset Result offset (default 0)
      * @param limit Maximum number of results to return (default: all)
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public scoreAuthorBrowseGet(tracks?: Array<number>, fullKey?: string, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<AuthorWithScoreCount>>;
-    public scoreAuthorBrowseGet(tracks?: Array<number>, fullKey?: string, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<AuthorWithScoreCount>>>;
-    public scoreAuthorBrowseGet(tracks?: Array<number>, fullKey?: string, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<AuthorWithScoreCount>>>;
-    public scoreAuthorBrowseGet(tracks?: Array<number>, fullKey?: string, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public scoreAuthorBrowseGet(tracks?: Array<number>, fullKey?: string, slug?: string, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<AuthorWithScoreCount>>;
+    public scoreAuthorBrowseGet(tracks?: Array<number>, fullKey?: string, slug?: string, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<AuthorWithScoreCount>>>;
+    public scoreAuthorBrowseGet(tracks?: Array<number>, fullKey?: string, slug?: string, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<AuthorWithScoreCount>>>;
+    public scoreAuthorBrowseGet(tracks?: Array<number>, fullKey?: string, slug?: string, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         if (tracks) {
@@ -66,6 +67,8 @@ export class ScoreService extends BaseService {
         }
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>fullKey, 'fullKey');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>slug, 'slug');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>offset, 'offset');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
@@ -116,16 +119,17 @@ export class ScoreService extends BaseService {
      * Browse genres with their score counts
      * @param tracks List of track numbers to filter by (nullable). Examples: null, [1], [1,2]
      * @param fullKey Filter by musical full key (example: \&quot;D minor\&quot; or \&quot;D major\&quot;)
+     * @param slug Filter by genre slug to retrieve a specific genre
      * @param genre List of genre UUIDs to filter by (nullable). Examples: null, [uuid1], [uuid1,uuid2]
      * @param offset Result offset (default 0)
      * @param limit Maximum number of results to return (default: all)
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public scoreGenreBrowseGet(tracks?: Array<number>, fullKey?: string, genre?: Array<string>, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ScoreGenreBrowseGet200ResponseInner>>;
-    public scoreGenreBrowseGet(tracks?: Array<number>, fullKey?: string, genre?: Array<string>, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ScoreGenreBrowseGet200ResponseInner>>>;
-    public scoreGenreBrowseGet(tracks?: Array<number>, fullKey?: string, genre?: Array<string>, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ScoreGenreBrowseGet200ResponseInner>>>;
-    public scoreGenreBrowseGet(tracks?: Array<number>, fullKey?: string, genre?: Array<string>, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public scoreGenreBrowseGet(tracks?: Array<number>, fullKey?: string, slug?: string, genre?: Array<string>, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ScoreGenreBrowseGet200ResponseInner>>;
+    public scoreGenreBrowseGet(tracks?: Array<number>, fullKey?: string, slug?: string, genre?: Array<string>, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ScoreGenreBrowseGet200ResponseInner>>>;
+    public scoreGenreBrowseGet(tracks?: Array<number>, fullKey?: string, slug?: string, genre?: Array<string>, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ScoreGenreBrowseGet200ResponseInner>>>;
+    public scoreGenreBrowseGet(tracks?: Array<number>, fullKey?: string, slug?: string, genre?: Array<string>, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         if (tracks) {
@@ -136,6 +140,8 @@ export class ScoreService extends BaseService {
         }
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>fullKey, 'fullKey');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>slug, 'slug');
         if (genre) {
             genre.forEach((element) => {
                 localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,

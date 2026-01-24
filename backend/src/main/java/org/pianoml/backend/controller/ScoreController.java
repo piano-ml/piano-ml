@@ -214,7 +214,8 @@ public class ScoreController implements ScoreApi {
     }
   }
 
-  public ResponseEntity<List<org.pianoml.backend.model.AuthorWithScoreCount>> scoreAuthorBrowseGet(java.util.List<Integer> tracks, String fullKey, Integer offset, Integer limit) {
+  @Override
+  public ResponseEntity<List<org.pianoml.backend.model.AuthorWithScoreCount>> scoreAuthorBrowseGet(java.util.List<Integer> tracks, String fullKey, String slug, Integer offset, Integer limit) {
     // Normalize pagination params
     int off = offset != null && offset >= 0 ? offset : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
@@ -227,12 +228,12 @@ public class ScoreController implements ScoreApi {
       // If the user is not logged in or cannot be resolved, keep user = null so only public scores are shown.
       user = null;
     }
-    List<org.pianoml.backend.model.AuthorWithScoreCount> list = scoreService.getAuthorsWithScoreCounts(user, off, lim, tracks, fullKey);
+    List<org.pianoml.backend.model.AuthorWithScoreCount> list = scoreService.getAuthorsWithScoreCounts(user, off, lim, tracks, fullKey, slug);
     return ResponseEntity.ok(list);
   }
 
   @Override
-  public ResponseEntity<List<org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner>> scoreGenreBrowseGet(java.util.List<Integer> tracks, String fullKey, java.util.List<UUID> genre, Integer offset, Integer limit) {
+  public ResponseEntity<List<org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner>> scoreGenreBrowseGet(java.util.List<Integer> tracks, String fullKey, String slug, java.util.List<UUID> genre, Integer offset, Integer limit) {
     // Normalize pagination params
     int off = offset != null && offset >= 0 ? offset : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
@@ -245,7 +246,7 @@ public class ScoreController implements ScoreApi {
       // If the user is not logged in or cannot be resolved, keep user = null so only public scores are shown.
       user = null;
     }
-    List<org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner> list = scoreService.getGenresWithScoreCounts(user, off, lim, tracks, genre, fullKey);
+    List<org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner> list = scoreService.getGenresWithScoreCounts(user, off, lim, tracks, genre, fullKey, slug);
     return ResponseEntity.ok(list);
   }
 

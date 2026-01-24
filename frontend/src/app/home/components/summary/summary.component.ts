@@ -67,12 +67,12 @@ export class SummaryComponent implements OnInit {
     
     this.meta.updateTag({ 
       name: 'description', 
-      content: 'Learn piano with interactive exercises, scales, arpeggios, and sheet music practice. Features hands-separated practice, adjustable speed, MIDI support, real-time feedback, and a complete library of études using Machine Learning technology.' 
+      content: 'Learn piano with interactive exercises, scales, arpeggios, and sheet music practice. Features hands-separated practice, adjustable speed, MIDI support, real-time feedback, and a complete library of études.' 
     });
     
     this.meta.updateTag({ 
       name: 'keywords', 
-      content: 'piano software, piano education software, piano lessons, piano practice, sheet music, MIDI, scales, arpeggios, études, machine learning, interactive learning' 
+      content: 'piano software, piano education software, piano lessons, piano practice, sheet music, MIDI, scales, arpeggios, études, piano interactive learning' 
     });
     
     // Open Graph tags
@@ -104,7 +104,7 @@ export class SummaryComponent implements OnInit {
       },
       "featureList": [
         "Interactive piano scales generator",
-        "Arpeggios and chord progression exercises",
+        "Arpeggios exercises",
         "Sheet music generation from audio and MIDI",
         "Hands-separated practice mode",
         "Adjustable playback speed",

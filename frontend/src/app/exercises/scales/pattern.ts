@@ -84,7 +84,7 @@ function scaleFingering(key: string, exercise: Exercise): void {
  */
 
 const exercice2: Exercise = {
-    key: "Contrary motion starting on the same note.",
+    key: "contrary_motion",
     title: "Contrary motion starting on the same note.",
     deckName: "Furious Shirley",
     type: "scale",

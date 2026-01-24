@@ -158,6 +158,9 @@
     <!-- Score Basic Info Display -->
     <app-score-basic-info [score]="score"></app-score-basic-info>
 
+    <!-- Exercises in Key -->
+    <app-exercises-in-key *ngIf="score && score.fullKey" [fullKey]="score.fullKey!"></app-exercises-in-key>
+
     <!-- Action Buttons -->
     <div class="flex gap-4 mt-6 justify-end">
 

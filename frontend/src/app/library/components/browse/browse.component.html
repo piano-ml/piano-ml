@@ -73,12 +73,12 @@
 
   <!-- Selected Genre Capsule -->
   <span *ngIf="selectedGenre" >
-    <div class="inline-flex bg-green-600 text-white rounded-md px-1 py-1 m-2 items-center gap-3">
-      <span class="font-medium">{{ selectedGenre.genre?.name || "genre not specified" }}</span>
+    <div class="inline-flex bg-green-600 text-white rounded-md p-2 m-2 items-center gap-3">
+      <span class="font-medium">{{ (selectedGenre.genre?.name ? selectedGenre.genre!.name!.charAt(0).toUpperCase() + selectedGenre.genre!.name!.slice(1) : "genre not specified") }}</span>
       <span class="text-xs text-green-200">({{ selectedGenre.count }} {{ selectedGenre.count === 1 ? 'score' : 'scores' }})</span>
       <button 
         (click)="clearGenreFilter()"
-        class="text-green-200 hover:text-white transition-colors duration-200 p-1 hover:bg-green-700 rounded-md ml-1"
+        class="text-green-200 hover:text-white transition-colors duration-200  hover:bg-green-700 rounded-md"
         title="Clear filter">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

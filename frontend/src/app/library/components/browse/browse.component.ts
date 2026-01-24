@@ -90,7 +90,7 @@ export class BrowseComponent implements OnInit {
     this.route.params.subscribe(params => {
       const artistSlug = params['artistSlug'] || '';
       const genreSlug = params['genreSlug'] || '';
-
+      console.log("genre slug:", genreSlug);
       // Hydrate track count filters from URL
       this.route.queryParams.subscribe(queryParams => {
         const keyword = queryParams['search'] || '';
@@ -126,12 +126,12 @@ export class BrowseComponent implements OnInit {
   }
 
   loadAuthorAndFilter(artistSlug: string) {
-    // Load author info from API
+    // Load author info from API using slug parameter
     this.loading = true;
-    this.scoreService.scoreAuthorBrowseGet(this.getTrackCountFilter(), this.getFullKeyFilter(), 0, 100).subscribe({
+    this.scoreService.scoreAuthorBrowseGet(this.getTrackCountFilter(), this.getFullKeyFilter(), artistSlug, 0, 1).subscribe({
       next: (data) => {
-        const author = data.find(a => a.author.slug === artistSlug);
-        if (author) {
+        if (data.length > 0) {
+          const author = data[0];
           this.selectedAuthor = author;
           this.selectedGenre = null;
           this.activeSearchKeyword = '';
@@ -159,12 +159,12 @@ export class BrowseComponent implements OnInit {
   }
 
   loadGenreAndFilter(genreSlug: string) {
-    // Load genre info from API
+    // Load genre info from API using slug parameter
     this.loading = true;
-    this.scoreService.scoreGenreBrowseGet(this.getTrackCountFilter(), this.getFullKeyFilter(), undefined, 0, 100).subscribe({
+    this.scoreService.scoreGenreBrowseGet(this.getTrackCountFilter(), this.getFullKeyFilter(), genreSlug, undefined, 0, 1).subscribe({
       next: (data) => {
-        const genre = data.find(g => g.genre?.slug === genreSlug);
-        if (genre) {
+        if (data.length > 0) {
+          const genre = data[0];
           this.selectedGenre = genre;
           this.selectedAuthor = null;
           this.activeSearchKeyword = '';
@@ -173,11 +173,11 @@ export class BrowseComponent implements OnInit {
           this.loadScoresByGenre(genre);
         } else {
           // Genre not found, clear filters and load all scores
-          // this.router.navigate([], {
-          //   relativeTo: this.route,
-          //   queryParams: {}
-          // });
-          // this.loadScores(true);
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {}
+          });
+          this.loadScores(true);
         }
         this.loading = false;
         this.changeDetector.detectChanges();
@@ -533,10 +533,9 @@ export class BrowseComponent implements OnInit {
     let structuredData: any;
 
     if (this.selectedGenre?.genre?.name) {
-      const genreName = this.selectedGenre.genre.name;
-      const scoreCount = this.selectedGenre.count;
-      title = `${genreName} Piano Scores | PianoML - ${scoreCount} Free Sheet Music`;
-      description = `Discover ${scoreCount} ${genreName} piano scores on PianoML. Practice with hands-separated sheet music, adjustable speed, and MIDI support. Free access to ${genreName} piano music.`;
+      const genreName = this.selectedGenre.genre.name.charAt(0).toUpperCase() + this.selectedGenre.genre.name.slice(1);
+      title = `${genreName} Piano Scores | PianoML`;
+      description = `Play ${genreName} piano scores on PianoML. Practice with hands-separated sheet music, adjustable speed, and MIDI support. ${genreName} piano music.`;
       url = `${baseUrl}/library/genres/${this.selectedGenre.genre.slug}`;
       keywords = `${genreName} piano, ${genreName} sheet music, ${genreName} piano scores, piano practice`;
       
@@ -546,10 +545,10 @@ export class BrowseComponent implements OnInit {
         description
       );
     } else if (this.selectedAuthor?.author?.name) {
-      const authorName = this.selectedAuthor.author.name;
+      const authorName = this.selectedAuthor.author.name.charAt(0).toUpperCase() + this.selectedAuthor.author.name.slice(1);
       const scoreCount = this.selectedAuthor.count;
-      title = `${authorName} Piano Scores | PianoML - ${scoreCount} Free Sheet Music`;
-      description = `Play ${scoreCount} ${authorName} piano scores on PianoML. Interactive sheet music with hands-separated practice, loop sections, and adjustable playback speed. Free ${authorName} piano music.`;
+      title = `${authorName} Piano Scores | PianoML`;
+      description = `Play ${authorName} piano scores on PianoML. Interactive sheet music with hands-separated practice, loop sections, and adjustable playback speed. ${authorName} piano music.`;
       url = `${baseUrl}/library/artists/${this.selectedAuthor.author.slug}`;
       keywords = `${authorName} piano, ${authorName} sheet music, ${authorName} compositions, piano practice`;
       
@@ -613,22 +612,22 @@ export class BrowseComponent implements OnInit {
     } else {
       // Popular scores (default)
       const totalScores = this.stats ? this.stats['public-domain'] + this.stats.copyrighted : 3000;
-      title = `Popular Piano Scores | PianoML - ${totalScores}+ Free Sheet Music`;
-      description = `Browse ${totalScores}+ popular piano scores on PianoML. AI-powered interactive sheet music with hands-separated practice, adjustable speed, loopable sections, and MIDI keyboard support. Transform your piano learning with our machine learning tools. Public domain and licensed music.`;
+      title = `Piano Scores | PianoML - MusicXML, Midi PDF Music Sheet Music`;
+      description = `Browse popular piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable speed, loopable sections, and MIDI keyboard support. Transform your piano learning with our machine learning tools.`;
       url = `${baseUrl}/library`;
-      keywords = 'piano scores, sheet music, piano practice, free piano music, piano learning, interactive sheet music, piano learning machine, AI piano, machine learning piano';
+      keywords = 'piano scores, sheet music, piano practice, free piano music, piano learning, interactive sheet music, piano learning, learning piano';
       
       structuredData = {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
-        'name': 'Popular Piano Score Library',
+        'name': 'Piano Score Library',
         'description': description,
         'numberOfItems': totalScores,
         'about': {
           '@type': 'SoftwareApplication',
-          'name': 'PianoML - AI Piano Learning Machine',
+          'name': 'PianoML - Piano Learning Machine',
           'applicationCategory': 'Music Education',
-          'description': 'AI-powered piano learning platform with machine learning features for interactive practice'
+          'description': 'Piano learning platform with features for interactive practice'
         }
       };
     }

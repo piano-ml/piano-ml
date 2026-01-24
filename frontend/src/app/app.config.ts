@@ -29,12 +29,12 @@ import { environment } from '../environments/environment';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 /**
- * Initializer pour charger les routes browser-only dynamiquement
- * Ces routes ne doivent être ajoutées que côté client pour éviter
- * les erreurs SSR liées à __dirname, Web Audio API, etc.
+ * Initializer to dynamically load browser-only routes
+ * These routes should only be added on the client side to avoid
+ * SSR errors related to __dirname, Web Audio API, etc.
  * 
- * Côté serveur, des stubs sont utilisés. Côté client, on les remplace
- * par les vraies routes desktop.
+ * On the server side, stubs are used. On the client side, they are replaced
+ * by the real desktop routes.
  */
 function loadBrowserOnlyRoutes() {
   const platformId = inject(PLATFORM_ID);
@@ -42,11 +42,11 @@ function loadBrowserOnlyRoutes() {
   
   return () => {
     if (isPlatformBrowser(platformId)) {
-      // Charger les routes browser-only uniquement côté client
+      // Load browser-only routes on client side only
       return import('./app.routes.browser').then(m => {
         const config = router.config;
         
-        // Remplacer les routes stub par les vraies routes
+        // Replace stub routes with the real routes
         const workIndex = config.findIndex(r => r.path === 'work');
         const desktopIndex = config.findIndex(r => r.path === 'desktop');
         const workbenchIndex = config.findIndex(r => r.path === 'workbench');

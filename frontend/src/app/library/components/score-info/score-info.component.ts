@@ -9,11 +9,12 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
 import { SeoService } from '../../../shared/services/seo.service';
+import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in-key/exercises-in-key.component';
 
 @Component({
   selector: 'app-score-info',
   standalone: true,
-  imports: [CommonModule, ShareButtons, NgIcon, ScoreBasicInfoComponent],
+  imports: [CommonModule, ShareButtons, NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
   viewProviders: [provideIcons({ bootstrapClipboard })]

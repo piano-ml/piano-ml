@@ -16,6 +16,7 @@ export interface ScoreApiInfo {
     author?: string;
     author_id?: string;
     author_mbid?: string;
+    author_slug?: string;
     sortName?: string;
     version?: number;
     tracks_count?: number;
@@ -25,6 +26,7 @@ export interface ScoreApiInfo {
     duration?: number;
     genre?: string;
     genre_id?: string;
+    genre_slug?: string;
     grade?: number;
     uploaded_at?: string;
     owner_id?: string;

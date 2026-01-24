@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-const SITEMAP_PATH = path.join(__dirname, '../public/sitemap.xml');
+const SITEMAP_PATH = path.join(__dirname, '../src/assets/sitemap.xml');
 const BASE_URL = 'https://pianoml.org';
 const GENRE_API_URL = 'https://api.pianoml.org/score/genre/browse';
 const AUTHOR_API_URL = 'https://api.pianoml.org/score/author/browse';
@@ -12,11 +12,15 @@ const SCORE_PAGINATION_LIMIT = 100;
 // Static URLs to include in the sitemap (app router compatible - no hash routes)
 const staticUrls = [
   { loc: `${BASE_URL}/`, priority: '1.0' },
-  { loc: `${BASE_URL}/exercises/agility/C/major/arpeggio_in_root_position_two_octaves`, priority: '0.5' },
-  { loc: `${BASE_URL}/exercises/scale/major/C/left_than_right`, priority: '0.5' },
   { loc: `${BASE_URL}/library`, priority: '1' },
+
+  { loc: `${BASE_URL}/exercises/scale/C/major/left_than_right`, priority: '1' },
+  { loc: `${BASE_URL}/exercises/scale/G/major/intervals`, priority: '1' },
+  { loc: `${BASE_URL}/exercises/scale/D/major/contrary_motion`, priority: '1' },
+  { loc: `${BASE_URL}/exercises/scale/A/major/parallel_motion_in_octaves`, priority: '1' },
+  { loc: `${BASE_URL}/exercises/agility/E/major/two_octave_arpeggios`, priority: '1' },
+  { loc: `${BASE_URL}/exercises/agility/B/major/arpeggio_root_position`, priority: '1' },    
   { loc: `${BASE_URL}/blog/thanks-and-acknowledgments`, priority: '0.5' },
-  ///blog/methods
   
 ];
 
@@ -56,7 +60,7 @@ async function fetchAllScores() {
 
   while (hasMore) {
     const url = `${SCORE_SEARCH_API_URL}?offset=${offset}&limit=${SCORE_PAGINATION_LIMIT}`;
-    //console.log(`  Fetching scores: offset=${offset}, limit=${SCORE_PAGINATION_LIMIT}...`);
+    console.log(`  Fetching scores: offset=${offset}, limit=${SCORE_PAGINATION_LIMIT}...`);
     
     const response = await fetchFromApi(url);
     const scores = Array.isArray(response) ? response : (response.scores || response.results || []);
@@ -134,10 +138,12 @@ function generateSitemap(genres, authors, scores) {
       const priority = excludedGenreSlugs.includes(genreSlug) 
         ? 0.5 
         : calculatePriority(item.count, maxGenreCount);
+      // Use updatedAt from API if available, otherwise fall back to currentDate
+      const genreLastMod = item.updatedAt ? new Date(item.updatedAt).toISOString() : currentDate;
       allUrls.push({
         loc: `${BASE_URL}/library/genres/${encodeURIComponent(genreSlug)}`,
         priority,
-        lastmod: currentDate
+        lastmod: genreLastMod
       });
     }
   });
@@ -150,22 +156,33 @@ function generateSitemap(genres, authors, scores) {
       const priority = excludedAuthorSlugs.includes(authorSlug)
         ? 0.5
         : calculatePriority(item.count, maxAuthorCount);
+      // Use updatedAt from API if available, otherwise fall back to currentDate
+      const authorLastMod = item.updatedAt ? new Date(item.updatedAt).toISOString() : currentDate;
       allUrls.push({
         loc: `${BASE_URL}/library/authors/${encodeURIComponent(authorSlug)}`,
         priority,
-        lastmod: currentDate
+        lastmod: authorLastMod
       });
     }
   });
 
-  // Add score URLs (fixed priority of 0.8 for individual scores)
-  scores.forEach((score) => {
+  // Add score URLs (fixed priority of 0.86 for individual scores)
+  // Sort scores by uploadedAt descending
+  const sortedScores = [...scores].sort((a, b) => {
+    const dateA = a.uploadedAt ? new Date(a.uploadedAt).getTime() : 0;
+    const dateB = b.uploadedAt ? new Date(b.uploadedAt).getTime() : 0;
+    return dateB - dateA; // descending order
+  });
+
+  sortedScores.forEach((score) => {
     const immutableSlug = score.immutableSlug || score.slug;
     if (immutableSlug) {
+      // Use uploadedAt from API if available, otherwise fall back to currentDate
+      const scoreLastMod = score.uploadedAt ? new Date(score.uploadedAt).toISOString() : currentDate;
       allUrls.push({
         loc: `${BASE_URL}/score/${immutableSlug}`,
-        priority: 0.8,
-        lastmod: currentDate
+        priority: 0.86,
+        lastmod: scoreLastMod
       });
     }
   });
@@ -199,7 +216,7 @@ function generateSitemap(genres, authors, scores) {
  * Main function
  */
 async function main() {
-  /** 
+
   try {
     console.log('Fetching genres from API...');
     const genres = await fetchFromApi(GENRE_API_URL);
@@ -229,7 +246,7 @@ async function main() {
     console.error('✗ Error generating sitemap:', error.message);
     process.exit(1);
   }
-    */
+
 }
 
 

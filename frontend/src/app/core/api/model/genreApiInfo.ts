@@ -13,9 +13,6 @@ export interface GenreApiInfo {
     id?: string;
     mbid?: string;
     name?: string;
-    /**
-     * Number of scores linked to this genre (non-deleted)
-     */
     scoreCount?: number;
     /**
      * URL-friendly slug for the genre

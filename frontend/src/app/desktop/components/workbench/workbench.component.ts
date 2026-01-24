@@ -401,7 +401,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
           }
         });
       } else {
-        console.log("Acting navigate 5 to /library cause else");
         this.router.navigate(['/library']);
       }
     }
@@ -409,14 +408,15 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   summary() {
-    console.log("Acting navigate to /summary via summary()");
+    if (this.isPlaying) {
+      this.stop();
+    }
     this.router.navigate(['/summary']);
   }
 
   showInfo() {
     const slug = this.scoreData?.immutableSlug || this.scoreData?.mutableSlug;
     if (slug) {
-      console.log("Acting navigate to /score/", slug);
       this.router.navigate(['/score', slug]);
       return;
     }
@@ -425,15 +425,12 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         next: (fullScore) => {
           const fallbackSlug = fullScore.immutableSlug || fullScore.mutableSlug;
           if (fallbackSlug) {
-                  console.log("Acting navigate  2 to /score/", fallbackSlug);
             this.router.navigate(['/score', fallbackSlug]);
           } else {
-            console.log("Acting navigate to /ibrary");
             this.router.navigate(['/library']);
           }
         },
         error: (e) => {
-          console.log("Acting navigate to /library cause error", e);
           this.router.navigate(['/library'])
         }
       });

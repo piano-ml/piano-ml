@@ -11,7 +11,8 @@ import { GenreApiInfo } from './genreApiInfo';
 
 
 export interface ScoreGenreBrowseGet200ResponseInner { 
-    genre?: GenreApiInfo;
+    genre: GenreApiInfo;
     count: number;
+    updatedAt: string;
 }
 
