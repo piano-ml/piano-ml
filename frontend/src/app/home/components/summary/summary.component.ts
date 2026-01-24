@@ -96,7 +96,7 @@ export class SummaryComponent implements OnInit {
       "@type": "WebApplication",
       "name": "PianoML",
       "applicationCategory": "EducationalApplication",
-      "description": "Learn piano with interactive exercises, scales, arpeggios, and sheet music practice. Features hands-separated practice, adjustable speed, MIDI support, real-time feedback, and a complete library of études using Machine Learning technology.",
+      "description": "Learn piano with interactive exercises, scales, arpeggios, and sheet music practice. Features hands-separated practice, adjustable speed, MIDI support, real-time feedback, and a complete library of études.",
       "offers": {
         "@type": "Offer",
         "price": "0",

@@ -1,51 +1,60 @@
 <div class="flex flex-col min-h-screen" id="top">
 
-    <div class=" w-full fixed top-0 h-14 flex-grow bg-black p-2 pt-4 text-white z-3">
+    <header class=" w-full fixed top-0 h-14 flex-grow bg-black p-2 pt-4 text-white z-3" role="banner">
         <div class="flex flex-row bg-red">
-            <div class="flex-none">
-                <a *ngIf="true" routerLink="/home" class="breadcrumb-label breadcrumb-with-circle">PianoML</a>
-                <span *ngIf="true" class="breadcrumb-separator">/</span>
+            <nav class="flex-none" aria-label="Breadcrumb navigation">
+                <a *ngIf="true" routerLink="/home" class="breadcrumb-label breadcrumb-with-circle" title="Return to PianoML home page">PianoML</a>
+                <span *ngIf="true" class="breadcrumb-separator" aria-hidden="true">/</span>
 
                 <ng-container *ngFor="let item of breadcrumbService.items$ | async; let last = last">
-                    <a *ngIf="!last" [routerLink]="item.path" class="breadcrumb-label">{{ item.label }}</a>
-                    <span *ngIf="last" class="breadcrumb-label breadcrumb-label-last">{{ item.label }}</span>
-                    <span *ngIf="!last" class="breadcrumb-separator">/</span>
+                    <a *ngIf="!last" [routerLink]="item.path" class="breadcrumb-label" [title]="'Navigate to ' + item.label">{{ item.label }}</a>
+                    <span *ngIf="last" class="breadcrumb-label breadcrumb-label-last" aria-current="page">{{ item.label }}</span>
+                    <span *ngIf="!last" class="breadcrumb-separator" aria-hidden="true">/</span>
                 </ng-container>
-            </div>
+            </nav>
 
             <div class="flex-grow"></div>
             
             <div class="flex-none mr-2">
                 <ng-container *ngIf="(isLoggedIn$ | async) === true; else loginLink">
-                    <button routerLink="/account/home" class="text-white underline">{{ username$ | async }}</button>
+                    <button routerLink="/account/home" class="text-white underline" title="Go to your account page">{{ username$ | async }}</button>
                 </ng-container>
                 <ng-template #loginLink>
                     <ng-container *ngIf="!(router.url === '/account/login')">
-                        <a routerLink="/account/login" class="text-blue-500 underline font-bold">LOGIN</a>
+                        <a routerLink="/account/login" class="text-blue-500 underline font-bold" title="Log in to your PianoML account">LOGIN</a>
                     </ng-container>
                 </ng-template>
             </div>
 
         </div>
 
-    </div>
+    </header>
     <div class="flex-grow pt-16 pb-16">
         <router-outlet />
     </div>
-    <footer class="text-sm bg-black fixed bottom-0 w-full h-12 text-white p-3 flex justify-center items-center z-3 gap-2">
+    <footer class="text-sm bg-black fixed bottom-0 w-full h-12 text-white p-3 flex justify-center items-center z-3 gap-2" role="contentinfo">
 
-        <a href="/blog/legal" class="px-2 py-2 inline-block">
+        <a href="/blog/legal" class="px-2 py-2 inline-block" title="Read PianoML legal notice and terms of use">
             Legal Notice
         </a> 
         <span class="px-1 font-bold text-xl">&copy;</span>
         <span class="px-1">PianoML 2024 - General Public License v3</span>
         
-        <a class="px-2 py-1 inline-block" href="https://github.com/piano-ml/piano-ml" aria-label="View source on GitHub">
+        <a class="px-2 py-1 inline-block" 
+           href="https://github.com/piano-ml/piano-ml" 
+           aria-label="View PianoML source code on GitHub" 
+           title="View PianoML source code on GitHub"
+           target="_blank"
+           rel="noopener noreferrer">
             <ng-icon name="bootstrapGithub"></ng-icon>
         </a>
              
-        <a class="px-2 py-2 inline-block" href="https://github.com/piano-ml/piano-ml/issues">
-            Report an issue
+        <a class="px-2 py-2 inline-block" 
+           href="https://github.com/piano-ml/piano-ml/issues"
+           title="Report a bug or request a feature on GitHub"
+           target="_blank"
+           rel="noopener noreferrer">
+            Report An Issue
         </a>
     </footer>
 </div>

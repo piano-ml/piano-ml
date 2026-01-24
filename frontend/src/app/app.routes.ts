@@ -114,7 +114,7 @@ export const routes: Routes = [
         path: 'library',
         component: LayoutComponent,
         loadChildren: () => import('./library/library.module').then(m => m.LibraryModule),
-        data: { breadcrumb: 'Practice' }
+        data: { breadcrumb: 'Library' }
     },
     {
         component: LayoutComponent,

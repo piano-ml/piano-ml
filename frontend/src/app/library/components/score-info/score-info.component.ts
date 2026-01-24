@@ -206,7 +206,7 @@ export class ScoreInfoComponent implements OnInit {
       keywords: keywords.join(', '),
       url,
       type: 'music.song',
-      image: `${this.siteUrl}/assets/images/pianoml-og-image.png`,
+      image: `${this.siteUrl}/assets/images/pianoml-og-image.jpg`,
       structuredData
     });
   }

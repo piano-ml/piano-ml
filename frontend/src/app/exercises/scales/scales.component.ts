@@ -156,7 +156,7 @@ export class ScalesComponent implements OnInit {
       keywords,
       url,
       type: 'website',
-      image: `${baseUrl}/assets/images/pianoml-og-image.png`,
+      image: `${baseUrl}/assets/images/pianoml-og-image.jpg`,
       structuredData
     });
   }
