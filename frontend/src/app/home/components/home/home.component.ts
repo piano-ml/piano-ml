@@ -64,7 +64,7 @@ export class HomeComponent implements AfterViewInit {
     // SEO: Meta Tags
     this.metaService.addTags([
       { name: 'description', content: 'Learn piano with PianoML: A free, open-source web app supporting MusicXML, MIDI, and PDF sheet music. Practice scales, get instant feedback, and build your personal music library with OMR technology.' },
-      { name: 'keywords', content: 'piano software, piano education software, piano lessons, piano learning app' },
+      { name: 'keywords', content: 'piano learning app, piano education software, sight reading' },
       { name: 'author', content: 'PianoML' },
       { name: 'robots', content: 'index, follow' },
       { property: 'og:title', content: 'PianoML: Learn Piano with Smart Sheet Music & Practice Tools' },

@@ -154,10 +154,10 @@ export class AgilityComponent implements OnInit {
       const exerciseKey = this.selectedExcercice.key;
       const chordKey = chordName.toLowerCase();
       
-      title = `${selectedKey} ${chordName} - ${exerciseName} | Piano Agility Exercise | PianoML`;
+      title = `${exerciseName} - ${selectedKey} ${chordName}`;
       description = `Practice piano agility with ${selectedKey} ${chordName} chord in ${exerciseName}. Improve your piano technique with interactive exercises and real-time feedback.`;
       url = `${baseUrl}/exercises/agility/${selectedKey}/${chordKey}/${exerciseKey}`;
-      keywords = `piano agility, ${chordName} chord, ${selectedKey} key, ${exerciseName}, piano exercises, chord progressions, piano practice`;
+      keywords = `piano learning app, sight reading, agility, ${exerciseName}`;
       
       structuredData = {
         '@context': 'https://schema.org',

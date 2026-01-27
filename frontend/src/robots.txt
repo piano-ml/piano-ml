@@ -3,6 +3,10 @@ Disallow: /work/
 Disallow: /account/
 Disallow: /desktop/
 Disallow: /workbench/
+Disallow: /blog/legal
+Disallow: /blog/help
+Disallow: /import/
+
 
 # This is the only place you "list" something: the link to your Sitemap
 Sitemap: https://pianoml.org/sitemap.xml

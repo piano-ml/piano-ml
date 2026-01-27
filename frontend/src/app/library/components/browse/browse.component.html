@@ -1,7 +1,7 @@
 <article class="bg-neutral-800 p-4 pb-1">
 
   <!-- Page Title (h1) for SEO - visible for screen readers, styled for visual users -->
-  <h1 class="sr-only" *ngIf="selectedGenre">{{ selectedGenre.genre?.name }} Piano Scores</h1>
+  <h1 class="sr-only" *ngIf="selectedGenre">{{ selectedGenre.genre!.name }} Piano Scores</h1>
   <h1 class="sr-only" *ngIf="selectedAuthor">{{ selectedAuthor.author.name }} Piano Works</h1>
   <h1 class="sr-only" *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'genres'">Browse Piano Scores by Genre</h1>
   <h1 class="sr-only" *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'artists'">Browse Piano Scores by Composer & Artist</h1>
@@ -74,7 +74,7 @@
   <!-- Selected Genre Capsule -->
   <span *ngIf="selectedGenre" >
     <div class="inline-flex bg-green-600 text-white rounded-md p-2 m-2 items-center gap-3">
-      <span class="font-medium">{{ (selectedGenre.genre?.name ? selectedGenre.genre!.name!.charAt(0).toUpperCase() + selectedGenre.genre!.name!.slice(1) : "genre not specified") }}</span>
+      <span class="font-medium">{{ (selectedGenre.genre!.name ? selectedGenre.genre!.name!.charAt(0).toUpperCase() + selectedGenre.genre!.name!.slice(1) : "genre not specified") }}</span>
       <span class="text-xs text-green-200">({{ selectedGenre.count }} {{ selectedGenre.count === 1 ? 'score' : 'scores' }})</span>
       <button 
         (click)="clearGenreFilter()"
@@ -147,7 +147,7 @@
   <!-- Results Section -->
   <section aria-label="Piano score results" class="">
   <h2 class="sr-only">
-    <span *ngIf="selectedGenre">{{ selectedGenre.genre?.name }} Piano Scores Collection</span>
+    <span *ngIf="selectedGenre">{{ selectedGenre.genre!.name }} Piano Scores Collection</span>
     <span *ngIf="selectedAuthor">{{ selectedAuthor.author.name }} Piano Works Collection</span>
     <span *ngIf="activeSearchKeyword">Piano Score Search Results</span>
     <span *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'genres'">Available Music Genres</span>

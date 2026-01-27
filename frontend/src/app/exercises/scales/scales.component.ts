@@ -117,23 +117,23 @@ export class ScalesComponent implements OnInit {
     let keywords: string;
 
     if (scaleName && selectedKey && exerciseName) {
-      title = `${selectedKey} ${scaleName} Scale - ${exerciseName} | PianoML`;
+      title = `${scaleName} Scale  of ${selectedKey} - ${exerciseName}`;
       description = `Practice ${selectedKey} ${scaleName} scale with ${exerciseName} exercise on PianoML. Interactive piano scale exercises with adjustable speed and hands-separated practice.`;
       const scaleKey = this.selectedScale.key ?? this.selectedScale.name.toLowerCase();
       const exerciseKey = this.selectedExcercice.key;
       url = `${baseUrl}/exercises/scale/${selectedKey}/${scaleKey}/${exerciseKey}`;
-      keywords = `${selectedKey} ${scaleName} scale, piano scales, ${exerciseName}, piano exercises, scale practice`;
+      keywords = `piano learning app, sight reading, ${selectedKey} ${scaleName} scale, ${exerciseName}, piano exercises, scale practice`;
     } else if (scaleName && selectedKey) {
       title = `${selectedKey} ${scaleName} Scale | PianoML Piano Exercises`;
       description = `Learn ${selectedKey} ${scaleName} scale on PianoML. Practice with interactive piano scale exercises, hands-separated practice, and adjustable tempo.`;
       const scaleKey = this.selectedScale.key ?? this.selectedScale.name.toLowerCase();
       url = `${baseUrl}/exercises/scale/${selectedKey}/${scaleKey}`;
-      keywords = `${selectedKey} ${scaleName} scale, piano scales, scale exercises, piano practice, piano learning`;
+      keywords = `piano learning app, sight reading, ${selectedKey} ${scaleName} scale, piano scales, scale exercises, piano practice, piano learning`;
     } else {
       title = 'Piano Scale Exercises | PianoML - Practice Major & Minor Scales';
       description = 'Practice piano scales on PianoML with interactive exercises. Contrary motion starting on the same note, Parallel motion in octaves, Left than Right Learn major and minor scales with hands-separated practice, adjustable speed, and various exercise patterns. Improve your piano technique.';
       url = `${baseUrl}/exercises/scale`;
-      keywords = 'piano scales, major scales, minor scales, Harmonic Minor, Melodic Minor, Jazz Minor Scale, Blues Heptatonic, Dorian Scale, Phrygian Dominant, piano exercises, scale practice, circle of fifths, piano technique, piano learning';
+      keywords = 'piano scales, piano learning app, sight reading, major scales, minor scales, Harmonic Minor, Melodic Minor, Jazz Minor Scale, Blues Heptatonic, Dorian Scale, Phrygian Dominant, piano exercises, scale practice, circle of fifths, piano technique, piano learning';
     }
 
     const structuredData = {
