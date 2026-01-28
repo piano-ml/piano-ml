@@ -612,7 +612,7 @@ export class BrowseComponent implements OnInit {
     } else {
       // Popular scores (default)
       const totalScores = this.stats ? this.stats['public-domain'] + this.stats.copyrighted : 3000;
-      title = `Piano Scores | PianoML - MusicXML, Midi PDF Music Sheet Music`;
+      title = `Piano Scores Library | PianoML - MusicXML, Midi PDF Piano Sheet Music`;
       description = `Browse popular piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable speed, loopable sections, and MIDI keyboard support. Transform your piano learning experience.`;
       url = `${baseUrl}/library`;
       keywords = 'piano scores, sheet music, piano practice, free piano music, piano learning, interactive sheet music, piano learning, learning piano';

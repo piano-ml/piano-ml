@@ -3,13 +3,26 @@
 <head>
   <meta charset="utf-8">
   <title>PianoML: Learn Piano with Smart Sheet Music & Practice Tools</title>
-  <meta name="description" content="Learn piano with interactive exercises, scales, arpeggios, and sheet music practice. Features hands-separated practice, adjustable speed, MIDI support, real-time feedback, and a complete library of études.">
-  <meta name="keywords" content="piano software, piano education software, piano lessons, piano practice, sheet music, MIDI, scales, arpeggios, études, machine learning, interactive learning">
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="msvalidate.01" content="87739E699FD544CA8532972BD82C7E8D" />
   <link rel="canonical" href="https://pianoml.org/" />
   <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+  <link rel="preload" href="styles.css" as="style">
+  <style>
+    /* Critical CSS - prevent FOUC */
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #171717; /* neutral-900 */
+      color: #e5e5e5; /* neutral-200 */
+      opacity: 1;
+    }
+    app-root {
+      display: block;
+      min-height: 100vh;
+    }
+  </style>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
