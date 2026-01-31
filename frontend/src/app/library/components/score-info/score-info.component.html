@@ -105,7 +105,7 @@
             [class.opacity-50]="!isOwnerOrPublic()"
             [class.cursor-not-allowed]="!isOwnerOrPublic()"
             class="w-full px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-            <span *ngIf="!isOwnerOrPublic()" class="mr-2">🔒</span>
+            <span *ngIf="!score.publicDomain" class="mr-2">🔒</span>
             <i class="fas fa-music mr-2"></i>
             Download MIDI
           </button>
@@ -119,7 +119,7 @@
             [class.opacity-50]="!isOwnerOrPublic()"
             [class.cursor-not-allowed]="!isOwnerOrPublic()"
             class="w-full px-4 py-3 bg-yellow-500 text-black rounded hover:bg-yellow-600 transition-colors">
-            <span *ngIf="!isOwnerOrPublic()" class="mr-2">🔒</span>
+            <span *ngIf="!score.publicDomain" class="mr-2">🔒</span>
             <i class="fas fa-code mr-2"></i>
             MusicXML
           </button>
@@ -133,7 +133,7 @@
             [class.opacity-50]="!isOwnerOrPublic()"
             [class.cursor-not-allowed]="!isOwnerOrPublic()"
             class="w-full px-4 py-3 bg-green-700 text-white rounded hover:bg-green-800 transition-colors">
-            <span *ngIf="!isOwnerOrPublic()" class="mr-2">🔒</span>
+            <span *ngIf="!score.publicDomain" class="mr-2">🔒</span>
             <i class="fas fa-file-pdf mr-2"></i>
             Download PDF
           </button>
