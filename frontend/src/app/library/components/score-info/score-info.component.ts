@@ -134,23 +134,13 @@ export class ScoreInfoComponent implements OnInit {
     const tracks = score.tracks_count || 0;
 
     // Build SEO-friendly title
-    const title = `${scoreName} by ${authorName} | Free Piano Sheet Music - PianoML`;
-    this.pageTitle = `${authorName} - ${scoreName} piano score`;
+    const title = `${authorName} - ${scoreName} | Piano Score`;
+    this.pageTitle = title;
 
     // Build rich description
-    let description = `Play ${scoreName} by ${authorName} on PianoML. `;
+    let description = `Play ${title}  on PianoML. `;
     if (genreName) {
       description += `${genreName} piano music. `;
-    }
-    description += `Interactive sheet music with hands-separated practice, adjustable speed, loop sections, and MIDI support. `;
-    if (score.publicDomain) {
-      description += `Free public domain piano score. `;
-    }
-    if (duration > 0) {
-      description += `Duration: ${duration}s. `;
-    }
-    if (tracks > 0) {
-      description += `${tracks} ${tracks === 1 ? 'track' : 'tracks'}.`;
     }
 
     // Keywords
@@ -186,18 +176,6 @@ export class ScoreInfoComponent implements OnInit {
       'inLanguage': 'en',
       'url': url
     };
-
-    // if (genreName) {
-    //   structuredData['genre'] = genreName;
-    // }
-
-    // if (duration > 0) {
-    //   structuredData['duration'] = `PT${duration}S`;
-    // }
-
-    // if (score.publicDomain) {
-    //   structuredData['license'] = 'https://creativecommons.org/publicdomain/zero/1.0/';
-    // }
 
     // Update SEO tags
     this.seo.updateMetaTags({
@@ -237,7 +215,7 @@ export class ScoreInfoComponent implements OnInit {
   }
 
   downloadFile(type: 'pdf' | 'musicxml' | 'midi') {
-    if (!this.score?.publicDomain) {
+    if (!this.isOwnerOrPublic()) {
       return;
     }
 

@@ -77,7 +77,7 @@ public class ScoreController implements ScoreApi {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
     ScoreApiInfo score = optScore.get();
-    if (!score.getOwnerId().equals(user.getId().toString())) {
+    if (!user.getRoles().contains("ADMIN") && !score.getOwnerId().equals(user.getId().toString())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
