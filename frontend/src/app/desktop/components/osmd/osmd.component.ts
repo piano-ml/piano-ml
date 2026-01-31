@@ -13,7 +13,7 @@ import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
     styleUrl: './osmd.component.css',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OsmdComponent implements OnInit, OnDestroy{
+export class OsmdComponent implements OnInit, OnDestroy {
     private platformId = inject(PLATFORM_ID);
     osmd: OpenSheetMusicDisplay | null = null;
 
@@ -73,6 +73,7 @@ export class OsmdComponent implements OnInit, OnDestroy{
         this.osmd.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
 
         this.osmd.setOptions(DEFAULT_OSMD_OPTIONS);
+        this.setCustomOptions();
 
         if (this.musicXml) {
             await this.osmd.load(this.musicXml).then(() => {
@@ -106,5 +107,27 @@ export class OsmdComponent implements OnInit, OnDestroy{
                 }
             }, 100);
         }
+    }
+    setCustomOptions() {
+        const storage = localStorage.getItem("preferences")
+        if (storage) {
+            try {
+                const preferences = JSON.parse(storage);
+                if (preferences.hasOwnProperty("drawFingering")) {
+                    this.osmd!.setOptions({
+                        drawFingerings: preferences.drawFingering
+                    });
+                }
+                if (preferences.hasOwnProperty("drawLyrics")) {
+                    this.osmd!.setOptions({
+                        drawLyrics: preferences.drawLyrics
+                    });
+                }
+
+            } catch (e) {
+                console.error("Error parsing preferences from localStorage", e);
+            }
+        }
+
     }
 }
