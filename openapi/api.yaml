@@ -43,6 +43,8 @@ paths:
                     type: string
                   userId:
                     type: string
+                  roles:
+                    type: string                    
                   expire:
                     type: string
                     format: date-time
@@ -1170,6 +1172,8 @@ components:
         image:
           type: string
           format: uri
+        roles:
+          type: string     
       required:
         - name
     GenreApiInfo:

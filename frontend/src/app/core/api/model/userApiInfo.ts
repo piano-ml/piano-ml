@@ -16,5 +16,6 @@ export interface UserApiInfo {
     url?: string;
     bio?: string;
     image?: string;
+    roles?: string;
 }
 

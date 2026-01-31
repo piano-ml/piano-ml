@@ -315,8 +315,14 @@ export class ScoreInfoComponent implements OnInit {
 
   isOwner(): boolean {
     const currentUserId = this.authService.getUserId();
-    return !!(currentUserId && this.score?.owner_id && currentUserId === this.score.owner_id);
+    return this.authService.isAdmin() ||  !!(currentUserId && this.score?.owner_id && currentUserId === this.score.owner_id);
   }
+
+
+  isOwnerOrPublic(): boolean {
+    return this.isOwner() || !!(this.score?.publicDomain);
+  }
+
 
   getPublicUrl(): string | null {
     if (!this.score?.immutableSlug) {

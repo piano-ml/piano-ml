@@ -7,6 +7,7 @@ import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService, User
 interface SessionLike {
   userId?: string | null;
   username?: string | null;
+  roles?: string | null;
 }
 
 @Injectable({
@@ -38,12 +39,22 @@ export class AuthService {
     return localStorage.getItem('userId');
   }
 
+  isAdmin(): boolean {
+    if (!this.isBrowser) {
+      return false;
+    }
+    const roles = localStorage.getItem('roles');
+    return roles?.split(',').includes('ADMIN') ?? false;
+  }
+
+
   login(user: AccountLoginPostRequest) {
     return this.accountService.accountLoginPost(user).pipe(
       tap(response => {
         this.persistSessionData({
           userId: response.userId ?? null,
-          username: response.username ?? null
+          username: response.username ?? null,
+          roles: response.roles ?? null          
         });
         this.loggedIn.next(true);
         this.router.navigate(['/']);
@@ -124,6 +135,13 @@ export class AuthService {
         localStorage.removeItem('username');
       }
     }
+    if ('roles' in session) {
+      if (session.roles) {
+        localStorage.setItem('roles', session.roles);
+      } else {
+        localStorage.removeItem('roles');
+      }
+    }    
   }
 
   private clearSession(redirect: boolean): void {
