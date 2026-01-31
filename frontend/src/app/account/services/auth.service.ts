@@ -44,7 +44,7 @@ export class AuthService {
       return false;
     }
     const roles = localStorage.getItem('roles');
-    return roles?.split(',').includes('ADMIN') ?? false;
+    return roles?.split(',').map(s => s.trim()).includes('ADMIN') ?? false;
   }
 
 
