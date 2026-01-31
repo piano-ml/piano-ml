@@ -90,7 +90,6 @@ export class BrowseComponent implements OnInit {
     this.route.params.subscribe(params => {
       const artistSlug = params['artistSlug'] || '';
       const genreSlug = params['genreSlug'] || '';
-      console.log("genre slug:", genreSlug);
       // Hydrate track count filters from URL
       this.route.queryParams.subscribe(queryParams => {
         const keyword = queryParams['search'] || '';

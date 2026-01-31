@@ -13,6 +13,7 @@ export interface AccountLoginPost200Response {
     token?: string;
     username?: string;
     userId?: string;
+    roles?: string;
     expire?: string;
 }
 

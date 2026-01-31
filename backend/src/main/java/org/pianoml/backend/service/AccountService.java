@@ -64,6 +64,7 @@ public class AccountService {
     response.setToken(tokenProvider.generateToken(user));
     response.setUserId(user.getId().toString());
     response.setUsername(user.getName());
+    response.setRoles(user.getRoles());
 
     return response;
   }
