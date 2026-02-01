@@ -1,5 +1,6 @@
 package org.pianoml.backend.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.api.AccountApi;
 import org.pianoml.backend.model.*;
 import org.pianoml.backend.service.AccountService;
@@ -17,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import static org.pianoml.backend.security.JwtAuthenticationFilter.getJwtFromRequest;
 
 @RestController
+@Slf4j
 public class AccountController implements AccountApi {
 
   @Autowired
@@ -33,7 +35,6 @@ public class AccountController implements AccountApi {
     // Perform login and obtain token
     AccountLoginPost200Response response = accountService.loginUser(accountLoginPostRequest);
     String token = response.getToken();
-    String bearer = token != null ? "Bearer " + token : "";
 
     // Guard: ensure token is present before setting cookie. If missing, return 500 to avoid setting invalid cookie.
     if (token == null || token.isBlank()) {
@@ -68,7 +69,7 @@ public class AccountController implements AccountApi {
     }
 
     ResponseCookie cookie = cookieBuilder.build();
-
+    log.info("Setting login cookie: {} {} {}", origin, sameSite, isSecure);
     return ResponseEntity.ok()
       .header(HttpHeaders.SET_COOKIE, cookie.toString())
       .body(response);

@@ -49,18 +49,14 @@
                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
                     <ng-icon name="bootstrapFloppy" class="svg-icon"></ng-icon>
                     <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">.MID, .MIDI, .KAR, .PDF, .PNG, .JPEG, œ.MUSICXML, .MXML</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">.MID, .MIDI, .KAR, .PDF, .PNG, .JPEG, .MUSICXML, .MXML</p>
                 </div>
                 <input id="dropzone-file" type="file" class="hidden"  #file type="file" (change)="onFileChange(file)"
-                accept=".mid, .midi, .kar, .pdf, .musicxml, .mxml, .png, .jpg, .jpeg"/>
+                accept=".mid, .midi, .kar, .pdf, .musicxml, .mxl, .png, .jpg, .jpeg"/>
             </label>
         </div> 
         
 
-<!--
-        <input *ngIf="!hasFile" class="btn btn-blue m-4" #file type="file" (change)="onFileChange(file)"
-            accept=".mid, .midi" />
-    -->
         <button class="btn btn-blue m-4" (click)="load()" *ngIf="hasFile">load</button>
         <button class="btn btn-blue m-4" (click)="reset()" *ngIf="hasFile">reset</button>
     </div>
