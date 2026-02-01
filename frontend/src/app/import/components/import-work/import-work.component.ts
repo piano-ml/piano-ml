@@ -159,11 +159,12 @@ export class ImportWorkComponent implements OnInit {
             this.onMidiSent(input);
         } else if (this.fileName.endsWith('.pdf') 
             || this.fileName.endsWith('.musicxml') 
-            || this.fileName.endsWith('.mxml')
+            || this.fileName.endsWith('.mxl')
             || this.fileName.endsWith('.png')
             || this.fileName.endsWith('.jpg')
             || this.fileName.endsWith('.jpeg')
         ) {
+            console.log("Sending file:", this.fileName);
             this.onFileSent(input);
         }
     }
@@ -171,7 +172,7 @@ export class ImportWorkComponent implements OnInit {
         if (fileName.endsWith('.mid') || fileName.endsWith('.midi')) {
             return 'midi';
         }
-        if (fileName.endsWith('.musicxml') || fileName.endsWith('.mxml')) {
+        if (fileName.endsWith('.musicxml') || fileName.endsWith('.mxl')) {
             return 'musicxml';
         }
         if (fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {

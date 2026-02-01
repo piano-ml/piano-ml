@@ -66,6 +66,7 @@ export class AuthService {
   }
 
   logout(): void {
+    console.info('Logging out user');
     this.accountService.accountLogoutGet().subscribe({
       next: () => this.clearSession(true),
       error: () => this.clearSession(true)
@@ -85,6 +86,7 @@ export class AuthService {
   }
 
   handleUnauthorized(): void {
+    console.info('Unauthorized access detected, clearing session');
     this.clearSession(true);
   }
 
@@ -109,6 +111,7 @@ export class AuthService {
         this.loggedIn.next(true);
       },
       error: error => {
+        console.log('Failed to refresh session from server:', error);
         if (error?.status === 401 || error?.status === 403) {
           this.clearSession(false);
         }
@@ -145,6 +148,7 @@ export class AuthService {
   }
 
   private clearSession(redirect: boolean): void {
+    console.log("Clearing session data");
     if (this.isBrowser) {
       localStorage.removeItem('userId');
       localStorage.removeItem('username');

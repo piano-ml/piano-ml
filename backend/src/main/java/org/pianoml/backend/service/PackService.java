@@ -14,6 +14,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static org.pianoml.backend.entity.Workload.KIND_OMR_IMAGE;
@@ -76,13 +77,50 @@ public class PackService {
     return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto);
   }
 
+  private boolean isZipFile(File file) {
+    try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {
+      return zis.getNextEntry() != null;
+    } catch (IOException e) {
+      return false;
+    }
+  }
+
   public String packMusicXml(PackScriptDto packScriptDto) throws IOException {
     File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), ".musicxml").toFile();
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
+    if (isZipFile(tempFile)) {
+      return packMusescore(packScriptDto, tempFile);
+    }
     return runPackScript("scripts/musicxml2pack.sh", tempFile, packScriptDto);
   }
+
+
+  public String packMusescore(PackScriptDto packScriptDto, File tempFile) throws IOException {
+    // unzip first .musicxml file to tempFile
+    try (ZipInputStream zis = new ZipInputStream(new FileInputStream(tempFile))) {
+      ZipEntry entry;
+      while ((entry = zis.getNextEntry()) != null) {
+        System.out.println(entry.getName());
+        if (!entry.getName().startsWith("/") && entry.getName().endsWith("xml")) {
+          File tempFile2 = Files.createTempFile("upload_" + packScriptDto.getId(), ".musicxml").toFile();
+          try (FileOutputStream fos = new FileOutputStream(tempFile2)) {
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = zis.read(buffer)) > 0) {
+              fos.write(buffer, 0, len);
+            }
+          } catch (Exception e) {
+            throw new IOException("Error extracting musicxml from zip", e);
+          }
+          return runPackScript("scripts/musicxml2pack.sh", tempFile2, packScriptDto);
+        }
+      }
+    }
+    throw new IOException("Error extracting musicxml from zip");
+  }
+
 
   private void uploadOriginalFileToS3(String s3Key, byte[] zipData) {
     // 2. Upload to S3
@@ -102,11 +140,11 @@ public class PackService {
     uploadOriginalFileToS3(s3Key, zipData);
 
 
-    Workload workload = createWorkload(KIND_OMR_IMAGE, packScriptDto,zipData.length );
+    Workload workload = createWorkload(KIND_OMR_IMAGE, packScriptDto, zipData.length);
     log.info("Created workload entry for PDF processing: scoreId={}", packScriptDto.getId());
 
     // 4. Trigger Cloud Run job execution
-    triggerCloudRunJob(packScriptDto,workload, s3Key);
+    triggerCloudRunJob(packScriptDto, workload, s3Key);
   }
 
   public void packPDFWorkload(PackScriptDto packScriptDto, String s3Key) throws IOException {
@@ -115,11 +153,11 @@ public class PackService {
     uploadOriginalFileToS3(s3Key, zipData);
 
 
-    Workload workload = createWorkload(KIND_OMR_PDF, packScriptDto,zipData.length );
+    Workload workload = createWorkload(KIND_OMR_PDF, packScriptDto, zipData.length);
     log.info("Created workload entry for PDF processing: scoreId={}", packScriptDto.getId());
 
     // 4. Trigger Cloud Run job execution
-    triggerCloudRunJob(packScriptDto,workload, s3Key);
+    triggerCloudRunJob(packScriptDto, workload, s3Key);
 
   }
 
