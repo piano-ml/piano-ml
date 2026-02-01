@@ -36,6 +36,9 @@ export class PlayerKeyboardService {
    * Récupère les éléments DOM correspondant à une note MIDI (avec cache)
    */
   private getKeyboardElements(midiNote: number): HTMLElement[] {
+    if (!this.keyboardElement) {
+      return []; // keyboard might be disabled
+    }
     if (!this._keyboardElementsCache.has(midiNote)) {
       const elements = Array.from(
         this.keyboardElement.nativeElement.querySelectorAll(`.key${midiNote}`)

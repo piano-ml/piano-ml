@@ -31,7 +31,7 @@ export class PlayerAssessService {
     shouldPause: false,
     expectations: new Map<number, [string, number][]>(),
     early: new Map<number, [string, number][]>(),
-    bad: null,  
+    bad: null,
     total: 0,
     badCount: 0,
     late: 0,
@@ -87,7 +87,7 @@ export class PlayerAssessService {
   }
 
   maybeRemovePitchFromExpectations(pitch: number): boolean {
-    let gotIt = false;  
+    let gotIt = false;
     const keys = Array.from(this.liveStatus.expectations.keys());
     const oldestKey = Math.min(...keys);
     const oldestValue = this.liveStatus.expectations.get(oldestKey);
@@ -100,19 +100,24 @@ export class PlayerAssessService {
       } else {
         this.liveStatus.expectations.set(oldestKey, oldestValue);
       }
-    } 
+    }
     return gotIt;
   }
 
   checkExpectationsInEarly(noteTimeStart: number) {
     for (const [earlyTime, earlyNotes] of this.liveStatus.early) {
       forEach(earlyNotes, (earlyNote) => {
-        if (this.maybeRemovePitchFromExpectations(earlyNote[1])) {
-          // remove from earlyNotes
-          earlyNotes.splice(earlyNotes.findIndex((v: [string, number]) => v[1] === earlyNote[1]), 1);
-          if (earlyNotes.length === 0) {
-            this.liveStatus.early.delete(earlyTime);
+        try {
+          if (this.maybeRemovePitchFromExpectations(earlyNote[1])) {
+            // remove from earlyNotes
+            earlyNotes.splice(earlyNotes.findIndex((v: [string, number]) => v[1] === earlyNote[1]), 1);
+            if (earlyNotes.length === 0) {
+              this.liveStatus.early.delete(earlyTime);
+            }
           }
+        } catch (e) {
+          this.liveStatus.early=new Map<number, [string, number][]>();
+          console.error("Error in checkExpectationsInEarly", e);
         }
       });
     };

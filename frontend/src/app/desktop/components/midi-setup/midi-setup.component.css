@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+.radio-input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+	pointer-events: none;
+}
+
+.radio-dot {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	border-radius: 9999px;
+	border: 2px solid #9ca3af;
+	background: transparent;
+	transition: all 0.2s ease;
+}
+
+.radio-input:checked + .radio-dot {
+	border-color: #34d399;
+	background: #34d399;
+	box-shadow: inset 0 0 0 4px #111827;
+}

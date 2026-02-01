@@ -9,6 +9,7 @@ import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../
 import { OsmdComponent } from '../osmd/osmd.component';
 import { FormsModule } from '@angular/forms';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
+import { MidiSetupComponent } from '../midi-setup/midi-setup.component';
 import { PlayerService } from '../../service/player.service';
 import * as Midi from '@tonejs/midi';
 import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
@@ -23,7 +24,7 @@ import { saveExerciseToStorage } from '../../../exercises/exercices';
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, ElapsedTimePipe],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, ElapsedTimePipe],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -48,6 +49,9 @@ import { saveExerciseToStorage } from '../../../exercises/exercices';
 export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   private platformId = inject(PLATFORM_ID);
+  private readonly hideKeyboardStorageKey = 'hideKeyboard';
+  private readonly waitForLeftHandStorageKey = 'waitForLeftHand';
+  private readonly waitForRightHandStorageKey = 'waitForRightHand';
   // Score data from state
   scoreData: ScoreApiInfo | null = null;
   fromStorage = false;
@@ -94,9 +98,10 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   };
 
   // UI state
-  hideKeyboard = false;
+  hideKeyboard = true;
   arenaClass = '';
   isFullscreen = false;
+  isMidiSetupOpen = false;
 
 
   scoreRange = [0, 10, 80];
@@ -108,6 +113,38 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   error: string | null = null;
   shouldScroll = false;
 
+  openMidiSetup() {
+    this.isMidiSetupOpen = true;
+  }
+
+  closeMidiSetup() {
+    this.isMidiSetupOpen = false;
+  }
+
+  setHideKeyboard(value: boolean) {
+    this.hideKeyboard = value;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.hideKeyboardStorageKey, JSON.stringify(value));
+    }
+    this.changeDetector.markForCheck();
+  }
+
+  setWaitForLeftHand(value: boolean) {
+    this.playConfiguration.waitForLeftHand = value;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.waitForLeftHandStorageKey, JSON.stringify(value));
+    }
+    this.changeDetector.markForCheck();
+  }
+
+  setWaitForRightHand(value: boolean) {
+    this.playConfiguration.waitForRightHand = value;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.waitForRightHandStorageKey, JSON.stringify(value));
+    }
+    this.changeDetector.markForCheck();
+  }
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -118,6 +155,33 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   ) {
     // Initialize elapsed time observable
     this.elapsedTime = this.playerService.elapsedTime;
+
+    if (isPlatformBrowser(this.platformId)) {
+      const stored = localStorage.getItem(this.hideKeyboardStorageKey);
+      if (stored !== null) {
+        try {
+          this.hideKeyboard = JSON.parse(stored);
+        } catch {
+          this.hideKeyboard = stored === 'true';
+        }
+      }
+      const storedLeft = localStorage.getItem(this.waitForLeftHandStorageKey);
+      if (storedLeft !== null) {
+        try {
+          this.playConfiguration.waitForLeftHand = JSON.parse(storedLeft);
+        } catch {
+          this.playConfiguration.waitForLeftHand = storedLeft === 'true';
+        }
+      }
+      const storedRight = localStorage.getItem(this.waitForRightHandStorageKey);
+      if (storedRight !== null) {
+        try {
+          this.playConfiguration.waitForRightHand = JSON.parse(storedRight);
+        } catch {
+          this.playConfiguration.waitForRightHand = storedRight === 'true';
+        }
+      }
+    }
     
     // Watch for message signal effects
     effect(() => {
@@ -290,6 +354,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.checkIfScrollNeeded();
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, midi);
     this.setupSlider();
+    this.playerService
   }
 
 

@@ -57,6 +57,15 @@
           <label class="block text-sm font-medium text-gray-300 mb-2">
             Workbench Preferences
           </label>
+          <div class="mb-3">
+            <button
+              type="button"
+              (click)="openMidiSetup()"
+              class="text-blue-400 hover:text-blue-300 underline underline-offset-2"
+            >
+              Keyboard/MIDI preferences
+            </button>
+          </div>
           <div *ngIf="!keyboardEditMode" class="flex items-center justify-between">
             <div class="w-full px-3 py-2 border rounded-lg ">
               <div class="grid grid-cols-2 gap-4">
@@ -217,4 +226,11 @@
       </button>
 
     </div>
+
+    <app-midi-setup
+      [isOpen]="isMidiSetupOpen"
+      [hideKeyboard]="!showKeyboardControl?.value"
+      (hideKeyboardChange)="keyboardPreferencesForm.patchValue({ showKeyboard: !$event })"
+      (closeModal)="closeMidiSetup()"
+    ></app-midi-setup>
 </div>

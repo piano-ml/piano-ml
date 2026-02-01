@@ -191,7 +191,6 @@ export class PlayerService {
 
   pause() {
     this.audio.pause();
-    //this.keyboard.removeAllNotesFromKeyboard();
   }
 
   async reset(playConfiguration: PlayConfiguration) {

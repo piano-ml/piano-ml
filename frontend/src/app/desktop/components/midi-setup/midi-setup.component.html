@@ -1,0 +1,107 @@
+<div
+  class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+  *ngIf="isOpen"
+  (click)="onBackdropClick($event)"
+>
+  <div
+    class="bg-neutral-800 rounded-lg p-6 w-full max-w-3xl max-h-[85vh] overflow-y-auto text-white"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">Midi Setup</h2>
+      <button (click)="close()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+    </div>
+
+    <div *ngIf="error" class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      <strong>Error:</strong> {{ error }}
+    </div>
+
+    <section class="mb-6">
+      <h3 class="text-lg font-semibold mb-2">Display</h3>
+      <div class="flex flex-col gap-2 bg-neutral-700 rounded p-3">
+        <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+          <input
+            type="radio"
+            name="keyboard-visibility"
+            class="radio-input"
+            [checked]="!hideKeyboard"
+            (change)="setKeyboardVisibility(true)"
+          />
+          <span class="radio-dot"></span>
+          <span>Show keyboard</span>
+        </label>
+        <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+          <input
+            type="radio"
+            name="keyboard-visibility"
+            class="radio-input"
+            [checked]="hideKeyboard"
+            (change)="setKeyboardVisibility(false)"
+          />
+          <span class="radio-dot"></span>
+          <span>Hide keyboard</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="mb-6">
+      <h3 class="text-lg font-semibold mb-2">MIDI In</h3>
+      <div *ngIf="loading" class="text-neutral-300">Loading...</div>
+
+      <ul *ngIf="!loading && midiInputs.length > 0" class="space-y-2">
+        <li *ngFor="let input of midiInputs" class="flex items-center justify-between bg-neutral-700 rounded p-3">
+          <div>
+            <div class="font-medium">{{ input.name || 'MIDI Input' }}</div>
+            <div class="text-xs text-neutral-300">{{ input.manufacturer || 'Unknown' }}</div>
+          </div>
+          <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+            <input
+              type="radio"
+              name="midi-in"
+              class="radio-input"
+              [checked]="isInputEnabled(input)"
+              (change)="selectInput(input)"
+            />
+            <span class="radio-dot"></span>
+          </label>
+        </li>
+      </ul>
+
+      <div *ngIf="!loading && midiInputs.length === 0" class="text-neutral-400 text-sm">
+        No MIDI IN devices detected.
+      </div>
+    </section>
+
+    <section>
+      <h3 class="text-lg font-semibold mb-2">MIDI Out</h3>
+      <div *ngIf="loading" class="text-neutral-300">Loading...</div>
+
+      <ul *ngIf="!loading && midiOutputs.length > 0" class="space-y-2">
+        <li *ngFor="let output of midiOutputs" class="flex items-center justify-between bg-neutral-700 rounded p-3">
+          <div>
+            <div class="font-medium">{{ output.name || 'MIDI Output' }}</div>
+            <div class="text-xs text-neutral-300">{{ output.manufacturer || 'Unknown' }}</div>
+          </div>
+          <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+            <input
+              type="radio"
+              name="midi-out"
+              class="radio-input"
+              [checked]="isOutputEnabled(output)"
+              (change)="selectOutput(output)"
+            />
+            <span class="radio-dot"></span>
+          </label>
+        </li>
+      </ul>
+
+      <div *ngIf="!loading && midiOutputs.length === 0" class="text-neutral-400 text-sm">
+        No MIDI OUT devices detected.
+      </div>
+    </section>
+
+    <div class="flex justify-end gap-4 mt-6">
+      <button (click)="close()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Close</button>
+    </div>
+  </div>
+</div>
