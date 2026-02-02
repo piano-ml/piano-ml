@@ -7,11 +7,12 @@ import { Router, RouterModule } from '@angular/router';
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
 import { MidiStateEvent } from '../../../shared/model/webmidi';
 import { Subject, takeUntil } from 'rxjs';
+import { MidiSetupComponent } from '../../../desktop/components/midi-setup/midi-setup.component';
 
 @Component({
   selector: 'app-account-home',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterModule, MidiSetupComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -23,6 +24,7 @@ export class AccountHomeComponent implements OnDestroy {
   nameForm: FormGroup;
   keyboardPreferencesForm: FormGroup;
   keyboardEditMode = false;
+  isMidiSetupOpen = false;
   
   private destroy$ = new Subject<void>();
   private midiListeningEnabled = signal<boolean>(false);
@@ -123,6 +125,16 @@ export class AccountHomeComponent implements OnDestroy {
   enableKeyboardEdit() {
     this.keyboardEditMode = true;
     this.midiListeningEnabled.set(true);
+    this.cdr.markForCheck();
+  }
+
+  openMidiSetup() {
+    this.isMidiSetupOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  closeMidiSetup() {
+    this.isMidiSetupOpen = false;
     this.cdr.markForCheck();
   }
 

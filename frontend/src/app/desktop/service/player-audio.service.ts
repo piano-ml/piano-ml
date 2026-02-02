@@ -7,6 +7,7 @@ import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
 import { GOOD_RANGE, LiveStatus, PERFECT_RANGE, PlayerAssessService } from './player-assess.service';
 import { PlayerStateService } from './player-state.service';
+import { MidiServiceService } from '../../shared/services/midi-service.service';
 
 /**
  * Service responsable de la gestion de l'audio, des synthétiseurs et du scheduling des notes
@@ -23,6 +24,7 @@ export class PlayerAudioService {
   constructor(
     private assess: PlayerAssessService,
     private state: PlayerStateService,
+    private midiService: MidiServiceService
   ) {
     if (isPlatformBrowser(this.platformId)) {
       this.initSoundFont();
@@ -239,31 +241,41 @@ export class PlayerAudioService {
           const liveStatus = this.assess.getExpectation();
           callbacks.onNoteStart(time, note, liveStatus);
         }
-        
+
       }, time);
     }, noteTimeStart - PERFECT_RANGE > 0 ? noteTimeStart - PERFECT_RANGE : 0);
-
+    ;
     // Schedule piano audio start
     this.schedule((time: number) => {
-      this.piano.keyDown({
-        time: time,
-        velocity: note.velocity,
-        note: note.name,
-        midi: note.midi
-      });
+      // TODO this.midiService.isOutputDeviceSelected(null) can be cached
+      if (this.midiService.isOutputDeviceSelected(null) && !this.isHandOk(hand, note.midi)) {
+        this.piano.keyDown({
+          time: time,
+          velocity: note.velocity,
+          note: note.name,
+          midi: note.midi
+        });
+      }
+      if (!this.isHandOk(hand, note.midi)) {
+        this.midiService.pressOutput(note.midi, note.velocity);
+      }
     }, noteTimeStart);
 
     // Schedule note end (keyboard light off, piano audio stop)
     this.schedule((time: number) => {
-      this.piano.keyUp({
-        time: time + note.duration,
-        velocity: note.velocity,
-        note: note.name,
-        midi: note.midi
-      });
+      if (this.midiService.isOutputDeviceSelected(null) && !this.isHandOk(hand, note.midi)) {
+        this.piano.keyUp({
+          time: time,
+          velocity: note.velocity,
+          note: note.name,
+          midi: note.midi
+        });
+      }
+      if (!this.isHandOk(hand, note.midi)) {
+        this.midiService.releaseOutput(note.midi);
+      }
 
       this.scheduleDraw(() => {
-        //const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), noteTimeEnd, note, hand);
         const liveStatus = this.assess.getExpectation();
         callbacks.onNoteEnd(time, note, liveStatus);
       }, time);
