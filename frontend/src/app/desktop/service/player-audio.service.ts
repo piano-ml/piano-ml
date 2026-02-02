@@ -87,14 +87,12 @@ export class PlayerAudioService {
 
     // Note on
     Tone.getTransport().schedule(() => {
-      this.midiService.pressOutput(note.midi, note.velocity);
       this.spessasynth?.noteOn(channel, note.midi, Math.round(note.velocity * 127));
     }, noteStart);
 
     // Note off
     Tone.getTransport().schedule(() => {
       this.spessasynth?.noteOff(channel, note.midi);
-      this.midiService.releaseOutput(note.midi);
     }, noteStart + noteDuration);
   }
 
@@ -246,10 +244,11 @@ export class PlayerAudioService {
 
       }, time);
     }, noteTimeStart - PERFECT_RANGE > 0 ? noteTimeStart - PERFECT_RANGE : 0);
-
+    ;
     // Schedule piano audio start
     this.schedule((time: number) => {
-      if (!this.isHandOk(hand, note.midi)) {
+      // TODO this.midiService.isOutputDeviceSelected(null) can be cached
+      if (this.midiService.isOutputDeviceSelected(null) && !this.isHandOk(hand, note.midi)) {
         this.piano.keyDown({
           time: time,
           velocity: note.velocity,
@@ -257,12 +256,14 @@ export class PlayerAudioService {
           midi: note.midi
         });
       }
-      this.midiService.pressOutput(note.midi, note.velocity);
+      if (!this.isHandOk(hand, note.midi)) {
+        this.midiService.pressOutput(note.midi, note.velocity);
+      }
     }, noteTimeStart);
 
     // Schedule note end (keyboard light off, piano audio stop)
     this.schedule((time: number) => {
-      if (!this.isHandOk(hand, note.midi)) {
+      if (this.midiService.isOutputDeviceSelected(null) && !this.isHandOk(hand, note.midi)) {
         this.piano.keyUp({
           time: time,
           velocity: note.velocity,
@@ -270,7 +271,9 @@ export class PlayerAudioService {
           midi: note.midi
         });
       }
-      this.midiService.releaseOutput(note.midi);
+      if (!this.isHandOk(hand, note.midi)) {
+        this.midiService.releaseOutput(note.midi);
+      }
 
       this.scheduleDraw(() => {
         const liveStatus = this.assess.getExpectation();

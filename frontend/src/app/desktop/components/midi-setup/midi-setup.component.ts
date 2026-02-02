@@ -61,7 +61,10 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
     return this.midiService.isInputDeviceSelected(device as unknown as MIDIInput);
   }
 
-  isOutputEnabled(device: MIDIOutput) {
+  isOutputEnabled(device: MIDIOutput | null) {
+    if (device === null) {
+      return this.midiService.isOutputDeviceSelected(null);
+    }
     return this.midiService.isOutputDeviceSelected(device as unknown as MIDIOutput);
   }
 
@@ -70,7 +73,7 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  selectOutput(device: MIDIOutput) {
+  selectOutput(device: MIDIOutput | null) {
     this.midiService.setOutputDeviceEnabled(device as unknown as MIDIOutput, true);
     this.cdr.markForCheck();
   }

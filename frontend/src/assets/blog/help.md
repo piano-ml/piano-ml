@@ -11,7 +11,7 @@ If you need help and answers on how to learn piano, I would highly recommend thi
 - **L**: Start playing the score
 - **K**: Toggle button - The app will wait for your right hand
 - **J**: Toggle button - The app will wait for your left hand
-- **I**: Toggle button - Display or hide the keyboard
+- **I**: Toolbox - Display or hide the keyboard, select midi input and output devices
 - **C**: Go back to the score information page
 - **B**: This shows the duration you played (pauses for wrong notes are not counted)
 - **A**: Go back to score selection

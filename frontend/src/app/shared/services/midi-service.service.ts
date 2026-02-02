@@ -182,14 +182,6 @@ export class MidiServiceService {
     if (!this.isBrowser) return;
     if (enabled) {
       this.updateStoredDeviceSelection(this.midiInputStorageKey, this.getDeviceKey(device), true, new Set([this.getDeviceKey(device)]));
-      this.updateStoredDeviceSelection(this.midiOutputStorageKey, this.getDeviceKey(device), false);
-      this.disableOutputByKey(this.getDeviceKey(device));
-      const fallbackOutput = this.getFirstAvailableOutputExcluding(this.getDeviceKey(device));
-      if (fallbackOutput) {
-        this.updateStoredDeviceSelection(this.midiOutputStorageKey, this.getDeviceKey(fallbackOutput), true, new Set([this.getDeviceKey(fallbackOutput)]));
-        this.disableAllOutputsExcept(fallbackOutput);
-        this.enableOutputMidiDevice(fallbackOutput);
-      }
       this.disableAllInputsExcept(device);
       this.enableInputMidiDevice(device);
     } else {
@@ -199,12 +191,18 @@ export class MidiServiceService {
   }
 
   enableOutputMidiDevice(device: MIDIOutput) {
+    if (device === null) {
+      return
+    }
     device.open()
     this.enabledOutputDevices.set(device.id, device)
     console.log(`Enabled MIDI output device: ${device.manufacturer} ${device.name} ${device.version} `)
   }
 
   disableOutputMidiDevice(deviceParam: MIDIOutput) {
+    if (deviceParam === null) {
+      return
+    }
     const device = this.enabledOutputDevices.get(deviceParam.id)
     if (!device) {
       return
@@ -215,33 +213,31 @@ export class MidiServiceService {
     this.enabledOutputDevices.delete(device.id)
   }
 
-  isOutputDeviceSelected(device: MIDIOutput) {
+  isOutputDeviceSelected(device: MIDIOutput | null) {
     const selected = this.getStoredDeviceSelection(this.midiOutputStorageKey);
+    if (device === null && selected?.has('PIANOML')) {      
+      return true;
+    }
+
     if (!selected) return true;
-    return selected.has(this.getDeviceKey(device));
+    return selected.has(this.getDeviceKey(device as MIDIOutput));
   }
 
   setOutputDeviceEnabled(device: MIDIOutput, enabled: boolean) {
     if (!this.isBrowser) return;
     if (enabled) {
-      this.updateStoredDeviceSelection(this.midiOutputStorageKey, this.getDeviceKey(device), true, new Set([this.getDeviceKey(device)]));
-      this.updateStoredDeviceSelection(this.midiInputStorageKey, this.getDeviceKey(device), false);
-      this.disableInputByKey(this.getDeviceKey(device));
-      const fallbackInput = this.getFirstAvailableInputExcluding(this.getDeviceKey(device));
-      if (fallbackInput) {
-        this.updateStoredDeviceSelection(this.midiInputStorageKey, this.getDeviceKey(fallbackInput), true, new Set([this.getDeviceKey(fallbackInput)]));
-        this.disableAllInputsExcept(fallbackInput);
-        this.enableInputMidiDevice(fallbackInput);
-      }
       this.disableAllOutputsExcept(device);
       this.enableOutputMidiDevice(device);
+      this.updateStoredDeviceSelection(this.midiOutputStorageKey, this.getDeviceKey(device), true, new Set([this.getDeviceKey(device)]));
     } else {
-      this.updateStoredDeviceSelection(this.midiOutputStorageKey, this.getDeviceKey(device), false, new Set());
       this.disableOutputMidiDevice(device);
     }
   }
 
   private getDeviceKey(device: MIDIInput | MIDIOutput) {
+    if (device === null) {
+      return 'PIANOML'; // null device case
+    }
     const manufacturer = (device.manufacturer ?? '').trim();
     const name = (device.name ?? '').trim();
     if (name || manufacturer) {
@@ -281,17 +277,9 @@ export class MidiServiceService {
     localStorage.setItem(storageKey, JSON.stringify(Array.from(selected)));
   }
 
-  private getCurrentEnabledInputKeys() {
-    return new Set(Array.from(this.enabledInputDevices.values()).map(device => this.getDeviceKey(device)));
-  }
-
-  private getCurrentEnabledOutputKeys() {
-    return new Set(Array.from(this.enabledOutputDevices.values()).map(device => this.getDeviceKey(device)));
-  }
-
   private disableAllInputsExcept(selected: MIDIInput) {
     for (const device of this.enabledInputDevices.values()) {
-      if (device.id !== selected.id) {
+      if ( device.id !== selected.id) {
         this.disableInputMidiDevice(device);
       }
     }
@@ -299,34 +287,10 @@ export class MidiServiceService {
 
   private disableAllOutputsExcept(selected: MIDIOutput) {
     for (const device of this.enabledOutputDevices.values()) {
-      if (device.id !== selected.id) {
+      if (selected == null || device.id !== selected.id) {
         this.disableOutputMidiDevice(device);
       }
     }
-  }
-
-  private disableInputByKey(deviceKey: string) {
-    for (const device of this.enabledInputDevices.values()) {
-      if (this.getDeviceKey(device) === deviceKey) {
-        this.disableInputMidiDevice(device);
-      }
-    }
-  }
-
-  private disableOutputByKey(deviceKey: string) {
-    for (const device of this.enabledOutputDevices.values()) {
-      if (this.getDeviceKey(device) === deviceKey) {
-        this.disableOutputMidiDevice(device);
-      }
-    }
-  }
-
-  private getFirstAvailableOutputExcluding(excludedKey: string) {
-    return this.availableOutputs.find(device => this.getDeviceKey(device) !== excludedKey) ?? null;
-  }
-
-  private getFirstAvailableInputExcluding(excludedKey: string) {
-    return this.availableInputs.find(device => this.getDeviceKey(device) !== excludedKey) ?? null;
   }
 
   private ensureDefaultSelections(

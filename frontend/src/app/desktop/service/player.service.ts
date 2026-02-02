@@ -215,6 +215,7 @@ export class PlayerService {
     if (this.lastMidiEventTime === -1 && this.osmdCursor) {
       this.osmdCursor.previous();
     }
+    this.audio.clearSchedule();
     this.unHighlightBadNote();
     this.assess.reset();
     const startOffset = this.calculateStartTime();
@@ -275,6 +276,13 @@ export class PlayerService {
         onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('rh', note, liveStatus)
       }
     );
+  }
+
+  displayLiveOnKeyboard() {
+    // Clear previous highlights
+    this.keyboard.removeAllNotesFromKeyboard();
+    const liveStatus = this.assess.getExpectation();
+    this.lightExpectedNotesOnKeyboard(liveStatus)
   }
 
 

@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat,  bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit } from '@ng-icons/bootstrap-icons';
+import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit } from '@ng-icons/bootstrap-icons';
 import { keyboard, lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 import { OsmdComponent } from '../osmd/osmd.component';
@@ -63,16 +63,17 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   // Cache for parsed MIDI data
   private cachedMidi: Midi.Midi | null = null;
-  
+
   // MusicXML content to pass to osmd component
   musicXml: string | null = null;
-  
+
   // Observable for elapsed time from PlayerService
   elapsedTime!: any;
 
   // Reusable decoder and config cache
   private static readonly textDecoder = new TextDecoder();
   private sliderConfigCache: any = null;
+  storedHideKeyboard: boolean = false;
 
   /**
    * Invalidate slider configuration cache when values change
@@ -87,7 +88,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     currentStave: 1,
     doSound: true,
     waitForLeftHand: false,
-    waitForRightHand: false, 
+    waitForRightHand: false,
     delayFactor: 1,
     tempoFactor: 1,
     scoreRange: [1, 100],
@@ -98,7 +99,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   };
 
   // UI state
-  hideKeyboard = true;
+  hideKeyboard = false;
   arenaClass = '';
   isFullscreen = false;
   isMidiSetupOpen = false;
@@ -165,6 +166,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
           this.hideKeyboard = stored === 'true';
         }
       }
+      this.storedHideKeyboard = this.hideKeyboard;
       const storedLeft = localStorage.getItem(this.waitForLeftHandStorageKey);
       if (storedLeft !== null) {
         try {
@@ -182,39 +184,50 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         }
       }
     }
-    
+
     // Watch for message signal effects
     effect(() => {
       const message = this.playerService.message();
       if (message === "END") {
         this.isPlaying = false;
         this.changeDetector.markForCheck();
-        
+
         // POST user stats when ending play
         if (this.scoreData?.id && this.scoreData.id !== 'exercise') {
-          const request: ScorePlayStatsPostRequest = { 
+          const request: ScorePlayStatsPostRequest = {
             id: this.scoreData.id,
             assessment: {
               start: this.playConfiguration.scoreRange[0],
               end: this.playConfiguration.scoreRange[1],
               bad: this.playerService.getAssess().liveStatus.badCount,
-              late :this.playerService.getAssess().liveStatus.late,
+              late: this.playerService.getAssess().liveStatus.late,
               total: this.playerService.getAssess().liveStatus.total
-            } 
-           };
+            }
+          };
           this.scoreService.scorePlayStatsPost(request).subscribe({
-            next: () => {},
+            next: () => { },
             error: (error) => console.warn('Failed to register play stats:', error)
           });
         }
       } else if (message === "BAD") {
         this.arenaClass = 'bad';
+        this.hideKeyboard = false;
         this.changeDetector.markForCheck();
+        setTimeout(() => {
+          this.playerService.displayLiveOnKeyboard();
+        }, 0);
+
         // Remove the bad class after a short duration
+
         setTimeout(() => {
           this.arenaClass = '';
           this.changeDetector.markForCheck();
         }, 500);
+        setTimeout(() => {
+          this.arenaClass = '';
+          this.changeDetector.markForCheck();
+          this.hideKeyboard = this.storedHideKeyboard;
+        }, 5000);
       }
       // Don't mark for check if message is irrelevant
     });
@@ -223,7 +236,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       const measure = this.playerService.measure();
       const newStave = measure + 1;
-      
+
       // Only update if value actually changed
       if (this.playConfiguration.currentStave !== newStave) {
         this.playConfiguration.currentStave = newStave;
@@ -231,7 +244,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         this.changeDetector.markForCheck();
       }
     });
-    
+
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.scoreData = navigation.extras.state['score'] as ScoreApiInfo;
@@ -278,13 +291,13 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
           console.warn('Failed to load MIDI title from localStorage:', error);
         }
       }
-      
+
       this.scoreData = {
         id: 'exercise',
         title: exerciseTitle,
         owner_id: 'local'
       } as ScoreApiInfo;
-      
+
       // Enable loop/repeat for exercises
       this.playConfiguration.isLoop = true;
     }
@@ -330,10 +343,10 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       // Load from localStorage (for exercises)
       this.loading = true;
       this.changeDetector.detectChanges();
-      
+
       try {
         await this.loadFromLocalStorage();
-        
+
         requestAnimationFrame(() => {
           this.loading = false;
           this.changeDetector.detectChanges();
@@ -394,7 +407,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
     // Invalidate MIDI cache and verify it exists
     this.cachedMidi = null;
-    
+
     if (!localStorage.getItem(MIDI_STORAGE_KEY)) {
       throw new Error('No MIDI found in localStorage');
     }
@@ -506,7 +519,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.setSliderState(true);
     if (this.playConfiguration.currentStave === this.playConfiguration.scoreRange[0]) {
       this.playConfiguration.scoreRange[0] = 0;
-      this.playConfiguration.scoreRange[1] = this.playConfiguration.maxStaveCount +1;
+      this.playConfiguration.scoreRange[1] = this.playConfiguration.maxStaveCount + 1;
     }
     this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
     this.playerService.reset(this.playConfiguration);
@@ -548,7 +561,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     if (this.scoreData?.id && this.scoreData.id !== 'exercise' && this.playConfiguration.scoreRange[0] === 1) {
       const request: ScorePlayStatsPostRequest = { id: this.scoreData.id };
       this.scoreService.scorePlayStatsPost(request).subscribe({
-        next: () => {},
+        next: () => { },
         error: (error) => console.warn('Failed to register play stats:', error)
       });
     }
@@ -601,8 +614,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
       // Only update if values actually changed
       if (newStart !== this.playConfiguration.scoreRange[0] ||
-          newCurrent !== this.playConfiguration.currentStave ||
-          end !== this.playConfiguration.scoreRange[1]) {
+        newCurrent !== this.playConfiguration.currentStave ||
+        end !== this.playConfiguration.scoreRange[1]) {
 
         this.playConfiguration.scoreRange[0] = newStart;
         this.playConfiguration.currentStave = newCurrent;
@@ -699,23 +712,23 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       try {
         const containerWidth = this.titleContainer.nativeElement.clientWidth;
         const textWidth = this.titleText.nativeElement.scrollWidth;
-        
+
         // Si le texte est plus large que le conteneur (avec une marge de 10px), activer le scroll
         const needsScroll = textWidth > (containerWidth - 10);
-        
+
         // Seulement mettre à jour si l'état a changé
         if (this.shouldScroll !== needsScroll) {
           this.shouldScroll = needsScroll;
-          
+
           if (needsScroll) {
             // Calculer la distance exacte à faire défiler
             const scrollDistance = textWidth - containerWidth + 20; // +20px de marge
             const scrollPercentage = (scrollDistance / textWidth) * 100;
-            
+
             // Définir la variable CSS custom pour la distance de scroll
             this.titleText.nativeElement.style.setProperty('--scroll-distance', `-${scrollPercentage}%`);
           }
-          
+
           this.changeDetector.markForCheck();
         }
       } catch (error) {
@@ -736,7 +749,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     if (this.scoreData) {
       const author = this.scoreData.author || '';
       const title = this.scoreData.title || this.title || '';
-      
+
       if (author && title) {
         this.titleService.setTitle(`PianoML: ${author} - ${title}`);
       } else if (title) {

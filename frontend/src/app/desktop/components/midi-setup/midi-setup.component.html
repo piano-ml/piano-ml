@@ -4,12 +4,12 @@
   (click)="onBackdropClick($event)"
 >
   <div
-    class="bg-neutral-800 rounded-lg p-6 w-full max-w-3xl max-h-[85vh] overflow-y-auto text-white"
+    class="midi-setup-panel rounded-lg p-6 w-full max-w-3xl max-h-[85vh] overflow-y-auto text-white"
     (click)="$event.stopPropagation()"
   >
-    <div class="flex justify-between items-center mb-4">
+    <div class="midi-setup-header">
       <h2 class="text-xl font-semibold">Midi Setup</h2>
-      <button (click)="close()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+      <button (click)="close()" class="midi-setup-close">Close</button>
     </div>
 
     <div *ngIf="error" class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -17,29 +17,24 @@
     </div>
 
     <section class="mb-6">
-      <h3 class="text-lg font-semibold mb-2">Display</h3>
-      <div class="flex flex-col gap-2 bg-neutral-700 rounded p-3">
-        <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+      <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
+        <div>
+          <div class="font-medium">Hide Keyboard</div>
+          <div class="text-xs text-neutral-300">To improve your sight-reading skills, disable keyboard visibility.</div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer select-none">
           <input
-            type="radio"
-            name="keyboard-visibility"
-            class="radio-input"
-            [checked]="!hideKeyboard"
-            (change)="setKeyboardVisibility(true)"
-          />
-          <span class="radio-dot"></span>
-          <span>Show keyboard</span>
-        </label>
-        <label class="inline-flex items-center gap-3 cursor-pointer select-none">
-          <input
-            type="radio"
-            name="keyboard-visibility"
-            class="radio-input"
+            type="checkbox"
+            class="peer"
+            style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
             [checked]="hideKeyboard"
-            (change)="setKeyboardVisibility(false)"
+            (change)="setKeyboardVisibility(!$any($event.target).checked)"
+            aria-label="Toggle keyboard visibility"
           />
-          <span class="radio-dot"></span>
-          <span>Hide keyboard</span>
+          <span
+            class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-600/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"
+          ></span>
+          <span class="ml-3 text-sm text-neutral-200"></span>
         </label>
       </div>
     </section>
@@ -76,7 +71,23 @@
       <h3 class="text-lg font-semibold mb-2">MIDI Out</h3>
       <div *ngIf="loading" class="text-neutral-300">Loading...</div>
 
-      <ul *ngIf="!loading && midiOutputs.length > 0" class="space-y-2">
+      <ul *ngIf="!loading" class="space-y-2">
+        <li class="flex items-center justify-between bg-neutral-700 rounded p-3">
+          <div>
+            <div class="font-medium">{{ 'PianoML' }}</div>
+            <div class="text-xs text-neutral-300">The app might play piano (  not the keyboard)</div>
+          </div>
+          <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+            <input
+              type="radio"
+              name="midi-out"
+              class="radio-input"   
+              [checked]="isOutputEnabled(null)"
+              (change)="selectOutput(null)"
+            /> <!--  -->
+            <span class="radio-dot"></span>
+          </label>          
+        </li>
         <li *ngFor="let output of midiOutputs" class="flex items-center justify-between bg-neutral-700 rounded p-3">
           <div>
             <div class="font-medium">{{ output.name || 'MIDI Output' }}</div>
@@ -100,8 +111,5 @@
       </div>
     </section>
 
-    <div class="flex justify-end gap-4 mt-6">
-      <button (click)="close()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Close</button>
-    </div>
   </div>
 </div>
