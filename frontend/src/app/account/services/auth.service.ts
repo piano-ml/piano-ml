@@ -1,64 +1,47 @@
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService, UserApiInfo } from '../../core/api';
-
-interface SessionLike {
-  userId?: string | null;
-  username?: string | null;
-  roles?: string | null;
-}
+import { AuthSessionService } from './auth-session.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private loggedIn = new BehaviorSubject<boolean>(this.hasStoredSession());
-  private platformId = inject(PLATFORM_ID);
-  private isBrowser: boolean;
-
   constructor(
     private accountService: AccountService,
-    private router: Router
+    private router: Router,
+    private sessionService: AuthSessionService
   ) {
-    this.isBrowser = isPlatformBrowser(this.platformId);
-    if (this.isBrowser) {
+    if (this.sessionService.isBrowser) {
       this.refreshSessionFromServer();
     }
   }
 
   get isLoggedIn(): Observable<boolean> {
-    return this.loggedIn.asObservable();
+    return this.sessionService.isLoggedIn$;
   }
 
   getUserId(): string | null {
-    if (!this.isBrowser) {
-      return null;
-    }
-    return localStorage.getItem('userId');
+    return this.sessionService.getUserId();
   }
 
   isAdmin(): boolean {
-    if (!this.isBrowser) {
-      return false;
-    }
-    const roles = localStorage.getItem('roles');
-    return roles?.split(',').map(s => s.trim()).includes('ADMIN') ?? false;
+    return this.sessionService.isAdmin();
   }
 
 
   login(user: AccountLoginPostRequest) {
     return this.accountService.accountLoginPost(user).pipe(
       tap(response => {
-        this.persistSessionData({
+        this.sessionService.persistSessionData({
           userId: response.userId ?? null,
           username: response.username ?? null,
           roles: response.roles ?? null          
         });
-        this.loggedIn.next(true);
+        this.sessionService.setLoggedIn(true);
         this.router.navigate(['/']);
-        if (this.isBrowser) {
+        if (this.sessionService.isBrowser) {
           this.refreshSessionFromServer();
         }
       })
@@ -68,8 +51,8 @@ export class AuthService {
   logout(): void {
     console.info('Logging out user');
     this.accountService.accountLogoutGet().subscribe({
-      next: () => this.clearSession(true),
-      error: () => this.clearSession(true)
+      next: () => this.sessionService.clearSession(true),
+      error: () => this.sessionService.clearSession(true)
     });
   }
 
@@ -87,82 +70,28 @@ export class AuthService {
 
   handleUnauthorized(): void {
     console.info('Unauthorized access detected, clearing session');
-    this.clearSession(true);
-  }
-
-  private hasStoredSession(): boolean {
-    if (!this.isBrowser) {
-      return false;
-    }
-    return !!localStorage.getItem('userId');
+    this.sessionService.handleUnauthorized();
   }
 
   private refreshSessionFromServer(): void {
-    if (!this.isBrowser) {
+    if (!this.sessionService.isBrowser) {
       return;
     }
     
     this.accountService.accountUserinfoGet().subscribe({
       next: (userInfo: UserApiInfo) => {
-        this.persistSessionData({
+        this.sessionService.persistSessionData({
           userId: userInfo.id ?? null,
           username: userInfo.name ?? null
         });
-        this.loggedIn.next(true);
+        this.sessionService.setLoggedIn(true);
       },
       error: error => {
         console.log('Failed to refresh session from server:', error);
         if (error?.status === 401 || error?.status === 403) {
-          this.clearSession(false);
+          this.sessionService.clearSession(false);
         }
       }
     });
-  }
-
-  private persistSessionData(session: SessionLike): void {
-    if (!this.isBrowser) {
-      return;
-    }
-    
-    if ('userId' in session) {
-      if (session.userId) {
-        localStorage.setItem('userId', session.userId);
-      } else {
-        localStorage.removeItem('userId');
-      }
-    }
-    if ('username' in session) {
-      if (session.username) {
-        localStorage.setItem('username', session.username);
-      } else {
-        localStorage.removeItem('username');
-      }
-    }
-    if ('roles' in session) {
-      if (session.roles) {
-        localStorage.setItem('roles', session.roles);
-      } else {
-        localStorage.removeItem('roles');
-      }
-    }    
-  }
-
-  private clearSession(redirect: boolean): void {
-    console.log("Clearing session data");
-    if (this.isBrowser) {
-      localStorage.removeItem('userId');
-      localStorage.removeItem('username');
-    }
-    
-    if (this.loggedIn.value) {
-      this.loggedIn.next(false);
-    }
-    
-    if (redirect && this.isBrowser) {
-      const target = '/account/login';
-      if (this.router.url !== target) {
-        this.router.navigate([target]);
-      }
-    }
   }
 }

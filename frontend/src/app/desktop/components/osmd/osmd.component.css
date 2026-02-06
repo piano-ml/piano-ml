@@ -111,3 +111,11 @@
   }
   
 }
+
+g.vf-text > text[font-size="20px"] {
+  display: none;
+}
+
+g.vf-text > text[style*="font-size: 20px"] {
+  display: none;
+}

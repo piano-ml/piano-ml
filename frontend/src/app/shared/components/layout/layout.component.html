@@ -16,6 +16,17 @@
             <div class="flex-grow"></div>
             
             <div class="flex-none mr-2">
+
+                <div #bmcButtonContainer class="inline-block align-middle m-3"></div>
+                <a *ngIf="showBmcFallback"
+                   class="mr-2 inline-flex items-center rounded bg-yellow-400 px-3  text-black font-bold no-underline"
+                   href="https://www.buymeacoffee.com/emmanuelflg"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="Soutenir PianoML">
+                    Buy me a t‑shirt
+                </a>
+
                 <ng-container *ngIf="(isLoggedIn$ | async) === true; else loginLink">
                     <button routerLink="/account/home" class="text-white underline" title="Go to your account page">{{ username$ | async }}</button>
                 </ng-container>
