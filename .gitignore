@@ -48,3 +48,6 @@ frontend/.postcssrc.json
 frontend/.angular
 backend/target
 backend/backend.iml
+
+# Local Netlify folder
+.netlify
