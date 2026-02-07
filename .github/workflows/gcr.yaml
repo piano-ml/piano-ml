@@ -3,7 +3,7 @@ name: Build and Push to Artifact Registry
 
 on:
   push:
-    branches: ["main", "deploy"]
+    branches: ["main", "deploy", 'fix/prerender']
 #  pull_request:
 #    branches: ["main", "deploy"]
 
@@ -17,8 +17,8 @@ env:
 
 
 jobs:
-  docker-release:
-    name: Tagged Docker release to Google Artifact Registry
+  backend:
+    name: Build and Push Backend Image
     runs-on: ubuntu-latest
     #if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')  # <-- Notice that I'm filtering here to only run when a tagged commit is pushed
 
@@ -64,3 +64,48 @@ jobs:
       - name: Push image
         run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest
 
+  frontend:
+    name: Build and Push Backend Image    
+    runs-on: ubuntu-latest
+    #needs: test
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm install
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+    - name: Build frontend Docker image
+      working-directory: ./frontend
+      run: docker build -t pianoml-fe .
+
+    - id: auth
+      name: Authenticate with Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        token_format: access_token
+        workload_identity_provider: ${{ env.PROVIDER_ID }}
+        service_account: ${{ env.SERVICE_ACCOUNT }}@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+        access_token_lifetime: 300s
+
+    - name: Login to Artifact Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ env.REGION }}-docker.pkg.dev
+        username: oauth2accesstoken
+        password: ${{ steps.auth.outputs.access_token }}
+
+    - name: Build image
+      run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest .
+      working-directory: ./frontend
+
+    - name: Push image
+      run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest
