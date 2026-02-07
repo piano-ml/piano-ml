@@ -2,7 +2,7 @@ import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import * as Tone from "tone";
 import { Piano } from '@tonejs/piano';
-import { Synthetizer } from "spessasynth_lib";
+//import { Synthetizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
 import { GOOD_RANGE, LiveStatus, PERFECT_RANGE, PlayerAssessService } from './player-assess.service';
@@ -18,7 +18,7 @@ import { MidiServiceService } from '../../shared/services/midi-service.service';
 export class PlayerAudioService {
   private platformId = inject(PLATFORM_ID);
   synth: Tone.Synth<Tone.SynthOptions> | undefined;
-  spessasynth?: Synthetizer;
+  //spessasynth?: Synthetizer;
   piano: any;
 
   constructor(
@@ -41,17 +41,17 @@ export class PlayerAudioService {
       console.log('SoundFont initialization skipped on server');
       return;
     }
-    if (this.spessasynth != null) {
-      return; // already initialized
-    }
+   // if (this.spessasynth != null) {
+   //    return; // already initialized
+   // }
 
     const ctx = new AudioContext();
     await ctx.audioWorklet.addModule("/assets/soundfonts/worklet_processor.min.js");
 
     fetch("assets/soundfonts/GeneralUserGS.sf3").then(async response => {
       const sfont = await response.arrayBuffer();
-      this.spessasynth = new Synthetizer(ctx.destination, sfont, false);
-      this.spessasynth.resetControllers();
+      //this.spessasynth = new Synthetizer(ctx.destination, sfont, false);
+      //this.spessasynth.resetControllers();
     });
   }
 
@@ -87,12 +87,12 @@ export class PlayerAudioService {
 
     // Note on
     Tone.getTransport().schedule(() => {
-      this.spessasynth?.noteOn(channel, note.midi, Math.round(note.velocity * 127));
+      //this.spessasynth?.noteOn(channel, note.midi, Math.round(note.velocity * 127));
     }, noteStart);
 
     // Note off
     Tone.getTransport().schedule(() => {
-      this.spessasynth?.noteOff(channel, note.midi);
+      //this.spessasynth?.noteOff(channel, note.midi);
     }, noteStart + noteDuration);
   }
 
@@ -125,7 +125,7 @@ export class PlayerAudioService {
     timeFactor: number
   ): void {
     for (const track of midi.tracks) {
-      this.spessasynth?.programChange(track.channel, track.instrument.number);
+      //this.spessasynth?.programChange(track.channel, track.instrument.number);
       this.scheduleAccompanimentTrack(
         track.channel,
         track,
@@ -155,7 +155,7 @@ export class PlayerAudioService {
    * Met en pause le transport
    */
   pause(): void {
-    this.spessasynth?.stopAll();
+    //this.spessasynth?.stopAll();
     Tone.getTransport().pause();
   }
 
@@ -175,7 +175,7 @@ export class PlayerAudioService {
    */
   scheduleEnd(endTime: number, onEndCallback: () => void): void {
     Tone.getTransport().schedule(() => {
-      this.spessasynth?.stopAll();
+      //this.spessasynth?.stopAll();
       onEndCallback();
     }, endTime + 3);
   }
