@@ -77,7 +77,7 @@ export const appConfig: ApplicationConfig = {
     },
     {
       provide: LOCALE_ID,
-      useValue: navigator.language || 'en-US'
+      useValue:  'en-US'
     },
     provideHttpClient(withInterceptors([authInterceptor])),
     provideApi({ basePath: environment.api, withCredentials: true }),
