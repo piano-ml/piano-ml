@@ -106,8 +106,18 @@ jobs:
         password: ${{ steps.auth.outputs.access_token }}
 
     - name: Build image
-      run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest .
       working-directory: ./frontend
+      run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest .
+
+
+
+    - name: Smoke test image
+      working-directory: ./frontend    
+      run: |
+        docker run -d --rm --name fe-smoke -p 8080:80 ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest
+            for i in {1..10}; do curl -fsS http://localhost:8080/ && break; sleep 3; done
+            docker logs fe-smoke
+            docker stop fe-smoke
 
     - name: Push image
       run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest
