@@ -1,7 +1,6 @@
 # PianoMl
 
 
-
 ![PianoMl Logo](public/logo.png)
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/c7820713-f000-4796-980e-37791811bb2c/deploy-status)](https://app.netlify.com/sites/pianoml/deploys)
@@ -36,4 +35,3 @@ npm run start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
