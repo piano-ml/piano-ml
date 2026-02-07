@@ -18,7 +18,7 @@ env:
 
 jobs:
   backend:
-    name: Build and Push Backend Image
+    name: Backend - Docker Build & Push   
     runs-on: ubuntu-latest
     #if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')  # <-- Notice that I'm filtering here to only run when a tagged commit is pushed
 
@@ -51,7 +51,7 @@ jobs:
           access_token_lifetime: 300s
 
       - name: Login to Artifact Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGION }}-docker.pkg.dev
           username: oauth2accesstoken
@@ -65,7 +65,7 @@ jobs:
         run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest
 
   frontend:
-    name: Build and Push Backend Image    
+    name: Frontend - Docker Build & Push    
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
