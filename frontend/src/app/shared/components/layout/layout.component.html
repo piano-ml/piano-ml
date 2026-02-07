@@ -14,8 +14,17 @@
             </nav>
 
             <div class="flex-grow"></div>
-            
+
             <div class="flex-none mr-2">
+                <a
+                   class="mr-2 inline-flex items-center rounded bg-yellow-400 px-3  text-black font-bold no-underline"
+                   href="https://www.buymeacoffee.com/emmanuelflg"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="Soutenir PianoML">
+                    Buy me a t‑shirt
+                </a>
+
                 <ng-container *ngIf="(isLoggedIn$ | async) === true; else loginLink">
                     <button routerLink="/account/home" class="text-white underline" title="Go to your account page">{{ username$ | async }}</button>
                 </ng-container>
@@ -36,20 +45,20 @@
 
         <a href="/blog/legal" class="px-2 py-2 inline-block" title="Read PianoML legal notice and terms of use">
             Legal Notice
-        </a> 
+        </a>
         <span class="px-1 font-bold text-xl">&copy;</span>
         <span class="px-1">PianoML 2024 - General Public License v3</span>
-        
-        <a class="px-2 py-1 inline-block" 
-           href="https://github.com/piano-ml/piano-ml" 
-           aria-label="View PianoML source code on GitHub" 
+
+        <a class="px-2 py-1 inline-block"
+           href="https://github.com/piano-ml/piano-ml"
+           aria-label="View PianoML source code on GitHub"
            title="View PianoML source code on GitHub"
            target="_blank"
            rel="noopener noreferrer">
             <ng-icon name="bootstrapGithub"></ng-icon>
         </a>
-             
-        <a class="px-2 py-2 inline-block" 
+
+        <a class="px-2 py-2 inline-block"
            href="https://github.com/piano-ml/piano-ml/issues"
            title="Report a bug or request a feature on GitHub"
            target="_blank"
