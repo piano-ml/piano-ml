@@ -1,13 +1,13 @@
 import { APP_BASE_HREF } from '@angular/common';
 import { CommonEngine } from '@angular/ssr/node'
 import { render } from '@netlify/angular-runtime/common-engine.mjs'
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+//import { dirname, join, resolve } from 'node:path';
+//import { fileURLToPath } from 'node:url';
 import bootstrap from './main.server';
 
-const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-const browserDistFolder = resolve(serverDistFolder, '../browser');
-const indexHtml = join(browserDistFolder, 'index.csr.html');
+//const serverDistFolder = dirname(fileURLToPath(import.meta.url));
+//const browserDistFolder = resolve(serverDistFolder, '../browser');
+//const indexHtml = join(browserDistFolder, 'index.csr.html');
 
 const commonEngine = new CommonEngine({
   bootstrap,
