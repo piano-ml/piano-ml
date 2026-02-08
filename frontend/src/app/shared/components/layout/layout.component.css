@@ -29,3 +29,7 @@
 .breadcrumb-label-last {
     @apply text-red-500 m-4 uppercase
 }
+
+.donation-link {
+    text-decoration: none !important;
+}

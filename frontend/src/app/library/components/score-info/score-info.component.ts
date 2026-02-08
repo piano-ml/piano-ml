@@ -134,7 +134,7 @@ export class ScoreInfoComponent implements OnInit {
     const tracks = score.tracks_count || 0;
 
     // Build SEO-friendly title
-    const title = `${authorName} - ${scoreName} | Piano Score`;
+    const title = `${authorName} - ${scoreName}`;
     this.pageTitle = title;
 
     // Build rich description

@@ -1,5 +1,5 @@
 <div class="px-6 pt-2 pb-0">
-  <div class="page-title">Edit Score</div>
+  <div class="page-title">Edit Score {{ score?.title }}</div>
   <div class="page-sub-title">Modify score information</div>
 </div>
 <div class="bg-neutral-700 p-4">
@@ -22,7 +22,7 @@
   </div>
 
   <!-- Edit Form -->
-  <form *ngIf="!loading && score" [formGroup]="scoreForm" (ngSubmit)="onSubmit()" class="space-y-6">
+  <form *ngIf="!loading && score" [formGroup]="scoreForm" (ngSubmit)="onSubmit()">
 
 
     <!-- Editable Fields -->

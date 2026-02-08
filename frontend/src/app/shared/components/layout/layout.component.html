@@ -16,13 +16,14 @@
             <div class="flex-grow"></div>
 
             <div class="flex-none mr-2">
-                <a
-                   class="mr-3 inline-flex items-center rounded bg-yellow-400 p-1  text-black font-bold no-underline"
+                     <a
+                         class="donation-link mr-3 inline-flex items-center rounded bg-green-400 p-1 text-black no-underline"
                    href="https://www.buymeacoffee.com/emmanuelflg"
                    target="_blank"
                    rel="noopener noreferrer"
                    title="Soutenir PianoML">
-                    Buy me a t‑shirt
+                    <span class="hidden sm:inline mr-1 ">Buy me a </span>
+                    <span aria-hidden="true">{{ donationIcon }}</span>
                 </a>
 
                 <ng-container *ngIf="(isLoggedIn$ | async) === true; else loginLink">
@@ -47,7 +48,8 @@
             Legal Notice
         </a>
         <span class="px-1 font-bold text-xl">&copy;</span>
-        <span class="px-1">PianoML 2024 - General Public License v3</span>
+        <span class="px-1">PianoML</span>
+        <span class="px-1 hidden sm:inline">2024 - General Public License v3</span>
 
         <a class="px-2 py-1 inline-block"
            href="https://github.com/piano-ml/piano-ml"

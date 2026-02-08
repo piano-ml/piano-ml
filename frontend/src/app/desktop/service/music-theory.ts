@@ -218,9 +218,7 @@ export const scales: Scale[] = [
     name: 'Major',
     alt: 'Ionian',
     description: `The major (Ionian) scale is the default “bright / stable” sound in Western music. It’s the backbone of diatonic harmony: I, ii, iii, IV, V, vi and vii° all come straight from it.
-
 Common genres: classical, pop, folk, film music, worship, EDM melodies.
-
 Usage: build singable melodies, outline major triads/7ths, and write progressions like I–V–vi–IV. For improvisation, target chord tones on strong beats and use the remaining scale tones as passing/neighbor tones.`,
     pattern: majorScalePattern
   },

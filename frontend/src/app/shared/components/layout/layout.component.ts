@@ -22,6 +22,7 @@ export class LayoutComponent {
   isLoggedIn$: Observable<boolean>;
   username$: Observable<string | null>;;
   shareLinks = ['facebook','x','reddit','viber','xing']
+  donationIcon: string;
   
   constructor (
     public breadcrumbService: BreadcrumbService,
@@ -37,6 +38,8 @@ export class LayoutComponent {
       }),
       map(user => user?.name || null)
     );
+    const donationIcons = ['☕', '🍕', '🍺', '👕', '🥐', '🍩'];
+    this.donationIcon = donationIcons[Math.floor(Math.random() * donationIcons.length)];
   }
 
   logout() {
