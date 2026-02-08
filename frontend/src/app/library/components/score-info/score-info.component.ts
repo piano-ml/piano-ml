@@ -134,7 +134,7 @@ export class ScoreInfoComponent implements OnInit {
     const tracks = score.tracks_count || 0;
 
     // Build SEO-friendly title
-    const title = `${authorName} - ${scoreName} | Piano Score`;
+    const title = `${authorName} - ${scoreName}`;
     this.pageTitle = title;
 
     // Build rich description
@@ -313,18 +313,27 @@ export class ScoreInfoComponent implements OnInit {
     if (!this.isBrowser) {
       return;
     }
-    
+
     const url = this.getPublicUrl();
-    if (url) {
-      navigator.clipboard.writeText(url).then(() => {
-        // Optionally show a success message
-        console.log('URL copied to clipboard');
-      }).catch(err => {
-        console.error('Failed to copy URL: ', err);
-        // Fallback method
-        this.fallbackCopyTextToClipboard(url);
-      });
+    const clipboard = typeof navigator !== 'undefined' ? navigator.clipboard : null;
+
+    if (!url) {
+      return;
     }
+
+    if (!clipboard) {
+      this.fallbackCopyTextToClipboard(url);
+      return;
+    }
+
+    clipboard.writeText(url).then(() => {
+      // Optionally show a success message
+      console.log('URL copied to clipboard');
+    }).catch(err => {
+      console.error('Failed to copy URL: ', err);
+      // Fallback method
+      this.fallbackCopyTextToClipboard(url);
+    });
   }
 
   private fallbackCopyTextToClipboard(text: string): void {

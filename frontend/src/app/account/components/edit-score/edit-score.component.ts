@@ -187,7 +187,7 @@ export class EditScoreComponent implements OnInit {
         this.cdr.detectChanges();
         // Navigate back to scores list after a delay
         setTimeout(() => {
-          this.router.navigate(['/account/scores']);
+          this.router.navigate(['/score/' + this.score?.immutableSlug]);
         }, 2000);
       },
       error: (error) => {
@@ -200,7 +200,7 @@ export class EditScoreComponent implements OnInit {
   }
 
   onCancel() {
-    this.router.navigate(['/account/scores']);
+    this.router.navigate(['/score/' + this.score?.immutableSlug]);
   }
 
   // Author modal methods

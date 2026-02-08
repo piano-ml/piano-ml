@@ -34,7 +34,7 @@
   </div>
 
   <!-- Score Details -->
-  <div *ngIf="!loading && score" class="space-y-6">
+  <div *ngIf="!loading && score" >
 
     <div class="bg-neutral-600 p-4 rounded" *ngIf="!score.has_files">
       <h3 class="text-lg font-semibold mb-4 text-white">File Processing Status</h3>
@@ -95,7 +95,7 @@
 
     <!-- Download Section -->
     <div class="bg-neutral-600 p-4 rounded" *ngIf="score.has_files">
-      <h3 class="text-lg font-semibold mb-4 text-white">Download Files</h3>
+      <h3 class="text-lg font-semibold text-white">Download Files</h3>
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
                 <!-- MIDI Download -->
@@ -162,9 +162,9 @@
     <app-exercises-in-key *ngIf="score && score.fullKey" [fullKey]="score.fullKey!"></app-exercises-in-key>
 
     <!-- Action Buttons -->
-    <div class="flex gap-4 mt-6 justify-end">
+    <div class="flex gap-4 justify-end mt-2">
 
-      <button (click)="onBack()" class="px-6 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+      <button (click)="onBack()" class="px-3 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
         <i class="fas fa-arrow-left mr-2"></i>
         << Browse all Scores </button>
 

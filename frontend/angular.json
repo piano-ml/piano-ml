@@ -16,6 +16,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "outputMode": "server",
             "loader": {
               ".glsl": "text"
             },

@@ -1,8 +1,8 @@
-<div *ngIf="exercises.length > 0" class="mt-6">
-  <div class="bg-neutral-700 rounded p-4 text-sm">
-    <div class="flex items-center gap-2 mb-3">
-      <span class="text-neutral-300 font-semibold">Practice exercises in this scale:</span>
-    </div>
+
+<div  *ngIf="exercises.length > 0" class="bg-neutral-600 p-4 rounded mt-2">
+  <h3 class="text-lg font-semibold mb-3 text-white">Practice Exercises in this Scale</h3>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">    
+
     <span *ngFor="let exercise of exercises; let last = last">
       <a [href]="getExerciseUrl(exercise)" class="text-blue-300 hover:text-blue-200 hover:underline">
         <span class="font-semibold">{{ exercise.title }}</span>
