@@ -18,7 +18,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
             follow: true, 
             color: "#B0F2B4",
             alpha: 1,
-            type: 3
+            type: 4
         },
     ] as CursorOptions[],
     drawTitle: false,

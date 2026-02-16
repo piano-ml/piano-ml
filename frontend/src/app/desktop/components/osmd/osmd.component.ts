@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
@@ -19,6 +19,7 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
     @Input() scoreData: ScoreApiInfo | null = null;
     @Input() musicXml: string | null = null;
+    @Output() loadingChange = new EventEmitter<boolean>();
     @ViewChild('osmdContainer', { static: true }) osmdContainer!: ElementRef;
     @ViewChild('scrollableElement') scrollableElement!: ElementRef<HTMLDivElement>;
 
@@ -67,6 +68,7 @@ export class OsmdComponent implements OnInit, OnDestroy {
         }
 
         this.loading = true;
+        this.loadingChange.emit(true);
         this.error = null;
 
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
@@ -81,8 +83,8 @@ export class OsmdComponent implements OnInit, OnDestroy {
             });
             this.osmd!.render();
             // there is not onRenderComplete callback, so we use a timeout ...
-            setTimeout(() => {
-                this.loading = false;
+            setTimeout(async () => {
+                
                 if (!this.osmd!.cursor) {
                     console.warn("osmd.cursor is undefined!");
                 } else {
@@ -103,9 +105,12 @@ export class OsmdComponent implements OnInit, OnDestroy {
                     this.osmd!.cursors[0].SkipInvisibleNotes = true;
                     this.osmd!.cursors[0].show();
                     this.osmd!.cursors[0].reset();
-                    this.playerService.setOsmd(this.osmd!);
+                    const status = await this.playerService.setOsmd(this.osmd!);
+                    this.loading = false;
+                    this.loadingChange.emit(false);
+                    console.log("done loading osmd component:", status);
                 }
-            }, 100);
+            }, 300);
         }
     }
     setCustomOptions() {

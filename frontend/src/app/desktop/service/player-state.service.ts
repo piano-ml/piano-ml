@@ -13,7 +13,7 @@ import type { OpenSheetMusicDisplay, Cursor } from 'opensheetmusicdisplay';
 export class PlayerStateService {
   // OSMD state
   osmd: OpenSheetMusicDisplay | null = null;
-  osmdCursor: Cursor = null as unknown as Cursor;
+  //osmdCursor: Cursor = null as unknown as Cursor;
 
   // Signals for reactive state
   readonly measure = signal<number>(0);
@@ -41,6 +41,7 @@ export class PlayerStateService {
   private _lastTempoFactor?: number;
   private _lastDelayFactor?: number;
   tick: any;
+
 
   constructor() {}
 

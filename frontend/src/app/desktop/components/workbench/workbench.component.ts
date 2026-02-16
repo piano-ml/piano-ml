@@ -19,6 +19,7 @@ import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
 import { scales as theoryScales } from '../../service/music-theory';
 import { exercises as scaleExercises } from '../../../exercises/scales/pattern';
 import { saveExerciseToStorage } from '../../../exercises/exercices';
+import { CursorService } from '../../service/cursor.service';
 
 
 
@@ -56,6 +57,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   scoreData: ScoreApiInfo | null = null;
   fromStorage = false;
   loading = false;
+  osmdLoading = true;
   isPlaying = false;
   tempo = 120;
   title = '';
@@ -74,6 +76,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   private static readonly textDecoder = new TextDecoder();
   private sliderConfigCache: any = null;
   storedHideKeyboard: boolean = false;
+//  feedback: { message: string; percentage: number; } | null = null;
+  loadingFeedBack: { message: string; percentage: number; } | null = null;
 
   /**
    * Invalidate slider configuration cache when values change
@@ -146,10 +150,17 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.changeDetector.markForCheck();
   }
 
+  onOsmdLoadingChange(loading: boolean) {
+    // this.loading = loading;
+    this.osmdLoading = loading;
+    this.changeDetector.markForCheck();
+  }
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private playerService: PlayerService,
+    private cursorService: CursorService,
     private changeDetector: ChangeDetectorRef,
     private scoreService: ScoreService,
     private titleService: Title
@@ -184,6 +195,12 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         }
       }
     }
+
+
+    effect(() => {
+      this.loadingFeedBack = this.cursorService.feedbackSignal();
+      this.changeDetector.markForCheck();
+    });
 
     // Watch for message signal effects
     effect(() => {
@@ -587,7 +604,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       pips: {
         mode: PipsMode.Steps,
         //values: 2, //this.maxStaveCount,
-        density: -1
+        density: 10
       },
       step: 1,
       format: wNumb({
@@ -759,6 +776,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       }
     }
   }
+
+
 
   ngOnDestroy() {
     // Clean up slider

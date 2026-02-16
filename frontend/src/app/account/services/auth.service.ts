@@ -1,26 +1,21 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService, UserApiInfo } from '../../core/api';
-
-interface SessionLike {
-  userId?: string | null;
-  username?: string | null;
-  roles?: string | null;
-}
+import { SessionStorageService } from './session-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private loggedIn = new BehaviorSubject<boolean>(this.hasStoredSession());
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
 
   constructor(
     private accountService: AccountService,
-    private router: Router
+    private router: Router,
+    private sessionStorage: SessionStorageService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
@@ -29,34 +24,26 @@ export class AuthService {
   }
 
   get isLoggedIn(): Observable<boolean> {
-    return this.loggedIn.asObservable();
+    return this.sessionStorage.isLoggedIn;
   }
 
   getUserId(): string | null {
-    if (!this.isBrowser) {
-      return null;
-    }
-    return localStorage.getItem('userId');
+    return this.sessionStorage.getUserId();
   }
 
   isAdmin(): boolean {
-    if (!this.isBrowser) {
-      return false;
-    }
-    const roles = localStorage.getItem('roles');
-    return roles?.split(',').map(s => s.trim()).includes('ADMIN') ?? false;
+    return this.sessionStorage.isAdmin();
   }
 
 
   login(user: AccountLoginPostRequest) {
     return this.accountService.accountLoginPost(user).pipe(
       tap(response => {
-        this.persistSessionData({
+        this.sessionStorage.persistSessionData({
           userId: response.userId ?? null,
           username: response.username ?? null,
           roles: response.roles ?? null          
         });
-        this.loggedIn.next(true);
         this.router.navigate(['/']);
         if (this.isBrowser) {
           this.refreshSessionFromServer();
@@ -90,13 +77,6 @@ export class AuthService {
     this.clearSession(true);
   }
 
-  private hasStoredSession(): boolean {
-    if (!this.isBrowser) {
-      return false;
-    }
-    return !!localStorage.getItem('userId');
-  }
-
   private refreshSessionFromServer(): void {
     if (!this.isBrowser) {
       return;
@@ -104,11 +84,10 @@ export class AuthService {
     
     this.accountService.accountUserinfoGet().subscribe({
       next: (userInfo: UserApiInfo) => {
-        this.persistSessionData({
+        this.sessionStorage.persistSessionData({
           userId: userInfo.id ?? null,
           username: userInfo.name ?? null
         });
-        this.loggedIn.next(true);
       },
       error: error => {
         console.log('Failed to refresh session from server:', error);
@@ -119,44 +98,8 @@ export class AuthService {
     });
   }
 
-  private persistSessionData(session: SessionLike): void {
-    if (!this.isBrowser) {
-      return;
-    }
-    
-    if ('userId' in session) {
-      if (session.userId) {
-        localStorage.setItem('userId', session.userId);
-      } else {
-        localStorage.removeItem('userId');
-      }
-    }
-    if ('username' in session) {
-      if (session.username) {
-        localStorage.setItem('username', session.username);
-      } else {
-        localStorage.removeItem('username');
-      }
-    }
-    if ('roles' in session) {
-      if (session.roles) {
-        localStorage.setItem('roles', session.roles);
-      } else {
-        localStorage.removeItem('roles');
-      }
-    }    
-  }
-
   private clearSession(redirect: boolean): void {
-    console.log("Clearing session data");
-    if (this.isBrowser) {
-      localStorage.removeItem('userId');
-      localStorage.removeItem('username');
-    }
-    
-    if (this.loggedIn.value) {
-      this.loggedIn.next(false);
-    }
+    this.sessionStorage.clearSession();
     
     if (redirect && this.isBrowser) {
       const target = '/account/login';
