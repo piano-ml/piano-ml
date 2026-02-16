@@ -19,7 +19,6 @@ export class CursorService {
     feedbackSignal = signal<{ message: string; percentage: number } | null>(null);;
 
     constructor(
-        private zone: NgZone
     ) { }
 
     nextNote(note: Note) {
@@ -31,19 +30,18 @@ export class CursorService {
         //      this.moveCursorToOsmdIndex(this.cursor!, this.cursorIndex + 1);
         //  }
 
-        // const ok = this.isCursorOk(note);
-        // console.log(ok, this.cursor!.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).join(","), "expected", note.midi - 12, note.ticks);
-        // if (!ok) {
-        //     this.cursor?.next();
-        //     //this.moveCursorToOsmdIndex(this.cursor!, next+1); // HACK !
-        //     this.cursor!.CursorOptions.color = '#FFB3BA';
-        //     this.cursor!.CursorOptions.alpha = 0.3;
-        //     this.cursor!.GNotesUnderCursor().forEach(n => n.setColor("#FF0000", {}));
-
-        // } else {
-        //     this.cursor!.CursorOptions.color = "#B0F2B4";
-        //     this.cursor!.CursorOptions.alpha = 0.6;
-        // }
+        const ok = this.isCursorOk(note);
+        //console.log(ok, this.cursor!.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).join(","), "expected", note.midi - 12, note.ticks);
+        if (!ok) {
+            //this.cursor?.next();
+            //this.moveCursorToOsmdIndex(this.cursor!, next+1); // HACK !
+            this.cursor!.CursorOptions.color = '#FFB3BA';
+            this.cursor!.CursorOptions.alpha = 0.3;
+            this.cursor!.GNotesUnderCursor().forEach(n => n.setColor("#FF0000", {}));
+        } else {
+            this.cursor!.CursorOptions.color = "#B0F2B4";
+            this.cursor!.CursorOptions.alpha = 0.6;
+        }
         this.midiIndex++;
     }
 
@@ -72,7 +70,7 @@ export class CursorService {
     midiBarToOsmdMeasure: Map<number, number> = new Map();
     midiTicksToOsmdCursorIndex: number[] = []; // ticks => cursor index
     iteratorSize = 0;
-    private yieldTick = 0;
+
 
     private async yieldToUi(): Promise<void> {
         await new Promise<void>(resolve => setTimeout(resolve, 0));
@@ -81,7 +79,6 @@ export class CursorService {
     public async setup(cursor: Cursor, midi: Midi): Promise<boolean> {
 
         this.feedbackSignal.set({ message: 'Initializing...', percentage: 0 });
-        this.yieldTick = 0;
         await this.yieldToUi();
 
 
@@ -111,7 +108,6 @@ export class CursorService {
         this.midiTicksNoteMap.clear();
         this.osmdMeasureNoteMap.clear();
         this.osmdCursorIdxNoteMap.clear();
-        // this.cursor.previous();
         return status;
     }
 
@@ -162,21 +158,22 @@ export class CursorService {
 
     async hydrateOsmdArray(cursor: Cursor): Promise<{ midiMeasure: number, osmdMeasure: number, osmdIndex: number, index: number, isLast: boolean, isJump: boolean, target: number | null, targetMeasure: number | null, isSkipable: boolean, }[]> {
         let index = 0;
-        let osmdIndex = 0;
         let midiMeasureIndex = 0;
         const osmdArray: any[] = [];
         const osmdMesureSequence = Array.of(...this.midiBarToOsmdMeasure.values())
-        const midiMeasureSequence = Array.of(...this.midiBarToOsmdMeasure.keys());
-        // this.repetitionInstructions.forEach(instr => {
-        //     console.log("repetition instruction", instr);
-        // });
+        const uiYieldStep = 64;
+        const feedbackStep = Math.max(1, Math.floor(this.iteratorSize / 100));
+        this.repetitionInstructions.forEach(instr => {
+            console.log( instr);
+        });
         // this.midiBarToOsmdMeasure.forEach((v, k) => {
         //     console.log("midi measure", k, "=> osmd measure", v);
         // });
         // first pass build a simple osmd step sequence
-        const feedbackMessage = "building osmd array";
+        let feedbackMessage = "building sheet cursor (1/4)";
         cursor.reset();
         const osmdSteps: number[] = [];
+        const osmdMeasureToFirstStepIndex = new Map<number, number>();
         let previousOsmdMeasure = cursor.iterator.CurrentMeasure.MeasureNumber;
         let osmdMeasureIndex = 0;
         let feedbackCounter = 0;
@@ -184,18 +181,27 @@ export class CursorService {
             if (cursor.iterator.CurrentMeasure.MeasureNumber !== previousOsmdMeasure) {
                 osmdMeasureIndex++;
             }
+            if (!osmdMeasureToFirstStepIndex.has(osmdMeasureIndex)) {
+                osmdMeasureToFirstStepIndex.set(osmdMeasureIndex, osmdSteps.length);
+            }
             osmdSteps.push(osmdMeasureIndex);
             previousOsmdMeasure = cursor.iterator.CurrentMeasure.MeasureNumber;
-            cursor.next();
-            this.feedback(feedbackMessage, (feedbackCounter++ / this.iteratorSize) * 100);
-            await this.yieldToUi();
+            cursor.iterator.moveToNext();
+            feedbackCounter++;
+            if (feedbackCounter % feedbackStep === 0) {
+                this.feedback(feedbackMessage, (feedbackCounter / this.iteratorSize) * 100);
+            }
+            if (feedbackCounter % uiYieldStep === 0) {
+                await this.yieldToUi();
+            }
         }
+        this.feedback(feedbackMessage, 100);
         cursor.reset();
-
+        
         // second pass detect last/jump/skippable
-        cursor.reset();
+        feedbackMessage = "building sheet cursor (2/4)";
+        let secondPassCounter = 0;
         while (!cursor.iterator.EndReached) {
-            const firstIter = this.isFirstIterOfMeasure(index, cursor)
             const lastIter = this.isLastIterOfMeasure(index, cursor)
             const osmdMesureIndex = cursor.iterator.CurrentMeasure.MeasureNumber;
             const isJump = lastIter && osmdMesureSequence[midiMeasureIndex] + 1 !== osmdMesureSequence[midiMeasureIndex + 1];
@@ -208,9 +214,8 @@ export class CursorService {
             const o: any = {
                 midiMeasure: midiMeasureIndex,
                 osmdMeasure: osmdMesureIndex,
-                osmdIndex: osmdIndex,
+                osmdIndex: 0,
                 index: index,
-                isFirst: firstIter,
                 isLast: lastIter,
                 isSkipable: cursor.NotesUnderCursor().every(this.isSkipable),
                 isJump: isJump,
@@ -226,35 +231,49 @@ export class CursorService {
                 targetMeasure = osmdMesureSequence[midiMeasureIndex + 1];
                 this.moveToMeasure(targetMeasure);
             } else {
-                cursor.next();
+                cursor.iterator.moveToNext();
             }
             index++;
+            secondPassCounter++;
             if (lastIter) {
                 midiMeasureIndex++;
                 this.feedback(feedbackMessage, (midiMeasureIndex / this.midiBarNoteBar.size) * 100);
             }
-            await this.yieldToUi();
+            if (secondPassCounter % uiYieldStep === 0) {
+                await this.yieldToUi();
+            }
         }
+        this.feedback(feedbackMessage, 100);
         cursor.reset();
 
         // third pass say target cause o.isFirst was not filled if in first pass
+        feedbackMessage = "building sheet cursor (3/4)";        
         let targetOsmdIndex = 0;
+        let thirdPassCounter = 0;
         for (const o of osmdArray) {
             o.osmdIndex = targetOsmdIndex;
             if (o.isJump) {
                 // find the first index in osmdSteps having the value o.targetMeasure            
-                o.target = osmdSteps.indexOf(o.targetMeasure);;
+                o.target = osmdMeasureToFirstStepIndex.get(o.targetMeasure) ?? -1;
                 targetOsmdIndex = o.target!;
             } else {
                 targetOsmdIndex++;
-                this.feedback(feedbackMessage, (targetOsmdIndex / this.midiBarNoteBar.size) * 100);
             }
-            await this.yieldToUi();
+            thirdPassCounter++;
+            if (thirdPassCounter % feedbackStep === 0 || thirdPassCounter === osmdArray.length) {
+                this.feedback(feedbackMessage, (thirdPassCounter / osmdArray.length) * 100);
+            }
+            if (thirdPassCounter % uiYieldStep === 0) {
+                await this.yieldToUi();
+            }
         }
+        this.feedback(feedbackMessage, 100);
         // fourth pass: handle the special case of the jump being on a skipable note
+        feedbackMessage = "building sheet cursor (4/4)";
 
         // parcours osmdArray from end to start
         let previousO = null;
+        let fourthPassCounter = 0;
         for (let i = osmdArray.length - 1; i >= 0; i--) {
             const o = osmdArray[i];
 
@@ -272,9 +291,15 @@ export class CursorService {
                 }
 
             }
-            this.feedback(feedbackMessage, 100 - (i / osmdArray.length) * 100);
-            await this.yieldToUi();
+            fourthPassCounter++;
+            if (fourthPassCounter % feedbackStep === 0 || i === 0) {
+                this.feedback(feedbackMessage, (fourthPassCounter / osmdArray.length) * 100);
+            }
+            if (fourthPassCounter % uiYieldStep === 0) {
+                await this.yieldToUi();
+            }
         }
+        this.feedback(feedbackMessage, 100);
 
         return osmdArray.filter(o => !o.isSkipable);
     }
@@ -306,29 +331,26 @@ export class CursorService {
         const cursor = this.cursor!;
         while (cursor.iterator.CurrentMeasure.measureListIndex < measureIndex && !cursor.iterator.EndReached) {
             cursor.nextMeasure();
-
         }
     }
 
-
-
     isFirstIterOfMeasure(index: number, cursor: Cursor) {
         const currentMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex;
-        cursor.previous();
+        cursor.iterator.moveToPrevious();
         const nextMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex; //? cursor.iterator.NextMeasure.measureListIndex : null;
-        cursor.next();
+        cursor.iterator.moveToNext();
         return nextMeasureIndex !== currentMeasureIndex;
     }
 
     isLastIterOfMeasure(index: number, cursor: Cursor) {
         const currentMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex;
-        cursor.next();
+        cursor.iterator.moveToNext();
         if (this.cursor!.iterator.EndReached) {
-            cursor.previous();
+            cursor.iterator.moveToPrevious();
             return true;
         }
         const nextMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex; //? cursor.iterator.NextMeasure.measureListIndex : null;        
-        cursor.previous();
+        cursor.iterator.moveToPrevious();
         return (nextMeasureIndex !== currentMeasureIndex);
     }
 
@@ -353,19 +375,26 @@ export class CursorService {
     builOsmdMeasureNoteMap(cursor: Cursor): Map<number, OSMDNote[]> {
         const feedbackMessage = "building osmd measure note map";
         this.feedback(feedbackMessage, 0);
-        let i = 0;
+        const totalSteps = Math.max(1, this.iteratorSize);
+        const feedbackStep = Math.max(1, Math.floor(totalSteps / 100));
+        let step = 0;
         cursor.reset();
         while (!cursor.iterator.EndReached) {
             const currentIndex = cursor.iterator.CurrentMeasure.measureListIndex;
+            const notesUnderCursor = cursor.NotesUnderCursor();
             const bucket = this.osmdMeasureNoteMap.get(currentIndex);
             if (bucket) {
-                bucket.push(...cursor.NotesUnderCursor());
+                bucket.push(...notesUnderCursor);
             } else {
-                this.osmdMeasureNoteMap.set(currentIndex, cursor.NotesUnderCursor());
+                this.osmdMeasureNoteMap.set(currentIndex, notesUnderCursor);
             }
             cursor.iterator.moveToNext();
-            this.feedback(feedbackMessage, i / this.iteratorSize * 100);
+            step++;
+            if (step % feedbackStep === 0 || step === totalSteps) {
+                this.feedback(feedbackMessage, (step / totalSteps) * 100);
+            }
         }
+        this.feedback(feedbackMessage, 100);
         cursor.reset();
         return this.osmdMeasureNoteMap;
     }
@@ -378,19 +407,25 @@ export class CursorService {
     buildOsmdCursorIdxNoteMap(cursor: Cursor): Map<number, OSMDNote[]> {
         const feedbackMessage = "building osmd cursor index note map";
         this.feedback(feedbackMessage, 0);
+        const totalSteps = Math.max(1, this.iteratorSize);
+        const feedbackStep = Math.max(1, Math.floor(totalSteps / 100));
         cursor.reset();
         let cursorIndex = 0;
         while (!cursor.iterator.EndReached) {
+            const notesUnderCursor = cursor.NotesUnderCursor();
             const bucket2 = this.osmdCursorIdxNoteMap.get(cursorIndex);
             if (bucket2) {
-                bucket2.push(...cursor.NotesUnderCursor());
+                bucket2.push(...notesUnderCursor);
             } else {
-                this.osmdCursorIdxNoteMap.set(cursorIndex, cursor.NotesUnderCursor());
+                this.osmdCursorIdxNoteMap.set(cursorIndex, notesUnderCursor);
             }
             cursorIndex++;
             cursor.iterator.moveToNext();
-            this.feedback(feedbackMessage, (cursorIndex / this.iteratorSize) * 100);
+            if (cursorIndex % feedbackStep === 0 || cursorIndex === totalSteps) {
+                this.feedback(feedbackMessage, (cursorIndex / totalSteps) * 100);
+            }
         }
+        this.feedback(feedbackMessage, 100);
         cursor.reset();
         return this.osmdCursorIdxNoteMap;
     }
@@ -404,26 +439,33 @@ export class CursorService {
     buildMidBarNoteMap(midi: Midi): Map<number, MidiNote[]> {
         const feedbackMessage = "building midi measure note map";
         this.feedback(feedbackMessage, 0);
-        const midiBarNoteMap = new Map<number, any[]>();
-        // pass all midi notes add group them by ticks
-        midi.tracks.forEach(track => {
-            track.notes.forEach(note => {
+        const midiBarNoteMap = new Map<number, MidiNote[]>();
+        let maxBar = -1;
+
+        // group midi notes by bar
+        for (const track of midi.tracks) {
+            for (const note of track.notes) {
                 const bar = Math.trunc(note.bars);
+                if (bar > maxBar) {
+                    maxBar = bar;
+                }
                 const bucket = midiBarNoteMap.get(bar);
                 if (bucket) {
                     bucket.push(note);
                 } else {
                     midiBarNoteMap.set(bar, [note]);
                 }
-            });
-        });
-        this.feedback(feedbackMessage, 50);
-        // handle empty measure
-        midiBarNoteMap.forEach((v, k) => {
-            if (k > 0 && !midiBarNoteMap.has(k - 1)) {
-                midiBarNoteMap.set(k - 1, []);
             }
-        });
+        }
+        this.feedback(feedbackMessage, 50);
+
+        // ensure contiguous bars from 0 to maxBar
+        for (let bar = 0; bar <= maxBar; bar++) {
+            if (!midiBarNoteMap.has(bar)) {
+                midiBarNoteMap.set(bar, []);
+            }
+        }
+
         this.midiBarNoteBar = midiBarNoteMap;
         this.feedback(feedbackMessage, 100);
         return this.midiBarNoteBar;
@@ -437,7 +479,12 @@ export class CursorService {
     async buildMidiTicksNoteMap(midi: Midi): Promise<Map<number, MidiNote[]>> {
         const feedbackMessage = "building midi ticks note map";
         this.feedback(feedbackMessage, 0);
-        const midiTicksNoteMap = new Map<number, any[]>();
+        const midiTicksNoteMap = new Map<number, MidiNote[]>();
+        const totalNotes = midi.tracks.reduce((sum, track) => sum + track.notes.length, 0);
+        const uiYieldStep = 256;
+        const feedbackStep = Math.max(1, Math.floor(totalNotes / 100));
+        let processedNotes = 0;
+
         for (const track of midi.tracks) {
             for (const note of track.notes) {
                 const bucket = midiTicksNoteMap.get(note.ticks);
@@ -446,8 +493,14 @@ export class CursorService {
                 } else {
                     midiTicksNoteMap.set(note.ticks, [note]);
                 }
-                this.feedback(feedbackMessage, (note.ticks / midi.durationTicks) * 100);
-                await this.yieldToUi();
+
+                processedNotes++;
+                if (processedNotes % feedbackStep === 0 || processedNotes === totalNotes) {
+                    this.feedback(feedbackMessage, (processedNotes / totalNotes) * 100);
+                }
+                if (processedNotes % uiYieldStep === 0) {
+                    await this.yieldToUi();
+                }
             }
         }
         this.midiTicksNoteMap = midiTicksNoteMap;
@@ -464,6 +517,9 @@ export class CursorService {
         const feedbackMessage = "building voltas list";
         this.feedback(feedbackMessage, 0)
         this.repetitionInstructions = [];
+        this.iteratorSize = 0;
+        const uiYieldStep = 64;
+        const feedbackStep = 32;
 
         while (!cursor.iterator.EndReached) {
             this.iteratorSize++;
@@ -479,8 +535,12 @@ export class CursorService {
                 }
             }
             cursor.iterator.moveToNext();
-            this.feedback(feedbackMessage, (this.iteratorSize / 100) * 100);
-            await this.yieldToUi();
+            if (this.iteratorSize % feedbackStep === 0) {
+                this.feedback(feedbackMessage, Math.min(99, this.iteratorSize));
+            }
+            if (this.iteratorSize % uiYieldStep === 0) {
+                await this.yieldToUi();
+            }
         }
         this.feedback(feedbackMessage, 100)
         // deduplicate this.repetitionInstructions
@@ -503,6 +563,7 @@ export class CursorService {
         const feedbackMessage = "building midi to osmd measure map";
         const midiMeasureIndices = Array.from(this.midiBarNoteBar.keys()).sort((a, b) => a - b);
         const osmdMeasureIndices = Array.from(this.osmdMeasureNoteMap.keys()).sort((a, b) => a - b);
+        const repetitionInstructions = this.repetitionInstructions;
 
 
         const measureIndexToPos = new Map<number, number>();
@@ -510,10 +571,112 @@ export class CursorService {
             measureIndexToPos.set(measureIndex, index);
         });
 
+        const endingBeginsByMeasure = new Map<number, RepetitionInstruction[]>();
+        const endingEndsByMeasure = new Map<number, RepetitionInstruction[]>();
+        const endingEnds: RepetitionInstruction[] = [];
+        const backJumpByMeasure = new Map<number, RepetitionInstruction>();
+        const startLineMeasures: number[] = [];
+        const backJumpAnchors: number[] = [];
+
+        for (const instr of repetitionInstructions) {
+            if (instr.type === RepetitionInstructionEnum.Ending && instr.alignment === AlignmentType.Begin) {
+                const existing = endingBeginsByMeasure.get(instr.measureIndex);
+                if (existing) {
+                    existing.push(instr);
+                } else {
+                    endingBeginsByMeasure.set(instr.measureIndex, [instr]);
+                }
+            }
+
+            if (instr.type === RepetitionInstructionEnum.Ending && instr.alignment === AlignmentType.End) {
+                endingEnds.push(instr);
+                const existing = endingEndsByMeasure.get(instr.measureIndex);
+                if (existing) {
+                    existing.push(instr);
+                } else {
+                    endingEndsByMeasure.set(instr.measureIndex, [instr]);
+                }
+            }
+
+            if (instr.type === RepetitionInstructionEnum.BackJumpLine && instr.alignment === AlignmentType.End) {
+                if (!backJumpByMeasure.has(instr.measureIndex)) {
+                    backJumpByMeasure.set(instr.measureIndex, instr);
+                }
+                backJumpAnchors.push(instr.measureIndex);
+            }
+
+            if (instr.type === RepetitionInstructionEnum.StartLine) {
+                startLineMeasures.push(instr.measureIndex);
+            }
+        }
+
+        backJumpAnchors.sort((a, b) => a - b);
+        startLineMeasures.sort((a, b) => a - b);
+
+        const repeatAnchorCache = new Map<number, number | null>();
+        const getRepeatAnchorCached = (measureIndex: number): number | null => {
+            if (repeatAnchorCache.has(measureIndex)) {
+                return repeatAnchorCache.get(measureIndex)!;
+            }
+
+            let low = 0;
+            let high = backJumpAnchors.length;
+            while (low < high) {
+                const mid = (low + high) >> 1;
+                if (backJumpAnchors[mid] <= measureIndex) {
+                    low = mid + 1;
+                } else {
+                    high = mid;
+                }
+            }
+
+            const anchor = low > 0 ? backJumpAnchors[low - 1] : null;
+            repeatAnchorCache.set(measureIndex, anchor);
+            return anchor;
+        };
+
+        const NO_ANCHOR = -1;
+        const endingEndsByAnchor = new Map<number, RepetitionInstruction[]>();
+        const maxEndingNumberByAnchor = new Map<number, number>();
+        for (const endingEnd of endingEnds) {
+            const anchor = getRepeatAnchorCached(endingEnd.measureIndex) ?? NO_ANCHOR;
+            const existing = endingEndsByAnchor.get(anchor);
+            if (existing) {
+                existing.push(endingEnd);
+            } else {
+                endingEndsByAnchor.set(anchor, [endingEnd]);
+            }
+        }
+
+        for (const instr of repetitionInstructions) {
+            if (instr.type !== RepetitionInstructionEnum.Ending) {
+                continue;
+            }
+            const anchor = getRepeatAnchorCached(instr.measureIndex);
+            if (anchor == null) {
+                continue;
+            }
+            const endingMax = Math.max(...(instr.endingIndices || [1]));
+            maxEndingNumberByAnchor.set(anchor, Math.max(maxEndingNumberByAnchor.get(anchor) ?? 1, endingMax));
+        }
+
+        const previousStartLineByMeasure = new Map<number, number | null>();
+        let lastStart: number | null = null;
+        let startLinePointer = 0;
+        for (const measureIndex of osmdMeasureIndices) {
+            while (startLinePointer < startLineMeasures.length && startLineMeasures[startLinePointer] < measureIndex) {
+                lastStart = startLineMeasures[startLinePointer];
+                startLinePointer++;
+            }
+            previousStartLineByMeasure.set(measureIndex, lastStart);
+        }
+
         const playOrder: number[] = [];
         let pos = 0;
         let steps = 0;
         const maxSteps = Math.max(osmdMeasureIndices.length * 10, 1000);
+        const uiYieldStep = 64;
+        const feedbackStep = Math.max(1, Math.floor(maxSteps / 100));
 
         this.passCount = 1;
         let activeRepeatAnchorMeasureIndex: number | null = null;
@@ -521,28 +684,26 @@ export class CursorService {
 
         while (pos < osmdMeasureIndices.length && steps < maxSteps) {
             steps++;
-            this.feedback(feedbackMessage, (steps / maxSteps) * 100);
-            await this.yieldToUi();
+            if (steps % feedbackStep === 0 || steps === maxSteps) {
+                this.feedback(feedbackMessage, (steps / maxSteps) * 100);
+            }
+            if (steps % uiYieldStep === 0) {
+                await this.yieldToUi();
+            }
             const currentMeasureIndex = osmdMeasureIndices[pos];
 
-            const currentVoltaStart = this.repetitionInstructions.find(
-                instr =>
-                    instr.type === RepetitionInstructionEnum.Ending &&
-                    instr.alignment === AlignmentType.Begin &&
-                    !(instr.endingIndices || []).includes(this.passCount) &&
-                    instr.measureIndex === currentMeasureIndex
-            );
+            const currentVoltaStart = endingBeginsByMeasure
+                .get(currentMeasureIndex)
+                ?.find(instr => !(instr.endingIndices || []).includes(this.passCount));
 
             if (currentVoltaStart) {
-                const anchor = this.getRepeatAnchorForMeasure(currentVoltaStart.measureIndex);
+                const anchor = getRepeatAnchorCached(currentVoltaStart.measureIndex);
                 const expectedEndingIndex = currentVoltaStart.endingIndices?.[0] ?? 1;
-                const currentVoltaEnd = this.repetitionInstructions.find(
-                    instr =>
-                        instr.type === RepetitionInstructionEnum.Ending &&
-                        instr.alignment === AlignmentType.End &&
-                        (instr.endingIndices || []).includes(expectedEndingIndex) &&
-                        (anchor == null || this.getRepeatAnchorForMeasure(instr.measureIndex) === anchor)
-                );
+                const currentVoltaEnd = anchor == null
+                    ? endingEnds.find(instr => (instr.endingIndices || []).includes(expectedEndingIndex))
+                    : endingEndsByAnchor
+                        .get(anchor)
+                        ?.find(instr => (instr.endingIndices || []).includes(expectedEndingIndex));
 
                 const jumpToMeasure = (currentVoltaEnd?.measureIndex ?? currentVoltaStart.measureIndex) + 1;
                 const jumpPos = measureIndexToPos.get(jumpToMeasure);
@@ -557,14 +718,13 @@ export class CursorService {
                 activeRepeatMaxEndingNumber != null &&
                 this.passCount === activeRepeatMaxEndingNumber
             ) {
-                const endingEnd = this.repetitionInstructions.find(
-                    instr =>
-                        instr.type === RepetitionInstructionEnum.Ending &&
-                        instr.alignment === AlignmentType.End &&
-                        instr.measureIndex === currentMeasureIndex &&
-                        (instr.endingIndices || []).includes(this.passCount) &&
-                        this.getRepeatAnchorForMeasure(instr.measureIndex) === activeRepeatAnchorMeasureIndex
-                );
+                const endingEnd = endingEndsByMeasure
+                    .get(currentMeasureIndex)
+                    ?.find(
+                        instr =>
+                            (instr.endingIndices || []).includes(this.passCount) &&
+                            getRepeatAnchorCached(instr.measureIndex) === activeRepeatAnchorMeasureIndex
+                    );
 
                 if (endingEnd) {
                     this.passCount = 1;
@@ -573,28 +733,19 @@ export class CursorService {
                 }
             }
 
-            const backJump = this.repetitionInstructions.find(
-                instr =>
-                    instr.type === RepetitionInstructionEnum.BackJumpLine &&
-                    instr.measureIndex === currentMeasureIndex &&
-                    instr.alignment === AlignmentType.End
-            );
+            const backJump = backJumpByMeasure.get(currentMeasureIndex);
 
             if (backJump) {
-                const previousStartLine = this.repetitionInstructions
-                    .filter(
-                        instr =>
-                            instr.type === RepetitionInstructionEnum.StartLine &&
-                            instr.measureIndex < currentMeasureIndex
-                    )
-                    .sort((a, b) => b.measureIndex - a.measureIndex)[0];
-
-                const targetMeasure = previousStartLine
-                    ? previousStartLine.measureIndex
-                    : 0;
+                const targetMeasure = previousStartLineByMeasure.get(currentMeasureIndex) ?? 0;
 
                 const anchorMeasureIndex = backJump.measureIndex;
-                const maxEndingNumber = this.getMaxEndingNumberForAnchor(anchorMeasureIndex);
+                if (
+                    activeRepeatAnchorMeasureIndex != null &&
+                    activeRepeatAnchorMeasureIndex !== anchorMeasureIndex
+                ) {
+                    this.passCount = 1;
+                }
+                const maxEndingNumber = maxEndingNumberByAnchor.get(anchorMeasureIndex) ?? 2;
 
                 activeRepeatAnchorMeasureIndex = anchorMeasureIndex;
                 activeRepeatMaxEndingNumber = maxEndingNumber;
@@ -607,9 +758,7 @@ export class CursorService {
                 }
             }
             pos++;
-            this.feedback(feedbackMessage, 100);
         }
-        this.feedback(feedbackMessage, 90);
         if (steps >= maxSteps) {
             console.warn("Stopped play order construction due to step limit", { steps, maxSteps });
         }

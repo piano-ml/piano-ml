@@ -606,7 +606,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         //values: 2, //this.maxStaveCount,
         density: 10
       },
-      step: 1,
+      //step: 1,
       format: wNumb({
         decimals: 0
       }),

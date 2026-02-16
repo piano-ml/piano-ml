@@ -6,10 +6,10 @@ import { IOSMDOptions, CursorOptions } from "opensheetmusicdisplay";
  */
 export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     pageFormat: 'Endless',
-    autoBeam: true,
-    autoBeamOptions: {
-        groups: [[4, 4]],
-    },
+    autoBeam: false ,
+    // autoBeamOptions: {
+    //     groups: [[4, 4]],
+    // },
     drawLyricist: false,
     measureNumberInterval: 1,
     backend: "svg",
