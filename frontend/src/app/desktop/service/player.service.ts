@@ -38,8 +38,7 @@ export class PlayerService {
 
   // Expose state via getters
   get osmd() { return this.state.osmd; }
-  //get osmdCursor() { return this.state.osmdCursor; }
-  get measure() { return this.state.measure; }
+  //get measure() { return this.state.measure; }
   get tick() { return this.state.tick; }
   get message() { return this.state.message; }
   get elapsedTime() { return this.state.elapsedTime; }
@@ -103,7 +102,7 @@ export class PlayerService {
     playConfiguration.maxStaveCount = Math.ceil(Math.max(...midiSplit.study.tracks.map(track =>
       track.notes.length > 0 ? track.notes[track.notes.length - 1].bars : 0
     )));
-    playConfiguration.scoreRange[0] = 1;
+    playConfiguration.scoreRange[0] = 0;
     playConfiguration.scoreRange[1] = playConfiguration.maxStaveCount + 1;
     this.playConfiguration = playConfiguration;
     this.reset(playConfiguration);
@@ -203,7 +202,7 @@ export class PlayerService {
     this.assess.reset();
     this.lastMidiEventTime = -1;
     this.keyboard.removeAllNotesFromKeyboard();
-    this.cursorService.reset();
+    this.cursorService.reset(playConfiguration.scoreRange[0]);
   }
 
   async play(playConfigurations: PlayConfiguration) {
@@ -309,22 +308,23 @@ export class PlayerService {
   }
 
   private highlightBadNote(pitch: number) {
-     this.message.set("BAD");
-    // const osmdNotes = (this.osmdCursor.GNotesUnderCursor() as GraphicalNote[]).filter(n => n && (n as any).sourceNote);
-    // if (osmdNotes.length === 0) return;
-    // const closest = osmdNotes.reduce((prev, curr) => {
-    //   const prevDiff = Math.abs((prev.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
-    //   const currDiff = Math.abs((curr.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
-    //   return (currDiff < prevDiff) ? curr : prev;
-    // });
-    // const delta = (closest.sourceNote.halfTone - pitch + 12);
-    // closest.setColor("#FF0000", {});
-    // const closestVexFlowNote = (closest as VexFlowGraphicalNote);
-    // closestVexFlowNote.getSVGGElement().style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
-    // setTimeout(() => {
-    //   closestVexFlowNote.getSVGGElement().style.transform = "";
-    //   this.message.set("");
-    // }, 500);
+    this.message.set("BAD");
+    const cursor = this.cursorService.cursor!;
+    const osmdNotes = (cursor.GNotesUnderCursor() as GraphicalNote[]).filter(n => n && (n as any).sourceNote);
+    if (osmdNotes.length === 0) return;
+    const closest = osmdNotes.reduce((prev, curr) => {
+       const prevDiff = Math.abs((prev.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
+       const currDiff = Math.abs((curr.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
+       return (currDiff < prevDiff) ? curr : prev;
+     });
+     const delta = (closest.sourceNote.halfTone - pitch + 12);
+     closest.setColor("#FF0000", {});
+     const closestVexFlowNote = (closest as VexFlowGraphicalNote);
+     closestVexFlowNote.getSVGGElement().style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
+     setTimeout(() => {
+       closestVexFlowNote.getSVGGElement().style.transform = "";
+       this.message.set("");
+     }, 500);
   }
 
   private unHighlightBadNote() {
@@ -361,7 +361,7 @@ export class PlayerService {
     // normal operations
     this.cursorMayBeAdvance(note);
     this.keyboard.lightNoteOnKeyboard(hand, note);
-    this.setCurrentTick(note);
+    //this.setCurrentTick(note);
   }
 
   private handleNoteEnd(hand: string, note: Note, liveStatus?: LiveStatus) {
@@ -429,13 +429,13 @@ export class PlayerService {
 
 
 
-  private setCurrentTick(note: Note) {
-    const bar = note.bars;
-    const truncatedBar = Math.trunc(bar);
-    if (truncatedBar !== this.measure()) {
-      this.measure.set(truncatedBar);
-    }
-  }
+  // private setCurrentTick(note: Note) {
+  //   const bar = note.bars;
+  //   const truncatedBar = Math.trunc(bar);
+  //   if (truncatedBar !== this.measure()) {
+  //     this.measure.set(truncatedBar);
+  //   }
+  // }
 
   private calculateStartTime() {
     const startTime = (this.calculateStartTimeInMsForMeasure(
@@ -452,7 +452,7 @@ export class PlayerService {
       return this.duration * this.state.getTimeFactor();
     }
     return (this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1] - 1,
+      this.playConfiguration.scoreRange[1],
       this.playConfiguration.midi!.header
     ) * this.state.getTimeFactor());
   }

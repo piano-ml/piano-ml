@@ -108,9 +108,8 @@ export class OsmdComponent implements OnInit, OnDestroy {
                     const status = await this.playerService.setOsmd(this.osmd!);
                     this.loading = false;
                     this.loadingChange.emit(false);
-                    console.log("done loading osmd component:", status);
                 }
-            }, 300);
+            }, 600);
         }
     }
     setCustomOptions() {

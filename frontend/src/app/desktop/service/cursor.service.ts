@@ -17,21 +17,51 @@ export class CursorService {
     cursor: Cursor | undefined;
     osmdArray: { osmdMeasure: number; osmdIndex: number; index: number; isLast: boolean; isJump: boolean; target: number | null; targetMeasure: number | null; isSkipable: boolean; }[] | undefined;
     feedbackSignal = signal<{ message: string; percentage: number } | null>(null);;
+    readonly measure = signal<number>(0);
+    private diagnosticMode = false;
+    repetitionInstructions: RepetitionInstruction[] = [];
+    private passCount = 1; // state for calculating in buildWithRepetitionBar the play order with repetition instructions
+    midiBarNoteBar: Map<number, MidiNote[]> = new Map(); // measure (=trunc(note.bar)) => MidiNote[]
+    midiTicksNoteMap: Map<number, MidiNote[]> = new Map();   // ticks => MidiNote[]    
+    osmdCursorIdxNoteMap: Map<number, OSMDNote[]> = new Map();
+    osmdCursorIdxToMeasureMap: Map<number, number> = new Map();
+    osmdMeasureNoteMap: Map<number, OSMDNote[]> = new Map();
 
-    constructor(
-    ) { }
+    midiBarToOsmdMeasure: Map<number, number> = new Map();
+    midiTicksToOsmdCursorIndex: number[] = []; // ticks => cursor index
+    iteratorSize = 0;
+    osmdMeasureCount = 0;
 
     nextNote(note: Note) {
-        const next: number = this.osmdArray![this.midiIndex]?.osmdIndex;
+        const mappedCursorIndex = this.midiTicksToOsmdCursorIndex[note.ticks];
+        const fallbackCursorIndex = this.osmdArray?.[this.midiIndex]?.osmdIndex;
+        const next = this.resolveBestCursorIndexForTick(note.ticks, mappedCursorIndex, fallbackCursorIndex, this.cursorIndex);
+        if (next == null) {
+            return;
+        }
         this.moveCursorToOsmdIndex(this.cursor!, next);
-        //  while (this.cursor!.NotesUnderCursor().every(this.isSkipable) && !this.cursor!.iterator.EndReached) {
-        //      const gN = this.cursor!.GNotesUnderCursor() as GraphicalNote[];
-        //      gN.forEach(n => n.setColor("#888", {}));
-        //      this.moveCursorToOsmdIndex(this.cursor!, this.cursorIndex + 1);
-        //  }
+        const newOsmdMeasure = this.osmdArray?.[this.midiIndex]?.osmdMeasure || 0;
+        if (newOsmdMeasure !== this.measure()) {
+            this.measure.set(newOsmdMeasure);
+        }
+        // while (
+        //     this.cursor!.NotesUnderCursor().every(this.isSkipable)
+        //     && !this.cursor!.iterator.EndReached
+        //     && !this.hasExpectedAtCursorIndexForTick(this.cursorIndex, note.ticks)
+        // ) {
+        //     const gN = this.cursor!.GNotesUnderCursor() as GraphicalNote[];
+        //     gN.forEach(n => n.setColor("#888", {}));
+        //     this.moveCursorToOsmdIndex(this.cursor!, this.cursorIndex + 1);
+        // }
 
-        const ok = this.isCursorOk(note);
-        //console.log(ok, this.cursor!.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).join(","), "expected", note.midi - 12, note.ticks);
+        let ok = this.isCursorOkForTick(note);
+        if (!ok && mappedCursorIndex != null && this.hasExpectedAtCursorIndexForTick(mappedCursorIndex, note.ticks)) {
+            this.forceCursorToIndex(this.cursor!, mappedCursorIndex);
+            ok = this.isCursorOkForTick(note);
+        }
+        if (!ok && this.diagnosticMode) {
+            this.logMismatchDiagnostic(note, mappedCursorIndex, this.osmdArray?.[this.midiIndex]?.osmdIndex);
+        }
         if (!ok) {
             //this.cursor?.next();
             //this.moveCursorToOsmdIndex(this.cursor!, next+1); // HACK !
@@ -40,36 +70,223 @@ export class CursorService {
             this.cursor!.GNotesUnderCursor().forEach(n => n.setColor("#FF0000", {}));
         } else {
             this.cursor!.CursorOptions.color = "#B0F2B4";
-            this.cursor!.CursorOptions.alpha = 0.6;
+            this.cursor!.CursorOptions.alpha = 1;
         }
         this.midiIndex++;
     }
 
+    private resolveBestCursorIndexForTick(
+        ticks: number,
+        mappedCursorIndex: number | undefined,
+        fallbackCursorIndex: number | undefined,
+        defaultCursorIndex: number,
+    ): number {
+        const mappedHasExpected =
+            mappedCursorIndex != null && this.hasExpectedAtCursorIndexForTick(mappedCursorIndex, ticks);
+        if (mappedHasExpected) {
+            console.log("mapped")
+            return mappedCursorIndex!;
+        }
+
+        const fallbackHasExpected =
+            fallbackCursorIndex != null && this.hasExpectedAtCursorIndexForTick(fallbackCursorIndex, ticks);
+        if (fallbackHasExpected) {
+            console.log("fallback")
+            return fallbackCursorIndex!;
+        }
+
+        const nearbyFromCurrent = this.findNearbyExpectedCursorIndexForTick(defaultCursorIndex, ticks, 2, 6);
+        if (nearbyFromCurrent != null) {
+            console.log("nearby from current")
+            return nearbyFromCurrent;
+        }
+
+        const nearbyFromFallback =
+            fallbackCursorIndex != null
+                ? this.findNearbyExpectedCursorIndexForTick(fallbackCursorIndex, ticks, 2, 6)
+                : undefined;
+        if (nearbyFromFallback != null) {
+            console.log("nearby from fallback")
+            return nearbyFromFallback;
+        }
+
+
+        const nearbyFromMapped =
+            mappedCursorIndex != null
+                ? this.findNearbyExpectedCursorIndexForTick(mappedCursorIndex, ticks, 2, 6)
+                : undefined;
+        if (nearbyFromMapped != null) {
+            console.log("nearby from mapped")
+            return nearbyFromMapped;
+        }
+
+
+
+
+
+        return mappedCursorIndex ?? fallbackCursorIndex ?? defaultCursorIndex;
+    }
+
+    private findNearbyExpectedCursorIndexForTick(
+        centerIndex: number,
+        ticks: number,
+        maxBackward: number,
+        maxForward: number,
+    ): number | undefined {
+        for (let offset = 0; offset <= maxForward; offset++) {
+            const idx = centerIndex + offset;
+            if (this.hasExpectedAtCursorIndexForTick(idx, ticks)) {
+                return idx;
+            }
+        }
+
+        for (let offset = 1; offset <= maxBackward; offset++) {
+            const idx = centerIndex - offset;
+            if (idx < 0) {
+                break;
+            }
+            if (this.hasExpectedAtCursorIndexForTick(idx, ticks)) {
+                return idx;
+            }
+        }
+
+        return undefined;
+    }
+
+    private logMismatchDiagnostic(note: Note, mappedCursorIndex: number | undefined, fallbackCursorIndex: number | undefined): void {
+        const expectedHalfTone = note.midi - 12;
+        const midiNote = note as MidiNote;
+        const midiBar = Number.isFinite(midiNote.bars) ? Math.trunc(midiNote.bars) : null;
+        const around: { idx: number; pitches: (number | undefined)[]; hasExpected: boolean; }[] = [];
+
+        for (let i = Math.max(0, this.cursorIndex - 4); i <= this.cursorIndex + 4; i++) {
+            const notes = this.osmdCursorIdxNoteMap.get(i) ?? [];
+            const pitches = notes.map(n => n.Pitch?.getHalfTone());
+            around.push({
+                idx: i,
+                pitches,
+                hasExpected: pitches.some(p => p === expectedHalfTone),
+            });
+        }
+
+        console.groupCollapsed(`[cursor][mismatch] ticks=${note.ticks} expected=${expectedHalfTone}`);
+        console.log({
+            midiIndex: this.midiIndex,
+            cursorIndex: this.cursorIndex,
+            mappedCursorIndex,
+            fallbackCursorIndex,
+            ticks: note.ticks,
+            midiBar,
+            noteMidi: note.midi,
+        });
+        console.table(around);
+        console.groupEnd();
+    }
 
     private isCursorOk(note: Note): boolean {
         return this.cursor!.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).some(n => n === note.midi - 12);
+    }
+
+    private isCursorOkForTick(note: Note): boolean {
+        const notesAtTick = this.midiTicksNoteMap.get(note.ticks);
+        if (!notesAtTick || notesAtTick.length === 0) {
+            return this.isCursorOk(note);
+        }
+
+        const expectedHalfTones = new Set(notesAtTick.map(n => n.midi - 12));
+
+        const mappedNotesAtCurrentIndex = this.osmdCursorIdxNoteMap.get(this.cursorIndex);
+        if (mappedNotesAtCurrentIndex && mappedNotesAtCurrentIndex.length > 0) {
+            const matchesMappedIndex = mappedNotesAtCurrentIndex.some(n => {
+                const halfTone = n.Pitch?.getHalfTone();
+                return halfTone != null && expectedHalfTones.has(halfTone);
+            });
+            if (matchesMappedIndex) {
+                return true;
+            }
+        }
+
+        const cursorHalfTones = this.cursor!.NotesUnderCursor().map(n => n.Pitch?.getHalfTone());
+        return cursorHalfTones.some(halfTone => halfTone != null && expectedHalfTones.has(halfTone));
+    }
+
+    private hasExpectedAtCursorIndexForTick(cursorIndex: number, ticks: number): boolean {
+        const notesAtTick = this.midiTicksNoteMap.get(ticks);
+        const notesAtCursorIndex = this.osmdCursorIdxNoteMap.get(cursorIndex);
+        if (!notesAtTick || notesAtTick.length === 0 || !notesAtCursorIndex || notesAtCursorIndex.length === 0) {
+            return false;
+        }
+
+        const expectedHalfTones = new Set(notesAtTick.map(n => n.midi - 12));
+        return notesAtCursorIndex.some(n => {
+            const halfTone = n.Pitch?.getHalfTone();
+            return halfTone != null && expectedHalfTones.has(halfTone);
+        });
+    }
+
+    private forceCursorToIndex(cursor: Cursor, targetIndex: number): void {
+        cursor.reset();
+        this.cursorIndex = 0;
+        while (this.cursorIndex < targetIndex && !cursor.iterator.EndReached) {
+            cursor.next();
+            this.cursorIndex++;
+        }
     }
 
     setCursor(cursor: Cursor) {
         this.cursor = cursor;
     }
 
-    reset() {
+    reset(start: number = 0) {
+        const cursor = this.cursor;
+        if (!cursor) {
+            this.midiIndex = 0;
+            this.cursorIndex = 0;
+            this.measure.set(0);
+            return;
+        }
+
+        const targetMeasure = Math.max(0, Math.trunc(start - 1));
+
         this.midiIndex = 0;
         this.cursorIndex = 0;
-        this.cursor?.reset();
+        cursor.reset();
+
+        const targetCursorIndex = this.findCursorIndexForMeasure(targetMeasure);
+        this.moveCursorToOsmdIndex(cursor, targetCursorIndex);
+
+        const reachedMeasure = this.osmdCursorIdxToMeasureMap.get(this.cursorIndex) ?? targetMeasure;
+        //this.measure.set(reachedMeasure);
+
+        if (this.osmdArray && this.osmdArray.length > 0) {
+            const mappedMidiIndex = this.osmdArray.findIndex(step => step.osmdIndex >= targetCursorIndex);
+            this.midiIndex = mappedMidiIndex >= 0 ? mappedMidiIndex : this.osmdArray.length - 1;
+        }
     }
 
-    repetitionInstructions: RepetitionInstruction[] = [];
-    private passCount = 1; // state for calculating in buildWithRepetitionBar the play order with repetition instructions
-    midiBarNoteBar: Map<number, MidiNote[]> = new Map(); // measure (=trunc(note.bar)) => MidiNote[]
-    midiTicksNoteMap: Map<number, MidiNote[]> = new Map();   // ticks => MidiNote[]    
-    osmdCursorIdxNoteMap: Map<number, OSMDNote[]> = new Map();
-    osmdMeasureNoteMap: Map<number, OSMDNote[]> = new Map();
+    private findCursorIndexForMeasure(targetMeasure: number): number {
+        if (this.osmdCursorIdxToMeasureMap.size === 0) {
+            return 0;
+        }
 
-    midiBarToOsmdMeasure: Map<number, number> = new Map();
-    midiTicksToOsmdCursorIndex: number[] = []; // ticks => cursor index
-    iteratorSize = 0;
+        let bestAtOrAfter: number | null = null;
+        let lastBefore = 0;
+
+        for (const [cursorIndex, measureIndex] of this.osmdCursorIdxToMeasureMap) {
+            if (measureIndex < targetMeasure) {
+                lastBefore = cursorIndex;
+                continue;
+            }
+
+            if (bestAtOrAfter == null || cursorIndex < bestAtOrAfter) {
+                bestAtOrAfter = cursorIndex;
+            }
+        }
+
+        return bestAtOrAfter ?? lastBefore;
+    }
+
+
 
 
     private async yieldToUi(): Promise<void> {
@@ -99,15 +316,15 @@ export class CursorService {
 
         this.midiTicksToOsmdCursorIndex = await this.linkMidiTicksToCursorIndex(cursor);
 
-        this.debug();
-
         const status = this.verify()
 
         this.repetitionInstructions = [];
         this.midiBarNoteBar.clear();
-        this.midiTicksNoteMap.clear();
         this.osmdMeasureNoteMap.clear();
-        this.osmdCursorIdxNoteMap.clear();
+        setTimeout(() => {
+        this.cursor!.next();
+        this.cursor!.previous();        
+        }, 100);
         return status;
     }
 
@@ -122,21 +339,13 @@ export class CursorService {
         return this.midiTicksNoteMap.size === this.osmdArray?.filter(o => !o.isSkipable).length;
     }
 
-    debug() {
-        console.log("midi notes by measure", this.midiBarNoteBar.size, "osmd notes by measure", this.osmdMeasureNoteMap.size);
-        console.log("midi notes by ticks", this.midiTicksNoteMap.size, "osmd notes by cursor index", this.osmdCursorIdxNoteMap.size);
-        console.log("midi notes by ticks", this.midiTicksNoteMap.size, "osmd notes by cursor index", this.osmdArray?.filter(o => !o.isSkipable).length);
-    }
-
-
-
     moveCursorToOsmdIndex(cursor: Cursor, targetIndex: number): void {
         if (targetIndex < this.cursorIndex) {
             while (this.cursorIndex > targetIndex && !cursor.iterator.FrontReached) {
                 cursor.previous();
                 this.cursorIndex--;
             }
-        } else if (targetIndex > this.cursorIndex) {
+        } else if (targetIndex > this.cursorIndex) {            
             while (this.cursorIndex < targetIndex && !cursor.iterator.EndReached) {
                 cursor.next();
                 this.cursorIndex++;
@@ -150,8 +359,113 @@ export class CursorService {
      *  @return this.mapMidiTicksToOsmdCursorIndex will trigger (or not) the cursor advance and back in another service
      */
     async linkMidiTicksToCursorIndex(cursor: Cursor): Promise<number[]> {
-        let link: number[] = [];
+        const link: number[] = [];
         this.osmdArray = await this.hydrateOsmdArray(cursor);
+        if (!this.osmdArray || this.osmdArray.length === 0) {
+            return link;
+        }
+
+        const sortedTicks = Array.from(this.midiTicksNoteMap.keys()).sort((a, b) => a - b);
+
+        type TickInfo = { ticks: number; midiBar: number; expectedHalfTones: Set<number> };
+        const ticksByMidiBar = new Map<number, TickInfo[]>();
+        for (const ticks of sortedTicks) {
+            const notesAtTick = this.midiTicksNoteMap.get(ticks) ?? [];
+            const midiBar = notesAtTick.length > 0 ? Math.trunc(notesAtTick[0].bars) : 0;
+            const tickInfo: TickInfo = {
+                ticks,
+                midiBar,
+                expectedHalfTones: new Set(notesAtTick.map(n => n.midi - 12)),
+            };
+            const bucket = ticksByMidiBar.get(midiBar);
+            if (bucket) {
+                bucket.push(tickInfo);
+            } else {
+                ticksByMidiBar.set(midiBar, [tickInfo]);
+            }
+        }
+
+        const cursorIndicesByMeasure = new Map<number, number[]>();
+        for (const [cursorIndex, measureIndex] of this.osmdCursorIdxToMeasureMap) {
+            const notes = this.osmdCursorIdxNoteMap.get(cursorIndex) ?? [];
+            if (notes.length === 0) {
+                continue;
+            }
+            const bucket = cursorIndicesByMeasure.get(measureIndex);
+            if (bucket) {
+                bucket.push(cursorIndex);
+            } else {
+                cursorIndicesByMeasure.set(measureIndex, [cursorIndex]);
+            }
+        }
+        cursorIndicesByMeasure.forEach(indices => indices.sort((a, b) => a - b));
+
+        let lastAssignedCursorIndex = 0;
+        const midiBars = Array.from(ticksByMidiBar.keys()).sort((a, b) => a - b);
+
+        for (const midiBar of midiBars) {
+            const tickInfos = ticksByMidiBar.get(midiBar)!;
+            const osmdMeasure = this.midiBarToOsmdMeasure.get(midiBar);
+            if (osmdMeasure == null) {
+                for (const tickInfo of tickInfos) {
+                    link[tickInfo.ticks] = lastAssignedCursorIndex;
+                }
+                continue;
+            }
+
+            const measureCursorIndices = cursorIndicesByMeasure.get(osmdMeasure) ?? [];
+            if (measureCursorIndices.length === 0) {
+                for (const tickInfo of tickInfos) {
+                    link[tickInfo.ticks] = lastAssignedCursorIndex;
+                }
+                continue;
+            }
+
+            let measurePos = 0;
+            const searchWindow = Math.min(6, Math.max(2, measureCursorIndices.length - 1));
+
+            for (let i = 0; i < tickInfos.length; i++) {
+                const tickInfo = tickInfos[i];
+                let chosenPos = i === 0 ? 0 : measurePos;
+
+                if (i > 0 && tickInfo.expectedHalfTones.size > 0) {
+                    const searchEnd = Math.min(measureCursorIndices.length - 1, measurePos + searchWindow);
+                    let foundPos = -1;
+                    for (let pos = measurePos; pos <= searchEnd; pos++) {
+                        const cursorIndex = measureCursorIndices[pos];
+                        const notes = this.osmdCursorIdxNoteMap.get(cursorIndex) ?? [];
+                        const hasMatch = notes.some(n => {
+                            const halfTone = n.Pitch?.getHalfTone();
+                            return halfTone != null && tickInfo.expectedHalfTones.has(halfTone);
+                        });
+                        if (hasMatch) {
+                            foundPos = pos;
+                            break;
+                        }
+                    }
+
+                    if (foundPos !== -1) {
+                        chosenPos = foundPos;
+                    } else if (tickInfos.length > 1) {
+                        const ratioPos = Math.round((i / (tickInfos.length - 1)) * (measureCursorIndices.length - 1));
+                        chosenPos = Math.max(measurePos, ratioPos);
+                    }
+                }
+
+                if (i > 0) {
+                    const clampedPos = Math.min(chosenPos, measurePos + 1);
+                    chosenPos = clampedPos;
+                }
+
+                const chosenCursorIndex = measureCursorIndices[Math.min(chosenPos, measureCursorIndices.length - 1)];
+                link[tickInfo.ticks] = chosenCursorIndex;
+                lastAssignedCursorIndex = chosenCursorIndex;
+                measurePos = Math.min(chosenPos + 1, measureCursorIndices.length - 1);
+            }
+        }
+
+        cursor.reset();
+        this.cursorIndex = 0;
         return link;
     }
 
@@ -163,12 +477,6 @@ export class CursorService {
         const osmdMesureSequence = Array.of(...this.midiBarToOsmdMeasure.values())
         const uiYieldStep = 64;
         const feedbackStep = Math.max(1, Math.floor(this.iteratorSize / 100));
-        this.repetitionInstructions.forEach(instr => {
-            console.log( instr);
-        });
-        // this.midiBarToOsmdMeasure.forEach((v, k) => {
-        //     console.log("midi measure", k, "=> osmd measure", v);
-        // });
         // first pass build a simple osmd step sequence
         let feedbackMessage = "building sheet cursor (1/4)";
         cursor.reset();
@@ -197,7 +505,7 @@ export class CursorService {
         }
         this.feedback(feedbackMessage, 100);
         cursor.reset();
-        
+
         // second pass detect last/jump/skippable
         feedbackMessage = "building sheet cursor (2/4)";
         let secondPassCounter = 0;
@@ -224,8 +532,8 @@ export class CursorService {
             }
             osmdArray.push(o);
 
-            const currentMeasureValue = this.midiBarToOsmdMeasure.get(midiMeasureIndex)! + 1;
-            const nextMeasureValue = this.midiBarToOsmdMeasure.get(midiMeasureIndex + 1);
+            const currentMeasureValue = osmdMesureSequence[midiMeasureIndex];
+            const nextMeasureValue = osmdMesureSequence[midiMeasureIndex + 1];
             if (o.isLast && currentMeasureValue != null && nextMeasureValue != null
                 && currentMeasureValue !== nextMeasureValue) {
                 targetMeasure = osmdMesureSequence[midiMeasureIndex + 1];
@@ -247,7 +555,7 @@ export class CursorService {
         cursor.reset();
 
         // third pass say target cause o.isFirst was not filled if in first pass
-        feedbackMessage = "building sheet cursor (3/4)";        
+        feedbackMessage = "building sheet cursor (3/4)";
         let targetOsmdIndex = 0;
         let thirdPassCounter = 0;
         for (const o of osmdArray) {
@@ -375,6 +683,7 @@ export class CursorService {
     builOsmdMeasureNoteMap(cursor: Cursor): Map<number, OSMDNote[]> {
         const feedbackMessage = "building osmd measure note map";
         this.feedback(feedbackMessage, 0);
+        this.osmdMeasureNoteMap.clear();
         const totalSteps = Math.max(1, this.iteratorSize);
         const feedbackStep = Math.max(1, Math.floor(totalSteps / 100));
         let step = 0;
@@ -388,7 +697,7 @@ export class CursorService {
             } else {
                 this.osmdMeasureNoteMap.set(currentIndex, notesUnderCursor);
             }
-            cursor.iterator.moveToNext();
+            cursor.next();
             step++;
             if (step % feedbackStep === 0 || step === totalSteps) {
                 this.feedback(feedbackMessage, (step / totalSteps) * 100);
@@ -407,20 +716,24 @@ export class CursorService {
     buildOsmdCursorIdxNoteMap(cursor: Cursor): Map<number, OSMDNote[]> {
         const feedbackMessage = "building osmd cursor index note map";
         this.feedback(feedbackMessage, 0);
+        this.osmdCursorIdxNoteMap.clear();
         const totalSteps = Math.max(1, this.iteratorSize);
         const feedbackStep = Math.max(1, Math.floor(totalSteps / 100));
         cursor.reset();
         let cursorIndex = 0;
+        this.osmdCursorIdxToMeasureMap.clear();
         while (!cursor.iterator.EndReached) {
             const notesUnderCursor = cursor.NotesUnderCursor();
+            const currentMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex;
             const bucket2 = this.osmdCursorIdxNoteMap.get(cursorIndex);
             if (bucket2) {
                 bucket2.push(...notesUnderCursor);
             } else {
                 this.osmdCursorIdxNoteMap.set(cursorIndex, notesUnderCursor);
             }
+            this.osmdCursorIdxToMeasureMap.set(cursorIndex, currentMeasureIndex);
             cursorIndex++;
-            cursor.iterator.moveToNext();
+            cursor.next();
             if (cursorIndex % feedbackStep === 0 || cursorIndex === totalSteps) {
                 this.feedback(feedbackMessage, (cursorIndex / totalSteps) * 100);
             }
@@ -440,29 +753,25 @@ export class CursorService {
         const feedbackMessage = "building midi measure note map";
         this.feedback(feedbackMessage, 0);
         const midiBarNoteMap = new Map<number, MidiNote[]>();
-        let maxBar = -1;
+        const totalNotes = Math.max(1, midi.tracks.reduce((sum, track) => sum + track.notes.length, 0));
+        const feedbackStep = Math.max(1, Math.floor(totalNotes / 100));
+        let processedNotes = 0;
 
         // group midi notes by bar
         for (const track of midi.tracks) {
             for (const note of track.notes) {
                 const bar = Math.trunc(note.bars);
-                if (bar > maxBar) {
-                    maxBar = bar;
-                }
                 const bucket = midiBarNoteMap.get(bar);
                 if (bucket) {
                     bucket.push(note);
                 } else {
                     midiBarNoteMap.set(bar, [note]);
                 }
-            }
-        }
-        this.feedback(feedbackMessage, 50);
 
-        // ensure contiguous bars from 0 to maxBar
-        for (let bar = 0; bar <= maxBar; bar++) {
-            if (!midiBarNoteMap.has(bar)) {
-                midiBarNoteMap.set(bar, []);
+                processedNotes++;
+                if (processedNotes % feedbackStep === 0 || processedNotes === totalNotes) {
+                    this.feedback(feedbackMessage, (processedNotes / totalNotes) * 100);
+                }
             }
         }
 
@@ -481,7 +790,7 @@ export class CursorService {
         this.feedback(feedbackMessage, 0);
         const midiTicksNoteMap = new Map<number, MidiNote[]>();
         const totalNotes = midi.tracks.reduce((sum, track) => sum + track.notes.length, 0);
-        const uiYieldStep = 256;
+        const uiYieldStep = 2;
         const feedbackStep = Math.max(1, Math.floor(totalNotes / 100));
         let processedNotes = 0;
 
@@ -518,8 +827,8 @@ export class CursorService {
         this.feedback(feedbackMessage, 0)
         this.repetitionInstructions = [];
         this.iteratorSize = 0;
-        const uiYieldStep = 64;
-        const feedbackStep = 32;
+        const uiYieldStep = 1;
+        const feedbackStep = 1;
 
         while (!cursor.iterator.EndReached) {
             this.iteratorSize++;
@@ -550,10 +859,6 @@ export class CursorService {
         return this.repetitionInstructions;
     }
 
-
-
-
-
     /**
      * build the map of midi measure index, trunc(note.bar), to osmd measure index 
     * taking into account repetition instructions (repeats, volta, D.S., D.C., etc.)
@@ -563,6 +868,7 @@ export class CursorService {
         const feedbackMessage = "building midi to osmd measure map";
         const midiMeasureIndices = Array.from(this.midiBarNoteBar.keys()).sort((a, b) => a - b);
         const osmdMeasureIndices = Array.from(this.osmdMeasureNoteMap.keys()).sort((a, b) => a - b);
+        this.osmdMeasureCount = osmdMeasureIndices.length;
         const repetitionInstructions = this.repetitionInstructions;
 
 
@@ -575,6 +881,7 @@ export class CursorService {
         const endingEndsByMeasure = new Map<number, RepetitionInstruction[]>();
         const endingEnds: RepetitionInstruction[] = [];
         const backJumpByMeasure = new Map<number, RepetitionInstruction>();
+        const daCapoByMeasure = new Map<number, RepetitionInstruction>();
         const startLineMeasures: number[] = [];
         const backJumpAnchors: number[] = [];
 
@@ -607,6 +914,12 @@ export class CursorService {
 
             if (instr.type === RepetitionInstructionEnum.StartLine) {
                 startLineMeasures.push(instr.measureIndex);
+            }
+
+            if (instr.type === RepetitionInstructionEnum.DaCapo) {
+                if (!daCapoByMeasure.has(instr.measureIndex)) {
+                    daCapoByMeasure.set(instr.measureIndex, instr);
+                }
             }
         }
 
@@ -675,12 +988,14 @@ export class CursorService {
         let pos = 0;
         let steps = 0;
         const maxSteps = Math.max(osmdMeasureIndices.length * 10, 1000);
-        const uiYieldStep = 64;
+        const uiYieldStep = 4;
         const feedbackStep = Math.max(1, Math.floor(maxSteps / 100));
+        const defaultRepeatStartMeasure = osmdMeasureIndices[0] ?? 0;
 
         this.passCount = 1;
         let activeRepeatAnchorMeasureIndex: number | null = null;
         let activeRepeatMaxEndingNumber: number | null = null;
+        let hasExecutedDaCapo = false;
 
         while (pos < osmdMeasureIndices.length && steps < maxSteps) {
             steps++;
@@ -691,10 +1006,24 @@ export class CursorService {
                 await this.yieldToUi();
             }
             const currentMeasureIndex = osmdMeasureIndices[pos];
+            const suppressVoltaSkipAfterAnchor =
+                this.passCount > 1 &&
+                activeRepeatAnchorMeasureIndex != null &&
+                currentMeasureIndex > activeRepeatAnchorMeasureIndex;
 
-            const currentVoltaStart = endingBeginsByMeasure
-                .get(currentMeasureIndex)
-                ?.find(instr => !(instr.endingIndices || []).includes(this.passCount));
+            const endingBeginsAtMeasure = endingBeginsByMeasure.get(currentMeasureIndex) ?? [];
+
+            const currentVoltaStart = endingBeginsAtMeasure
+                ?.find(instr => {
+                    if (suppressVoltaSkipAfterAnchor) {
+                        return false;
+                    }
+                    const endingIndices = instr.endingIndices;
+                    if (!endingIndices || endingIndices.length === 0) {
+                        return false;
+                    }
+                    return !endingIndices.includes(this.passCount);
+                });
 
             if (currentVoltaStart) {
                 const anchor = getRepeatAnchorCached(currentVoltaStart.measureIndex);
@@ -735,8 +1064,22 @@ export class CursorService {
 
             const backJump = backJumpByMeasure.get(currentMeasureIndex);
 
+            const daCapo = daCapoByMeasure.get(currentMeasureIndex);
+            if (daCapo && !hasExecutedDaCapo) {
+                const daCapoTargetMeasure = defaultRepeatStartMeasure;
+                const daCapoTargetPos = measureIndexToPos.get(daCapoTargetMeasure) ?? 0;
+
+                hasExecutedDaCapo = true;
+                this.passCount = 1;
+                activeRepeatAnchorMeasureIndex = null;
+                activeRepeatMaxEndingNumber = null;
+                pos = daCapoTargetPos;
+                continue;
+            }
+
             if (backJump) {
-                const targetMeasure = previousStartLineByMeasure.get(currentMeasureIndex) ?? 0;
+                const startLineTarget = previousStartLineByMeasure.get(currentMeasureIndex);
+                const targetMeasure = startLineTarget ?? defaultRepeatStartMeasure;
 
                 const anchorMeasureIndex = backJump.measureIndex;
                 if (
@@ -745,7 +1088,7 @@ export class CursorService {
                 ) {
                     this.passCount = 1;
                 }
-                const maxEndingNumber = maxEndingNumberByAnchor.get(anchorMeasureIndex) ?? 2;
+                const maxEndingNumber = Math.max(2, maxEndingNumberByAnchor.get(anchorMeasureIndex) ?? 2);
 
                 activeRepeatAnchorMeasureIndex = anchorMeasureIndex;
                 activeRepeatMaxEndingNumber = maxEndingNumber;
@@ -759,6 +1102,7 @@ export class CursorService {
             }
             pos++;
         }
+
         if (steps >= maxSteps) {
             console.warn("Stopped play order construction due to step limit", { steps, maxSteps });
         }
@@ -777,30 +1121,30 @@ export class CursorService {
         return midiBarToOsmdMeasure;
     }
 
-    private getRepeatAnchorForMeasure(measureIndex: number): number | null {
-        const anchor = this.repetitionInstructions
-            .filter(
-                instr =>
-                    instr.type === RepetitionInstructionEnum.BackJumpLine &&
-                    instr.alignment === AlignmentType.End &&
-                    instr.measureIndex <= measureIndex
-            )
-            .sort((a, b) => b.measureIndex - a.measureIndex)[0];
+    // private getRepeatAnchorForMeasure(measureIndex: number): number | null {
+    //     const anchor = this.repetitionInstructions
+    //         .filter(
+    //             instr =>
+    //                 instr.type === RepetitionInstructionEnum.BackJumpLine &&
+    //                 instr.alignment === AlignmentType.End &&
+    //                 instr.measureIndex <= measureIndex
+    //         )
+    //         .sort((a, b) => b.measureIndex - a.measureIndex)[0];
 
-        return anchor ? anchor.measureIndex : null;
-    }
+    //     return anchor ? anchor.measureIndex : null;
+    // }
 
-    private getMaxEndingNumberForAnchor(anchorMeasureIndex: number): number {
-        const anchoredEndings = this.repetitionInstructions
-            .filter(instr => instr.type === RepetitionInstructionEnum.Ending)
-            .filter(instr => this.getRepeatAnchorForMeasure(instr.measureIndex) === anchorMeasureIndex);
+    // private getMaxEndingNumberForAnchor(anchorMeasureIndex: number): number {
+    //     const anchoredEndings = this.repetitionInstructions
+    //         .filter(instr => instr.type === RepetitionInstructionEnum.Ending)
+    //         .filter(instr => this.getRepeatAnchorForMeasure(instr.measureIndex) === anchorMeasureIndex);
 
-        if (anchoredEndings.length === 0) {
-            return 2;
-        }
+    //     if (anchoredEndings.length === 0) {
+    //         return 2;
+    //     }
 
-        return Math.max(
-            ...anchoredEndings.flatMap(e => e.endingIndices || [1])
-        );
-    }
+    //     return Math.max(
+    //         ...anchoredEndings.flatMap(e => e.endingIndices || [1])
+    //     );
+    // }
 }

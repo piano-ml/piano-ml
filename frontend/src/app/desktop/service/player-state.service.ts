@@ -16,7 +16,7 @@ export class PlayerStateService {
   //osmdCursor: Cursor = null as unknown as Cursor;
 
   // Signals for reactive state
-  readonly measure = signal<number>(0);
+
   readonly message = signal<string>("");
   readonly elapsedTime = new BehaviorSubject<number>(0);
 

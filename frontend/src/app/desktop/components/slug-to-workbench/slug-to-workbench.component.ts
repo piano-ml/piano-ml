@@ -49,10 +49,8 @@ export class SlugToWorkbenchComponent implements OnInit {
   }
 
   private loadScoreAndNavigate(slug: string) {
-    console.log('Loading score for slug:', slug);
     this.scoreService.scoreGetBySlug(slug).subscribe({
       next: (score: ScoreApiInfo) => {
-            console.log('Ok:', score);
         if (isPlatformBrowser(this.platformId)) {
           try {
             window.history.replaceState(

@@ -2,7 +2,7 @@
 
     <div class="flex-row  bg-black">
         @if (!osmdLoading) {
-        <div class="flex flex-col lg:flex-row xl:flex-row mt-2 pl-2 pr-2">
+        <div class="flex flex-col lg:flex-row xl:flex-row mt-2 pl-2 pr-2 osmd-state-transition">
 
 
             <div class="flex lg:w-1/2 xl:w-1/2 ">
@@ -129,7 +129,7 @@
 
         </div>
         } @else {
-        <div class="flex flex-col items-center justify-center w-full h-full text-6xl">
+        <div class="flex flex-col items-center justify-center w-full h-dvh text-6xl osmd-state-transition">
             🎼
              @if (loadingFeedBack) {
             <span class="text-sm">{{ loadingFeedBack!.message }} - {{ loadingFeedBack!.percentage }}%</span>
@@ -148,7 +148,7 @@
 
     <!-- score -->
     @if (!loading) {
-    <div class="bg-white flex-grow overflow-y-auto score-container">
+    <div class="bg-white flex-grow overflow-y-auto score-container osmd-fade" [class.osmd-fade-visible]="!osmdLoading">
         <app-osmd [scoreData]="scoreData" [musicXml]="musicXml"
             (loadingChange)="onOsmdLoadingChange($event)"></app-osmd>
     </div>
@@ -162,7 +162,7 @@
     </div>
 
     <!-- keyboard -->
-    @if (!hideKeyboard && !loading) {
+    @if (!hideKeyboard && !loading && !osmdLoading) {
     <div class="flex-none">
         <app-keyboard></app-keyboard>
     </div>
