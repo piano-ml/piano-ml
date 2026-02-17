@@ -78,7 +78,7 @@ export class AuthService {
   }
 
   private refreshSessionFromServer(): void {
-    if (!this.isBrowser) {
+    if (!this.isBrowser || this.sessionStorage.getUserId() === null) {
       return;
     }
     

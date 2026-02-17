@@ -2,6 +2,7 @@ import { Injectable, NgZone, inject, signal } from "@angular/core";
 import { Midi } from "@tonejs/midi";
 import type { Note as MidiNote, Note } from "@tonejs/midi/dist/Note";
 import { AlignmentType, Cursor, RepetitionInstruction, RepetitionInstructionEnum, Note as OSMDNote, GraphicalNote } from "opensheetmusicdisplay";
+import { DEFAULT_OSMD_OPTIONS } from "../components/osmd/osmd.config";
 
 
 
@@ -9,6 +10,7 @@ import { AlignmentType, Cursor, RepetitionInstruction, RepetitionInstructionEnum
     providedIn: 'root'
 })
 export class CursorService {
+    private static readonly DIAGNOSTIC_STORAGE_KEY = "cursorService.debug";
 
 
     cursorIndex = 0;
@@ -18,7 +20,7 @@ export class CursorService {
     osmdArray: { osmdMeasure: number; osmdIndex: number; index: number; isLast: boolean; isJump: boolean; target: number | null; targetMeasure: number | null; isSkipable: boolean; }[] | undefined;
     feedbackSignal = signal<{ message: string; percentage: number } | null>(null);;
     readonly measure = signal<number>(0);
-    private diagnosticMode = false;
+    private diagnosticMode = this.readDiagnosticModeFromStorage();
     repetitionInstructions: RepetitionInstruction[] = [];
     private passCount = 1; // state for calculating in buildWithRepetitionBar the play order with repetition instructions
     midiBarNoteBar: Map<number, MidiNote[]> = new Map(); // measure (=trunc(note.bar)) => MidiNote[]
@@ -32,13 +34,41 @@ export class CursorService {
     iteratorSize = 0;
     osmdMeasureCount = 0;
 
+    constructor() {
+        this.debugLog("diagnostic mode", { enabled: this.diagnosticMode });
+    }
+
+    setDiagnosticMode(enabled: boolean, persist = true): void {
+        this.diagnosticMode = enabled;
+
+        if (persist && typeof window !== "undefined") {
+            try {
+                window.localStorage.setItem(CursorService.DIAGNOSTIC_STORAGE_KEY, enabled ? "1" : "0");
+            } catch {
+                // ignore storage failures
+            }
+        }
+
+        this.debugLog("diagnostic mode updated", { enabled: this.diagnosticMode, persist });
+    }
+
     nextNote(note: Note) {
+        console.log(note.ticks, note.midi);
         const mappedCursorIndex = this.midiTicksToOsmdCursorIndex[note.ticks];
         const fallbackCursorIndex = this.osmdArray?.[this.midiIndex]?.osmdIndex;
-        const next = this.resolveBestCursorIndexForTick(note.ticks, mappedCursorIndex, fallbackCursorIndex, this.cursorIndex);
+        const resolution = this.resolveBestCursorIndexForTick(note.ticks, mappedCursorIndex, fallbackCursorIndex, this.cursorIndex);
+        const next = resolution.index;
         if (next == null) {
             return;
         }
+
+        if (
+            this.diagnosticMode &&
+            (resolution.source !== "mapped" || (mappedCursorIndex != null && !this.hasExpectedAtCursorIndexForTick(mappedCursorIndex, note.ticks)))
+        ) {
+            this.logResolutionDiagnostic(note, mappedCursorIndex, fallbackCursorIndex, resolution.source, next);
+        }
+
         this.moveCursorToOsmdIndex(this.cursor!, next);
         const newOsmdMeasure = this.osmdArray?.[this.midiIndex]?.osmdMeasure || 0;
         if (newOsmdMeasure !== this.measure()) {
@@ -69,7 +99,7 @@ export class CursorService {
             this.cursor!.CursorOptions.alpha = 0.3;
             this.cursor!.GNotesUnderCursor().forEach(n => n.setColor("#FF0000", {}));
         } else {
-            this.cursor!.CursorOptions.color = "#B0F2B4";
+            this.cursor!.CursorOptions.color = DEFAULT_OSMD_OPTIONS.cursorsOptions![0].color!;
             this.cursor!.CursorOptions.alpha = 1;
         }
         this.midiIndex++;
@@ -80,25 +110,23 @@ export class CursorService {
         mappedCursorIndex: number | undefined,
         fallbackCursorIndex: number | undefined,
         defaultCursorIndex: number,
-    ): number {
+    ): { index: number; source: "mapped" | "fallback" | "nearby-current" | "nearby-fallback" | "nearby-mapped" | "default" } {
+
         const mappedHasExpected =
             mappedCursorIndex != null && this.hasExpectedAtCursorIndexForTick(mappedCursorIndex, ticks);
         if (mappedHasExpected) {
-            console.log("mapped")
-            return mappedCursorIndex!;
+            return { index: mappedCursorIndex!, source: "mapped" };
         }
 
         const fallbackHasExpected =
             fallbackCursorIndex != null && this.hasExpectedAtCursorIndexForTick(fallbackCursorIndex, ticks);
         if (fallbackHasExpected) {
-            console.log("fallback")
-            return fallbackCursorIndex!;
+            return { index: fallbackCursorIndex!, source: "fallback" };
         }
 
         const nearbyFromCurrent = this.findNearbyExpectedCursorIndexForTick(defaultCursorIndex, ticks, 2, 6);
         if (nearbyFromCurrent != null) {
-            console.log("nearby from current")
-            return nearbyFromCurrent;
+            return { index: nearbyFromCurrent, source: "nearby-current" };
         }
 
         const nearbyFromFallback =
@@ -106,8 +134,7 @@ export class CursorService {
                 ? this.findNearbyExpectedCursorIndexForTick(fallbackCursorIndex, ticks, 2, 6)
                 : undefined;
         if (nearbyFromFallback != null) {
-            console.log("nearby from fallback")
-            return nearbyFromFallback;
+            return { index: nearbyFromFallback, source: "nearby-fallback" };
         }
 
 
@@ -116,15 +143,43 @@ export class CursorService {
                 ? this.findNearbyExpectedCursorIndexForTick(mappedCursorIndex, ticks, 2, 6)
                 : undefined;
         if (nearbyFromMapped != null) {
-            console.log("nearby from mapped")
-            return nearbyFromMapped;
+            return { index: nearbyFromMapped, source: "nearby-mapped" };
         }
 
 
+        return { index: mappedCursorIndex ?? fallbackCursorIndex ?? defaultCursorIndex, source: "default" };
+    }
 
+    private logResolutionDiagnostic(
+        note: Note,
+        mappedCursorIndex: number | undefined,
+        fallbackCursorIndex: number | undefined,
+        source: "mapped" | "fallback" | "nearby-current" | "nearby-fallback" | "nearby-mapped" | "default",
+        resolvedIndex: number,
+    ): void {
+        const expectedHalfTones = Array.from(this.getExpectedHalfTonesForTick(note.ticks)).sort((a, b) => a - b);
+        const mappedHalfTones = this.getHalfTonesAtCursorIndex(mappedCursorIndex);
+        const fallbackHalfTones = this.getHalfTonesAtCursorIndex(fallbackCursorIndex);
+        const resolvedHalfTones = this.getHalfTonesAtCursorIndex(resolvedIndex);
 
-
-        return mappedCursorIndex ?? fallbackCursorIndex ?? defaultCursorIndex;
+        console.groupCollapsed(`[cursor][resolve] tick=${note.ticks} source=${source}`);
+        console.log({
+            midiIndex: this.midiIndex,
+            cursorIndex: this.cursorIndex,
+            noteMidi: note.midi,
+            expectedHalfTones,
+            mappedCursorIndex,
+            mappedMeasure: mappedCursorIndex != null ? this.osmdCursorIdxToMeasureMap.get(mappedCursorIndex) : undefined,
+            mappedHalfTones,
+            fallbackCursorIndex,
+            fallbackMeasure: fallbackCursorIndex != null ? this.osmdCursorIdxToMeasureMap.get(fallbackCursorIndex) : undefined,
+            fallbackHalfTones,
+            resolvedIndex,
+            resolvedMeasure: this.osmdCursorIdxToMeasureMap.get(resolvedIndex),
+            resolvedHalfTones,
+            midiBar: Number.isFinite((note as MidiNote).bars) ? Math.trunc((note as MidiNote).bars) : null,
+        });
+        console.groupEnd();
     }
 
     private findNearbyExpectedCursorIndexForTick(
@@ -224,6 +279,21 @@ export class CursorService {
         });
     }
 
+    private getExpectedHalfTonesForTick(ticks: number): Set<number> {
+        const notesAtTick = this.midiTicksNoteMap.get(ticks) ?? [];
+        return new Set(notesAtTick.map(n => n.midi - 12));
+    }
+
+    private getHalfTonesAtCursorIndex(cursorIndex: number | undefined): number[] {
+        if (cursorIndex == null) {
+            return [];
+        }
+        const notes = this.osmdCursorIdxNoteMap.get(cursorIndex) ?? [];
+        return notes
+            .map(n => n.Pitch?.getHalfTone())
+            .filter((halfTone): halfTone is number => halfTone != null);
+    }
+
     private forceCursorToIndex(cursor: Cursor, targetIndex: number): void {
         cursor.reset();
         this.cursorIndex = 0;
@@ -316,14 +386,16 @@ export class CursorService {
 
         this.midiTicksToOsmdCursorIndex = await this.linkMidiTicksToCursorIndex(cursor);
 
+
+
         const status = this.verify()
 
         this.repetitionInstructions = [];
         this.midiBarNoteBar.clear();
         this.osmdMeasureNoteMap.clear();
         setTimeout(() => {
-        this.cursor!.next();
-        this.cursor!.previous();        
+            this.cursor!.next();
+            this.cursor!.previous();
         }, 100);
         return status;
     }
@@ -345,7 +417,7 @@ export class CursorService {
                 cursor.previous();
                 this.cursorIndex--;
             }
-        } else if (targetIndex > this.cursorIndex) {            
+        } else if (targetIndex > this.cursorIndex) {
             while (this.cursorIndex < targetIndex && !cursor.iterator.EndReached) {
                 cursor.next();
                 this.cursorIndex++;
@@ -464,9 +536,72 @@ export class CursorService {
             }
         }
 
+        if (this.diagnosticMode) {
+
+            const leadingBarsPreview = midiBars.slice(0, 16).map(midiBar => {
+                const tickInfos = ticksByMidiBar.get(midiBar) ?? [];
+                const firstTick = tickInfos[0]?.ticks;
+                const mappedCursorIndex = firstTick != null ? link[firstTick] : undefined;
+                return {
+                    midiBar,
+                    osmdMeasureMapped: this.midiBarToOsmdMeasure.get(midiBar),
+                    firstTick,
+                    mappedCursorIndex,
+                    mappedCursorMeasure: mappedCursorIndex != null ? this.osmdCursorIdxToMeasureMap.get(mappedCursorIndex) : undefined,
+                    firstTickExpectedHalfTones: firstTick != null ? Array.from(this.getExpectedHalfTonesForTick(firstTick)).sort((a, b) => a - b) : [],
+                };
+            });
+
+            const firstMidiBar = midiBars[0];
+            const firstOsmdMeasure = Math.min(...Array.from(this.osmdMeasureNoteMap.keys()));
+            const firstCursorMeasure = this.osmdCursorIdxToMeasureMap.get(0);
+
+            console.groupCollapsed("[cursor][mapping] midiTicksToOsmdCursorIndex summary");
+            // console.log({
+            //     midiBarsCount: midiBars.length,
+            //     firstMidiBar,
+            //     firstOsmdMeasure,
+            //     firstCursorMeasure,
+            //     firstMidiBarLooksShifted: Number.isFinite(firstMidiBar) && firstMidiBar > 0,
+            //     midiTicksCount: sortedTicks.length,
+            //     osmdCursorCount: this.osmdCursorIdxNoteMap.size,
+            //     osmdMeasureCount: this.osmdMeasureCount,
+            // });
+            // console.table(leadingBarsPreview);
+            console.log("ticksByMidiBar");
+            console.table(ticksByMidiBar);
+            console.log("final output");
+            console.table(link.slice(0,99))
+
+            console.groupEnd();
+        }
+
         cursor.reset();
         this.cursorIndex = 0;
         return link;
+    }
+
+    private readDiagnosticModeFromStorage(): boolean {
+        if (typeof window === "undefined") {
+            return false;
+        }
+
+        try {
+            return window.localStorage.getItem(CursorService.DIAGNOSTIC_STORAGE_KEY) === "1";
+        } catch {
+            return false;
+        }
+    }
+
+    private debugLog(message: string, data?: unknown): void {
+        if (!this.diagnosticMode) {
+            return;
+        }
+        if (data === undefined) {
+            console.log(`[cursor][debug] ${message}`);
+            return;
+        }
+        console.log(`[cursor][debug] ${message}`, data);
     }
 
 
@@ -684,12 +819,23 @@ export class CursorService {
         const feedbackMessage = "building osmd measure note map";
         this.feedback(feedbackMessage, 0);
         this.osmdMeasureNoteMap.clear();
+        let maxMeasureNumberXml = 0;
         const totalSteps = Math.max(1, this.iteratorSize);
         const feedbackStep = Math.max(1, Math.floor(totalSteps / 100));
         let step = 0;
         cursor.reset();
         while (!cursor.iterator.EndReached) {
-            const currentIndex = cursor.iterator.CurrentMeasure.measureListIndex;
+            const currentMeasure = cursor.iterator.CurrentMeasure;
+            const currentIndex = currentMeasure.measureListIndex;
+            const measureNumberXmlRaw = (currentMeasure as unknown as { MeasureNumberXML?: number | string }).MeasureNumberXML;
+            const measureNumberXml =
+                typeof measureNumberXmlRaw === "number"
+                    ? measureNumberXmlRaw
+                    : Number.parseInt(String(measureNumberXmlRaw ?? ""), 10);
+            if (Number.isFinite(measureNumberXml)) {
+                maxMeasureNumberXml = Math.max(maxMeasureNumberXml, measureNumberXml);
+            }
+
             const notesUnderCursor = cursor.NotesUnderCursor();
             const bucket = this.osmdMeasureNoteMap.get(currentIndex);
             if (bucket) {
@@ -703,6 +849,14 @@ export class CursorService {
                 this.feedback(feedbackMessage, (step / totalSteps) * 100);
             }
         }
+
+        this.osmdMeasureCount = maxMeasureNumberXml;
+        if (this.diagnosticMode) {
+            console.log("[cursor][mapping] osmdMeasureCount from MeasureNumberXML", {
+                osmdMeasureCount: this.osmdMeasureCount,
+            });
+        }
+
         this.feedback(feedbackMessage, 100);
         cursor.reset();
         return this.osmdMeasureNoteMap;
@@ -814,6 +968,7 @@ export class CursorService {
         }
         this.midiTicksNoteMap = midiTicksNoteMap;
         this.feedback(feedbackMessage, 100);
+        console.log(Array.from(this.midiTicksNoteMap.entries()).map(([ticks, notes]) => (ticks)));
         return this.midiTicksNoteMap;
     }
 
@@ -868,7 +1023,9 @@ export class CursorService {
         const feedbackMessage = "building midi to osmd measure map";
         const midiMeasureIndices = Array.from(this.midiBarNoteBar.keys()).sort((a, b) => a - b);
         const osmdMeasureIndices = Array.from(this.osmdMeasureNoteMap.keys()).sort((a, b) => a - b);
-        this.osmdMeasureCount = osmdMeasureIndices.length;
+        if (this.osmdMeasureCount <= 0) {
+            this.osmdMeasureCount = osmdMeasureIndices.length;
+        }
         const repetitionInstructions = this.repetitionInstructions;
 
 
@@ -1112,8 +1269,23 @@ export class CursorService {
             ? playOrder[playOrder.length - 1]
             : osmdMeasureIndices[osmdMeasureIndices.length - 1];
 
+        const firstMidiBar = midiMeasureIndices[0] ?? 0;
+        const playOrderStartMeasure = playOrder[0] ?? defaultRepeatStartMeasure;
+        const midiToPlayOrderOffset = Math.max(0, firstMidiBar - playOrderStartMeasure);
+
+        if (this.diagnosticMode) {
+            console.log("[cursor][mapping] midi->playOrder alignment", {
+                firstMidiBar,
+                playOrderStartMeasure,
+                midiToPlayOrderOffset,
+                playOrderLength: playOrder.length,
+                midiBarsCount: midiMeasureIndices.length,
+            });
+        }
+
         for (let i = 0; i < midiMeasureIndices.length; i++) {
-            const sheetMeasure = playOrder[i] ?? lastSheetMeasure;
+            const alignedPlayOrderIndex = i + midiToPlayOrderOffset;
+            const sheetMeasure = playOrder[alignedPlayOrderIndex] ?? lastSheetMeasure;
             midiBarToOsmdMeasure.set(midiMeasureIndices[i], sheetMeasure);
         }
         this.feedback(feedbackMessage, 100);

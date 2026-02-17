@@ -83,21 +83,21 @@ export class LayoutComponent implements OnDestroy {
   private startDonationRoulette(icons: string[]): void {
     this.clearDonationRoulette();
 
-    const totalDurationMs = 6000;
+    const totalDurationMs = 3000;
     const roundDurationMs = 1000;
     const endInterval = roundDurationMs / icons.length;
-    let startInterval = 60;
+    let startInterval = 30;
 
     let steps = Math.round((2 * totalDurationMs) / (startInterval + endInterval));
     steps = Math.max(12, steps);
 
-    startInterval = (2 * totalDurationMs) / steps - endInterval;
-    if (startInterval < 20) {
-      steps = Math.max(8, Math.floor((2 * totalDurationMs) / (20 + endInterval)));
-      startInterval = (2 * totalDurationMs) / steps - endInterval;
+    startInterval = (1 * totalDurationMs) / steps - endInterval;
+    if (startInterval < 10) {
+      steps = Math.max(4, Math.floor((2 * totalDurationMs) / (20 + endInterval)));
+      startInterval = (4 * totalDurationMs) / steps - endInterval;
     }
     if (startInterval >= endInterval) {
-      startInterval = Math.max(20, endInterval * 0.5);
+      startInterval = Math.max(10, endInterval * 0.25);
     }
 
     let elapsed = 0;

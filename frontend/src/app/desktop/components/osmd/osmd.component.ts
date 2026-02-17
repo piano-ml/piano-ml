@@ -74,9 +74,11 @@ export class OsmdComponent implements OnInit, OnDestroy {
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
         this.osmd.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
 
-        this.osmd.setOptions(DEFAULT_OSMD_OPTIONS);
-        this.setCustomOptions();
-
+        this.osmd.setOptions({
+            ...DEFAULT_OSMD_OPTIONS,
+            ...this.getCustomOptions(),
+        });
+        
         if (this.musicXml) {
             await this.osmd.load(this.musicXml).then(() => {
                 // ... do nothing here
@@ -112,26 +114,23 @@ export class OsmdComponent implements OnInit, OnDestroy {
             }, 600);
         }
     }
-    setCustomOptions() {
+    getCustomOptions(): {} {
         const storage = localStorage.getItem("preferences")
+        const customOptions: Partial<typeof DEFAULT_OSMD_OPTIONS> = {};
         if (storage) {
             try {
                 const preferences = JSON.parse(storage);
                 if (preferences.hasOwnProperty("drawFingering")) {
-                    this.osmd!.setOptions({
-                        drawFingerings: preferences.drawFingering
-                    });
+                    customOptions.drawFingerings = preferences.drawFingering;
                 }
                 if (preferences.hasOwnProperty("drawLyrics")) {
-                    this.osmd!.setOptions({
-                        drawLyrics: preferences.drawLyrics
-                    });
+                    customOptions.drawLyrics = preferences.drawLyrics;
                 }
-
             } catch (e) {
                 console.error("Error parsing preferences from localStorage", e);
             }
         }
+        return customOptions;
 
     }
 }

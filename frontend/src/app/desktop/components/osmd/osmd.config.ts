@@ -16,7 +16,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     cursorsOptions: [
         {
             follow: true, 
-            color: "#B0F2B4",
+            color: "#50FF50",
             alpha: 1,
             type: 4
         },
