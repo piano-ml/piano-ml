@@ -11,7 +11,7 @@
       (click)="onGenreClick(genre)"
       class="bg-neutral-700 hover:bg-green-600 text-white rounded-lg p-3 transition-colors duration-200 text-left group">
       <div class="font-medium text-sm truncate group-hover:text-green-100">
-        {{ genre.genre?.name || "genre not specified" }}
+        {{ genre.genre.name || "genre not specified" }}
       </div>
       <div class="text-xs text-gray-400 mt-1">
         {{ genre.count }} {{ genre.count === 1 ? 'score' : 'scores' }}

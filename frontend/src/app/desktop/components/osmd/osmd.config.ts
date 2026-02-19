@@ -4,6 +4,11 @@ import { IOSMDOptions, CursorOptions } from "opensheetmusicdisplay";
  * Configuration par défaut pour OpenSheetMusicDisplay
  * Documentation complète: https://opensheetmusicdisplay.github.io/classdoc/interfaces/IOSMDOptions.html
  */
+
+export const CURSOR_GOOD_COLOR = "#50FF50";
+export const CURSOR_BAD_COLOR = "#FF5050";
+
+
 export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     pageFormat: 'Endless',
     autoBeam: false ,
@@ -16,7 +21,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     cursorsOptions: [
         {
             follow: true, 
-            color: "#50FF50",
+            color: CURSOR_GOOD_COLOR,
             alpha: 1,
             type: 4
         },
@@ -33,6 +38,8 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     drawMetronomeMarks: false,
     coloringEnabled: true,
     followCursor: true, 
+    preferredSkyBottomLineBatchCalculatorBackend: 1
+    
 };
 
 /**

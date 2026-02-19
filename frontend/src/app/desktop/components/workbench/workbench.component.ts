@@ -595,7 +595,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       ...this.getSliderBaseConfig(),
       pips: {
         mode: PipsMode.Steps,
-        density: 1,
+        density: 100,
         format: wNumb({
           decimals: 0,
           encoder: (i: number) => i + 1,
