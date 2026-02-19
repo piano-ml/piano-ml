@@ -14,9 +14,8 @@ import { ScoreApiInfo } from '../../core/api';
 import { GraphicalNote, OpenSheetMusicDisplay, Note as OSMDNote, VexFlowGraphicalNote } from 'opensheetmusicdisplay';
 import { PlayerStateService } from './player-state.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
-//import { PlayerRepetitionService } from './player-repetition.service';
 import { PlayerAudioService } from './player-audio.service';
-import { GOOD_RANGE, LiveStatus, PlayerAssessService, QUANT_RANGE } from './player-assess.service';
+import { LiveStatus, PlayerAssessService, QUANT_RANGE } from './player-assess.service';
 import { CursorService } from './cursor.service';
 
 
@@ -31,7 +30,6 @@ export class PlayerService {
 
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
-  private midiSetupTimeout?: number;
   private timeCounterInterval?: number;
   verticalPixelShiftValue: number = 1;
   lastBar = 0;
@@ -61,7 +59,6 @@ export class PlayerService {
     private midiService: MidiServiceService,
     private state: PlayerStateService,
     private keyboard: PlayerKeyboardService,
-    //private repetition: PlayerRepetitionService,
     private assess: PlayerAssessService,
     private audio: PlayerAudioService,
     private cursorService: CursorService
@@ -206,9 +203,6 @@ export class PlayerService {
   }
 
   async play(playConfigurations: PlayConfiguration) {
-    // if (this.lastMidiEventTime === -1 && this.osmdCursor) {
-    //   this.osmdCursor.previous();
-    // }
     this.audio.clearSchedule();
     this.unHighlightBadNote();
     this.assess.reset();
@@ -389,29 +383,10 @@ export class PlayerService {
 
   async setOsmd(osmd: OpenSheetMusicDisplay): Promise<boolean> {
     this.state.osmd = osmd;
-    // this.state.osmdCursor = this.state.osmd.cursor;
-    // this.state.osmdCursor.CursorOptions.color = "#B0F2B4";
-    // this.state.osmdCursor.CursorOptions.alpha = 0.6;
-    //this.repetition.hydrateRepetitionInstructions();
-    //this.state.osmdCursor.reset();
     // half tone pixel shift calculation
     this.verticalPixelShiftValue = this.state.osmd!.EngravingRules.StaffDistance / 2;
     return this.cursorService.setup(osmd.cursor, this.playConfiguration.midi!)
   }
-
-
-
-
-
-  // private recolorCursor(note: Note) {
-  //   if (!this.isCursorOk(note)) {
-  //     this.osmdCursor.CursorOptions.color = '#FFB3BA';
-  //     this.osmdCursor.CursorOptions.alpha = 0.3;
-  //   } else {
-  //     this.osmdCursor.CursorOptions.color = "#B0F2B4";
-  //     this.osmdCursor.CursorOptions.alpha = 0.6;
-  //   }
-  // }
 
   private cursorMayBeAdvance(note: Note) {
     if (note.ticks > this.lastMidiEventTime) {
@@ -426,16 +401,6 @@ export class PlayerService {
     return this.assess;
   }
 
-
-
-
-  // private setCurrentTick(note: Note) {
-  //   const bar = note.bars;
-  //   const truncatedBar = Math.trunc(bar);
-  //   if (truncatedBar !== this.measure()) {
-  //     this.measure.set(truncatedBar);
-  //   }
-  // }
 
   private calculateStartTime() {
     const startTime = (this.calculateStartTimeInMsForMeasure(
@@ -468,21 +433,4 @@ export class PlayerService {
     return midiHeader.ticksToSeconds(elapsedTicks);
   }
 
-
-
-  /**
-   * Nettoie les ressources du service, notamment l'interval du compteur de temps
-   */
-  private cleanup() {
-    if (this.timeCounterInterval) {
-      clearInterval(this.timeCounterInterval);
-      this.timeCounterInterval = undefined;
-    }
-    if (this.midiSetupTimeout) {
-      clearTimeout(this.midiSetupTimeout);
-      this.midiSetupTimeout = undefined;
-    }
-    // Clear DOM caches to prevent memory leaks
-    this.keyboard.cleanup();
-  }
 }
