@@ -3,7 +3,7 @@ name: Build and Push to Artifact Registry
 
 on:
   push:
-    branches: ["main", "deploy", 'fix/prerender']
+    branches: ["main"]
 #  pull_request:
 #    branches: ["main", "deploy"]
 

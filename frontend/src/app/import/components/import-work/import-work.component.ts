@@ -168,13 +168,16 @@ export class ImportWorkComponent implements OnInit {
             this.onFileSent(input);
         }
     }
-    getFileType(fileName: string): 'pdf' | 'musicxml' | 'midi' | 'metadata' | 'image' {
+    getFileType(fileName: string): 'pdf' | 'musicxml' |  'mxl' | 'midi' | 'metadata' | 'image' {
         if (fileName.endsWith('.mid') || fileName.endsWith('.midi')) {
             return 'midi';
         }
-        if (fileName.endsWith('.musicxml') || fileName.endsWith('.mxl')) {
+        if (fileName.endsWith('.musicxml')) {
             return 'musicxml';
         }
+        if (fileName.endsWith('.mxl')) {
+            return 'mxl';
+        }        
         if (fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
             return 'image';
         }

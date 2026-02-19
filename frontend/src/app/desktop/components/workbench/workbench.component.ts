@@ -152,6 +152,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       this.setupSlider();
       setTimeout(() => {
         this.title = `${this.scoreData!.author} - ${this.scoreData!.title}`;
+        this.updatePageTitle()
         this.changeDetector.detectChanges();
         this.checkIfScrollNeeded();
       }, 100);

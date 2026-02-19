@@ -1,0 +1,13 @@
+{
+  "tracks_count": 2,
+  "duration_seconds": 242.0,
+  "measures_count": 162,
+  "has_lyrics": false,
+  "tempo": 95.0,
+  "analysis": {
+    "tonic": "C",
+    "mode": "major",
+    "full_key": "C major",
+    "certainty": 1.3052531997133419
+  }
+}

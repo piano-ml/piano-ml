@@ -12,8 +12,6 @@ env:
   SERVICE_ACCOUNT: my-service-account
   PROVIDER_ID: projects/189831140484/locations/global/workloadIdentityPools/my-pool/providers/github-actions-provider
 
-
-
 jobs:
   backend:
     name: Backend - Docker Build & Push   

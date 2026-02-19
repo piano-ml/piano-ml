@@ -1,0 +1,38 @@
+meta {
+  name: score id type version revision post
+  type: http
+  seq: 20
+}
+
+post {
+  url: http://localhost:8080/score/{{scoreId}}/{{type}}/{{version}}/{{revision}}
+  body: file
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  Authorization: Bearer {{token}}
+  Content-Type: multipart/form-data
+}
+
+params:path {
+  scoreId: b46797f3-d5bd-4bc2-9010-ebad3bc6e305
+  type: musicxml
+  version: 1
+  revision: 0
+}
+
+body:file {
+  file: ./fixtures/sample.musicxml
+  fieldName: file
+}
+
+script:pre-request {
+  const token = bru.getEnvVar("token");
+}
+
+settings {
+  encodeUrl: true
+}
+
