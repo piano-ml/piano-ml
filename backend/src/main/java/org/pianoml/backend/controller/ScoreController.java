@@ -144,6 +144,7 @@ public class ScoreController implements ScoreApi {
     User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(EntityNotFoundException::new);
     Optional<Score> optScore = scoreRepository.findScoreByIdAndOwnerAndVersion(UUID.fromString(id), user, version);
     if (optScore.isEmpty()) {
+      log.error("upload attachment failed: score not found for id {}, version {}, owner {}", id, version, userId);
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
     if (!optScore.get().getOwner().getId().equals(UUID.fromString(userId))) {

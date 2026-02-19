@@ -11,12 +11,7 @@ import org.pianoml.backend.entity.User;
 import org.pianoml.backend.mapper.AuthorMapper;
 import org.pianoml.backend.mapper.GenreMapper;
 import org.pianoml.backend.mapper.ScoreMapper;
-import org.pianoml.backend.model.AuthorWithScoreCount;
-import org.pianoml.backend.model.AuthorApiInfo;
-import org.pianoml.backend.model.GenreApiInfo;
-import org.pianoml.backend.model.ScoreApiInfo;
-import org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner;
-import org.pianoml.backend.model.ScoreStatsGet200Response;
+import org.pianoml.backend.model.*;
 import org.pianoml.backend.repository.GenreRepository;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserPlayCountRepository;
@@ -80,7 +75,7 @@ public class ScoreService {
   private PackService packService;
 
   public static String makeBucketKeyFromScore(Score score) {
-    String secondId= score.getMbid()!=null ? score.getMbid().toString() : score.getId().toString();
+    String secondId = score.getMbid() != null ? score.getMbid().toString() : score.getId().toString();
     return "scores/" + score.getOwner().getId() + "/" + secondId + "/" + score.getVersion() + ".zip";
   }
 
@@ -108,11 +103,11 @@ public class ScoreService {
       score.setExercise(false);
     }
     score.setPublicDomain(true);
-    if (score.getAuthor().getLifeSpanEnd()!=null) {
+    if (score.getAuthor().getLifeSpanEnd() != null) {
       // set EU public domain status if possible
-      score.setPublicDomain(score.getAuthor().getLifeSpanEnd().isBefore (LocalDate.now().minusYears(70)));
+      score.setPublicDomain(score.getAuthor().getLifeSpanEnd().isBefore(LocalDate.now().minusYears(70)));
     } else {
-      if (score.getAuthor().getLifeSpanBegin()!=null) {
+      if (score.getAuthor().getLifeSpanBegin() != null) {
         score.setPublicDomain(false);
       }
     }
@@ -201,7 +196,7 @@ public class ScoreService {
   }
 
   public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, String fullKey, String orderBy, Integer offset, Integer limit, User user, List<Integer> tracks) {
-    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, artistSlug, genreSlug, etude, gradeStart, gradeEnd, tempo, fullKey, orderBy, offset, limit, user, tracks )
+    return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, artistSlug, genreSlug, etude, gradeStart, gradeEnd, tempo, fullKey, orderBy, offset, limit, user, tracks)
       .stream()
       .map(scoreMapper::toScoreApiInfo)
       .collect(Collectors.toList());
@@ -229,7 +224,9 @@ public class ScoreService {
         if (type.equals("midi")) {
           filename = packService.packMidi(packScriptDto);
         } else if (type.equals("musicxml")) {
-          filename = packService.packMusicXml(packScriptDto);
+          filename = packService.packMusicXml(packScriptDto, ".musicxml");
+        } else if (type.equals("mxl")) {
+          filename = packService.packMusicXml(packScriptDto, ".mxl");
         } else {
           throw new RuntimeException("Unsupported type " + type);
         }
@@ -401,17 +398,17 @@ public class ScoreService {
 
     List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(user, lim == null ? null : off, lim, tracks, fullKey, slug);
     return rows.stream().map(row -> {
-       org.pianoml.backend.entity.Author author = (org.pianoml.backend.entity.Author) row[0];
-       Long count = (Long) row[1];
-       OffsetDateTime maxUploadedAt = (OffsetDateTime) row[2];
-       AuthorApiInfo authorApiInfo = authorMapper.toAuthorApiInfo(author);
-       AuthorWithScoreCount out = new AuthorWithScoreCount();
-       out.setAuthor(authorApiInfo);
-       out.setCount(count);
-       out.setUpdatedAt(maxUploadedAt);
-       return out;
-     }).toList();
-   }
+      org.pianoml.backend.entity.Author author = (org.pianoml.backend.entity.Author) row[0];
+      Long count = (Long) row[1];
+      OffsetDateTime maxUploadedAt = (OffsetDateTime) row[2];
+      AuthorApiInfo authorApiInfo = authorMapper.toAuthorApiInfo(author);
+      AuthorWithScoreCount out = new AuthorWithScoreCount();
+      out.setAuthor(authorApiInfo);
+      out.setCount(count);
+      out.setUpdatedAt(maxUploadedAt);
+      return out;
+    }).toList();
+  }
 
   public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter) {
     return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, null, null);
@@ -426,23 +423,23 @@ public class ScoreService {
     Integer lim = limit != null && limit > 0 ? limit : null;
 
     List<Object[]> rows = scoreRepository.countScoresGroupedByGenre(user, lim == null ? null : off, lim, tracks, genreFilter, fullKey, slug);
-     return rows.stream().map(row -> {
-       Genre genre = (Genre) row[0];
-       Long count = (Long) row[1];
-       OffsetDateTime maxUploadedAt = (OffsetDateTime) row[2];
-       ScoreGenreBrowseGet200ResponseInner out = new ScoreGenreBrowseGet200ResponseInner();
-       if (genre != null) {
-         GenreApiInfo genreApiInfo = genreMapper.toGenreApiInfo(genre);
-         out.setGenre(genreApiInfo);
-       } else {
-         // Cas spécial : genre est null
-         out.setGenre(null);
-       }
-       out.setCount(count);
-       out.setUpdatedAt(maxUploadedAt);
-       return out;
-     }).toList();
-   }
+    return rows.stream().map(row -> {
+      Genre genre = (Genre) row[0];
+      Long count = (Long) row[1];
+      OffsetDateTime maxUploadedAt = (OffsetDateTime) row[2];
+      ScoreGenreBrowseGet200ResponseInner out = new ScoreGenreBrowseGet200ResponseInner();
+      if (genre != null) {
+        GenreApiInfo genreApiInfo = genreMapper.toGenreApiInfo(genre);
+        out.setGenre(genreApiInfo);
+      } else {
+        // Cas spécial : genre est null
+        out.setGenre(null);
+      }
+      out.setCount(count);
+      out.setUpdatedAt(maxUploadedAt);
+      return out;
+    }).toList();
+  }
 
   /**
    * Return counts of visible public-domain and copyrighted scores as the API model.
@@ -460,7 +457,7 @@ public class ScoreService {
    * Si un utilisateur est fourni, incrémente également le compteur par utilisateur.
    *
    * @param scoreId L'ID du score
-   * @param user L'utilisateur (optionnel, peut être null)
+   * @param user    L'utilisateur (optionnel, peut être null)
    */
   @Transactional
   public void incrementPlayCount(UUID scoreId, User user) {

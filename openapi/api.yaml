@@ -44,7 +44,7 @@ paths:
                   userId:
                     type: string
                   roles:
-                    type: string                    
+                    type: string
                   expire:
                     type: string
                     format: date-time
@@ -508,7 +508,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [pdf, musicxml, midi, metadata, image]
+            enum: [pdf, musicxml, mxl, midi, metadata, image]
           description: The type of file being uploaded (e.g., pdf or mxml)
         - name: version
           in: path
@@ -829,11 +829,11 @@ paths:
                       format: int64
                     updatedAt:
                       type: string
-                      format: date-time                   
+                      format: date-time
                   required:
                     - count
                     - genre
-                    - updatedAt                   
+                    - updatedAt
         '400':
           description: Bad request
   /genre:
@@ -1033,7 +1033,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-          description: Last update time for this author's score count      
+          description: Last update time for this author's score count
       required:
         - author
         - count
@@ -1053,7 +1053,7 @@ components:
         author_mbid:
           type: string
         author_slug:
-          type: string          
+          type: string
         sortName:
           type: string
         version:
@@ -1077,7 +1077,7 @@ components:
         genre_id:
           type: string
         genre_slug:
-          type: string          
+          type: string
         grade:
           type: integer
           format: int32
@@ -1173,7 +1173,7 @@ components:
           type: string
           format: uri
         roles:
-          type: string     
+          type: string
       required:
         - name
     GenreApiInfo:

@@ -179,9 +179,13 @@ export class HomeComponent implements AfterViewInit {
    * Sélectionne aléatoirement un shader parmi ceux disponibles
    */
   selectRandomShader(): void {
-    if (this.availableShaders.length > 0) {
-      const randomIndex = Math.floor(Math.random() * this.availableShaders.length);
-      this.selectedShader = this.availableShaders[randomIndex];
+    
+    // Exclure l'index 4
+    const filteredShaders = this.availableShaders.filter(s => s.index !== 4);
+    if (filteredShaders.length > 0) {
+      //const randomIndex = Math.floor(Math.random() * filteredShaders.length);
+      const randomIndex=5;
+      this.selectedShader = filteredShaders[randomIndex];
     }
   }
 
