@@ -2,7 +2,7 @@ name: Run tests
 
 on:
   push:
-    branches: [ "main", 'deploy', 'fix/prerender']
+    branches: [ "main", 'deploy']
   pull_request:
     branches: [ "main" ]
 
