@@ -1,7 +1,8 @@
 <div class="flex flex-col flex-grow h-dvh bg-white">
 
-    <div class="flex-row  bg-black ">
-        <div class="flex flex-col lg:flex-row xl:flex-row mt-2 pl-2 pr-2">
+    <div class="flex-row  bg-black">
+        @if (!osmdLoading) {
+        <div class="flex flex-col lg:flex-row xl:flex-row mt-2 pl-2 pr-2 osmd-state-transition">
 
 
             <div class="flex lg:w-1/2 xl:w-1/2 ">
@@ -33,7 +34,7 @@
 
             </div>
 
-            @if (!loading) {
+
 
             <div class="flex lg:w-1/2 xl:w-1/2 items-end justify-end">
 
@@ -125,46 +126,49 @@
                 }
 
             </div>
-            }
+
         </div>
+        } @else {
+        <div class="flex flex-col items-center justify-center w-full h-dvh text-6xl osmd-state-transition">
+            🎼
+             @if (loadingFeedBack) {
+            <span class="text-sm mt-2">{{ loadingFeedBack!.message }} - {{ loadingFeedBack!.percentage }}%</span>
+            } @else {
+            <span class="text-sm mt-2">loading...</span>
+            } 
+        </div>
+        }
 
         <div class="pl-2 pr-2 p-2 mr-4 ml-4">
             <div #range></div>
         </div>
-        
+
     </div>
 
 
     <!-- score -->
     @if (!loading) {
-    <div class="bg-white flex-grow overflow-y-auto score-container">
-        <app-osmd [scoreData]="scoreData" [musicXml]="musicXml"></app-osmd>
-
+    <div class="bg-white flex-grow overflow-y-auto score-container osmd-fade" [class.osmd-fade-visible]="!osmdLoading">
+        <app-osmd [scoreData]="scoreData" [musicXml]="musicXml"
+            (loadingChange)="onOsmdLoadingChange($event)"></app-osmd>
     </div>
     }
 
     <!-- middle bar empty for now -->
     <div #arena class="flex {{arenaClass}} bg-grey-100 h-60 text-center text-neutral-400 text-2xl">
         @if (loading) {
-        <div class="flex flex-col items-center justify-center w-full h-full text-6xl">
-            🎼
-            <span class="text-sm">loading...</span>
-        </div>
+
         }
     </div>
 
     <!-- keyboard -->
-    @if (!hideKeyboard && !loading) {
+    @if (!hideKeyboard && !loading && !osmdLoading) {
     <div class="flex-none">
         <app-keyboard></app-keyboard>
     </div>
     }
 
-    <app-midi-setup
-        [isOpen]="isMidiSetupOpen"
-        [hideKeyboard]="hideKeyboard"
-        (hideKeyboardChange)="setHideKeyboard($event)"
-        (closeModal)="closeMidiSetup()"
-    ></app-midi-setup>
+    <app-midi-setup [isOpen]="isMidiSetupOpen" [hideKeyboard]="hideKeyboard"
+        (hideKeyboardChange)="setHideKeyboard($event)" (closeModal)="closeMidiSetup()"></app-midi-setup>
 
 </div>

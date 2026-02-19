@@ -14,9 +14,9 @@ import { ScoreApiInfo } from '../../core/api';
 import { GraphicalNote, OpenSheetMusicDisplay, Note as OSMDNote, VexFlowGraphicalNote } from 'opensheetmusicdisplay';
 import { PlayerStateService } from './player-state.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
-import { PlayerRepetitionService } from './player-repetition.service';
 import { PlayerAudioService } from './player-audio.service';
-import { GOOD_RANGE, LiveStatus, PlayerAssessService, QUANT_RANGE } from './player-assess.service';
+import { LiveStatus, PlayerAssessService, QUANT_RANGE } from './player-assess.service';
+import { CursorService } from './cursor.service';
 
 
 
@@ -30,14 +30,13 @@ export class PlayerService {
 
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
-  private midiSetupTimeout?: number;
   private timeCounterInterval?: number;
   verticalPixelShiftValue: number = 1;
+  lastBar = 0;
 
   // Expose state via getters
   get osmd() { return this.state.osmd; }
-  get osmdCursor() { return this.state.osmdCursor; }
-  get measure() { return this.state.measure; }
+  //get measure() { return this.state.measure; }
   get tick() { return this.state.tick; }
   get message() { return this.state.message; }
   get elapsedTime() { return this.state.elapsedTime; }
@@ -46,7 +45,7 @@ export class PlayerService {
   get playConfiguration() { return this.state.playConfiguration; }
   get currentMeasure() { return this.state.currentMeasure; }
   get lastMidiEventTime() { return this.state.lastMidiEventTime; }
-  //get lateNotes() { return this.state.lateNotes; }
+
 
   // Setters for state that needs to be modified
   set duration(value: number) { this.state.duration = value; }
@@ -60,9 +59,9 @@ export class PlayerService {
     private midiService: MidiServiceService,
     private state: PlayerStateService,
     private keyboard: PlayerKeyboardService,
-    private repetition: PlayerRepetitionService,
     private assess: PlayerAssessService,
-    private audio: PlayerAudioService
+    private audio: PlayerAudioService,
+    private cursorService: CursorService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
@@ -100,7 +99,7 @@ export class PlayerService {
     playConfiguration.maxStaveCount = Math.ceil(Math.max(...midiSplit.study.tracks.map(track =>
       track.notes.length > 0 ? track.notes[track.notes.length - 1].bars : 0
     )));
-    playConfiguration.scoreRange[0] = 1;
+    playConfiguration.scoreRange[0] = 0;
     playConfiguration.scoreRange[1] = playConfiguration.maxStaveCount + 1;
     this.playConfiguration = playConfiguration;
     this.reset(playConfiguration);
@@ -200,21 +199,10 @@ export class PlayerService {
     this.assess.reset();
     this.lastMidiEventTime = -1;
     this.keyboard.removeAllNotesFromKeyboard();
-    // Reset repetition tracking
-    this.repetition.reset();
-    if (this.osmdCursor !== null) {
-      this.repetition.hydrateRepetitionInstructions();
-      this.osmdCursor.reset();
-      for (let i = 0; i < this.playConfiguration.currentStave - 1; i++) {
-        this.osmdCursor.nextMeasure();
-      }
-    }
+    this.cursorService.reset(playConfiguration.scoreRange[0]);
   }
 
   async play(playConfigurations: PlayConfiguration) {
-    if (this.lastMidiEventTime === -1 && this.osmdCursor) {
-      this.osmdCursor.previous();
-    }
     this.audio.clearSchedule();
     this.unHighlightBadNote();
     this.assess.reset();
@@ -315,21 +303,22 @@ export class PlayerService {
 
   private highlightBadNote(pitch: number) {
     this.message.set("BAD");
-    const osmdNotes = (this.osmdCursor.GNotesUnderCursor() as GraphicalNote[]).filter(n => n && (n as any).sourceNote);
+    const cursor = this.cursorService.cursor!;
+    const osmdNotes = (cursor.GNotesUnderCursor() as GraphicalNote[]).filter(n => n && (n as any).sourceNote);
     if (osmdNotes.length === 0) return;
     const closest = osmdNotes.reduce((prev, curr) => {
-      const prevDiff = Math.abs((prev.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
-      const currDiff = Math.abs((curr.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
-      return (currDiff < prevDiff) ? curr : prev;
-    });
-    const delta = (closest.sourceNote.halfTone - pitch + 12);
-    closest.setColor("#FF0000", {});
-    const closestVexFlowNote = (closest as VexFlowGraphicalNote);
-    closestVexFlowNote.getSVGGElement().style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
-    setTimeout(() => {
-      closestVexFlowNote.getSVGGElement().style.transform = "";
-      this.message.set("");
-    }, 500);
+       const prevDiff = Math.abs((prev.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
+       const currDiff = Math.abs((curr.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
+       return (currDiff < prevDiff) ? curr : prev;
+     });
+     const delta = (closest.sourceNote.halfTone - pitch + 12);
+     closest.setColor("#FF0000", {});
+     const closestVexFlowNote = (closest as VexFlowGraphicalNote);
+     closestVexFlowNote.getSVGGElement().style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
+     setTimeout(() => {
+       closestVexFlowNote.getSVGGElement().style.transform = "";
+       this.message.set("");
+     }, 500);
   }
 
   private unHighlightBadNote() {
@@ -366,7 +355,7 @@ export class PlayerService {
     // normal operations
     this.cursorMayBeAdvance(note);
     this.keyboard.lightNoteOnKeyboard(hand, note);
-    this.setCurrentTick(note);
+    //this.setCurrentTick(note);
   }
 
   private handleNoteEnd(hand: string, note: Note, liveStatus?: LiveStatus) {
@@ -392,67 +381,26 @@ export class PlayerService {
     }
   }
 
-  setOsmd(osmd: OpenSheetMusicDisplay) {
+  async setOsmd(osmd: OpenSheetMusicDisplay): Promise<boolean> {
     this.state.osmd = osmd;
-    this.state.osmdCursor = this.state.osmd.cursor;
-    this.state.osmdCursor.CursorOptions.color = "#B0F2B4";
-    this.state.osmdCursor.CursorOptions.alpha = 0.6;
-    this.repetition.hydrateRepetitionInstructions();
-    this.state.osmdCursor.reset();
     // half tone pixel shift calculation
     this.verticalPixelShiftValue = this.state.osmd!.EngravingRules.StaffDistance / 2;
+    return this.cursorService.setup(osmd.cursor, this.playConfiguration.midi!)
   }
 
   private cursorMayBeAdvance(note: Note) {
     if (note.ticks > this.lastMidiEventTime) {
+      this.cursorService.nextNote(note);
       this.lastMidiEventTime = note.ticks;
-      this.currentMeasure = Math.floor(note.bars);
-
-      this.osmdCursor.next();
-
-      // Handle repetitions
-      this.repetition.maybeMoveToMeasure(this.osmdCursor.iterator, this);
-
-      // Skip rest notes, tied notes, and cue notes
-      let safety = 0;
-      while (safety < 100 && this.osmdCursor.NotesUnderCursor().every(n => this.isSkipable(n))) {
-        this.osmdCursor.next();
-        this.repetition.maybeMoveToMeasure(this.osmdCursor.iterator, this);
-        safety++;
-      }
-
-      // Update cursor color based on correctness
-      if (!this.isCursorOk(note)) {
-        this.osmdCursor.CursorOptions.color = '#FFB3BA';
-        this.osmdCursor.CursorOptions.alpha = 0.3;
-      } else {
-        this.osmdCursor.CursorOptions.color = "#B0F2B4";
-        this.osmdCursor.CursorOptions.alpha = 0.6;
-      }
+      return;
     }
+
   }
 
   public getAssess(): PlayerAssessService {
     return this.assess;
   }
 
-  private isCursorOk(note: Note): boolean {
-    return this.osmdCursor.NotesUnderCursor().map(n => n.Pitch?.getHalfTone()).some(n => n === note.midi - 12);
-  }
-
-  private isSkipable(n: OSMDNote): unknown {
-    return n.isRest()
-      || (n.NoteTie && n.NoteTie?.Notes.at(0)?.NoteToGraphicalNoteObjectId !== n.NoteToGraphicalNoteObjectId)
-      || n.IsCueNote
-  }
-
-  private setCurrentTick(note: Note) {
-    const bar = note.bars;
-    const truncatedBar = Math.trunc(bar);
-    if (truncatedBar !== this.measure()) {
-      this.measure.set(truncatedBar);
-    }
-  }
 
   private calculateStartTime() {
     const startTime = (this.calculateStartTimeInMsForMeasure(
@@ -469,7 +417,7 @@ export class PlayerService {
       return this.duration * this.state.getTimeFactor();
     }
     return (this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1] - 1,
+      this.playConfiguration.scoreRange[1],
       this.playConfiguration.midi!.header
     ) * this.state.getTimeFactor());
   }
@@ -485,21 +433,4 @@ export class PlayerService {
     return midiHeader.ticksToSeconds(elapsedTicks);
   }
 
-
-
-  /**
-   * Nettoie les ressources du service, notamment l'interval du compteur de temps
-   */
-  private cleanup() {
-    if (this.timeCounterInterval) {
-      clearInterval(this.timeCounterInterval);
-      this.timeCounterInterval = undefined;
-    }
-    if (this.midiSetupTimeout) {
-      clearTimeout(this.midiSetupTimeout);
-      this.midiSetupTimeout = undefined;
-    }
-    // Clear DOM caches to prevent memory leaks
-    this.keyboard.cleanup();
-  }
 }

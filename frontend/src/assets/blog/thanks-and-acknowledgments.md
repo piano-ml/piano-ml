@@ -15,5 +15,6 @@ We particularly want to thank:
 - Michael Scott Asato Cuthbert and [The Music21 lab](https://www.music21.org/) at MIT
 - <a href="https://wallpapers.com/wallpapers/one-piece-straw-hat-luffy-black-and-white-pfp-o546iu7rtqxomb0b.html">Wallpaper by bigv</a> on Wallpapers.com
 - Weihan Xu, Julian McAuley, Taylor Berg-Kirkpatrick, Shlomo Dubnov, and Hao-Wen Dong for their work on [PDMX](https://github.com/pnlong/PDMX/?tab=readme-ov-file) - Generating Symbolic Music from Natural Language Prompts using an LLM-Enhanced Dataset (arXiv:2410.02084, 2024)
+-  [Temple F. Smith & Michael S. Waterman](https://www.sciencedirect.com/science/article/abs/pii/0022283681900875?via%3Dihub) for  « Identification of Common Molecular Subsequences », shown to be useful on some special edge cases.
 
 - And many, many others...

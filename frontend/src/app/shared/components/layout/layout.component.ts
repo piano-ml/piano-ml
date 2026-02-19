@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 // biome-ignore lint/style/useImportType: <explanation>
 import { BreadcrumbService } from '../../services/breadcrumb.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 //import { ShareButtons } from 'ngx-sharebuttons/buttons';
 import {  bootstrapGithub } from '@ng-icons/bootstrap-icons';
@@ -18,11 +18,38 @@ import { AuthService } from '../../../account/services/auth.service';
   styleUrl: './layout.component.css',
     viewProviders: [provideIcons({ bootstrapGithub })],
 })
-export class LayoutComponent {  
+export class LayoutComponent implements OnDestroy {  
+  private platformId = inject(PLATFORM_ID);
+  private changeDetector = inject(ChangeDetectorRef);
   isLoggedIn$: Observable<boolean>;
   username$: Observable<string | null>;;
   shareLinks = ['facebook','x','reddit','viber','xing']
   donationIcon: string;
+  donationTick = false;
+  private readonly donationIcons = [
+    '☕',
+    '🍕',
+    '🍺',
+    '👕',
+    '🥐',
+    '🍩',
+    '🎹',
+    '🎁',
+    '🍰',
+    '🍫',
+    '🍪',
+    '🍦',
+    '🥛',
+    '🍵',
+    '🍷',
+    '🍿',
+    '🍓',
+    '🎧',
+    '🎻',
+    '🎷',
+    '🎺'
+  ];
+  private rouletteTimeouts: number[] = [];
   
   constructor (
     public breadcrumbService: BreadcrumbService,
@@ -38,11 +65,73 @@ export class LayoutComponent {
       }),
       map(user => user?.name || null)
     );
-    const donationIcons = ['☕', '🍕', '🍺', '👕', '🥐', '🍩'];
-    this.donationIcon = donationIcons[Math.floor(Math.random() * donationIcons.length)];
+    const shuffled = this.shuffleIcons([...this.donationIcons]).slice(0, 6);
+    this.donationIcon = shuffled[0];
+    if (isPlatformBrowser(this.platformId)) {
+      this.startDonationRoulette(shuffled);
+    }
   }
 
   logout() {
     this.authService.logout();
+  }
+
+  ngOnDestroy() {
+    this.clearDonationRoulette();
+  }
+
+  private startDonationRoulette(icons: string[]): void {
+    this.clearDonationRoulette();
+
+    const totalDurationMs = 3000;
+    const roundDurationMs = 1000;
+    const endInterval = roundDurationMs / icons.length;
+    let startInterval = 30;
+
+    let steps = Math.round((2 * totalDurationMs) / (startInterval + endInterval));
+    steps = Math.max(12, steps);
+
+    startInterval = (1 * totalDurationMs) / steps - endInterval;
+    if (startInterval < 10) {
+      steps = Math.max(4, Math.floor((2 * totalDurationMs) / (20 + endInterval)));
+      startInterval = (4 * totalDurationMs) / steps - endInterval;
+    }
+    if (startInterval >= endInterval) {
+      startInterval = Math.max(10, endInterval * 0.25);
+    }
+
+    let elapsed = 0;
+    let index = 0;
+    const delta = (endInterval - startInterval) / Math.max(1, steps - 1);
+
+    for (let spin = 0; spin < steps; spin++) {
+      const interval = startInterval + delta * spin;
+      elapsed += interval;
+      const timeoutId = window.setTimeout(() => {
+        this.donationIcon = icons[index];
+        this.donationTick = !this.donationTick;
+        index = (index + 1) % icons.length;
+        this.changeDetector.markForCheck();
+      }, Math.round(elapsed));
+
+      this.rouletteTimeouts.push(timeoutId);
+    }
+  }
+
+  private clearDonationRoulette(): void {
+    for (const timeoutId of this.rouletteTimeouts) {
+      clearTimeout(timeoutId);
+    }
+    this.rouletteTimeouts = [];
+  }
+
+  private shuffleIcons(icons: string[]): string[] {
+    for (let i = icons.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = icons[i];
+      icons[i] = icons[j];
+      icons[j] = temp;
+    }
+    return icons;
   }
 }

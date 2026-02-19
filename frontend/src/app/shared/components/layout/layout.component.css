@@ -33,3 +33,15 @@
 .donation-link {
     text-decoration: none !important;
 }
+
+.donation-icon {
+    display: inline-block;
+    transition: transform 160ms ease, opacity 160ms ease;
+    transform: translateY(0) scale(1);
+    opacity: 0.95;
+}
+
+.donation-icon-bump {
+    transform: translateY(-1px) scale(1.12) rotate(-6deg);
+    opacity: 1;
+}

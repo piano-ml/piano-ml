@@ -76,6 +76,21 @@
   width: max-content;
 }
 
+@keyframes osmd-slide-up {
+	from {
+		opacity: 0;
+		transform: translateY(24px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.osmd-state-transition {
+	animation: osmd-slide-up 800ms ease-out;
+}
+
 
 /* From Uiverse.io by m1her */
 .radio-input {
@@ -241,4 +256,13 @@
 		rgba(0, 0, 0, 1) 10%, 
 		rgba(0, 0, 0, 1) 90%, 
 		rgba(0, 0, 0, 0.1) 100%);
+}
+
+.osmd-fade {
+	opacity: 0;
+	transition: opacity 600ms ease;
+}
+
+.osmd-fade-visible {
+	opacity: 1;
 }

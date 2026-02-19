@@ -19,6 +19,7 @@ import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
 import { scales as theoryScales } from '../../service/music-theory';
 import { exercises as scaleExercises } from '../../../exercises/scales/pattern';
 import { saveExerciseToStorage } from '../../../exercises/exercices';
+import { CursorService } from '../../service/cursor.service';
 
 
 
@@ -56,6 +57,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   scoreData: ScoreApiInfo | null = null;
   fromStorage = false;
   loading = false;
+  osmdLoading = true;
   isPlaying = false;
   tempo = 120;
   title = '';
@@ -70,22 +72,18 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   // Observable for elapsed time from PlayerService
   elapsedTime!: any;
 
-  // Reusable decoder and config cache
+  // Reusable decoder
   private static readonly textDecoder = new TextDecoder();
-  private sliderConfigCache: any = null;
+
   storedHideKeyboard: boolean = false;
 
-  /**
-   * Invalidate slider configuration cache when values change
-   */
-  private invalidateSliderCache(): void {
-    this.sliderConfigCache = null;
-  }
+  loadingFeedBack: { message: string; percentage: number; } | null = null;
+
 
   // Configuration
   playConfiguration: PlayConfiguration = {
     maxStaveCount: 100,
-    currentStave: 1,
+    currentStave: 0,
     doSound: true,
     waitForLeftHand: false,
     waitForRightHand: false,
@@ -146,10 +144,25 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.changeDetector.markForCheck();
   }
 
+  onOsmdLoadingChange(loading: boolean) {
+    // this.loading = loading;
+    this.osmdLoading = loading;
+    this.changeDetector.markForCheck();
+    if (!loading) {
+      this.setupSlider();
+      setTimeout(() => {
+        this.title = `${this.scoreData!.author} - ${this.scoreData!.title}`;
+        this.changeDetector.detectChanges();
+        this.checkIfScrollNeeded();
+      }, 100);
+    }
+  }
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private playerService: PlayerService,
+    private cursorService: CursorService,
     private changeDetector: ChangeDetectorRef,
     private scoreService: ScoreService,
     private titleService: Title
@@ -184,6 +197,12 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         }
       }
     }
+
+
+    effect(() => {
+      this.loadingFeedBack = this.cursorService.feedbackSignal();
+      this.changeDetector.markForCheck();
+    });
 
     // Watch for message signal effects
     effect(() => {
@@ -225,8 +244,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         }, 500);
         setTimeout(() => {
           this.arenaClass = '';
-          this.changeDetector.markForCheck();
           this.hideKeyboard = this.storedHideKeyboard;
+          this.changeDetector.markForCheck();
         }, 5000);
       }
       // Don't mark for check if message is irrelevant
@@ -234,15 +253,9 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
     // Watch for measure signal changes
     effect(() => {
-      const measure = this.playerService.measure();
-      const newStave = measure + 1;
-
-      // Only update if value actually changed
-      if (this.playConfiguration.currentStave !== newStave) {
-        this.playConfiguration.currentStave = newStave;
-        this.updateSlider();
-        this.changeDetector.markForCheck();
-      }
+      this.playConfiguration.currentStave = this.cursorService.measure();
+      this.updateSlider();
+      this.changeDetector.markForCheck();
     });
 
     const navigation = this.router.getCurrentNavigation();
@@ -317,8 +330,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit() {
     if (this.scoreData && !this.fromStorage) {
       // Load score data from API
-      this.title = this.scoreData.title || "";
-      this.checkIfScrollNeeded();
+
       this.loading = true;
       this.changeDetector.detectChanges(); // Trigger change detection for loading state
 
@@ -362,11 +374,10 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     // starting from here we always have score data in local storage and the view is loaded
     const midi = this.getCachedMidi();
     this.tempo = Math.round(this.scoreData?.tempo || midi.header.tempos[0]?.bpm || 120);
-    this.title = this.scoreData?.title || midi.header.name || '';
-    this.updatePageTitle();
-    this.checkIfScrollNeeded();
+    //this.title = this.scoreData?.title || midi.header.name || '';
+    //this.updatePageTitle();
+    //this.checkIfScrollNeeded();
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, midi);
-    this.setupSlider();
     this.playerService
   }
 
@@ -458,7 +469,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   private handleLoadError(error: any, scoreData: ScoreApiInfo, reject: (reason?: any) => void): void {
-    console.log("workbench handleLoadError:", error)
     if (error.status === 404) {
       const slug = scoreData.immutableSlug || scoreData.mutableSlug;
       if (slug) {
@@ -525,7 +535,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.playerService.reset(this.playConfiguration);
     this.isPlaying = false;
 
-    this.invalidateSliderCache();
     this.updateSlider();
   }
 
@@ -586,71 +595,79 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       ...this.getSliderBaseConfig(),
       pips: {
         mode: PipsMode.Steps,
-        //values: 2, //this.maxStaveCount,
-        density: -1
+        density: 100,
+        format: wNumb({
+          decimals: 0,
+          encoder: (i: number) => i + 1,
+          decoder: (i: string | number) => Number(i) - 1
+        }),
       },
       step: 1,
-      format: wNumb({
-        decimals: 0
-      }),
-
+      format: {
+        to: (value: number) => (value + 1).toString(),
+        from: (value: string) => Number(value) - 1
+      }
     });
 
     this.slider.on('end', (values: (string | number)[]) => {
       // Convert once and reuse
-      const numValues = values.map(v => Number(v));
-      const [start, current, end] = numValues;
-      const currentRange = this.playConfiguration.scoreRange[0];
-
-      // Optimized logic: avoid redundant assignments
-      let newStart = start;
-      let newCurrent = current;
-
-      if (start !== currentRange) {
-        newCurrent = start;
-      } else if (current !== currentRange) {
-        newStart = current;
+      const numValues = values.map(v => Math.trunc(Number(v)));
+      let [start, current, end] = numValues;
+      let [oldStart, oldCurrent, oldEnd] = [
+        this.playConfiguration.scoreRange[0],
+        this.playConfiguration.currentStave,
+        this.playConfiguration.scoreRange[1]
+      ];
+      // detect what changed
+      if (current != oldCurrent) {
+        start = current;
+      } else if (start != oldStart) {
+        current = start;
+      } else if (end != oldEnd) {
+        end++;
+        current = start;
       }
 
-      // Only update if values actually changed
-      if (newStart !== this.playConfiguration.scoreRange[0] ||
-        newCurrent !== this.playConfiguration.currentStave ||
-        end !== this.playConfiguration.scoreRange[1]) {
+      this.playConfiguration.scoreRange[0] = start;
+      this.playConfiguration.currentStave = current;
+      this.playConfiguration.scoreRange[1] = end;
+      this.playerService.reset(this.playConfiguration);
 
-        this.playConfiguration.scoreRange[0] = newStart;
-        this.playConfiguration.currentStave = newCurrent;
-        this.playConfiguration.scoreRange[1] = end;
-
-        this.invalidateSliderCache();
-        this.updateSlider();
-        this.playerService.reset(this.playConfiguration);
-      }
+      this.updateSlider();
     });
   }
 
+  updateSlider() {
+    if (!this.slider) return;
+    const newValues = [
+      this.playConfiguration.scoreRange[0],
+      this.playConfiguration.currentStave,
+      this.playConfiguration.scoreRange[1]
+    ];
+    this.slider.updateOptions({
+      start: newValues
+    });
+  }
+
+
   private getSliderBaseConfig() {
-    // Cache the config object to avoid recreation if values haven't changed
-    const currentKey = `${this.playConfiguration.scoreRange[0]}-${this.playConfiguration.scoreRange[1]}-${this.playConfiguration.currentStave}`;
-
-    if (!this.sliderConfigCache || this.sliderConfigCache.key !== currentKey) {
-      this.sliderConfigCache = {
-        key: currentKey,
-        config: {
-          behaviour: 'unconstrained' as const,
-          range: {
-            'min': this.playConfiguration.scoreRange[0],
-            'max': this.playConfiguration.scoreRange[1]
-          },
-          start: [this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]]
-        }
-      };
-    }
-
-    return this.sliderConfigCache.config;
+    const sliderConfig = {
+      behaviour: 'unconstrained' as const,
+      range: {
+        'min': 0,
+        'max': this.cursorService.osmdMeasureCount - 1
+      },
+      start: [
+        Math.trunc(this.playConfiguration.scoreRange[0]),
+        Math.trunc(this.playConfiguration.currentStave),
+        Math.trunc(this.playConfiguration.scoreRange[1])
+      ]
+    };
+    return sliderConfig;
   }
 
   debugPlayConfiguration(step: string) {
-    console.log(step, this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]);
+    console.log(step, Math.trunc(this.playConfiguration.scoreRange[0]), Math.trunc(this.playConfiguration.currentStave), Math.trunc(this.playConfiguration.scoreRange[1]));
   }
 
   // Public getter for debugging loading state
@@ -658,42 +675,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     return this.loading;
   }
 
-  initSlider() {
-    this.slider.updateOptions({
-      ...this.getSliderBaseConfig(),
-      pips: {
-        mode: PipsMode.Count,
-        values: this.maxStaveCount,
-        density: -1
-      }
-    });
-  }
-
-  updateSlider() {
-    if (!this.slider) return;
-
-    const newValues = [this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]];
-    const currentValues = this.slider.get();
-
-    // Only update if values have actually changed
-    if (!this.arraysEqual(newValues, currentValues)) {
-      this.slider.updateOptions({
-        start: newValues
-      });
-    }
-  }
-
-  private arraysEqual(a: any[], b: any[]): boolean {
-    if (a === b) return true; // Same reference
-    if (!a || !b) return false; // Null/undefined check
-    if (a.length !== b.length) return false;
-
-    // Direct comparison without array conversion for better performance
-    for (let i = 0; i < a.length; i++) {
-      if (Number(a[i]) !== Number(b[i])) return false;
-    }
-    return true;
-  }
 
   checkIfScrollNeeded(): void {
     // Early return si les éléments ne sont pas disponibles
@@ -716,19 +697,20 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         // Si le texte est plus large que le conteneur (avec une marge de 10px), activer le scroll
         const needsScroll = textWidth > (containerWidth - 10);
 
+        if (needsScroll) {
+          // Calculer la distance exacte à faire défiler
+          const scrollDistance = textWidth - containerWidth + 20; // +20px de marge
+          const scrollPercentage = (scrollDistance / textWidth) * 100;
+
+          // Définir la variable CSS custom pour la distance de scroll
+          this.titleText.nativeElement.style.setProperty('--scroll-distance', `-${scrollPercentage}%`);
+        } else {
+          this.titleText.nativeElement.style.removeProperty('--scroll-distance');
+        }
+
         // Seulement mettre à jour si l'état a changé
         if (this.shouldScroll !== needsScroll) {
           this.shouldScroll = needsScroll;
-
-          if (needsScroll) {
-            // Calculer la distance exacte à faire défiler
-            const scrollDistance = textWidth - containerWidth + 20; // +20px de marge
-            const scrollPercentage = (scrollDistance / textWidth) * 100;
-
-            // Définir la variable CSS custom pour la distance de scroll
-            this.titleText.nativeElement.style.setProperty('--scroll-distance', `-${scrollPercentage}%`);
-          }
-
           this.changeDetector.markForCheck();
         }
       } catch (error) {
@@ -751,14 +733,15 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       const title = this.scoreData.title || this.title || '';
 
       if (author && title) {
-        this.titleService.setTitle(`PianoML: ${author} - ${title}`);
+        this.titleService.setTitle(`${author} - ${title}`);
       } else if (title) {
-        this.titleService.setTitle(`PianoML: ${title}`);
+        this.titleService.setTitle(`${title}`);
       } else {
-        this.titleService.setTitle('PianoML');
+        this.titleService.setTitle('PianoML: Play and Learn Piano');
       }
     }
   }
+
 
   ngOnDestroy() {
     // Clean up slider
@@ -770,11 +753,9 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       }
       this.slider = null;
     }
-
     // Clear caches
     this.cachedMidi = null;
     this.musicXml = null;
-    this.sliderConfigCache = null;
   }
 
 }

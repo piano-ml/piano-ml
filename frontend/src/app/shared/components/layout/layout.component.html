@@ -23,7 +23,7 @@
                    rel="noopener noreferrer"
                    title="Soutenir PianoML">
                     <span class="hidden sm:inline mr-1 ">Buy me a </span>
-                    <span aria-hidden="true">{{ donationIcon }}</span>
+                    <span aria-hidden="true" class="donation-icon" [class.donation-icon-bump]="donationTick">{{ donationIcon }}</span>
                 </a>
 
                 <ng-container *ngIf="(isLoggedIn$ | async) === true; else loginLink">
