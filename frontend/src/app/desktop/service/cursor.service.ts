@@ -31,6 +31,8 @@ interface OsmdArrayElement {
     providedIn: 'root'
 })
 export class CursorService {
+
+    private static readonly SKIP_SHORT_NOTE_THRESHOLD = 0.07;
     private static readonly DIAGNOSTIC_STORAGE_KEY = "cursorService.debug";
     private static readonly UI_YIELD_STEP = 8;
 
@@ -132,6 +134,7 @@ export class CursorService {
                 this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
                 this.cursor!.CursorOptions.type = 4;
             } else {
+                this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
                 this.cursor!.CursorOptions.type = 3; // measure rectangle
             }
             const newOsmdMeasure = link.osmdMeasure;
@@ -170,7 +173,7 @@ export class CursorService {
      * @returns 
      */
     private async buildOsmdStepsSequence(cursor: Cursor): Promise<Map<number, number>> {
-        let feedbackMessage = "[cursor][mapping][hydrateOsmdArray][1/4] step sequence";
+        let feedbackMessage = "Building Step Sequence";
         const feedbackStep = Math.max(1, Math.floor(this.iteratorSize / 100));
         cursor.reset();
         const osmdSteps: number[] = [];
@@ -211,7 +214,7 @@ export class CursorService {
         const osmdMesureSequence = this.osmdMeasureSequence;
         const maxSecondPassIterations = Math.max(this.iteratorSize * 20, osmdMesureSequence.length * 20, 20000);
         const cursor = this.cursor!;
-        const feedbackMessage = "[2/4] initializing sheet cursor";
+        const feedbackMessage = "Initializing Sheet Cursor";
         let secondPassCounter = 0;
         while (!cursor.iterator.EndReached) {
             if (secondPassCounter > maxSecondPassIterations) {
@@ -271,7 +274,9 @@ export class CursorService {
             //const toSkip =osmdPitches.length === 0 && notesUnderCursor.every(n => this.isSkipable(n));
             //const toSkip = osmdPitches.length === 0;
             const toSkip = notesUnderCursor.every(n => this.isSkipable(n));
-
+            if (osmdMeasureIndex===19&& index < 194 ) {
+                console.log(notesUnderCursor)
+            }
             const o: OsmdArrayElement = {
                 midiMeasure: midiMeasureIndex,
                 osmdMeasure: osmdMeasureIndex,
@@ -327,7 +332,7 @@ export class CursorService {
     }
 
     async hydrateTargets(osmdArray: OsmdArrayElement[], osmdMeasureToFirstStepIndex: Map<number, number>): Promise<OsmdArrayElement[]> {
-        const feedbackMessage = "[3/4] hydrating cursor";
+        const feedbackMessage = "Hydrating Cursor";
         let targetOsmdIndex = 0;
         let thirdPassCounter = 0;
         const feedbackStep = Math.max(1, Math.floor(osmdArray.length / 100));
@@ -381,6 +386,10 @@ export class CursorService {
             }
             currentElement.midiTicks = ticks;
             const midiNotesAtTick = this.midiTicksNoteMap.get(ticks) ?? [];
+            // TODO skip short note arbitrary...
+            if (midiNotesAtTick.map(note => note.duration).every(duration => duration < CursorService.SKIP_SHORT_NOTE_THRESHOLD)) {
+                continue;
+            }
             currentElement.midiPitches = midiNotesAtTick.map(note => this.normalizePitchClass(note.midi - 12));
             currentElement.midiTicksDuration = midiNotesAtTick.length > 0
                 ? Math.max(...midiNotesAtTick.map(note => note.durationTicks))
@@ -397,7 +406,7 @@ export class CursorService {
      * This is intentionally computed standalone for future refactors.
      */
     async buildOsmdMeasureSequence(): Promise<number[]> {
-        const feedbackMessage = "building osmd measure sequence";
+        const feedbackMessage = "Building Measure Sequence";
         this.feedback(feedbackMessage, 0);
         const osmdMeasureSequence: number[] = Array.from(this.osmdMeasureNoteMap.keys());
         const outputSequence: number[] = [];
@@ -489,7 +498,7 @@ export class CursorService {
      * @return repetitionInstructions the list of repetition instructions
      */
     async hydrateRepetitionInstructions(cursor: Cursor): Promise<RepetitionInstruction[]> {
-        const feedbackMessage = "building voltas list";
+        const feedbackMessage = "Building Voltas List";
         this.feedback(feedbackMessage, 0)
         this.repetitionInstructions = [];
         this.iteratorSize = 0;
@@ -531,7 +540,7 @@ export class CursorService {
      * @return this.osmdMeasureNoteMap Map<number, OSMDNote[]> measure index => osmd notes under cursor
      */
     builOsmdMeasureNoteMap(cursor: Cursor): Map<number, OSMDNote[]> {
-        const feedbackMessage = "building osmd measures";
+        const feedbackMessage = "Building Measures";
         this.feedback(feedbackMessage, 0);
         this.osmdMeasureNoteMap.clear();
         let maxMeasureNumberXml = 0;
@@ -569,7 +578,7 @@ export class CursorService {
     */
     async buildMidiTicksNoteMap(midi: Midi): Promise<Map<number, MidiNote[]>> {
         const totalNotes = midi.tracks.reduce((sum, track) => sum + track.notes.length, 0);
-        const feedbackMessage = "building midi ticks note map";
+        const feedbackMessage = "Building MIDI Map";
         const feedbackStep = Math.max(1, Math.floor(totalNotes / 100));
         this.feedback(feedbackMessage, 0);
 
@@ -655,7 +664,7 @@ export class CursorService {
             })));
             console.groupEnd();
             // ================================================
-            console.group("[verify] osmdMeasureSequence");
+            console.groupCollapsed("[verify] osmdMeasureSequence");
             console.table(this.osmdMeasureSequence.map((osmdMeasure, index) => ({ index, osmdMeasure })));
             console.groupEnd();
 
@@ -841,7 +850,8 @@ export class CursorService {
                 && n.NoteTie?.Notes.at(0)?.NoteToGraphicalNoteObjectId
                 !== n.NoteToGraphicalNoteObjectId
             )
-            || n.IsCueNote;
+            || n.IsCueNote
+            || n.IsGraceNote;
         return r;
     }
 

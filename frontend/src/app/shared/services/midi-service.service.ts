@@ -144,6 +144,9 @@ export class MidiServiceService {
           this.disableOutputMidiDevice(device);
         }
       }
+      if (this.enabledOutputDevices.size === 0) {
+        this.setOutputDeviceEnabled(null as unknown as MIDIOutput, true);
+      }
     });
   }
 
@@ -269,6 +272,7 @@ export class MidiServiceService {
   private updateStoredDeviceSelection(storageKey: string, deviceKey: string, enabled: boolean, seed?: Set<string>) {
     if (!this.isBrowser) return;
     const selected = seed ?? this.getStoredDeviceSelection(storageKey) ?? new Set<string>();
+
     if (enabled) {
       selected.add(deviceKey);
     } else {
@@ -298,11 +302,12 @@ export class MidiServiceService {
     outputs: MIDIOutputMap | Map<string, MIDIOutput>
   ) {
     if (!this.isBrowser) return;
-
     if (!this.hasStoredDeviceSelection(this.midiInputStorageKey)) {
+
       const inputList = Array.from(inputs.values());
       const preferredInput = this.pickPreferredInput(inputList);
       if (preferredInput) {
+
         localStorage.setItem(this.midiInputStorageKey, JSON.stringify([this.getDeviceKey(preferredInput)]));
       }
     }
@@ -313,7 +318,7 @@ export class MidiServiceService {
       );
       const outputList = Array.from(outputs.values());
       const preferredOutput = this.pickPreferredOutput(outputList, inputKeys);
-      if (preferredOutput) {
+      if (preferredOutput) {      
         localStorage.setItem(this.midiOutputStorageKey, JSON.stringify([this.getDeviceKey(preferredOutput)]));
       }
     }
