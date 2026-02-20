@@ -12,7 +12,7 @@ import { KeyboardComponent } from '../keyboard/keyboard.component';
 import { MidiSetupComponent } from '../midi-setup/midi-setup.component';
 import { PlayerService } from '../../service/player.service';
 import * as Midi from '@tonejs/midi';
-import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
+import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
 import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
@@ -151,7 +151,11 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     if (!loading) {
       this.setupSlider();
       setTimeout(() => {
+        //if (this.scoreData!.title) {
         this.title = `${this.scoreData!.author} - ${this.scoreData!.title}`;
+        //} else {
+        //  this.title = `${this.scoreData!.author}`; // exercices have no author, use title only
+       // }
         this.updatePageTitle()
         this.changeDetector.detectChanges();
         this.checkIfScrollNeeded();
@@ -211,24 +215,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       if (message === "END") {
         this.isPlaying = false;
         this.changeDetector.markForCheck();
-
-        // POST user stats when ending play
-        if (this.scoreData?.id && this.scoreData.id !== 'exercise') {
-          const request: ScorePlayStatsPostRequest = {
-            id: this.scoreData.id,
-            assessment: {
-              start: this.playConfiguration.scoreRange[0],
-              end: this.playConfiguration.scoreRange[1],
-              bad: this.playerService.getAssess().liveStatus.badCount,
-              late: this.playerService.getAssess().liveStatus.late,
-              total: this.playerService.getAssess().liveStatus.total
-            }
-          };
-          this.scoreService.scorePlayStatsPost(request).subscribe({
-            next: () => { },
-            error: (error) => console.warn('Failed to register play stats:', error)
-          });
-        }
+        this.recordAssessment();
       } else if (message === "BAD") {
         this.arenaClass = 'bad';
         this.hideKeyboard = false;
@@ -254,7 +241,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
     // Watch for measure signal changes
     effect(() => {
-      this.playConfiguration.currentStave = this.cursorService.measure();
+      this.playConfiguration.currentStave = this.cursorService.measure() + 1;
       this.updateSlider();
       this.changeDetector.markForCheck();
     });
@@ -294,6 +281,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       // in that case we come from exercice (scale & agility) and we have data in local storage
       // Create a minimal scoreData object for exercise mode with title from MIDI
       let exerciseTitle = 'Exercise';
+      let exerciseJson: any = null;
       if (isPlatformBrowser(this.platformId)) {
         try {
           const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
@@ -301,6 +289,11 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
             const midiJson = JSON.parse(midiScore);
             exerciseTitle = midiJson.header?.name || 'Exercise';
           }
+          const exerciceInfo = localStorage.getItem(EXERCICE_INFO_KEY);
+          if (exerciceInfo) {
+            exerciseJson = JSON.parse(exerciceInfo);
+          }
+
         } catch (error) {
           console.warn('Failed to load MIDI title from localStorage:', error);
         }
@@ -309,11 +302,46 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       this.scoreData = {
         id: 'exercise',
         title: exerciseTitle,
-        owner_id: 'local'
+        owner_id: 'local',
+        tonic: exerciseJson?.tonic ,
+        mode: exerciseJson?.mode,
+        genre: exerciseJson?.kind
       } as ScoreApiInfo;
 
       // Enable loop/repeat for exercises
       this.playConfiguration.isLoop = true;
+    }
+  }
+  recordAssessment() {
+    // POST user stats when ending play and playing both hands
+    console.log("start record assessment")
+    if (this.scoreData) {
+      //if (this.scoreData && this.playConfiguration.waitForLeftHand && this.playConfiguration.waitForRightHand) {
+      const request: ScorePlayStatsPostRequest = {
+        id: this.scoreData.id!,
+        title: this.scoreData.title,
+        author: this.scoreData.author,
+        tonic: this.scoreData.tonic,
+        mode: this.scoreData.mode,
+        played_at: new Date().toISOString(),
+        genre: this.scoreData.genre,
+        genre_id: this.scoreData.genre_id,             
+        assessment: {
+          start: this.playConfiguration.scoreRange[0],
+          end: this.playConfiguration.scoreRange[1],
+          bad: this.playerService.getAssess().liveStatus.badCount,
+          late: this.playerService.getAssess().liveStatus.late,
+          total: this.playerService.getAssess().liveStatus.total,
+
+        }
+      };
+      console.log('record_assessment', request);
+      this.scoreService.scorePlayStatsPost(request).subscribe({
+        next: (response) => { console.log(response) },
+        error: (error) => console.warn('Failed to register play stats:', error)
+      });
+    } else {
+      console.warn('No score data available to record assessment');
     }
   }
 
@@ -327,6 +355,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       .replace(/^_+|_+$/g, '')
       .replace(/_{2,}/g, '_');
   }
+
+
 
   async ngAfterViewInit() {
     if (this.scoreData && !this.fromStorage) {
@@ -599,20 +629,36 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         density: 100,
         format: wNumb({
           decimals: 0,
-          encoder: (i: number) => i + 1,
-          decoder: (i: string | number) => Number(i) - 1
+          encoder: (i: number) => Math.round(i + 1),
+          decoder: (i: string | number) => Math.round(Number(i) - 1)
         }),
       },
+      tooltips: [
+        false,
+        false,
+        false
+      ],
       step: 1,
       format: {
-        to: (value: number) => (value + 1).toString(),
-        from: (value: string) => Number(value) - 1
+        to: (value: number) => (Math.round(value) + 1).toString(),
+        from: (value: string) => Math.round(Number(value) - 1)
       }
+    });
+
+    this.slider.on('start', (values: (string | number)[]) => {
+      const tooltips = [
+        true,
+        true,
+        true
+      ];
+      this.slider.updateOptions({
+        tooltips: tooltips,
+      });
     });
 
     this.slider.on('end', (values: (string | number)[]) => {
       // Convert once and reuse
-      const numValues = values.map(v => Math.trunc(Number(v)));
+      const numValues = values.map(v => Math.round(Number(v)));
       let [start, current, end] = numValues;
       let [oldStart, oldCurrent, oldEnd] = [
         this.playConfiguration.scoreRange[0],
@@ -621,17 +667,26 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       ];
       // detect what changed
       if (current != oldCurrent) {
+        if (current === end) {
+          current--;
+        }
         start = current;
       } else if (start != oldStart) {
+        if (start === end) {
+          start--;
+        }
         current = start;
       } else if (end != oldEnd) {
-        end++;
+        if (end === start) {
+          end++;
+        }
+
         current = start;
       }
 
-      this.playConfiguration.scoreRange[0] = start;
-      this.playConfiguration.currentStave = current;
-      this.playConfiguration.scoreRange[1] = end;
+      this.playConfiguration.scoreRange[0] = Math.round(start);
+      this.playConfiguration.currentStave = Math.round(current);
+      this.playConfiguration.scoreRange[1] = Math.round(end);
       this.playerService.reset(this.playConfiguration);
 
       this.updateSlider();
@@ -646,7 +701,12 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       this.playConfiguration.scoreRange[1]
     ];
     this.slider.updateOptions({
-      start: newValues
+      start: newValues,
+      tooltips: [
+        false,
+        false,
+        false
+      ],
     });
   }
 
@@ -656,19 +716,19 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       behaviour: 'unconstrained' as const,
       range: {
         'min': 0,
-        'max': this.cursorService.osmdMeasureCount - 1
+        'max': this.cursorService.osmdMeasureCount + 1
       },
       start: [
-        Math.trunc(this.playConfiguration.scoreRange[0]),
-        Math.trunc(this.playConfiguration.currentStave),
-        Math.trunc(this.playConfiguration.scoreRange[1])
+        this.playConfiguration.scoreRange[0],
+        this.playConfiguration.currentStave,
+        this.playConfiguration.scoreRange[1] + 1
       ]
     };
     return sliderConfig;
   }
 
   debugPlayConfiguration(step: string) {
-    console.log(step, Math.trunc(this.playConfiguration.scoreRange[0]), Math.trunc(this.playConfiguration.currentStave), Math.trunc(this.playConfiguration.scoreRange[1]));
+    console.log(step, this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]);
   }
 
   // Public getter for debugging loading state
@@ -745,6 +805,9 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
 
   ngOnDestroy() {
+    localStorage.removeItem(MIDI_STORAGE_KEY);
+    localStorage.removeItem(MUSIC_XML_STORAGE_KEY);
+    localStorage.removeItem(EXERCICE_INFO_KEY);
     // Clean up slider
     if (this.slider) {
       try {
@@ -757,6 +820,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     // Clear caches
     this.cachedMidi = null;
     this.musicXml = null;
+
+
   }
 
 }

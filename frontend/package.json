@@ -1,12 +1,13 @@
 {
   "name": "piano-ml",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "scripts": {
     "ng": "ng",
     "start": "BASE_PATH='http://localhost:8080' ng serve --host 0.0.0.0 --proxy-config proxy.conf.json",
     "start-remote": "BASE_PATH='https://api.pianoml.org' ng serve --host 0.0.0.0",
-    "build": "npm run shaders:manifest && ng build --no-prerender",
-    "build:prod": "npm run generate:sitemap && npm run shaders:manifest && ng build --configuration=production --no-prerender",
+    "prebuild-common": "node scripts/generate-version.js && npm run shaders:manifest && npm run generate:api",
+    "build": "npm run prebuild-common && ng build --no-prerender",
+    "build:prod": "npm run prebuild-common && npm run generate:sitemap && ng build --configuration=production --no-prerender",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "generate:api": "openapi-generator-cli generate -i ../openapi/api.yaml -g typescript-angular -o src/app/core/api --additional-properties=ngVersion=17.0.0",

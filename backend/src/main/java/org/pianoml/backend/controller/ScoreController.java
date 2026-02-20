@@ -13,6 +13,8 @@ import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,8 +30,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 public class ScoreController implements ScoreApi {
@@ -82,7 +82,6 @@ public class ScoreController implements ScoreApi {
     }
 
 
-
     return scoreService.updateScore(UUID.fromString(id), scoreApiInfo)
       .map(ResponseEntity::ok)
       .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -126,7 +125,7 @@ public class ScoreController implements ScoreApi {
       user = null;
     }
 
-    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, artistSlug, genreSlug, etude, gradeStart, gradeEnd, tempo, fullKey,orderBy, offset, limit , user, tracks);
+    List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, artistSlug, genreSlug, etude, gradeStart, gradeEnd, tempo, fullKey, orderBy, offset, limit, user, tracks);
     return ResponseEntity.ok(scores);
   }
 
@@ -267,23 +266,24 @@ public class ScoreController implements ScoreApi {
    */
   @Override
   public ResponseEntity<Void> scorePlayStatsPost(ScorePlayStatsPostRequest scorePlayStatsPostRequest) {
-     User user = null;
+    User user = null;
 
 
-   try {
+    try {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-      // Tenter de récupérer l'utilisateur s'il est connecté
+      // find user
       user = userService.getUserFromAuthentication(authentication);
     } catch (Exception e) {
-      // this is acceptable, user can be null byt exception shall be narrowed ...
+      // this is acceptable, user can be null but exception shall be narrowed ...
     }
-
-    // Vérifier que le score existe
-    UUID scoreId = UUID.fromString(scorePlayStatsPostRequest.getId());
-
-    // Incrémenter les compteurs
-    scoreService.incrementPlayCount(scoreId, user);
-
+    try {
+      // find score
+      UUID scoreId = UUID.fromString(scorePlayStatsPostRequest.getId());
+      // Incrémenter les compteurs
+      scoreService.incrementPlayCount(scoreId, user);
+    } catch (Exception e) {
+      // this is acceptable, user can be null but exception shall be narrowed ...
+    }
     return ResponseEntity.ok().build();
   }
 }

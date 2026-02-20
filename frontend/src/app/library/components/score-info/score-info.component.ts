@@ -30,7 +30,7 @@ export class ScoreInfoComponent implements OnInit {
   workload: WorkloadApiInfo | null = null;
   loadingWorkload = false;
   siteUrl = '';
-  shareLinks = ['facebook','x','reddit','xing']
+  shareLinks = ['facebook', 'x', 'reddit', 'xing']
   slug: string | null = null;
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
@@ -90,6 +90,7 @@ export class ScoreInfoComponent implements OnInit {
 
     this.scoreService.scoreGetBySlug(slug).subscribe({
       next: (score) => {
+        console.log('Workload loaded:', score);
         this.score = score;
         this.updatePageTitle(score);
         this.updateSelectedGenre();
@@ -225,7 +226,7 @@ export class ScoreInfoComponent implements OnInit {
     }
 
     const revision = 1; // Default revision, adjust if needed
-    
+
     this.scoreService.scoreOwnerIdTypeVersionRevisionGet(
       this.score.owner_id,
       this.score.id!,
@@ -248,7 +249,7 @@ export class ScoreInfoComponent implements OnInit {
     if (!this.isBrowser) {
       return;
     }
-    
+
     if (type === 'pdf') {
       // For PDF, create a new blob with correct MIME type and open inline
       const pdfBlob = new Blob([blob], { type: 'application/pdf' });
@@ -263,11 +264,11 @@ export class ScoreInfoComponent implements OnInit {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      
+
       // Generate filename
       const filename = `${this.score?.title || 'score'}_${this.score?.id || 'unknown'}.${type === 'musicxml' ? 'xml' : type}`;
       link.download = filename;
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -293,7 +294,7 @@ export class ScoreInfoComponent implements OnInit {
 
   isOwner(): boolean {
     const currentUserId = this.authService.getUserId();
-    return this.authService.isAdmin() ||  !!(currentUserId && this.score?.owner_id && currentUserId === this.score.owner_id);
+    return this.authService.isAdmin() || !!(currentUserId && this.score?.owner_id && currentUserId === this.score.owner_id);
   }
 
 

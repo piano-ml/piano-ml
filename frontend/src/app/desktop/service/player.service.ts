@@ -359,13 +359,14 @@ export class PlayerService {
   }
 
   private handleNoteEnd(hand: string, note: Note, liveStatus?: LiveStatus) {
+    this.keyboard.removeMidiNoteFromKeyboard(note.midi);
     if (liveStatus?.shouldPause) {
       this.isWaiting = true;
       this.audio.pause();
       this.lightExpectedNotesOnKeyboard(liveStatus);
     } else {
       //if (!this.isWaiting) {
-      this.keyboard.removeMidiNoteFromKeyboard(note.midi);
+      
       //}
     }
   }
@@ -417,7 +418,7 @@ export class PlayerService {
       return this.duration * this.state.getTimeFactor();
     }
     return (this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1],
+      this.playConfiguration.scoreRange[1] - 1,
       this.playConfiguration.midi!.header
     ) * this.state.getTimeFactor());
   }

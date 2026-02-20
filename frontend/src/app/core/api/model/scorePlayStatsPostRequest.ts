@@ -12,6 +12,13 @@ import { ScorePlayStatsPostRequestAssessment } from './scorePlayStatsPostRequest
 
 export interface ScorePlayStatsPostRequest { 
     id: string;
+    title?: string;
+    author?: string;
+    played_at?: string;
+    tonic?: string;
+    mode?: string;
+    genre?: string;
+    genre_id?: string;
     assessment?: ScorePlayStatsPostRequestAssessment;
 }
 

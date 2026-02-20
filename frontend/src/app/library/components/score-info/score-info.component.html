@@ -109,7 +109,8 @@
             <i class="fas fa-music mr-2"></i>
             Download MIDI
           </button>
-          <p class="text-gray-300 text-sm mt-2">Digital audio format</p>
+          <p *ngIf="score.publicDomain" class="text-gray-300 text-sm mt-2">Digital audio format</p>
+          <p *ngIf="!score.publicDomain" class="text-gray-300 text-sm mt-2">Downloading disabled due to copyright</p>
         </div>
 
         <!-- MusicXML Download -->
@@ -123,7 +124,8 @@
             <i class="fas fa-code mr-2"></i>
             MusicXML
           </button>
-          <p class="text-gray-300 text-sm mt-2">Editable music notation</p>
+          <p *ngIf="score.publicDomain" class="text-gray-300 text-sm mt-2">Editable music notation</p>
+          <p *ngIf="!score.publicDomain" class="text-gray-300 text-sm mt-2">Downloading disabled due to copyright</p>
         </div>
 
         <!-- PDF Download -->
@@ -137,7 +139,8 @@
             <i class="fas fa-file-pdf mr-2"></i>
             Download PDF
           </button>
-          <p class="text-gray-300 text-sm mt-2">Sheet music in PDF format</p>
+          <p *ngIf="score.publicDomain"  class="text-gray-300 text-sm mt-2">Sheet music in PDF format</p>
+          <p *ngIf="!score.publicDomain" class="text-gray-300 text-sm mt-2">Downloading disabled due to copyright</p>          
         </div>
 
 
