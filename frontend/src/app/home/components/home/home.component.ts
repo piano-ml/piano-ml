@@ -180,11 +180,11 @@ export class HomeComponent implements AfterViewInit {
    */
   selectRandomShader(): void {
     
-    // Exclure l'index 4
+    // Exclude shader 4 too heavy
     const filteredShaders = this.availableShaders.filter(s => s.index !== 4);
     if (filteredShaders.length > 0) {
-      //const randomIndex = Math.floor(Math.random() * filteredShaders.length);
-      const randomIndex=5;
+      const randomIndex = Math.floor(Math.random() * filteredShaders.length);
+      //const randomIndex=5;
       this.selectedShader = filteredShaders[randomIndex];
     }
   }

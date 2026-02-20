@@ -132,7 +132,9 @@
         <div class="flex flex-col items-center justify-center w-full h-dvh text-6xl osmd-state-transition">
             🎼
              @if (loadingFeedBack) {
+            <div class="w-[250px] pl-4">
             <span class="text-sm mt-2">{{ loadingFeedBack!.message }} - {{ loadingFeedBack!.percentage }}%</span>
+            </div>
             } @else {
             <span class="text-sm mt-2">loading...</span>
             } 
