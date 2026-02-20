@@ -134,7 +134,9 @@ export class CursorService {
                 this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
                 this.cursor!.CursorOptions.type = 4;
             } else {
-                this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
+                if (this.diagnosticMode) {
+                    this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
+                }
                 this.cursor!.CursorOptions.type = 3; // measure rectangle
             }
             const newOsmdMeasure = link.osmdMeasure;
@@ -274,7 +276,7 @@ export class CursorService {
             //const toSkip =osmdPitches.length === 0 && notesUnderCursor.every(n => this.isSkipable(n));
             //const toSkip = osmdPitches.length === 0;
             const toSkip = notesUnderCursor.every(n => this.isSkipable(n));
-            if (osmdMeasureIndex===19&& index < 194 ) {
+            if (osmdMeasureIndex === 19 && index < 194) {
                 console.log(notesUnderCursor)
             }
             const o: OsmdArrayElement = {
@@ -831,7 +833,7 @@ export class CursorService {
             cursor.iterator.moveToPrevious();
             return true;
         }
-        const nextMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex;       
+        const nextMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex;
         cursor.iterator.moveToPrevious();
         return (nextMeasureIndex !== currentMeasureIndex);
     }
