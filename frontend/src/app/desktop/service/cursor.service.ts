@@ -95,19 +95,19 @@ export class CursorService {
         await this.yieldToUi();
 
         this.osmdArray!.clear();
-        this.midiTicksNoteMap.clear();
-        this.osmdCursorIdxToMeasureMap.clear();
+        this.midiTicksNoteMap.clear();        
         this.osmdCursorIdxNoteMap.clear();
         this.osmdMeasureNoteMap.clear();
         this.osmdMeasureNoteMap.clear();
         this.osmdMeasureSequence = [];
         this.midiBarToOsmdMeasure.clear();
+        // this.osmdCursorIdxToMeasureMap.clear(); is used for slider and must not be cleared
         // this.midiTicksToOsmdCursorIndex will be our main output and must not be cleared
 
         setTimeout(() => {
             this.cursor!.next();
             this.cursor!.previous();
-        }, 100);
+        }, 500);
         return status;
     }
 
@@ -144,7 +144,7 @@ export class CursorService {
                 this.measure.set(newOsmdMeasure);
             }
         } else {
-            console.log("note not found", note.ticks)
+            console.warn("note not found", note.ticks)
         }
     }
 
@@ -273,12 +273,7 @@ export class CursorService {
             const graphicalObjectId = notesUnderCursor
                 .map(n => n.NoteToGraphicalNoteObjectId)
                 .filter((id): id is number => id != null);
-            //const toSkip =osmdPitches.length === 0 && notesUnderCursor.every(n => this.isSkipable(n));
-            //const toSkip = osmdPitches.length === 0;
             const toSkip = notesUnderCursor.every(n => this.isSkipable(n));
-            if (osmdMeasureIndex === 19 && index < 194) {
-                console.log(notesUnderCursor)
-            }
             const o: OsmdArrayElement = {
                 midiMeasure: midiMeasureIndex,
                 osmdMeasure: osmdMeasureIndex,
@@ -286,8 +281,7 @@ export class CursorService {
                 index: index,
                 isFirst: firstIter,
                 isLast: lastIter,
-                isSkipable: toSkip, // && !osmdArray[osmdArray.length - 1]?.isJump, // we want to avoid having consecutive skipable elements as it would make jump target detection harder
-                //isSkipable: toSkip && (osmdArray.at(osmdArray.length - 1)?.osmdPitches?.at(0) === osmdPitches[0]) , // we want to avoid having consecutive skipable elements with the same pitch as it would make jump target detection harder
+                isSkipable: toSkip, 
                 isJump: isJump,
                 target: null, // will be filled in next pass
                 targetMeasure: jumpTargetMeasure,
@@ -300,10 +294,7 @@ export class CursorService {
             osmdArray.push(o);
             if (o.isLast && hasMeasureTransition && !isNaturalAdvance) {
                 const targetMeasure = osmdMesureSequence[midiMeasureIndex + 1];
-                // console.log("jump detected")
-                // console.log({ from: osmdMeasureIndex, to: targetMeasure, isNaturalAdvance, hasMeasureTransition, osmdPitches });
                 this.moveToMeasure(targetMeasure);
-
                 await setTimeout(() => { }, 0); // yield to let the cursor update
             } else {
                 cursor.iterator.moveToNext();
@@ -624,7 +615,9 @@ export class CursorService {
             if (element.midiTicks !== null) {
                 link.set(element.midiTicks!, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
             }
+            this.osmdCursorIdxToMeasureMap.set(element.osmdIndex, element.osmdMeasure);
         });
+
         this.midiTicksToOsmdCursorIndex = link;
         if (this.diagnosticMode) {
             console.groupCollapsed("[cursor][mapping] mapMidiTicksToOsmdCursorIndex");
@@ -749,16 +742,13 @@ export class CursorService {
     moveCursorToOsmdIndex(cursor: Cursor, targetIndex: number): void {
         if (targetIndex < this.cursorIndex) {
             while (this.cursorIndex > targetIndex && !cursor.iterator.FrontReached) {
-                //console.log("moveCursorToOsmdIndex <-", { targetIndex, currentOsmdIndex: this.cursorIndex });
                 cursor.previous();
                 this.cursorIndex--;
             }
         } else if (targetIndex > this.cursorIndex) {
             while (this.cursorIndex < targetIndex && !cursor.iterator.EndReached) {
-                //console.log("moveCursorToOsmdIndex ->", { targetIndex, currentOsmdIndex: this.cursorIndex });
                 cursor.next();
                 this.cursorIndex++;
-
             }
         }
     }

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
@@ -27,8 +27,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
     error: string | null = null;
 
     private cursorObserver?: MutationObserver;
-    private lastScrollLeft: number = 0;
-    private lastCursorLeft: number = 0;
     private scrollAnimationFrame?: number;
 
     constructor(
@@ -78,42 +76,38 @@ export class OsmdComponent implements OnInit, OnDestroy {
             ...DEFAULT_OSMD_OPTIONS,
             ...this.getCustomOptions(),
         });
-        
+
         if (this.musicXml) {
-            await this.osmd.load(this.musicXml).then(() => {
-                // ... do nothing here
-            });
-            this.osmd!.render();
-            // there is not onRenderComplete callback, so we use a timeout ...
-            setTimeout(async () => {
-                
-                if (!this.osmd!.cursor) {
-                    console.warn("osmd.cursor is undefined!");
-                } else {
+            await this.osmd.load(this.musicXml);
+            this.osmd!.render(); // unfortunately not resolvable in load callback, we have to wait for the cursor to be available
+            for (let i = 0; i < 20; i++) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                if (this.osmd.cursors) {
                     // caqlculate Y
                     const partCount = this.osmd!.GraphicSheet.MeasureList[0].length;
                     const positionAndShape = this.osmd!.GraphicSheet.MeasureList[0][partCount - 1].PositionAndShape;
                     let y = 100;
-                    if (partCount === 1) {
-                        y = positionAndShape.Parent.BoundingMarginRectangle.height * 1.1
-                    } else {
-                        y = positionAndShape.AbsolutePosition.y + positionAndShape.BoundingRectangle.height;
-                    }
-                    // set cursor height
                     const cursorElement = document.getElementById('cursorImg-0');
                     if (cursorElement) {
-                        cursorElement.style.setProperty('height', y * 10 + "px", 'important');
+                        if (partCount === 1) {
+                            y = positionAndShape.Parent.BoundingRectangle.height
+                            cursorElement!.style.setProperty('height', y * 5 + "px", 'important');
+                        } else {
+                            y = positionAndShape.AbsolutePosition.y + positionAndShape.BoundingRectangle.height;
+                            cursorElement!.style.setProperty('height', y * 8 + "px", 'important');
+                        }
                     }
                     this.osmd!.cursors[0].SkipInvisibleNotes = true;
                     this.osmd!.cursors[0].show();
-                    this.osmd!.cursors[0].reset();
                     const status = await this.playerService.setOsmd(this.osmd!);
                     this.loading = false;
                     this.loadingChange.emit(false);
+                    break;
                 }
-            }, 600);
+            }
         }
     }
+
     getCustomOptions(): {} {
         const storage = localStorage.getItem("preferences")
         const customOptions: Partial<typeof DEFAULT_OSMD_OPTIONS> = {};
@@ -131,6 +125,5 @@ export class OsmdComponent implements OnInit, OnDestroy {
             }
         }
         return customOptions;
-
     }
 }
