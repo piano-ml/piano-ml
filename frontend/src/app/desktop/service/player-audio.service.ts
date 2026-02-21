@@ -5,7 +5,7 @@ import { Piano } from '@tonejs/piano';
 import { Synthetizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
-import { GOOD_RANGE, LiveStatus, PERFECT_RANGE, PlayerAssessService } from './player-assess.service';
+import { GOOD_RANGE, LiveStatus, PERFECT_RANGE, QUANT_RANGE, PlayerAssessService } from './player-assess.service';
 import { PlayerStateService } from './player-state.service';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 
@@ -20,6 +20,7 @@ export class PlayerAudioService {
   synth: Tone.Synth<Tone.SynthOptions> | undefined;
   spessasynth?: Synthetizer;
   piano: any;
+  pianoMLShouldPlay: boolean = false;
 
   constructor(
     private assess: PlayerAssessService,
@@ -147,6 +148,7 @@ export class PlayerAudioService {
    * Démarre le transport
    */
   async start(): Promise<void> {
+    this.pianoMLShouldPlay = this.midiService.pianoMLShouldPlay();
     await Tone.start();
     Tone.getTransport().start();
   }
@@ -208,7 +210,7 @@ export class PlayerAudioService {
     Tone.getDraw().schedule(callback, time);
   }
 
-  private isHandOk(hand: string, midiPitch: number) {
+  private isNotHandAwaited(hand: string, midiPitch: number) {
     return (((hand === 'rh' && this.state.playConfiguration.waitForRightHand)
       || (hand === 'lh' && this.state.playConfiguration.waitForLeftHand))
       && (midiPitch >= this.state.leftmostKey && midiPitch <= this.state.rightmostKey)
@@ -234,55 +236,55 @@ export class PlayerAudioService {
     // Schedule note start (UI updates, cursor advance, keyboard light on)
     this.schedule((time: number) => {
       this.scheduleDraw(() => {
-        if (this.isHandOk(hand, note.midi)) {
+        if (this.isNotHandAwaited(hand, note.midi)) {
           const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), noteTimeEnd, note, hand);
           callbacks.onNoteStart(time, note, liveStatus);
         } else {
           const liveStatus = this.assess.getExpectation();
           callbacks.onNoteStart(time, note, liveStatus);
         }
-
       }, time);
-    }, noteTimeStart - PERFECT_RANGE > 0 ? noteTimeStart - PERFECT_RANGE : 0);
-    ;
+    }, noteTimeStart ? noteTimeStart : 0);
+
     // Schedule piano audio start
     this.schedule((time: number) => {
-      // TODO this.midiService.isOutputDeviceSelected(null) can be cached
-      if (this.midiService.isOutputDeviceSelected(null) && !this.isHandOk(hand, note.midi)) {
-        this.piano.keyDown({
-          time: time,
-          velocity: note.velocity,
-          note: note.name,
-          midi: note.midi
-        });
-      }
-      if (!this.isHandOk(hand, note.midi)) {
+
+      if (!this.isNotHandAwaited(hand, note.midi)) {
         this.midiService.pressOutput(note.midi, note.velocity);
+        if (this.pianoMLShouldPlay) {
+          this.piano.keyDown({
+            time: time,
+            velocity: note.velocity,
+            note: note.name,
+            midi: note.midi
+          });
+        }
       }
-    }, noteTimeStart);
+    }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeStart + PERFECT_RANGE : noteTimeStart);
 
     // Schedule note end (keyboard light off, piano audio stop)
     this.schedule((time: number) => {
-      if (this.midiService.isOutputDeviceSelected(null) && !this.isHandOk(hand, note.midi)) {
-        this.piano.keyUp({
-          time: time,
-          velocity: note.velocity,
-          note: note.name,
-          midi: note.midi
-        });
-      }
-      if (!this.isHandOk(hand, note.midi)) {
+      if (!this.isNotHandAwaited(hand, note.midi)) {
         this.midiService.releaseOutput(note.midi);
+        if (this.pianoMLShouldPlay) {
+          this.piano.keyUp({
+            time: time,
+            velocity: note.velocity,
+            note: note.name,
+            midi: note.midi
+          });
+        }
       }
 
       this.scheduleDraw(() => {
         const liveStatus = this.assess.getExpectation();
         callbacks.onNoteEnd(time, note, liveStatus);
       }, time);
-    }, noteTimeEnd);
-
+    }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeEnd + PERFECT_RANGE : noteTimeEnd);
 
   }
+
+
 
   /**
    * Schedule toutes les notes d'une piste (main gauche ou droite)
@@ -298,6 +300,7 @@ export class PlayerAudioService {
       onNoteEnd: (time: number, note: Note, liveStatus: LiveStatus) => void;
     }
   ): void {
+
     for (const note of track.notes) {
       const noteTime = note.time * timeFactor;
       if (noteTime >= startTime && noteTime < endCut) {

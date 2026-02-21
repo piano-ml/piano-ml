@@ -4,9 +4,9 @@ import { MidiStateEvent } from "../../shared/model/webmidi";
 import { forEach } from "lodash";
 
 
-export const GOOD_RANGE = 300 / 1000
-export const PERFECT_RANGE = 50 / 1000
-export const QUANT_RANGE = 40 / 1000
+export const GOOD_RANGE = 600 / 1000
+export const PERFECT_RANGE = 200 / 1000
+export const QUANT_RANGE = 100 / 1000
 
 export interface LiveStatus {
   shouldPause: boolean;

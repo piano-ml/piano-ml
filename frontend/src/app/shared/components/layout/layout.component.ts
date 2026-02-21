@@ -11,6 +11,8 @@ import {  bootstrapGithub } from '@ng-icons/bootstrap-icons';
 import { map, Observable, tap } from 'rxjs';
 import { AuthService } from '../../../account/services/auth.service';
 
+import versionInfo from '../../../../assets/version.json';
+
 @Component({
   selector: 'app-layout',
   imports: [RouterModule, CommonModule,   NgIcon],
@@ -19,6 +21,7 @@ import { AuthService } from '../../../account/services/auth.service';
     viewProviders: [provideIcons({ bootstrapGithub })],
 })
 export class LayoutComponent implements OnDestroy {  
+    version = versionInfo;
   private platformId = inject(PLATFORM_ID);
   private changeDetector = inject(ChangeDetectorRef);
   isLoggedIn$: Observable<boolean>;

@@ -45,10 +45,6 @@ export interface PlayConfiguration {
   scoreRange: [number, number];
   isLoop: boolean;
   staveAndStaveNotesPair: StaveAndStaveNotesPair[];
-  //tempo: number;
-  //staveWidth: number; // to be removed
-  //timeSignature: ReducedFraction;
-  //fingering?: number[][]; // to be removed
   accompaniment: Midi.Midi | null;
   midi: Midi.Midi | null;  
 }
@@ -56,3 +52,4 @@ export interface PlayConfiguration {
 
 export const MUSIC_XML_STORAGE_KEY = 'musicXMLScore';
 export const MIDI_STORAGE_KEY = 'midiScore';
+export const EXERCICE_INFO_KEY = 'exerciceInfo';

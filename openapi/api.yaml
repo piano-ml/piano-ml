@@ -372,6 +372,20 @@ paths:
               properties:
                 id:
                   type: string
+                title:
+                  type: string
+                author:
+                  type: string
+                played_at:
+                  type: string
+                tonic:
+                  type: string
+                mode:
+                  type: string                  
+                genre:
+                  type: string 
+                genre_id:
+                  type: string 
                 assessment:
                   type: object
                   properties:

@@ -6,7 +6,7 @@ import { Header } from '@tonejs/midi';
 //import { getNote } from "../shared/services/midi-service.service";
 import { getNoteDuration, getNoteDurationTicks } from "../desktop/service/midi-maths";
 import { MusicXML, elements } from '@stringsync/musicxml';
-import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from "../desktop/model/model";
+import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from "../desktop/model/model";
 import { majorKeySignatureSharpFlats, MajorKeys } from "../desktop/service/music-theory";
 
 const keyToNote: { [key: string]: number } = {}
@@ -34,21 +34,15 @@ export function loadExercice(router: Router, exercice: Exercise, scaleOrChord: S
       });
       return;
     } else if (scaleOrChord.kind === 'Chord') {
-            const scaleKey = normalizeKey(scaleOrChord.name );
+      const scaleKey = normalizeKey(scaleOrChord.name);
       const exerciseKey = normalizeKey(exercice.key ?? exercice.title);
-          router.navigate(['/', 'workbench', 'chord', scaleKey, key, exerciseKey], {
+      router.navigate(['/', 'workbench', 'chord', scaleKey, key, exerciseKey], {
         state: {
           fromStorage: true
         }
       });
       return;
     }
-
-    // router.navigate(['/desktop/workbench'], {
-    //   state: {
-    //     fromStorage: true
-    //   }
-    // });
   }
 }
 
@@ -62,6 +56,15 @@ export function saveExerciseToStorage(exercice: Exercise, scaleOrChord: Scale | 
   }
 
   localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi));
+
+  const exerciceInfo = {
+    title: exercice.title,
+    tonic: key,
+    mode: scaleOrChord.name,
+    kind: scaleOrChord.kind,
+  }
+  localStorage.setItem(EXERCICE_INFO_KEY, JSON.stringify(exerciceInfo));
+
   return midi;
 }
 
@@ -420,7 +423,7 @@ function createPartWithAPI(
 ): elements.PartPartwise {
   const notesInPattern = hand === 'lh' ? exercice.patternLeftHand : exercice.patternRightHand;
   const m = getNote(`${key}4`);
-  const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift -2 || 0) + (m < 65 ? 1 : 0);
+  const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift - 2 || 0) + (m < 65 ? 1 : 0);
 
   // Create attributes for the measure
   const attributesFirstMeasure = createAttributeFirstMeasure(hand, exercice, divisions, key);
