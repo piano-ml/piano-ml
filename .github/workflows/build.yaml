@@ -1,11 +1,14 @@
 
+
 name: Build and Push to Artifact Registry
 
+
 on:
-  push:
-    branches: ["main"]
-#  pull_request:
-#    branches: ["main", "deploy"]
+  workflow_run:
+    workflows: ["test"]
+    types:
+      - completed
+
 
 env:
   PROJECT_ID: sectrack
@@ -13,15 +16,14 @@ env:
   REPO_NAME: images
   SERVICE_ACCOUNT: my-service-account
   PROVIDER_ID: projects/189831140484/locations/global/workloadIdentityPools/my-pool/providers/github-actions-provider
-
-
+  BRANCH_NAME: ${{ github.event.workflow_run.head_branch }}
 
 jobs:
   backend:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'main') }}    
     name: Backend - Docker Build & Push   
     runs-on: ubuntu-latest
-    #if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')  # <-- Notice that I'm filtering here to only run when a tagged commit is pushed
-
+  
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -58,13 +60,14 @@ jobs:
           password: ${{ steps.auth.outputs.access_token }}
 
       - name: Build image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest .
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:${{ env.BRANCH_NAME }} .
         working-directory: ./backend
 
       - name: Push image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:${{ env.BRANCH_NAME }}
 
   frontend:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'main') }}    
     name: Frontend - Docker Build & Push    
     runs-on: ubuntu-latest
     permissions:
@@ -84,7 +87,7 @@ jobs:
       run: npm --legacy-peer-deps install
     - name: Build frontend
       working-directory: ./frontend
-      run: npm run build:prod
+      run: npm run build
     - name: Build frontend Docker image
       working-directory: ./frontend
       run: docker build -t pianoml-fe .
@@ -107,15 +110,17 @@ jobs:
 
     - name: Build image
       working-directory: ./frontend
-      run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest .
+      run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:${{ env.BRANCH_NAME }} .
+
+
 
     - name: Smoke test image
       working-directory: ./frontend    
       run: |
-        docker run -d --rm --name fe-smoke -p 8080:80 ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest
+        docker run -d --rm --name fe-smoke -p 8080:80 ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:${{ env.BRANCH_NAME }}
             for i in {1..10}; do curl -fsS http://localhost:8080/ && break; sleep 3; done
             docker logs fe-smoke
             docker stop fe-smoke
 
     - name: Push image
-      run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest
+      run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:${{ env.BRANCH_NAME }}
