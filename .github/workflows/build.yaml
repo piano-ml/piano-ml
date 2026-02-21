@@ -5,7 +5,7 @@ name: Build and Push to Artifact Registry
 
 on:
   workflow_run:
-    workflows: ["test"]
+    workflows: ["tests"]
     types:
       - completed
 
