@@ -3,7 +3,9 @@ name: Build and Push to Artifact Registry
 
 on:
   push:
-    branches: ["develop"]
+    branches: ["main"]
+#  pull_request:
+#    branches: ["main", "deploy"]
 
 env:
   PROJECT_ID: sectrack
@@ -11,6 +13,8 @@ env:
   REPO_NAME: images
   SERVICE_ACCOUNT: my-service-account
   PROVIDER_ID: projects/189831140484/locations/global/workloadIdentityPools/my-pool/providers/github-actions-provider
+
+
 
 jobs:
   backend:
@@ -54,11 +58,11 @@ jobs:
           password: ${{ steps.auth.outputs.access_token }}
 
       - name: Build image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:develop .
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest .
         working-directory: ./backend
 
       - name: Push image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:develop
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:latest
 
   frontend:
     name: Frontend - Docker Build & Push    
@@ -80,7 +84,7 @@ jobs:
       run: npm --legacy-peer-deps install
     - name: Build frontend
       working-directory: ./frontend
-      run: npm run build
+      run: npm run build:prod
     - name: Build frontend Docker image
       working-directory: ./frontend
       run: docker build -t pianoml-fe .
@@ -103,17 +107,15 @@ jobs:
 
     - name: Build image
       working-directory: ./frontend
-      run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:develop .
-
-
+      run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest .
 
     - name: Smoke test image
       working-directory: ./frontend    
       run: |
-        docker run -d --rm --name fe-smoke -p 8080:80 ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:develop
+        docker run -d --rm --name fe-smoke -p 8080:80 ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest
             for i in {1..10}; do curl -fsS http://localhost:8080/ && break; sleep 3; done
             docker logs fe-smoke
             docker stop fe-smoke
 
     - name: Push image
-      run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:develop
+      run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:latest
