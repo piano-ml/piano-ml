@@ -5,7 +5,7 @@ import { Piano } from '@tonejs/piano';
 import { Synthetizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
-import { GOOD_RANGE, LiveStatus, PERFECT_RANGE, PlayerAssessService } from './player-assess.service';
+import { GOOD_RANGE, LiveStatus, PERFECT_RANGE, QUANT_RANGE, PlayerAssessService } from './player-assess.service';
 import { PlayerStateService } from './player-state.service';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 
@@ -20,7 +20,7 @@ export class PlayerAudioService {
   synth: Tone.Synth<Tone.SynthOptions> | undefined;
   spessasynth?: Synthetizer;
   piano: any;
-  isNullDeviceOutputCached: any;
+  pianoMLShouldPlay: boolean = false;
 
   constructor(
     private assess: PlayerAssessService,
@@ -148,6 +148,7 @@ export class PlayerAudioService {
    * Démarre le transport
    */
   async start(): Promise<void> {
+    this.pianoMLShouldPlay = this.midiService.pianoMLShouldPlay();
     await Tone.start();
     Tone.getTransport().start();
   }
@@ -244,48 +245,46 @@ export class PlayerAudioService {
         }
       }, time);
     }, noteTimeStart ? noteTimeStart : 0);
-    ;
+
     // Schedule piano audio start
     this.schedule((time: number) => {
-      if (this.isNullDeviceOutput() && !this.isNotHandAwaited(hand, note.midi)) {
-        this.piano.keyDown({
-          time: !this.isNotHandAwaited(hand, note.midi) ? noteTimeStart + PERFECT_RANGE : noteTimeStart,
-          velocity: note.velocity,
-          note: note.name,
-          midi: note.midi
-        });
-      }
+
       if (!this.isNotHandAwaited(hand, note.midi)) {
         this.midiService.pressOutput(note.midi, note.velocity);
+        if (this.pianoMLShouldPlay) {
+          this.piano.keyDown({
+            time: time,
+            velocity: note.velocity,
+            note: note.name,
+            midi: note.midi
+          });
+        }
       }
     }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeStart + PERFECT_RANGE : noteTimeStart);
 
     // Schedule note end (keyboard light off, piano audio stop)
     this.schedule((time: number) => {
-      if (this.isNullDeviceOutput() && !this.isNotHandAwaited(hand, note.midi)) {
-        this.piano.keyUp({
-          time: time,
-          velocity: note.velocity,
-          note: note.name,
-          midi: note.midi
-        });
-      }
       if (!this.isNotHandAwaited(hand, note.midi)) {
         this.midiService.releaseOutput(note.midi);
+        if (this.pianoMLShouldPlay) {
+          this.piano.keyUp({
+            time: time,
+            velocity: note.velocity,
+            note: note.name,
+            midi: note.midi
+          });
+        }
       }
 
       this.scheduleDraw(() => {
         const liveStatus = this.assess.getExpectation();
         callbacks.onNoteEnd(time, note, liveStatus);
       }, time);
-    }, noteTimeEnd);
-
-
-  }
-  isNullDeviceOutput() {
-    return this.isNullDeviceOutputCached;
+    }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeEnd + PERFECT_RANGE : noteTimeEnd);
 
   }
+
+
 
   /**
    * Schedule toutes les notes d'une piste (main gauche ou droite)
@@ -301,7 +300,7 @@ export class PlayerAudioService {
       onNoteEnd: (time: number, note: Note, liveStatus: LiveStatus) => void;
     }
   ): void {
-    this.isNullDeviceOutputCached = this.midiService.isOutputDeviceSelected(null);
+
     for (const note of track.notes) {
       const noteTime = note.time * timeFactor;
       if (noteTime >= startTime && noteTime < endCut) {

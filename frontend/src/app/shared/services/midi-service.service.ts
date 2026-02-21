@@ -39,10 +39,10 @@ export class MidiServiceService {
 
   pressOutput(note: number, volume: number) {
     if (!this.isBrowser) return;
+    const midiNoteOnCh1 = 144
+    const velocity = volume * 127
+    const data = [midiNoteOnCh1, note, velocity]
     for (const output of this.enabledOutputDevices) {
-      const midiNoteOnCh1 = 144
-      const velocity = volume * 127
-      const data = [midiNoteOnCh1, note, velocity]
       output[1]?.send(data)
     }
   }
@@ -218,13 +218,20 @@ export class MidiServiceService {
 
   isOutputDeviceSelected(device: MIDIOutput | null) {
     const selected = this.getStoredDeviceSelection(this.midiOutputStorageKey);
-    if (device === null && selected?.has('PIANOML')) {      
+    console.log('Checking if output device is selected:', { device, selected });
+    if (device === null) {
       return true;
     }
 
     if (!selected) return true;
     return selected.has(this.getDeviceKey(device as MIDIOutput));
   }
+
+  pianoMLShouldPlay() {
+    const selected = this.getStoredDeviceSelection(this.midiOutputStorageKey) || new Set<string>();
+    return selected.has('PIANOML');
+  }
+
 
   setOutputDeviceEnabled(device: MIDIOutput, enabled: boolean) {
     if (!this.isBrowser) return;
@@ -283,7 +290,7 @@ export class MidiServiceService {
 
   private disableAllInputsExcept(selected: MIDIInput) {
     for (const device of this.enabledInputDevices.values()) {
-      if ( device.id !== selected.id) {
+      if (device.id !== selected.id) {
         this.disableInputMidiDevice(device);
       }
     }
@@ -318,7 +325,7 @@ export class MidiServiceService {
       );
       const outputList = Array.from(outputs.values());
       const preferredOutput = this.pickPreferredOutput(outputList, inputKeys);
-      if (preferredOutput) {      
+      if (preferredOutput) {
         localStorage.setItem(this.midiOutputStorageKey, JSON.stringify([this.getDeviceKey(preferredOutput)]));
       }
     }
