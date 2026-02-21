@@ -87,7 +87,7 @@ jobs:
       run: npm --legacy-peer-deps install
     - name: Build frontend
       working-directory: ./frontend
-      run: npm run build
+      run: npm run build:prod
     - name: Build frontend Docker image
       working-directory: ./frontend
       run: docker build -t pianoml-fe .
