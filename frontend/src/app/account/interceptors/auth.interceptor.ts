@@ -18,10 +18,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         sessionStorage.clearSession();
         
         // Redirect to login page
-        // const target = '/account/login';
-        // if (router.url !== target) {
-        //   router.navigate([target]);
-        // }
+        const target = '/account/login';
+        if (router.url !== target) {
+          router.navigate([target]);
+        }
       }
       return throwError(() => error);
     })
