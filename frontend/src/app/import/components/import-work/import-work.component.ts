@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, type OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import * as Midi from '@tonejs/midi';
 // biome-ignore lint/style/useImportType:  Angular API
-import { type FormGroup, type FormArray, ReactiveFormsModule, FormBuilder } from '@angular/forms'
+import { type FormGroup, type FormArray, ReactiveFormsModule, FormBuilder, UntypedFormBuilder } from '@angular/forms'
 // biome-ignore lint/style/useImportType: Angular API
 import { ActivatedRoute, Router } from '@angular/router';
 import { bootstrapFloppy } from '@ng-icons/bootstrap-icons';
@@ -40,6 +40,7 @@ export class ImportWorkComponent implements OnInit {
     checkedNumber = 0;
     studies: Array<number> = [];
     splitVoices = false;
+    makeFingering = true;
     error: Error | undefined;
     isModalOpen = false;
     modalTitle = '';
@@ -124,7 +125,7 @@ export class ImportWorkComponent implements OnInit {
         this.checkedNumber = 0;
         this.studies = [];
         this.splitVoices = false;
-
+        this.makeFingering = true;
         this.checkboxGroup = this.fb.group({
             checkboxes: this.fb.array(this.checkboxes.map(x => false))
         });
@@ -150,6 +151,11 @@ export class ImportWorkComponent implements OnInit {
         this.splitVoices = !this.splitVoices;
     }
 
+
+    makeFingeringChecked() {
+        this.makeFingering = !this.makeFingering;
+    }
+
     onFileChange(input: HTMLInputElement) {
         if (!input?.files?.length) return;
         const file = input.files[0];
@@ -157,8 +163,8 @@ export class ImportWorkComponent implements OnInit {
 
         if (this.fileName.endsWith('.midi') || this.fileName.endsWith('.mid')) {
             this.onMidiSent(input);
-        } else if (this.fileName.endsWith('.pdf') 
-            || this.fileName.endsWith('.musicxml') 
+        } else if (this.fileName.endsWith('.pdf')
+            || this.fileName.endsWith('.musicxml')
             || this.fileName.endsWith('.mxl')
             || this.fileName.endsWith('.png')
             || this.fileName.endsWith('.jpg')
@@ -168,7 +174,7 @@ export class ImportWorkComponent implements OnInit {
             this.onFileSent(input);
         }
     }
-    getFileType(fileName: string): 'pdf' | 'musicxml' |  'mxl' | 'midi' | 'metadata' | 'image' {
+    getFileType(fileName: string): 'pdf' | 'musicxml' | 'mxl' | 'midi' | 'metadata' | 'image' {
         if (fileName.endsWith('.mid') || fileName.endsWith('.midi')) {
             return 'midi';
         }
@@ -177,7 +183,7 @@ export class ImportWorkComponent implements OnInit {
         }
         if (fileName.endsWith('.mxl')) {
             return 'mxl';
-        }        
+        }
         if (fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
             return 'image';
         }
@@ -208,42 +214,42 @@ export class ImportWorkComponent implements OnInit {
                 this.loading = false;
                 this.changeDetector.detectChanges();
             }, next: (data) => {
-                    this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, type, data.version!, 0, blob).subscribe({
-                        next: (data2) => {
-                            this.loading = false;
-                            this.changeDetector.detectChanges();
-                            const slug = data.immutableSlug || data.mutableSlug;
-                            if (slug) {
-                                this.route.navigate(['/score', slug]);
-                                return;
-                            }
-                            if (data.id) {
-                                this.scoreService.scoreIdGet(data.id).subscribe({
-                                    next: (fullScore) => {
-                                        const fallbackSlug = fullScore.immutableSlug || fullScore.mutableSlug;
-                                        if (fallbackSlug) {
-                                            this.route.navigate(['/score', fallbackSlug]);
-                                        } else {
-                                            this.route.navigate(['/library']);
-                                        }
-                                    },
-                                    error: () => this.route.navigate(['/library'])
-                                });
-                                return;
-                            }
-                            this.route.navigate(['/library']);
-                        },
-                        error: (error) => {
-                            console.error("Error uploading MIDI file:", error);
-                            console.error("Error uploading MIDI file:", error.error?.error);
-                            this.error = error.error.error;
-                            this.modalContent = error.error.error.message || 'An error occurred while uploading the MIDI file.';
-                            this.modalTitle = 'Upload Error';
-                            this.isModalOpen = true;
-                            this.loading = false;
-                            this.changeDetector.detectChanges();
+                this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, type, data.version!, 0, blob,undefined,undefined, this.makeFingering).subscribe({
+                    next: (data2) => {
+                        this.loading = false;
+                        this.changeDetector.detectChanges();
+                        const slug = data.immutableSlug || data.mutableSlug;
+                        if (slug) {
+                            this.route.navigate(['/score', slug]);
+                            return;
                         }
-                    });
+                        if (data.id) {
+                            this.scoreService.scoreIdGet(data.id).subscribe({
+                                next: (fullScore) => {
+                                    const fallbackSlug = fullScore.immutableSlug || fullScore.mutableSlug;
+                                    if (fallbackSlug) {
+                                        this.route.navigate(['/score', fallbackSlug]);
+                                    } else {
+                                        this.route.navigate(['/library']);
+                                    }
+                                },
+                                error: () => this.route.navigate(['/library'])
+                            });
+                            return;
+                        }
+                        this.route.navigate(['/library']);
+                    },
+                    error: (error) => {
+                        console.error("Error uploading MIDI file:", error);
+                        console.error("Error uploading MIDI file:", error.error?.error);
+                        this.error = error.error.error;
+                        this.modalContent = error.error.error.message || 'An error occurred while uploading the MIDI file.';
+                        this.modalTitle = 'Upload Error';
+                        this.isModalOpen = true;
+                        this.loading = false;
+                        this.changeDetector.detectChanges();
+                    }
+                });
             }
         });
     }
@@ -308,7 +314,9 @@ export class ImportWorkComponent implements OnInit {
                     if (data.version === null) {
                         data.version = 1;
                     }
-                    this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, "midi", data.version!, 0, blob).subscribe({
+                    const track1= this.studies[0] || undefined;
+                    const track2= this.studies[1] || undefined;
+                    this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, "midi", data.version!, 0, blob,track1,track2,this.makeFingering).subscribe({
                         next: (data2) => {
                             this.loading = false;
                             this.changeDetector.detectChanges();
