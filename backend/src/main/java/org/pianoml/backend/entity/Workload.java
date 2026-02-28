@@ -43,6 +43,9 @@ public class Workload {
   @Column(name = "workload_size")
   private Integer workloadSize;
 
+  @Column(name = "make_fingerings")
+  private Boolean makeFingerings;
+
   public enum WorkloadStatus {
     PENDING, RUNNING, COMPLETED, FAILED
   }

@@ -1,5 +1,6 @@
 package org.pianoml.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.Workload;
@@ -27,25 +28,20 @@ import static org.pianoml.backend.service.ScoreService.makeBucketKeyFromScore;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class WorkloadProcessingService {
 
-  @Autowired
-  private WorkloadRepository workloadRepository;
+  private final WorkloadRepository workloadRepository;
 
-  @Autowired
-  private ScoreRepository scoreRepository;
+  private final ScoreRepository scoreRepository;
 
-  @Autowired
-  private PackService packService;
+  private final PackService packService;
 
-  @Autowired
-  private ScoreService scoreService;
+  private final ScoreService scoreService;
 
-  @Autowired
-  private WorkloadTransactionService workloadTransactionService;
+  //private final WorkloadTransactionService workloadTransactionService;
 
-  @Autowired
-  private S3Client s3Client;
+  private final S3Client s3Client;
 
   @Value("${aws.s3.bucket-name:'no-bucket'}")
   private String bucketName;
@@ -82,6 +78,8 @@ public class WorkloadProcessingService {
    */
   private void processOpticalMusicRecognition(Workload workload) {
     log.info("Processing OMR PDF for workload {}", workload.getId());
+    workload.setStatus(Workload.WorkloadStatus.RUNNING);
+    workloadRepository.saveAndFlush(workload);
     try {
       // 1. Load Score from repository
       Optional<Score> scoreOptional = scoreRepository.findById(workload.getScoreId());
@@ -90,8 +88,7 @@ public class WorkloadProcessingService {
         workloadRepository.save(workload);
         throw new RuntimeException("Score not found for ID: " + workload.getScoreId());
       }
-      workload.setStatus(Workload.WorkloadStatus.RUNNING);
-      workloadRepository.save(workload);
+
       Score score = scoreOptional.get();
       // 2. Generate S3 key using ScoreService method
       String s3Key = makeBucketKeyFromScore(score);
@@ -106,7 +103,7 @@ public class WorkloadProcessingService {
       }
       InputStream inputStream = extractOriginalFileFromS3Zip(s3Key, originalFileName);
       // 4. Create PackScriptDto with PDF inputStream and score data
-      PackScriptDto packScriptDto = new PackScriptDto(inputStream, score);
+      PackScriptDto packScriptDto = new PackScriptDto(inputStream, score, workload.getKind(), workload.getMakeFingerings());
       // 5. Call packPDF to process the PDF
       String resultPath = packService.packArchive(packScriptDto, workload.getKind());
       log.info("Successfully processed OMR PDF for workload {}, result: {}", workload.getId(), resultPath);
@@ -150,7 +147,6 @@ public class WorkloadProcessingService {
         }
       }
     }
-
     throw new RuntimeException("PDF file '" + PackService.ORIGINAL_PDF_FILENAME + "' not found in ZIP");
   }
 }

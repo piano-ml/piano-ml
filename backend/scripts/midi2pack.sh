@@ -21,8 +21,9 @@ fi
 INPUT="$1"
 TITLE="$2"
 COMPOSER="$3"
-TRACK_RIGHT="$4"
-TRACK_LEFT="$5"
+MAKE_FINGERING="$4"
+TRACK_RIGHT="$5"
+TRACK_LEFT="$6"
 
 # Binaries
 MUSESCORE_BIN="musescore3"
@@ -75,8 +76,21 @@ else
   exit 5
 fi
 
-printf "Running Pianoplayer for fingering detection ...\n"
-"$PIANOPLAYER_BIN" "${FROOT}.musicxml" -o "${FROOT}.musicxml" -z > /dev/null
+if [ -n "$MAKE_FINGERING" ]; then
+  case "$(echo "$MAKE_FINGERING" | tr '[:upper:]' '[:lower:]')" in
+    1|true|yes|y)
+      echo "Running pianoplayer for fingering detection"
+      pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null
+
+      $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
+      ;;
+    *)
+      echo "Skipping fingering detection (MAKE_FINGERING='$MAKE_FINGERING')"
+      ;;
+  esac
+else
+  echo "Skipping fingering detection (MAKE_FINGERING not set)"
+fi
 
 printf "Setting metadata in files ...\n"
 "$PY_BIN" ./scripts/set_metadata.py "${FROOT}.musicxml" "$TITLE" "$COMPOSER"

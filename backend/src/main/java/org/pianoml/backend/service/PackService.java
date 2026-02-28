@@ -85,8 +85,8 @@ public class PackService {
     }
   }
 
-  public String packMusicXml(PackScriptDto packScriptDto, String extension) throws IOException {
-    File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), extension).toFile();
+  public String packMusicXml(PackScriptDto packScriptDto) throws IOException {
+    File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), packScriptDto.getExtension()).toFile();
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
@@ -192,7 +192,7 @@ public class PackService {
       // File is already written by calling method, no need to copy inputStream again
 
       // Appel du script de conversion PDF -> MusicXML
-      ProcessBuilder pb = new ProcessBuilder(script, tempFile.getAbsolutePath(), packScriptDto.getTitle(), packScriptDto.getComposer(), packScriptDto.getTrackRight(), packScriptDto.getTrackLeft());
+      ProcessBuilder pb = new ProcessBuilder(script, tempFile.getAbsolutePath(), packScriptDto.getTitle(), packScriptDto.getComposer(), String.valueOf(packScriptDto.getMakeFingerings()),   packScriptDto.getTrackRight(), packScriptDto.getTrackLeft());
       pb.redirectErrorStream(true);
       Process process = pb.start();
       try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()))) {
