@@ -95,7 +95,8 @@ public class ScoreControllerUploadApiTest {
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
     when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
-    doNothing().when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), makeFingering);
+    Boolean makeFingering = true;
+    doNothing().when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), eq(makeFingering));
 
     // Act + Assert
     mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", id, type, version, revision)
@@ -181,7 +182,8 @@ public class ScoreControllerUploadApiTest {
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
     when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
-    doThrow(new java.io.IOException("boom")).when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), makeFingering);
+      Boolean makeFingering = false;
+    doThrow(new java.io.IOException("boom")).when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), eq(null));
 
     mockMvc.perform(post("/score/{id}/{type}/{version}/{revision}", id, type, version, revision)
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
