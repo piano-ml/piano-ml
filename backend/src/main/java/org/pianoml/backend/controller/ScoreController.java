@@ -137,7 +137,7 @@ public class ScoreController implements ScoreApi {
 
 
   @Override
-  public ResponseEntity<Void> scoreIdTypeVersionRevisionPost(String id, String type, Integer version, Integer revision, org.springframework.core.io.Resource body, Integer track1, Integer track2) {
+  public ResponseEntity<Void> scoreIdTypeVersionRevisionPost(String id, String type, Integer version, Integer revision, org.springframework.core.io.Resource body, Integer track1, Integer track2, Boolean makeFingering) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String userId = authentication.getName();
     User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(EntityNotFoundException::new);
@@ -150,7 +150,7 @@ public class ScoreController implements ScoreApi {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
     try {
-      scoreService.packAttachmentToScore(optScore.get(), type, body.getInputStream());
+      scoreService.packAttachmentToScore(optScore.get(), type, body.getInputStream(), makeFingering);
       return ResponseEntity.ok().build();
     } catch (java.io.IOException e) {
       log.error("IOException while packing attachment to score", e);

@@ -12,6 +12,7 @@ fi
 ORI=$1
 TITLE="$2"
 COMPOSER="$3"
+MAKE_FINGERING="$4"
 FROOT="${ORI%.*}"
 FROOT="${FROOT/upload_/}"
 
@@ -19,8 +20,21 @@ FROOT="${FROOT/upload_/}"
 musescore3 -o $FROOT-ok.musicxml $ORI
 mv $FROOT-ok.musicxml $FROOT.musicxml
 
-echo "Running pianoplayer for fingering detection"
-pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null 2>&1
+if [ -n "$MAKE_FINGERING" ]; then
+  case "$(echo "$MAKE_FINGERING" | tr '[:upper:]' '[:lower:]')" in
+    1|true|yes|y)
+      echo "Running pianoplayer for fingering detection"
+      pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null
+
+      $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
+      ;;
+    *)
+      echo "Skipping fingering detection (MAKE_FINGERING='$MAKE_FINGERING')"
+      ;;
+  esac
+else
+  echo "Skipping fingering detection (MAKE_FINGERING not set)"
+fi
 
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER" > /dev/null 2>&1
 $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml" > /dev/null 2>&1

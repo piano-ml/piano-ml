@@ -11,7 +11,7 @@ import { reducedFraction } from '../model/reduced-fraction';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import { getStaveDurationTick } from './midi-maths';
 import { ScoreApiInfo } from '../../core/api';
-import { GraphicalNote, OpenSheetMusicDisplay, Note as OSMDNote, VexFlowGraphicalNote } from 'opensheetmusicdisplay';
+import { Cursor, GraphicalNote, OpenSheetMusicDisplay, Note as OSMDNote, VexFlowGraphicalNote } from 'opensheetmusicdisplay';
 import { PlayerStateService } from './player-state.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
 import { PlayerAudioService } from './player-audio.service';
@@ -27,6 +27,8 @@ const TIME_COUNTER_TIMESTEP = 200
   providedIn: 'root'
 })
 export class PlayerService {
+
+
 
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
@@ -307,18 +309,18 @@ export class PlayerService {
     const osmdNotes = (cursor.GNotesUnderCursor() as GraphicalNote[]).filter(n => n && (n as any).sourceNote);
     if (osmdNotes.length === 0) return;
     const closest = osmdNotes.reduce((prev, curr) => {
-       const prevDiff = Math.abs((prev.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
-       const currDiff = Math.abs((curr.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
-       return (currDiff < prevDiff) ? curr : prev;
-     });
-     const delta = (closest.sourceNote.halfTone - pitch + 12);
-     closest.setColor("#FF0000", {});
-     const closestVexFlowNote = (closest as VexFlowGraphicalNote);
-     closestVexFlowNote.getSVGGElement().style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
-     setTimeout(() => {
-       closestVexFlowNote.getSVGGElement().style.transform = "";
-       this.message.set("");
-     }, 500);
+      const prevDiff = Math.abs((prev.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
+      const currDiff = Math.abs((curr.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
+      return (currDiff < prevDiff) ? curr : prev;
+    });
+    const delta = (closest.sourceNote.halfTone - pitch + 12);
+    closest.setColor("#FF0000", {});
+    const closestVexFlowNote = (closest as VexFlowGraphicalNote);
+    closestVexFlowNote.getSVGGElement().style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
+    setTimeout(() => {
+      closestVexFlowNote.getSVGGElement().style.transform = "";
+      this.message.set("");
+    }, 500);
   }
 
   private unHighlightBadNote() {
@@ -366,7 +368,7 @@ export class PlayerService {
       this.lightExpectedNotesOnKeyboard(liveStatus);
     } else {
       //if (!this.isWaiting) {
-      
+
       //}
     }
   }
@@ -388,6 +390,12 @@ export class PlayerService {
     this.verticalPixelShiftValue = this.state.osmd!.EngravingRules.StaffDistance / 2;
     return this.cursorService.setup(osmd.cursor, this.playConfiguration.midi!)
   }
+
+  tiltCursor(cursor: Cursor) {
+    this.cursorService.tiltCursor(cursor);
+  }
+
+
 
   private cursorMayBeAdvance(note: Note) {
     if (note.ticks > this.lastMidiEventTime) {

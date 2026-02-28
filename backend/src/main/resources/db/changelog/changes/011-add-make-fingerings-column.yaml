@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-add-make-fingerings-column
+      author: eflorent
+      preConditions:
+        - onFail: MARK_RAN
+        - columnExists:
+            schemaName: pianoml
+            tableName: workload
+            columnName: make_fingerings
+      changes:
+        - addColumn:
+            tableName: workload
+            columns:
+              - column:
+                  name: make_fingerings
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: true
+      comment: "Adds make_fingerings boolean column to workload (nullable)"

@@ -59,6 +59,10 @@ export class CursorService {
     verifyAllElementsOkSignal = signal<boolean>(false);
     osmd: OpenSheetMusicDisplay | undefined;
 
+    public tiltCursor(cursor: Cursor): void {
+        this.cursor = cursor;
+    }
+
     public async setup(cursor: Cursor, midi: Midi): Promise<boolean> {
         this.cursor = cursor;
         this.feedbackSignal.set({ message: 'Initializing...', percentage: 0 });

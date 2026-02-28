@@ -7,7 +7,6 @@ import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
-import org.pianoml.backend.security.JwtTokenProvider;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
 import org.springframework.http.MediaType;
@@ -96,7 +95,8 @@ public class ScoreControllerUploadApiTest {
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
     when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
-    doNothing().when(scoreService).packAttachmentToScore(eq(score), eq(type), any());
+    Boolean makeFingering = true;
+    doNothing().when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), eq(makeFingering));
 
     // Act + Assert
     mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", id, type, version, revision)
@@ -182,7 +182,8 @@ public class ScoreControllerUploadApiTest {
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
     when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
-    doThrow(new java.io.IOException("boom")).when(scoreService).packAttachmentToScore(eq(score), eq(type), any());
+      Boolean makeFingering = false;
+    doThrow(new java.io.IOException("boom")).when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), eq(null));
 
     mockMvc.perform(post("/score/{id}/{type}/{version}/{revision}", id, type, version, revision)
         .contentType(MediaType.APPLICATION_OCTET_STREAM)

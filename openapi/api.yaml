@@ -546,6 +546,11 @@ paths:
           required: false
           schema:
             type: integer
+        - name: makeFingering
+          in: query
+          required: false
+          schema:
+            type: boolean
       requestBody:
         required: true
         content:

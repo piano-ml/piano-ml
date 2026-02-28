@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
@@ -32,16 +32,12 @@ export class OsmdComponent implements OnInit, OnDestroy {
     constructor(
         private playerService: PlayerService,
     ) {
-        // Initialiser uniquement côté client après le rendu
-        afterNextRender(() => {
-            if (isPlatformBrowser(this.platformId)) {
-                this.loadMusicXML();
-            }
-        });
     }
 
     ngOnInit() {
-        // Ne pas initialiser ici pour éviter l'exécution côté serveur
+        if (isPlatformBrowser(this.platformId)) {
+            this.loadMusicXML();
+        }
     }
 
     ngOnDestroy() {
@@ -83,29 +79,42 @@ export class OsmdComponent implements OnInit, OnDestroy {
             for (let i = 0; i < 20; i++) {
                 await new Promise(resolve => setTimeout(resolve, 100));
                 if (this.osmd.cursors) {
-                    // caqlculate Y
-                    const partCount = this.osmd!.GraphicSheet.MeasureList[0].length;
-                    const positionAndShape = this.osmd!.GraphicSheet.MeasureList[0][partCount - 1].PositionAndShape;
-                    let y = 100;
-                    const cursorElement = document.getElementById('cursorImg-0');
-                    if (cursorElement) {
-                        if (partCount === 1) {
-                            y = positionAndShape.Parent.BoundingRectangle.height
-                            cursorElement!.style.setProperty('height', y * 5 + "px", 'important');
-                        } else {
-                            y = positionAndShape.AbsolutePosition.y + positionAndShape.BoundingRectangle.height;
-                            cursorElement!.style.setProperty('height', y * 8 + "px", 'important');
-                        }
-                    }
-                    this.osmd!.cursors[0].SkipInvisibleNotes = true;
-                    this.osmd!.cursors[0].show();
+                    this.recalculateCursorPosition();
                     const status = await this.playerService.setOsmd(this.osmd!);
                     this.loading = false;
+                    this.osmd!.cursors[0].SkipInvisibleNotes = true;
+                    this.osmd!.cursors[0].show();
                     this.loadingChange.emit(false);
                     break;
                 }
             }
         }
+    }
+
+
+    @HostListener('window:resize', ['$event.target.innerWidth'])
+    onResize(width: number) {
+        this.recalculateCursorPosition();
+        
+    }
+
+    recalculateCursorPosition() {
+        setTimeout(() => {
+            const partCount = this.osmd!.GraphicSheet.MeasureList[0].length;
+            const positionAndShape = this.osmd!.GraphicSheet.MeasureList[0][partCount - 1].PositionAndShape;
+            let y = 100;
+            const cursorElement = document.getElementById('cursorImg-0');
+            if (cursorElement) {
+                if (partCount === 1) {
+                    y = positionAndShape.Parent.BoundingRectangle.height
+                    cursorElement!.style.setProperty('height', y * 5 + "px", 'important');
+                } else {
+                    y = positionAndShape.AbsolutePosition.y + positionAndShape.BoundingRectangle.height;
+                    cursorElement!.style.setProperty('height', y * 8 + "px", 'important');
+                }
+            }            
+            this.playerService.tiltCursor(this.osmd!.Cursor);
+        }, 1000);
     }
 
     getCustomOptions(): {} {

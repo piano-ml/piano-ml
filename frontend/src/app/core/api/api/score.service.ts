@@ -483,13 +483,14 @@ export class ScoreService extends BaseService {
      * @param body 
      * @param track1 
      * @param track2 
+     * @param makeFingering 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'mxl' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'mxl' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'mxl' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'mxl' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'mxl' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, makeFingering?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'mxl' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, makeFingering?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'mxl' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, makeFingering?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public scoreIdTypeVersionRevisionPost(id: string, type: 'pdf' | 'musicxml' | 'mxl' | 'midi' | 'metadata' | 'image', version: number, revision: number, body: Blob, track1?: number, track2?: number, makeFingering?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling scoreIdTypeVersionRevisionPost.');
         }
@@ -511,6 +512,8 @@ export class ScoreService extends BaseService {
           <any>track1, 'track1');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>track2, 'track2');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>makeFingering, 'makeFingering');
 
         let localVarHeaders = this.defaultHeaders;
 

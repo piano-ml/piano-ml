@@ -8,16 +8,18 @@ import java.io.InputStream;
 @Data
 public class PackScriptDto {
   String id;
-  //String mbid;
   InputStream inputStream;
   String title;
   String composer;
   String trackRight = "";
   String trackLeft = "";
-  boolean splitTracks = false;
+  String type;
+  Boolean makeFingerings = true;
 
-  public PackScriptDto(InputStream inputStream, Score score) {
+  public PackScriptDto(InputStream inputStream, Score score, String type,  boolean makeFingerings) {
+    this.makeFingerings = makeFingerings;
     this.id = score.getId().toString();
+    this.type = type;
     //this.mbid = score.getMbid().toString();
     this.inputStream = inputStream;
     this.title = score.getTitle();
@@ -29,6 +31,23 @@ public class PackScriptDto {
     } else if (tracks.length == 1) {
       this.trackRight = tracks[0];
     }
-    this.splitTracks = score.getHandSeparated();
+    //this.splitTracks = score.getHandSeparated();
+  }
+
+  public String getExtension() {
+    if (type.equals("pdf")) {
+      return ".pdf";
+    } else if (type.equals("image")) {
+      return ".png";
+    } else if (type.equals("musicxml")) {
+      return  ".musicxml";
+    } else if (type.equals("mxl")) {
+      return ".mxl";
+    } else if (type.equals("midi")) {
+      return ".midi";
+  }
+    else {
+      throw new IllegalArgumentException("Unsupported type for packing: " + type);
+    }
   }
 }

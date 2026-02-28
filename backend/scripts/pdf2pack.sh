@@ -15,6 +15,7 @@ fi
 PDF="$1"
 TITLE="$2"
 COMPOSER="$3"
+MAKE_FINGERING="$4"
 FROOT="${PDF%.*}"
 FROOT="${FROOT/upload_/}"
 
@@ -51,10 +52,22 @@ musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid"
 
 mv "$FROOT".mid "$FROOT".midi
 
-echo "Running pianoplayer for fingering detection"
-pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null
 
-$HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
+if [ -n "$MAKE_FINGERING" ]; then
+  case "$(echo "$MAKE_FINGERING" | tr '[:upper:]' '[:lower:]')" in
+    1|true|yes|y)
+      echo "Running pianoplayer for fingering detection"
+      pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null
+
+      $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
+      ;;
+    *)
+      echo "Skipping fingering detection (MAKE_FINGERING='$MAKE_FINGERING')"
+      ;;
+  esac
+else
+  echo "Skipping fingering detection (MAKE_FINGERING not set)"
+fi
 
 musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
 

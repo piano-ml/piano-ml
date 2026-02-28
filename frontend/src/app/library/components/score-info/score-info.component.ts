@@ -90,7 +90,6 @@ export class ScoreInfoComponent implements OnInit {
 
     this.scoreService.scoreGetBySlug(slug).subscribe({
       next: (score) => {
-        console.log('Workload loaded:', score);
         this.score = score;
         this.updatePageTitle(score);
         this.updateSelectedGenre();

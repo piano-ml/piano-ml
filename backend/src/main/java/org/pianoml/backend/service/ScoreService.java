@@ -206,10 +206,10 @@ public class ScoreService {
     return scoreRepository.findDistinctFullKeys();
   }
 
-  public void packAttachmentToScore(Score score, String type, InputStream inputStream) throws IOException {
+  public void packAttachmentToScore(Score score, String type, InputStream inputStream, Boolean makeFingering) throws IOException {
     String key = makeBucketKeyFromScore(score);
 
-    PackScriptDto packScriptDto = new PackScriptDto(inputStream, score);
+    PackScriptDto packScriptDto = new PackScriptDto(inputStream, score, type, makeFingering);
     String filename = null;
     if (type.equals("pdf")) {
       // New workload-based processing for PDF
@@ -218,15 +218,13 @@ public class ScoreService {
     } else if (type.equals("image")) {
       packService.packImageWorkload(packScriptDto, key);
     } else {
-      // Existing logic for midi and musicxml
-
       try {
         if (type.equals("midi")) {
           filename = packService.packMidi(packScriptDto);
         } else if (type.equals("musicxml")) {
-          filename = packService.packMusicXml(packScriptDto, ".musicxml");
+          filename = packService.packMusicXml(packScriptDto);
         } else if (type.equals("mxl")) {
-          filename = packService.packMusicXml(packScriptDto, ".mxl");
+          filename = packService.packMusicXml(packScriptDto);
         } else {
           throw new RuntimeException("Unsupported type " + type);
         }
