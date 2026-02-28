@@ -33,7 +33,12 @@ export class BrowseByGenreComponent implements OnInit, OnChanges {
     this.loadingGenres = true;
     this.scoreService.scoreGenreBrowseGet(this.trackFilter, this.fullKeyFilter).subscribe({
       next: (data) => {
-        this.genres = data;
+        this.genres = data.map((item) => {
+          if (item.genre == null) {
+            item.genre = { id: 'NONE' };
+          }
+          return item;
+        });
         this.loadingGenres = false;
         this.changeDetector.detectChanges();
       },

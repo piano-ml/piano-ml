@@ -511,6 +511,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
             if (fallbackSlug) {
               this.router.navigate(['/score', fallbackSlug]);
             } else {
+              console.log("Acting navigate 3 to /library cause error");
               this.router.navigate(['/library']);
             }
           },
