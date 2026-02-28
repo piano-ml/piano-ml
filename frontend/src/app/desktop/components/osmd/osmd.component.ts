@@ -41,7 +41,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        console.log("Destroying OSMD component");
         if (this.cursorObserver) {
             this.cursorObserver.disconnect();
         }
@@ -83,6 +82,8 @@ export class OsmdComponent implements OnInit, OnDestroy {
                     this.recalculateCursorPosition();
                     const status = await this.playerService.setOsmd(this.osmd!);
                     this.loading = false;
+                    this.osmd!.cursors[0].SkipInvisibleNotes = true;
+                    this.osmd!.cursors[0].show();
                     this.loadingChange.emit(false);
                     break;
                 }
@@ -94,6 +95,7 @@ export class OsmdComponent implements OnInit, OnDestroy {
     @HostListener('window:resize', ['$event.target.innerWidth'])
     onResize(width: number) {
         this.recalculateCursorPosition();
+        
     }
 
     recalculateCursorPosition() {
@@ -110,9 +112,8 @@ export class OsmdComponent implements OnInit, OnDestroy {
                     y = positionAndShape.AbsolutePosition.y + positionAndShape.BoundingRectangle.height;
                     cursorElement!.style.setProperty('height', y * 8 + "px", 'important');
                 }
-            } 
-            this.osmd!.cursors[0].SkipInvisibleNotes = true;
-            this.osmd!.cursors[0].show();
+            }            
+            this.playerService.tiltCursor(this.osmd!.Cursor);
         }, 1000);
     }
 
