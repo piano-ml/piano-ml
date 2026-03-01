@@ -304,15 +304,20 @@ export class PlayerService {
   }
 
   private highlightBadNote(pitch: number) {
-    this.message.set("BAD");
     const cursor = this.cursorService.cursor!;
     const osmdNotes = (cursor.GNotesUnderCursor() as GraphicalNote[]).filter(n => n && (n as any).sourceNote);
     if (osmdNotes.length === 0) return;
+    if (osmdNotes.at(0)?.sourceNote.TremoloInfo!=null) {
+      // Tremolo note, skipping highlight
+      return;
+    }
+    this.message.set("BAD");
     const closest = osmdNotes.reduce((prev, curr) => {
       const prevDiff = Math.abs((prev.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
       const currDiff = Math.abs((curr.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
       return (currDiff < prevDiff) ? curr : prev;
     });
+    
     const delta = (closest.sourceNote.halfTone - pitch + 12);
     closest.setColor("#FF0000", {});
     const closestVexFlowNote = (closest as VexFlowGraphicalNote);
@@ -366,11 +371,7 @@ export class PlayerService {
       this.isWaiting = true;
       this.audio.pause();
       this.lightExpectedNotesOnKeyboard(liveStatus);
-    } else {
-      //if (!this.isWaiting) {
-
-      //}
-    }
+    } 
   }
 
   private lightExpectedNotesOnKeyboard(liveStatus: LiveStatus) {
@@ -378,8 +379,9 @@ export class PlayerService {
     const oldestKey = Math.min(...keys);
     const oldestValue = liveStatus.expectations.get(oldestKey);
     if (oldestValue) {
-      for (const expected of oldestValue) {
-        this.keyboard.lightNoteOnKeyboard(expected[0], { midi: expected[1], velocity: 255 } as Note);
+      for (const expectedString of oldestValue) {
+        const expected = expectedString.split(":")
+        this.keyboard.lightNoteOnKeyboard(expected[0], { midi: parseInt(expected[1], 10), velocity: 255 } as Note);
       }
     }
   }
