@@ -78,7 +78,7 @@ export class OsmdComponent implements OnInit, OnDestroy {
             this.osmd!.render(); // unfortunately not resolvable in load callback, we have to wait for the cursor to be available
             for (let i = 0; i < 20; i++) {
                 await new Promise(resolve => setTimeout(resolve, 100));
-                if (this.osmd.cursors) {
+                if (this.osmd.cursors && this.osmd!.GraphicSheet) {
                     this.recalculateCursorPosition();
                     const status = await this.playerService.setOsmd(this.osmd!);
                     this.loading = false;
@@ -92,8 +92,8 @@ export class OsmdComponent implements OnInit, OnDestroy {
     }
 
 
-    @HostListener('window:resize', ['$event.target.innerWidth'])
-    onResize(width: number) {
+    @HostListener('window:resize', ['$event'])
+    onResize(event: Event) {
         this.recalculateCursorPosition();
         
     }

@@ -9,7 +9,7 @@ import { MidiServiceService } from '../../shared/services/midi-service.service';
 import type { MidiStateEvent } from '../../shared/model/webmidi';
 import { reducedFraction } from '../model/reduced-fraction';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
-import { getStaveDurationTick } from './midi-maths';
+import { getStaveDurationTick, midiToPitch } from './midi-maths';
 import { ScoreApiInfo } from '../../core/api';
 import { Cursor, GraphicalNote, OpenSheetMusicDisplay, Note as OSMDNote, VexFlowGraphicalNote } from 'opensheetmusicdisplay';
 import { PlayerStateService } from './player-state.service';
@@ -185,10 +185,10 @@ export class PlayerService {
   }
 
 
-  setKeyboardElement(nativeElementRef: ElementRef) {
-    this.keyboard.setKeyboardElement(nativeElementRef);
-    this.setup();
-  }
+  //setKeyboardElement(nativeElementRef: ElementRef) {
+  //  this.keyboard.setKeyboardElement(nativeElementRef);
+  //  this.setup();
+  //}
 
   pause() {
     this.audio.pause();
@@ -270,7 +270,7 @@ export class PlayerService {
 
   displayLiveOnKeyboard() {
     // Clear previous highlights
-    this.keyboard.removeAllNotesFromKeyboard();
+    // this.keyboard.removeAllNotesFromKeyboard();
     const liveStatus = this.assess.getExpectation();
     this.lightExpectedNotesOnKeyboard(liveStatus)
   }
@@ -297,7 +297,7 @@ export class PlayerService {
       if (liveStatus.bad) {
         this.highlightBadNote(midiEvent.note);
       } else {
-        this.keyboard.removeMidiNoteFromKeyboard(midiEvent.note);
+        this.keyboard.removeMidiPitchFromKeyboard(midiEvent.note);
       }
       this.lightExpectedNotesOnKeyboard(liveStatus);
     }
@@ -361,16 +361,12 @@ export class PlayerService {
   }
 
   private handleNoteEnd(hand: string, note: Note, liveStatus?: LiveStatus) {
-    this.keyboard.removeMidiNoteFromKeyboard(note.midi);
+    this.keyboard.removeMidiNoteFromKeyboard(note);
     if (liveStatus?.shouldPause) {
       this.isWaiting = true;
       this.audio.pause();
       this.lightExpectedNotesOnKeyboard(liveStatus);
-    } else {
-      //if (!this.isWaiting) {
-
-      //}
-    }
+    } 
   }
 
   private lightExpectedNotesOnKeyboard(liveStatus: LiveStatus) {
@@ -379,7 +375,10 @@ export class PlayerService {
     const oldestValue = liveStatus.expectations.get(oldestKey);
     if (oldestValue) {
       for (const expected of oldestValue) {
-        this.keyboard.lightNoteOnKeyboard(expected[0], { midi: expected[1], velocity: 255 } as Note);
+        this.keyboard.lightNoteOnKeyboard(
+          expected[0], 
+          {name:  midiToPitch(expected[1]), midi: expected[1], velocity: 255 } as Note
+        );
       }
     }
   }

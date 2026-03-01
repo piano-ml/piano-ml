@@ -1,13 +1,14 @@
 databaseChangeLog:
   - changeSet:
-      id: 011-add-make-fingerings-column
+      id: 011-add-make-fingerings-column-2
       author: eflorent
       preConditions:
         - onFail: MARK_RAN
-        - columnExists:
-            schemaName: pianoml
-            tableName: workload
-            columnName: make_fingerings
+        - not:
+          - columnExists:
+              schemaName: pianoml
+              tableName: workload
+              columnName: make_fingerings
       changes:
         - addColumn:
             tableName: workload
