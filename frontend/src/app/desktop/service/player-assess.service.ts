@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Note } from "@tonejs/midi/dist/Note";
 import { MidiStateEvent } from "../../shared/model/webmidi";
-import { forEach } from "lodash";
+import { CursorService } from "./cursor.service";
 
 
 export const GOOD_RANGE = 600 / 1000
@@ -10,8 +10,8 @@ export const QUANT_RANGE = 100 / 1000
 
 export interface LiveStatus {
   shouldPause: boolean;
-  expectations: Map<number, [string, number][]>;
-  early: Map<number, [string, number][]>;
+  expectations: Map<number, Set<string>>;
+  early: Map<number, Set<string>>;
   bad: number | null;
   total: number;
   badCount: number;
@@ -26,11 +26,14 @@ export interface LiveStatus {
 })
 export class PlayerAssessService {
 
+  constructor(private cursorService: CursorService) {
+  }
+
 
   liveStatus: LiveStatus = {
     shouldPause: false,
-    expectations: new Map<number, [string, number][]>(),
-    early: new Map<number, [string, number][]>(),
+    expectations: new Map<number, Set<string>>(),
+    early: new Map<number, Set<string>>(),
     bad: null,
     total: 0,
     badCount: 0,
@@ -40,9 +43,9 @@ export class PlayerAssessService {
   reset() {
     this.liveStatus = {
       shouldPause: false,
-      expectations: new Map<number, [string, number][]>(),
+      expectations: new Map<number, Set<string>>(),
       bad: null,
-      early: new Map<number, [string, number][]>(),
+      early: new Map<number, Set<string>>(),
       total: 0,
       badCount: 0,
       late: 0,
@@ -51,9 +54,18 @@ export class PlayerAssessService {
 
   learnExpectation(noteTimeStart: number, noteTimeEnd: number, note: Note, hand: string): LiveStatus {
     if (!this.liveStatus.expectations.has(noteTimeStart)) {
-      this.liveStatus.expectations.set(noteTimeStart, []);
+      this.liveStatus.expectations.set(noteTimeStart, new Set<string>());
     }
-    this.liveStatus.expectations.get(noteTimeStart)!.push([hand, note.midi]);
+    const setAt = this.liveStatus.expectations.get(noteTimeStart)!;
+    const key = `${hand}:${note.midi}`;
+
+    if (!setAt.has(key) && this.cursorService.midiTicksToOsmdCursorIndex.get(note.ticks) != null) {
+      setAt.add(key);
+    } else {
+      if (this.liveStatus.expectations.get(noteTimeStart)?.size === 0) {
+        this.liveStatus.expectations.delete(noteTimeStart);
+      }
+    }
     this.cleanEarly(noteTimeStart);
     this.checkExpectationsInEarly(noteTimeStart);
     this.checkShouldPause();
@@ -78,9 +90,13 @@ export class PlayerAssessService {
       this.liveStatus.bad = midiEvent.note;
       this.liveStatus.badCount += 1;
       if (!this.liveStatus.early.has(midiEvent.time)) {
-        this.liveStatus.early.set(midiEvent.time, []);
+        this.liveStatus.early.set(midiEvent.time, new Set<string>());
       }
-      this.liveStatus.early.get(midiEvent.time)!.push(['rh', midiEvent.note]);
+      const earlyKey = `rh:${midiEvent.note}`;
+      const earlySet = this.liveStatus.early.get(midiEvent.time)!;
+      if (!earlySet.has(earlyKey)) {
+        earlySet.add(earlyKey);
+      }
     }
     this.checkShouldPause();
     return this.liveStatus;
@@ -91,14 +107,24 @@ export class PlayerAssessService {
     const keys = Array.from(this.liveStatus.expectations.keys());
     const oldestKey = Math.min(...keys);
     const oldestValue = this.liveStatus.expectations.get(oldestKey);
-    if (oldestValue && oldestValue.map((v: [string, number]) => v[1]).includes(pitch)) {
-      gotIt = true;
-      // remove from oldestValue
-      oldestValue.splice(oldestValue.findIndex((v: [string, number]) => v[1] === pitch), 1);
-      if (oldestValue.length === 0) {
-        this.liveStatus.expectations.delete(oldestKey);
-      } else {
-        this.liveStatus.expectations.set(oldestKey, oldestValue);
+    if (oldestValue) {
+      let foundStr: string | undefined;
+      for (const s of oldestValue) {
+        const parts = s.split(':');
+        const midi = parseInt(parts[1], 10);
+        if (midi === pitch) {
+          foundStr = s;
+          break;
+        }
+      }
+      if (foundStr) {
+        gotIt = true;
+        oldestValue.delete(foundStr);
+        if (oldestValue.size === 0) {
+          this.liveStatus.expectations.delete(oldestKey);
+        } else {
+          this.liveStatus.expectations.set(oldestKey, oldestValue);
+        }
       }
     }
     return gotIt;
@@ -106,20 +132,21 @@ export class PlayerAssessService {
 
   checkExpectationsInEarly(noteTimeStart: number) {
     for (const [earlyTime, earlyNotes] of this.liveStatus.early) {
-      forEach(earlyNotes, (earlyNote) => {
+      for (const earlyNote of Array.from(earlyNotes)) {
         try {
-          if (this.maybeRemovePitchFromExpectations(earlyNote[1])) {
-            // remove from earlyNotes
-            earlyNotes.splice(earlyNotes.findIndex((v: [string, number]) => v[1] === earlyNote[1]), 1);
-            if (earlyNotes.length === 0) {
+          const parts = earlyNote.split(':');
+          const midi = parseInt(parts[1], 10);
+          if (this.maybeRemovePitchFromExpectations(midi)) {
+            earlyNotes.delete(earlyNote);
+            if (earlyNotes.size === 0) {
               this.liveStatus.early.delete(earlyTime);
             }
           }
         } catch (e) {
-          this.liveStatus.early=new Map<number, [string, number][]>();
+          this.liveStatus.early = new Map<number, Set<string>>();
           console.error("Error in checkExpectationsInEarly", e);
         }
-      });
+      }
     };
   }
 
