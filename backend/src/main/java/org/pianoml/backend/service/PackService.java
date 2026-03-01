@@ -140,6 +140,7 @@ public class PackService {
     workload.setCreatedAt(OffsetDateTime.now().toLocalDateTime());
     workload.setStatus(Workload.WorkloadStatus.PENDING);
     workload.setWorkloadSize(length);
+    workload.setMakeFingerings(packScriptDto.getMakeFingerings());
     workloadRepository.save(workload);
     return workload;
   }

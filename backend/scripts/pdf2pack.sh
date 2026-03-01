@@ -45,7 +45,11 @@ echo "Running relieur to merge musicxml files: $XMLFILES"
 
 $HOME/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES > /dev/null
 
-$HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"
+# Call set_metadata.py and exit with error if it fails
+if ! "$HOME/shared-venv/bin/python" ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER"; then
+  echo "Error: set_metadata.py failed" >&2
+  exit 1
+fi
 
 musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml"
 musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid"
