@@ -5,8 +5,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
+import org.pianoml.backend.entity.Workload;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
+import org.pianoml.backend.repository.WorkloadRepository;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
 import org.springframework.http.MediaType;
@@ -19,6 +21,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import org.mockito.ArgumentCaptor;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -36,26 +40,23 @@ public class ScoreControllerUploadApiTest {
   private ScoreService scoreService;
   private UserRepository userRepository;
   private ScoreRepository scoreRepository;
-  private AccountService accountService;
 
-
-  private ScoreController controller;
 
   @BeforeEach
   void setup() {
     scoreService = mock(ScoreService.class);
     userRepository = mock(UserRepository.class);
-    scoreRepository = mock(ScoreRepository.class);
-    accountService = mock(AccountService.class);
 
-    controller = new ScoreController();
+
+    scoreRepository = mock(ScoreRepository.class);
+    AccountService accountService = mock(AccountService.class);
+
+    ScoreController controller = new ScoreController();
     // Inject mocks
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
     ReflectionTestUtils.setField(controller, "userRepository", userRepository);
     ReflectionTestUtils.setField(controller, "userService", accountService);
     ReflectionTestUtils.setField(controller, "scoreRepository", scoreRepository);
-
-
     mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
   }
 
@@ -73,7 +74,7 @@ public class ScoreControllerUploadApiTest {
   }
 
   @Test
-  void upload_ok_returns200() throws Exception {
+  void upload_midi_ok_returns200() throws Exception {
     // Arrange
     UUID ownerId = UUID.randomUUID();
     UUID id = UUID.randomUUID();
@@ -95,8 +96,8 @@ public class ScoreControllerUploadApiTest {
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
     when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
-    Boolean makeFingering = true;
-    doNothing().when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), eq(makeFingering));
+    // stub accepting any value for the makeFingering parameter to avoid brittle equality checks
+    doNothing().when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), any());
 
     // Act + Assert
     mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", id, type, version, revision)
@@ -104,6 +105,55 @@ public class ScoreControllerUploadApiTest {
         .content(body))
       .andExpect(status().isOk());
   }
+
+
+  @Test
+  void upload_pdf_ok_returns200() throws Exception {
+    // Arrange
+    UUID ownerId = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
+    int version = 1;
+    int revision = 0; // ignored by controller
+    String type = "pdf";
+    byte[] body = "dummy-midi".getBytes();
+
+    withAuth(ownerId);
+
+    User owner = new User();
+    owner.setId(ownerId);
+
+    Score score = new Score();
+    score.setOwner(owner);
+    score.setMbid(id);
+    score.setVersion(version);
+
+    when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
+    when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
+      .thenReturn(Optional.of(score));
+    // controller may pass null for the makeFingering parameter depending on request handling;
+    // stub and verify accepting any() for the 4th arg to avoid brittle equality checks
+    doNothing().when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), any());
+
+    // Act + Assert
+    //  null, null, makeFingering
+    mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", id, type, version, revision)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .param("track1", "1")
+        .param("track2", "2")
+        .param("makeFingering", "true")
+        .content(body))
+      .andExpect(status().isOk());
+
+    // Verify scoreService.packAttachmentToScore was called exactly once
+    verify(scoreService, times(1)).packAttachmentToScore(eq(score), eq(type), any(), eq(true));
+
+    // Verify workloadRepository.save was called exactly once and capture the argument for later assertions
+    //ArgumentCaptor<Workload> workloadCaptor = ArgumentCaptor.forClass(Workload.class);
+    //verify(workloadRepository, times(1)).save(workloadCaptor.capture());
+    // Log captured parameters so other assertions can inspect them later
+    //System.out.println("Captured workload for PDF upload: " + workloadCaptor.getValue());
+  }
+
 
   @Test
   void upload_scoreNotFound_returns404() throws Exception {
@@ -182,7 +232,6 @@ public class ScoreControllerUploadApiTest {
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
     when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
-      Boolean makeFingering = false;
     doThrow(new java.io.IOException("boom")).when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), eq(null));
 
     mockMvc.perform(post("/score/{id}/{type}/{version}/{revision}", id, type, version, revision)
@@ -191,4 +240,3 @@ public class ScoreControllerUploadApiTest {
       .andExpect(status().isInternalServerError());
   }
 }
-

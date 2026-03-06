@@ -5,10 +5,10 @@ databaseChangeLog:
       preConditions:
         - onFail: MARK_RAN
         - not:
-          - columnExists:
-              schemaName: pianoml
-              tableName: workload
-              columnName: make_fingerings
+            - columnExists:
+                schemaName: pianoml
+                tableName: workload
+                columnName: make_fingerings
       changes:
         - addColumn:
             tableName: workload

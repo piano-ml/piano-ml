@@ -23,6 +23,7 @@ interface OsmdArrayElement {
     midiTicks: number | null;
     midiTicksDuration: number | null;
     graphicalObjectId: number[];
+    tremolo: boolean;
 }
 
 
@@ -32,7 +33,7 @@ interface OsmdArrayElement {
 })
 export class CursorService {
 
-    private static readonly SKIP_SHORT_NOTE_THRESHOLD = 0.07;
+    private static SKIP_SHORT_NOTE_THRESHOLD = 60;
     private static readonly DIAGNOSTIC_STORAGE_KEY = "cursorService.debug";
     private static readonly UI_YIELD_STEP = 8;
 
@@ -64,6 +65,8 @@ export class CursorService {
     }
 
     public async setup(cursor: Cursor, midi: Midi): Promise<boolean> {
+        CursorService.SKIP_SHORT_NOTE_THRESHOLD = (midi.header.ppq | 480) / 8;
+
         this.cursor = cursor;
         this.feedbackSignal.set({ message: 'Initializing...', percentage: 0 });
         await this.yieldToUi();
@@ -149,7 +152,7 @@ export class CursorService {
                 this.measure.set(newOsmdMeasure);
             }
         } else {
-            console.warn("note not found", note.ticks)
+            console.warn("note not found", note.midi, "ticks:", note.ticks);
         }
     }
 
@@ -251,9 +254,8 @@ export class CursorService {
             const jumpTargetMeasure = isJump ? nextMeasureValue : null;
             let notesUnderCursor: OSMDNote[] = (cursor.iterator.CurrentVoiceEntries ?? [])
                 .flatMap(voiceEntry => voiceEntry.Notes ?? []);
-
-            //let notesUnderCursor: OSMDNote[] = cursor.NotesUnderCursor() as OSMDNote[];
-
+            const isTremolo = notesUnderCursor.at(0)?.TremoloInfo != null;
+            
             if (notesUnderCursor.length === 0) {
                 cursor.iterator.moveToNext();
                 index++;
@@ -294,7 +296,8 @@ export class CursorService {
                 midiPitches: null,
                 midiTicks: null,
                 midiTicksDuration: null,
-                graphicalObjectId
+                graphicalObjectId,
+                tremolo: isTremolo
             }
             osmdArray.push(o);
             if (o.isLast && hasMeasureTransition && !isNaturalAdvance) {
@@ -385,7 +388,7 @@ export class CursorService {
             currentElement.midiTicks = ticks;
             const midiNotesAtTick = this.midiTicksNoteMap.get(ticks) ?? [];
             // TODO skip short note arbitrary...
-            if (midiNotesAtTick.map(note => note.duration).every(duration => duration < CursorService.SKIP_SHORT_NOTE_THRESHOLD)) {
+            if (osmdArray[Math.max(0, osmdArrayIndex - 1)].tremolo && midiNotesAtTick.map(note => note.durationTicks).every(duration => duration < CursorService.SKIP_SHORT_NOTE_THRESHOLD)) {
                 continue;
             }
             currentElement.midiPitches = midiNotesAtTick.map(note => this.normalizePitchClass(note.midi - 12));

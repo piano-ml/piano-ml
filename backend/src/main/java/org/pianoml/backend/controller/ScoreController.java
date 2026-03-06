@@ -138,6 +138,7 @@ public class ScoreController implements ScoreApi {
 
   @Override
   public ResponseEntity<Void> scoreIdTypeVersionRevisionPost(String id, String type, Integer version, Integer revision, org.springframework.core.io.Resource body, Integer track1, Integer track2, Boolean makeFingering) {
+    log.info("{} {} {} {} {} {} {}",id, type, version, revision, track1, track2, makeFingering);
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String userId = authentication.getName();
     User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(EntityNotFoundException::new);
