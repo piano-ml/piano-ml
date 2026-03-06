@@ -11,35 +11,37 @@ export const CURSOR_BAD_COLOR = "#FF5050";
 
 export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     pageFormat: 'Endless',
-    autoBeam: false ,
+    autoBeam: false,
     // autoBeamOptions: {
     //     groups: [[4, 4]],
     // },
-    drawLyricist: false,
+    drawLyricist: false, // toggable
+    drawTitle: false, // togable
+    drawCredits: false, // always false
+    drawComposer: false,
     measureNumberInterval: 1,
     backend: "svg",
     cursorsOptions: [
         {
-            follow: true, 
+            follow: true,
             color: CURSOR_GOOD_COLOR,
             alpha: 1,
             type: 4
         },
     ] as CursorOptions[],
-    drawTitle: false,
+
     darkMode: false,
     renderSingleHorizontalStaffline: false,
-    drawCredits: false,
-    drawComposer: false,
+
     drawPartNames: false,
     drawMeasureNumbers: true,
     drawFingerings: true,
     drawLyrics: false,
     drawMetronomeMarks: false,
     coloringEnabled: true,
-    followCursor: true, 
+    followCursor: true,
     preferredSkyBottomLineBatchCalculatorBackend: 1
-    
+
 };
 
 /**

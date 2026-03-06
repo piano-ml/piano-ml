@@ -17,14 +17,22 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
 
   @Input() isOpen = false;
   @Input() hideKeyboard = false;
+  @Input() hideFingeringAndHarmony = false;
+  @Input() hideFingering = false;
+  @Input() hideLyrics = false;
 
   @Output() hideKeyboardChange = new EventEmitter<boolean>();
+  @Output() hideFingeringAndHarmonyChange = new EventEmitter<boolean>();
+  @Output() hideFingeringChange = new EventEmitter<boolean>();  
+  @Output() hideLyricsChange = new EventEmitter<boolean>();
   @Output() closeModal = new EventEmitter<void>();
 
   loading = false;
   error: string | null = null;
   midiInputs: MIDIInput[] = [];
   midiOutputs: MIDIOutput[] = [];
+
+
 
   constructor(
     private midiService: MidiServiceService,
@@ -57,6 +65,19 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
     this.hideKeyboardChange.emit(!show);
   }
 
+  setFingeringAndHarmonyVisibility(show: boolean) {
+    this.hideFingeringAndHarmonyChange.emit(!show);
+  }
+
+  setFingeringVisibility(show: boolean) {
+    this.hideFingeringChange.emit(!show);
+  }
+
+
+  setHideLyricsVisibility(show: boolean) {
+    this.hideLyricsChange.emit(!show);
+  }
+
   isInputEnabled(device: MIDIInput) {
     return this.midiService.isInputDeviceSelected(device as unknown as MIDIInput);
   }
@@ -73,9 +94,31 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  selectInputById(id: string) {
+    const device = this.midiInputs.find(d => d.id === id);
+    if (device) {
+      this.selectInput(device);
+    }
+  }
+
+  getSelectedInput(): MIDIInput | undefined {
+    return this.midiInputs.find(d => this.isInputEnabled(d));
+  }
+
   selectOutput(device: MIDIOutput | null) {
     this.midiService.setOutputDeviceEnabled(device as unknown as MIDIOutput, true);
     this.cdr.markForCheck();
+  }
+
+  selectOutputById(id: string) {
+    if (id === '__pianoml__') {
+      this.selectOutput(null);
+    } else {
+      const device = this.midiOutputs.find(d => d.id === id);
+      if (device) {
+        this.selectOutput(device);
+      }
+    }
   }
 
   private async loadDevices() {

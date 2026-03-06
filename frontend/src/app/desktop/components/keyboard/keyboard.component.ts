@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, type ElementRef, ViewChild, signal, effect, type EffectRef, OnDestroy, PLATFORM_ID, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, type ElementRef, ViewChild, signal, effect, type EffectRef, OnDestroy, PLATFORM_ID, inject, Input, AfterViewInit } from "@angular/core";
 import { isPlatformBrowser } from '@angular/common';
-// biome-ignore lint/style/useImportType: <explanation>
-import { PlayerService } from "../../service/player.service";
 import { MidiServiceService } from "../../../shared/services/midi-service.service";
+import PianoKeys from '@jesperdj/pianokeys';
+import { midiToPitch } from "../../service/midi-maths";
+import { PlayerKeyboardService } from "../../service/player-keyboard.service";
 
 
 @Component({
@@ -12,31 +13,49 @@ import { MidiServiceService } from "../../../shared/services/midi-service.servic
   styleUrl: './keyboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KeyboardComponent implements OnDestroy {
+export class KeyboardComponent implements OnDestroy, AfterViewInit {
 
   private platformId = inject(PLATFORM_ID);
   keyPressed = signal<{ key: number; timestamp: number } | null>(null);
   keyReleased = signal<{ key: number; timestamp: number } | null>(null);
-  currentlyPressedKeys = signal<Set<number>>(new Set());
 
   private effectRefs: EffectRef[] = [];
 
   @ViewChild('keyboardContainer')
   keyboardContainer!: ElementRef;
+  keyboard: PianoKeys.Keyboard | null = null;
+
+  @Input() minKey: string = 'A0';
+  @Input() maxKey: string = 'C8';
+  @Input() keyHeight?: number | null = null;
 
 
   constructor(
-    private playerService: PlayerService,
+    private keyboardService: PlayerKeyboardService,    
     private midiService: MidiServiceService
-  )  {
-    this.playerService = playerService;
+  ) {
     this.registerWithMidiService();
   }
 
 
   ngAfterViewInit(): void {
-    this.playerService.setKeyboardElement(this.keyboardContainer);
-    this.applyKeyRangePreferences();
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    const preferences = localStorage.getItem("preferences");
+    const parsedPreferences = JSON.parse(preferences || '{}');
+    const leftmostKey = this.minKey || midiToPitch(parsedPreferences.leftmostKey || 21) || null;
+    const rightmostKey = this.maxKey || midiToPitch(parsedPreferences.rightmostKey || 108) || null;
+
+    const computedKeyHeight = this.keyHeight ?? 140;
+    this.keyboard = new PianoKeys.Keyboard(
+      this.keyboardContainer.nativeElement,
+      {
+        keyHeight: computedKeyHeight,
+        lowest: leftmostKey ,
+        highest: rightmostKey
+      });
+    this.keyboardService.setPianoKeys(this.keyboard);
     this.attachKeyboardListeners();
   }
 
@@ -45,7 +64,7 @@ export class KeyboardComponent implements OnDestroy {
     const pressedEffect = effect(() => {
       const keyEvent = this.keyPressed();
       if (keyEvent !== null) {
-        this.midiService.press(keyEvent.key, 100);
+        this.midiService.press(keyEvent.key, 255);
       }
     });
     this.effectRefs.push(pressedEffect);
@@ -69,95 +88,24 @@ export class KeyboardComponent implements OnDestroy {
   }
 
   private attachKeyboardListeners(): void {
-    const svgElement = this.keyboardContainer.nativeElement.querySelector('svg');
-    if (svgElement) {
-      const allKeys = svgElement.querySelectorAll('rect.note');
-      
-      allKeys.forEach((keyElement: Element) => {
-        const classAttr = keyElement.getAttribute('class') || '';
-        const keyMatch = classAttr.match(/key(\d+)/);
-        
-        if (keyMatch) {
-          const keyNumber = parseInt(keyMatch[1], 10);
-          
-          // Événement mousedown pour l'appui de la touche
-          keyElement.addEventListener('mousedown', () => {
-            this.keyPressed.set({ key: keyNumber, timestamp: Date.now() });
-            this.currentlyPressedKeys.update(keys => {
-              const newKeys = new Set(keys);
-              newKeys.add(keyNumber);
-              return newKeys;
-            });
-          });
-          
-          // Événement mouseup pour le relâchement de la touche
-          keyElement.addEventListener('mouseup', () => {
-            this.keyReleased.set({ key: keyNumber, timestamp: Date.now() });
-            this.currentlyPressedKeys.update(keys => {
-              const newKeys = new Set(keys);
-              newKeys.delete(keyNumber);
-              return newKeys;
-            });
-          });
-          
-          // Événement mouseleave pour gérer le cas où la souris quitte la touche pendant l'appui
-          keyElement.addEventListener('mouseleave', (event: Event) => {
-            const mouseEvent = event as MouseEvent;
-            if (mouseEvent.buttons === 1) { // Si le bouton gauche est toujours enfoncé
-              this.keyReleased.set({ key: keyNumber, timestamp: Date.now() });
-              this.currentlyPressedKeys.update(keys => {
-                const newKeys = new Set(keys);
-                newKeys.delete(keyNumber);
-                return newKeys;
-              });
-            }
-          });
-        }
-      });
-    }
-  }
-
-  private applyKeyRangePreferences(): void {
-    if (!isPlatformBrowser(this.platformId)) {
+    
+    if (this.keyboard === null) {
+      console.error('Keyboard instance is not initialized.');
       return;
     }
-    try {
-      const preferences = localStorage.getItem("preferences");
-      if (preferences) {
-        const parsedPreferences = JSON.parse(preferences);
-        const leftmostKey = parsedPreferences.leftmostKey || 21;
-        const rightmostKey = parsedPreferences.rightmostKey || 108;
-        
-        // Applique la classe 'not-keyed' aux touches en dehors de la plage
-        this.applyNotKeyedClass(leftmostKey, rightmostKey);
-      }
-    } catch (error) {
-      console.warn('Erreur lors de la lecture des préférences:', error);
-    }
-  }
+    
+    this.keyboard.setOnKeyMouseDown((event: MouseEvent, keyInfo: { note: number, name: string }) => {
+      console.log({ key: keyInfo.note, timestamp: Date.now() });
+      this.keyPressed.set({ key: 12+ Number(keyInfo.note), timestamp: Date.now() });
+      this.keyboardService.press(keyInfo.name, 12+ Number(keyInfo.note) ); // Ensure the note is released before pressing again (handles repeated notes)
+    });
 
-  private applyNotKeyedClass(leftmostKey: number, rightmostKey: number): void {
-    const svgElement = this.keyboardContainer.nativeElement.querySelector('svg');
-    if (svgElement) {
-      // Trouve toutes les touches (elements avec class contenant 'key' suivi d'un nombre)
-      const allKeys = svgElement.querySelectorAll('[class*="key"]');
-      
-      allKeys.forEach((keyElement: Element) => {
-        const classAttr = keyElement.getAttribute('class') || '';
-        const keyMatch = classAttr.match(/key(\d+)/);
-        
-        if (keyMatch) {
-          const keyNumber = parseInt(keyMatch[1], 10);
-          
-          if (keyNumber < leftmostKey || keyNumber > rightmostKey) {
-            keyElement.classList.add('not-keyed');
-          } else {
-            keyElement.classList.remove('not-keyed');
-          }
-        }
-      });
-    }
-  }
+    this.keyboard.setOnKeyMouseUp((event: MouseEvent, keyInfo: { note: number, name: string }) => {
+      console.log({ key: keyInfo.note, timestamp: Date.now() });
+      this.keyReleased.set({ key: 12+ Number(keyInfo.note), timestamp: Date.now() });
+      this.keyboardService.release(keyInfo.name, 12+ Number(keyInfo.note));
+    });
 
+  }
 
 }

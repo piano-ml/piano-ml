@@ -14,8 +14,8 @@ export class MidiServiceService {
 
   enabledInputDevices: Map<string, MIDIInput> = new Map()
   enabledOutputDevices: Map<string, MIDIOutput> = new Map()
-  private availableInputs: MIDIInput[] = []
-  private availableOutputs: MIDIOutput[] = []
+  availableInputs: MIDIInput[] = []
+  availableOutputs: MIDIOutput[] = []
   octave = 4
   pressedNotes = new Map<number, { time: number; vel: number }>()
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
@@ -122,8 +122,8 @@ export class MidiServiceService {
       }
     }).catch((error) => {
       console.error('Erreur lors de la configuration des appareils MIDI:', error);
-      if (false) {
-        //if (this.midiSetupRetries < this.maxRetries) {
+      //if (false) {
+      if (this.midiSetupRetries < this.maxRetries) {
         this.midiSetupRetries++;
         console.log(`MIDI setup error. Retry attempt ${this.midiSetupRetries}/${this.maxRetries}`);
         setTimeout(() => {
@@ -218,7 +218,6 @@ export class MidiServiceService {
 
   isOutputDeviceSelected(device: MIDIOutput | null) {
     const selected = this.getStoredDeviceSelection(this.midiOutputStorageKey);
-    console.log('Checking if output device is selected:', { device, selected });
     if (device === null) {
       return true;
     }
@@ -314,7 +313,6 @@ export class MidiServiceService {
       const inputList = Array.from(inputs.values());
       const preferredInput = this.pickPreferredInput(inputList);
       if (preferredInput) {
-
         localStorage.setItem(this.midiInputStorageKey, JSON.stringify([this.getDeviceKey(preferredInput)]));
       }
     }
@@ -323,11 +321,7 @@ export class MidiServiceService {
       const inputKeys = new Set(
         Array.from(inputs.values()).map(device => this.getDeviceKey(device))
       );
-      const outputList = Array.from(outputs.values());
-      const preferredOutput = this.pickPreferredOutput(outputList, inputKeys);
-      if (preferredOutput) {
-        localStorage.setItem(this.midiOutputStorageKey, JSON.stringify([this.getDeviceKey(preferredOutput)]));
-      }
+      localStorage.setItem(this.midiOutputStorageKey, JSON.stringify(["PIANOML"]));
     }
   }
 
@@ -339,14 +333,15 @@ export class MidiServiceService {
 
   private pickPreferredOutput(outputs: MIDIOutput[], inputKeys: Set<string>) {
     if (!outputs.length) return null;
-    const nonThrough = outputs.find(device => !this.isThroughPort(device.name) && !inputKeys.has(this.getDeviceKey(device)));
-    if (nonThrough) return nonThrough;
-    const fallback = outputs.find(device => !inputKeys.has(this.getDeviceKey(device)));
-    return fallback ?? outputs[0];
+    // const nonThrough = outputs.find(device => !this.isThroughPort(device.name) && !inputKeys.has(this.getDeviceKey(device)));
+    // if (nonThrough) return nonThrough;
+    // const fallback = outputs.find(device => !inputKeys.has(this.getDeviceKey(device)));
+    // return fallback ?? outputs[0];
+    return ["PIANOML"];
   }
 
   private isThroughPort(name?: string | null) {
-    return (name ?? '').toLowerCase().includes('through');
+    return (name ?? '').toLowerCase().includes('through') || (name ?? '').toLowerCase().includes('system');
   }
 
 

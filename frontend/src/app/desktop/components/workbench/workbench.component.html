@@ -1,176 +1,183 @@
 <div class="flex flex-col flex-grow h-dvh bg-white">
 
-    <div class="flex-row  bg-black">
-        @if (!osmdLoading) {
-        <div class="flex flex-col lg:flex-row xl:flex-row mt-2 pl-2 pr-2 osmd-state-transition">
+    <div class="flex-row  bg-black relative" [class.toggleToolbar]="toggleToolbar"><!-- top bar -->
+
+        <div *ngIf="toggleToolbar">
+            <div class="flex flex-col lg:flex-row xl:flex-row mt-2 pl-2 pr-2 osmd-state-transition">
 
 
-            <div class="flex lg:w-1/2 xl:w-1/2 ">
+                <div class="flex lg:w-1/2 xl:w-1/2 ">
 
-                <div class="flex-none ">
-                    <button (click)="summary()" class="btn btn-desktop m-1">
-                        <ng-icon name="bootstrapHouse" class="svg-button" />
-                    </button>
-                </div>
+                    <div class="flex-none ">
+                        <button (click)="summary()" class="btn btn-desktop m-1">
+                            <ng-icon name="bootstrapHouse" class="svg-button" />
+                        </button>
+                    </div>
 
-                <div class="display flex-grow m-1 lcd-text">
-                    <div class="flex flew-grow flex-row  m-1">
-                        <div #titleContainer class="flex-grow overflow-hidden mr-2 marquee-container">
-                            <div #titleText [class.animate-marquee]="shouldScroll" class="title-text">
-                                {{ title }}
+                    <div class="display flex-grow m-1 lcd-text">
+                        <div class="flex flew-grow flex-row  m-1">
+                            <div #titleContainer class="flex-grow overflow-hidden mr-2 marquee-container">
+                                <div #titleText [class.animate-marquee]="shouldScroll" class="title-text">
+                                    {{ title }}
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex-none flex flex-col text-sm">
-                            <div class="text-center">
-                                {{ (elapsedTime | async) | elapsedTime }}
-                            </div>
-                            <div class="text-center">
-                                ♩{{ tempo }}
+                            <div class="flex-none flex flex-col text-sm">
+                                <div class="text-center">
+                                    {{ (elapsedTime | async) | elapsedTime }}
+                                </div>
+                                <div class="text-center">
+                                    ♩{{ tempo }}
+                                </div>
                             </div>
                         </div>
                     </div>
+
+
                 </div>
 
+
+
+                <div *ngIf="!loading" class="flex lg:w-1/2 xl:w-1/2 items-end justify-end">
+
+                    @if (!isPlaying) {
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="fullscreen" [checked]="isFullscreen"
+                                (change)="toggleFullscreen()" />
+                            <ng-icon name="bootstrapFullscreen" class="svg-button" />
+                        </label>
+                    </div>
+
+
+
+                    <button (click)="showInfo()" class="btn btn-desktop m-1">
+                        <ng-icon name="bootstrapInfoCircleFill" class="svg-button" />
+                    </button>
+
+                    <button (click)="reset()" class="btn btn-desktop m-1">
+                        <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
+                    </button>
+
+
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label ">
+                            <input type="checkbox" id="hideKeyboard" [checked]="!hideKeyboard"
+                                (click)="$event.preventDefault(); openMidiSetup()" />
+                            <ng-icon name="bootstrapGear" class="svg-button" />
+                        </label>
+                    </div>
+
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label ">
+                            <input type="checkbox" id="showTempo" [checked]="!showTempo" (click)="$event.preventDefault(); openTempo()" />
+                            <ng-icon name="bootstrapSpeedometer2" class="svg-button" />
+                        </label>
+                    </div>
+
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="loop" [disabled]="isPlaying" [checked]="playConfiguration.isLoop"
+                                (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
+                            <ng-icon name="bootstrapRepeat" class="svg-button" />
+
+                        </label>
+                    </div>
+
+
+
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="left-hand" [disabled]="isPlaying"
+                                [checked]="playConfiguration.waitForLeftHand"
+                                (change)="setWaitForLeftHand(!playConfiguration.waitForLeftHand)" />
+                            <ng-icon name="lefthand" class="svg-button" />
+                        </label>
+                    </div>
+
+                    <div class="checkbox-input m-1">
+                        <label class="label svg-label">
+                            <input type="checkbox" id="right-hand" [disabled]="isPlaying"
+                                [checked]="playConfiguration.waitForRightHand"
+                                (change)="setWaitForRightHand(!playConfiguration.waitForRightHand)" />
+                            <ng-icon name="righthand" class="svg-button" />
+                        </label>
+                    </div>
+                    }
+
+                    @if (!isPlaying) {
+                    <button (click)="start()" class="btn btn-desktop m-1">
+                        <ng-icon name="bootstrapPlayFill" class="svg-button" />
+                    </button>
+                    } @else {
+                    <button (click)="stop()" class="btn btn-desktop m-1">
+                        <ng-icon name="bootstrapPauseFill" class="svg-button" />
+                    </button>
+                    }
+
+                </div>
 
             </div>
 
-
-
-            <div class="flex lg:w-1/2 xl:w-1/2 items-end justify-end">
-
-                <div class="checkbox-input m-1">
-                    <label class="label svg-label">
-                        <input type="checkbox" id="fullscreen" [checked]="isFullscreen" (change)="toggleFullscreen()" />
-                        <ng-icon name="bootstrapFullscreen" class="svg-button" />
-                    </label>
-                </div>
-
-                @if (!isPlaying) {
-
-                <button (click)="showInfo()" class="btn btn-desktop m-1">
-                    <ng-icon name="bootstrapInfoCircleFill" class="svg-button" />
-                </button>
-
-                <button (click)="reset()" class="btn btn-desktop m-1">
-                    <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
-                </button>
-                }
-
-                <div class="radio-input m-1">
-                    <label class="label p-1 pt-5">
-                        <input type="radio" id="50pct" name="value-radio" (click)="setSpeed(0.5)"
-                            [disabled]="isPlaying" />
-                        <span class="text">♩50%</span>
-                    </label>
-                    <label class="label p-2 pt-5">
-                        <input type="radio" id="75pct" name="value-radio" (click)="setSpeed(0.75)"
-                            [disabled]="isPlaying" />
-                        <span class="text">♩75%</span>
-                    </label>
-
-                    <label class="label p-2 pt-5">
-                        <input type="radio" id="100pct" name="value-radio" checked (click)="setSpeed(1)"
-                            [disabled]="isPlaying" />
-                        <span class="text">♩100%</span>
-                    </label>
-
-                </div>
-
-
-
-                <div class="checkbox-input m-1">
-                    <label class="label svg-label">
-                        <input type="checkbox" id="loop" [disabled]="isPlaying" [checked]="playConfiguration.isLoop"
-                            (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
-                        <ng-icon name="bootstrapRepeat" class="svg-button" />
-
-                    </label>
-                </div>
-
-                <div class="checkbox-input m-1">
-                    <label class="label svg-label ">
-                        <input type="checkbox" id="hideKeyboard" [checked]="!hideKeyboard"
-                            (click)="$event.preventDefault(); openMidiSetup()" />
-                        <ng-icon name="keyboard" class="svg-button" />
-                    </label>
-                </div>
-
-
-                <div class="checkbox-input m-1">
-                    <label class="label svg-label">
-                        <input type="checkbox" id="left-hand" [disabled]="isPlaying"
-                            [checked]="playConfiguration.waitForLeftHand"
-                            (change)="setWaitForLeftHand(!playConfiguration.waitForLeftHand)" />
-                        <ng-icon name="lefthand" class="svg-button" />
-                    </label>
-                </div>
-
-                <div class="checkbox-input m-1">
-                    <label class="label svg-label">
-                        <input type="checkbox" id="right-hand" [disabled]="isPlaying"
-                            [checked]="playConfiguration.waitForRightHand"
-                            (change)="setWaitForRightHand(!playConfiguration.waitForRightHand)" />
-                        <ng-icon name="righthand" class="svg-button" />
-                    </label>
-                </div>
-
-
-                @if (!isPlaying) {
-                <button (click)="start()" class="btn btn-desktop m-1">
-                    <ng-icon name="bootstrapPlayFill" class="svg-button" />
-                </button>
-                } @else {
-                <button (click)="stop()" class="btn btn-desktop m-1">
-                    <ng-icon name="bootstrapPauseFill" class="svg-button" />
-                </button>
-                }
-
-            </div>
 
         </div>
-        } @else {
-        <div class="flex flex-col items-center justify-center w-full h-dvh text-6xl osmd-state-transition">
-            🎼
-             @if (loadingFeedBack) {
-            <div class="w-[250px] pl-4">
-            <span class="text-sm mt-2">{{ loadingFeedBack!.message }} - {{ loadingFeedBack!.percentage }}%</span>
-            </div>
-            } @else {
-            <span class="text-sm mt-2">loading...</span>
-            } 
-        </div>
-        }
 
-        <div class="pl-2 pr-2 p-2 mr-4 ml-4">
+        <div *ngIf="toggleToolbar" class=" bg-transparent l-2 pr-2 p-2 mr-4 ml-4 z-100">
             <div #range></div>
+        </div>
+
+                    <div *ngIf="(osmdLoading$ | async)"
+                class="flex flex-col items-center justify-center w-full h-dvh text-6xl osmd-state-transition">
+                <ng-container *ngIf="(loadingFeedBack$ | async) as fb">
+                    <div class="w-[250px] pl-4">
+                        <span class="text-sm mt-2">{{ fb.message }} - {{ fb.percentage }}%</span>
+                    </div>
+                </ng-container>
+                <ng-container *ngIf="!(loadingFeedBack$ | async) as fb">
+                    <div class="w-[250px] pl-4">
+                        <span class="text-sm mt-2">downloading data...</span>
+                    </div>
+                </ng-container>
+            </div>
+
+
+        <!--*ngIf="isSmallScreen()"  Handle: centered icon at bottom to toggle toolbar -->
+        <div class="p-2 absolute left-1/2 transform -translate-x-1/2 z-50 ml-2 mr-2 w-full">
+            <button (click)="fnToggleToolBar()" [attr.aria-pressed]="!toggleToolbar"
+                title="Basculer la barre supérieure"
+                class="text-black p-1 w-100 rounded w-full flex items-center justify-center">
+                <ng-icon name="bootstrapGripHorizontal" class="" />
+            </button>
         </div>
 
     </div>
 
 
     <!-- score -->
-    @if (!loading) {
-    <div class="bg-white flex-grow overflow-y-auto score-container osmd-fade" [class.osmd-fade-visible]="!osmdLoading">
-        <app-osmd [scoreData]="scoreData" [musicXml]="musicXml"
+    <div *ngIf="!(loading$ | async)" (click)="startStop()" class="bg-white flex-grow overflow-y-auto score-container">
+        <app-osmd *ngIf="showOsmd" [scoreData]="scoreData" [musicXml]="musicXml"
             (loadingChange)="onOsmdLoadingChange($event)"></app-osmd>
     </div>
-    }
 
-    <!-- middle bar empty for now -->
-    <div #arena class="flex {{arenaClass}} bg-grey-100 h-60 text-center text-neutral-400 text-2xl">
-        @if (loading) {
 
-        }
+    <div>
+        <button (click)="fnToggleKeyboard()" [attr.aria-pressed]="!toggleToolbar" title="Toggle Keyboard"
+            class="text-black p-2 w-100 rounded w-full flex items-center justify-center">
+            <ng-icon name="bootstrapGripHorizontal" class="" />
+        </button>
     </div>
 
-    <!-- keyboard -->
-    @if (!hideKeyboard && !loading && !osmdLoading) {
-    <div class="flex-none">
-        <app-keyboard></app-keyboard>
+    <div *ngIf="!hideKeyboard && !(loading$ | async)" class="flex-none">
+        <app-keyboard [minKey]="keyboardMinKey" [maxKey]="keyboardMaxKey" [keyHeight]="keyboardHeight"></app-keyboard>
     </div>
-    }
 
-    <app-midi-setup [isOpen]="isMidiSetupOpen" [hideKeyboard]="hideKeyboard"
-        (hideKeyboardChange)="setHideKeyboard($event)" (closeModal)="closeMidiSetup()"></app-midi-setup>
+
+    <app-midi-setup [isOpen]="isMidiSetupOpen" [hideKeyboard]="hideKeyboard" [hideFingering]="hideFingering"
+        [hideLyrics]="hideLyrics" [hideFingeringAndHarmony]="hideFingeringAndHarmony"
+        (hideLyricsChange)="setHideLyrics($event)" (hideKeyboardChange)="setHideKeyboard($event)"
+        (hideFingeringChange)="setHideFingering($event)"
+        (hideFingeringAndHarmonyChange)="setHideFingeringAndHarmony($event)" (hideLyricsChange)="setHideLyrics($event)"
+        (closeModal)="closeMidiSetup()"></app-midi-setup>
+
+    <app-tempo-control [isOpen]="isTempoOpen" [tempo]="tempo" (tempoChange)="onTempoChanged($event)" (closeModal)="closeTempo()"></app-tempo-control>
 
 </div>
