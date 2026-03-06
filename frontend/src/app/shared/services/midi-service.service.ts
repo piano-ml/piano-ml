@@ -218,7 +218,6 @@ export class MidiServiceService {
 
   isOutputDeviceSelected(device: MIDIOutput | null) {
     const selected = this.getStoredDeviceSelection(this.midiOutputStorageKey);
-    console.log('Checking if output device is selected:', { device, selected });
     if (device === null) {
       return true;
     }

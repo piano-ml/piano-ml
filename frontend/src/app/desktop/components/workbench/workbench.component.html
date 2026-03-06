@@ -118,7 +118,14 @@
 
             </div>
 
-            <div *ngIf="(osmdLoading$ | async)"
+
+        </div>
+
+        <div *ngIf="toggleToolbar" class=" bg-transparent l-2 pr-2 p-2 mr-4 ml-4 z-100">
+            <div #range></div>
+        </div>
+
+                    <div *ngIf="(osmdLoading$ | async)"
                 class="flex flex-col items-center justify-center w-full h-dvh text-6xl osmd-state-transition">
                 <ng-container *ngIf="(loadingFeedBack$ | async) as fb">
                     <div class="w-[250px] pl-4">
@@ -131,13 +138,6 @@
                     </div>
                 </ng-container>
             </div>
-
-        </div>
-
-        <div *ngIf="toggleToolbar" class=" bg-transparent l-2 pr-2 p-2 mr-4 ml-4 z-100">
-            <div #range></div>
-        </div>
-
 
 
         <!--*ngIf="isSmallScreen()"  Handle: centered icon at bottom to toggle toolbar -->

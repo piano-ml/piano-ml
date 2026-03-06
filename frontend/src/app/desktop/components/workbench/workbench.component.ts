@@ -269,6 +269,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     const smallScreen = window.innerWidth <= 1024;
     if (smallScreen) {
       this.loadingFeedBack$.next({ message: 'computing midi bounds', percentage: 15 });
+      this.changeDetector.detectChanges()
       const allNotes: Note[] = this.midi.tracks.flatMap(track => track.notes).filter(note => note.midi !== undefined);
       const minNote = allNotes.reduce((acc: Note, n: Note) => {
         return (n.midi ?? 0) < (acc.midi ?? 0) ? n : acc;
@@ -279,8 +280,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       const minMidiRaw = minNote.midi;
       const bottomCdelta = Math.abs(minMidiRaw - 60);
       //const minCMidi = Math.floor(minMidiRaw / 12) * 12;
-
-
 
       if (this.keyboardMinKey == "C1") {
         this.keyboardMinKey = "A0";
