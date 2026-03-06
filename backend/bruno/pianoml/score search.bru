@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: http://localhost:8080/score/search?fullKey=
+  url: https:/api.pianoml.org/score/search?fullKey
   body: none
   auth: inherit
 }
 
 params:query {
   fullKey: 
-  ~keyword: "redemption"
+  ~keyword: 
   ~genreId: {{genreId}}
   ~gradeStart: {{gradeStart}}
   ~gradeEnd: {{gradeEnd}}

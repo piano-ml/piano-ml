@@ -1,143 +1,116 @@
-import { type ElementRef, Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable } from '@angular/core';
 import type { Note } from '@tonejs/midi/dist/Note';
-import { PlayerStateService } from './player-state.service';
+import PianoKeys from '@jesperdj/pianokeys';
+import { midiToPitch } from './midi-maths';
 
 /**
- * Service responsable de la gestion du clavier visuel (DOM manipulation et highlighting)
+ * Service responsible for managing the visual keyboard (DOM manipulation and highlighting)
  */
 @Injectable({
   providedIn: 'root'
 })
 export class PlayerKeyboardService {
-  private platformId = inject(PLATFORM_ID);
-  private keyboardElement!: ElementRef;
 
-  // DOM elements cache for keyboard keys (by MIDI note number)
-  private _keyboardElementsCache = new Map<number, HTMLElement[]>();
+  pianoKeys: PianoKeys.Keyboard | null = null;
+  keyPressed = new Set<string>();
 
-  // Track active notes with classes to avoid expensive DOM queries
-  private _activeKeyboardElements = new Set<HTMLElement>();
-
-  constructor(private state: PlayerStateService) {
-    this.loadKeyboardPreferences();
-  }
+  COLOR_RIGHT = [
+    '#fffee6',
+    '#fffdd1',
+    '#fffcbb',
+    '#fffaa6',
+    '#fff990',
+    '#fff77a',
+    '#fff665',
+    '#fff44f',
+    '#fff339',
+    '#fff224'
+  ];
+  COLOR_LEFT = [
+    '#bdddff',
+    '#afd5ff',
+    '#a0cfff',
+    '#90c7ff',
+    '#75baff',
+    '#5aadff',
+    '#45a2ff',
+    '#3499ff',
+    '#1d8eff',
+    '#0080ff'
+  ];
+  COLOR_WRONG = '#FF0000';
 
   /**
-   * Configure l'élément DOM du clavier
+   * Set the proper PianoKeys instance to be used by the service for DOM manipulation
+   * @param pianoKeys 
    */
-  setKeyboardElement(nativeElementRef: ElementRef): void {
-    this.keyboardElement = nativeElementRef;
-    this._keyboardElementsCache.clear(); // Clear cache when keyboard element changes
-    this._activeKeyboardElements.clear(); // Clear active elements tracking
+  setPianoKeys(pianoKeys: PianoKeys.Keyboard): void {
+    this.pianoKeys = pianoKeys;
   }
 
   /**
-   * Récupère les éléments DOM correspondant à une note MIDI (avec cache)
+   * Press a specific key on the visual keyboard, filling it with the appropriate color based on velocity
+   * @param name The name of the key to press (e.g., 'C4')
+   * @param note The MIDI note number (e.g., 60 for C4)
    */
-  private getKeyboardElements(midiNote: number): HTMLElement[] {
-    if (!this.keyboardElement) {
-      return []; // keyboard might be disabled
-    }
-    if (!this._keyboardElementsCache.has(midiNote)) {
-      const elements = Array.from(
-        this.keyboardElement.nativeElement.querySelectorAll(`.key${midiNote}`)
-      ) as HTMLElement[];
-      this._keyboardElementsCache.set(midiNote, elements);
-    }
-    return this._keyboardElementsCache.get(midiNote)!;
+  press(name: string, note: number) {
+    this.keyPressed.add(name); // Track the note as currently pressed
+    this.pianoKeys?.fillKey(name);
   }
 
   /**
-   * Allume une note sur le clavier visuel avec la vélocité appropriée
+   * Release a specific key on the visual keyboard, clearing its color
+   * @param name The name of the key to release (e.g., 'C4')
+   * @param note The MIDI note number (e.g., 60 for C4)
+   */
+  release(name: string, note: number) {
+    this.keyPressed.delete(name); // Track the note as currently pressed
+    this.pianoKeys?.clearKey(name);
+  }
+
+  /**
+   * Light up a note on the visual keyboard with the appropriate velocity
+   * @param hand The hand playing the note ('rh' for right hand, 'lh' for left hand)
+   * @param note The MIDI note to light up
    */
   lightNoteOnKeyboard(hand: string, note: Note): void {
-    // Clamp velocity to 1-10 range directly
+    if (note.name===undefined) { // TODO why note comes without name ?
+      note.name = midiToPitch(note.midi);
+    }
     const velocityUI = Math.round(Math.min(Math.max(note.velocity * 10, 1), 10));
-
-    const keys = this.getKeyboardElements(note.midi);
-
-    const class1 = `note-on-${hand}`;
-    const class2 = `note-on-${hand}-velocity-${velocityUI}`;
-
-    for (const el of keys) {
-      el.classList.add(class1, class2);
-      this._activeKeyboardElements.add(el); // Track active element
-    }
+    this.keyPressed.add(note.name); // Track the note as currently pressed
+    const color = hand === 'rh' ? this.COLOR_RIGHT[velocityUI - 1] : this.COLOR_LEFT[velocityUI - 1];
+    this.pianoKeys?.fillKey(note.name, color);
   }
 
   /**
-   * Supprime les classes CSS d'un élément avec un préfixe donné
+   * Turn off a specific MIDI note on the visual keyboard
+   * @param midi The MIDI note to turn off
    */
-  private clearClassesFromElement(el: HTMLElement, prefix: string): void {
-    const classList = el.classList;
-    // Iterate backwards to avoid issues when removing classes during iteration
-    for (let i = classList.length - 1; i >= 0; i--) {
-      if (classList[i].startsWith(prefix)) {
-        classList.remove(classList[i]);
-      }
-    }
+  removeMidiPitchFromKeyboard(midi: number): void {
+    const noteName = midiToPitch(midi);
+    this.keyPressed.delete(noteName);
+    this.pianoKeys?.clearKey(noteName);
   }
 
   /**
-   * Éteint une note MIDI spécifique du clavier visuel
+   * Turn off a specific MIDI note on the visual keyboard
+   * @param note The MIDI note to turn off
    */
-  removeMidiNoteFromKeyboard(midiNote: number): void {
-    const keys = this.getKeyboardElements(midiNote);
-    for (const key of keys) {
-      this.clearClassesFromElement(key, "note-on");
-      this._activeKeyboardElements.delete(key); // Remove from active set
-    }
+  removeMidiNoteFromKeyboard(note: Note): void {
+    this.keyPressed.delete(note.name);
+    this.pianoKeys?.clearKey(note.name);
   }
 
+
   /**
-   * Éteint toutes les notes du clavier visuel
+   * Turn off all notes on the visual keyboard
    */
   removeAllNotesFromKeyboard(): void {
-    for (const el of this._activeKeyboardElements) {
-      this.clearClassesFromElement(el, "note-on");
-    }
-    this._activeKeyboardElements.clear();
+     this.keyPressed.forEach(noteName => {
+       this.pianoKeys?.clearKey(noteName);
+     });
+     this.keyPressed.clear();
   }
 
-  /**
-   * Charge les préférences du clavier depuis localStorage
-   */
-  private loadKeyboardPreferences(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      console.log('Keyboard preferences loading skipped on server');
-      return;
-    }
-    try {
-      const preferences = localStorage.getItem('preferences');
-      if (preferences) {
-        const parsedPreferences = JSON.parse(preferences);
-        this.state.leftmostKey = parsedPreferences.leftmostKey || 21;
-        this.state.rightmostKey = parsedPreferences.rightmostKey || 108;
-        console.log(`Loaded keyboard preferences: leftmost=${this.state.leftmostKey}, rightmost=${this.state.rightmostKey}`);
-      }
-    } catch (error) {
-      console.error('Error loading keyboard preferences:', error);
-      // Keep default values in case of error
-      this.state.leftmostKey = 21;
-      this.state.rightmostKey = 108;
-    }
-  }
-
-  /**
-   * Recharge les préférences du clavier depuis localStorage
-   * Méthode publique pour permettre le rechargement à chaud
-   */
-  reloadKeyboardPreferences(): void {
-    this.loadKeyboardPreferences();
-  }
-
-  /**
-   * Nettoie les ressources du service
-   */
-  cleanup(): void {
-    // Clear DOM caches to prevent memory leaks
-    this._keyboardElementsCache.clear();
-    this._activeKeyboardElements.clear();
-  }
 }

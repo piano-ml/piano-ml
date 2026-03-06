@@ -16,7 +16,7 @@ export const routes: Routes = [
                 loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
             },
             {
-                path: 'chord/:chordKey/:selectedKey/:exerciseKey',
+                path: 'agility/:chordKey/:selectedKey/:exerciseKey',
                 loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
             },
             {
@@ -39,7 +39,7 @@ export const routes: Routes = [
                 loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
             },
             {
-                path: 'chord/:chordKey/:selectedKey/:exerciseKey',
+                path: 'agility/:chordKey/:selectedKey/:exerciseKey',
                 loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
             },
             {
@@ -62,7 +62,7 @@ export const routes: Routes = [
                 loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
             },
             {
-                path: 'chord/:chordKey/:selectedKey/:exerciseKey',
+                path: 'agility/:chordKey/:selectedKey/:exerciseKey',
                 loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
             },
             {

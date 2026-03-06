@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender, HostListener, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
@@ -10,7 +10,9 @@ import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
     selector: 'app-osmd',
     imports: [CommonModule],
     templateUrl: './osmd.component.html',
-    styleUrl: './osmd.component.css',
+
+    encapsulation: ViewEncapsulation.None,
+    styleUrls: ['./osmd.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OsmdComponent implements OnInit, OnDestroy {
@@ -28,6 +30,10 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
     private cursorObserver?: MutationObserver;
     private scrollAnimationFrame?: number;
+    private readonly hideFingeringStorageKey = 'hideFingering';
+    private readonly hideFingeringAndHarmonyStorageKey = 'hideFingeringAndHarmony';    
+    private readonly hideLyricsStorageKey = 'hideLyrics';
+    private hideFingeringAndHarmony = false;
 
     constructor(
         private playerService: PlayerService,
@@ -78,13 +84,23 @@ export class OsmdComponent implements OnInit, OnDestroy {
             this.osmd!.render(); // unfortunately not resolvable in load callback, we have to wait for the cursor to be available
             for (let i = 0; i < 20; i++) {
                 await new Promise(resolve => setTimeout(resolve, 100));
-                if (this.osmd.cursors) {
+                if (this.osmd.cursors && this.osmd!.GraphicSheet) {
+                    if (this.hideFingeringAndHarmony) {
+                        document.querySelectorAll('.vf-text').forEach(el => (el as HTMLElement).style.display = 'none');
+                    }
                     this.recalculateCursorPosition();
                     const status = await this.playerService.setOsmd(this.osmd!);
                     this.loading = false;
                     this.osmd!.cursors[0].SkipInvisibleNotes = true;
                     this.osmd!.cursors[0].show();
+                    this.osmd!.cursors[0].reset();
                     this.loadingChange.emit(false);
+                    setTimeout(() => {
+                        //this.osmd!.cursors[0].previous();
+                        this.osmd!.cursors[0].next();
+                        this.osmd!.cursors[0].previous();
+                        //this.osmd!.cursors[0].previous();
+                    }, 1000);
                     break;
                 }
             }
@@ -92,10 +108,10 @@ export class OsmdComponent implements OnInit, OnDestroy {
     }
 
 
-    @HostListener('window:resize', ['$event.target.innerWidth'])
-    onResize(width: number) {
+    @HostListener('window:resize', ['$event'])
+    onResize(event: Event) {
         this.recalculateCursorPosition();
-        
+
     }
 
     recalculateCursorPosition() {
@@ -106,33 +122,39 @@ export class OsmdComponent implements OnInit, OnDestroy {
             const cursorElement = document.getElementById('cursorImg-0');
             if (cursorElement) {
                 if (partCount === 1) {
-                    y = positionAndShape.Parent.BoundingRectangle.height
-                    cursorElement!.style.setProperty('height', y * 5 + "px", 'important');
+                    y = (positionAndShape.Parent.BoundingRectangle.height) * 5;
+                    cursorElement!.style.setProperty('height', y + "px", 'important');
                 } else {
-                    y = positionAndShape.AbsolutePosition.y + positionAndShape.BoundingRectangle.height;
-                    cursorElement!.style.setProperty('height', y * 8 + "px", 'important');
+                    //y = positionAndShape.Parent.BoundingRectangle.height
+                    y = (positionAndShape.Parent.AbsolutePosition.y + positionAndShape.Parent.BoundingRectangle.height) * 5;
+                    cursorElement!.style.setProperty('height', y + "px", 'important');
                 }
-            }            
+
+            }
             this.playerService.tiltCursor(this.osmd!.Cursor);
         }, 1000);
     }
 
-    getCustomOptions(): {} {
-        const storage = localStorage.getItem("preferences")
+
+  parseBooleanStorage(key: string): boolean {
+    const stored = localStorage.getItem(key);
+    if (stored !== null) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return stored === 'true';
+      }
+    }
+    return false;
+  }
+
+
+    getCustomOptions(): any {
         const customOptions: Partial<typeof DEFAULT_OSMD_OPTIONS> = {};
-        if (storage) {
-            try {
-                const preferences = JSON.parse(storage);
-                if (preferences.hasOwnProperty("drawFingering")) {
-                    customOptions.drawFingerings = preferences.drawFingering;
-                }
-                if (preferences.hasOwnProperty("drawLyrics")) {
-                    customOptions.drawLyrics = preferences.drawLyrics;
-                }
-            } catch (e) {
-                console.error("Error parsing preferences from localStorage", e);
-            }
-        }
+        customOptions.drawFingerings = !this.parseBooleanStorage(this.hideFingeringStorageKey);
+        customOptions.drawLyrics = !this.parseBooleanStorage(this.hideLyricsStorageKey);
+        this.hideFingeringAndHarmony = this.parseBooleanStorage(this.hideFingeringAndHarmonyStorageKey);
         return customOptions;
     }
+
 }

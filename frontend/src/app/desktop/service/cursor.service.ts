@@ -99,6 +99,7 @@ export class CursorService {
                 this.cursor!.CursorOptions.color = 'orange';
             }
         }
+        this.feedbackSignal.set(null);
         await this.yieldToUi();
 
         this.osmdArray!.clear();

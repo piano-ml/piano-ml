@@ -1,14 +1,9 @@
-<div
-  class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-  *ngIf="isOpen"
-  (click)="onBackdropClick($event)"
->
-  <div
-    class="midi-setup-panel rounded-lg p-6 w-full max-w-3xl max-h-[85vh] overflow-y-auto text-white"
-    (click)="$event.stopPropagation()"
-  >
+<div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50" *ngIf="isOpen"
+  (click)="onBackdropClick($event)">
+  <div class="midi-setup-panel rounded-lg p-6 w-full max-w-3xl max-h-[85vh] overflow-y-auto text-white"
+    (click)="$event.stopPropagation()">
     <div class="midi-setup-header">
-      <h2 class="text-xl font-semibold">Midi Setup</h2>
+      <h2 class="text-xl font-semibold">Workbench Setup</h2>
       <button (click)="close()" class="midi-setup-close">Close</button>
     </div>
 
@@ -16,100 +11,114 @@
       <strong>Error:</strong> {{ error }}
     </div>
 
-    <section class="mb-6">
+    <section class="mb-2">
+      <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
+        <div class="font-medium">Midi&nbsp;In</div>
+        <div *ngIf="loading" class="text-neutral-300">Loading...</div>
+        <div *ngIf="!loading && midiInputs.length > 0" class="w-[80%]">
+          <select
+            class="w-full bg-neutral-800 text-white rounded border border-neutral-600 focus:outline-none focus:border-cyan-400"
+            (change)="selectInputById($any($event.target).value)">
+            <option value="" [selected]="!getSelectedInput()">-- Select a MIDI Input --</option>
+            <option *ngFor="let input of midiInputs" [value]="input.id" [selected]="isInputEnabled(input)">
+              {{ input.name || 'MIDI Input' }} ({{ input.manufacturer || 'Unknown' }})
+            </option>
+          </select>
+        </div>
+        <div *ngIf="!loading && midiInputs.length === 0" class="text-neutral-400 text-sm">
+          No MIDI IN devices detected.
+        </div>
+      </div>
+    </section>
+
+
+    <section class="mb-2">
+      <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
+        <div class="font-medium">Midi&nbsp;Out</div>
+        <div *ngIf="loading" class="text-neutral-300">Loading...</div>
+        <div *ngIf="!loading && midiOutputs.length > 0" class="w-[80%]">
+          <select *ngIf="!loading"
+            class="w-full p-0 m-0 bg-neutral-800 text-white rounded  border border-neutral-600 focus:outline-none focus:border-cyan-400"
+            (change)="selectOutputById($any($event.target).value)">
+            <option value="__pianoml__" [selected]="isOutputEnabled(null)">
+              PianoML — The app might play piano (not the keyboard)
+            </option>
+            <option *ngFor="let output of midiOutputs" [value]="output.id" [selected]="isOutputEnabled(output)">
+              {{ output.name || 'MIDI Output' }} ({{ output.manufacturer || 'Unknown' }})
+            </option>
+          </select>
+        </div>
+        <div *ngIf="!loading && midiOutputs.length === 0" class="text-neutral-400 text-sm">
+          No MIDI OUT devices detected.
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-2">
       <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
         <div>
           <div class="font-medium">Hide Keyboard</div>
           <div class="text-xs text-neutral-300">To improve your sight-reading skills, disable keyboard visibility.</div>
         </div>
         <label class="relative inline-flex items-center cursor-pointer select-none">
-          <input
-            type="checkbox"
-            class="peer"
-            style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
-            [checked]="hideKeyboard"
-            (change)="setKeyboardVisibility(!$any($event.target).checked)"
-            aria-label="Toggle keyboard visibility"
-          />
+          <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
+            [checked]="hideKeyboard" (change)="setKeyboardVisibility(!$any($event.target).checked)"
+            aria-label="Toggle keyboard visibility" />
           <span
-            class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-600/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"
-          ></span>
+            class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-600/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           <span class="ml-3 text-sm text-neutral-200"></span>
         </label>
       </div>
     </section>
 
-    <section class="mb-6">
-      <h3 class="text-lg font-semibold mb-2">MIDI In</h3>
-      <div *ngIf="loading" class="text-neutral-300">Loading...</div>
 
-      <ul *ngIf="!loading && midiInputs.length > 0" class="space-y-2">
-        <li *ngFor="let input of midiInputs" class="flex items-center justify-between bg-neutral-700 rounded p-3">
-          <div>
-            <div class="font-medium">{{ input.name || 'MIDI Input' }}</div>
-            <div class="text-xs text-neutral-300">{{ input.manufacturer || 'Unknown' }}</div>
-          </div>
-          <label class="inline-flex items-center gap-3 cursor-pointer select-none">
-            <input
-              type="radio"
-              name="midi-in"
-              class="radio-input"
-              [checked]="isInputEnabled(input)"
-              (change)="selectInput(input)"
-            />
-            <span class="radio-dot"></span>
-          </label>
-        </li>
-      </ul>
-
-      <div *ngIf="!loading && midiInputs.length === 0" class="text-neutral-400 text-sm">
-        No MIDI IN devices detected.
+    <section class="mb-2">
+      <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
+        <div>
+          <div class="font-medium">Hide Fingering</div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer select-none">
+          <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
+            [checked]="hideFingering" (change)="setFingeringVisibility(!$any($event.target).checked)"
+            aria-label="Toggle fingering visibility" />
+          <span
+            class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-600/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
+          <span class="ml-3 text-sm text-neutral-200"></span>
+        </label>
       </div>
     </section>
 
-    <section>
-      <h3 class="text-lg font-semibold mb-2">MIDI Out</h3>
-      <div *ngIf="loading" class="text-neutral-300">Loading...</div>
-
-      <ul *ngIf="!loading" class="space-y-2">
-        <li class="flex items-center justify-between bg-neutral-700 rounded p-3">
-          <div>
-            <div class="font-medium">{{ 'PianoML' }}</div>
-            <div class="text-xs text-neutral-300">The app might play piano (  not the keyboard)</div>
-          </div>
-          <label class="inline-flex items-center gap-3 cursor-pointer select-none">
-            <input
-              type="radio"
-              name="midi-out"
-              class="radio-input"   
-              [checked]="isOutputEnabled(null)"
-              (change)="selectOutput(null)"
-            /> <!--  -->
-            <span class="radio-dot"></span>
-          </label>          
-        </li>
-        <li *ngFor="let output of midiOutputs" class="flex items-center justify-between bg-neutral-700 rounded p-3">
-          <div>
-            <div class="font-medium">{{ output.name || 'MIDI Output' }}</div>
-            <div class="text-xs text-neutral-300">{{ output.manufacturer || 'Unknown' }}</div>
-          </div>
-          <label class="inline-flex items-center gap-3 cursor-pointer select-none">
-            <input
-              type="radio"
-              name="midi-out"
-              class="radio-input"
-              [checked]="isOutputEnabled(output)"
-              (change)="selectOutput(output)"
-            />
-            <span class="radio-dot"></span>
-          </label>
-        </li>
-      </ul>
-
-      <div *ngIf="!loading && midiOutputs.length === 0" class="text-neutral-400 text-sm">
-        No MIDI OUT devices detected.
+    <section class="mb-2">
+      <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
+        <div>
+          <div class="font-medium">Hide Lyrics</div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer select-none">
+          <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
+            [checked]="hideLyrics" (change)="setHideLyricsVisibility(!$any($event.target).checked)"
+            aria-label="Toggle lyrics visibility" />
+          <span
+            class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-600/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
+          <span class="ml-3 text-sm text-neutral-200"></span>
+        </label>
       </div>
     </section>
 
+    <section class="mb-2">
+      <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
+        <div>
+          <div class="font-medium">Hide Fingering & Harmony</div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer select-none">
+          <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
+            [checked]="hideFingeringAndHarmony"
+            (change)="setFingeringAndHarmonyVisibility(!$any($event.target).checked)"
+            aria-label="Toggle fingering and harmony visibility" />
+          <span
+            class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-600/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
+          <span class="ml-3 text-sm text-neutral-200"></span>
+        </label>
+      </div>
+    </section>
   </div>
 </div>

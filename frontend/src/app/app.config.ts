@@ -116,6 +116,31 @@ export const appConfig: ApplicationConfig = {
         }
 
       )),
+    // Router debug provider - logs router events in non-production builds
+    {
+      provide: 'ROUTER_DEBUG_INIT',
+      useFactory: () => {
+        const platformId = inject(PLATFORM_ID);
+        const router = inject(Router);
+        // Only enable in browser and non-production
+        //if (!isPlatformBrowser(platformId) || environment.production) return null;
+        router.events.subscribe(e => {
+          // Debug log for all router events
+          // eslint-disable-next-line no-console
+          console.debug('[ROUTER EVENT]', e);
+          try {
+            // Some event types expose url/urlAfterRedirects
+            // eslint-disable-next-line no-console
+            if ((e as any).url) console.debug('[ROUTER] url:', (e as any).url);
+            // eslint-disable-next-line no-console
+            if ((e as any).urlAfterRedirects) console.debug('[ROUTER] urlAfterRedirects:', (e as any).urlAfterRedirects);
+          } catch (err) {
+            // ignore
+          }
+        });
+        return null;
+      }
+    },
     provideAnimations(),
     provideShareButtonsOptions(
       shareIcons()

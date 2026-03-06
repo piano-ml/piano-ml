@@ -9,7 +9,7 @@ import { MidiServiceService } from '../../shared/services/midi-service.service';
 import type { MidiStateEvent } from '../../shared/model/webmidi';
 import { reducedFraction } from '../model/reduced-fraction';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
-import { getStaveDurationTick } from './midi-maths';
+import { getStaveDurationTick, midiToPitch } from './midi-maths';
 import { ScoreApiInfo } from '../../core/api';
 import { Cursor, GraphicalNote, OpenSheetMusicDisplay, Note as OSMDNote, VexFlowGraphicalNote } from 'opensheetmusicdisplay';
 import { PlayerStateService } from './player-state.service';
@@ -17,6 +17,7 @@ import { PlayerKeyboardService } from './player-keyboard.service';
 import { PlayerAudioService } from './player-audio.service';
 import { LiveStatus, PlayerAssessService, QUANT_RANGE } from './player-assess.service';
 import { CursorService } from './cursor.service';
+import { Tone } from 'tone/build/esm/core/Tone';
 
 
 
@@ -184,12 +185,6 @@ export class PlayerService {
     await this.audio.initSoundFont();
   }
 
-
-  setKeyboardElement(nativeElementRef: ElementRef) {
-    this.keyboard.setKeyboardElement(nativeElementRef);
-    this.setup();
-  }
-
   pause() {
     this.audio.pause();
   }
@@ -212,7 +207,7 @@ export class PlayerService {
     const endCut = this.calculateEndTime();
     this.playConfiguration = playConfigurations;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
-
+  
     await this.audio.start();
 
     this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], startOffset, endCut);
@@ -230,8 +225,14 @@ export class PlayerService {
 
     // Delegate end scheduling
     this.audio.scheduleEnd(endCut - startOffset, () => {
-      this.message.set("END");
+      console.log('Scheduled end reached', endCut, startOffset, endCut - startOffset);
+
+      this.message.set('END');
+      setTimeout(() => {
+        this.message.set('');
+      }, 100);
       this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
+    
       this.reset(this.playConfiguration);
       if (this.playConfiguration.isLoop) {
         this.play(this.playConfiguration);
@@ -269,8 +270,6 @@ export class PlayerService {
   }
 
   displayLiveOnKeyboard() {
-    // Clear previous highlights
-    this.keyboard.removeAllNotesFromKeyboard();
     const liveStatus = this.assess.getExpectation();
     this.lightExpectedNotesOnKeyboard(liveStatus)
   }
@@ -297,7 +296,7 @@ export class PlayerService {
       if (liveStatus.bad) {
         this.highlightBadNote(midiEvent.note);
       } else {
-        this.keyboard.removeMidiNoteFromKeyboard(midiEvent.note);
+        this.keyboard.removeMidiPitchFromKeyboard(midiEvent.note);
       }
       this.lightExpectedNotesOnKeyboard(liveStatus);
     }
@@ -329,6 +328,7 @@ export class PlayerService {
   }
 
   private unHighlightBadNote() {
+    if (this.osmd?.GraphicSheet ==null) return;
     this.osmd?.GraphicSheet.MeasureList.forEach(measure => {
       measure.forEach(graphicalMeasure => {
         if (graphicalMeasure && graphicalMeasure.staffEntries) {
@@ -366,7 +366,7 @@ export class PlayerService {
   }
 
   private handleNoteEnd(hand: string, note: Note, liveStatus?: LiveStatus) {
-    this.keyboard.removeMidiNoteFromKeyboard(note.midi);
+    this.keyboard.removeMidiNoteFromKeyboard(note);
     if (liveStatus?.shouldPause) {
       this.isWaiting = true;
       this.audio.pause();

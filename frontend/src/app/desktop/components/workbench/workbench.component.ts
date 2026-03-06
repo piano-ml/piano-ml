@@ -1,31 +1,31 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit } from '@ng-icons/bootstrap-icons';
-import { keyboard, lefthand, righthand } from '../../../shared/icons/custom-icons';
+import { bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapSpeedometer, bootstrapDash, bootstrapPlus } from '@ng-icons/bootstrap-icons';
+import { lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
+import { firstValueFrom, BehaviorSubject } from 'rxjs';
 import { OsmdComponent } from '../osmd/osmd.component';
 import { FormsModule } from '@angular/forms';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
 import { MidiSetupComponent } from '../midi-setup/midi-setup.component';
+import { TempoControlComponent } from '../tempo-control/tempo-control.component';
 import { PlayerService } from '../../service/player.service';
 import * as Midi from '@tonejs/midi';
 import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
 import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
-import { scales as theoryScales } from '../../service/music-theory';
-import { exercises as scaleExercises } from '../../../exercises/scales/pattern';
-import { saveExerciseToStorage } from '../../../exercises/exercices';
+import { midiToPitch } from '../../service/midi-maths';
 import { CursorService } from '../../service/cursor.service';
-
+import { Note } from '@tonejs/midi/dist/Note';
 
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, ElapsedTimePipe],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, TempoControlComponent, ElapsedTimePipe],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -40,34 +40,53 @@ import { CursorService } from '../../service/cursor.service';
       bootstrapInfoCircleFill,
       bootstrapFullscreen,
       bootstrapFullscreenExit,
-      keyboard: keyboard.data,
+      bootstrapGripHorizontal,
+      bootstrapGear,
+      bootstrapSpeedometer2,
+      bootstrapDash,
+      bootstrapPlus,
       lefthand: lefthand.data,
       righthand: righthand.data
     })
   ]
 })
 
-export class WorkbenchComponent implements AfterViewInit, OnDestroy {
+export class WorkbenchComponent implements OnInit, OnDestroy {
+
 
   private platformId = inject(PLATFORM_ID);
+  private readonly hideLyricsStorageKey = 'hideLyrics';
   private readonly hideKeyboardStorageKey = 'hideKeyboard';
+  private readonly hideFingeringStorageKey = 'hideFingering';
+  private readonly hideFingeringAndHarmonyStorageKey = 'hideFingeringAndHarmony';
   private readonly waitForLeftHandStorageKey = 'waitForLeftHand';
   private readonly waitForRightHandStorageKey = 'waitForRightHand';
   // Score data from state
   scoreData: ScoreApiInfo | null = null;
-  fromStorage = false;
-  loading = false;
-  osmdLoading = true;
+  // Expose loading as an observable to use `async` pipe with OnPush change detection
+  loading$ = new BehaviorSubject<boolean>(true);
+  midiOriginalTempo: number = 120;
+
+
+  get loading() { return this.loading$.value; }
+  // loading state for OSMD (use BehaviorSubject to work well with OnPush)
+  osmdLoading$ = new BehaviorSubject<boolean>(true);
+  get osmdLoading() { return this.osmdLoading$.value; }
   isPlaying = false;
   tempo = 120;
   title = '';
   maxStaveCount = 100; // Placeholder, should be set based on actual score data
 
   // Cache for parsed MIDI data
-  private cachedMidi: Midi.Midi | null = null;
+  midi: Midi.Midi | null = null;
 
   // MusicXML content to pass to osmd component
   musicXml: string | null = null;
+
+  // Keyboard bounds (passed to KeyboardComponent)
+  keyboardMinKey: string = 'A0';
+  keyboardMaxKey: string = 'C8';
+  keyboardHeight: number = 100;
 
   // Observable for elapsed time from PlayerService
   elapsedTime!: any;
@@ -77,7 +96,9 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   storedHideKeyboard: boolean = false;
 
-  loadingFeedBack: { message: string; percentage: number; } | null = null;
+  // Loading feedback exposed as observable for OnPush template updates
+  loadingFeedBack$ = new BehaviorSubject<{ message: string; percentage: number; } | null>(null);
+  get loadingFeedBack() { return this.loadingFeedBack$.value; }
 
 
   // Configuration
@@ -98,12 +119,20 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
 
   // UI state
   hideKeyboard = false;
+  hideFingering = false;
+  hideLyrics = false;
+  hideFingeringAndHarmony = false;
   arenaClass = '';
   isFullscreen = false;
   isMidiSetupOpen = false;
-
-
-  scoreRange = [0, 10, 80];
+  // Tempo modal state
+  isTempoOpen = false;
+  showTempo = false;
+  // Control whether the `app-osmd` component is present in the DOM.
+  showOsmd = true;
+  // Toolbar visibility toggle (true = shown)
+  toggleToolbar = true;
+  scoreRange = [0, 0, 100];
 
   @ViewChild('range') range!: ElementRef<HTMLDivElement>;
   @ViewChild('titleContainer', { static: false }) titleContainer!: ElementRef<HTMLDivElement>;
@@ -112,12 +141,224 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   error: string | null = null;
   shouldScroll = false;
 
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private playerService: PlayerService,
+    private cursorService: CursorService,
+    private changeDetector: ChangeDetectorRef,
+    private scoreService: ScoreService,
+    private titleService: Title
+  ) {
+    this.setupGeneric();
+  }
+
+  setupGeneric() {
+    this.loading$.next(true);
+    this.loadingFeedBack$.next(null);
+
+    // Initialize elapsed time observable
+    this.elapsedTime = this.playerService.elapsedTime;
+
+    this.hideKeyboard = this.parseBooleanStorage(this.hideKeyboardStorageKey);
+    this.hideFingering = this.parseBooleanStorage(this.hideFingeringStorageKey);
+    this.hideLyrics = this.parseBooleanStorage(this.hideLyricsStorageKey);
+    this.hideFingeringAndHarmony = this.parseBooleanStorage(this.hideFingeringAndHarmonyStorageKey);
+    this.storedHideKeyboard = this.hideKeyboard;
+    this.playConfiguration.waitForLeftHand = this.parseBooleanStorage(this.waitForLeftHandStorageKey);
+    this.playConfiguration.waitForRightHand = this.parseBooleanStorage(this.waitForRightHandStorageKey);
+
+    // Consolidated reactive effect: feedback, player messages, and measure updates
+    effect(() => {
+      // Feedback
+      try {
+        this.loadingFeedBack$.next(this.cursorService.feedbackSignal());
+      } catch (e) {
+        //this.loadingFeedBack$.next(null);
+      }
+      // Player messages
+      const message = this.playerService.message();
+      if (message === 'END') {
+        this.isPlaying = false;
+        this.recordAssessment();
+      } else if (message === 'BAD') {
+        this.arenaClass = 'bad';
+        this.hideKeyboard = false;
+        setTimeout(() => {
+          this.playerService.displayLiveOnKeyboard();
+        }, 0);
+
+        // Remove the bad class after a short duration
+        setTimeout(() => {
+          this.arenaClass = '';
+          this.changeDetector.markForCheck();
+        }, 500);
+        setTimeout(() => {
+          this.arenaClass = '';
+          this.hideKeyboard = this.storedHideKeyboard;
+          this.changeDetector.markForCheck();
+        }, 5000);
+      }
+
+      // Measure updates
+      this.playConfiguration.currentStave = this.cursorService.measure() + 1;
+      this.updateSlider();
+
+      // Single mark for check after all updates
+      this.changeDetector.markForCheck();
+    });
+  }
+
+  async ngOnInit(): Promise<void> {
+    this.handleResize(); // Initial check
+    if (this.router.url.startsWith('/work/')) {
+      this.setupWorkMode()
+    } else if (
+      this.router.url.startsWith('/workbench/scale')
+      || this.router.url.startsWith('/workbench/agility')
+    ) {
+      this.setupExerciseMode()
+    } else if (this.router.url.startsWith('/workbench/sightreadng')) {
+      this.setupSightReadingMode()
+    }
+  }
+
+  // Resize handler to enforce toolbar visible on small screens
+  private handleResize = () => {
+    const smallScreen = window.innerHeight <= 768;
+    if (smallScreen) {
+      this.toggleToolbar = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  isSmallScreen() {
+    return (window.innerHeight <= 768 || window.innerWidth <= 1024);
+  }
+
+  fnToggleToolBar() {
+    this.toggleToolbar = !this.toggleToolbar
+    if (this.toggleToolbar) {
+      this.changeDetector.markForCheck();
+      setTimeout(() => {
+        this.setupSlider();
+      }, 300);
+    }
+  }
+
+  fnToggleKeyboard() {
+    this.hideKeyboard = !this.hideKeyboard;
+  }
+
+
+  async setupWorkMode() {
+    const slug = this.route.snapshot.paramMap.get('slug');
+    this.scoreData = await firstValueFrom(this.scoreService.scoreGetBySlug(slug!));
+    this.loadingFeedBack$.next({ message: 'download loading score', percentage: 5 });
+    const [midiResult, musicXmlResult] = await Promise.all([
+      this.downloadMidi(this.scoreData!),
+      this.downloadMusicXML(this.scoreData!)
+    ]);
+    this.midi = midiResult;
+    this.musicXml = musicXmlResult;
+    // Compute keyboard bounds from MIDI notes (if available)
+    const smallScreen = window.innerWidth <= 1024;
+    if (smallScreen) {
+      this.loadingFeedBack$.next({ message: 'computing midi bounds', percentage: 15 });
+      this.changeDetector.detectChanges()
+      const allNotes: Note[] = this.midi.tracks.flatMap(track => track.notes).filter(note => note.midi !== undefined);
+      const minNote = allNotes.reduce((acc: Note, n: Note) => {
+        return (n.midi ?? 0) < (acc.midi ?? 0) ? n : acc;
+      }, allNotes[0]);
+      const maxNote = allNotes.reduce((acc: Note, n: Note) => {
+        return (n.midi ?? 0) > (acc.midi ?? 0) ? n : acc;
+      }, allNotes[0]);
+      const minMidiRaw = minNote.midi;
+      const bottomCdelta = Math.abs(minMidiRaw - 60);
+      //const minCMidi = Math.floor(minMidiRaw / 12) * 12;
+
+      if (this.keyboardMinKey == "C1") {
+        this.keyboardMinKey = "A0";
+      }
+      const maxMidiRaw = maxNote.midi;
+      const topCdelta = Math.abs(maxMidiRaw - 60);
+      const delta = Math.max(Math.max(bottomCdelta, topCdelta), 11);
+      //const maxCMidi = Math.ceil(maxMidiRaw / 12) * 12;
+
+      const minCMidi = Math.max((Math.floor(minMidiRaw / 12) * 12) - 12, 60 - delta);
+      const maxCMidi = 60 + delta;
+      this.keyboardMinKey = midiToPitch(minCMidi);
+      this.keyboardMaxKey = midiToPitch(maxCMidi);
+
+      const octaveCount = Math.max(1, Math.ceil((maxCMidi - minCMidi + 1) / 12));
+
+      this.keyboardHeight = 180 * (octaveCount / 8);
+    }
+    this.onLoaded();
+  }
+
+
+  onLoaded() {
+    this.tempo = Math.round(this.scoreData?.tempo || this.midi?.header.tempos[0]?.bpm || 120);
+    this.midiOriginalTempo = this.tempo;
+    this.loadingFeedBack$.next({ message: 'build configuration', percentage: 30 });
+    this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, this.midi!);
+    this.loading$.next(false);
+    this.changeDetector.markForCheck();
+  }
+
+  setupSightReadingMode() {
+    throw new Error('Method not implemented.');
+  }
+
+  async setupExerciseMode() {
+    this.loadExcerciceFromLocalStorage();
+    setTimeout(() => {
+      this.onLoaded();
+      this.changeDetector.markForCheck();
+    }, 1000);
+
+  }
+
+  parseBooleanStorage(key: string): boolean {
+    const stored = localStorage.getItem(key);
+    if (stored !== null) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return stored === 'true';
+      }
+    }
+    return false;
+  }
+
   openMidiSetup() {
     this.isMidiSetupOpen = true;
   }
 
   closeMidiSetup() {
     this.isMidiSetupOpen = false;
+    //window.location.reload();
+    this.reloadOsmd(50);
+  }
+
+  openTempo() {
+    this.isTempoOpen = true;
+    this.showTempo = true;
+    this.changeDetector.markForCheck();
+  }
+
+  closeTempo() {
+    this.isTempoOpen = false;
+    this.showTempo = false;
+    this.changeDetector.markForCheck();
+  }
+
+  onTempoChanged(newTempo: number) {
+    this.tempo = newTempo;
+    this.setSpeed(this.tempo / this.midiOriginalTempo)
+    this.changeDetector.markForCheck();
   }
 
   setHideKeyboard(value: boolean) {
@@ -127,6 +368,33 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     }
     this.changeDetector.markForCheck();
   }
+
+  setHideFingering(value: boolean) {
+    this.hideFingering = value;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.hideFingeringStorageKey, JSON.stringify(value));
+    }
+    this.changeDetector.markForCheck();
+  }
+
+
+  setHideLyrics(value: boolean) {
+    this.hideLyrics = value;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.hideLyricsStorageKey, JSON.stringify(value));
+    }
+    this.changeDetector.markForCheck();
+  }
+
+
+  setHideFingeringAndHarmony(value: boolean) {
+    this.hideFingeringAndHarmony = value;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.hideFingeringAndHarmonyStorageKey, JSON.stringify(value));
+    }
+    this.changeDetector.markForCheck();
+  }
+
 
   setWaitForLeftHand(value: boolean) {
     this.playConfiguration.waitForLeftHand = value;
@@ -144,177 +412,127 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     this.changeDetector.markForCheck();
   }
 
+
+  reloadOsmd(delay = 50) {
+    window.location.reload(); // can do bertter
+    // this.changeDetector.markForCheck();
+    // setTimeout(() => {
+    //   this.showOsmd = true;
+    //     this.changeDetector.markForCheck();
+    // }, delay);
+  }
+
   onOsmdLoadingChange(loading: boolean) {
-    // this.loading = loading;
-    this.osmdLoading = loading;
+    if (loading) {
+      return;
+    }
+    this.osmdLoading$.next(loading);
     this.changeDetector.markForCheck();
     if (!loading) {
       this.setupSlider();
       setTimeout(() => {
-        //if (this.scoreData!.title) {
         this.title = `${this.scoreData!.author} - ${this.scoreData!.title}`;
-        //} else {
-        //  this.title = `${this.scoreData!.author}`; // exercices have no author, use title only
-       // }
         this.updatePageTitle()
         this.changeDetector.detectChanges();
         this.checkIfScrollNeeded();
       }, 100);
     }
+    // here I do not need the observables
+
   }
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private playerService: PlayerService,
-    private cursorService: CursorService,
-    private changeDetector: ChangeDetectorRef,
-    private scoreService: ScoreService,
-    private titleService: Title
-  ) {
-    // Initialize elapsed time observable
-    this.elapsedTime = this.playerService.elapsedTime;
-
-    if (isPlatformBrowser(this.platformId)) {
-      const stored = localStorage.getItem(this.hideKeyboardStorageKey);
-      if (stored !== null) {
-        try {
-          this.hideKeyboard = JSON.parse(stored);
-        } catch {
-          this.hideKeyboard = stored === 'true';
-        }
-      }
-      this.storedHideKeyboard = this.hideKeyboard;
-      const storedLeft = localStorage.getItem(this.waitForLeftHandStorageKey);
-      if (storedLeft !== null) {
-        try {
-          this.playConfiguration.waitForLeftHand = JSON.parse(storedLeft);
-        } catch {
-          this.playConfiguration.waitForLeftHand = storedLeft === 'true';
-        }
-      }
-      const storedRight = localStorage.getItem(this.waitForRightHandStorageKey);
-      if (storedRight !== null) {
-        try {
-          this.playConfiguration.waitForRightHand = JSON.parse(storedRight);
-        } catch {
-          this.playConfiguration.waitForRightHand = storedRight === 'true';
-        }
-      }
-    }
-
-
-    effect(() => {
-      this.loadingFeedBack = this.cursorService.feedbackSignal();
-      this.changeDetector.markForCheck();
-    });
-
-    // Watch for message signal effects
-    effect(() => {
-      const message = this.playerService.message();
-      if (message === "END") {
-        this.isPlaying = false;
-        this.changeDetector.markForCheck();
-        this.recordAssessment();
-      } else if (message === "BAD") {
-        this.arenaClass = 'bad';
-        this.hideKeyboard = false;
-        this.changeDetector.markForCheck();
-        setTimeout(() => {
-          this.playerService.displayLiveOnKeyboard();
-        }, 0);
-
-        // Remove the bad class after a short duration
-
-        setTimeout(() => {
-          this.arenaClass = '';
-          this.changeDetector.markForCheck();
-        }, 500);
-        setTimeout(() => {
-          this.arenaClass = '';
-          this.hideKeyboard = this.storedHideKeyboard;
-          this.changeDetector.markForCheck();
-        }, 5000);
-      }
-      // Don't mark for check if message is irrelevant
-    });
-
-    // Watch for measure signal changes
-    effect(() => {
-      this.playConfiguration.currentStave = this.cursorService.measure() + 1;
-      this.updateSlider();
-      this.changeDetector.markForCheck();
-    });
-
-    const navigation = this.router.getCurrentNavigation();
-    if (navigation?.extras.state) {
-      this.scoreData = navigation.extras.state['score'] as ScoreApiInfo;
-      this.fromStorage = navigation.extras.state['fromStorage'] === true;
-    } else if (isPlatformBrowser(this.platformId)) {
-      const state = window.history.state;
-      if (state && state.score) {
-        this.scoreData = state.score as ScoreApiInfo;
-      }
-      if (state && state.fromStorage === true) {
-        this.fromStorage = true;
-      }
-    }
-
-    // Deep-link support for exercises: allow refreshing `/workbench/scale/...`.
-    // On refresh, navigation state is lost; we reconstruct localStorage from URL params.
-    const scaleKey = this.route.snapshot.paramMap.get('scaleKey');
-    const selectedKey = this.route.snapshot.paramMap.get('selectedKey');
-    const exerciseKey = this.route.snapshot.paramMap.get('exerciseKey');
-    if (scaleKey && selectedKey && exerciseKey) {
-      const foundScale = theoryScales.find((s) => this.normalizeKey(s.key ?? s.name) === this.normalizeKey(scaleKey));
-      const foundExercise = scaleExercises.find(
-        (e) => this.normalizeKey(e.key ?? e.title) === this.normalizeKey(exerciseKey)
-      );
-
-      if (foundScale && foundExercise) {
-        saveExerciseToStorage(foundExercise, foundScale, selectedKey);
-        this.fromStorage = true;
-      }
-    }
-
-    if (!this.scoreData && this.fromStorage) {
-      // in that case we come from exercice (scale & agility) and we have data in local storage
-      // Create a minimal scoreData object for exercise mode with title from MIDI
-      let exerciseTitle = 'Exercise';
-      let exerciseJson: any = null;
-      if (isPlatformBrowser(this.platformId)) {
-        try {
-          const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
-          if (midiScore) {
-            const midiJson = JSON.parse(midiScore);
-            exerciseTitle = midiJson.header?.name || 'Exercise';
-          }
-          const exerciceInfo = localStorage.getItem(EXERCICE_INFO_KEY);
-          if (exerciceInfo) {
-            exerciseJson = JSON.parse(exerciceInfo);
-          }
-
-        } catch (error) {
-          console.warn('Failed to load MIDI title from localStorage:', error);
-        }
-      }
-
-      this.scoreData = {
-        id: 'exercise',
-        title: exerciseTitle,
-        owner_id: 'local',
-        tonic: exerciseJson?.tonic ,
-        mode: exerciseJson?.mode,
-        genre: exerciseJson?.kind
-      } as ScoreApiInfo;
-
-      // Enable loop/repeat for exercises
-      this.playConfiguration.isLoop = true;
-    }
+  failOnLocalStorage() {
+    // /workbench/scale/major/Eb/left_than_right --> /exercises/scale/Eb/major/left_than_right
+    this.router.navigate(this.router.url.replace('workbench', 'exercises').split('/'));
   }
+
+  loadExcerciceFromLocalStorage(): void {
+    if (
+      !localStorage.getItem(MUSIC_XML_STORAGE_KEY)
+      || !localStorage.getItem(MIDI_STORAGE_KEY)
+      || !localStorage.getItem(EXERCICE_INFO_KEY)
+    ) {
+      console.info('No MusicXML found in localStorage');
+      this.failOnLocalStorage();
+      return;
+    }
+    // Load MusicXML from localStorage
+    this.musicXml = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
+    // Load MIDI from localStorage
+    try {
+      this.midi = new Midi.Midi();
+      this.midi.fromJSON(JSON.parse(localStorage.getItem(MIDI_STORAGE_KEY)!));
+    } catch (error) {
+      console.error('Failed to parse MIDI from localStorage:', error);
+      this.midi = null;
+    }
+
+    const exerciceInfo = JSON.parse(localStorage.getItem(EXERCICE_INFO_KEY)!);
+    this.scoreData = {
+      id: 'exercise',
+      author: exerciceInfo.tonic + " " + exerciceInfo.mode ,
+      title: exerciceInfo.title || 'Exercise',
+      owner_id: 'local',
+      tonic: exerciceInfo?.tonic,
+      mode: exerciceInfo?.mode,
+      genre: exerciceInfo?.kind
+    } as ScoreApiInfo;
+
+  }
+
+  async downloadMidi(scoreData: ScoreApiInfo): Promise<Midi.Midi> {
+    await this.loadScoreData(scoreData, 'midi', async (data) => {
+      const arrayBuffer = await data.arrayBuffer();
+      const midi = new Midi.Midi(arrayBuffer);
+      if (!(scoreData.study_tracks && scoreData.study_tracks.length > 0)) {
+        midi.tracks = midi.tracks.filter(track => track.notes.length > 0);
+      }
+      this.midi = midi;
+      // No return value needed
+    });
+    return this.midi!;
+  }
+
+  async downloadMusicXML(scoreData: ScoreApiInfo): Promise<string> {
+    await this.loadScoreData(scoreData, 'musicxml', async (data) => {
+      const arrayBuffer = await data.arrayBuffer();
+      this.loadingFeedBack$.next({ message: 'decoding musicxml', percentage: 15 });
+      const xmlText = WorkbenchComponent.textDecoder.decode(arrayBuffer);
+      this.musicXml = xmlText;
+      // No return value needed
+    });
+    return this.musicXml!;
+  }
+
+
+  private async loadScoreData(
+    scoreData: ScoreApiInfo,
+    type: 'midi' | 'musicxml',
+    processor: (data: any) => Promise<void>
+  ): Promise<void> {
+    // Don't set loading here since it's managed at higher level
+    return new Promise((resolve, reject) => {
+      this.scoreService.scoreOwnerIdTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.id!, type, scoreData.version || 1, 1).subscribe({
+        next: async (data) => {
+          try {
+            await processor(data);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        },
+        error: (error) => this.handleLoadError(error)
+      });
+    });
+  }
+
+  private handleLoadError(error: any): void {
+    console.error(`Error `, error);
+  }
+
+
   recordAssessment() {
     // POST user stats when ending play and playing both hands
-    console.log("start record assessment")
     if (this.scoreData) {
       //if (this.scoreData && this.playConfiguration.waitForLeftHand && this.playConfiguration.waitForRightHand) {
       const request: ScorePlayStatsPostRequest = {
@@ -325,7 +543,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
         mode: this.scoreData.mode,
         played_at: new Date().toISOString(),
         genre: this.scoreData.genre,
-        genre_id: this.scoreData.genre_id,             
+        genre_id: this.scoreData.genre_id,
         assessment: {
           start: this.playConfiguration.scoreRange[0],
           end: this.playConfiguration.scoreRange[1],
@@ -354,177 +572,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       .replace(/[^a-z0-9]+/g, '_')
       .replace(/^_+|_+$/g, '')
       .replace(/_{2,}/g, '_');
-  }
-
-
-
-  async ngAfterViewInit() {
-    if (this.scoreData && !this.fromStorage) {
-      // Load score data from API
-
-      this.loading = true;
-      this.changeDetector.detectChanges(); // Trigger change detection for loading state
-
-      try {
-        await Promise.all([
-          this.loadMidi(this.scoreData),
-          this.loadMusicXML(this.scoreData)
-        ]);
-
-        // Use requestAnimationFrame for better performance than setTimeout
-        requestAnimationFrame(() => {
-          this.loading = false;
-          this.changeDetector.detectChanges();
-        });
-      } catch (error) {
-        console.error('Error loading score data:', error);
-        this.loading = false;
-        this.changeDetector.detectChanges();
-        return;
-      }
-    } else if (this.fromStorage) {
-      // Load from localStorage (for exercises)
-      this.loading = true;
-      this.changeDetector.detectChanges();
-
-      try {
-        await this.loadFromLocalStorage();
-
-        requestAnimationFrame(() => {
-          this.loading = false;
-          this.changeDetector.detectChanges();
-        });
-      } catch (error) {
-        console.error('Error loading from localStorage:', error);
-        this.loading = false;
-        this.changeDetector.detectChanges();
-        return;
-      }
-    }
-
-    // starting from here we always have score data in local storage and the view is loaded
-    const midi = this.getCachedMidi();
-    this.tempo = Math.round(this.scoreData?.tempo || midi.header.tempos[0]?.bpm || 120);
-    //this.title = this.scoreData?.title || midi.header.name || '';
-    //this.updatePageTitle();
-    //this.checkIfScrollNeeded();
-    this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, midi);
-    this.playerService
-  }
-
-
-
-  private getCachedMidi(): Midi.Midi {
-    if (!this.cachedMidi) {
-      if (isPlatformBrowser(this.platformId)) {
-        try {
-          const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
-          if (midiScore) {
-            this.cachedMidi = new Midi.Midi();
-            this.cachedMidi.fromJSON(JSON.parse(midiScore));
-          } else {
-            this.cachedMidi = new Midi.Midi();
-          }
-        } catch (error) {
-          console.warn('Failed to load MIDI from localStorage:', error);
-          this.cachedMidi = new Midi.Midi();
-        }
-      } else {
-        this.cachedMidi = new Midi.Midi();
-      }
-    }
-    return this.cachedMidi;
-  }
-
-  async loadFromLocalStorage(): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) {
-      throw new Error('localStorage not available on server');
-    }
-    // Load MusicXML from localStorage
-    const musicXmlData = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
-    if (!musicXmlData) {
-      throw new Error('No MusicXML found in localStorage');
-    }
-    this.musicXml = musicXmlData;
-
-    // Invalidate MIDI cache and verify it exists
-    this.cachedMidi = null;
-
-    if (!localStorage.getItem(MIDI_STORAGE_KEY)) {
-      throw new Error('No MIDI found in localStorage');
-    }
-  }
-
-  async loadMidi(scoreData: ScoreApiInfo): Promise<void> {
-    return this.loadScoreData(scoreData, 'midi', async (data) => {
-      const arrayBuffer = await data.arrayBuffer();
-      const midi = new Midi.Midi(arrayBuffer);
-      if (!(scoreData.study_tracks && scoreData.study_tracks.length > 0)) {
-        midi.tracks = midi.tracks.filter(track => track.notes.length > 0);
-      }
-      if (isPlatformBrowser(this.platformId)) {
-        localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(midi.toJSON()));
-      }
-      // Invalidate cache when new MIDI is loaded
-      this.cachedMidi = null;
-    });
-  }
-
-  async loadMusicXML(scoreData: ScoreApiInfo): Promise<void> {
-    return this.loadScoreData(scoreData, 'musicxml', async (data) => {
-      const arrayBuffer = await data.arrayBuffer();
-      const xmlText = WorkbenchComponent.textDecoder.decode(arrayBuffer);
-      this.musicXml = xmlText;
-    });
-  }
-
-  private async loadScoreData(
-    scoreData: ScoreApiInfo,
-    type: 'midi' | 'musicxml',
-    processor: (data: any) => Promise<void>
-  ): Promise<void> {
-    // Don't set loading here since it's managed at higher level
-    return new Promise((resolve, reject) => {
-      this.scoreService.scoreOwnerIdTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.id!, type, scoreData.version || 1, 1).subscribe({
-        next: async (data) => {
-          try {
-            await processor(data);
-            resolve();
-          } catch (error) {
-            reject(error);
-          }
-        },
-        error: (error) => this.handleLoadError(error, scoreData, reject)
-      });
-    });
-  }
-
-  private handleLoadError(error: any, scoreData: ScoreApiInfo, reject: (reason?: any) => void): void {
-    if (error.status === 404) {
-      const slug = scoreData.immutableSlug || scoreData.mutableSlug;
-      if (slug) {
-        this.router.navigate(['/score', slug]);
-      } else if (scoreData.id) {
-        this.scoreService.scoreIdGet(scoreData.id).subscribe({
-          next: (fullScore) => {
-            const fallbackSlug = fullScore.immutableSlug || fullScore.mutableSlug;
-            if (fallbackSlug) {
-              this.router.navigate(['/score', fallbackSlug]);
-            } else {
-              console.log("Acting navigate 3 to /library cause error");
-              this.router.navigate(['/library']);
-            }
-          },
-          error: (e) => {
-            console.log("Acting navigate 2 to /library cause error", e);
-            this.router.navigate(['/library'])
-          }
-        });
-      } else {
-        this.router.navigate(['/library']);
-      }
-    }
-    reject(error);
   }
 
   summary() {
@@ -596,6 +643,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   start() {
+    this.toggleToolbar = this.isSmallScreen() ? false : true;
     this.isPlaying = true;
     this.playerService.play(this.playConfiguration);
     this.setSliderState(false);
@@ -608,13 +656,23 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  startStop() {
+    if (this.isPlaying) {
+      this.stop();
+    } else {
+      this.start();
+    }
+  }
+
   stop() {
+    this.toggleToolbar = true;
     this.setSliderState(true);
     this.playerService.pause();
     this.isPlaying = false;
   }
 
   private setSliderState(enabled: boolean) {
+    if (!this.slider) return;
     if (enabled) {
       this.slider.enable();
     } else {
@@ -623,6 +681,8 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
   }
 
   setupSlider() {
+    if (!this.range) return;
+    this.slider = null;
     this.slider = noUiSlider.create(this.range.nativeElement, {
       ...this.getSliderBaseConfig(),
       pips: {
@@ -732,10 +792,7 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     console.log(step, this.playConfiguration.scoreRange[0], this.playConfiguration.currentStave, this.playConfiguration.scoreRange[1]);
   }
 
-  // Public getter for debugging loading state
-  get isLoading(): boolean {
-    return this.loading;
-  }
+
 
 
   checkIfScrollNeeded(): void {
@@ -793,7 +850,6 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
     if (this.scoreData) {
       const author = this.scoreData.author || '';
       const title = this.scoreData.title || this.title || '';
-
       if (author && title) {
         this.titleService.setTitle(`${author} - ${title}`);
       } else if (title) {
@@ -818,11 +874,19 @@ export class WorkbenchComponent implements AfterViewInit, OnDestroy {
       }
       this.slider = null;
     }
-    // Clear caches
-    this.cachedMidi = null;
+    this.clearData();
+    // Remove resize listener
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        window.removeEventListener('resize', this.handleResize);
+      } catch (e) { }
+    }
+  }
+
+  clearData() {
     this.musicXml = null;
-
-
+    this.midi = null;
+    this.scoreData = null;
   }
 
 }
