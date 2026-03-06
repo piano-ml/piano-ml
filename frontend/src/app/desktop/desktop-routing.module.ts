@@ -13,7 +13,7 @@ export const desktopRouteList: Routes = [
         component: WorkbenchComponent
     },  
     {
-        path: 'chord/:chordKey/:selectedKey/:exerciseKey',
+        path: 'agility/:chordKey/:selectedKey/:exerciseKey',
         component: WorkbenchComponent
     },
    {

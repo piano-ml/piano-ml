@@ -221,7 +221,6 @@ export class ScalesComponent implements OnInit {
     this.fullKey = `${formattedNote} ${simpleScaleName}`;
     // Force component recreation by incrementing the key
     this.componentKey++;
-    console.log('updateFullKey called, selectedKey:', this.selectedKey, 'fullKey:', this.fullKey, 'componentKey:', this.componentKey);
   }
 
 }

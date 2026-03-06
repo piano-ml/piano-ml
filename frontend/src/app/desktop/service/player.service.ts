@@ -17,6 +17,7 @@ import { PlayerKeyboardService } from './player-keyboard.service';
 import { PlayerAudioService } from './player-audio.service';
 import { LiveStatus, PlayerAssessService, QUANT_RANGE } from './player-assess.service';
 import { CursorService } from './cursor.service';
+import { Tone } from 'tone/build/esm/core/Tone';
 
 
 
@@ -206,7 +207,7 @@ export class PlayerService {
     const endCut = this.calculateEndTime();
     this.playConfiguration = playConfigurations;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
-
+  
     await this.audio.start();
 
     this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], startOffset, endCut);
@@ -224,8 +225,14 @@ export class PlayerService {
 
     // Delegate end scheduling
     this.audio.scheduleEnd(endCut - startOffset, () => {
-      this.message.set("END");
+      console.log('Scheduled end reached', endCut, startOffset, endCut - startOffset);
+
+      this.message.set('END');
+      setTimeout(() => {
+        this.message.set('');
+      }, 100);
       this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
+    
       this.reset(this.playConfiguration);
       if (this.playConfiguration.isLoop) {
         this.play(this.playConfiguration);

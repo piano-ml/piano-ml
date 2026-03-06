@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapSpeedometer, bootstrapDash, bootstrapPlus } from '@ng-icons/bootstrap-icons';
-import {  lefthand, righthand } from '../../../shared/icons/custom-icons';
+import { lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
 import { OsmdComponent } from '../osmd/osmd.component';
@@ -18,14 +18,9 @@ import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfigu
 import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
-import { scales as theoryScales } from '../../service/music-theory';
 import { midiToPitch } from '../../service/midi-maths';
-import { exercises as scaleExercises } from '../../../exercises/scales/pattern';
 import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
-import { min } from 'lodash';
-
-
 
 
 @Component({
@@ -36,7 +31,7 @@ import { min } from 'lodash';
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [
-      provideIcons({
+    provideIcons({
       bootstrapHouse,
       bootstrapSkipBackwardFill,
       bootstrapPlayFill,
@@ -171,8 +166,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.hideLyrics = this.parseBooleanStorage(this.hideLyricsStorageKey);
     this.hideFingeringAndHarmony = this.parseBooleanStorage(this.hideFingeringAndHarmonyStorageKey);
     this.storedHideKeyboard = this.hideKeyboard;
-    this.playConfiguration.waitForLeftHand = this.hideKeyboard = this.parseBooleanStorage(this.waitForLeftHandStorageKey);
-    this.playConfiguration.waitForRightHand = this.hideKeyboard = this.parseBooleanStorage(this.waitForRightHandStorageKey);
+    this.playConfiguration.waitForLeftHand = this.parseBooleanStorage(this.waitForLeftHandStorageKey);
+    this.playConfiguration.waitForRightHand = this.parseBooleanStorage(this.waitForRightHandStorageKey);
 
     // Consolidated reactive effect: feedback, player messages, and measure updates
     effect(() => {
@@ -219,8 +214,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.handleResize(); // Initial check
     if (this.router.url.startsWith('/work/')) {
       this.setupWorkMode()
-    } else if (this.router.url.startsWith('/workbench/scale')
-      || this.router.url.startsWith('/workbench/agility')) {
+    } else if (
+      this.router.url.startsWith('/workbench/scale')
+      || this.router.url.startsWith('/workbench/agility')
+    ) {
       this.setupExerciseMode()
     } else if (this.router.url.startsWith('/workbench/sightreadng')) {
       this.setupSightReadingMode()
@@ -260,8 +257,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.scoreData = await firstValueFrom(this.scoreService.scoreGetBySlug(slug!));
     this.loadingFeedBack$.next({ message: 'download loading score', percentage: 5 });
     const [midiResult, musicXmlResult] = await Promise.all([
-      this.downloadMidi(this.scoreData),
-      this.downloadMusicXML(this.scoreData)
+      this.downloadMidi(this.scoreData!),
+      this.downloadMusicXML(this.scoreData!)
     ]);
     this.midi = midiResult;
     this.musicXml = musicXmlResult;
@@ -302,7 +299,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
 
-  onLoaded() {    
+  onLoaded() {
     this.tempo = Math.round(this.scoreData?.tempo || this.midi?.header.tempos[0]?.bpm || 120);
     this.midiOriginalTempo = this.tempo;
     this.loadingFeedBack$.next({ message: 'build configuration', percentage: 30 });
@@ -315,69 +312,13 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     throw new Error('Method not implemented.');
   }
 
-  setupExerciseMode() {
+  async setupExerciseMode() {
+    this.loadExcerciceFromLocalStorage();
+    setTimeout(() => {
+      this.onLoaded();
+      this.changeDetector.markForCheck();
+    }, 1000);
 
-    const navigation = this.router.getCurrentNavigation();
-
-    if (navigation?.extras.state) {
-      this.scoreData = navigation.extras.state['score'] as ScoreApiInfo;
-    } else if (isPlatformBrowser(this.platformId)) {
-      const state = window.history.state;
-      if (state && state.score) {
-        this.scoreData = state.score as ScoreApiInfo;
-      }
-
-    }
-
-    //await this.loadFromLocalStorage();
-
-    // Deep-link support for exercises: allow refreshing `/workbench/scale/...`.
-    // On refresh, navigation state is lost; we reconstruct localStorage from URL params.
-    const scaleKey = this.route.snapshot.paramMap.get('scaleKey');
-    const selectedKey = this.route.snapshot.paramMap.get('selectedKey');
-    const exerciseKey = this.route.snapshot.paramMap.get('exerciseKey');
-    if (scaleKey && selectedKey && exerciseKey) {
-      const foundScale = theoryScales.find((s) => this.normalizeKey(s.key ?? s.name) === this.normalizeKey(scaleKey));
-      const foundExercise = scaleExercises.find(
-        (e) => this.normalizeKey(e.key ?? e.title) === this.normalizeKey(exerciseKey)
-      );
-
-    }
-
-    if (!this.scoreData) {
-      // in that case we come from exercice (scale & agility) and we have data in local storage
-      // Create a minimal scoreData object for exercise mode with title from MIDI
-      let exerciseTitle = 'Exercise';
-      let exerciseJson: any = null;
-      if (isPlatformBrowser(this.platformId)) {
-        try {
-          const midiScore = localStorage.getItem(MIDI_STORAGE_KEY);
-          if (midiScore) {
-            const midiJson = JSON.parse(midiScore);
-            exerciseTitle = midiJson.header?.name || 'Exercise';
-          }
-          const exerciceInfo = localStorage.getItem(EXERCICE_INFO_KEY);
-          if (exerciceInfo) {
-            exerciseJson = JSON.parse(exerciceInfo);
-          }
-
-        } catch (error) {
-          console.warn('Failed to load MIDI title from localStorage:', error);
-        }
-      }
-
-      this.scoreData = {
-        id: 'exercise',
-        title: exerciseTitle,
-        owner_id: 'local',
-        tonic: exerciseJson?.tonic,
-        mode: exerciseJson?.mode,
-        genre: exerciseJson?.kind
-      } as ScoreApiInfo;
-
-      // Enable loop/repeat for exercises
-      this.playConfiguration.isLoop = true;
-    }
   }
 
   parseBooleanStorage(key: string): boolean {
@@ -416,7 +357,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   onTempoChanged(newTempo: number) {
     this.tempo = newTempo;
-    this.setSpeed(this.tempo/this.midiOriginalTempo)
+    this.setSpeed(this.tempo / this.midiOriginalTempo)
     this.changeDetector.markForCheck();
   }
 
@@ -500,19 +441,42 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   }
 
+  failOnLocalStorage() {
+    // /workbench/scale/major/Eb/left_than_right --> /exercises/scale/Eb/major/left_than_right
+    this.router.navigate(this.router.url.replace('workbench', 'exercises').split('/'));
+  }
 
-  async loadFromLocalStorage(): Promise<void> {
-
+  loadExcerciceFromLocalStorage(): void {
+    if (
+      !localStorage.getItem(MUSIC_XML_STORAGE_KEY)
+      || !localStorage.getItem(MIDI_STORAGE_KEY)
+      || !localStorage.getItem(EXERCICE_INFO_KEY)
+    ) {
+      console.info('No MusicXML found in localStorage');
+      this.failOnLocalStorage();
+      return;
+    }
     // Load MusicXML from localStorage
-    const musicXmlData = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
-    if (!musicXmlData) {
-      throw new Error('No MusicXML found in localStorage');
+    this.musicXml = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
+    // Load MIDI from localStorage
+    try {
+      this.midi = new Midi.Midi();
+      this.midi.fromJSON(JSON.parse(localStorage.getItem(MIDI_STORAGE_KEY)!));
+    } catch (error) {
+      console.error('Failed to parse MIDI from localStorage:', error);
+      this.midi = null;
     }
-    this.musicXml = musicXmlData;
 
-    if (!localStorage.getItem(MIDI_STORAGE_KEY)) {
-      throw new Error('No MIDI found in localStorage');
-    }
+    const exerciceInfo = JSON.parse(localStorage.getItem(EXERCICE_INFO_KEY)!);
+    this.scoreData = {
+      id: 'exercise',
+      author: exerciceInfo.tonic + " " + exerciceInfo.mode ,
+      title: exerciceInfo.title || 'Exercise',
+      owner_id: 'local',
+      tonic: exerciceInfo?.tonic,
+      mode: exerciceInfo?.mode,
+      genre: exerciceInfo?.kind
+    } as ScoreApiInfo;
 
   }
 
@@ -886,7 +850,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     if (this.scoreData) {
       const author = this.scoreData.author || '';
       const title = this.scoreData.title || this.title || '';
-
       if (author && title) {
         this.titleService.setTitle(`${author} - ${title}`);
       } else if (title) {

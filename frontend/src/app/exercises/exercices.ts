@@ -36,7 +36,7 @@ export function loadExercice(router: Router, exercice: Exercise, scaleOrChord: S
     } else if (scaleOrChord.kind === 'Chord') {
       const scaleKey = normalizeKey(scaleOrChord.name);
       const exerciseKey = normalizeKey(exercice.key ?? exercice.title);
-      router.navigate(['/', 'workbench', 'chord', scaleKey, key, exerciseKey], {
+      router.navigate(['/', 'workbench', 'agility', scaleKey, key, exerciseKey], {
         state: {
           fromStorage: true
         }
