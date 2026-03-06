@@ -3,14 +3,15 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit } from '@ng-icons/bootstrap-icons';
-import { keyboard, lefthand, righthand } from '../../../shared/icons/custom-icons';
+import { bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapSpeedometer, bootstrapDash, bootstrapPlus } from '@ng-icons/bootstrap-icons';
+import {  lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
 import { OsmdComponent } from '../osmd/osmd.component';
 import { FormsModule } from '@angular/forms';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
 import { MidiSetupComponent } from '../midi-setup/midi-setup.component';
+import { TempoControlComponent } from '../tempo-control/tempo-control.component';
 import { PlayerService } from '../../service/player.service';
 import * as Midi from '@tonejs/midi';
 import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
@@ -18,21 +19,24 @@ import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
 import { scales as theoryScales } from '../../service/music-theory';
+import { midiToPitch } from '../../service/midi-maths';
 import { exercises as scaleExercises } from '../../../exercises/scales/pattern';
 import { CursorService } from '../../service/cursor.service';
+import { Note } from '@tonejs/midi/dist/Note';
+import { min } from 'lodash';
 
 
 
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, ElapsedTimePipe],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, TempoControlComponent, ElapsedTimePipe],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [
-    provideIcons({
+      provideIcons({
       bootstrapHouse,
       bootstrapSkipBackwardFill,
       bootstrapPlayFill,
@@ -41,7 +45,11 @@ import { CursorService } from '../../service/cursor.service';
       bootstrapInfoCircleFill,
       bootstrapFullscreen,
       bootstrapFullscreenExit,
-      keyboard: keyboard.data,
+      bootstrapGripHorizontal,
+      bootstrapGear,
+      bootstrapSpeedometer2,
+      bootstrapDash,
+      bootstrapPlus,
       lefthand: lefthand.data,
       righthand: righthand.data
     })
@@ -50,14 +58,21 @@ import { CursorService } from '../../service/cursor.service';
 
 export class WorkbenchComponent implements OnInit, OnDestroy {
 
+
   private platformId = inject(PLATFORM_ID);
+  private readonly hideLyricsStorageKey = 'hideLyrics';
   private readonly hideKeyboardStorageKey = 'hideKeyboard';
+  private readonly hideFingeringStorageKey = 'hideFingering';
+  private readonly hideFingeringAndHarmonyStorageKey = 'hideFingeringAndHarmony';
   private readonly waitForLeftHandStorageKey = 'waitForLeftHand';
   private readonly waitForRightHandStorageKey = 'waitForRightHand';
   // Score data from state
   scoreData: ScoreApiInfo | null = null;
   // Expose loading as an observable to use `async` pipe with OnPush change detection
   loading$ = new BehaviorSubject<boolean>(true);
+  midiOriginalTempo: number = 120;
+
+
   get loading() { return this.loading$.value; }
   // loading state for OSMD (use BehaviorSubject to work well with OnPush)
   osmdLoading$ = new BehaviorSubject<boolean>(true);
@@ -72,6 +87,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   // MusicXML content to pass to osmd component
   musicXml: string | null = null;
+
+  // Keyboard bounds (passed to KeyboardComponent)
+  keyboardMinKey: string = 'A0';
+  keyboardMaxKey: string = 'C8';
+  keyboardHeight: number = 100;
 
   // Observable for elapsed time from PlayerService
   elapsedTime!: any;
@@ -104,12 +124,20 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   // UI state
   hideKeyboard = false;
+  hideFingering = false;
+  hideLyrics = false;
+  hideFingeringAndHarmony = false;
   arenaClass = '';
   isFullscreen = false;
   isMidiSetupOpen = false;
-
-
-  scoreRange = [0, 10, 80];
+  // Tempo modal state
+  isTempoOpen = false;
+  showTempo = false;
+  // Control whether the `app-osmd` component is present in the DOM.
+  showOsmd = true;
+  // Toolbar visibility toggle (true = shown)
+  toggleToolbar = true;
+  scoreRange = [0, 0, 100];
 
   @ViewChild('range') range!: ElementRef<HTMLDivElement>;
   @ViewChild('titleContainer', { static: false }) titleContainer!: ElementRef<HTMLDivElement>;
@@ -128,8 +156,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     private scoreService: ScoreService,
     private titleService: Title
   ) {
-
-
     this.setupGeneric();
   }
 
@@ -140,32 +166,13 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     // Initialize elapsed time observable
     this.elapsedTime = this.playerService.elapsedTime;
 
-    const stored = localStorage.getItem(this.hideKeyboardStorageKey);
-    if (stored !== null) {
-      try {
-        this.hideKeyboard = JSON.parse(stored);
-      } catch {
-        this.hideKeyboard = stored === 'true';
-      }
-    }
+    this.hideKeyboard = this.parseBooleanStorage(this.hideKeyboardStorageKey);
+    this.hideFingering = this.parseBooleanStorage(this.hideFingeringStorageKey);
+    this.hideLyrics = this.parseBooleanStorage(this.hideLyricsStorageKey);
+    this.hideFingeringAndHarmony = this.parseBooleanStorage(this.hideFingeringAndHarmonyStorageKey);
     this.storedHideKeyboard = this.hideKeyboard;
-    const storedLeft = localStorage.getItem(this.waitForLeftHandStorageKey);
-    if (storedLeft !== null) {
-      try {
-        this.playConfiguration.waitForLeftHand = JSON.parse(storedLeft);
-      } catch {
-        this.playConfiguration.waitForLeftHand = storedLeft === 'true';
-      }
-    }
-    const storedRight = localStorage.getItem(this.waitForRightHandStorageKey);
-    if (storedRight !== null) {
-      try {
-        this.playConfiguration.waitForRightHand = JSON.parse(storedRight);
-      } catch {
-        this.playConfiguration.waitForRightHand = storedRight === 'true';
-      }
-    }
-
+    this.playConfiguration.waitForLeftHand = this.hideKeyboard = this.parseBooleanStorage(this.waitForLeftHandStorageKey);
+    this.playConfiguration.waitForRightHand = this.hideKeyboard = this.parseBooleanStorage(this.waitForRightHandStorageKey);
 
     // Consolidated reactive effect: feedback, player messages, and measure updates
     effect(() => {
@@ -173,9 +180,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       try {
         this.loadingFeedBack$.next(this.cursorService.feedbackSignal());
       } catch (e) {
-        this.loadingFeedBack$.next(null);
+        //this.loadingFeedBack$.next(null);
       }
-
       // Player messages
       const message = this.playerService.message();
       if (message === 'END') {
@@ -210,6 +216,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.handleResize(); // Initial check
     if (this.router.url.startsWith('/work/')) {
       this.setupWorkMode()
     } else if (this.router.url.startsWith('/workbench/scale')
@@ -220,17 +227,86 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Resize handler to enforce toolbar visible on small screens
+  private handleResize = () => {
+    const smallScreen = window.innerHeight <= 768;
+    if (smallScreen) {
+      this.toggleToolbar = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  isSmallScreen() {
+    return (window.innerHeight <= 768 || window.innerWidth <= 1024);
+  }
+
+  fnToggleToolBar() {
+    this.toggleToolbar = !this.toggleToolbar
+    if (this.toggleToolbar) {
+      this.changeDetector.markForCheck();
+      setTimeout(() => {
+        this.setupSlider();
+      }, 300);
+    }
+  }
+
+  fnToggleKeyboard() {
+    this.hideKeyboard = !this.hideKeyboard;
+  }
+
+
   async setupWorkMode() {
     const slug = this.route.snapshot.paramMap.get('slug');
     this.scoreData = await firstValueFrom(this.scoreService.scoreGetBySlug(slug!));
-    this.midi = await this.downloadMidi(this.scoreData);
-    this.musicXml = await this.downloadMusicXML(this.scoreData);
+    this.loadingFeedBack$.next({ message: 'download loading score', percentage: 5 });
+    const [midiResult, musicXmlResult] = await Promise.all([
+      this.downloadMidi(this.scoreData),
+      this.downloadMusicXML(this.scoreData)
+    ]);
+    this.midi = midiResult;
+    this.musicXml = musicXmlResult;
+    // Compute keyboard bounds from MIDI notes (if available)
+    const smallScreen = window.innerWidth <= 1024;
+    if (smallScreen) {
+      this.loadingFeedBack$.next({ message: 'computing midi bounds', percentage: 15 });
+      const allNotes: Note[] = this.midi.tracks.flatMap(track => track.notes).filter(note => note.midi !== undefined);
+      const minNote = allNotes.reduce((acc: Note, n: Note) => {
+        return (n.midi ?? 0) < (acc.midi ?? 0) ? n : acc;
+      }, allNotes[0]);
+      const maxNote = allNotes.reduce((acc: Note, n: Note) => {
+        return (n.midi ?? 0) > (acc.midi ?? 0) ? n : acc;
+      }, allNotes[0]);
+      const minMidiRaw = minNote.midi;
+      const bottomCdelta = Math.abs(minMidiRaw - 60);
+      //const minCMidi = Math.floor(minMidiRaw / 12) * 12;
+
+
+
+      if (this.keyboardMinKey == "C1") {
+        this.keyboardMinKey = "A0";
+      }
+      const maxMidiRaw = maxNote.midi;
+      const topCdelta = Math.abs(maxMidiRaw - 60);
+      const delta = Math.max(Math.max(bottomCdelta, topCdelta), 11);
+      //const maxCMidi = Math.ceil(maxMidiRaw / 12) * 12;
+
+      const minCMidi = Math.max((Math.floor(minMidiRaw / 12) * 12) - 12, 60 - delta);
+      const maxCMidi = 60 + delta;
+      this.keyboardMinKey = midiToPitch(minCMidi);
+      this.keyboardMaxKey = midiToPitch(maxCMidi);
+
+      const octaveCount = Math.max(1, Math.ceil((maxCMidi - minCMidi + 1) / 12));
+
+      this.keyboardHeight = 180 * (octaveCount / 8);
+    }
     this.onLoaded();
   }
 
 
-  onLoaded() {
+  onLoaded() {    
     this.tempo = Math.round(this.scoreData?.tempo || this.midi?.header.tempos[0]?.bpm || 120);
+    this.midiOriginalTempo = this.tempo;
+    this.loadingFeedBack$.next({ message: 'build configuration', percentage: 30 });
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, this.midi!);
     this.loading$.next(false);
     this.changeDetector.markForCheck();
@@ -306,9 +382,17 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
   }
 
-
-
-
+  parseBooleanStorage(key: string): boolean {
+    const stored = localStorage.getItem(key);
+    if (stored !== null) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return stored === 'true';
+      }
+    }
+    return false;
+  }
 
   openMidiSetup() {
     this.isMidiSetupOpen = true;
@@ -316,6 +400,26 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   closeMidiSetup() {
     this.isMidiSetupOpen = false;
+    //window.location.reload();
+    this.reloadOsmd(50);
+  }
+
+  openTempo() {
+    this.isTempoOpen = true;
+    this.showTempo = true;
+    this.changeDetector.markForCheck();
+  }
+
+  closeTempo() {
+    this.isTempoOpen = false;
+    this.showTempo = false;
+    this.changeDetector.markForCheck();
+  }
+
+  onTempoChanged(newTempo: number) {
+    this.tempo = newTempo;
+    this.setSpeed(this.tempo/this.midiOriginalTempo)
+    this.changeDetector.markForCheck();
   }
 
   setHideKeyboard(value: boolean) {
@@ -325,6 +429,33 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
     this.changeDetector.markForCheck();
   }
+
+  setHideFingering(value: boolean) {
+    this.hideFingering = value;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.hideFingeringStorageKey, JSON.stringify(value));
+    }
+    this.changeDetector.markForCheck();
+  }
+
+
+  setHideLyrics(value: boolean) {
+    this.hideLyrics = value;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.hideLyricsStorageKey, JSON.stringify(value));
+    }
+    this.changeDetector.markForCheck();
+  }
+
+
+  setHideFingeringAndHarmony(value: boolean) {
+    this.hideFingeringAndHarmony = value;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.hideFingeringAndHarmonyStorageKey, JSON.stringify(value));
+    }
+    this.changeDetector.markForCheck();
+  }
+
 
   setWaitForLeftHand(value: boolean) {
     this.playConfiguration.waitForLeftHand = value;
@@ -340,6 +471,16 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       localStorage.setItem(this.waitForRightHandStorageKey, JSON.stringify(value));
     }
     this.changeDetector.markForCheck();
+  }
+
+
+  reloadOsmd(delay = 50) {
+    window.location.reload(); // can do bertter
+    // this.changeDetector.markForCheck();
+    // setTimeout(() => {
+    //   this.showOsmd = true;
+    //     this.changeDetector.markForCheck();
+    // }, delay);
   }
 
   onOsmdLoadingChange(loading: boolean) {
@@ -358,16 +499,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       }, 100);
     }
     // here I do not need the observables
-    
+
   }
-
-
-
-
-
-
-
-
 
 
   async loadFromLocalStorage(): Promise<void> {
@@ -401,14 +534,13 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   async downloadMusicXML(scoreData: ScoreApiInfo): Promise<string> {
     await this.loadScoreData(scoreData, 'musicxml', async (data) => {
       const arrayBuffer = await data.arrayBuffer();
+      this.loadingFeedBack$.next({ message: 'decoding musicxml', percentage: 15 });
       const xmlText = WorkbenchComponent.textDecoder.decode(arrayBuffer);
       this.musicXml = xmlText;
       // No return value needed
     });
     return this.musicXml!;
   }
-
-
 
 
   private async loadScoreData(
@@ -439,7 +571,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   recordAssessment() {
     // POST user stats when ending play and playing both hands
-
     if (this.scoreData) {
       //if (this.scoreData && this.playConfiguration.waitForLeftHand && this.playConfiguration.waitForRightHand) {
       const request: ScorePlayStatsPostRequest = {
@@ -550,6 +681,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   start() {
+    this.toggleToolbar = this.isSmallScreen() ? false : true;
     this.isPlaying = true;
     this.playerService.play(this.playConfiguration);
     this.setSliderState(false);
@@ -562,13 +694,23 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
   }
 
+  startStop() {
+    if (this.isPlaying) {
+      this.stop();
+    } else {
+      this.start();
+    }
+  }
+
   stop() {
+    this.toggleToolbar = true;
     this.setSliderState(true);
     this.playerService.pause();
     this.isPlaying = false;
   }
 
   private setSliderState(enabled: boolean) {
+    if (!this.slider) return;
     if (enabled) {
       this.slider.enable();
     } else {
@@ -577,6 +719,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   setupSlider() {
+    if (!this.range) return;
+    this.slider = null;
     this.slider = noUiSlider.create(this.range.nativeElement, {
       ...this.getSliderBaseConfig(),
       pips: {
@@ -770,6 +914,12 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.slider = null;
     }
     this.clearData();
+    // Remove resize listener
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        window.removeEventListener('resize', this.handleResize);
+      } catch (e) { }
+    }
   }
 
   clearData() {

@@ -324,6 +324,7 @@ export class PlayerService {
   }
 
   private unHighlightBadNote() {
+    if (this.osmd?.GraphicSheet ==null) return;
     this.osmd?.GraphicSheet.MeasureList.forEach(measure => {
       measure.forEach(graphicalMeasure => {
         if (graphicalMeasure && graphicalMeasure.staffEntries) {

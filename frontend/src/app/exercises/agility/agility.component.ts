@@ -157,7 +157,7 @@ export class AgilityComponent implements OnInit {
       title = `${exerciseName} - ${selectedKey} ${chordName}`;
       description = `Practice piano agility with ${selectedKey} ${chordName} chord in ${exerciseName}. Improve your piano technique with interactive exercises and real-time feedback.`;
       url = `${baseUrl}/exercises/agility/${selectedKey}/${chordKey}/${exerciseKey}`;
-      keywords = `piano learning app, sight reading, agility, ${exerciseName}`;
+      keywords = `midi, piano, sight reading, ${exerciseName}`;
       
       structuredData = {
         '@context': 'https://schema.org',

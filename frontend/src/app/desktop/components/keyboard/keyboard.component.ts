@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, type ElementRef, ViewChild, signal, effect, type EffectRef, OnDestroy, PLATFORM_ID, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, type ElementRef, ViewChild, signal, effect, type EffectRef, OnDestroy, PLATFORM_ID, inject, Input, AfterViewInit } from "@angular/core";
 import { isPlatformBrowser } from '@angular/common';
 import { MidiServiceService } from "../../../shared/services/midi-service.service";
 import PianoKeys from '@jesperdj/pianokeys';
@@ -13,7 +13,7 @@ import { PlayerKeyboardService } from "../../service/player-keyboard.service";
   styleUrl: './keyboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KeyboardComponent implements OnDestroy {
+export class KeyboardComponent implements OnDestroy, AfterViewInit {
 
   private platformId = inject(PLATFORM_ID);
   keyPressed = signal<{ key: number; timestamp: number } | null>(null);
@@ -24,6 +24,10 @@ export class KeyboardComponent implements OnDestroy {
   @ViewChild('keyboardContainer')
   keyboardContainer!: ElementRef;
   keyboard: PianoKeys.Keyboard | null = null;
+
+  @Input() minKey: string = 'A0';
+  @Input() maxKey: string = 'C8';
+  @Input() keyHeight?: number | null = null;
 
 
   constructor(
@@ -40,12 +44,14 @@ export class KeyboardComponent implements OnDestroy {
     }
     const preferences = localStorage.getItem("preferences");
     const parsedPreferences = JSON.parse(preferences || '{}');
-    const leftmostKey = midiToPitch(parsedPreferences.leftmostKey || 21) || null;
-    const rightmostKey = midiToPitch(parsedPreferences.rightmostKey || 108) || null;
+    const leftmostKey = this.minKey || midiToPitch(parsedPreferences.leftmostKey || 21) || null;
+    const rightmostKey = this.maxKey || midiToPitch(parsedPreferences.rightmostKey || 108) || null;
 
+    const computedKeyHeight = this.keyHeight ?? 140;
     this.keyboard = new PianoKeys.Keyboard(
       this.keyboardContainer.nativeElement,
       {
+        keyHeight: computedKeyHeight,
         lowest: leftmostKey ,
         highest: rightmostKey
       });

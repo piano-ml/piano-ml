@@ -60,10 +60,12 @@ async function fetchAllScores() {
 
   while (hasMore) {
     const url = `${SCORE_SEARCH_API_URL}?offset=${offset}&limit=${SCORE_PAGINATION_LIMIT}`;
-    console.log(`  Fetching scores: offset=${offset}, limit=${SCORE_PAGINATION_LIMIT}...`);
-    
+    //console.log(`  Fetching scores: offset=${offset}, limit=${SCORE_PAGINATION_LIMIT}...`);
+    process.stdout.write(".");
     const response = await fetchFromApi(url);
-    const scores = Array.isArray(response) ? response : (response.scores || response.results || []);
+    const scores = Array.isArray(response) ? response : (response.scores || response.results || []) //.filter(s => s.version===0); // Ensure we have an array and filter out invalid entries  
+
+
     
     if (scores.length === 0) {
       hasMore = false;
@@ -130,20 +132,19 @@ function generateSitemap(genres, authors, scores) {
     allUrls.push({ loc, priority: parseFloat(priority), lastmod: currentDate });
   });
 
-  // Add genre URLs (using maxGenreCount for scaling)
-  genres.forEach((item) => {
-    const genreSlug = item.genre?.slug || item.slug || item.name;
-    if (genreSlug) {
-      // Fixed priority for excluded genres
-      const priority = excludedGenreSlugs.includes(genreSlug) 
-        ? 0.5 
-        : calculatePriority(item.count, maxGenreCount);
-      // Use updatedAt from API if available, otherwise fall back to currentDate
-      const genreLastMod = item.updatedAt ? new Date(item.updatedAt).toISOString() : currentDate;
+
+
+  console.log(`Processing ${scores.length} scores for sitemap...`);
+  scores.forEach((score) => {
+    //console.log(`Processing score: ${score.title} (slug: ${score.slug})`);
+    const immutableSlug = score.immutableSlug || score.slug;
+    if (immutableSlug) {
+      // Use uploadedAt from API if available, otherwise fall back to currentDate
+      const scoreLastMod = score.uploadedAt ? new Date(score.uploadedAt).toISOString() : currentDate;
       allUrls.push({
-        loc: `${BASE_URL}/library/genres/${encodeURIComponent(genreSlug)}`,
-        priority,
-        lastmod: genreLastMod
+        loc: `${BASE_URL}/score/${immutableSlug}`,
+        priority: 1,
+        lastmod: scoreLastMod
       });
     }
   });
@@ -166,28 +167,25 @@ function generateSitemap(genres, authors, scores) {
     }
   });
 
-  // Add score URLs (fixed priority of 0.86 for individual scores)
-  // Sort scores by uploadedAt descending
-  const sortedScores = [...scores].sort((a, b) => {
-    const dateA = a.uploadedAt ? new Date(a.uploadedAt).getTime() : 0;
-    const dateB = b.uploadedAt ? new Date(b.uploadedAt).getTime() : 0;
-    return dateB - dateA; // descending order
-  });
-
-  sortedScores.forEach((score) => {
-    const immutableSlug = score.immutableSlug || score.slug;
-    if (immutableSlug) {
-      // Use uploadedAt from API if available, otherwise fall back to currentDate
-      const scoreLastMod = score.uploadedAt ? new Date(score.uploadedAt).toISOString() : currentDate;
+  // Add genre URLs (using maxGenreCount for scaling)
+  genres.forEach((item) => {
+    const genreSlug = item.genre?.slug || item.slug || item.name;
+    if (genreSlug) {
+      // Fixed priority for excluded genres
+      const priority = excludedGenreSlugs.includes(genreSlug) 
+        ? 0.5 
+        : calculatePriority(item.count, maxGenreCount);
+      // Use updatedAt from API if available, otherwise fall back to currentDate
+      const genreLastMod = item.updatedAt ? new Date(item.updatedAt).toISOString() : currentDate;
       allUrls.push({
-        loc: `${BASE_URL}/score/${immutableSlug}`,
-        priority: 0.86,
-        lastmod: scoreLastMod
+        loc: `${BASE_URL}/library/genres/${encodeURIComponent(genreSlug)}`,
+        priority,
+        lastmod: genreLastMod
       });
     }
   });
 
-  // Sort by priority (descending)
+  // // Sort by priority (descending)
   allUrls.sort((a, b) => b.priority - a.priority);
 
   // Generate XML
@@ -228,6 +226,7 @@ async function main() {
     
     console.log('Fetching scores from API...');
     const scores = await fetchAllScores();
+
     console.log(`✓ Found ${scores.length} scores`);
     
     console.log('Generating sitemap...');
@@ -239,9 +238,7 @@ async function main() {
     console.log('\n📊 URLs by priority (sorted):');
     console.log('─'.repeat(80));
     
-    urls.forEach(({ loc, priority }) => {
-      console.log(`[${priority.toFixed(1)}] ${loc}`);
-    });
+
   } catch (error) {
     console.error('✗ Error generating sitemap:', error.message);
     process.exit(1);
