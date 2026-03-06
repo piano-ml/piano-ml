@@ -154,7 +154,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
         customOptions.drawFingerings = !this.parseBooleanStorage(this.hideFingeringStorageKey);
         customOptions.drawLyrics = !this.parseBooleanStorage(this.hideLyricsStorageKey);
         this.hideFingeringAndHarmony = this.parseBooleanStorage(this.hideFingeringAndHarmonyStorageKey);
-        console.log("Custom OSMD options:", customOptions);
         return customOptions;
     }
 

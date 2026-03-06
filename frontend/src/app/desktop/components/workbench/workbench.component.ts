@@ -310,7 +310,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, this.midi!);
     this.loading$.next(false);
     this.changeDetector.markForCheck();
-    console.log('Score info loaded', this.loading);
   }
 
   setupSightReadingMode() {
