@@ -184,12 +184,6 @@ export class PlayerService {
     await this.audio.initSoundFont();
   }
 
-
-  //setKeyboardElement(nativeElementRef: ElementRef) {
-  //  this.keyboard.setKeyboardElement(nativeElementRef);
-  //  this.setup();
-  //}
-
   pause() {
     this.audio.pause();
   }
@@ -269,8 +263,6 @@ export class PlayerService {
   }
 
   displayLiveOnKeyboard() {
-    // Clear previous highlights
-    // this.keyboard.removeAllNotesFromKeyboard();
     const liveStatus = this.assess.getExpectation();
     this.lightExpectedNotesOnKeyboard(liveStatus)
   }
