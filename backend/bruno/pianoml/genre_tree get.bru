@@ -1,0 +1,21 @@
+meta {
+  name: genre_tree get
+  type: http
+  seq: 20
+}
+
+get {
+  url: http://localhost:8080/genre_tree
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+script:pre-request {
+  const token = bru.getEnvVar("token");
+}
+

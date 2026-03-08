@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,7 +15,7 @@ public interface GenreRepository extends CrudRepository<Genre, UUID> {
 
   List<Genre> findByNameContainingIgnoreCase(String name);
 
-  Optional<Genre> findByMbid(UUID id);
+  Optional<Genre> findById(UUID id);
 
   @Query("SELECT g.id, g.mbid, g.name, COUNT(s) " +
          "FROM Genre g LEFT JOIN Score s ON s.genre = g AND (s.deleted = false OR s.deleted IS NULL) " +
@@ -23,7 +24,15 @@ public interface GenreRepository extends CrudRepository<Genre, UUID> {
 
   @Query("SELECT g.id, g.mbid, g.name, COUNT(s) " +
          "FROM Genre g LEFT JOIN Score s ON s.genre = g AND (s.deleted = false OR s.deleted IS NULL) " +
-         "WHERE g.mbid = :mbid GROUP BY g.id, g.mbid, g.name")
-  Optional<Object[]> findByMbidWithScoreCountRaw(UUID mbid);
+         "WHERE g.mbid = :id GROUP BY g.id, g.mbid, g.name")
+  Optional<Object[]> findByIdWithScoreCountRaw(UUID id);
+
+  // batch lookup by auto-generated id
+  List<Genre> findByIdIn(Collection<UUID> ids);
+
+  // batch lookup by MBID (used to map genre_tree.genre_id -> genre.name)
+  List<Genre> findByMbidIn(Collection<UUID> mbids);
+
+  Optional<Genre> findByMbid(UUID mbid);
 
 }

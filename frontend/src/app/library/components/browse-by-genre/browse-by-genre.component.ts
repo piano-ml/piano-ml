@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, OnInit, OnChanges, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, ChangeDetectorRef } from '@angular/core';
 import { ScoreGenreBrowseGet200ResponseInner } from '../../../core/api/model/scoreGenreBrowseGet200ResponseInner';
 import { ScoreService } from '../../../core/api/api/score.service';
 
@@ -9,7 +9,7 @@ import { ScoreService } from '../../../core/api/api/score.service';
   templateUrl: './browse-by-genre.component.html',
   styleUrl: './browse-by-genre.component.css'
 })
-export class BrowseByGenreComponent implements OnInit, OnChanges {
+export class BrowseByGenreComponent implements  OnChanges {
   genres: ScoreGenreBrowseGet200ResponseInner[] = [];
   loadingGenres = false;
   @Input() trackFilter: number[] | undefined;
@@ -21,9 +21,6 @@ export class BrowseByGenreComponent implements OnInit, OnChanges {
     private changeDetector: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
-    this.loadGenres();
-  }
 
   ngOnChanges() {
     this.loadGenres();

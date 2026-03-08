@@ -28,7 +28,7 @@ public class GenreService {
   }
 
   public Optional<GenreApiInfo> getGenre(UUID id) {
-    Optional<Object[]> raw = genreRepository.findByMbidWithScoreCountRaw(id);
+    Optional<Object[]> raw = genreRepository.findByIdWithScoreCountRaw(id);
     return raw.map(a -> {
       GenreApiInfo info = new GenreApiInfo();
       if (a[0] != null) info.setId(a[0].toString());
@@ -55,7 +55,7 @@ public class GenreService {
   }
 
   public Optional<GenreApiInfo> updateGenre(UUID id, GenreApiInfo genreApiInfo) {
-    return genreRepository.findByMbid(id)
+    return genreRepository.findById(id)
       .map(genre -> {
         genre.setName(genreApiInfo.getName());
         Genre updatedGenre = genreRepository.save(genre);

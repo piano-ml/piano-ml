@@ -37,7 +37,7 @@ export class BrowseComponent implements OnInit {
   hasMore = true;
 
   // Tab selection
-  activeTab: 'artists' | 'genres' | 'popular' = 'popular';
+  activeTab: 'artists' | 'genres' | 'popular' = 'genres';
 
   // Track count filters
   filterOneHand = false;
@@ -75,19 +75,20 @@ export class BrowseComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.loadFullKeys();
-    this.loadStats();
-    
+
+
     // Read the URL path to set active tab
     const path = this.route.snapshot.url[0]?.path;
     if (path) {
       this.activeTab = path as 'artists' | 'genres' | 'popular';
-    } else {
-      this.activeTab = 'popular';
     }
 
+    this.loadFullKeys();
+    this.loadStats();
+
     // Subscribe to both params and query params to handle browser back/forward navigation
-    this.route.params.subscribe(params => {
+    this.route.params
+    .subscribe(params => {
       const artistSlug = params['artistSlug'] || '';
       const genreSlug = params['genreSlug'] || '';
       // Hydrate track count filters from URL
@@ -117,7 +118,7 @@ export class BrowseComponent implements OnInit {
           this.selectedGenre = null;
           this.loadScores(true);
         }
-        
+
         // Update SEO after route params are processed
         this.updatePageTitle();
       });
@@ -221,7 +222,7 @@ export class BrowseComponent implements OnInit {
     const trackCount = this.getTrackCountFilter();
 
     this.scoreService.scoreSearchGet(
-      this.searchKeyword || undefined, // keyword
+      this.activeSearchKeyword || undefined, // keyword
       undefined, // ownerId
       undefined, // genreId
       undefined, // artist
@@ -293,6 +294,16 @@ export class BrowseComponent implements OnInit {
   }
 
   loadMore() {
+    if (this.selectedAuthor) {
+      this.loadScoresByAuthor(this.selectedAuthor, false);
+      return;
+    }
+
+    if (this.selectedGenre) {
+      this.loadScoresByGenre(this.selectedGenre, false);
+      return;
+    }
+
     this.loadScores();
   }
 
@@ -315,11 +326,17 @@ export class BrowseComponent implements OnInit {
     this.loadScoresByAuthor(author);
   }
 
-  loadScoresByAuthor(author: AuthorWithScoreCount) {
-    this.currentPage = 0;
-    this.scores = [];
-    this.hasMore = true;
+  loadScoresByAuthor(author: AuthorWithScoreCount, reset = true) {
+    if (reset) {
+      this.currentPage = 0;
+      this.scores = [];
+      this.hasMore = true;
+    }
+
+    if (!reset && (this.loading || !this.hasMore)) return;
+
     this.loading = true;
+    const offset = this.currentPage * this.pageSize;
 
     const trackCount = this.getTrackCountFilter();
 
@@ -336,14 +353,19 @@ export class BrowseComponent implements OnInit {
       undefined, // tempo
       this.getFullKeyFilter(), // fullKey
       undefined, // sortBy
-      0, // offset
+      offset, // offset
       this.pageSize, // limit
       trackCount // tracks
     ).subscribe({
       next: (data) => {
-        this.scores = data;
+        if (reset) {
+          this.scores = data;
+        } else {
+          this.scores = [...this.scores, ...data];
+        }
+
         this.hasMore = data.length === this.pageSize;
-        this.currentPage = 1;
+        this.currentPage++;
         this.loading = false;
         this.changeDetector.detectChanges();
       },
@@ -374,11 +396,17 @@ export class BrowseComponent implements OnInit {
     this.loadScoresByGenre(genre);
   }
 
-  loadScoresByGenre(genre: ScoreGenreBrowseGet200ResponseInner) {
-    this.currentPage = 0;
-    this.scores = [];
-    this.hasMore = true;
+  loadScoresByGenre(genre: ScoreGenreBrowseGet200ResponseInner, reset = true) {
+    if (reset) {
+      this.currentPage = 0;
+      this.scores = [];
+      this.hasMore = true;
+    }
+
+    if (!reset && (this.loading || !this.hasMore)) return;
+
     this.loading = true;
+    const offset = this.currentPage * this.pageSize;
 
     const trackCount = this.getTrackCountFilter();
 
@@ -395,14 +423,19 @@ export class BrowseComponent implements OnInit {
       undefined, // tempo
       this.getFullKeyFilter(), // fullKey
       undefined, // sortBy
-      0, // offset
+      offset, // offset
       this.pageSize, // limit
       trackCount // tracks
     ).subscribe({
       next: (data) => {
-        this.scores = data;
+        if (reset) {
+          this.scores = data;
+        } else {
+          this.scores = [...this.scores, ...data];
+        }
+
         this.hasMore = data.length === this.pageSize;
-        this.currentPage = 1;
+        this.currentPage++;
         this.loading = false;
         this.changeDetector.detectChanges();
       },
@@ -537,7 +570,7 @@ export class BrowseComponent implements OnInit {
       description = `Play ${genreName} piano scores on PianoML. Practice with hands-separated sheet music, adjustable speed, and MIDI support. ${genreName} piano music.`;
       url = `${baseUrl}/library/genres/${this.selectedGenre.genre.slug}`;
       keywords = `${genreName} piano, ${genreName} sheet music, ${genreName} piano scores, piano practice`;
-      
+
       structuredData = this.seo.generateMusicCollectionStructuredData(
         this.scores,
         `${genreName} Piano Scores`,
@@ -550,7 +583,7 @@ export class BrowseComponent implements OnInit {
       description = `Play ${authorName} piano scores on PianoML. Interactive sheet music with hands-separated practice, loop sections, and adjustable playback speed. ${authorName} piano music.`;
       url = `${baseUrl}/library/artists/${this.selectedAuthor.author.slug}`;
       keywords = `${authorName} piano, ${authorName} sheet music, ${authorName} compositions, piano practice`;
-      
+
       structuredData = this.seo.generateMusicCollectionStructuredData(
         this.scores,
         `${authorName} Piano Works`,
@@ -561,7 +594,7 @@ export class BrowseComponent implements OnInit {
       description = `Search results for "${this.activeSearchKeyword}" - Browse piano scores and sheet music on PianoML with interactive practice tools.`;
       url = `${baseUrl}/library/popular?search=${encodeURIComponent(this.activeSearchKeyword)}`;
       keywords = `piano search, ${this.activeSearchKeyword}, piano scores, sheet music`;
-      
+
       structuredData = {
         '@context': 'https://schema.org',
         '@type': 'SearchResultsPage',
@@ -575,7 +608,7 @@ export class BrowseComponent implements OnInit {
       description = `Explore ${totalScores}+ piano scores organized by genre on PianoML. Find classical, romantic, jazz, pop, baroque, and contemporary piano music. Learn piano with AI-powered sheet music and interactive practice tools.`;
       url = `${baseUrl}/library/genres`;
       keywords = 'piano genres, classical piano, jazz piano, pop piano, baroque music, romantic piano, sheet music by genre, piano learning machine';
-      
+
       structuredData = {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
@@ -595,7 +628,7 @@ export class BrowseComponent implements OnInit {
       description = `Discover ${totalScores}+ piano scores from famous composers and artists on PianoML. Learn works by Bach, Beethoven, Chopin, Mozart, Debussy, and more. AI-powered piano learning machine with hands-separated practice.`;
       url = `${baseUrl}/library/artists`;
       keywords = 'piano composers, famous pianists, Bach piano, Chopin piano, Mozart piano, Beethoven piano, classical composers, piano learning machine';
-      
+
       structuredData = {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
@@ -615,7 +648,7 @@ export class BrowseComponent implements OnInit {
       description = `Browse popular piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable speed, loopable sections, and MIDI keyboard support. Transform your piano learning experience.`;
       url = `${baseUrl}/library`;
       keywords = 'piano scores, sheet music, piano practice, free piano music, piano learning, interactive sheet music, piano learning, learning piano';
-      
+
       structuredData = {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',

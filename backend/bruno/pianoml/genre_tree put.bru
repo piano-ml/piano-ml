@@ -1,0 +1,28 @@
+meta {
+  name: genre_tree put
+  type: http
+  seq: 21
+}
+
+put {
+  url: http://localhost:8080/genre_tree/40ec6f75-6885-4b8b-9e10-1615648cdd90
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "parent_id": "211cb231-6795-44a0-a60f-d65dd59ad13c"
+  }
+}
+
+script:pre-request {
+  const token = bru.getEnvVar("token");
+}
+

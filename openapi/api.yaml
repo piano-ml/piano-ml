@@ -7,6 +7,11 @@ servers:
     description: Production HTTPS server
   - url: http://localhost:8080
     description: Local HTTP server
+
+tags:
+  - name: genre_tree
+    description: Operations to read and modify the genre tree (parent/child relationships)
+
 paths:
   /account/login:
     post:
@@ -381,11 +386,11 @@ paths:
                 tonic:
                   type: string
                 mode:
-                  type: string                  
+                  type: string
                 genre:
-                  type: string 
+                  type: string
                 genre_id:
-                  type: string 
+                  type: string
                 assessment:
                   type: object
                   properties:
@@ -962,6 +967,76 @@ paths:
                   $ref: '#/components/schemas/GenreApiInfo'
         '404':
           description: Genre not found
+
+  /genre_tree:
+    get:
+      tags:
+        - genre_tree
+      summary: Retrieve genre tree or subtree
+      description: |
+        Returns the full genre tree when called without parameters. Optionally accepts a
+        query parameter `root_id` (UUID) to return the subtree rooted at that node.
+      parameters:
+        - name: root_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Optional UUID of the root node to return a subtree (if omitted returns full tree)
+      responses:
+        '200':
+          description: Genre tree retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreTreeNode'
+        '400':
+          description: Bad request
+
+  /genre_tree/{id}:
+    put:
+      tags:
+        - genre_tree
+      operationId: genreTreeIdPut
+      summary: Create or update a genre tree node's parent
+      description: |
+        PUT is idempotent: if the node with the given `id` does not exist it may be created;
+        otherwise its `parent_id` will be updated. The request body contains the `parent_id` (nullable) to set.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: UUID of the genre tree node to create or update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreTreeUpdate'
+      responses:
+        '200':
+          description: Node updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreTreeNode'
+        '201':
+          description: Node created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreTreeNode'
+        '400':
+          description: Bad request
+        '404':
+          description: Parent node not found (if parent_id is provided and does not exist)
+
   /artist/search/{query}:
     get:
       operationId: artistSearchQueryGet
@@ -1212,6 +1287,36 @@ components:
           type: string
           maxLength: 255
           description: URL-friendly slug for the genre
+
+    GenreTreeNode:
+      type: object
+      properties:
+        mbid:
+          type: string
+          format: uuid
+          description: MusicBrainz ID (MBID) of the genre (stored in genre_tree.genre_id)
+        name:
+          type: string
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/GenreTreeNode'
+      required:
+        - mbid
+
+    GenreTreeUpdate:
+      type: object
+      properties:
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+      required: []
+
     MusicBrainzService:
       type: object
       properties:

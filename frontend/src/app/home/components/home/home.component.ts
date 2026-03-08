@@ -1,6 +1,6 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnInit, ViewChild, inject, PLATFORM_ID } from '@angular/core';
+import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnDestroy, ViewChild, inject, NgZone, PLATFORM_ID } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
@@ -30,13 +30,15 @@ interface ShaderSet {
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements AfterViewInit {
+export class HomeComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('glCanvas') canvas!: ElementRef<HTMLCanvasElement>;
 
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
+  private ngZone = inject(NgZone);
   private isBrowser: boolean;
+  private animationFrameId: number | null = null;
 
   gl!: WebGLRenderingContext
   program!: WebGLProgram
@@ -76,7 +78,7 @@ export class HomeComponent implements AfterViewInit {
       { name: 'twitter:description', content: 'Free piano learning app supporting MusicXML, MIDI, and PDF files. Practice scales and get instant feedback.' },
       { name: 'application-name', content: 'PianoML' },
       { name: 'apple-mobile-web-app-title', content: 'PianoML' },
-      { name: 'apple-mobile-web-app-capable', content: 'yes' }
+      { name: 'mobile-web-app-capable', content: 'yes' }
     ]);
   }
 
@@ -337,7 +339,10 @@ export class HomeComponent implements AfterViewInit {
     }
     this.resize();
     this.isInitialized = true;
-    requestAnimationFrame(this.render);
+    this.animmationRunning = true;
+    this.ngZone.runOutsideAngular(() => {
+      this.animationFrameId = requestAnimationFrame(this.render);
+    });
   }
 
 
@@ -369,14 +374,21 @@ export class HomeComponent implements AfterViewInit {
     
     this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
     if (this.animmationRunning) {
-      requestAnimationFrame(this.render);
+      this.ngZone.runOutsideAngular(() => {
+        this.animationFrameId = requestAnimationFrame(this.render);
+      });
     }
   }
 
 
   tearDownGL() {
+    this.animmationRunning = false;
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
     if (this.gl) {
-      this.animmationRunning = false;
       this.gl.finish();
       this.gl.flush();
       this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
@@ -417,6 +429,13 @@ export class HomeComponent implements AfterViewInit {
     
     // Initialisation WebGL avec le shader sélectionné
     await this.initGlAndProgram();
+  }
+
+  ngOnDestroy(): void {
+    this.tearDownGL();
+    if (this.isBrowser && window.onresize === this.resize) {
+      window.onresize = null;
+    }
   }
 
   createProgram(shaders: WebGLShader[]): WebGLProgram | null {

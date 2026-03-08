@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-exec-genre-tree-sql
+      author: system
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: genre_tree
+      changes:
+        - sqlFile:
+            path: 013-genre-tree.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
