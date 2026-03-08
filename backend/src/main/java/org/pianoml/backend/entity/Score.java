@@ -18,7 +18,7 @@ public class Score {
   @Column(nullable = false)
   private String title;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "author_id", nullable = false)
   private Author author;
 

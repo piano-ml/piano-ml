@@ -1,5 +1,5 @@
-import { type ApplicationConfig, inject, provideZoneChangeDetection, LOCALE_ID, PLATFORM_ID, APP_INITIALIZER } from '@angular/core';
-import { IsActiveMatchOptions, provideRouter, Router, withInMemoryScrolling, withRouterConfig, withViewTransitions } from '@angular/router';
+import { type ApplicationConfig, inject, provideZoneChangeDetection, LOCALE_ID, PLATFORM_ID, APP_INITIALIZER, ENVIRONMENT_INITIALIZER } from '@angular/core';
+import { IsActiveMatchOptions, NavigationStart, provideRouter, Router, withInMemoryScrolling, withRouterConfig, withViewTransitions } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { registerLocaleData, isPlatformBrowser } from '@angular/common';
 
@@ -116,29 +116,52 @@ export const appConfig: ApplicationConfig = {
         }
 
       )),
-    // Router debug provider - logs router events in non-production builds
+    // Router debug initializer - logs router events on client and SSR for non-production builds
     {
-      provide: 'ROUTER_DEBUG_INIT',
-      useFactory: () => {
+      provide: ENVIRONMENT_INITIALIZER,
+      multi: true,
+      useValue: () => {
         const platformId = inject(PLATFORM_ID);
         const router = inject(Router);
-        // Only enable in browser and non-production
-        //if (!isPlatformBrowser(platformId) || environment.production) return null;
-        router.events.subscribe(e => {
-          // Debug log for all router events
+        if (environment.production) return;
+
+        const side = isPlatformBrowser(platformId) ? 'CLIENT' : 'SERVER';
+
+        const originalNavigate = router.navigate.bind(router);
+        const originalNavigateByUrl = router.navigateByUrl.bind(router);
+
+        router.navigate = ((...args: Parameters<Router['navigate']>) => {
           // eslint-disable-next-line no-console
-          console.debug('[ROUTER EVENT]', e);
-          try {
-            // Some event types expose url/urlAfterRedirects
+          console.groupCollapsed(`[ROUTER ${side}] navigate() called`, args[0]);
+          // eslint-disable-next-line no-console
+          console.trace(`[ROUTER ${side}] navigate() stack`);
+          // eslint-disable-next-line no-console
+          console.groupEnd();
+          return originalNavigate(...args);
+        }) as Router['navigate'];
+
+        router.navigateByUrl = ((...args: Parameters<Router['navigateByUrl']>) => {
+          // eslint-disable-next-line no-console
+          console.groupCollapsed(`[ROUTER ${side}] navigateByUrl() called`, args[0]);
+          // eslint-disable-next-line no-console
+          console.trace(`[ROUTER ${side}] navigateByUrl() stack`);
+          // eslint-disable-next-line no-console
+          console.groupEnd();
+          return originalNavigateByUrl(...args);
+        }) as Router['navigateByUrl'];
+
+        router.events.subscribe(e => {
+          // eslint-disable-next-line no-console
+          console.info(`[ROUTER ${side} EVENT]`, e);
+          if (e instanceof NavigationStart) {
             // eslint-disable-next-line no-console
-            if ((e as any).url) console.debug('[ROUTER] url:', (e as any).url);
-            // eslint-disable-next-line no-console
-            if ((e as any).urlAfterRedirects) console.debug('[ROUTER] urlAfterRedirects:', (e as any).urlAfterRedirects);
-          } catch (err) {
-            // ignore
+            console.info(`[ROUTER ${side}] NavigationStart trigger:`, e.navigationTrigger, 'restoredState:', e.restoredState);
           }
+          // eslint-disable-next-line no-console
+          if ((e as any).url) console.info(`[ROUTER ${side}] url:`, (e as any).url);
+          // eslint-disable-next-line no-console
+          if ((e as any).urlAfterRedirects) console.info(`[ROUTER ${side}] urlAfterRedirects:`, (e as any).urlAfterRedirects);
         });
-        return null;
       }
     },
     provideAnimations(),

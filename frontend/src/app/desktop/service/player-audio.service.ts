@@ -141,7 +141,6 @@ export class PlayerAudioService {
    * Nettoie tous les événements schedulés
    */
   clearSchedule(): void {
-    console.log('Clearing scheduled events');
     Tone.getTransport().cancel();
     Tone.getDraw().cancel();
   }

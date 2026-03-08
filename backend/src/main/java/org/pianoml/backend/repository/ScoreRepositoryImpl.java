@@ -7,6 +7,9 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
+import org.pianoml.backend.entity.Genre;
+import org.pianoml.backend.entity.GenreTree;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
 
@@ -33,7 +36,10 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     Predicate predicate = cb.conjunction();
 
     if (keyword != null && !keyword.isEmpty()) {
-      predicate = cb.and(predicate, cb.like(cb.lower(root.get("title")), "%" + keyword.toLowerCase() + "%"));
+      String pattern = "%" + keyword.toLowerCase() + "%";
+      Predicate titleMatch = cb.like(cb.lower(root.get("title")), pattern);
+      Predicate authorMatch = cb.like(cb.lower(root.get("author").get("name")), pattern);
+      predicate = cb.and(predicate, cb.or(titleMatch, authorMatch));
     }
     if (ownerId != null && !ownerId.isEmpty()) {
       predicate = cb.and(predicate, cb.equal(root.get("owner").get("id"), UUID.fromString(ownerId)));
@@ -45,7 +51,16 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       if (genreId.equals("NONE")) {
         predicate = cb.and(predicate, cb.isNull(root.get("genre")));
       } else {
-        predicate = cb.and(predicate, cb.equal(root.get("genre").get("id"), UUID.fromString(genreId)));
+        UUID genreUUID = UUID.fromString(genreId);
+        // Match scores whose genre IS the requested genre,
+        // OR whose genre is a direct child of it in genre_tree (parent_id = genreId).
+        Predicate directMatch = cb.equal(root.get("genre").get("id"), genreUUID);
+        Subquery<UUID> childSub = cq.subquery(UUID.class);
+        Root<GenreTree> gt = childSub.from(GenreTree.class);
+        childSub.select(gt.get("id"))
+          .where(cb.equal(gt.get("parent").get("id"), genreUUID));
+        Predicate childMatch = root.get("genre").get("id").in(childSub);
+        predicate = cb.and(predicate, cb.or(directMatch, childMatch));
       }
     }
 
@@ -58,7 +73,26 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     }
 
     if (genreSlug != null && !genreSlug.isEmpty()) {
-      predicate = cb.and(predicate, cb.equal(root.get("genre").get("slug"), genreSlug));
+      // Match scores whose genre slug matches directly (the genre IS the requested one),
+      // OR whose genre is a direct child in genre_tree of the genre identified by that slug.
+      Predicate directSlugMatch = cb.equal(root.get("genre").get("slug"), genreSlug);
+
+      // Inner subquery: resolve the UUID of the genre identified by the slug.
+      //   SELECT g.id FROM Genre g WHERE g.slug = :genreSlug
+      Subquery<UUID> parentIdSub = cq.subquery(UUID.class);
+      Root<Genre> parentGenre = parentIdSub.from(Genre.class);
+      parentIdSub.select(parentGenre.get("id"))
+        .where(cb.equal(parentGenre.get("slug"), genreSlug));
+
+      // Outer subquery: find all genre_tree entries whose parent.id is in the above set.
+      //   SELECT gt.id FROM GenreTree gt WHERE gt.parent.id IN (parentIdSub)
+      Subquery<UUID> childSlugSub = cq.subquery(UUID.class);
+      Root<GenreTree> gtSlug = childSlugSub.from(GenreTree.class);
+      childSlugSub.select(gtSlug.get("id"))
+        .where(gtSlug.get("parent").get("id").in(parentIdSub));
+
+      Predicate childSlugMatch = root.get("genre").get("id").in(childSlugSub);
+      predicate = cb.and(predicate, cb.or(directSlugMatch, childSlugMatch));
     }
 
     if (etude != null) {
@@ -207,86 +241,58 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
 
   @Override
   public List<Object[]> countScoresGroupedByGenre(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey, String slug) {
-    // Build JPQL with the same visibility rules as findWithSomeCriterias
-    boolean isAdmin = false;
-    if (user != null) {
-      isAdmin = user.getRoles() != null && Arrays.stream(user.getRoles().split(","))
-        .anyMatch(role -> "ADMIN".equals(role.trim()));
-    }
+    // Strategy: for each score with a genre, find its root genre via genre_tree.
+    // COALESCE(gt.parent_id, gt.genre_id) gives the root genre id:
+    //   - if the score's genre has a parent  → group under that parent (the root)
+    //   - if the score's genre is already a root (no parent) → group under itself
+    // This supports a single level of depth (root → children).
+    // The result rows are: [Genre entity (root), count, maxUploadedAt]
 
-    // First: Get count of scores with NULL genre (GROUP BY doesn't handle NULL correctly in JPA)
-    StringBuilder nullJpql = new StringBuilder("SELECT COUNT(s), MAX(s.uploadedAt) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.genre IS NULL");
-    if (user == null) {
-      nullJpql.append(" AND s.publicDomain = true");
-    } else if (!isAdmin) {
-      nullJpql.append(" AND (s.publicDomain = true OR s.owner.id = :userId)");
-    }
-    nullJpql.append(" AND s.hasFiles = true");
+    // Use a CTE to resolve the root genre id for every score in a single pass:
+    //   - score.genre_id IS NULL                      → root_id = NULL  (no genre)
+    //   - genre_id absent from genre_tree             → root_id = score.genre_id  (its own genre)
+    //   - genre_id in genre_tree, no parent (root)    → root_id = gt.genre_id
+    //   - genre_id in genre_tree, has parent (child)  → root_id = gt.parent_id
+    // Then LEFT JOIN genre on root_id so NULL root_id yields a NULL genre row.
+    StringBuilder sql = new StringBuilder(
+      "WITH resolved AS ( " +
+      "  SELECT s.id AS score_id, s.uploaded_at, " +
+      "         COALESCE(gt.parent_id, gt.genre_id, s.genre_id) AS root_id " +
+      "  FROM pianoml.score s " +
+      "  LEFT JOIN pianoml.genre_tree gt ON gt.genre_id = s.genre_id " +
+      "  WHERE (s.deleted = false OR s.deleted IS NULL) AND s.has_files = true"
+    );
+
     if (tracks != null && !tracks.isEmpty()) {
-      nullJpql.append(" AND s.tracksCount IN :tracksList");
+      sql.append(" AND s.tracks_count IN :tracksList");
     }
     if (fullKey != null && !fullKey.isEmpty()) {
       if ("NONE".equalsIgnoreCase(fullKey)) {
-        nullJpql.append(" AND s.fullKey IS NULL");
+        sql.append(" AND s.full_key IS NULL");
       } else {
-        nullJpql.append(" AND s.fullKey = :fullKey");
+        sql.append(" AND s.full_key = :fullKey");
       }
     }
-    // Note: slug filter is not applicable when genre IS NULL (handled later in the code)
 
-    TypedQuery<Object[]> nullQuery = em.createQuery(nullJpql.toString(), Object[].class);
-    if (user != null && !isAdmin) {
-      nullQuery.setParameter("userId", user.getId());
-    }
-    if (tracks != null && !tracks.isEmpty()) {
-      nullQuery.setParameter("tracksList", tracks);
-    }
-    if (fullKey != null && !fullKey.isEmpty() && !"NONE".equalsIgnoreCase(fullKey)) {
-      nullQuery.setParameter("fullKey", fullKey);
-    }
-    Object[] nullResult = nullQuery.getSingleResult();
-    Long nullGenreCount = (Long) nullResult[0];
-    OffsetDateTime nullGenreMaxUploadedAt = (OffsetDateTime) nullResult[1];
-
-    // Second: Get counts for scores WITH a genre (GROUP BY works fine for non-NULL)
-    StringBuilder jpql = new StringBuilder("SELECT s.genre, COUNT(s), MAX(s.uploadedAt) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.genre IS NOT NULL");
-
-/*
-    if (user == null) {
-      jpql.append(" AND s.publicDomain = true");
-    } else if (!isAdmin) {
-      jpql.append(" AND (s.publicDomain = true OR s.owner.id = :userId)");
-    }
-*/
-
-    jpql.append(" AND s.hasFiles = true");
-
-    if (tracks != null && !tracks.isEmpty()) {
-      jpql.append(" AND s.tracksCount IN :tracksList");
-    }
+    sql.append(
+      ") " +
+      "SELECT g.id, g.mbid, g.name, g.slug, COUNT(r.score_id), MAX(r.uploaded_at) " +
+      "FROM resolved r " +
+      "LEFT JOIN pianoml.genre g ON g.id = r.root_id " +
+      "WHERE 1=1"
+    );
 
     if (genreFilter != null && !genreFilter.isEmpty()) {
-      jpql.append(" AND s.genre.id IN :genreList");
+      sql.append(" AND r.root_id IN :genreList");
     }
-
     if (slug != null && !slug.isEmpty()) {
-      jpql.append(" AND s.genre.slug = :slug");
+      sql.append(" AND g.slug = :slug");
     }
 
-    if (fullKey != null && !fullKey.isEmpty()) {
-      if ("NONE".equalsIgnoreCase(fullKey)) {
-        jpql.append(" AND s.fullKey IS NULL");
-      } else {
-        jpql.append(" AND s.fullKey = :fullKey");
-      }
-    }
+    sql.append(" GROUP BY g.id, g.mbid, g.name, g.slug ORDER BY COUNT(r.score_id) DESC");
 
-    jpql.append(" GROUP BY s.genre ORDER BY COUNT(s) DESC");
+    jakarta.persistence.Query query = em.createNativeQuery(sql.toString());
 
-    TypedQuery<Object[]> query = em.createQuery(jpql.toString(), Object[].class);
-    if (user != null && !isAdmin) {
-      query.setParameter("userId", user.getId());
-    }
     if (tracks != null && !tracks.isEmpty()) {
       query.setParameter("tracksList", tracks);
     }
@@ -300,27 +306,49 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       query.setParameter("fullKey", fullKey);
     }
 
-    List<Object[]> results = query.getResultList();
+    @SuppressWarnings("unchecked")
+    List<Object[]> rawResults = query.getResultList();
 
-    // Add NULL genre entry if there are scores without genre
-    if (nullGenreCount > 0) {
-      // Check if we should include NULL genre based on genreFilter and slug
-      // NULL genre should be excluded if slug is provided (since NULL genre has no slug)
-      boolean includeNull = (genreFilter == null || genreFilter.isEmpty()) && (slug == null || slug.isEmpty());
-      if (includeNull) {
-        results.add(new Object[]{null, nullGenreCount, nullGenreMaxUploadedAt});
-      }
+    // Convert native rows [id(UUID), mbid(UUID), name, slug, count, maxUploadedAt]
+    // to the expected format [Genre entity (or null), Long count, OffsetDateTime maxUploadedAt]
+    List<UUID> rootIds = rawResults.stream()
+      .filter(row -> row[0] != null)
+      .map(row -> (UUID) row[0])
+      .collect(java.util.stream.Collectors.toList());
+
+    java.util.Map<UUID, org.pianoml.backend.entity.Genre> genreById = java.util.Collections.emptyMap();
+    if (!rootIds.isEmpty()) {
+      List<org.pianoml.backend.entity.Genre> genres = em.createQuery(
+        "SELECT g FROM Genre g WHERE g.id IN :ids", org.pianoml.backend.entity.Genre.class)
+        .setParameter("ids", rootIds)
+        .getResultList();
+      genreById = genres.stream().collect(
+        java.util.stream.Collectors.toMap(org.pianoml.backend.entity.Genre::getId, g -> g));
     }
 
-    // Apply pagination AFTER combining results (since we can't paginate two separate queries correctly)
+    List<Object[]> results = new java.util.ArrayList<>();
+    for (Object[] row : rawResults) {
+      UUID rootId = (UUID) row[0];
+      long count = ((Number) row[4]).longValue();
+      OffsetDateTime maxUploadedAt = null;
+      if (row[5] != null) {
+        Object ts = row[5];
+        if (ts instanceof OffsetDateTime) {
+          maxUploadedAt = (OffsetDateTime) ts;
+        } else if (ts instanceof java.time.Instant) {
+          maxUploadedAt = ((java.time.Instant) ts).atOffset(java.time.ZoneOffset.UTC);
+        } else if (ts instanceof java.sql.Timestamp) {
+          maxUploadedAt = ((java.sql.Timestamp) ts).toInstant().atOffset(java.time.ZoneOffset.UTC);
+        }
+      }
+      results.add(new Object[]{genreById.get(rootId), count, maxUploadedAt});
+    }
+
+    // Apply pagination
     if (offset != null || limit != null) {
       int start = offset != null ? offset : 0;
       int end = limit != null ? Math.min(start + limit, results.size()) : results.size();
-      if (start < results.size()) {
-        results = results.subList(start, end);
-      } else {
-        results = List.of();
-      }
+      results = start < results.size() ? results.subList(start, end) : List.of();
     }
 
     return results;
@@ -328,18 +356,20 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
 
   @Override
   public Long[] countPublicAndCopyrighted() {
-    // For stats endpoint we return global counts visible to the public. Do not filter by user or admin.
-    String jpql = "SELECT SUM(CASE WHEN s.publicDomain = true THEN 1 ELSE 0 END), SUM(CASE WHEN s.publicDomain = false THEN 1 ELSE 0 END) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL)";
-    TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
-    Object[] result = query.getSingleResult();
-    long publicDomainCount = result[0] != null ? ((Number) result[0]).longValue() : 0L;
-    long copyrightedCount = result[1] != null ? ((Number) result[1]).longValue() : 0L;
+    // Use two separate COUNT queries to avoid PostgreSQL "no unpinned buffers available"
+    // that can occur with complex SUM(CASE WHEN ...) aggregations via Hibernate 6.
+    String jpqlPublic = "SELECT COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.publicDomain = true";
+    String jpqlCopyrighted = "SELECT COUNT(s) FROM Score s WHERE (s.deleted = false OR s.deleted IS NULL) AND s.publicDomain = false";
+    long publicDomainCount = em.createQuery(jpqlPublic, Long.class).getSingleResult();
+    long copyrightedCount = em.createQuery(jpqlCopyrighted, Long.class).getSingleResult();
     return new Long[]{publicDomainCount, copyrightedCount};
   }
 
   @Override
   public List<String> findDistinctFullKeys() {
-    String jpql = "SELECT DISTINCT s.fullKey FROM Score s WHERE s.fullKey IS NOT NULL ORDER BY s.fullKey ASC";
+    // Use GROUP BY instead of DISTINCT to avoid PostgreSQL "no unpinned buffers available"
+    // that can occur with SELECT DISTINCT ... ORDER BY via Hibernate 6.
+    String jpql = "SELECT s.fullKey FROM Score s WHERE s.fullKey IS NOT NULL GROUP BY s.fullKey ORDER BY s.fullKey ASC";
     TypedQuery<String> query = em.createQuery(jpql, String.class);
     return query.getResultList();
   }

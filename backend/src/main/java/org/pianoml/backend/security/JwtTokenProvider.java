@@ -3,6 +3,7 @@ package org.pianoml.backend.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import lombok.Getter;
 import org.pianoml.backend.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,8 +16,9 @@ public class JwtTokenProvider {
   @Value("${jwt.secret:'supersecret'}")
   private String jwtSecret;
 
-  @Value("${jwt.expiration-ms:1000}")
-  private int jwtExpirationInMs;
+  //@Value("${jwt.expiration-ms:1000}")
+  @Getter
+  private int jwtExpirationInMs = 1000 * 3600 * 24; // default to 24 hours
 
   public String generateToken(User user) {
     Date now = new Date();

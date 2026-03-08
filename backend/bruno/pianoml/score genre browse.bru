@@ -1,0 +1,30 @@
+meta {
+  name: score genre browse
+  type: http
+  seq: 11
+}
+
+get {
+  url: http://localhost:8080/score/genre/browse
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~tracks:
+  ~fullKey:
+  ~slug:
+  ~genre:
+  ~offset:
+  ~limit:
+}
+
+headers {
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+script:pre-request {
+  const token = bru.getEnvVar("token");
+}
+

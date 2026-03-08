@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-create-genre-tree
+      author: system
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              tableName: genre_tree
+      changes:
+        - createTable:
+            tableName: genre_tree
+            columns:
+              - column:
+                  name: genre_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: parent_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+

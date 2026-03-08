@@ -12,6 +12,8 @@ export * from './authorWithScoreCount';
 export * from './errorApiInfo';
 export * from './errorApiInfoError';
 export * from './genreApiInfo';
+export * from './genreTreeNode';
+export * from './genreTreeUpdate';
 export * from './mbAuthorApiInfo';
 export * from './musicBrainzService';
 export * from './musicBrainzServiceLifeSpan';

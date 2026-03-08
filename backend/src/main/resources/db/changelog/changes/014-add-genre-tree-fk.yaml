@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 014-add-genre-tree-fk
+      author: system
+      preConditions:
+        - onFail: MARK_RAN
+        - and:
+            - tableExists:
+                tableName: genre_tree
+            - columnExists:
+                tableName: genre_tree
+                columnName: parent_id
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: genre_tree
+            baseColumnNames: parent_id
+            referencedTableName: genre_tree
+            referencedColumnNames: genre_id
+            constraintName: fk_genre_tree_parent_id
+            onDelete: SET NULL
+
