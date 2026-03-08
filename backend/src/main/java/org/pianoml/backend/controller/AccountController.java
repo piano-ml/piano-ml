@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.api.AccountApi;
 import org.pianoml.backend.model.*;
 import org.pianoml.backend.service.AccountService;
+import org.pianoml.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,9 @@ public class AccountController implements AccountApi {
 
   @Autowired
   private AccountService accountService;
+
+  @Autowired
+  private JwtTokenProvider jwtTokenProvider;
 
   @Override
   public ResponseEntity<Void> accountCreatePost(AccountCreatePostRequest accountCreatePostRequest) {
@@ -60,7 +64,7 @@ public class AccountController implements AccountApi {
       .httpOnly(true)
       .sameSite(sameSite)
       .path("/")
-      .maxAge(7 * 24 * 60 * 60) // 7 days; adjust to match token lifetime if needed
+      .maxAge(jwtTokenProvider.getJwtExpirationInMs() / 1000) // aligned with JWT token lifetime
       .secure(isSecure);
 
     // If request comes from a pianoml.org origin, set Domain to .pianoml.org so subdomains share the cookie.

@@ -23,3 +23,9 @@ databaseChangeLog:
       file: db/changelog/changes/009-remove-unique-constraint-score-mbid-owner-version.yaml
   - include:
       file: db/changelog/changes/011-add-make-fingerings-column.yaml
+  - include:
+      file: db/changelog/changes/012-create-genre-tree.yaml
+  - include:
+      file: db/changelog/changes/013-exec-genre-tree-sql.yaml
+  - include:
+      file: db/changelog/changes/014-add-genre-tree-fk.yaml

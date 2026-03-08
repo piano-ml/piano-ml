@@ -6,7 +6,7 @@ api/account.service.ts
 api/api.ts
 api/author.service.ts
 api/genre.service.ts
-api/musicbrainz.service.ts
+api/genreTree.service.ts
 api/score.service.ts
 api/workload.service.ts
 configuration.ts
@@ -27,6 +27,8 @@ model/authorWithScoreCount.ts
 model/errorApiInfo.ts
 model/errorApiInfoError.ts
 model/genreApiInfo.ts
+model/genreTreeNode.ts
+model/genreTreeUpdate.ts
 model/mbAuthorApiInfo.ts
 model/models.ts
 model/musicBrainzService.ts
