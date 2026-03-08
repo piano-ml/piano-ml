@@ -1037,6 +1037,53 @@ paths:
         '404':
           description: Parent node not found (if parent_id is provided and does not exist)
 
+  /artist/search/{query}:
+    get:
+      operationId: artistSearchQueryGet
+      tags:
+        - musicbrainz
+      summary: Search all artists
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of artists retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MbAuthorApiInfo'
+        '404':
+          description: Artists not found
+
+  /work/search/{query}:
+    get:
+      operationId: workSearchQueryGet
+      tags:
+        - musicbrainz
+      summary: Search all works
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: AuthorApiInfo retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllWorksApiInfo'
+        '404':
+          description: Work not found
+
+
 components:
   schemas:
     AuthorApiInfo:
