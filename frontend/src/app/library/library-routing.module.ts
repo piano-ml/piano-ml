@@ -14,6 +14,11 @@ export const libraryRouteList: Routes = [
     data: { breadcrumb: 'Browse' }
   },
   {
+    path: 'new',
+    component: BrowseComponent,
+    data: { breadcrumb: 'Browse' }
+  },
+  {
     path: 'genres/:genreSlug',
     component: BrowseComponent,
     data: { breadcrumb: 'Browse' }
