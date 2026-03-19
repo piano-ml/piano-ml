@@ -22,6 +22,8 @@ import { SeoService } from '../../../shared/services/seo.service';
 })
 export class BrowseComponent implements OnInit {
 
+  private readonly newestSortBy: 'uploadedAt_desc' = 'uploadedAt_desc';
+
   scores: ScoreApiInfo[] = [];
   selectedAuthor: AuthorWithScoreCount | null = null;
   selectedGenre: ScoreGenreBrowseGet200ResponseInner | null = null;
@@ -37,7 +39,7 @@ export class BrowseComponent implements OnInit {
   hasMore = true;
 
   // Tab selection
-  activeTab: 'artists' | 'genres' | 'popular' = 'genres';
+  activeTab: 'new' | 'artists' | 'genres' | 'popular' = 'genres';
 
   // Track count filters
   filterOneHand = false;
@@ -80,7 +82,7 @@ export class BrowseComponent implements OnInit {
     // Read the URL path to set active tab
     const path = this.route.snapshot.url[0]?.path;
     if (path) {
-      this.activeTab = path as 'artists' | 'genres' | 'popular';
+      this.activeTab = path as 'new' | 'artists' | 'genres' | 'popular';
     }
 
     this.loadFullKeys();
@@ -233,7 +235,7 @@ export class BrowseComponent implements OnInit {
       undefined, // gradeEnd
       undefined, // tempo
       this.getFullKeyFilter(), // fullKey
-      undefined, // sortBy
+      this.getSortByFilter(), // sortBy
       offset, // offset
       this.pageSize, // limit
       trackCount // tracks
@@ -479,7 +481,7 @@ export class BrowseComponent implements OnInit {
     this.loadScores(true);
   }
 
-  setActiveTab(tab: 'artists' | 'genres' | 'popular') {
+  setActiveTab(tab: 'new' | 'artists' | 'genres' | 'popular') {
     this.activeTab = tab;
     // Navigate to the corresponding route
     const path = '/library/' + tab;
@@ -501,6 +503,10 @@ export class BrowseComponent implements OnInit {
 
   getFullKeyFilter(): string | undefined {
     return this.selectedFullKey || undefined;
+  }
+
+  getSortByFilter(): 'uploadedAt_desc' | undefined {
+    return this.activeTab === 'new' ? this.newestSortBy : undefined;
   }
 
   applyFilters() {
@@ -639,6 +645,25 @@ export class BrowseComponent implements OnInit {
           '@type': 'Thing',
           'name': 'Piano Composers and Artists',
           'description': 'Collection of piano works organized by composer and artist'
+        }
+      };
+    } else if (this.activeTab === 'new') {
+      const totalScores = this.stats ? this.stats['public-domain'] + this.stats.copyrighted : 3000;
+      title = `New Piano Scores | PianoML - Latest Uploaded Sheet Music`;
+      description = `Browse the latest uploaded piano scores on PianoML. Discover newly added sheet music with interactive practice tools, hands-separated practice, and MIDI support.`;
+      url = `${baseUrl}/library/new`;
+      keywords = 'new piano scores, latest sheet music, recent piano uploads, piano practice, interactive piano scores';
+
+      structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        'name': 'New Piano Scores',
+        'description': description,
+        'numberOfItems': totalScores,
+        'about': {
+          '@type': 'CreativeWork',
+          'name': 'Latest piano scores',
+          'description': 'Collection of recently uploaded piano sheet music'
         }
       };
     } else {
