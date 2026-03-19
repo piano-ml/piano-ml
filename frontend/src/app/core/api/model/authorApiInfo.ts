@@ -24,5 +24,6 @@ export interface AuthorApiInfo {
      * URL-friendly slug for the author
      */
     slug?: string;
+    sortName?: string;
 }
 
