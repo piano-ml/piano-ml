@@ -1,12 +1,6 @@
 # PianoMl
 
 
-
-![PianoMl Logo](public/logo.png)
-
-[![Netlify Status](https://api.netlify.com/api/v1/badges/c7820713-f000-4796-980e-37791811bb2c/deploy-status)](https://app.netlify.com/sites/pianoml/deploys)
-
-
 ## About PianoMl
 
 PianoML is a project designed to help users learn piano and practice exercises.
