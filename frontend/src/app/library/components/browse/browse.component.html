@@ -3,6 +3,7 @@
   <!-- Page Title (h1) for SEO - visible for screen readers, styled for visual users -->
   <h1 class="sr-only" *ngIf="selectedGenre">{{ selectedGenre.genre!.name }} Piano Scores</h1>
   <h1 class="sr-only" *ngIf="selectedAuthor">{{ selectedAuthor.author.name }} Piano Works</h1>
+  <h1 class="sr-only" *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'new'">New Piano Scores</h1>
   <h1 class="sr-only" *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'genres'">Browse Piano Scores by Genre</h1>
   <h1 class="sr-only" *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'artists'">Browse Piano Scores by Composer & Artist</h1>
   <h1 class="sr-only" *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'popular'">Popular Piano Scores</h1>
@@ -97,6 +98,14 @@
     <!-- Tab Headers -->
     <div class="flex border-b border-neutral-600">
       <button 
+        (click)="setActiveTab('new')"
+        [class.border-green-500]="activeTab === 'new'"
+        [class.text-white]="activeTab === 'new'"
+        [class.text-gray-300]="activeTab !== 'new'"
+        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+        New
+      </button>
+      <button 
         (click)="setActiveTab('popular')"
         [class.border-green-500]="activeTab === 'popular'"
         [class.text-white]="activeTab === 'popular'"
@@ -150,6 +159,7 @@
     <span *ngIf="selectedGenre">{{ selectedGenre.genre!.name }} Piano Scores Collection</span>
     <span *ngIf="selectedAuthor">{{ selectedAuthor.author.name }} Piano Works Collection</span>
     <span *ngIf="activeSearchKeyword">Piano Score Search Results</span>
+    <span *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'new'">Latest Piano Scores</span>
     <span *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'genres'">Available Music Genres</span>
     <span *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'artists'">Featured Composers and Artists</span>
     <span *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'popular'">Most Popular Piano Scores</span>
@@ -157,6 +167,7 @@
 
   <!-- Results Table -->
   <app-score-table
+    *ngIf="selectedGenre || selectedAuthor || activeTab === 'popular' || activeTab === 'new'"
     [scores]="scores"
     [loading]="loading"
     [columns]="tableColumns"
@@ -167,7 +178,7 @@
   </app-score-table>
 
   <!-- Load More Button -->
-  <div class="mt-4 text-center" *ngIf="hasMore && scores.length > 0">
+  <div class="mt-4 text-center" *ngIf="(selectedGenre || selectedAuthor || activeTab === 'popular' || activeTab === 'new') && scores.length > 0">
     <button 
       (click)="loadMore()" 
       class="px-6 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
