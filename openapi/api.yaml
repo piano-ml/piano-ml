@@ -1115,6 +1115,8 @@ components:
           type: string
           maxLength: 255
           description: URL-friendly slug for the author
+        sortName:
+          type: string
     AuthorWithScoreCount:
       type: object
       properties:

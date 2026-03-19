@@ -7,6 +7,7 @@ api/api.ts
 api/author.service.ts
 api/genre.service.ts
 api/genreTree.service.ts
+api/musicbrainz.service.ts
 api/score.service.ts
 api/workload.service.ts
 configuration.ts

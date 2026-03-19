@@ -1,5 +1,6 @@
 package org.pianoml.backend.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.pianoml.backend.api.AuthorApi;
 import org.pianoml.backend.model.AuthorApiInfo;
 import org.pianoml.backend.service.AuthorService;
@@ -12,10 +13,10 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 public class AuthorController implements AuthorApi {
 
-  @Autowired
-  private AuthorService authorService;
+  private final AuthorService authorService;
 
   @Override
   public ResponseEntity<AuthorApiInfo> authorMbidGet(String id) {
