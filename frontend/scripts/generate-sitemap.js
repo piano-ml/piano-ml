@@ -139,8 +139,8 @@ function generateSitemap(genres, authors, scores) {
     //console.log(`Processing score: ${score.title} (slug: ${score.slug})`);
     const immutableSlug = score.immutableSlug || score.slug;
     if (immutableSlug) {
-      // Use uploadedAt from API if available, otherwise fall back to currentDate
-      const scoreLastMod = score.uploadedAt ? new Date(score.uploadedAt).toISOString() : currentDate;
+      // Use uploaded_at from API if available, otherwise fall back to currentDate
+      const scoreLastMod = score.uploaded_at ? new Date(score.uploaded_at).toISOString() : currentDate;
       allUrls.push({
         loc: `${BASE_URL}/score/${immutableSlug}`,
         priority: 1,
