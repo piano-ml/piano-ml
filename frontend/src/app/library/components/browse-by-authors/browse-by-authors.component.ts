@@ -36,9 +36,7 @@ export class BrowseByAuthorsComponent implements OnInit, OnChanges {
       next: (data) => {
         this.authors = data;
         this.loadingAuthors = false;
-        console.log(this.authors.map(a => a.author.name).join(', '));
         this.alpha = Array.from(new Set(this.authors.map(a => a.author.name?.charAt(0).toUpperCase()).filter((c): c is string => c !== undefined))).sort();
-        console.log('Loaded authors:', this.alpha);
         this.changeDetector.detectChanges();
 
       },
