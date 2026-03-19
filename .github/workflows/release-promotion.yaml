@@ -92,12 +92,20 @@ jobs:
           TARGET_BRANCH: ${{ steps.branches.outputs.target_branch }}
         run: |
           set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
           if git merge --no-commit --no-ff "origin/$SOURCE_BRANCH"; then
-            git merge --abort || true
+            if [[ -f .git/MERGE_HEAD ]]; then
+              git merge --abort
+            fi
           else
-            git merge --abort || true
-            echo "Merging $SOURCE_BRANCH into $TARGET_BRANCH currently has conflicts." >&2
+            if [[ -f .git/MERGE_HEAD ]]; then
+              git merge --abort
+            fi
+            echo "Merging $SOURCE_BRANCH into $TARGET_BRANCH currently has conflicts or cannot be prepared automatically." >&2
             exit 1
           fi
 
