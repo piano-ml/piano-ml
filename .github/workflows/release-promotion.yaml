@@ -113,12 +113,14 @@ jobs:
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           SOURCE_BRANCH: ${{ steps.branches.outputs.source_branch }}
           TARGET_BRANCH: ${{ steps.branches.outputs.target_branch }}
         run: |
           set -euo pipefail
 
           PR_JSON=$(gh pr list \
+            --repo "$REPO" \
             --base "$TARGET_BRANCH" \
             --head "$SOURCE_BRANCH" \
             --state open \
@@ -140,6 +142,7 @@ jobs:
       - name: Create or update promotion PR
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           SOURCE_BRANCH: ${{ needs.prepare.outputs.source_branch }}
           TARGET_BRANCH: ${{ needs.prepare.outputs.target_branch }}
           PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
@@ -169,16 +172,18 @@ jobs:
           )
 
           if [[ -n "$PR_NUMBER" ]]; then
-            gh pr edit "$PR_NUMBER" --title "$TITLE" --body "$BODY"
+            gh pr edit "$PR_NUMBER" --repo "$REPO" --title "$TITLE" --body "$BODY"
             echo "Promotion PR already exists: #$PR_NUMBER"
           else
             gh pr create \
+              --repo "$REPO" \
               --base "$TARGET_BRANCH" \
               --head "$SOURCE_BRANCH" \
               --title "$TITLE" \
               --body "$BODY"
 
             PR_NUMBER=$(gh pr list \
+              --repo "$REPO" \
               --base "$TARGET_BRANCH" \
               --head "$SOURCE_BRANCH" \
               --state open \
@@ -187,7 +192,7 @@ jobs:
               --jq '.[0].number')
           fi
 
-          gh pr merge "$PR_NUMBER" --auto --merge || echo "Auto-merge could not be enabled automatically."
+              gh pr merge "$PR_NUMBER" --repo "$REPO" --auto --merge || echo "Auto-merge could not be enabled automatically."
 
   merge_pr:
     name: Queue merge for promotion PR
@@ -198,6 +203,7 @@ jobs:
       - name: Ensure promotion PR exists
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           SOURCE_BRANCH: ${{ needs.prepare.outputs.source_branch }}
           TARGET_BRANCH: ${{ needs.prepare.outputs.target_branch }}
           PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
@@ -217,12 +223,14 @@ jobs:
             )
 
             gh pr create \
+              --repo "$REPO" \
               --base "$TARGET_BRANCH" \
               --head "$SOURCE_BRANCH" \
               --title "$TITLE" \
               --body "$BODY"
 
             PR_NUMBER=$(gh pr list \
+              --repo "$REPO" \
               --base "$TARGET_BRANCH" \
               --head "$SOURCE_BRANCH" \
               --state open \
@@ -231,4 +239,4 @@ jobs:
               --jq '.[0].number')
           fi
 
-          gh pr merge "$PR_NUMBER" --auto --merge
+              gh pr merge "$PR_NUMBER" --repo "$REPO" --auto --merge
