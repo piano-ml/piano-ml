@@ -7,14 +7,6 @@ on:
       - completed
   workflow_dispatch:
     inputs:
-      action:
-        description: Promotion action
-        required: true
-        type: choice
-        default: sync-pr
-        options:
-          - sync-pr
-          - merge
       source_branch:
         description: Source branch to promote
         required: true
@@ -136,7 +128,7 @@ jobs:
   sync_pr:
     name: Sync promotion PR
     needs: prepare
-    if: ${{ needs.prepare.result == 'success' && (github.event_name == 'workflow_run' || github.event.inputs.action == 'sync-pr') }}
+    if: ${{ needs.prepare.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Create or update promotion PR
@@ -168,6 +160,7 @@ jobs:
           - opened only after a successful push workflow on $SOURCE_BRANCH or via manual dispatch
           - merge-conflict check passed before creating/updating this PR
           - workflow concurrency prevents overlapping promotions for the same branch pair
+          - merge is intentionally manual
           EOF
           )
 
@@ -191,52 +184,3 @@ jobs:
               --limit 1 \
               --jq '.[0].number')
           fi
-
-              gh pr merge "$PR_NUMBER" --repo "$REPO" --auto --merge || echo "Auto-merge could not be enabled automatically."
-
-  merge_pr:
-    name: Queue merge for promotion PR
-    needs: prepare
-    if: ${{ needs.prepare.result == 'success' && github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'merge' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ensure promotion PR exists
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          SOURCE_BRANCH: ${{ needs.prepare.outputs.source_branch }}
-          TARGET_BRANCH: ${{ needs.prepare.outputs.target_branch }}
-          PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
-          SOURCE_SHA: ${{ needs.prepare.outputs.source_sha }}
-        run: |
-          set -euo pipefail
-
-          if [[ -z "$PR_NUMBER" ]]; then
-            TITLE="Release: promote $SOURCE_BRANCH to $TARGET_BRANCH"
-            BODY=$(cat <<EOF
-            Manual promotion request.
-
-            - Source: $SOURCE_BRANCH
-            - Target: $TARGET_BRANCH
-            - Source SHA: $SOURCE_SHA
-            EOF
-            )
-
-            gh pr create \
-              --repo "$REPO" \
-              --base "$TARGET_BRANCH" \
-              --head "$SOURCE_BRANCH" \
-              --title "$TITLE" \
-              --body "$BODY"
-
-            PR_NUMBER=$(gh pr list \
-              --repo "$REPO" \
-              --base "$TARGET_BRANCH" \
-              --head "$SOURCE_BRANCH" \
-              --state open \
-              --json number \
-              --limit 1 \
-              --jq '.[0].number')
-          fi
-
-              gh pr merge "$PR_NUMBER" --repo "$REPO" --auto --merge
