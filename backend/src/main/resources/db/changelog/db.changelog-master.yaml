@@ -29,3 +29,5 @@ databaseChangeLog:
       file: db/changelog/changes/013-exec-genre-tree-sql.yaml
   - include:
       file: db/changelog/changes/014-add-genre-tree-fk.yaml
+  - include:
+      file: db/changelog/changes/015-add-harmony-to-score.yaml

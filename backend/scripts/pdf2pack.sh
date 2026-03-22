@@ -7,7 +7,7 @@ export QT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/x86_64-linux-gnu/qt5/plugins
 export DISPLAY=:99
 export PYTHONIOENCODING=utf-8
 
-if [ $# -ne 5 ]; then
+if [ $# -ne 3 ]; then
   echo "Usage: $0 <PDF> <TITLE> <COMPOSER>"
   #exit 1
 fi
@@ -74,6 +74,8 @@ else
 fi
 
 musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml
+
+./scripts/auto_harmonize.sh "$FROOT.musicxml"
 
 $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml"
 

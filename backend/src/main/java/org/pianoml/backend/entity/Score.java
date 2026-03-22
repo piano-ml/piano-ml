@@ -105,4 +105,7 @@ public class Score {
   @Column(name = "full_key", length = 50)
   private String fullKey;
 
+  @Column(name = "harmony", columnDefinition = "json")
+  private String harmony;
+
 }

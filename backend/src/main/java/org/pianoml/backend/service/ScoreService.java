@@ -305,6 +305,9 @@ public class ScoreService {
             score.setFullKey(fullKey);
           }
         }
+        if (node.has("harmony") && node.get("harmony").isArray()) {
+          score.setHarmony(node.get("harmony").toString());
+        }
 
         scoreRepository.save(score);
       } else {

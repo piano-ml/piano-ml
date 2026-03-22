@@ -13,16 +13,6 @@ score = converter.parse(musicxml)
 
 result = []
 
-"""
-<note>
-  <notations>
-      <technical>
-          <fingering alternate="no" substitution="no">2</fingering>
-      </technical>
-  </notations>
-</note>
-"""
-
 for part in score.parts:
     part_data = []
     for n in part.recurse().notes:
@@ -33,11 +23,7 @@ for part in score.parts:
         part_data.append({'fingering': fingering})
     result.append(part_data)
 
-
-
 # Remplace l'extension par .json
 json_path = os.path.splitext(musicxml)[0] + '.fingering.json'
-print("reporting fingering data to: %s" % json_path)
-print(result)
 with open(json_path, 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False, indent=2)

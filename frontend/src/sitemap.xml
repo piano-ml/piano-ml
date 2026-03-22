@@ -5,42 +5,42 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
     <loc>https://pianoml.org/</loc>
-    <lastmod>2026-03-19T22:19:34.581Z</lastmod>
+    <lastmod>2026-03-19T22:57:52.785Z</lastmod>
     <priority>1</priority>
   </url>
   <url>
     <loc>https://pianoml.org/library</loc>
-    <lastmod>2026-03-19T22:19:34.581Z</lastmod>
+    <lastmod>2026-03-19T22:57:52.785Z</lastmod>
     <priority>1</priority>
   </url>
   <url>
     <loc>https://pianoml.org/exercises/scale/C/major/left_than_right</loc>
-    <lastmod>2026-03-19T22:19:34.581Z</lastmod>
+    <lastmod>2026-03-19T22:57:52.785Z</lastmod>
     <priority>1</priority>
   </url>
   <url>
     <loc>https://pianoml.org/exercises/scale/G/major/intervals</loc>
-    <lastmod>2026-03-19T22:19:34.581Z</lastmod>
+    <lastmod>2026-03-19T22:57:52.785Z</lastmod>
     <priority>1</priority>
   </url>
   <url>
     <loc>https://pianoml.org/exercises/scale/D/major/contrary_motion</loc>
-    <lastmod>2026-03-19T22:19:34.581Z</lastmod>
+    <lastmod>2026-03-19T22:57:52.785Z</lastmod>
     <priority>1</priority>
   </url>
   <url>
     <loc>https://pianoml.org/exercises/scale/A/major/parallel_motion_in_octaves</loc>
-    <lastmod>2026-03-19T22:19:34.581Z</lastmod>
+    <lastmod>2026-03-19T22:57:52.785Z</lastmod>
     <priority>1</priority>
   </url>
   <url>
     <loc>https://pianoml.org/exercises/agility/E/major/two_octave_arpeggios</loc>
-    <lastmod>2026-03-19T22:19:34.581Z</lastmod>
+    <lastmod>2026-03-19T22:57:52.785Z</lastmod>
     <priority>1</priority>
   </url>
   <url>
     <loc>https://pianoml.org/exercises/agility/B/major/arpeggio_root_position</loc>
-    <lastmod>2026-03-19T22:19:34.581Z</lastmod>
+    <lastmod>2026-03-19T22:57:52.785Z</lastmod>
     <priority>1</priority>
   </url>
   <url>
@@ -67505,7 +67505,7 @@
   </url>
   <url>
     <loc>https://pianoml.org/blog/thanks-and-acknowledgments</loc>
-    <lastmod>2026-03-19T22:19:34.581Z</lastmod>
+    <lastmod>2026-03-19T22:57:52.785Z</lastmod>
     <priority>0.5</priority>
   </url>
   <url>

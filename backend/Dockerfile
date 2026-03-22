@@ -13,28 +13,13 @@ ENV JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
 # Install essential packages, including locales for UTF-8 support
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        locales \
-        vim \
-        joe \
-        python3.11 \
-        python3-pip \
-        python3-venv \
-        pipx \
-        git \
-        openjdk-17-jre-headless \
-        poppler-utils \
-        zip \
-        musescore3 \
-        curl \
-        ca-certificates \
-        sudo && \
-    # Enable common UTF-8 locales and generate them
+        locales vim joe python3.11 python3-pip python3-venv pipx git openjdk-17-jre-headless \
+        poppler-utils zip musescore3 curl ca-certificates sudo && \
     sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
     sed -i 's/^# *\(fr_FR.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
     locale-gen en_US.UTF-8 fr_FR.UTF-8 || true && \
     update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \
-    rm -rf /var/lib/apt/lists/* && \
-    apt-get clean
+    rm -rf /var/lib/apt/lists/* && apt-get clean
 
 # Create a non-root user
 RUN groupadd --gid 1000 appuser && \
@@ -75,17 +60,21 @@ RUN git clone https://github.com/piano-ml/relieur.git && \
     poetry install
 
 # Clone pianoplayer (will use shared venv instead of its own)
-RUN git clone https://github.com/marcomusy/pianoplayer.git && cd pianoplayer && pipx install pianoplayer
+RUN pipx install pianoplayer
 
-# Create wrapper scripts for easy access to Python tools
 
+# Clone autoharmonizer2
+RUN git clone https://github.com/piano-ml/autoharmonizer.git && \
+    cd autoharmonizer && \
+    . /home/appuser/shared-venv/bin/activate && \
+    pip install -r requirements.txt
 
 # Copy the backend jar file into the container
 COPY --chown=appuser:appuser target/backend.jar /home/appuser/target/backend.jar
 
 # Copy scripts folder into the container
 COPY --chown=appuser:appuser scripts/ /home/appuser/scripts/
-
+COPY --chown=appuser:appuser src/test/resources/samples/* /home/appuser/samples/
 # Expose the application port
 EXPOSE 8080
 
