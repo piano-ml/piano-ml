@@ -165,9 +165,11 @@
     <span *ngIf="!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'popular'">Most Popular Piano Scores</span>
   </h2>
 
-  <!-- Results Table -->
+  <!-- Results Table    
+      *ngIf="selectedGenre || selectedAuthor || activeTab === 'popular' || activeTab === 'new'" 
+  -->
   <app-score-table
-    *ngIf="selectedGenre || selectedAuthor || activeTab === 'popular' || activeTab === 'new'"
+
     [scores]="scores"
     [loading]="loading"
     [columns]="tableColumns"
