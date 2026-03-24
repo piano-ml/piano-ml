@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.openapitools.jackson.nullable.JsonNullableModule;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.repository.ScoreRepository;
@@ -12,6 +13,7 @@ import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,6 +52,7 @@ public class ScoreControllerCreateScoreTest {
     scoreRepository = mock(ScoreRepository.class);
     accountService = mock(AccountService.class);
     objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JsonNullableModule());
 
     controller = new ScoreController();
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
@@ -58,7 +61,8 @@ public class ScoreControllerCreateScoreTest {
     ReflectionTestUtils.setField(controller, "scoreRepository", scoreRepository);
 
 
-    mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(objectMapper);
+    mockMvc = MockMvcBuilders.standaloneSetup(controller).setMessageConverters(converter).build();
   }
 
   @AfterEach
