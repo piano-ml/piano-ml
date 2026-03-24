@@ -1222,6 +1222,39 @@ components:
           type: string
           maxLength: 50
           description: The full key signature (e.g., C major, D minor)
+        harmony:
+          type: array
+          nullable: true
+          description: List of chord changes per measure and beat
+          items:
+            $ref: '#/components/schemas/HarmonyEntry'
+
+    HarmonyEntry:
+      type: object
+      properties:
+        measure:
+          type: integer
+          format: int32
+          description: Measure number (1-based)
+        root:
+          type: string
+          description: Root note of the chord (e.g., C, D, F#)
+        kind:
+          type: string
+          description: Chord type (e.g., major, minor-seventh, dominant-seventh, diminished)
+        beat:
+          type: number
+          format: float
+          description: Beat position within the measure (1-based)
+        bass:
+          type: string
+          nullable: true
+          description: Optional bass note for slash chords (e.g., Bb)
+      required:
+        - measure
+        - root
+        - kind
+        - beat
 
     WorkloadApiInfo:
       type: object

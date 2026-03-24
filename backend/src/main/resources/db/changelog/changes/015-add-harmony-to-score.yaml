@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 015-add-harmony-to-score
+      author: system
+      changes:
+        - addColumn:
+            schemaName: pianoml
+            tableName: "score"
+            columns:
+              - column:
+                  name: harmony
+                  type: JSON
+                  constraints:
+                    nullable: true
+

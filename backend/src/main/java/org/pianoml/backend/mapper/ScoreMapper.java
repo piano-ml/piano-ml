@@ -1,9 +1,14 @@
 package org.pianoml.backend.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.pianoml.backend.entity.Score;
+import org.pianoml.backend.model.HarmonyEntry;
 import org.pianoml.backend.model.ScoreApiInfo;
 
 import java.util.Arrays;
@@ -32,6 +37,29 @@ public interface ScoreMapper {
     return value.stream().map(String::valueOf).collect(Collectors.joining(","));
   }
 
+  ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  @Named("harmonyJsonToList")
+  public static JsonNullable<List<HarmonyEntry>> harmonyJsonToList(String value) {
+    if (value == null) return JsonNullable.undefined();
+    try {
+      List<HarmonyEntry> list = OBJECT_MAPPER.readValue(value, new TypeReference<List<HarmonyEntry>>() {});
+      return JsonNullable.of(list);
+    } catch (JsonProcessingException e) {
+      return JsonNullable.undefined();
+    }
+  }
+
+  @Named("harmonyListToJson")
+  public static String harmonyListToJson(JsonNullable<List<HarmonyEntry>> value) {
+    if (value == null || !value.isPresent() || value.get() == null) return null;
+    try {
+      return OBJECT_MAPPER.writeValueAsString(value.get());
+    } catch (JsonProcessingException e) {
+      return null;
+    }
+  }
+
   @Mapping(source = "author.name", target = "author")
   @Mapping(source = "author.id", target = "authorId")
   @Mapping(source = "author.sortName", target = "sortName")
@@ -44,6 +72,7 @@ public interface ScoreMapper {
   @Mapping(source = "measuresCount", target = "measures")
   @Mapping(source = "owner.name", target = "owner")
   @Mapping(source = "studyTracks", target = "studyTracks", qualifiedByName = "stringToIntegerList")
+  @Mapping(source = "harmony", target = "harmony", qualifiedByName = "harmonyJsonToList")
   ScoreApiInfo toScoreApiInfo(Score score);
 
   @Mapping(target = "id", ignore = true)
@@ -51,5 +80,6 @@ public interface ScoreMapper {
   @Mapping(target = "genre", ignore = true)
   @Mapping(target = "owner", ignore = true)
   @Mapping(source = "studyTracks", target = "studyTracks", qualifiedByName = "integerListToString")
+  @Mapping(source = "harmony", target = "harmony", qualifiedByName = "harmonyListToJson")
   Score toScore(ScoreApiInfo scoreApiInfo);
 }

@@ -1,6 +1,6 @@
 import sys
 import json
-from music21 import converter, metadata, tempo, analysis
+from music21 import converter, metadata, tempo, analysis, harmony
 from collections import defaultdict
 
 def extract_predominant_tempo(score):
@@ -27,6 +27,39 @@ def extract_predominant_tempo(score):
         avg_tempo = sum(tempos) / len(tempos)
     # Note: nous ne supprimons pas explicitement les marquages ici (inutile pour la métadata)
     return avg_tempo
+
+def extract_harmony(score):
+    """Extract harmony from a parsed score and return a list of harmony dicts."""
+    results = []
+
+    for element in score.recurse():
+        if isinstance(element, harmony.ChordSymbol):
+            measure = element.measureNumber
+            root_name = element.root().name if element.root() else None
+            kind = element.chordKind if element.chordKind else None
+
+            entry = {"measure": measure}
+
+            if root_name is not None:
+                # music21 uses '-' for flat, normalize to 'b'
+                entry["root"] = root_name.replace("-", "b")
+            else:
+                entry["root"] = None
+
+            entry["kind"] = kind
+
+            # Include beat position if useful (especially when multiple harmony per measure)
+            beat = element.beat
+            if beat is not None:
+                entry["beat"] = float(beat)
+
+            # Include bass note if different from root
+            if element.bass() and element.bass().name != (element.root().name if element.root() else None):
+                entry["bass"] = element.bass().name.replace("-", "b")
+
+            results.append(entry)
+
+    return results
 
 def analyze(score):
     """
@@ -118,10 +151,10 @@ def main():
         "measures_count": measures_count,
         "has_lyrics": has_lyrics,
         "tempo": predominant_tempo,
-        "analysis": analysis
+        "analysis": analysis,
+        "harmony": extract_harmony(score)
     }
 
-    print(metadata_dict)
     with open("metadata.json", "w") as f:
         json.dump(metadata_dict, f, indent=2)
 

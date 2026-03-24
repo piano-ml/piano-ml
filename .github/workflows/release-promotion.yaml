@@ -155,12 +155,6 @@ jobs:
           - Source SHA: \
             \
             $SOURCE_SHA
-
-          Safeguards:
-          - opened only after a successful push workflow on $SOURCE_BRANCH or via manual dispatch
-          - merge-conflict check passed before creating/updating this PR
-          - workflow concurrency prevents overlapping promotions for the same branch pair
-          - merge is intentionally manual
           EOF
           )
 
