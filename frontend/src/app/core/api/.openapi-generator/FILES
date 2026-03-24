@@ -30,6 +30,7 @@ model/errorApiInfoError.ts
 model/genreApiInfo.ts
 model/genreTreeNode.ts
 model/genreTreeUpdate.ts
+model/harmonyEntry.ts
 model/mbAuthorApiInfo.ts
 model/models.ts
 model/musicBrainzService.ts

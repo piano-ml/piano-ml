@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { HarmonyEntry } from './harmonyEntry';
 
 
 export interface ScoreApiInfo { 
@@ -53,5 +54,9 @@ export interface ScoreApiInfo {
      * The full key signature (e.g., C major, D minor)
      */
     fullKey?: string;
+    /**
+     * List of chord changes per measure and beat
+     */
+    harmony?: Array<HarmonyEntry> | null;
 }
 
