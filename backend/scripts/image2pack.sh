@@ -31,13 +31,13 @@ cd ..
 
 source ~/shared-venv/bin/activate
 
-HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
-if [ "$HAS_HARMONY" = "0" ]; then
-  echo "No harmony found, running auto_harmonizer"
-  ./scripts/auto_harmonize.sh "$FROOT.musicxml"  > /dev/null 2>&1 || exit 1
-else
-  echo "Harmony already present, skipping auto_harmonize"
-fi
+#HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
+#if [ "$HAS_HARMONY" = "0" ]; then
+#  echo "No harmony found, running auto_harmonizer"
+#  ./scripts/auto_harmonize.sh "$FROOT.musicxml"  > /dev/null 2>&1 || exit 1
+#else
+#  echo "Harmony already present, skipping auto_harmonize"
+#fi
 
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER" > /dev/null  || exit 1
 

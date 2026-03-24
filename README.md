@@ -1,6 +1,5 @@
 # PianoMl
 
-
 ## About PianoMl
 
 PianoML is a project designed to help users learn piano and practice exercises.

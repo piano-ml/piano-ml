@@ -27,15 +27,16 @@ MAKE_FINGERING="$4"
 TRACK_RIGHT="$5"
 TRACK_LEFT="$6"
 
+ls -lah "$INPUT"
 
 # Prepare file roots
 FROOT="${INPUT%.*}"
 # remove leading prefix upload_ if present
 FROOT="${FROOT/upload_/}"
 
-if [[ "${INPUT}" == *.mid ]]; then
+#if [[ "${INPUT}" == *.mid ]]; then
   mv -- "${INPUT}" "${FROOT}.midi"
-fi
+#fi
 
 # Ensure input exists
 if [ ! -f "${FROOT}.midi" ]; then
@@ -93,13 +94,13 @@ cp -- "${FROOT}.musicxml" "${FROOT}_filtered.musicxml"
 
 
 
-HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
-if [ "$HAS_HARMONY" = "0" ]; then
-  echo "No harmony found, running auto_harmonizer"
-  ./scripts/auto_harmonize.sh "$FROOT.musicxml" > /dev/null 2>&1 || exit 1
-else
-  echo "Harmony already present, skipping auto_harmonize"
-fi
+#HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
+#if [ "$HAS_HARMONY" = "0" ]; then
+#  echo "No harmony found, running auto_harmonizer"
+#  ./scripts/auto_harmonize.sh "$FROOT.musicxml" > /dev/null 2>&1 || exit 1
+#else
+#  echo "Harmony already present, skipping auto_harmonize"
+#fi
 
 printf "Setting metadata in files ...\n"
 python ./scripts/set_metadata.py "${FROOT}.musicxml" "$TITLE" "$COMPOSER"
