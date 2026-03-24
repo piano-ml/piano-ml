@@ -41,6 +41,7 @@ jobs:
       pr_number: ${{ steps.pr.outputs.pr_number }}
       pr_url: ${{ steps.pr.outputs.pr_url }}
       source_sha: ${{ steps.fetch.outputs.source_sha }}
+      merge_method: ${{ steps.conflicts.outputs.merge_method }}
     steps:
       - name: Resolve branches
         id: branches
@@ -79,6 +80,7 @@ jobs:
           echo "source_sha=$(git rev-parse "origin/$SOURCE_BRANCH")" >> "$GITHUB_OUTPUT"
 
       - name: Check merge conflicts
+        id: conflicts
         env:
           SOURCE_BRANCH: ${{ steps.branches.outputs.source_branch }}
           TARGET_BRANCH: ${{ steps.branches.outputs.target_branch }}
@@ -89,7 +91,27 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
-          if git merge --no-commit --no-ff "origin/$SOURCE_BRANCH"; then
+
+          # Count commits in main not present in develop (divergence indicator)
+          DIVERGED=$(git rev-list --count "origin/$SOURCE_BRANCH".."origin/$TARGET_BRANCH")
+
+          if [[ "$DIVERGED" -gt 0 ]]; then
+            # Branches have diverged (main has commits absent from develop).
+            # Use --no-ff to force a real merge commit and surface conflicts.
+            echo "::warning::Branches have diverged: $DIVERGED commit(s) in $TARGET_BRANCH not in $SOURCE_BRANCH. Consider rebasing $TARGET_BRANCH onto $SOURCE_BRANCH."
+            MERGE_OPTS="--no-commit --no-ff"
+            MERGE_METHOD="merge"
+          else
+            # develop is simply ahead of main: fast-forward is possible.
+            # --ff-only ensures no spurious merge commit is created on main,
+            # which is what causes the recurring "1 ahead / N behind" drift.
+            MERGE_OPTS="--ff-only"
+            MERGE_METHOD="rebase"
+          fi
+
+          echo "merge_method=$MERGE_METHOD" >> "$GITHUB_OUTPUT"
+
+          if git merge $MERGE_OPTS "origin/$SOURCE_BRANCH"; then
             if [[ -f .git/MERGE_HEAD ]]; then
               git merge --abort
             fi
@@ -139,6 +161,7 @@ jobs:
           TARGET_BRANCH: ${{ needs.prepare.outputs.target_branch }}
           PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
           SOURCE_SHA: ${{ needs.prepare.outputs.source_sha }}
+          MERGE_METHOD: ${{ needs.prepare.outputs.merge_method }}
         run: |
           set -euo pipefail
 
@@ -178,3 +201,13 @@ jobs:
               --limit 1 \
               --jq '.[0].number')
           fi
+
+          # Enable auto-merge with the correct method:
+          # - rebase: when develop is simply ahead of main (fast-forward), no spurious merge commit
+          # - merge:  when branches have diverged, a real merge commit is needed
+          # This prevents the recurring "main is 1 commit ahead of develop" drift.
+          gh pr merge "$PR_NUMBER" \
+            --repo "$REPO" \
+            --auto \
+            --"$MERGE_METHOD"
+

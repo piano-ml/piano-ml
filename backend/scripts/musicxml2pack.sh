@@ -42,13 +42,13 @@ fi
 echo "Generating fingering"
 python ./scripts/extract_fingering.py "$FROOT.musicxml" > /dev/null 2>&1
 
-HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
-if [ "$HAS_HARMONY" = "0" ]; then
-  echo "No harmony found, running auto_harmonize"
-  ./scripts/auto_harmonize.sh "$FROOT.musicxml" > /dev/null 2>&1
-else
-  echo "Harmony already present, skipping auto_harmonize"
-fi
+#HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
+#if [ "$HAS_HARMONY" = "0" ]; then
+#  echo "No harmony found, running auto_harmonize"
+#  ./scripts/auto_harmonize.sh "$FROOT.musicxml" > /dev/null 2>&1
+#else
+#  echo "Harmony already present, skipping auto_harmonize"
+#fi
 
 echo "Cleaning input"
 python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER" > /dev/null 2>&1
