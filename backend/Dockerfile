@@ -74,7 +74,7 @@ COPY --chown=appuser:appuser target/backend.jar /home/appuser/target/backend.jar
 
 # Copy scripts folder into the container
 COPY --chown=appuser:appuser scripts/ /home/appuser/scripts/
-COPY --chown=appuser:appuser src/test/resources/samples/* /home/appuser/samples/
+
 # Expose the application port
 EXPOSE 8080
 
