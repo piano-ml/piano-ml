@@ -39,8 +39,6 @@ public class WorkloadProcessingService {
 
   private final ScoreService scoreService;
 
-  //private final WorkloadTransactionService workloadTransactionService;
-
   private final S3Client s3Client;
 
   @Value("${aws.s3.bucket-name:'no-bucket'}")
