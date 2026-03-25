@@ -35,7 +35,7 @@ FROOT="${INPUT%.*}"
 FROOT="${FROOT/upload_/}"
 
 #if [[ "${INPUT}" == *.mid ]]; then
-  mv -- "${INPUT}" "${FROOT}.midi"
+  mv -- "${INPUT}" "${FROOT}.midi" || echo ""
 #fi
 
 # Ensure input exists
