@@ -41,7 +41,7 @@ jobs:
       pr_number: ${{ steps.pr.outputs.pr_number }}
       pr_url: ${{ steps.pr.outputs.pr_url }}
       source_sha: ${{ steps.fetch.outputs.source_sha }}
-      merge_method: ${{ steps.conflicts.outputs.merge_method }}
+      needed: ${{ steps.check.outputs.needed }}
     steps:
       - name: Resolve branches
         id: branches
@@ -79,8 +79,25 @@ jobs:
           git fetch origin "$SOURCE_BRANCH" "$TARGET_BRANCH"
           echo "source_sha=$(git rev-parse "origin/$SOURCE_BRANCH")" >> "$GITHUB_OUTPUT"
 
+      - name: Check if promotion is needed
+        id: check
+        env:
+          SOURCE_BRANCH: ${{ steps.branches.outputs.source_branch }}
+          TARGET_BRANCH: ${{ steps.branches.outputs.target_branch }}
+        run: |
+          set -euo pipefail
+
+          # Skip if target already contains all source commits (nothing to promote)
+          if git merge-base --is-ancestor "origin/$SOURCE_BRANCH" "origin/$TARGET_BRANCH"; then
+            echo "$TARGET_BRANCH already contains all commits from $SOURCE_BRANCH. Nothing to promote."
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "needed=true" >> "$GITHUB_OUTPUT"
+
       - name: Check merge conflicts
-        id: conflicts
+        if: steps.check.outputs.needed == 'true'
         env:
           SOURCE_BRANCH: ${{ steps.branches.outputs.source_branch }}
           TARGET_BRANCH: ${{ steps.branches.outputs.target_branch }}
@@ -91,27 +108,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
-
-          # Count commits in main not present in develop (divergence indicator)
-          DIVERGED=$(git rev-list --count "origin/$SOURCE_BRANCH".."origin/$TARGET_BRANCH")
-
-          if [[ "$DIVERGED" -gt 0 ]]; then
-            # Branches have diverged (main has commits absent from develop).
-            # Use --no-ff to force a real merge commit and surface conflicts.
-            echo "::warning::Branches have diverged: $DIVERGED commit(s) in $TARGET_BRANCH not in $SOURCE_BRANCH. Consider rebasing $TARGET_BRANCH onto $SOURCE_BRANCH."
-            MERGE_OPTS="--no-commit --no-ff"
-            MERGE_METHOD="merge"
-          else
-            # develop is simply ahead of main: fast-forward is possible.
-            # --ff-only ensures no spurious merge commit is created on main,
-            # which is what causes the recurring "1 ahead / N behind" drift.
-            MERGE_OPTS="--ff-only"
-            MERGE_METHOD="rebase"
-          fi
-
-          echo "merge_method=$MERGE_METHOD" >> "$GITHUB_OUTPUT"
-
-          if git merge $MERGE_OPTS "origin/$SOURCE_BRANCH"; then
+          if git merge --no-commit "origin/$SOURCE_BRANCH"; then
             if [[ -f .git/MERGE_HEAD ]]; then
               git merge --abort
             fi
@@ -124,6 +121,7 @@ jobs:
           fi
 
       - name: Find existing promotion PR
+        if: steps.check.outputs.needed == 'true'
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
@@ -150,7 +148,7 @@ jobs:
   sync_pr:
     name: Sync promotion PR
     needs: prepare
-    if: ${{ needs.prepare.result == 'success' }}
+    if: ${{ needs.prepare.result == 'success' && needs.prepare.outputs.needed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Create or update promotion PR
@@ -161,7 +159,6 @@ jobs:
           TARGET_BRANCH: ${{ needs.prepare.outputs.target_branch }}
           PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
           SOURCE_SHA: ${{ needs.prepare.outputs.source_sha }}
-          MERGE_METHOD: ${{ needs.prepare.outputs.merge_method }}
         run: |
           set -euo pipefail
 
@@ -202,12 +199,4 @@ jobs:
               --jq '.[0].number')
           fi
 
-          # Enable auto-merge with the correct method:
-          # - rebase: when develop is simply ahead of main (fast-forward), no spurious merge commit
-          # - merge:  when branches have diverged, a real merge commit is needed
-          # This prevents the recurring "main is 1 commit ahead of develop" drift.
-          gh pr merge "$PR_NUMBER" \
-            --repo "$REPO" \
-            --auto \
-            --"$MERGE_METHOD"
 

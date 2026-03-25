@@ -1,0 +1,46 @@
+name: Post-release sync
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  sync-develop:
+    name: Sync develop with main
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.ref == 'develop' &&
+      startsWith(github.event.pull_request.title, 'Release:')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync develop with main
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main develop
+
+          # If main is already ancestor of develop, nothing to do
+          if git merge-base --is-ancestor origin/main origin/develop; then
+            echo "develop already contains all commits from main. Nothing to sync."
+            exit 0
+          fi
+
+          # Merge main back into develop to include the merge commit
+          git checkout -B develop origin/develop
+          git merge --ff origin/main -m "chore: sync develop with main after release"
+          git push origin develop
+
