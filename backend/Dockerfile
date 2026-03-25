@@ -38,6 +38,8 @@ RUN python -m venv /home/appuser/shared-venv && \
     /home/appuser/shared-venv/bin/pip install --upgrade pip && \
     /home/appuser/shared-venv/bin/pip install music21 musicxml pretty_midi
 
+RUN /home/appuser/shared-venv/bin/pip3 install music21 musicxml pretty_midi
+
 # Install Poetry using pipx (recommended for Debian 12)
 RUN pipx install poetry && \
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
