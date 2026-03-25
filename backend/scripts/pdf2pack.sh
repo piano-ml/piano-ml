@@ -20,7 +20,7 @@ FROOT="${PDF%.*}"
 FROOT="${FROOT/upload_/}"
 
 echo "Converting PDF to PNG using pdftoppm"
-pdftoppm  -png "$PDF" "$FROOT" || exit 1
+pdftoppm  -rx 300 -ry 300 -png "$PDF" "$FROOT" || exit 1
 
 sleep 1
 
@@ -30,7 +30,7 @@ XMLFILES=""
 cd homr
 for FILE in $FILES; do
   echo "starting homr $FILE"
-   poetry run homr "$FILE" > /dev/null || exit 1
+   poetry run homr "$FILE" > /dev/null #|| exit 1
   XML_FILE="${FILE%.png}.musicxml"
   if [ -z "$XMLFILES" ]; then
     XMLFILES="$XML_FILE"

@@ -46,12 +46,11 @@ ENV PATH="/home/appuser/.local/bin:$PATH"
 # Clone and install HOMR (Optical Music Recognition)
 RUN git config --global user.email "you@example.com" &&  \
     git config --global user.name "Your Name" && \
-    git clone https://github.com/piano-ml/homr.git &&  \
+    git clone https://github.com/liebharc/homr.git &&  \
     cd homr && \
     git fetch --tags && \
-    git checkout 885073c && \
-    git cherry-pick 2b274aa15dc08836d308ac9020f5d98a45cddf88 && \
-    poetry install --without dev && \
+    git checkout ddfc632a75bf9c266e1a54c8b36c8383d3e83f43 && \
+    poetry install  --only main && \
     poetry run python -c "from homr.main import main; import sys; sys.argv = ['homr', '--init']; main()"
 
 # Clone and install relieur (MusicXML merger)
