@@ -41,12 +41,14 @@ done
 sleep 1
 
 cd ..
-pwd
-echo "Running relieur to merge musicxml files: $XMLFILES"
-
-$HOME/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES > /dev/null
 
 source ~/shared-venv/bin/activate
+
+echo "Running relieur to merge musicxml files: $XMLFILES"
+echo "python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES "
+
+~/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES > /dev/null
+
 
 #HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
 #if [ "$HAS_HARMONY" = "0" ]; then
