@@ -59,6 +59,7 @@ export class CursorService {
     verifyAllElementsOk = false;
     verifyAllElementsOkSignal = signal<boolean>(false);
     osmd: OpenSheetMusicDisplay | undefined;
+    maxMidiMeasure = 0;
 
     public tiltCursor(cursor: Cursor): void {
         this.cursor = cursor;
@@ -397,6 +398,7 @@ export class CursorService {
                 : null;
             osmdArrayIndex++;
         }
+        this.maxMidiMeasure =  Math.max(...osmdArray.map(e => e.midiMeasure))
         this.debugStep("[main]", osmdArray);
         await this.yieldToUi();
         return osmdArray;
