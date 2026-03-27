@@ -103,6 +103,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   // Configuration
   playConfiguration: PlayConfiguration = {
+    maxPerformanceStaveCount: 100,
     maxStaveCount: 100,
     currentStave: 0,
     doSound: true,

@@ -115,9 +115,9 @@ export class PlayerService {
     // Remove tracks with no notes
     json.tracks = json.tracks.filter(track => track.notes.length > 0);
 
-    json.tracks.forEach((track, idx) => {
-      console.log(`Track ${idx}: ${track.name}, instrument: ${track.instrument.name}, notes: ${track.notes.length}`);
-    });
+    // json.tracks.forEach((track, idx) => {
+    //   console.log(`Track ${idx}: ${track.name}, instrument: ${track.instrument.name}, notes: ${track.notes.length}`);
+    // });
 
     // If studies.length === 1, include all tracks with the same instrument name
     if (studies.length === 1) {
@@ -206,8 +206,9 @@ export class PlayerService {
     const startOffset = this.calculateStartTime();
     const endCut = this.calculateEndTime();
     this.playConfiguration = playConfigurations;
+    this.playConfiguration.maxPerformanceStaveCount = this.cursorService.maxMidiMeasure;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
-  
+
     await this.audio.start();
 
     this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], startOffset, endCut);
@@ -225,14 +226,12 @@ export class PlayerService {
 
     // Delegate end scheduling
     this.audio.scheduleEnd(endCut - startOffset, () => {
-      console.log('Scheduled end reached', endCut, startOffset, endCut - startOffset);
-
       this.message.set('END');
       setTimeout(() => {
         this.message.set('');
       }, 100);
       this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
-    
+
       this.reset(this.playConfiguration);
       if (this.playConfiguration.isLoop) {
         this.play(this.playConfiguration);
@@ -306,7 +305,7 @@ export class PlayerService {
     const cursor = this.cursorService.cursor!;
     const osmdNotes = (cursor.GNotesUnderCursor() as GraphicalNote[]).filter(n => n && (n as any).sourceNote);
     if (osmdNotes.length === 0) return;
-    if (osmdNotes.at(0)?.sourceNote.TremoloInfo!=null) {
+    if (osmdNotes.at(0)?.sourceNote.TremoloInfo != null) {
       // Tremolo note, skipping highlight
       return;
     }
@@ -316,7 +315,7 @@ export class PlayerService {
       const currDiff = Math.abs((curr.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
       return (currDiff < prevDiff) ? curr : prev;
     });
-    
+
     const delta = (closest.sourceNote.halfTone - pitch + 12);
     closest.setColor("#FF0000", {});
     const closestVexFlowNote = (closest as VexFlowGraphicalNote);
@@ -328,7 +327,7 @@ export class PlayerService {
   }
 
   private unHighlightBadNote() {
-    if (this.osmd?.GraphicSheet ==null) return;
+    if (this.osmd?.GraphicSheet == null) return;
     this.osmd?.GraphicSheet.MeasureList.forEach(measure => {
       measure.forEach(graphicalMeasure => {
         if (graphicalMeasure && graphicalMeasure.staffEntries) {
@@ -371,7 +370,7 @@ export class PlayerService {
       this.isWaiting = true;
       this.audio.pause();
       this.lightExpectedNotesOnKeyboard(liveStatus);
-    } 
+    }
   }
 
   private lightExpectedNotesOnKeyboard(liveStatus: LiveStatus) {
@@ -423,14 +422,20 @@ export class PlayerService {
 
 
   private calculateEndTime() {
+
     if (this.playConfiguration.scoreRange[1] === this.playConfiguration.maxStaveCount + 1
-      && this.playConfiguration.scoreRange[0] === 1) {
-      return this.duration * this.state.getTimeFactor();
+      && this.playConfiguration.scoreRange[0] === 0) {
+      const endTime = this.calculateStartTimeInMsForMeasure(
+        this.playConfiguration.maxPerformanceStaveCount,
+        this.playConfiguration.midi!.header
+      ) * this.state.getTimeFactor();
+      return endTime
     }
-    return (this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1] - 1,
+    const endTime = this.calculateStartTimeInMsForMeasure(
+      this.playConfiguration.scoreRange[1] - this.playConfiguration.scoreRange[0],
       this.playConfiguration.midi!.header
-    ) * this.state.getTimeFactor());
+    ) * this.state.getTimeFactor();
+    return endTime + this.calculateStartTime();
   }
 
 
@@ -439,7 +444,8 @@ export class PlayerService {
     let elapsedTicks = 0;
     for (let i = 0; i < start; i++) {
       timeSig = midiHeader.timeSignatures.filter((t) => t.ticks <= elapsedTicks).at(-1);
-      elapsedTicks += getStaveDurationTick(reducedFraction(timeSig?.timeSignature[0] || 4, timeSig?.timeSignature[1] || 4), midiHeader.ppq);
+      const ts = reducedFraction(timeSig?.timeSignature[0] || 4, timeSig?.timeSignature[1] || 4)
+      elapsedTicks += getStaveDurationTick(ts, midiHeader.ppq);
     }
     return midiHeader.ticksToSeconds(elapsedTicks);
   }

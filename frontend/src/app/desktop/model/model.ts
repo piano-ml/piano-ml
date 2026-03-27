@@ -35,6 +35,7 @@ export interface DurationDetection {
 
 
 export interface PlayConfiguration {
+  maxPerformanceStaveCount: number;
   maxStaveCount: number;
   currentStave: number;
   doSound: boolean;
