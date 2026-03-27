@@ -423,12 +423,13 @@ export class PlayerService {
 
 
   private calculateEndTime() {
+    console.log('Calculating end time with score range', this.playConfiguration);
     if (this.playConfiguration.scoreRange[1] === this.playConfiguration.maxStaveCount + 1
-      && this.playConfiguration.scoreRange[0] === 1) {
+      && this.playConfiguration.scoreRange[0] === 0) {
       return this.duration * this.state.getTimeFactor();
     }
     return (this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1] - 1,
+      this.playConfiguration.scoreRange[1] - this.playConfiguration.scoreRange[0] + 1,
       this.playConfiguration.midi!.header
     ) * this.state.getTimeFactor());
   }
