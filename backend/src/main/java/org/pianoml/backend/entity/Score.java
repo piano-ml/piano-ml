@@ -111,4 +111,7 @@ public class Score {
   @Column(name = "harmony", columnDefinition = "json")
   private String harmony;
 
+  @Column(columnDefinition = "text")
+  private String description;
+
 }
