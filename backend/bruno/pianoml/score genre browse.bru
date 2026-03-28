@@ -11,12 +11,12 @@ get {
 }
 
 params:query {
-  ~tracks:
-  ~fullKey:
-  ~slug:
-  ~genre:
-  ~offset:
-  ~limit:
+  ~tracks: 
+  ~fullKey: 
+  ~slug: 
+  ~genre: 
+  ~offset: 
+  ~limit: 
 }
 
 headers {
@@ -27,4 +27,3 @@ headers {
 script:pre-request {
   const token = bru.getEnvVar("token");
 }
-

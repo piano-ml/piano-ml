@@ -31,3 +31,5 @@ databaseChangeLog:
       file: db/changelog/changes/014-add-genre-tree-fk.yaml
   - include:
       file: db/changelog/changes/015-add-harmony-to-score.yaml
+  - include:
+      file: db/changelog/changes/016-add-description-field.yaml

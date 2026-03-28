@@ -17,12 +17,12 @@ public interface GenreRepository extends CrudRepository<Genre, UUID> {
 
   Optional<Genre> findById(UUID id);
 
-  @Query("SELECT g.id, g.mbid, g.name, COUNT(s) " +
+  @Query("SELECT g.id, g.mbid, g.name, COUNT(s), g.description " +
          "FROM Genre g LEFT JOIN Score s ON s.genre = g AND (s.deleted = false OR s.deleted IS NULL) " +
          "GROUP BY g.id, g.mbid, g.name ORDER BY g.name ASC")
   List<Object[]> findAllWithScoreCountRaw();
 
-  @Query("SELECT g.id, g.mbid, g.name, COUNT(s) " +
+  @Query("SELECT g.id, g.mbid, g.name, COUNT(s), g.description " +
          "FROM Genre g LEFT JOIN Score s ON s.genre = g AND (s.deleted = false OR s.deleted IS NULL) " +
          "WHERE g.mbid = :id GROUP BY g.id, g.mbid, g.name")
   Optional<Object[]> findByIdWithScoreCountRaw(UUID id);

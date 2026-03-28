@@ -55,6 +55,7 @@ public class AuthorService {
 
   public AuthorApiInfo createAuthor(AuthorApiInfo authorApiInfo) {
     Author author = maybeCreateAuthor(UUID.fromString(authorApiInfo.getMbid()));
+    author.setDescription(authorApiInfo.getDescription());
     return authorMapper.toAuthorApiInfo(author);
   }
 
@@ -63,10 +64,13 @@ public class AuthorService {
       .map(authorMapper::toAuthorApiInfo);
   }
 
-  public Optional<AuthorApiInfo> updateAuthor(UUID mbid, AuthorApiInfo authorApiInfo) {
-    return authorRepository.findByMbid(mbid)
+  public Optional<AuthorApiInfo> updateAuthor(UUID id, AuthorApiInfo authorApiInfo) {
+    return authorRepository.findById(id)
       .map(author -> {
-        author.setName(authorApiInfo.getName());
+        if (authorApiInfo.getName() != null) {
+          author.setName(authorApiInfo.getName());
+        }
+        author.setDescription(authorApiInfo.getDescription());
         Author updatedAuthor = authorRepository.save(author);
         return authorMapper.toAuthorApiInfo(updatedAuthor);
       });

@@ -1,11 +1,11 @@
 meta {
   name: score put
   type: http
-  seq: 19
+  seq: 14
 }
 
 put {
-  url: http://localhost:8080/score/b46797f3-d5bd-4bc2-9010-ebad3bc6e305/info
+  url: http://localhost:8080/score/19b17c20-6449-4445-9a2f-17f25e82dc2f/info
   body: json
   auth: inherit
 }
@@ -17,11 +17,11 @@ headers {
 
 body:json {
    {
-      "id": "b46797f3-d5bd-4bc2-9010-ebad3bc6e305",
+      "id": "19b17c20-6449-4445-9a2f-17f25e82dc2f",
       "mbid": "396883fa-ba67-33a5-934c-a6d05ee6d7e7",
       "title": "Redemption Song",
       "author": "Bob Marley",
-      "author_id": "5c5c4180-d964-44e4-adff-b1cf3786fe2b",
+      "author_id": "ed2ac1e9-d51d-4eff-a2c2-85e81abd6360",
       "sortName": "Marley, Bob",
       "version": 1,
       "tracks_count": 2,
@@ -44,6 +44,7 @@ body:json {
       ],
       "mutableSlug": "marley-bob-redemption-song",
       "immutableSlug": "marley-bob-redemption-song",
-      "tempo": 62
+      "tempo": 62,
+     "description": "text description"
     }
 }

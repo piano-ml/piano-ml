@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class GenreService {
@@ -29,28 +28,19 @@ public class GenreService {
 
   public Optional<GenreApiInfo> getGenre(UUID id) {
     Optional<Object[]> raw = genreRepository.findByIdWithScoreCountRaw(id);
-    return raw.map(a -> {
-      GenreApiInfo info = new GenreApiInfo();
-      if (a[0] != null) info.setId(a[0].toString());
-      if (a[1] != null) info.setMbid(a[1].toString());
-      if (a[2] != null) info.setName(a[2].toString());
-      Long count = a[3] == null ? 0L : ((Number) a[3]).longValue();
-      info.setScoreCount(count.intValue());
-      return info;
+    // Use flatMap and validate the raw array length to avoid ArrayIndexOutOfBoundsException
+    return raw.flatMap(a -> {
+      if (a.length == 0) {
+        return Optional.empty();
+      }
+      GenreApiInfo info = mapRawToGenreApiInfo(a);
+      return Optional.of(info);
     });
   }
 
   public List<GenreApiInfo> getAllGenres() {
     return genreRepository.findAllWithScoreCountRaw().stream()
-      .map(a -> {
-        GenreApiInfo info = new GenreApiInfo();
-        if (a[0] != null) info.setId(a[0].toString());
-        if (a[1] != null) info.setMbid(a[1].toString());
-        if (a[2] != null) info.setName(a[2].toString());
-        Long count = a[3] == null ? 0L : ((Number) a[3]).longValue();
-        info.setScoreCount(count.intValue());
-        return info;
-      })
+      .map(this::mapRawToGenreApiInfo)
       .collect(Collectors.toList());
   }
 
@@ -58,6 +48,7 @@ public class GenreService {
     return genreRepository.findById(id)
       .map(genre -> {
         genre.setName(genreApiInfo.getName());
+        genre.setDescription(genreApiInfo.getDescription());
         Genre updatedGenre = genreRepository.save(genre);
         return genreMapper.toGenreApiInfo(updatedGenre);
       });
@@ -67,5 +58,20 @@ public class GenreService {
     return genreRepository.findByNameContainingIgnoreCase(query).stream()
       .map(genreMapper::toGenreApiInfo)
       .collect(Collectors.toList());
+  }
+
+  // Helper to safely map raw repository results to GenreApiInfo
+  private GenreApiInfo mapRawToGenreApiInfo(Object[] a) {
+    GenreApiInfo info = new GenreApiInfo();
+    if (a == null) return info;
+    if (a.length > 0 && a[0] != null) info.setId(a[0].toString());
+    if (a.length > 1 && a[1] != null) info.setMbid(a[1].toString());
+    if (a.length > 2 && a[2] != null) info.setName(a[2].toString());
+    if (a.length > 3) {
+      long count = a[3] == null ? 0L : ((Number) a[3]).longValue();
+      info.setScoreCount((int) count);
+    }
+    if (a.length > 4 && a[4] != null) info.setDescription(a[4].toString());
+    return info;
   }
 }
