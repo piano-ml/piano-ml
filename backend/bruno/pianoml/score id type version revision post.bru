@@ -1,19 +1,13 @@
 meta {
   name: score id type version revision post
   type: http
-  seq: 20
+  seq: 15
 }
 
 post {
   url: http://localhost:8080/score/{{scoreId}}/{{type}}/{{version}}/{{revision}}
   body: file
   auth: inherit
-}
-
-headers {
-  Accept: */*
-  Authorization: Bearer {{token}}
-  Content-Type: multipart/form-data
 }
 
 params:path {
@@ -23,9 +17,15 @@ params:path {
   revision: 0
 }
 
+headers {
+  Accept: */*
+  Authorization: Bearer {{token}}
+  Content-Type: multipart/form-data
+}
+
 body:file {
-  file: ./fixtures/sample.musicxml
-  fieldName: file
+  ~file: @file()
+  ~file: @file()
 }
 
 script:pre-request {
@@ -34,5 +34,5 @@ script:pre-request {
 
 settings {
   encodeUrl: true
+  timeout: 0
 }
-

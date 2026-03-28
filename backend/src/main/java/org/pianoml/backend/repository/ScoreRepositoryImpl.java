@@ -28,7 +28,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   private EntityManager em;
 
   // Updated signature with fullKey parameter
-  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, String fullKey, String orderBy, Integer offset, Integer limit, User user, List<Integer> tracks) {
+  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, String fullKey, String orderBy, Integer offset, Integer limit, User user, List<Integer> tracks, String description) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Score> cq = cb.createQuery(Score.class);
     Root<Score> root = cq.from(Score.class);
@@ -102,6 +102,12 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     if (tempo != null && !tempo.isEmpty()) {
       if ("NONE".equalsIgnoreCase(tempo)) {
         predicate = cb.and(predicate, cb.isNull(root.get("tempo")));
+      }
+    }
+
+    if (description != null && !description.isEmpty()) {
+      if ("NONE".equalsIgnoreCase(description)) {
+        predicate = cb.and(predicate, cb.isNull(root.get("description")));
       }
     }
 

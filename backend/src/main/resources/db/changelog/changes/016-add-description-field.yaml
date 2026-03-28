@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: 015-add-description-field
+      author: eflorent
+      changes:
+        - addColumn:
+            tableName: score
+            columns:
+              - column:
+                  name: description
+                  type: text
+                  remarks: "Optional description field for the score"
+        - addColumn:
+            tableName: author
+            columns:
+              - column:
+                  name: description
+                  type: text
+                  remarks: "Optional description field for the author"
+        - addColumn:
+            tableName: genre
+            columns:
+              - column:
+                  name: description
+                  type: text
+                  remarks: "Optional description field for the genre"
+      rollback:
+        - dropColumn:
+            columnName: description
+            tableName: score
+        - dropColumn:
+            columnName: description
+            tableName: author
+        - dropColumn:
+            columnName: description
+            tableName: genre
+

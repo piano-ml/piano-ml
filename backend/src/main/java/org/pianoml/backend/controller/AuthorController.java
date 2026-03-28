@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -27,7 +28,10 @@ public class AuthorController implements AuthorApi {
 
   @Override
   public ResponseEntity<AuthorApiInfo> authorMbidPut(String id, AuthorApiInfo authorApiInfo) {
-    return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    Optional<AuthorApiInfo> updatedAuthor = authorService.updateAuthor(UUID.fromString(id),authorApiInfo);
+    return updatedAuthor.map(apiInfo ->
+        new ResponseEntity<>(apiInfo, HttpStatus.OK)
+      ).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
   }
 
   @Override

@@ -54,4 +54,7 @@ public class Author {
   @Column(name = "slug", length = 255, unique = true)
   private String slug;
 
+  @Column(columnDefinition = "text")
+  private String description;
+
 }
