@@ -22,7 +22,12 @@ FROOT="${FROOT/upload_/}"
 musescore3 -o $FROOT-ok.musicxml $ORI
 mv $FROOT-ok.musicxml $FROOT.musicxml
 
-if [ -n "$MAKE_FINGERING" ]; then
+
+
+HAS_FINGERING=$(python ./scripts/has_fingering.py "$FROOT.musicxml")
+# Only run pianoplayer fingering detection when MAKE_FINGERING is set
+# AND the score currently has no fingering (HAS_FINGERING == "0").
+if [ -n "$MAKE_FINGERING" ] && [ "$HAS_FINGERING" = "0" ]; then
   case "$(echo "$MAKE_FINGERING" | tr '[:upper:]' '[:lower:]')" in
     1|true|yes|y)
       echo "Running pianoplayer for fingering detection"
