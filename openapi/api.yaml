@@ -302,6 +302,12 @@ paths:
             nullable: true
           style: form
           explode: true
+        - name: description
+          in: query
+          schema:
+            type: string
+          description: 'set to NONE to get all with no description'
+
       responses:
         '200':
           description: ScoreApiInfo retrieved successfully
@@ -1117,6 +1123,9 @@ components:
           description: URL-friendly slug for the author
         sortName:
           type: string
+        description:
+          type: string
+          description: Description textuelle de l'auteur
     AuthorWithScoreCount:
       type: object
       properties:
@@ -1228,6 +1237,9 @@ components:
           description: List of chord changes per measure and beat
           items:
             $ref: '#/components/schemas/HarmonyEntry'
+        description:
+          type: string
+          description: Description textuelle de la partition
 
     HarmonyEntry:
       type: object
@@ -1322,6 +1334,9 @@ components:
           type: string
           maxLength: 255
           description: URL-friendly slug for the genre
+        description:
+          type: string
+          description: Description textuelle du genre
 
     GenreTreeNode:
       type: object
