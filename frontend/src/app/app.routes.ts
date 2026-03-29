@@ -33,12 +33,6 @@ export const routes: Routes = [
     },
     {
         component: LayoutComponent,
-        path: '',
-        loadChildren: () => import('./home/home.module').then(m => m.HomeModule),
-        data: { breadcrumb: 'Home' }
-    },
-    {
-        component: LayoutComponent,
         path: 'account',
         loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
         data: { breadcrumb: 'Account' }
@@ -68,6 +62,12 @@ export const routes: Routes = [
         loadChildren: () => import('./exercises/exercises.module').then(m => m.ExercisesModule),
         data: { breadcrumb: 'Exercises' }
 
+    },
+    {
+        component: LayoutComponent,
+        path: '',
+        loadChildren: () => import('./home/home.module').then(m => m.HomeModule),
+        data: { breadcrumb: 'Home' }
     },
     {
         path: 'error',
