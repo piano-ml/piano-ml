@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
+import { Component, ChangeDetectorRef, OnDestroy, inject, PLATFORM_ID, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -24,6 +24,7 @@ export class LayoutComponent implements OnDestroy {
     version = versionInfo;
   private platformId = inject(PLATFORM_ID);
   private changeDetector = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
   isLoggedIn$: Observable<boolean>;
   username$: Observable<string | null>;;
   shareLinks = ['facebook','x','reddit','viber','xing']
@@ -107,18 +108,25 @@ export class LayoutComponent implements OnDestroy {
     let index = 0;
     const delta = (endInterval - startInterval) / Math.max(1, steps - 1);
 
-    for (let spin = 0; spin < steps; spin++) {
-      const interval = startInterval + delta * spin;
-      elapsed += interval;
-      const timeoutId = window.setTimeout(() => {
-        this.donationIcon = icons[index];
-        this.donationTick = !this.donationTick;
-        index = (index + 1) % icons.length;
-        this.changeDetector.markForCheck();
-      }, Math.round(elapsed));
+    // Run timeouts outside of Angular's zone to avoid making the application unstable during hydration
+    this.ngZone.runOutsideAngular(() => {
+      for (let spin = 0; spin < steps; spin++) {
+        const interval = startInterval + delta * spin;
+        elapsed += interval;
+        const timeoutId = window.setTimeout(() => {
+          this.donationIcon = icons[index];
+          this.donationTick = !this.donationTick;
+          index = (index + 1) % icons.length;
 
-      this.rouletteTimeouts.push(timeoutId);
-    }
+          // Only re-enter the zone to trigger change detection
+          this.ngZone.run(() => {
+            this.changeDetector.markForCheck();
+          });
+        }, Math.round(elapsed));
+
+        this.rouletteTimeouts.push(timeoutId);
+      }
+    });
   }
 
   private clearDonationRoulette(): void {

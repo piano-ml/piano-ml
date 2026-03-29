@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender, HostListener, ViewEncapsulation } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender, HostListener, ViewEncapsulation, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
@@ -17,6 +17,7 @@ import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
 })
 export class OsmdComponent implements OnInit, OnDestroy {
     private platformId = inject(PLATFORM_ID);
+    private ngZone = inject(NgZone);
     osmd: OpenSheetMusicDisplay | null = null;
 
     @Input() scoreData: ScoreApiInfo | null = null;
@@ -82,28 +83,36 @@ export class OsmdComponent implements OnInit, OnDestroy {
         if (this.musicXml) {
             await this.osmd.load(this.musicXml);
             this.osmd!.render(); // unfortunately not resolvable in load callback, we have to wait for the cursor to be available
-            for (let i = 0; i < 20; i++) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                if (this.osmd.cursors && this.osmd!.GraphicSheet) {
-                    if (this.hideFingeringAndHarmony) {
-                        document.querySelectorAll('.vf-text').forEach(el => (el as HTMLElement).style.display = 'none');
+
+            // Move complex initialization out of the Angular zone to avoid keeping the app unstable
+            this.ngZone.runOutsideAngular(async () => {
+                for (let i = 0; i < 20; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    if (this.osmd && this.osmd.cursors && this.osmd!.GraphicSheet) {
+                        if (this.hideFingeringAndHarmony) {
+                            document.querySelectorAll('.vf-text').forEach(el => (el as HTMLElement).style.display = 'none');
+                        }
+                        this.recalculateCursorPosition();
+                        const status = await this.playerService.setOsmd(this.osmd!);
+
+                        this.ngZone.run(() => {
+                            this.loading = false;
+                            this.osmd!.cursors[0].SkipInvisibleNotes = true;
+                            this.osmd!.cursors[0].show();
+                            this.osmd!.cursors[0].reset();
+                            this.loadingChange.emit(false);
+                        });
+
+                        setTimeout(() => {
+                            //this.osmd!.cursors[0].previous();
+                            this.osmd!.cursors[0].next();
+                            this.osmd!.cursors[0].previous();
+                            //this.osmd!.cursors[0].previous();
+                        }, 1000);
+                        break;
                     }
-                    this.recalculateCursorPosition();
-                    const status = await this.playerService.setOsmd(this.osmd!);
-                    this.loading = false;
-                    this.osmd!.cursors[0].SkipInvisibleNotes = true;
-                    this.osmd!.cursors[0].show();
-                    this.osmd!.cursors[0].reset();
-                    this.loadingChange.emit(false);
-                    setTimeout(() => {
-                        //this.osmd!.cursors[0].previous();
-                        this.osmd!.cursors[0].next();
-                        this.osmd!.cursors[0].previous();
-                        //this.osmd!.cursors[0].previous();
-                    }, 1000);
-                    break;
                 }
-            }
+            });
         }
     }
 
@@ -115,24 +124,29 @@ export class OsmdComponent implements OnInit, OnDestroy {
     }
 
     recalculateCursorPosition() {
-        setTimeout(() => {
-            const partCount = this.osmd!.GraphicSheet.MeasureList[0].length;
-            const positionAndShape = this.osmd!.GraphicSheet.MeasureList[0][partCount - 1].PositionAndShape;
-            let y = 100;
-            const cursorElement = document.getElementById('cursorImg-0');
-            if (cursorElement) {
-                if (partCount === 1) {
-                    y = (positionAndShape.Parent.BoundingRectangle.height) * 5;
-                    cursorElement!.style.setProperty('height', y + "px", 'important');
-                } else {
-                    //y = positionAndShape.Parent.BoundingRectangle.height
-                    y = (positionAndShape.Parent.AbsolutePosition.y + positionAndShape.Parent.BoundingRectangle.height) * 5;
-                    cursorElement!.style.setProperty('height', y + "px", 'important');
+        this.ngZone.runOutsideAngular(() => {
+            setTimeout(() => {
+                if (!this.osmd || !this.osmd.GraphicSheet || !this.osmd.GraphicSheet.MeasureList || this.osmd.GraphicSheet.MeasureList.length === 0) {
+                    return;
                 }
+                const partCount = this.osmd!.GraphicSheet.MeasureList[0].length;
+                const positionAndShape = this.osmd!.GraphicSheet.MeasureList[0][partCount - 1].PositionAndShape;
+                let y = 100;
+                const cursorElement = document.getElementById('cursorImg-0');
+                if (cursorElement) {
+                    if (partCount === 1) {
+                        y = (positionAndShape.Parent.BoundingRectangle.height) * 5;
+                        cursorElement!.style.setProperty('height', y + "px", 'important');
+                    } else {
+                        //y = positionAndShape.Parent.BoundingRectangle.height
+                        y = (positionAndShape.Parent.AbsolutePosition.y + positionAndShape.Parent.BoundingRectangle.height) * 5;
+                        cursorElement!.style.setProperty('height', y + "px", 'important');
+                    }
 
-            }
-            this.playerService.tiltCursor(this.osmd!.Cursor);
-        }, 1000);
+                }
+                this.playerService.tiltCursor(this.osmd!.Cursor);
+            }, 1000);
+        });
     }
 
 
