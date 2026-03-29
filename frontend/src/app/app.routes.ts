@@ -4,72 +4,18 @@ import { LayoutComponent } from './shared/components/layout/layout.component';
 export const routes: Routes = [
     {
         path: 'work',
-        loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent),
-        data: { breadcrumb: 'Practice' },
-        children: [
-            {
-                path: '',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            },
-            {
-                path: 'scale/:scaleKey/:selectedKey/:exerciseKey',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            },
-            {
-                path: 'agility/:chordKey/:selectedKey/:exerciseKey',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            },
-            {
-                path: ':slug',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            }
-        ]
+        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
+        data: { breadcrumb: 'Practice' }
     },
     {
         path: 'desktop',
-        loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent),
-        data: { breadcrumb: 'Desktop' },
-        children: [
-            {
-                path: '',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            },
-            {
-                path: 'scale/:scaleKey/:selectedKey/:exerciseKey',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            },
-            {
-                path: 'agility/:chordKey/:selectedKey/:exerciseKey',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            },
-            {
-                path: ':slug',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            }
-        ]
+        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
+        data: { breadcrumb: 'Desktop' }
     },
     {
         path: 'workbench',
-        loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent),
-        data: { breadcrumb: 'Workbench' },
-        children: [
-            {
-                path: '',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            },
-            {
-                path: 'scale/:scaleKey/:selectedKey/:exerciseKey',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            },
-            {
-                path: 'agility/:chordKey/:selectedKey/:exerciseKey',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            },
-            {
-                path: ':slug',
-                loadComponent: () => import('./desktop/desktop-stub.component').then(m => m.DesktopStubComponent)
-            }
-        ]
+        loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
+        data: { breadcrumb: 'Workbench' }
     },
     {
         component: LayoutComponent,

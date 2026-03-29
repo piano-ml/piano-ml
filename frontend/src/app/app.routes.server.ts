@@ -15,6 +15,18 @@ export const serverRoutes: ServerRoute[] = [
     path: 'desktop/**',
     renderMode: RenderMode.Client
   },
+  {
+    path: 'work',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'workbench',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'desktop',
+    renderMode: RenderMode.Client
+  },
   
   // Toutes les autres routes utilisent le SSR
   {
