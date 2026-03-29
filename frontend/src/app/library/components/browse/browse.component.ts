@@ -613,9 +613,6 @@ export class BrowseComponent implements OnInit {
     const artistKeywords = Array.from(new Set(this.scores.map(score => score.author))).join(', ');
     const titleKeywords = Array.from(new Set(this.scores.map(score => score.title))).join(', ');    
     const genreKeywords = Array.from(new Set(this.scores.map(score => score.genre))).join(', ');
-    console.log('Unique artists in current scores:',this.scores.length,  artistKeywords);
-    console.log('Unique titles in current scores:',this.scores.length,  titleKeywords);
-    console.log('Unique genres in current scores:',this.scores.length,  genreKeywords);
 
 
     if (this.selectedGenre?.genre?.name) {
@@ -737,9 +734,6 @@ export class BrowseComponent implements OnInit {
         }
       };
     }
-    console.log("title:", title);
-    console.log("description:", description);
-    console.log("keywords:", keywords);
     this.seo.updateMetaTags({
       title,
       description,
