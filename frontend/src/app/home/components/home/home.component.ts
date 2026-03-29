@@ -428,7 +428,10 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     await this.loadAvailableShaders();
     
     // Initialisation WebGL avec le shader sélectionné
-    await this.initGlAndProgram();
+    // Wrapped in runOutsideAngular to avoid keeping the app unstable during hydration
+    this.ngZone.runOutsideAngular(async () => {
+        await this.initGlAndProgram();
+    });
   }
 
   ngOnDestroy(): void {
@@ -501,4 +504,3 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
 
 
 }
-
