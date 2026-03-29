@@ -25,5 +25,9 @@ export interface AuthorApiInfo {
      */
     slug?: string;
     sortName?: string;
+    /**
+     * Description textuelle de l\'auteur
+     */
+    description?: string;
 }
 

@@ -130,18 +130,13 @@ export class ScoreInfoComponent implements OnInit {
     const authorName = (score.author || 'Unknown Artist').trim();
     const scoreName = (score.title || 'Untitled').trim();
     const genreName = this.selectedGenre?.name || score.genre || '';
-    const duration = score.duration ? Math.round(score.duration) : 0;
-    const tracks = score.tracks_count || 0;
 
     // Build SEO-friendly title
     const title = `${authorName} - ${scoreName}`;
     this.pageTitle = title;
 
     // Build rich description
-    let description = `Play ${title}  on PianoML. `;
-    if (genreName) {
-      description += `${genreName} piano music. `;
-    }
+    let description = score.description ? `${score.description.trim()} ` : '';
 
     // Keywords
     const keywords = [

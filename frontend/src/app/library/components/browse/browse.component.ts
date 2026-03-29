@@ -1,4 +1,6 @@
 import { CommonModule } from '@angular/common';
+import { forkJoin, of } from 'rxjs';
+import { finalize, catchError } from 'rxjs/operators';
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -77,54 +79,92 @@ export class BrowseComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+      // Read the URL path to set active tab
+      const path = this.route.snapshot.url[0]?.path;
+      if (path) {
+        this.activeTab = path as 'new' | 'artists' | 'genres' | 'popular';
+      }
 
+      // Utiliser Promise.all pour attendre la fin de loadFullKeys et loadStats
 
-    // Read the URL path to set active tab
-    const path = this.route.snapshot.url[0]?.path;
-    if (path) {
-      this.activeTab = path as 'new' | 'artists' | 'genres' | 'popular';
-    }
-
-    this.loadFullKeys();
-    this.loadStats();
-
-    // Subscribe to both params and query params to handle browser back/forward navigation
-    this.route.params
-    .subscribe(params => {
-      const artistSlug = params['artistSlug'] || '';
-      const genreSlug = params['genreSlug'] || '';
-      // Hydrate track count filters from URL
-      this.route.queryParams.subscribe(queryParams => {
-        const keyword = queryParams['search'] || '';
-        this.filterOneHand = queryParams['oneHand'] === 'true';
-        this.filterTwoHands = queryParams['twoHands'] === 'true';
-        this.selectedFullKey = queryParams['fullKey'] || '';
-
-        if (keyword) {
-          this.searchKeyword = keyword;
-          this.activeSearchKeyword = keyword;
-          this.selectedAuthor = null;
-          this.selectedGenre = null;
-          this.loadScores(true);
-        } else if (artistSlug) {
-          // Load author info and then filter scores
-          this.loadAuthorAndFilter(artistSlug);
-        } else if (genreSlug) {
-          // Load genre info and then filter scores
-          this.loadGenreAndFilter(genreSlug);
-        } else {
-          // No filters, load all scores
-          this.activeSearchKeyword = '';
-          this.searchKeyword = '';
-          this.selectedAuthor = null;
-          this.selectedGenre = null;
-          this.loadScores(true);
-        }
-
-        // Update SEO after route params are processed
-        this.updatePageTitle();
+      const fullKeys$ = new Promise((resolve) => {
+        this.loadingFullKeys = true;
+        this.scoreService.scoreGetFullKeyGet().subscribe({
+          next: (keys) => {
+            this.fullKeyOptions = Array.isArray(keys) ? [...keys].sort((a, b) => a.localeCompare(b)) : [];
+            if (this.selectedFullKey && !this.fullKeyOptions.includes(this.selectedFullKey)) {
+              this.selectedFullKey = '';
+            }
+            this.loadingFullKeys = false;
+            this.changeDetector.detectChanges();
+            resolve(true);
+          },
+          error: (error) => {
+            console.error('Error loading full keys:', error);
+            this.loadingFullKeys = false;
+            this.changeDetector.detectChanges();
+            resolve(false);
+          }
+        });
       });
-    });
+
+      const stats$ = new Promise((resolve) => {
+        this.loadingStats = true;
+        this.scoreService.scoreStatsGet().subscribe({
+          next: (data) => {
+            this.stats = data;
+            this.loadingStats = false;
+            this.changeDetector.detectChanges();
+            resolve(true);
+          },
+          error: (error) => {
+            console.error('Error loading stats:', error);
+            this.loadingStats = false;
+            this.changeDetector.detectChanges();
+            resolve(false);
+          }
+        });
+      });
+
+      Promise.all([fullKeys$, stats$]).then(() => {
+        // Subscribe to both params and query params to handle browser back/forward navigation
+        this.route.params
+          .subscribe(params => {
+            const artistSlug = params['artistSlug'] || '';
+            const genreSlug = params['genreSlug'] || '';
+            // Hydrate track count filters from URL
+            this.route.queryParams.subscribe(queryParams => {
+              const keyword = queryParams['search'] || '';
+              this.filterOneHand = queryParams['oneHand'] === 'true';
+              this.filterTwoHands = queryParams['twoHands'] === 'true';
+              this.selectedFullKey = queryParams['fullKey'] || '';
+
+              if (keyword) {
+                this.searchKeyword = keyword;
+                this.activeSearchKeyword = keyword;
+                this.selectedAuthor = null;
+                this.selectedGenre = null;
+                this.loadScores(true);
+              } else if (artistSlug) {
+                // Load author info and then filter scores
+                this.loadAuthorAndFilter(artistSlug);
+              } else if (genreSlug) {
+                // Load genre info and then filter scores
+                this.loadGenreAndFilter(genreSlug);
+              } else {
+                // No filters, load all scores
+                this.activeSearchKeyword = '';
+                this.searchKeyword = '';
+                this.selectedAuthor = null;
+                this.selectedGenre = null;
+                this.loadScores(true);
+              }
+
+              // Update SEO après que les données initiales sont chargées et les filtres appliqués
+              this.updatePageTitle();
+            })
+          });
+      });
   }
 
   loadAuthorAndFilter(artistSlug: string) {
@@ -570,12 +610,20 @@ export class BrowseComponent implements OnInit {
     let keywords: string;
     let structuredData: any;
 
+    const artistKeywords = Array.from(new Set(this.scores.map(score => score.author))).join(', ');
+    const titleKeywords = Array.from(new Set(this.scores.map(score => score.title))).join(', ');    
+    const genreKeywords = Array.from(new Set(this.scores.map(score => score.genre))).join(', ');
+    console.log('Unique artists in current scores:',this.scores.length,  artistKeywords);
+    console.log('Unique titles in current scores:',this.scores.length,  titleKeywords);
+    console.log('Unique genres in current scores:',this.scores.length,  genreKeywords);
+
+
     if (this.selectedGenre?.genre?.name) {
       const genreName = this.selectedGenre.genre.name.charAt(0).toUpperCase() + this.selectedGenre.genre.name.slice(1);
       title = `${genreName} Piano Scores | PianoML`;
-      description = `Play ${genreName} piano scores on PianoML. Practice with hands-separated sheet music, adjustable speed, and MIDI support. ${genreName} piano music.`;
+      description = `Play ${genreName} by ${artistKeywords}`;
       url = `${baseUrl}/library/genres/${this.selectedGenre.genre.slug}`;
-      keywords = `${genreName} piano, ${genreName} sheet music, ${genreName} piano scores, piano practice`;
+      keywords = `piano ${genreName}, score, pdf, musicxml, midi, ${artistKeywords}`;
 
       structuredData = this.seo.generateMusicCollectionStructuredData(
         this.scores,
@@ -586,9 +634,9 @@ export class BrowseComponent implements OnInit {
       const authorName = this.selectedAuthor.author.name.charAt(0).toUpperCase() + this.selectedAuthor.author.name.slice(1);
       const scoreCount = this.selectedAuthor.count;
       title = `${authorName} Piano Scores | PianoML`;
-      description = `Play ${authorName} piano scores on PianoML. Interactive sheet music with hands-separated practice, loop sections, and adjustable playback speed. ${authorName} piano music.`;
+      description = `Play ${authorName} piano scores: ${titleKeywords}.`;
       url = `${baseUrl}/library/artists/${this.selectedAuthor.author.slug}`;
-      keywords = `${authorName} piano, ${authorName} sheet music, ${authorName} compositions, piano practice`;
+      keywords = `${authorName} piano, score, ${titleKeywords}`;
 
       structuredData = this.seo.generateMusicCollectionStructuredData(
         this.scores,
@@ -597,7 +645,7 @@ export class BrowseComponent implements OnInit {
       );
     } else if (this.activeSearchKeyword) {
       title = `Search: "${this.activeSearchKeyword}" | PianoML Piano Scores`;
-      description = `Search results for "${this.activeSearchKeyword}" - Browse piano scores and sheet music on PianoML with interactive practice tools.`;
+      description = `Search results for "${this.activeSearchKeyword}" : ${titleKeywords} `;
       url = `${baseUrl}/library/popular?search=${encodeURIComponent(this.activeSearchKeyword)}`;
       keywords = `piano search, ${this.activeSearchKeyword}, piano scores, sheet music`;
 
@@ -610,10 +658,10 @@ export class BrowseComponent implements OnInit {
     } else if (this.activeTab === 'genres') {
       // Browse by Genres page
       const totalScores = this.stats ? this.stats['public-domain'] + this.stats.copyrighted : 3000;
-      title = `Browse Piano Scores by Genre | PianoML - Classical, Jazz, Pop & More`;
-      description = `Explore ${totalScores}+ piano scores organized by genre on PianoML. Find classical, romantic, jazz, pop, baroque, and contemporary piano music. Learn piano with AI-powered sheet music and interactive practice tools.`;
+      title = `Browse Piano Scores by Genre | PianoML - ${genreKeywords}`;
+      description = `Explore ${totalScores}+ : ${genreKeywords} piano scores on PianoML. Browse sheet music by genre and style with interactive practice features.`;
       url = `${baseUrl}/library/genres`;
-      keywords = 'piano genres, classical piano, jazz piano, pop piano, baroque music, romantic piano, sheet music by genre, piano learning machine';
+      keywords = `piano, score, ${genreKeywords}`;
 
       structuredData = {
         '@context': 'https://schema.org',
@@ -630,10 +678,11 @@ export class BrowseComponent implements OnInit {
     } else if (this.activeTab === 'artists') {
       // Browse by Artists page
       const totalScores = this.stats ? this.stats['public-domain'] + this.stats.copyrighted : 3000;
-      title = `Browse Piano Scores by Composer & Artist | PianoML - Bach, Chopin, Mozart & More`;
-      description = `Discover ${totalScores}+ piano scores from famous composers and artists on PianoML. Learn works by Bach, Beethoven, Chopin, Mozart, Debussy, and more. AI-powered piano learning machine with hands-separated practice.`;
+      const artistKeywords = Array.from(new Set(this.scores.map(score => score.author))).join(', ');
+      title = `Browse Piano Scores by Composer & Artist | PianoML - ${artistKeywords}`;
+      description = `Discover ${totalScores}+ piano scores. Learn piano works by ${artistKeywords}.`;
       url = `${baseUrl}/library/artists`;
-      keywords = 'piano composers, famous pianists, Bach piano, Chopin piano, Mozart piano, Beethoven piano, classical composers, piano learning machine';
+      keywords = `piano, score, ${artistKeywords}`;
 
       structuredData = {
         '@context': 'https://schema.org',
@@ -688,7 +737,9 @@ export class BrowseComponent implements OnInit {
         }
       };
     }
-
+    console.log("title:", title);
+    console.log("description:", description);
+    console.log("keywords:", keywords);
     this.seo.updateMetaTags({
       title,
       description,
