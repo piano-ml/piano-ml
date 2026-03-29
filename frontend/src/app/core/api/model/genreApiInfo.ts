@@ -18,5 +18,9 @@ export interface GenreApiInfo {
      * URL-friendly slug for the genre
      */
     slug?: string;
+    /**
+     * Description textuelle du genre
+     */
+    description?: string;
 }
 

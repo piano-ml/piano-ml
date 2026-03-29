@@ -58,5 +58,9 @@ export interface ScoreApiInfo {
      * List of chord changes per measure and beat
      */
     harmony?: Array<HarmonyEntry> | null;
+    /**
+     * Description textuelle de la partition
+     */
+    description?: string;
 }
 
