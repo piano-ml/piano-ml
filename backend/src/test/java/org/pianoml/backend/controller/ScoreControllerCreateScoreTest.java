@@ -54,7 +54,7 @@ public class ScoreControllerCreateScoreTest {
     objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JsonNullableModule());
 
-    controller = new ScoreController();
+    controller = new ScoreController(scoreService, userRepository, accountService, scoreRepository);
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
     ReflectionTestUtils.setField(controller, "userRepository", userRepository);
     ReflectionTestUtils.setField(controller, "userService", accountService);

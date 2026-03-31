@@ -216,6 +216,54 @@ paths:
         '400':
           description: Bad request
 
+  /score/youtube/{id}/{youtube_link}/{action}:
+    post:
+      operationId: scoreYoutubeEdit
+      tags:
+        - score
+      summary: Edit a YouTube link associated with a score (add/increment/reduce/remove)
+      description: |
+        Perform an action on a YouTube link attached to a score. The `youtube_link` path
+        parameter should be URL-encoded if it contains characters not valid in a path.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the score
+        - name: youtube_link
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The YouTube link or identifier (URL-encoded)
+        - name: action
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [plus, minus, delete]
+          description: 'The action to perform on the link: plus, minus, or delete'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Optional body for action-specific payload (e.g., additional metadata)
+      responses:
+        '200':
+          description: YouTube link updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreApiInfo'
+        '400':
+          description: Bad request
+        '404':
+          description: Score or YouTube link not found
+
   /score/search:
     get:
       operationId: scoreSearchGet
@@ -1126,6 +1174,10 @@ components:
         description:
           type: string
           description: Description textuelle de l'auteur
+        composerBioLink:
+          type: string
+          format: uri
+          description: Link to the composer's biography or external page
     AuthorWithScoreCount:
       type: object
       properties:
@@ -1240,6 +1292,12 @@ components:
         description:
           type: string
           description: Description textuelle de la partition
+        youtubeLinks:
+          type: array
+          nullable: true
+          description: List of YouTube links associated with the score
+          items:
+            $ref: '#/components/schemas/YoutubeLink'
 
     HarmonyEntry:
       type: object
@@ -1267,6 +1325,20 @@ components:
         - root
         - kind
         - beat
+
+    YoutubeLink:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: YouTube URL
+        rank:
+          type: integer
+          format: int32
+          description: Ranking or priority for the link (lower is better)
+      required:
+        - url
 
     WorkloadApiInfo:
       type: object

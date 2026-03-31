@@ -41,8 +41,6 @@ export class ExercisesInKeyComponent implements OnChanges {
     }));
 
     this.exercises = [...agilityWithType, ...scalesWithType];
-    
-    console.log('Loaded exercises for key:', this.fullKey, 'count:', this.exercises.length);
   }
 
   getExerciseUrl(exercise: ExerciseWithType): string {

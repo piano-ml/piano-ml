@@ -45,7 +45,7 @@ public class ScoreControllerAttachmentApiTest {
     scoreRepository = Mockito.mock(ScoreRepository.class);
     accountService = Mockito.mock(AccountService.class);
 
-    controller = new ScoreController();
+    controller = new ScoreController(scoreService, userRepository, accountService, scoreRepository);
     // Inject mocks into controller's fields
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
     ReflectionTestUtils.setField(controller, "userRepository", userRepository);
