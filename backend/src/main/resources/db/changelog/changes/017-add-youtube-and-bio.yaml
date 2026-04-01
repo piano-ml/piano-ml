@@ -9,7 +9,7 @@ databaseChangeLog:
             tableName: score
             columns:
               - column:
-                  name: youtube_link
+                  name: youtube_links
                   type: JSON
                   constraints:
                     nullable: true
