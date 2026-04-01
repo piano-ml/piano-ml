@@ -1,6 +1,7 @@
 package org.pianoml.backend.controller;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.pianoml.backend.api.ScoreApi;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
@@ -32,21 +33,19 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 public class ScoreController implements ScoreApi {
 
   private static final Logger log = LoggerFactory.getLogger(ScoreController.class);
 
-  @Autowired
-  private ScoreService scoreService;
+  private final ScoreService scoreService;
 
-  @Autowired
-  private UserRepository userRepository;
 
-  @Autowired
-  private AccountService userService;
+  private final UserRepository userRepository;
 
-  @Autowired
-  private ScoreRepository scoreRepository;
+  private final AccountService userService;
+
+  private final ScoreRepository scoreRepository;
 
 
   @Override

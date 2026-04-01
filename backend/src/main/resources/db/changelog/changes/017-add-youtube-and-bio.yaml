@@ -1,0 +1,35 @@
+// filepath: /home/eflorent/PROJECTS/piano-ml/backend/src/main/resources/db/changelog/changes/017-add-youtube-and-bio.yaml
+databaseChangeLog:
+  - changeSet:
+      id: 017-add-youtube-and-bio
+      author: eflorent
+      changes:
+        - addColumn:
+            schemaName: pianoml
+            tableName: score
+            columns:
+              - column:
+                  name: youtube_link
+                  type: JSON
+                  constraints:
+                    nullable: true
+
+        - addColumn:
+            schemaName: pianoml
+            tableName: author
+            columns:
+              - column:
+                  name: composer_bio_link
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+      rollback:
+        - dropColumn:
+            schemaName: pianoml
+            tableName: score
+            columnName: youtube_links
+        - dropColumn:
+            schemaName: pianoml
+            tableName: author
+            columnName: composer_bio_link
+

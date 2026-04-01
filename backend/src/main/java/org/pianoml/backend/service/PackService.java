@@ -74,7 +74,11 @@ public class PackService {
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
-    return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto);
+    if (packScriptDto.getTrackLeft() == null || packScriptDto.getTrackLeft().equals("")) {
+      return runPackScript("scripts/midi2pack1.sh", tempFile, packScriptDto);
+    } else {
+      return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto);
+    }
   }
 
   private boolean isZipFile(File file) {

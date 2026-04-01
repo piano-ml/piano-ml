@@ -51,7 +51,7 @@ public class ScoreControllerUploadApiTest {
     scoreRepository = mock(ScoreRepository.class);
     AccountService accountService = mock(AccountService.class);
 
-    ScoreController controller = new ScoreController();
+    ScoreController controller = new ScoreController(scoreService, userRepository, accountService, scoreRepository);
     // Inject mocks
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
     ReflectionTestUtils.setField(controller, "userRepository", userRepository);

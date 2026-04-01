@@ -60,6 +60,37 @@ public interface ScoreMapper {
     }
   }
 
+  @Named("youtubeJsonToList")
+  public static JsonNullable<List<org.pianoml.backend.model.YoutubeLink>> youtubeJsonToList(String value) {
+    if (value == null) return JsonNullable.undefined();
+    try {
+      List<org.pianoml.backend.model.YoutubeLink> list = OBJECT_MAPPER.readValue(value, new TypeReference<List<org.pianoml.backend.model.YoutubeLink>>() {});
+      return JsonNullable.of(list);
+    } catch (JsonProcessingException e) {
+      return JsonNullable.undefined();
+    }
+  }
+
+  @Named("youtubeListToJson")
+  public static String youtubeListToJson(JsonNullable<List<org.pianoml.backend.model.YoutubeLink>> value) {
+    if (value == null || !value.isPresent() || value.get() == null) return null;
+    try {
+      return OBJECT_MAPPER.writeValueAsString(value.get());
+    } catch (JsonProcessingException e) {
+      return null;
+    }
+  }
+
+  // MapStruct sometimes expects a method named `map` for custom conversions.
+  // Provide overloaded `map` methods delegating to the named helpers above so MapStruct can resolve them automatically.
+  public static JsonNullable<List<org.pianoml.backend.model.YoutubeLink>> map(String value) {
+    return youtubeJsonToList(value);
+  }
+
+  public static String map(JsonNullable<List<org.pianoml.backend.model.YoutubeLink>> value) {
+    return youtubeListToJson(value);
+  }
+
   @Mapping(source = "author.name", target = "author")
   @Mapping(source = "author.id", target = "authorId")
   @Mapping(source = "author.sortName", target = "sortName")
@@ -73,6 +104,7 @@ public interface ScoreMapper {
   @Mapping(source = "owner.name", target = "owner")
   @Mapping(source = "studyTracks", target = "studyTracks", qualifiedByName = "stringToIntegerList")
   @Mapping(source = "harmony", target = "harmony", qualifiedByName = "harmonyJsonToList")
+  @Mapping(source = "youtubeLinks", target = "youtubeLinks", qualifiedByName = "youtubeJsonToList")
   ScoreApiInfo toScoreApiInfo(Score score);
 
   @Mapping(target = "id", ignore = true)
@@ -81,5 +113,6 @@ public interface ScoreMapper {
   @Mapping(target = "owner", ignore = true)
   @Mapping(source = "studyTracks", target = "studyTracks", qualifiedByName = "integerListToString")
   @Mapping(source = "harmony", target = "harmony", qualifiedByName = "harmonyListToJson")
+  @Mapping(source = "youtubeLinks", target = "youtubeLinks", qualifiedByName = "youtubeListToJson")
   Score toScore(ScoreApiInfo scoreApiInfo);
 }

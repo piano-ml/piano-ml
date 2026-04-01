@@ -1,12 +1,12 @@
 package org.pianoml.backend.service;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.pianoml.backend.entity.Author;
 import org.pianoml.backend.exception.MusicBrainzException;
 import org.pianoml.backend.mapper.AuthorMapper;
 import org.pianoml.backend.model.AuthorApiInfo;
 import org.pianoml.backend.repository.AuthorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -20,17 +20,14 @@ import static org.pianoml.backend.service.SlugUtils.normalizeToSlug;
 
 
 @Service
+@RequiredArgsConstructor
 public class AuthorService {
 
-  @Autowired
-  private AuthorRepository authorRepository;
+  private final AuthorRepository authorRepository;
 
-  @Autowired
-  private AuthorMapper authorMapper;
+  private final AuthorMapper authorMapper;
 
-  @Autowired
-  private MusicBrainzService musicBrainzService;
-
+  private final MusicBrainzService musicBrainzService;
 
   public Author maybeCreateAuthor(@NotNull UUID mbid) {
     Optional<Author> optAuthor = authorRepository.findByMbid(mbid);
@@ -55,6 +52,7 @@ public class AuthorService {
 
   public AuthorApiInfo createAuthor(AuthorApiInfo authorApiInfo) {
     Author author = maybeCreateAuthor(UUID.fromString(authorApiInfo.getMbid()));
+    author.setComposerBioLink(authorApiInfo.getComposerBioLink().toString());
     author.setDescription(authorApiInfo.getDescription());
     return authorMapper.toAuthorApiInfo(author);
   }
@@ -71,6 +69,7 @@ public class AuthorService {
           author.setName(authorApiInfo.getName());
         }
         author.setDescription(authorApiInfo.getDescription());
+        author.setComposerBioLink(authorApiInfo.getComposerBioLink().toString());
         Author updatedAuthor = authorRepository.save(author);
         return authorMapper.toAuthorApiInfo(updatedAuthor);
       });
