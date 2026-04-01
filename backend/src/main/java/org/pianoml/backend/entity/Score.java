@@ -111,6 +111,10 @@ public class Score {
   @Column(name = "harmony", columnDefinition = "json")
   private String harmony;
 
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "youtube_links", columnDefinition = "json")
+  private String youtubeLinks;
+
   @Column(columnDefinition = "text")
   private String description;
 

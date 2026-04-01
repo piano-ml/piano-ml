@@ -4,6 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pianoml.backend.entity.User;
+import org.pianoml.backend.repository.ScoreRepository;
+import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
 import org.springframework.security.core.Authentication;
@@ -25,13 +27,17 @@ public class ScoreControllerDeleteApiTest {
   private MockMvc mockMvc;
   private ScoreService scoreService;
   private AccountService accountService;
+  private UserRepository userRepository;
+  private ScoreRepository scoreRepository;
 
   @BeforeEach
   void setup() {
     scoreService = mock(ScoreService.class);
+    userRepository = mock(UserRepository.class);
+    scoreRepository = mock(ScoreRepository.class);
     accountService = mock(AccountService.class);
 
-    ScoreController controller = new ScoreController();
+    ScoreController controller = new ScoreController(scoreService, userRepository, accountService, scoreRepository);
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
     ReflectionTestUtils.setField(controller, "userService", accountService);
 

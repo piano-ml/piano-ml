@@ -45,6 +45,9 @@ public class Author {
   @Column(name = "life_span_ended")
   private Boolean lifeSpanEnded;
 
+  @Column(name = "composer_bio_link", length = 255)
+  private String composerBioLink;
+
   @Column(name = "image", length = 255, nullable = true)
   private String image;
 
