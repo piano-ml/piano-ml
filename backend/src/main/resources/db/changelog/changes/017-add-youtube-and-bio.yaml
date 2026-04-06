@@ -1,8 +1,21 @@
 // filepath: /home/eflorent/PROJECTS/piano-ml/backend/src/main/resources/db/changelog/changes/017-add-youtube-and-bio.yaml
 databaseChangeLog:
   - changeSet:
-      id: 017-add-youtube-and-bio2
+      id: 017-add-youtube-and-bio3
       author: eflorent
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - or:
+                - columnExists:
+                    schemaName: pianoml
+                    tableName: author
+                    columnName: composer_bio_link
+                - columnExists:
+                    schemaName: pianoml
+                    tableName: score
+                    columnName: youtube_links
       changes:
         - addColumn:
             schemaName: pianoml
@@ -32,4 +45,3 @@ databaseChangeLog:
             schemaName: pianoml
             tableName: author
             columnName: composer_bio_link
-
