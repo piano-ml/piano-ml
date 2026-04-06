@@ -113,7 +113,7 @@ public class ScoreController implements ScoreApi {
   }
 
   @Override
-  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, String fullKey, String orderBy, Integer offset, Integer limit, List<Integer> tracks, String description) {
+  public ResponseEntity<List<ScoreApiInfo>> scoreSearchGet(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, String gradeStart, String gradeEnd, String tempo, String fullKey, String orderBy, Integer offset, Integer limit, List<Integer> tracks, String description) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user;
     try {
@@ -124,6 +124,9 @@ public class ScoreController implements ScoreApi {
       user = null;
     }
 
+    // Forward gradeStart/gradeEnd strings as-is to the service/repository so that:
+    //  - null => no filtering on grade
+    //  - "NONE" => match scores with grade IS NULL
     List<ScoreApiInfo> scores = scoreService.searchScores(keyword, ownerId, genreId, artist, artistSlug, genreSlug, etude, gradeStart, gradeEnd, tempo, fullKey, orderBy, offset, limit, user, tracks, description);
     return ResponseEntity.ok(scores);
   }

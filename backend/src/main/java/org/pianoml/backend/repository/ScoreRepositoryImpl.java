@@ -28,7 +28,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   private EntityManager em;
 
   // Updated signature with fullKey parameter
-  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, Integer gradeStart, Integer gradeEnd, String tempo, String fullKey, String orderBy, Integer offset, Integer limit, User user, List<Integer> tracks, String description) {
+  public List<Score> findWithSomeCriterias(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, String gradeStart, String gradeEnd, String tempo, String fullKey, String orderBy, Integer offset, Integer limit, User user, List<Integer> tracks, String description) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Score> cq = cb.createQuery(Score.class);
     Root<Score> root = cq.from(Score.class);
@@ -104,6 +104,43 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
         predicate = cb.and(predicate, cb.isNull(root.get("tempo")));
       }
     }
+
+    // Grade filtering: support String inputs where:
+    //  - null means 'no filter'
+    //  - "NONE" means filter for NULL grades
+    //  - numeric strings indicate numeric bounds
+    if (gradeStart != null || gradeEnd != null) {
+      boolean startIsNone = "NONE".equalsIgnoreCase(gradeStart);
+      boolean endIsNone = "NONE".equalsIgnoreCase(gradeEnd);
+
+      Integer gStart = null;
+      Integer gEnd = null;
+      try {
+        if (gradeStart != null && !startIsNone) gStart = Integer.valueOf(gradeStart);
+      } catch (NumberFormatException e) {
+        // ignore invalid numeric, treat as null
+      }
+      try {
+        if (gradeEnd != null && !endIsNone) gEnd = Integer.valueOf(gradeEnd);
+      } catch (NumberFormatException e) {
+        // ignore invalid numeric, treat as null
+      }
+
+      // If either bound explicitly requests NONE, match NULL grades accordingly
+      if (startIsNone && endIsNone) {
+        predicate = cb.and(predicate, cb.isNull(root.get("grade")));
+      } else {
+        // No NONE involved, apply numeric bounds if present
+        if (gStart != null && gEnd != null) {
+          predicate = cb.and(predicate, cb.between(root.get("grade").as(Integer.class), gStart, gEnd));
+        } else if (gStart != null) {
+          predicate = cb.and(predicate, cb.ge(root.get("grade").as(Integer.class), gStart));
+        } else if (gEnd != null) {
+          predicate = cb.and(predicate, cb.le(root.get("grade").as(Integer.class), gEnd));
+        }
+      }
+    }
+
 
     if (description != null && !description.isEmpty()) {
       if ("NONE".equalsIgnoreCase(description)) {
