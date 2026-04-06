@@ -309,11 +309,11 @@ paths:
         - name: gradeStart
           in: query
           schema:
-            type: integer
+            type: string
         - name: gradeEnd
           in: query
           schema:
-            type: integer
+            type: string
         - name: tempo
           in: query
           schema:
