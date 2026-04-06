@@ -1,4 +1,3 @@
-// filepath: /home/eflorent/PROJECTS/piano-ml/backend/src/main/resources/db/changelog/changes/017-add-youtube-and-bio.yaml
 databaseChangeLog:
   - changeSet:
       id: 017-add-youtube-and-bio3
