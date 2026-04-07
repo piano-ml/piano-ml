@@ -219,15 +219,13 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
     this.scoreService.scoreAuthorBrowseGet(
       this.getTrackCountFilter(),
       this.getFullKeyFilter(),
+      this.getGradeStartFilter(),
+      this.getGradeEndFilter(),
       artistSlug,
       0,
       1,
       'body',
-      false,
-      {
-        gradeStart: this.getGradeStartFilter(),
-        gradeEnd: this.getGradeEndFilter()
-      }
+      false
     ).subscribe({
       next: (data) => {
         if (data.length > 0) {
@@ -266,14 +264,12 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
       this.getFullKeyFilter(),
       genreSlug,
       undefined,
+      this.getGradeStartFilter(),
+      this.getGradeEndFilter(),
       0,
       1,
       'body',
-      false,
-      {
-        gradeStart: this.getGradeStartFilter(),
-        gradeEnd: this.getGradeEndFilter()
-      }
+      false
     ).subscribe({
       next: (data) => {
         if (data.length > 0) {

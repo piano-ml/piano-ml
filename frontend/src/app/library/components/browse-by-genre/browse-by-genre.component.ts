@@ -35,14 +35,12 @@ export class BrowseByGenreComponent implements  OnChanges {
       this.fullKeyFilter,
       undefined,
       undefined,
+      this.gradeStartFilter,
+      this.gradeEndFilter,
       undefined,
       undefined,
       'body',
-      false,
-      {
-        gradeStart: this.gradeStartFilter,
-        gradeEnd: this.gradeEndFilter
-      }
+      false
     ).subscribe({
       next: (data) => {
         this.genres = data.map((item) => {

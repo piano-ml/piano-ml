@@ -46,15 +46,13 @@ export class BrowseByAuthorsComponent implements OnInit, OnChanges {
     this.scoreService.scoreAuthorBrowseGet(
       this.trackFilter,
       this.fullKeyFilter,
+      this.gradeStartFilter,
+      this.gradeEndFilter,
       undefined,
       undefined,
       undefined,
       'body',
-      false,
-      {
-        gradeStart: this.gradeStartFilter,
-        gradeEnd: this.gradeEndFilter
-      }
+      false
     ).subscribe({
       next: (data) => {
         this.authors = data;
