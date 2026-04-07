@@ -113,15 +113,15 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       boolean startIsNone = "NONE".equalsIgnoreCase(gradeStart);
       boolean endIsNone = "NONE".equalsIgnoreCase(gradeEnd);
 
-      Integer gStart = null;
-      Integer gEnd = null;
+      Float gStart = null;
+      Float gEnd = null;
       try {
-        if (gradeStart != null && !startIsNone) gStart = Integer.valueOf(gradeStart);
+        if (gradeStart != null && !startIsNone) gStart = Float.valueOf(gradeStart);
       } catch (NumberFormatException e) {
         // ignore invalid numeric, treat as null
       }
       try {
-        if (gradeEnd != null && !endIsNone) gEnd = Integer.valueOf(gradeEnd);
+        if (gradeEnd != null && !endIsNone) gEnd = Float.valueOf(gradeEnd);
       } catch (NumberFormatException e) {
         // ignore invalid numeric, treat as null
       }
@@ -132,11 +132,11 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       } else {
         // No NONE involved, apply numeric bounds if present
         if (gStart != null && gEnd != null) {
-          predicate = cb.and(predicate, cb.between(root.get("grade").as(Integer.class), gStart, gEnd));
+          predicate = cb.and(predicate, cb.between(root.get("grade").as(Float.class), gStart, gEnd));
         } else if (gStart != null) {
-          predicate = cb.and(predicate, cb.ge(root.get("grade").as(Integer.class), gStart));
+          predicate = cb.and(predicate, cb.ge(root.get("grade").as(Float.class), gStart));
         } else if (gEnd != null) {
-          predicate = cb.and(predicate, cb.le(root.get("grade").as(Integer.class), gEnd));
+          predicate = cb.and(predicate, cb.lessThan(root.get("grade").as(Float.class) , gEnd +1));
         }
       }
     }
@@ -174,7 +174,9 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
 
     cq.where(predicate);
     if (orderBy==null) {
-      if (artist != null && !artist.isEmpty()) {
+      if (gradeStart != null && gradeEnd!=null) {
+        cq.orderBy(cb.asc(root.get("grade")));
+      } else if (artist != null && !artist.isEmpty()) {
         cq.orderBy(cb.desc(root.get("title")));
       } else {
         if (user == null) {
@@ -227,7 +229,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
   }
 
   @Override
-  public List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey, String slug) {
+  public List<Object[]> countScoresGroupedByAuthor(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey, String slug, String gradeStart, String gradeEnd) {
      // Build JPQL with the same visibility rules as findWithSomeCriterias
      boolean isAdmin = false;
      if (user != null) {
@@ -262,6 +264,20 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
        }
      }
 
+     // Add grade filter when provided
+     boolean gradeStartIsNone = "NONE".equalsIgnoreCase(gradeStart);
+     boolean gradeEndIsNone   = "NONE".equalsIgnoreCase(gradeEnd);
+     Float gStart = null;
+     Float gEnd   = null;
+     if (gradeStart != null && !gradeStartIsNone) { try { gStart = Float.valueOf(gradeStart); } catch (NumberFormatException ignored) {} }
+     if (gradeEnd   != null && !gradeEndIsNone)   { try { gEnd   = Float.valueOf(gradeEnd);   } catch (NumberFormatException ignored) {} }
+     if (gradeStartIsNone && gradeEndIsNone) {
+       jpql.append(" AND s.grade IS NULL");
+     } else {
+       if (gStart != null) jpql.append(" AND s.grade >= :gStart");
+       if (gEnd   != null) jpql.append(" AND s.grade <= :gEnd");
+     }
+
      jpql.append(" GROUP BY s.author ORDER BY s.author.sortName ASC, COUNT(s) DESC");
 
      TypedQuery<Object[]> query = em.createQuery(jpql.toString(), Object[].class);
@@ -277,13 +293,15 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
      if (fullKey != null && !fullKey.isEmpty() && !"NONE".equalsIgnoreCase(fullKey)) {
        query.setParameter("fullKey", fullKey);
      }
+     if (gStart != null) query.setParameter("gStart", gStart);
+     if (gEnd   != null) query.setParameter("gEnd",   gEnd);
      if (offset != null) query.setFirstResult(offset);
      if (limit != null) query.setMaxResults(limit);
      return query.getResultList();
    }
 
   @Override
-  public List<Object[]> countScoresGroupedByGenre(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey, String slug) {
+  public List<Object[]> countScoresGroupedByGenre(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey, String slug, String gradeStart, String gradeEnd) {
     // Strategy: for each score with a genre, find its root genre via genre_tree.
     // COALESCE(gt.parent_id, gt.genre_id) gives the root genre id:
     //   - if the score's genre has a parent  → group under that parent (the root)
@@ -317,6 +335,19 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
       }
     }
 
+    boolean gradeStartIsNone = "NONE".equalsIgnoreCase(gradeStart);
+    boolean gradeEndIsNone   = "NONE".equalsIgnoreCase(gradeEnd);
+    Float gStart = null;
+    Float gEnd   = null;
+    if (gradeStart != null && !gradeStartIsNone) { try { gStart = Float.valueOf(gradeStart); } catch (NumberFormatException ignored) {} }
+    if (gradeEnd   != null && !gradeEndIsNone)   { try { gEnd   = Float.valueOf(gradeEnd);   } catch (NumberFormatException ignored) {} }
+    if (gradeStartIsNone && gradeEndIsNone) {
+      sql.append(" AND s.grade IS NULL");
+    } else {
+      if (gStart != null) sql.append(" AND s.grade >= :gStart");
+      if (gEnd   != null) sql.append(" AND s.grade <= :gEnd");
+    }
+
     sql.append(
       ") " +
       "SELECT g.id, g.mbid, g.name, g.slug, COUNT(r.score_id), MAX(r.uploaded_at) " +
@@ -348,6 +379,8 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     if (fullKey != null && !fullKey.isEmpty() && !"NONE".equalsIgnoreCase(fullKey)) {
       query.setParameter("fullKey", fullKey);
     }
+    if (gStart != null) query.setParameter("gStart", gStart);
+    if (gEnd   != null) query.setParameter("gEnd",   gEnd);
 
     @SuppressWarnings("unchecked")
     List<Object[]> rawResults = query.getResultList();

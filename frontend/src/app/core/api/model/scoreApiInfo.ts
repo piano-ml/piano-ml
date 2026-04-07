@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { HarmonyEntry } from './harmonyEntry';
+import { YoutubeLink } from './youtubeLink';
 
 
 export interface ScoreApiInfo { 
@@ -62,5 +63,9 @@ export interface ScoreApiInfo {
      * Description textuelle de la partition
      */
     description?: string;
+    /**
+     * List of YouTube links associated with the score
+     */
+    youtubeLinks?: Array<YoutubeLink> | null;
 }
 

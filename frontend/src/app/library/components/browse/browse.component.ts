@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
 import { finalize, catchError } from 'rxjs/operators';
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, PLATFORM_ID, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -15,6 +15,8 @@ import { QuickActionsComponent } from '../../../shared/components/quick-actions/
 import { BrowseByAuthorsComponent } from '../browse-by-authors/browse-by-authors.component';
 import { BrowseByGenreComponent } from '../browse-by-genre/browse-by-genre.component';
 import { SeoService } from '../../../shared/services/seo.service';
+import noUiSlider, { API as NoUiSliderApi, PipsMode } from 'nouislider';
+import wNumb from 'wnumb';
 
 @Component({
   selector: 'app-browse',
@@ -22,9 +24,30 @@ import { SeoService } from '../../../shared/services/seo.service';
   templateUrl: './browse.component.html',
   styleUrl: './browse.component.css'
 })
-export class BrowseComponent implements OnInit {
+export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
 
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly newestSortBy: 'uploadedAt_desc' = 'uploadedAt_desc';
+  private gradeSlider: NoUiSliderApi | null = null;
+  private syncingGradeSlider = false;
+  private gradeSliderHost?: ElementRef<HTMLDivElement>;
+
+  @ViewChild('gradeSlider')
+  set gradeSliderElement(element: ElementRef<HTMLDivElement> | undefined) {
+    this.gradeSliderHost = element;
+
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    if (!element) {
+      this.gradeSlider?.destroy();
+      this.gradeSlider = null;
+      return;
+    }
+
+    queueMicrotask(() => this.initializeGradeSlider());
+  }
 
   scores: ScoreApiInfo[] = [];
   selectedAuthor: AuthorWithScoreCount | null = null;
@@ -49,6 +72,11 @@ export class BrowseComponent implements OnInit {
   fullKeyOptions: string[] = [];
   selectedFullKey = '';
   loadingFullKeys = false;
+  readonly minGrade = 1;
+  readonly maxGrade = 8;
+  selectedGradeStart = this.minGrade;
+  selectedGradeEnd = this.maxGrade;
+  gradeFilterPristine = true;
 
   // Table configuration
   tableColumns: ScoreTableColumn[] = [
@@ -138,6 +166,13 @@ export class BrowseComponent implements OnInit {
               this.filterOneHand = queryParams['oneHand'] === 'true';
               this.filterTwoHands = queryParams['twoHands'] === 'true';
               this.selectedFullKey = queryParams['fullKey'] || '';
+              this.selectedGradeStart = this.parseGradeParam(queryParams['gradeStart'], this.minGrade);
+              this.selectedGradeEnd = this.parseGradeParam(queryParams['gradeEnd'], this.maxGrade);
+              if (this.selectedGradeStart > this.selectedGradeEnd) {
+                this.selectedGradeEnd = this.selectedGradeStart;
+              }
+              this.gradeFilterPristine = this.isDefaultGradeRange();
+              this.syncGradeSliderFromState();
 
               if (keyword) {
                 this.searchKeyword = keyword;
@@ -167,10 +202,33 @@ export class BrowseComponent implements OnInit {
       });
   }
 
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeGradeSlider();
+    }
+  }
+
+  ngOnDestroy() {
+    this.gradeSlider?.destroy();
+    this.gradeSlider = null;
+  }
+
   loadAuthorAndFilter(artistSlug: string) {
     // Load author info from API using slug parameter
     this.loading = true;
-    this.scoreService.scoreAuthorBrowseGet(this.getTrackCountFilter(), this.getFullKeyFilter(), artistSlug, 0, 1).subscribe({
+    this.scoreService.scoreAuthorBrowseGet(
+      this.getTrackCountFilter(),
+      this.getFullKeyFilter(),
+      artistSlug,
+      0,
+      1,
+      'body',
+      false,
+      {
+        gradeStart: this.getGradeStartFilter(),
+        gradeEnd: this.getGradeEndFilter()
+      }
+    ).subscribe({
       next: (data) => {
         if (data.length > 0) {
           const author = data[0];
@@ -203,7 +261,20 @@ export class BrowseComponent implements OnInit {
   loadGenreAndFilter(genreSlug: string) {
     // Load genre info from API using slug parameter
     this.loading = true;
-    this.scoreService.scoreGenreBrowseGet(this.getTrackCountFilter(), this.getFullKeyFilter(), genreSlug, undefined, 0, 1).subscribe({
+    this.scoreService.scoreGenreBrowseGet(
+      this.getTrackCountFilter(),
+      this.getFullKeyFilter(),
+      genreSlug,
+      undefined,
+      0,
+      1,
+      'body',
+      false,
+      {
+        gradeStart: this.getGradeStartFilter(),
+        gradeEnd: this.getGradeEndFilter()
+      }
+    ).subscribe({
       next: (data) => {
         if (data.length > 0) {
           const genre = data[0];
@@ -271,8 +342,8 @@ export class BrowseComponent implements OnInit {
       undefined, // artistSlug
       undefined, // genreSlug
       undefined, // etude
-      undefined, // gradeStart
-      undefined, // gradeEnd
+      this.getGradeStartFilter(), // gradeStart
+      this.getGradeEndFilter(), // gradeEnd
       undefined, // tempo
       this.getFullKeyFilter(), // fullKey
       this.getSortByFilter(), // sortBy
@@ -313,7 +384,9 @@ export class BrowseComponent implements OnInit {
         search: this.searchKeyword,
         oneHand: this.filterOneHand || null,
         twoHands: this.filterTwoHands || null,
-        fullKey: this.getFullKeyFilter() || null
+        fullKey: this.getFullKeyFilter() || null,
+        gradeStart: this.getGradeStartFilter() || null,
+        gradeEnd: this.getGradeEndFilter() || null
       }
     });
 
@@ -361,7 +434,9 @@ export class BrowseComponent implements OnInit {
       queryParams: {
         oneHand: this.filterOneHand || null,
         twoHands: this.filterTwoHands || null,
-        fullKey: this.getFullKeyFilter() || null
+        fullKey: this.getFullKeyFilter() || null,
+        gradeStart: this.getGradeStartFilter() || null,
+        gradeEnd: this.getGradeEndFilter() || null
       }
     });
 
@@ -390,8 +465,8 @@ export class BrowseComponent implements OnInit {
       author.author.slug, // artistSlug
       undefined, // genreSlug
       undefined, // etude
-      undefined, // gradeStart
-      undefined, // gradeEnd
+      this.getGradeStartFilter(), // gradeStart
+      this.getGradeEndFilter(), // gradeEnd
       undefined, // tempo
       this.getFullKeyFilter(), // fullKey
       undefined, // sortBy
@@ -431,7 +506,9 @@ export class BrowseComponent implements OnInit {
       queryParams: {
         oneHand: this.filterOneHand || null,
         twoHands: this.filterTwoHands || null,
-        fullKey: this.getFullKeyFilter() || null
+        fullKey: this.getFullKeyFilter() || null,
+        gradeStart: this.getGradeStartFilter() || null,
+        gradeEnd: this.getGradeEndFilter() || null
       }
     });
 
@@ -460,8 +537,8 @@ export class BrowseComponent implements OnInit {
       undefined, // artistSlug
       genre.genre?.slug, // genreSlug
       undefined, // etude
-      undefined, // gradeStart
-      undefined, // gradeEnd
+      this.getGradeStartFilter(), // gradeStart
+      this.getGradeEndFilter(), // gradeEnd
       undefined, // tempo
       this.getFullKeyFilter(), // fullKey
       undefined, // sortBy
@@ -545,8 +622,89 @@ export class BrowseComponent implements OnInit {
     return this.selectedFullKey || undefined;
   }
 
+  getGradeStartFilter(): string | undefined {
+    return this.isDefaultGradeRange() ? undefined : String(this.selectedGradeStart);
+  }
+
+  getGradeEndFilter(): string | undefined {
+    return this.isDefaultGradeRange() ? undefined : String(this.selectedGradeEnd);
+  }
+
   getSortByFilter(): 'uploadedAt_desc' | undefined {
     return this.activeTab === 'new' ? this.newestSortBy : undefined;
+  }
+
+  clearGradeFilter() {
+    this.selectedGradeStart = this.minGrade;
+    this.selectedGradeEnd = this.maxGrade;
+    this.gradeFilterPristine = true;
+    this.syncGradeSliderFromState();
+    this.applyFilters();
+  }
+
+  private initializeGradeSlider() {
+    if (!this.gradeSliderHost?.nativeElement) {
+      return;
+    }
+
+    this.gradeSlider?.destroy();
+    this.gradeSlider = noUiSlider.create(this.gradeSliderHost.nativeElement, {
+      start: [this.selectedGradeStart, this.selectedGradeEnd],
+      connect: true,
+      behaviour: 'tap-drag',
+      step: 1,
+      range: {
+        min: this.minGrade,
+        max: this.maxGrade
+      },
+      pips: {
+        mode: PipsMode.Values,
+        values: Array.from({ length: this.maxGrade - this.minGrade + 1 }, (_, index) => this.minGrade + index),
+        density: 100,
+        format: wNumb({ decimals: 0 })
+      },
+      tooltips: false,
+      format: {
+        to: (value: number) => Math.round(value).toString(),
+        from: (value: string) => Math.round(Number(value))
+      }
+    });
+
+    this.gradeSlider.on('update', (values: (number | string)[]) => {
+      const [start, end] = values.map((value) => this.clampGrade(Number(value)));
+      this.selectedGradeStart = start;
+      this.selectedGradeEnd = end;
+      this.gradeFilterPristine = this.isDefaultGradeRange();
+      this.changeDetector.detectChanges();
+    });
+
+    this.gradeSlider.on('change', (values: (number | string)[]) => {
+      if (this.syncingGradeSlider) {
+        return;
+      }
+
+      const [start, end] = values.map((value) => this.clampGrade(Number(value)));
+      this.selectedGradeStart = start;
+      this.selectedGradeEnd = end;
+      this.gradeFilterPristine = this.isDefaultGradeRange();
+      this.applyFilters();
+    });
+
+    this.syncGradeSliderFromState();
+  }
+
+  private syncGradeSliderFromState() {
+    if (!this.gradeSlider) {
+      return;
+    }
+
+    this.syncingGradeSlider = true;
+    this.gradeSlider.set([this.selectedGradeStart, this.selectedGradeEnd], false);
+    this.syncingGradeSlider = false;
+  }
+
+  private isDefaultGradeRange(): boolean {
+    return this.selectedGradeStart === this.minGrade && this.selectedGradeEnd === this.maxGrade;
   }
 
   applyFilters() {
@@ -556,7 +714,9 @@ export class BrowseComponent implements OnInit {
         queryParams: {
           oneHand: this.filterOneHand || null,
           twoHands: this.filterTwoHands || null,
-          fullKey: this.getFullKeyFilter() || null
+          fullKey: this.getFullKeyFilter() || null,
+          gradeStart: this.getGradeStartFilter() || null,
+          gradeEnd: this.getGradeEndFilter() || null
         }
       });
       this.loadScoresByAuthor(this.selectedAuthor);
@@ -565,7 +725,9 @@ export class BrowseComponent implements OnInit {
         queryParams: {
           oneHand: this.filterOneHand || null,
           twoHands: this.filterTwoHands || null,
-          fullKey: this.getFullKeyFilter() || null
+          fullKey: this.getFullKeyFilter() || null,
+          gradeStart: this.getGradeStartFilter() || null,
+          gradeEnd: this.getGradeEndFilter() || null
         }
       });
       this.loadScoresByGenre(this.selectedGenre);
@@ -575,12 +737,23 @@ export class BrowseComponent implements OnInit {
         queryParams: {
           oneHand: this.filterOneHand || null,
           twoHands: this.filterTwoHands || null,
-          fullKey: this.getFullKeyFilter() || null
+          fullKey: this.getFullKeyFilter() || null,
+          gradeStart: this.getGradeStartFilter() || null,
+          gradeEnd: this.getGradeEndFilter() || null
         },
         queryParamsHandling: 'merge'
       });
       this.loadScores(true);
     }
+  }
+
+  private parseGradeParam(value: string | undefined, fallback: number): number {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? this.clampGrade(parsed) : fallback;
+  }
+
+  private clampGrade(value: number): number {
+    return Math.min(this.maxGrade, Math.max(this.minGrade, Math.round(Number(value))));
   }
 
   loadFullKeys() {

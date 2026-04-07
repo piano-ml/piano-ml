@@ -1,5 +1,7 @@
 import sys
 import json
+import subprocess
+import os
 from music21 import converter, metadata, tempo, analysis, harmony
 from collections import defaultdict
 
@@ -110,6 +112,39 @@ def analyze(score):
         "certainty": certainty
     }
 
+def extract_grade(midifile: str) -> float | None:
+    """
+    Run inference.py on the given MIDI file and return the predicted grade
+    as a float (result["predicted_value"]), or None on failure.
+    """
+    scripts_dir = os.path.dirname(os.path.abspath(__file__))
+    classifier_dir = os.path.join(scripts_dir, "..", "piano-syllabus-classifier")
+    inference_script = os.path.join(classifier_dir, "inference.py")
+    model_dir = os.path.join(classifier_dir, "ps_model")
+
+    try:
+        proc = subprocess.run(
+            [sys.executable, inference_script, "--midi_file", midifile, "--model_dir", model_dir],
+            capture_output=True,
+            text=True,
+            cwd=classifier_dir,
+        )
+        if proc.returncode != 0:
+            print(f"[extract_grade] inference.py failed (rc={proc.returncode})")
+            print(f"[extract_grade] stdout: {proc.stdout.strip()}")
+            print(f"[extract_grade] stderr: {proc.stderr.strip()}")
+            return None
+        # inference.py prints the result dict via print(f"{result}")
+        output = proc.stdout.strip()
+        result = eval(output)
+        return float(result["predicted_value"])
+    except Exception as e:
+        print(f"[extract_grade] exception: {e}")
+        print(f"[extract_grade] stdout: {proc.stdout.strip() if 'proc' in dir() else 'N/A'}")
+        print(f"[extract_grade] stderr: {proc.stderr.strip() if 'proc' in dir() else 'N/A'}")
+        return None
+
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python get_metadata.py <midifile>")
@@ -151,6 +186,7 @@ def main():
         "measures_count": measures_count,
         "has_lyrics": has_lyrics,
         "tempo": predominant_tempo,
+        "grade": extract_grade(midifile),
         "analysis": analysis,
         "harmony": extract_harmony(score)
     }

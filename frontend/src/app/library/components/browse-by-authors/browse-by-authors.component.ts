@@ -17,6 +17,8 @@ export class BrowseByAuthorsComponent implements OnInit, OnChanges {
   selectedLetter: string | null = null;
   @Input() trackFilter: number[] | undefined;
   @Input() fullKeyFilter: string | undefined;
+  @Input() gradeStartFilter: string | undefined;
+  @Input() gradeEndFilter: string | undefined;
   @Output() authorClick = new EventEmitter<AuthorWithScoreCount>();
 
   constructor(
@@ -41,7 +43,19 @@ export class BrowseByAuthorsComponent implements OnInit, OnChanges {
 
   loadAuthors() {
     this.loadingAuthors = true;
-    this.scoreService.scoreAuthorBrowseGet(this.trackFilter, this.fullKeyFilter).subscribe({
+    this.scoreService.scoreAuthorBrowseGet(
+      this.trackFilter,
+      this.fullKeyFilter,
+      undefined,
+      undefined,
+      undefined,
+      'body',
+      false,
+      {
+        gradeStart: this.gradeStartFilter,
+        gradeEnd: this.gradeEndFilter
+      }
+    ).subscribe({
       next: (data) => {
         this.authors = data;
         this.loadingAuthors = false;

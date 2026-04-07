@@ -14,7 +14,7 @@ ENV JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         locales vim joe python3.11 python3-pip python3-venv pipx git openjdk-17-jre-headless \
-        poppler-utils zip musescore3 curl ca-certificates sudo && \
+        poppler-utils zip musescore3 curl ca-certificates sudo unzip && \
     sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
     sed -i 's/^# *\(fr_FR.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
     locale-gen en_US.UTF-8 fr_FR.UTF-8 || true && \
@@ -37,8 +37,12 @@ WORKDIR /home/appuser
 RUN python -m venv /home/appuser/shared-venv && \
     /home/appuser/shared-venv/bin/pip install --upgrade pip && \
     /home/appuser/shared-venv/bin/pip install music21 musicxml pretty_midi
+RUN /home/appuser/shared-venv/bin/pip3 install --break-system-package miditok music21 musicxml pretty_midi symusic torch transformers[torch] scikit-learn lightgbm matplotlib seaborn numpy safetensors
 
-RUN /home/appuser/shared-venv/bin/pip3 install --break-system-packag music21 musicxml pretty_midi
+
+# install piano-syllabus-classifier
+
+RUN git clone https://github.com/piano-ml/piano-syllabus-classifier.git
 
 # Install Poetry using pipx (recommended for Debian 12)
 RUN pipx install poetry && \
