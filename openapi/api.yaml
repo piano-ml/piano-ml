@@ -815,6 +815,14 @@ paths:
           schema:
             type: string
           description: 'Filter by musical full key (example: "D minor" or "D major")'
+        - name: gradeStart
+          in: query
+          schema:
+            type: string
+        - name: gradeEnd
+          in: query
+          schema:
+            type: string
         - name: slug
           in: query
           schema:
@@ -880,6 +888,14 @@ paths:
             nullable: true
           style: form
           explode: true
+        - name: gradeStart
+          in: query
+          schema:
+            type: string
+        - name: gradeEnd
+          in: query
+          schema:
+            type: string
         - name: offset
           in: query
           schema:
@@ -1236,8 +1252,8 @@ components:
         genre_slug:
           type: string
         grade:
-          type: integer
-          format: int32
+          type: number
+          format: float
         uploaded_at:
           type: string
           format: date-time

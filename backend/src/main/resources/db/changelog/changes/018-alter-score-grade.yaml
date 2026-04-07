@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 018-alter-score-grade
+      author: eflorent
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - columnExists:
+            schemaName: pianoml
+            tableName: score
+            columnName: grade
+      changes:
+        - modifyDataType:
+            schemaName: pianoml
+            tableName: score
+            columnName: grade
+            newDataType: FLOAT
+      rollback:
+        - modifyDataType:
+            schemaName: pianoml
+            tableName: score
+            columnName: grade
+            newDataType: INTEGER
+

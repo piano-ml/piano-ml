@@ -42,6 +42,7 @@ model/scorePlayStatsPostRequestAssessment.ts
 model/scoreStatsGet200Response.ts
 model/userApiInfo.ts
 model/workloadApiInfo.ts
+model/youtubeLink.ts
 param.ts
 provide-api.ts
 variables.ts
