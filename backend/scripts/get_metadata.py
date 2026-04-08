@@ -186,7 +186,7 @@ def main():
         "measures_count": measures_count,
         "has_lyrics": has_lyrics,
         "tempo": predominant_tempo,
-        "grade": extract_grade(midifile),
+        "grade": extract_grade(midifile.replace(".musicxml", ".midi")),
         "analysis": analysis,
         "harmony": extract_harmony(score)
     }
