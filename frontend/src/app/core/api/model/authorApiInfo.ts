@@ -29,5 +29,9 @@ export interface AuthorApiInfo {
      * Description textuelle de l\'auteur
      */
     description?: string;
+    /**
+     * Link to the composer\'s biography or external page
+     */
+    composerBioLink?: string;
 }
 

@@ -218,38 +218,34 @@ public class ScoreController implements ScoreApi {
   }
 
   @Override
-  public ResponseEntity<List<org.pianoml.backend.model.AuthorWithScoreCount>> scoreAuthorBrowseGet(java.util.List<Integer> tracks, String fullKey, String slug, Integer offset, Integer limit) {
+  public ResponseEntity<List<org.pianoml.backend.model.AuthorWithScoreCount>> scoreAuthorBrowseGet(java.util.List<Integer> tracks, String fullKey, String gradeStart, String gradeEnd, String slug, Integer offset, Integer limit) {
     // Normalize pagination params
     int off = offset != null && offset >= 0 ? offset : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user;
     try {
-      // Use AccountService#getUserFromAuthentication which throws when the user is anonymous or not activated.
       user = userService.getUserFromAuthentication(authentication);
     } catch (UserNotLoggedInException e) {
-      // If the user is not logged in or cannot be resolved, keep user = null so only public scores are shown.
       user = null;
     }
-    List<org.pianoml.backend.model.AuthorWithScoreCount> list = scoreService.getAuthorsWithScoreCounts(user, off, lim, tracks, fullKey, slug);
+    List<org.pianoml.backend.model.AuthorWithScoreCount> list = scoreService.getAuthorsWithScoreCounts(user, off, lim, tracks, fullKey, slug, gradeStart, gradeEnd);
     return ResponseEntity.ok(list);
   }
 
   @Override
-  public ResponseEntity<List<org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner>> scoreGenreBrowseGet(java.util.List<Integer> tracks, String fullKey, String slug, java.util.List<UUID> genre, Integer offset, Integer limit) {
+  public ResponseEntity<List<org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner>> scoreGenreBrowseGet(java.util.List<Integer> tracks, String fullKey, String slug, java.util.List<UUID> genre, String gradeStart, String gradeEnd, Integer offset, Integer limit) {
     // Normalize pagination params
     int off = offset != null && offset >= 0 ? offset : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user;
     try {
-      // Use AccountService#getUserFromAuthentication which throws when the user is anonymous or not activated.
       user = userService.getUserFromAuthentication(authentication);
     } catch (UserNotLoggedInException e) {
-      // If the user is not logged in or cannot be resolved, keep user = null so only public scores are shown.
       user = null;
     }
-    List<org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner> list = scoreService.getGenresWithScoreCounts(user, off, lim, tracks, genre, fullKey, slug);
+    List<org.pianoml.backend.model.ScoreGenreBrowseGet200ResponseInner> list = scoreService.getGenresWithScoreCounts(user, off, lim, tracks, genre, fullKey, slug, gradeStart, gradeEnd);
     return ResponseEntity.ok(list);
   }
 

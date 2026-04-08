@@ -1,3 +1,5 @@
+@import "nouislider/dist/nouislider.css";
+
 /* Styles pour le composant browse */
 
 /* Screen reader only - visible pour les lecteurs d'écran, caché visuellement */
@@ -20,4 +22,50 @@
 /* Animation pour les lignes du tableau */
 tr:hover {
   background-color: rgba(107, 114, 128, 0.3) !important;
+}
+
+:host ::ng-deep .browse-grade-slider {
+  width: 14rem;
+  margin: 0.25rem 0 1.5rem;
+}
+
+:host ::ng-deep .browse-grade-slider.noUi-target {
+  background: #3f3f46;
+  border: 1px solid #71717a;
+  box-shadow: none;
+  height: 0.5rem;
+}
+
+:host ::ng-deep .browse-grade-slider .noUi-connect {
+  background: #2563eb;
+}
+
+:host ::ng-deep .browse-grade-slider .noUi-handle {
+  width: 1rem;
+  height: 1rem;
+  right: -0.5rem;
+  top: -0.3125rem;
+  border-radius: 9999px;
+  border: 1px solid #d4d4d8;
+  background: #fafafa;
+  box-shadow: none;
+  cursor: grab;
+}
+
+:host ::ng-deep .browse-grade-slider .noUi-handle::before,
+:host ::ng-deep .browse-grade-slider .noUi-handle::after {
+  display: none;
+}
+
+:host ::ng-deep .browse-grade-slider .noUi-pips {
+  color: #d1d5db;
+  font-size: 0.7rem;
+}
+
+:host ::ng-deep .browse-grade-slider .noUi-value {
+  padding-top: 0.2rem;
+}
+
+:host ::ng-deep .browse-grade-slider .noUi-marker {
+  background: #9ca3af;
 }

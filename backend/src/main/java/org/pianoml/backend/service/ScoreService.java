@@ -311,6 +311,14 @@ public class ScoreService {
         if (node.has("harmony") && node.get("harmony").isArray()) {
           score.setHarmony(node.get("harmony").toString());
         }
+        if (node.has("grade")) {
+          try {
+            score.setGrade(Float.valueOf(node.get("grade").toString()));
+          } catch (Exception ex) {
+            log.warn("Failed to parse grade from metadata for score {}: {}", score.getId(), ex.getMessage());
+            score.setGrade(null);
+          }
+        }
 
         scoreRepository.save(score);
       } else {
@@ -389,18 +397,22 @@ public class ScoreService {
 
 
   public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks) {
-    return getAuthorsWithScoreCounts(user, offset, limit, tracks, null, null);
+    return getAuthorsWithScoreCounts(user, offset, limit, tracks, null, null, null, null);
   }
 
   public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey) {
-    return getAuthorsWithScoreCounts(user, offset, limit, tracks, fullKey, null);
+    return getAuthorsWithScoreCounts(user, offset, limit, tracks, fullKey, null, null, null);
   }
 
   public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey, String slug) {
+    return getAuthorsWithScoreCounts(user, offset, limit, tracks, fullKey, slug, null, null);
+  }
+
+  public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey, String slug, String gradeStart, String gradeEnd) {
     int off = offset != null ? Math.max(0, offset) : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
 
-    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(user, lim == null ? null : off, lim, tracks, fullKey, slug);
+    List<Object[]> rows = scoreRepository.countScoresGroupedByAuthor(user, lim == null ? null : off, lim, tracks, fullKey, slug, gradeStart, gradeEnd);
     return rows.stream().map(row -> {
       org.pianoml.backend.entity.Author author = (org.pianoml.backend.entity.Author) row[0];
       Long count = (Long) row[1];
@@ -415,18 +427,22 @@ public class ScoreService {
   }
 
   public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter) {
-    return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, null, null);
+    return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, null, null, null, null);
   }
 
   public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey) {
-    return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, fullKey, null);
+    return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, fullKey, null, null, null);
   }
 
   public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey, String slug) {
+    return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, fullKey, slug, null, null);
+  }
+
+  public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey, String slug, String gradeStart, String gradeEnd) {
     int off = offset != null ? Math.max(0, offset) : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
 
-    List<Object[]> rows = scoreRepository.countScoresGroupedByGenre(user, lim == null ? null : off, lim, tracks, genreFilter, fullKey, slug);
+    List<Object[]> rows = scoreRepository.countScoresGroupedByGenre(user, lim == null ? null : off, lim, tracks, genreFilter, fullKey, slug, gradeStart, gradeEnd);
     return rows.stream().map(row -> {
       Genre genre = (Genre) row[0];
       Long count = (Long) row[1];

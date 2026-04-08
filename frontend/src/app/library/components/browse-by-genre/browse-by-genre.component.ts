@@ -14,6 +14,8 @@ export class BrowseByGenreComponent implements  OnChanges {
   loadingGenres = false;
   @Input() trackFilter: number[] | undefined;
   @Input() fullKeyFilter: string | undefined;
+  @Input() gradeStartFilter: string | undefined;
+  @Input() gradeEndFilter: string | undefined;
   @Output() genreClick = new EventEmitter<ScoreGenreBrowseGet200ResponseInner>();
 
   constructor(
@@ -28,7 +30,18 @@ export class BrowseByGenreComponent implements  OnChanges {
 
   loadGenres() {
     this.loadingGenres = true;
-    this.scoreService.scoreGenreBrowseGet(this.trackFilter, this.fullKeyFilter).subscribe({
+    this.scoreService.scoreGenreBrowseGet(
+      this.trackFilter,
+      this.fullKeyFilter,
+      undefined,
+      undefined,
+      this.gradeStartFilter,
+      this.gradeEndFilter,
+      undefined,
+      undefined,
+      'body',
+      false
+    ).subscribe({
       next: (data) => {
         this.genres = data.map((item) => {
           if (item.genre == null) {

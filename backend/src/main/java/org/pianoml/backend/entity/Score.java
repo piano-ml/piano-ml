@@ -48,7 +48,7 @@ public class Score {
   private Boolean hasLyrics;
 
   @Column(name = "grade")
-  private Integer grade;
+  private Float grade;
 
   @Column(name = "uploaded_at")
   private OffsetDateTime uploadedAt;
