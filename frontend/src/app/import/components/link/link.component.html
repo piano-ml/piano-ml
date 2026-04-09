@@ -8,7 +8,7 @@
       <p class="text-sm mb-4">You must be logged in to link musical works.</p>
       <a
         routerLink="/account/login"
-        class="inline-block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors">
+        class="btn-primary inline-block">
         Login
       </a>
     </div>
@@ -28,16 +28,16 @@
                 [(ngModel)]="searchQuery"
                 (keyup.enter)="searchWorks()"
                 placeholder="Search for works (e.g., 'redemption song')"
-                class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black">
+                class="input-field flex-1">
               <button
                 (click)="searchWorks()"
-                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+                class="btn-primary"
                 [disabled]="loading">
                 {{ loading ? 'Searching...' : 'Search' }}
               </button>
               <button
                 (click)="clearSearch()"
-                class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+                class="btn-secondary">
                 Clear
               </button>
             </div>
@@ -49,7 +49,7 @@
         <div class="mb-4 text-center">
           <button
             (click)="startManualCreation()"
-            class="text-blue-400 hover:text-blue-300 underline text-sm">
+            class="link-alt">
             Can't find the work you're looking for in the database? Create it manually
           </button>
         </div>
@@ -82,7 +82,7 @@
               <h4 class="text-lg font-semibold">Create Work Manually</h4>
               <button
                 (click)="cancelManualCreation()"
-                class="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm">
+                class="btn-secondary btn-small">
                 Cancel
               </button>
             </div>
@@ -106,10 +106,10 @@
                   [(ngModel)]="artistSearchQuery"
                   (keyup.enter)="searchArtists()"
                   placeholder="Enter artist name (e.g., 'Bob Marley')"
-                  class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black">
+                  class="input-field flex-1">
                 <button
                   (click)="searchArtists()"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+                  class="btn-primary"
                   [disabled]="loading">
                   {{ loading ? 'Searching...' : 'Search' }}
                 </button>
@@ -154,7 +154,7 @@
                           <td class="border border-gray-300 px-4 py-2 text-center">
                             <button
                               (click)="onArtistSelect(artist); $event.stopPropagation()"
-                              class="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-400">
+                              class="btn-primary btn-small">
                               Select
                             </button>
                           </td>
@@ -194,7 +194,7 @@
                 }
                 <button
                   (click)="backToArtistSearch()"
-                  class="mt-2 text-blue-400 hover:text-blue-300 underline text-sm">
+                  class="link-alt mt-2 block">
                   Change artist
                 </button>
               </div>
@@ -203,17 +203,17 @@
                 [(ngModel)]="workTitle"
                 (keyup.enter)="submitManualWork()"
                 placeholder="Enter work/song title"
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black mb-4">
+                class="input-field w-full mb-4">
               <div class="flex gap-2 justify-end">
                 <button
                   (click)="backToArtistSearch()"
-                  class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                  class="btn-secondary">
                   Back
                 </button>
                 <button
                   (click)="submitManualWork()"
                   [disabled]="!workTitle.trim()"
-                  class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 disabled:bg-gray-500 disabled:cursor-not-allowed">
+                  class="btn-success">
                   Create Work
                 </button>
               </div>
@@ -247,7 +247,7 @@
                   <td class="border border-gray-300 px-4 py-2 text-center">
                     <button
                       (click)="onWorkClick(work); $event.stopPropagation()"
-                      class="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-400">
+                      class="btn-primary btn-small">
                       Select
                     </button>
                   </td>
@@ -286,7 +286,7 @@
           <p class="text-sm mt-1">{{ error }}</p>
           <button
             (click)="error = null"
-            class="mt-2 px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">
+            class="btn-danger btn-small mt-2">
             Dismiss
           </button>
         </div>

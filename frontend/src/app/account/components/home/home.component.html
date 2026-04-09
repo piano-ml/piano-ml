@@ -33,7 +33,7 @@
                   type="text"
                   id="name"
                   formControlName="name"
-                  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                  class="input-field w-full"
                   placeholder="Enter your name">
                 <!-- Action Buttons -->
                 <div class="flex gap-4">
@@ -119,7 +119,7 @@
                       formControlName="leftmostKey"
                       min="21"
                       max="108"
-                      class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                      class="input-field w-full"
                       [class.border-red-500]="leftmostKeyControl?.invalid && leftmostKeyControl?.touched"
                       [class.border-green-400]="focusedField === 'leftmostKey'"
                       placeholder="21">
@@ -149,7 +149,7 @@
                       formControlName="rightmostKey"
                       min="21"
                       max="108"
-                      class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                      class="input-field w-full"
                       [class.border-red-500]="rightmostKeyControl?.invalid && rightmostKeyControl?.touched"
                       [class.border-green-400]="focusedField === 'rightmostKey'"
                       placeholder="108">

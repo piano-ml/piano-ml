@@ -117,7 +117,7 @@
                 [disabled]="!isOwnerOrPublic()"
                 [class.opacity-50]="!isOwnerOrPublic()"
                 [class.cursor-not-allowed]="!isOwnerOrPublic()"
-                class="w-full px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                class="btn-primary w-full">
                 @if (!score.publicDomain) {
                   <span class="mr-2">🔒</span>
                 }
@@ -137,7 +137,7 @@
                 [disabled]="!isOwnerOrPublic()"
                 [class.opacity-50]="!isOwnerOrPublic()"
                 [class.cursor-not-allowed]="!isOwnerOrPublic()"
-                class="w-full px-4 py-3 bg-yellow-500 text-black rounded hover:bg-yellow-600 transition-colors">
+                class="btn-success w-full !text-black !bg-yellow-500 hover:!bg-yellow-600">
                 @if (!score.publicDomain) {
                   <span class="mr-2">🔒</span>
                 }
@@ -157,7 +157,7 @@
                 [disabled]="!isOwnerOrPublic()"
                 [class.opacity-50]="!isOwnerOrPublic()"
                 [class.cursor-not-allowed]="!isOwnerOrPublic()"
-                class="w-full px-4 py-3 bg-green-700 text-white rounded hover:bg-green-800 transition-colors">
+                class="btn-success w-full">
                 @if (!score.publicDomain) {
                   <span class="mr-2">🔒</span>
                 }
@@ -174,7 +174,7 @@
             <!-- Practice -->
             <div class="text-center">
               <button (click)="playScore()"
-                class="w-full px-4 py-3 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                class="btn-hero w-full !bg-purple-600 hover:!bg-purple-700">
                 <i class="fas fa-play mr-2"></i>
                 <i class="fas fa-keyboard mr-2"></i>
                 🔥 Practice
@@ -197,7 +197,7 @@
         << Browse all Scores </button>
         @if (isOwner()) {
           <button (click)="editScore()"
-            class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+            class="btn-primary">
             <i class="fas fa-edit mr-2"></i>
             Edit Score
           </button>

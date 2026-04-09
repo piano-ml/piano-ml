@@ -24,12 +24,12 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
                 type="text"
                 [(ngModel)]="searchQuery"
                 (keyup.enter)="searchAuthors()"
-                class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                class="input-field flex-1"
                 placeholder="Enter author name...">
               <button
                 (click)="searchAuthors()"
                 [disabled]="!searchQuery || searching"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                class="btn-primary">
                 {{ searching ? 'Searching...' : 'Search' }}
               </button>
             </div>
@@ -70,19 +70,19 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
               <input
                 type="text"
                 [(ngModel)]="manualAuthor"
-                class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                class="input-field flex-1"
                 placeholder="Enter author name manually...">
               <button
                 (click)="selectManualAuthor()"
                 [disabled]="!manualAuthor"
-                class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                class="btn-secondary">
                 Use Manual Entry
               </button>
             </div>
           </div>
           <!-- Action Buttons -->
           <div class="flex justify-end gap-4 mt-6">
-            <button (click)="close()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Cancel</button>
+            <button (click)="close()" class="btn-secondary">Cancel</button>
           </div>
         </div>
       </div>

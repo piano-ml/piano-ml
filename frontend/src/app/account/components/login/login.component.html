@@ -13,7 +13,7 @@
     <div class="mb-4">
       <label for="email" class="block text-sm font-medium mb-2">email</label>
       <input type="text" id="email" formControlName="email"
-        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+        class="input-field w-full"
         placeholder="Enter your email">
       @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
         <div
@@ -26,7 +26,7 @@
     <div class="mb-6">
       <label for="password" class="block text-sm font-medium mb-2">Password</label>
       <input type="password" id="password" formControlName="password"
-        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+        class="input-field w-full"
         placeholder="Enter your password">
       @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
         <div

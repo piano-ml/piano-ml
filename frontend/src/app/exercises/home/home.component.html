@@ -4,7 +4,7 @@
     <ul>
       @for (item of summary; track item) {
         <li class="mb-4 mt-4">
-          <button [routerLink]="item.url" class="w-64 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded tracking-[00.15rem] transition-colors">{{ item.title }}</button>
+          <button [routerLink]="item.url" class="btn-hero w-64">{{ item.title }}</button>
         </li>
       }
     </ul>

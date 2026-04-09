@@ -4,7 +4,7 @@
     <div>
       <strong>Genre:</strong>
       @if (score.genre && score.genre_slug) {
-        <a [routerLink]="['/library/genres', score.genre_slug]" class="underline hover:text-white">
+        <a [routerLink]="['/library/genres', score.genre_slug]" class="link-primary text-white no-underline">
           {{ score.genre }}
         </a>
       } @else {
@@ -14,7 +14,7 @@
     <div>
       <strong>Author: </strong>
       @if (score.author_slug && score.author_slug) {
-        <a [routerLink]="['/library/artists', score.author_slug]" class="underline hover:text-white">
+        <a [routerLink]="['/library/artists', score.author_slug]" class="link-primary text-white no-underline">
           {{ score.author }}
         </a>
       } @else {
@@ -26,7 +26,7 @@
     <div>
       <strong>Key: </strong>
       @if (score.fullKey && score.genre_slug) {
-        <a [routerLink]="['/library/genres', score.genre_slug]" [queryParams]="{fullKey: score.fullKey}" class="underline hover:text-white">
+        <a [routerLink]="['/library/genres', score.genre_slug]" [queryParams]="{fullKey: score.fullKey}" class="link-primary text-white no-underline">
           {{ score.fullKey }}
         </a>
       } @else {
@@ -41,7 +41,7 @@
     <div>
       <strong>MusicBrainz: </strong>
       @if ((score.author_mbid)) {
-        <a class="underline" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank">author</a>
+        <a class="link-primary text-white no-underline" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank">author</a>
       } @else {
         N/A
       }
@@ -50,7 +50,7 @@
     <div>
       <strong>MusicBrainz: </strong>
       @if (score.mbid) {
-        <a class="underline" href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank">work</a>
+        <a class="link-primary text-white no-underline" href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank">work</a>
       } @else {
         N/A
       }
