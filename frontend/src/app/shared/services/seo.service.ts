@@ -1,6 +1,6 @@
-import { Injectable, inject, PLATFORM_ID, Inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, Inject, DOCUMENT } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface SeoData {
   title?: string;

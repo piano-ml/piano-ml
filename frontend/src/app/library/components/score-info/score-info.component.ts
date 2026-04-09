@@ -14,7 +14,7 @@ import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in
 @Component({
   selector: 'app-score-info',
   standalone: true,
-  imports: [CommonModule, ShareButtons, NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent],
+  imports: [CommonModule,  NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
   viewProviders: [provideIcons({ bootstrapClipboard })]

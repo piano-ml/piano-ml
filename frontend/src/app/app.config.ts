@@ -22,8 +22,6 @@ import { provideNgIconLoader, withCaching } from '@ng-icons/core';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './account/interceptors/auth.interceptor';
 
-import { provideShareButtonsOptions } from 'ngx-sharebuttons';
-import { shareIcons } from 'ngx-sharebuttons/icons';
 import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
@@ -120,8 +118,6 @@ export const appConfig: ApplicationConfig = {
       }
     },
     provideAnimations(),
-    provideShareButtonsOptions(
-      shareIcons()
-    ), provideClientHydration(withEventReplay())
+    provideClientHydration(withEventReplay())
   ]
 };

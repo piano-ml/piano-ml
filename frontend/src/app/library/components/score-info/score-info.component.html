@@ -10,10 +10,6 @@
       <button (click)="copyUrlToClipboard()" class="px-3 py-2 text-white rounded" title="Copy URL">
         <ng-icon name="bootstrapClipboard" size="16"></ng-icon>
       </button>
-      <share-buttons [url]="getPublicUrl() || ''" [title]="score.title || 'Piano Score'"
-        [description]="'Check out this piano score: ' + (score.title || 'Untitled') + ' by ' + (score.author || 'Unknown')"
-        [include]="shareLinks" [show]="4" size="25">
-      </share-buttons>
     </div>
   </div>
 
