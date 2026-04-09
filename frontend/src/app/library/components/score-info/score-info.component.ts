@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
-import { ShareButtons } from 'ngx-sharebuttons/buttons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';

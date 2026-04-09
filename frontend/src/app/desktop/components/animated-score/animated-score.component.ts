@@ -1,6 +1,6 @@
 // biome-ignore lint/style/useImportType: <explanation>
 import { type AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, type ElementRef, HostListener, Input, OnDestroy, type OnInit, ViewChild, ViewEncapsulation, PLATFORM_ID, inject } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import { EngravingService } from '../../service/engraving.service';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-animated-score',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './animated-score.component.html',
   styleUrl: './animated-score.component.css',
   encapsulation: ViewEncapsulation.None,

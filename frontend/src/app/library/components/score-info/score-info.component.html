@@ -1,181 +1,208 @@
 <article class="px-6 pt-2 pb-0">
   <!-- H1 for SEO - hidden visually but accessible -->
-  <h1 class="sr-only" *ngIf="score">{{ score.title }} by {{ score.author }} - Piano Score</h1>
-  
+  @if (score) {
+    <h1 class="sr-only">{{ score.title }} by {{ score.author }} - Piano Score</h1>
+  }
+
   <div class="flex items-center justify-between gap-4">
     <div class="page-title" role="heading" aria-level="2">{{ pageTitle }}</div>
 
-    <div class="flex items-center justify-end gap-2" *ngIf="!loading && score">
-      <span></span>
-      <button (click)="copyUrlToClipboard()" class="px-3 py-2 text-white rounded" title="Copy URL">
-        <ng-icon name="bootstrapClipboard" size="16"></ng-icon>
-      </button>
-    </div>
+    @if (!loading && score) {
+      <div class="flex items-center justify-end gap-2">
+        <span></span>
+        <button (click)="copyUrlToClipboard()" class="px-3 py-2 text-white rounded" title="Copy URL">
+          <ng-icon name="bootstrapClipboard" size="16"></ng-icon>
+        </button>
+      </div>
+    }
   </div>
 
 </article>
 
 <section class="bg-neutral-700 p-4" aria-label="Score details and actions">
   <!-- Loading State -->
-  <div *ngIf="loading" class="text-center py-8">
-    <div
-      class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full">
+  @if (loading) {
+    <div class="text-center py-8">
+      <div
+        class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full">
+      </div>
+      <p class="mt-2 text-gray-300">Loading score...</p>
     </div>
-    <p class="mt-2 text-gray-300">Loading score...</p>
-  </div>
+  }
 
   <!-- Error State -->
-  <div *ngIf="error && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-    <strong>Error:</strong> {{ error }}
-  </div>
+  @if (error && !loading) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <strong>Error:</strong> {{ error }}
+    </div>
+  }
 
   <!-- Score Details -->
-  <div *ngIf="!loading && score" >
-
-    <div class="bg-neutral-600 p-4 rounded" *ngIf="!score.has_files">
-      <h3 class="text-lg font-semibold mb-4 text-white">File Processing Status</h3>
-
-      <!-- Loading workload info -->
-      <div *ngIf="loadingWorkload" class="text-center py-4">
-        <div
-          class="animate-spin inline-block w-6 h-6 border-4 border-current border-t-transparent text-blue-600 rounded-full">
-        </div>
-        <p class="mt-2 text-gray-300">Loading processing status...</p>
-      </div>
-
-      <!-- Workload information -->
-      <div *ngIf="!loadingWorkload && workload" class="space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-gray-300">Status:</span>
+  @if (!loading && score) {
+    <div >
+      @if (!score.has_files) {
+        <div class="bg-neutral-600 p-4 rounded">
+          <h3 class="text-lg font-semibold mb-4 text-white">File Processing Status</h3>
+          <!-- Loading workload info -->
+          @if (loadingWorkload) {
+            <div class="text-center py-4">
+              <div
+                class="animate-spin inline-block w-6 h-6 border-4 border-current border-t-transparent text-blue-600 rounded-full">
+              </div>
+              <p class="mt-2 text-gray-300">Loading processing status...</p>
+            </div>
+          }
+          <!-- Workload information -->
+          @if (!loadingWorkload && workload) {
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-300">Status:</span>
           <span class="px-3 py-1 rounded-full text-sm font-semibold" [ngClass]="{
                   'bg-yellow-100 text-yellow-800': workload.status === 'PENDING',
                   'bg-blue-100 text-blue-800': workload.status === 'RUNNING',
                   'bg-green-100 text-green-800': workload.status === 'COMPLETED',
                   'bg-red-100 text-red-800': workload.status === 'FAILED'
                 }">
-            {{ workload.status }}
-          </span>
+                  {{ workload.status }}
+                </span>
+              </div>
+              @if (workload.kind) {
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-300">Type:</span>
+                  <span class="text-white">{{ workload.kind }}</span>
+                </div>
+              }
+              @if (workload.createdAt) {
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-300">Created:</span>
+                  <span class="text-white">{{ workload.createdAt | date:'medium' }}</span>
+                </div>
+              }
+              @if (workload.duration) {
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-300">Duration:</span>
+                  <span class="text-white">{{ workload.duration }}ms</span>
+                </div>
+              }
+              @if (workload.workloadSize) {
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-300">Workload Size:</span>
+                  <span class="text-white">{{ workload.workloadSize }}</span>
+                </div>
+              }
+              @if (workload.errorMessage) {
+                <div class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                  <strong>Error:</strong> {{ workload.errorMessage }}
+                </div>
+              }
+            </div>
+          }
+          <!-- No workload info available -->
+          @if (!loadingWorkload && !workload) {
+            <div class="text-center py-4 text-gray-300">
+              <p>No processing information available for this score.</p>
+              <p class="text-sm mt-2">Files may not have been processed yet.</p>
+            </div>
+          }
         </div>
-
-        <div *ngIf="workload.kind" class="flex items-center justify-between">
-          <span class="text-gray-300">Type:</span>
-          <span class="text-white">{{ workload.kind }}</span>
+      }
+      <!-- Download Section -->
+      @if (score.has_files) {
+        <div class="bg-neutral-600 p-4 rounded">
+          <h3 class="text-lg font-semibold text-white">Download Files</h3>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- MIDI Download -->
+            <div class="text-center">
+              <button (click)="downloadFile('midi')"
+                [disabled]="!isOwnerOrPublic()"
+                [class.opacity-50]="!isOwnerOrPublic()"
+                [class.cursor-not-allowed]="!isOwnerOrPublic()"
+                class="w-full px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                @if (!score.publicDomain) {
+                  <span class="mr-2">🔒</span>
+                }
+                <i class="fas fa-music mr-2"></i>
+                Download MIDI
+              </button>
+              @if (score.publicDomain) {
+                <p class="text-gray-300 text-sm mt-2">Digital audio format</p>
+              }
+              @if (!score.publicDomain) {
+                <p class="text-gray-300 text-sm mt-2">Downloading disabled due to copyright</p>
+              }
+            </div>
+            <!-- MusicXML Download -->
+            <div class="text-center">
+              <button (click)="downloadFile('musicxml')"
+                [disabled]="!isOwnerOrPublic()"
+                [class.opacity-50]="!isOwnerOrPublic()"
+                [class.cursor-not-allowed]="!isOwnerOrPublic()"
+                class="w-full px-4 py-3 bg-yellow-500 text-black rounded hover:bg-yellow-600 transition-colors">
+                @if (!score.publicDomain) {
+                  <span class="mr-2">🔒</span>
+                }
+                <i class="fas fa-code mr-2"></i>
+                MusicXML
+              </button>
+              @if (score.publicDomain) {
+                <p class="text-gray-300 text-sm mt-2">Editable music notation</p>
+              }
+              @if (!score.publicDomain) {
+                <p class="text-gray-300 text-sm mt-2">Downloading disabled due to copyright</p>
+              }
+            </div>
+            <!-- PDF Download -->
+            <div class="text-center">
+              <button (click)="downloadFile('pdf')"
+                [disabled]="!isOwnerOrPublic()"
+                [class.opacity-50]="!isOwnerOrPublic()"
+                [class.cursor-not-allowed]="!isOwnerOrPublic()"
+                class="w-full px-4 py-3 bg-green-700 text-white rounded hover:bg-green-800 transition-colors">
+                @if (!score.publicDomain) {
+                  <span class="mr-2">🔒</span>
+                }
+                <i class="fas fa-file-pdf mr-2"></i>
+                Download PDF
+              </button>
+              @if (score.publicDomain) {
+                <p  class="text-gray-300 text-sm mt-2">Sheet music in PDF format</p>
+              }
+              @if (!score.publicDomain) {
+                <p class="text-gray-300 text-sm mt-2">Downloading disabled due to copyright</p>
+              }
+            </div>
+            <!-- Practice -->
+            <div class="text-center">
+              <button (click)="playScore()"
+                class="w-full px-4 py-3 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                <i class="fas fa-play mr-2"></i>
+                <i class="fas fa-keyboard mr-2"></i>
+                🔥 Practice
+              </button>
+              <p class="text-gray-300 text-sm mt-2">Open in the Practice Studio</p>
+            </div>
+          </div>
         </div>
-
-        <div *ngIf="workload.createdAt" class="flex items-center justify-between">
-          <span class="text-gray-300">Created:</span>
-          <span class="text-white">{{ workload.createdAt | date:'medium' }}</span>
-        </div>
-
-        <div *ngIf="workload.duration" class="flex items-center justify-between">
-          <span class="text-gray-300">Duration:</span>
-          <span class="text-white">{{ workload.duration }}ms</span>
-        </div>
-
-        <div *ngIf="workload.workloadSize" class="flex items-center justify-between">
-          <span class="text-gray-300">Workload Size:</span>
-          <span class="text-white">{{ workload.workloadSize }}</span>
-        </div>
-
-        <div *ngIf="workload.errorMessage" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          <strong>Error:</strong> {{ workload.errorMessage }}
-        </div>
-      </div>
-
-      <!-- No workload info available -->
-      <div *ngIf="!loadingWorkload && !workload" class="text-center py-4 text-gray-300">
-        <p>No processing information available for this score.</p>
-        <p class="text-sm mt-2">Files may not have been processed yet.</p>
-      </div>
-    </div>
-
-    <!-- Download Section -->
-    <div class="bg-neutral-600 p-4 rounded" *ngIf="score.has_files">
-      <h3 class="text-lg font-semibold text-white">Download Files</h3>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-
-                <!-- MIDI Download -->
-        <div class="text-center">
-          <button (click)="downloadFile('midi')"
-            [disabled]="!isOwnerOrPublic()"
-            [class.opacity-50]="!isOwnerOrPublic()"
-            [class.cursor-not-allowed]="!isOwnerOrPublic()"
-            class="w-full px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-            <span *ngIf="!score.publicDomain" class="mr-2">🔒</span>
-            <i class="fas fa-music mr-2"></i>
-            Download MIDI
-          </button>
-          <p *ngIf="score.publicDomain" class="text-gray-300 text-sm mt-2">Digital audio format</p>
-          <p *ngIf="!score.publicDomain" class="text-gray-300 text-sm mt-2">Downloading disabled due to copyright</p>
-        </div>
-
-        <!-- MusicXML Download -->
-        <div class="text-center">
-          <button (click)="downloadFile('musicxml')"
-            [disabled]="!isOwnerOrPublic()"
-            [class.opacity-50]="!isOwnerOrPublic()"
-            [class.cursor-not-allowed]="!isOwnerOrPublic()"
-            class="w-full px-4 py-3 bg-yellow-500 text-black rounded hover:bg-yellow-600 transition-colors">
-            <span *ngIf="!score.publicDomain" class="mr-2">🔒</span>
-            <i class="fas fa-code mr-2"></i>
-            MusicXML
-          </button>
-          <p *ngIf="score.publicDomain" class="text-gray-300 text-sm mt-2">Editable music notation</p>
-          <p *ngIf="!score.publicDomain" class="text-gray-300 text-sm mt-2">Downloading disabled due to copyright</p>
-        </div>
-
-        <!-- PDF Download -->
-        <div class="text-center">
-          <button (click)="downloadFile('pdf')"
-            [disabled]="!isOwnerOrPublic()"
-            [class.opacity-50]="!isOwnerOrPublic()"
-            [class.cursor-not-allowed]="!isOwnerOrPublic()"
-            class="w-full px-4 py-3 bg-green-700 text-white rounded hover:bg-green-800 transition-colors">
-            <span *ngIf="!score.publicDomain" class="mr-2">🔒</span>
-            <i class="fas fa-file-pdf mr-2"></i>
-            Download PDF
-          </button>
-          <p *ngIf="score.publicDomain"  class="text-gray-300 text-sm mt-2">Sheet music in PDF format</p>
-          <p *ngIf="!score.publicDomain" class="text-gray-300 text-sm mt-2">Downloading disabled due to copyright</p>          
-        </div>
-
-
-
-        <!-- Practice -->
-        <div class="text-center">
-          <button (click)="playScore()"
-            class="w-full px-4 py-3 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
-            <i class="fas fa-play mr-2"></i>
-            <i class="fas fa-keyboard mr-2"></i>
-            🔥 Practice
-          </button>
-          <p class="text-gray-300 text-sm mt-2">Open in the Practice Studio</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Score Basic Info Display -->
-    <app-score-basic-info [score]="score"></app-score-basic-info>
-
-    <!-- Exercises in Key -->
-    <app-exercises-in-key *ngIf="score && score.fullKey" [fullKey]="score.fullKey!"></app-exercises-in-key>
-
-    <!-- Action Buttons -->
-    <div class="flex gap-4 justify-end mt-2">
-
-      <button (click)="onBack()" class="px-3 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
-        <i class="fas fa-arrow-left mr-2"></i>
+      }
+      <!-- Score Basic Info Display -->
+      <app-score-basic-info [score]="score"></app-score-basic-info>
+      <!-- Exercises in Key -->
+      @if (score && score.fullKey) {
+        <app-exercises-in-key [fullKey]="score.fullKey!"></app-exercises-in-key>
+      }
+      <!-- Action Buttons -->
+      <div class="flex gap-4 justify-end mt-2">
+        <button (click)="onBack()" class="px-3 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+          <i class="fas fa-arrow-left mr-2"></i>
         << Browse all Scores </button>
-
-          <button *ngIf="isOwner()" (click)="editScore()"
+        @if (isOwner()) {
+          <button (click)="editScore()"
             class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
             <i class="fas fa-edit mr-2"></i>
             Edit Score
           </button>
-
-
+        }
+      </div>
     </div>
-
-
-  </div>
+  }
 </section>

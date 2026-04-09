@@ -6,14 +6,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { getWeekOfYear, loadExercice } from '../exercices';
 import type { Exercise } from '../model';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { SeoService } from '../../shared/services/seo.service';
 import { PopularScoresInKeyComponent } from '../../shared/components/popular-scores-in-key/popular-scores-in-key.component';
 
 @Component({
   selector: 'app-scales',
-  imports: [CommonModule, FormsModule, PopularScoresInKeyComponent],
+  imports: [FormsModule, PopularScoresInKeyComponent],
   templateUrl: './scales.component.html',
   styleUrl: './scales.component.css'
 })

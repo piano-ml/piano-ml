@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo } from '../../../core/api';
@@ -10,7 +10,7 @@ import { ScoreBasicInfoComponent } from "../../../library/components/score-basic
 @Component({
   selector: 'app-edit-score',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AuthorSearchModalComponent, ScoreBasicInfoComponent],
+  imports: [ReactiveFormsModule, AuthorSearchModalComponent, ScoreBasicInfoComponent],
   templateUrl: './edit-score.component.html',
   styleUrl: './edit-score.component.css'
 })

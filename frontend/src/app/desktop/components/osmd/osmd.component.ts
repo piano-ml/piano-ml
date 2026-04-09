@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, PLATFORM_ID, inject, afterNextRender, HostListener, ViewEncapsulation, NgZone } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
@@ -8,7 +8,7 @@ import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
 
 @Component({
     selector: 'app-osmd',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './osmd.component.html',
 
     encapsulation: ViewEncapsulation.None,

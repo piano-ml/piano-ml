@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -6,7 +6,7 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-create-account',
-  imports: [ReactiveFormsModule, CommonModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './create-account.component.html',
   styleUrl: './create-account.component.css'
 })

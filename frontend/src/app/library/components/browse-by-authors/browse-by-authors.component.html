@@ -1,45 +1,55 @@
 <div class="mb-6 bg-neutral-800 rounded-lg p-4">
   <!-- <h2 class="text-xl font-semibold text-white mb-4">Browse by Artist</h2> -->
 
-  <div *ngIf="alpha.length > 0" class="mb-4 flex flex-wrap items-center gap-2 text-sm">
-    <a
-      [routerLink]="[]"
-      [queryParams]="{ letter: null }"
-      queryParamsHandling="merge"
-      class="author-letter-link"
-      [class.author-letter-link-active]="!selectedLetter">
-      All
-    </a>
-    <a
-      *ngFor="let letter of alpha"
-      [routerLink]="[]"
-      [queryParams]="{ letter: letter }"
-      queryParamsHandling="merge"
-      class="author-letter-link"
-      [class.author-letter-link-active]="isSelectedLetter(letter)">
-      {{ letter }}
-    </a>
-  </div>
-  
-  <div *ngIf="loadingAuthors" class="text-gray-400 text-center py-4">
-    Loading artists...
-  </div>
-  
-  <div *ngIf="!loadingAuthors && filteredAuthors.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-    <button 
-      *ngFor="let author of filteredAuthors"
-      (click)="onAuthorClick(author)"
-      class="bg-neutral-700 hover:bg-blue-600 text-white rounded-lg p-3 transition-colors duration-200 text-left group">
-      <div class="font-medium text-sm truncate group-hover:text-blue-100">
-        {{ author.author.name }}
-      </div>
-      <div class="text-xs text-gray-400 mt-1">
-        {{ author.count }} {{ author.count === 1 ? 'score' : 'scores' }}
-      </div>
-    </button>
-  </div>
+  @if (alpha.length > 0) {
+    <div class="mb-4 flex flex-wrap items-center gap-2 text-sm">
+      <a
+        [routerLink]="[]"
+        [queryParams]="{ letter: null }"
+        queryParamsHandling="merge"
+        class="author-letter-link"
+        [class.author-letter-link-active]="!selectedLetter">
+        All
+      </a>
+      @for (letter of alpha; track letter) {
+        <a
+          [routerLink]="[]"
+          [queryParams]="{ letter: letter }"
+          queryParamsHandling="merge"
+          class="author-letter-link"
+          [class.author-letter-link-active]="isSelectedLetter(letter)">
+          {{ letter }}
+        </a>
+      }
+    </div>
+  }
 
-  <div *ngIf="!loadingAuthors && authors.length > 0 && filteredAuthors.length === 0" class="text-gray-400 text-center py-4">
-    No artists found for letter {{ selectedLetter }}.
-  </div>
+  @if (loadingAuthors) {
+    <div class="text-gray-400 text-center py-4">
+      Loading artists...
+    </div>
+  }
+
+  @if (!loadingAuthors && filteredAuthors.length > 0) {
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      @for (author of filteredAuthors; track author) {
+        <button
+          (click)="onAuthorClick(author)"
+          class="bg-neutral-700 hover:bg-blue-600 text-white rounded-lg p-3 transition-colors duration-200 text-left group">
+          <div class="font-medium text-sm truncate group-hover:text-blue-100">
+            {{ author.author.name }}
+          </div>
+          <div class="text-xs text-gray-400 mt-1">
+            {{ author.count }} {{ author.count === 1 ? 'score' : 'scores' }}
+          </div>
+        </button>
+      }
+    </div>
+  }
+
+  @if (!loadingAuthors && authors.length > 0 && filteredAuthors.length === 0) {
+    <div class="text-gray-400 text-center py-4">
+      No artists found for letter {{ selectedLetter }}.
+    </div>
+  }
 </div>

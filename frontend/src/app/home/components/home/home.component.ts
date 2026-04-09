@@ -1,4 +1,4 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnDestroy, ViewChild, inject, NgZone, PLATFORM_ID } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
@@ -25,7 +25,7 @@ interface ShaderSet {
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

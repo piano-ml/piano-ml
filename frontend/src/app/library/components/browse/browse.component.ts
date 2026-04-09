@@ -1,4 +1,4 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
 import { finalize, catchError } from 'rxjs/operators';
 import { Component, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, PLATFORM_ID, inject } from '@angular/core';
@@ -20,7 +20,7 @@ import wNumb from 'wnumb';
 
 @Component({
   selector: 'app-browse',
-  imports: [CommonModule, FormsModule, ScoreTableComponent, QuickActionsComponent, BrowseByAuthorsComponent, BrowseByGenreComponent],
+  imports: [FormsModule, ScoreTableComponent, QuickActionsComponent, BrowseByAuthorsComponent, BrowseByGenreComponent],
   templateUrl: './browse.component.html',
   styleUrl: './browse.component.css'
 })
