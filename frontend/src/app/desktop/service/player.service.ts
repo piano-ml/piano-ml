@@ -151,9 +151,7 @@ export class PlayerService {
     return { study: midiStudied, other: midiOther };
   }
 
-  initPiano() {
-    this.audio.initPiano();
-  }
+
 
   private setupTimeCounter() {
     // Nettoyer l'ancien interval s'il existe

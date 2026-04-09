@@ -1,8 +1,7 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import * as Tone from "tone";
-import { Piano } from '@tonejs/piano';
-import { Synthetizer } from "spessasynth_lib";
+import { WorkletSynthesizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
 import { GOOD_RANGE, LiveStatus, PERFECT_RANGE, QUANT_RANGE, PlayerAssessService } from './player-assess.service';
@@ -17,9 +16,8 @@ import { MidiServiceService } from '../../shared/services/midi-service.service';
 })
 export class PlayerAudioService {
   private platformId = inject(PLATFORM_ID);
-  synth: Tone.Synth<Tone.SynthOptions> | undefined;
-  spessasynth?: Synthetizer;
-  piano: any;
+
+  spessasynth?: WorkletSynthesizer ;
   pianoMLShouldPlay: boolean = false;
 
   constructor(
@@ -29,8 +27,6 @@ export class PlayerAudioService {
   ) {
     if (isPlatformBrowser(this.platformId)) {
       this.initSoundFont();
-      this.initPiano();
-      this.synth = new Tone.Synth().toDestination();
     }
   }
 
@@ -43,33 +39,22 @@ export class PlayerAudioService {
       return;
     }
     if (this.spessasynth != null) {
+      console.warn('Spessasynth already initialized');
       return; // already initialized
     }
 
     const ctx = new AudioContext();
-    await ctx.audioWorklet.addModule("/assets/soundfonts/worklet_processor.min.js");
-
-    fetch("assets/soundfonts/GeneralUserGS.sf3").then(async response => {
-      const sfont = await response.arrayBuffer();
-      this.spessasynth = new Synthetizer(ctx.destination, sfont, false);
-      this.spessasynth.resetControllers();
-    });
+    await ctx.audioWorklet.addModule("/assets/soundfonts/spessasynth_processor.min.js");
+    this.spessasynth = new WorkletSynthesizer(ctx);
+    this.spessasynth.connect(ctx.destination);
+    const response = await fetch("assets/soundfonts/GeneralUserGS.sf3");
+    const sfont = await response.arrayBuffer();
+    await this.spessasynth.soundBankManager.addSoundBank(sfont, "main");
+    await this.spessasynth.isReady;
+    console.log('SoundFont initialized successfully');
   }
 
-  /**
-   * Initialise le piano Tone.js
-   */
-  initPiano(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      console.log('Piano initialization skipped on server');
-      return;
-    }
-    this.piano = new Piano({
-      velocities: 1
-    }).toDestination();
-    this.piano.load();
-    console.log('Piano loaded');
-  }
+
 
   /**
    * Schedule une note d'accompagnement
@@ -254,12 +239,7 @@ export class PlayerAudioService {
       if (!this.isNotHandAwaited(hand, note.midi)) {
         this.midiService.pressOutput(note.midi, note.velocity);
         if (this.pianoMLShouldPlay) {
-          this.piano.keyDown({
-            time: time,
-            velocity: note.velocity,
-            note: note.name,
-            midi: note.midi
-          });
+          this.spessasynth?.noteOn(0, note.midi, Math.round(note.velocity * 127));
         }
       }
     }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeStart + PERFECT_RANGE : noteTimeStart);
@@ -269,12 +249,7 @@ export class PlayerAudioService {
       if (!this.isNotHandAwaited(hand, note.midi)) {
         this.midiService.releaseOutput(note.midi);
         if (this.pianoMLShouldPlay) {
-          this.piano.keyUp({
-            time: time,
-            velocity: note.velocity,
-            note: note.name,
-            midi: note.midi
-          });
+          this.spessasynth?.noteOff(0, note.midi);
         }
       }
 
