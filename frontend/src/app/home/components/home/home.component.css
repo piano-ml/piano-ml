@@ -32,5 +32,5 @@ html {
 }
 
 .section-link {
-	@apply z-1 mb-24 mr-4 flex-none underline text-right text-2xl text-red-500  tracking-[00.15rem] font-['Swiss911'];
+	@apply z-1 mb-24 mr-4 flex-none underline text-right text-2xl text-red-500  tracking-[00.15rem] font-swiss911;
 }

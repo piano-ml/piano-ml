@@ -28,13 +28,13 @@
 .display {
 	background-color: #cee048;
 	color: #2f3409;
-	font-family: "5x8 LCD", serif !important;
+	font-family: var(--font-lcd) !important;
 	border-radius: 8px;
 	width: 100%;
 }
 
 .lcd-text {
-	font-family: "5x8 LCD", serif !important;
+	font-family: var(--font-lcd) !important;
 	padding: 6px;
 	font-size: 32px;
 	line-height: 42px;
