@@ -50,7 +50,7 @@
     "marked": "^16.0.0",
     "midi-writer-js": "^3.1.1",
     "nouislider": "^15.8.1",
-    "opensheetmusicdisplay": "^1.9.2",
+    "opensheetmusicdisplay": "1.9.7",
     "postcss": "^8.5.6",
     "rxjs": "~7.8.0",
     "spessasynth_lib": "4.2.10",
