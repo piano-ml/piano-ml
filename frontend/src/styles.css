@@ -12,7 +12,27 @@
 } */
 
 .btn {
-	@apply font-bold py-2 px-4 rounded tracking-[00.15rem] bg-neutral-600 text-white p-4;
+	@apply font-bold py-2 px-4 rounded tracking-[0.15rem] bg-neutral-600 text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed;
+}
+
+.btn-primary {
+	@apply font-bold py-2 px-4 rounded tracking-[0.15rem] text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-700;
+}
+
+.btn-secondary {
+	@apply font-bold py-2 px-4 rounded tracking-[0.15rem] text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-gray-600 hover:bg-gray-700;
+}
+
+.btn-success {
+	@apply font-bold py-2 px-4 rounded tracking-[0.15rem] text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-green-600 hover:bg-green-700;
+}
+
+.btn-danger {
+	@apply font-bold py-2 px-4 rounded tracking-[0.15rem] text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-red-600 hover:bg-red-700;
+}
+
+.link-primary {
+	@apply text-blue-300 hover:text-blue-200 underline;
 }
 
 

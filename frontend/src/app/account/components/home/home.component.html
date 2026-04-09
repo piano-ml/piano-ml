@@ -17,7 +17,7 @@
               <button
                 type="button"
                 (click)="enableEdit()"
-                class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                class="btn-primary ml-2"
                 title="Edit name">
                 Edit
               </button>
@@ -39,14 +39,14 @@
                 <div class="flex gap-4">
                   <button
                     type="submit"
-                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    class="btn-success"
                     title="Save">
                     Save
                   </button>
                   <button
                     type="button"
                     (click)="cancelEdit()"
-                    class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    class="btn-secondary">
                     Cancel
                   </button>
                 </div>
@@ -98,7 +98,7 @@
               <button
                 type="button"
                 (click)="enableKeyboardEdit()"
-                class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                class="btn-primary ml-2"
                 title="Edit keyboard preferences">
                 Edit
               </button>
@@ -220,14 +220,14 @@
                   <button
                     type="submit"
                     [disabled]="keyboardPreferencesForm.invalid"
-                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    class="btn-success"
                     title="Save keyboard preferences">
                     Save
                   </button>
                   <button
                     type="button"
                     (click)="cancelKeyboardEdit()"
-                    class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    class="btn-secondary">
                     Cancel
                   </button>
                 </div>
@@ -240,11 +240,11 @@
 
     <div class="ml-2 flex gap-4">
 
-      <button (click)="logout()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer">
+      <button (click)="logout()" class="btn-danger">
         Logout
       </button>
 
-      <button routerLink="/account/scores" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer">
+      <button routerLink="/account/scores" class="btn-primary">
         My Scores
       </button>
 

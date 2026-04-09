@@ -55,14 +55,14 @@
 
 
       <!--
-      <input *ngIf="!hasFile" class="btn btn-blue m-4" #file type="file" (change)="onFileChange(file)"
+      <input *ngIf="!hasFile" class="btn-primary m-4" #file type="file" (change)="onFileChange(file)"
         accept=".mid, .midi" />
       -->
       @if (hasFile) {
-        <button class="btn btn-blue m-4" (click)="load()">load</button>
+        <button class="btn-primary m-4" (click)="load()">load</button>
       }
       @if (hasFile) {
-        <button class="btn btn-blue m-4" (click)="reset()">reset</button>
+        <button class="btn-primary m-4" (click)="reset()">reset</button>
       }
     </div>
   </div>

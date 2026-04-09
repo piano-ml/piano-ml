@@ -59,7 +59,7 @@
               {{ selectedAuthor || 'No author selected' }}
             </div>
             <button type="button" (click)="openAuthorModal()"
-              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+              class="btn-primary">
               {{ selectedAuthor ? 'Change' : 'Select' }} Author
             </button>
           </div>
@@ -194,18 +194,18 @@
     <div class="flex justify-between items-center mt-6">
       <!-- Delete button on the left -->
       <button type="button" (click)="onDelete()"
-        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        class="btn-danger"
         [disabled]="loading">
         Delete
       </button>
       <!-- Save and Cancel buttons on the right -->
       <div class="flex gap-4">
         <button type="submit"
-          class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed m-4"
+          class="btn-success m-4"
           [disabled]="loading || scoreForm.invalid">
           {{ loading ? 'Saving...' : 'Save Changes' }}
         </button>
-        <button type="button" (click)="onCancel()" class="btn btn-blue m-4" [disabled]="loading">
+        <button type="button" (click)="onCancel()" class="btn-primary m-4" [disabled]="loading">
           Cancel
         </button>
       </div>
@@ -230,7 +230,7 @@
           class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400" [disabled]="deleting">
           Cancel
         </button>
-        <button type="button" (click)="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        <button type="button" (click)="confirmDelete()" class="btn-danger"
           [disabled]="deleting">
           {{ deleting ? 'Deleting...' : 'Delete' }}
         </button>

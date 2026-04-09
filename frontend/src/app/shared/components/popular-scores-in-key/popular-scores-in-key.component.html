@@ -3,13 +3,13 @@
     <div class="bg-neutral-700 rounded p-4 text-sm">
       <div class="flex items-center gap-2 mb-3">
         <span class="text-neutral-300 font-semibold">Popular works in this scale:</span>
-        <a [href]="getLibraryUrl()" class="text-blue-300 hover:text-blue-200 text-sm underline">
+        <a [href]="getLibraryUrl()" class="link-primary text-sm">
           View all
         </a>
       </div>
       @for (score of popularScores; track score; let last = $last) {
         <span>
-          <a [href]="getScoreUrl(score)" class="text-blue-300 hover:text-blue-200 hover:underline">
+          <a [href]="getScoreUrl(score)" class="link-primary">
             <span class="font-semibold">{{ score.title }}</span>
             @if (score.author) {
               <span class="text-neutral-400"> ({{ score.author }})</span>
