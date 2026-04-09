@@ -1,7 +1,7 @@
 <div class="px-6 pt-2 pb-0">
-    <div class="page-title">User informations and preferences</div>
-    <hr>
-    
+  <div class="page-title">User informations and preferences</div>
+  <hr>
+
     <div class="bg-neutral-700 p-4 rounded mb-6">
       <div class="grid grid-cols-1 gap-6">
         <!-- Name Field -->
@@ -9,47 +9,50 @@
           <label for="name" class="block text-sm font-medium text-gray-300 mb-2">
             Name <span class="text-red-400">*</span>
           </label>
-          <div *ngIf="!editMode" class="flex items-center justify-between">
-            <div class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700">
-              {{ userInfo.name || 'No name set' }}
-            </div>
-            <button 
-              type="button"
-              (click)="enableEdit()" 
-              class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-              title="Edit name">
-              Edit
-            </button>
-          </div>
-          
-          <div>{{ userInfo.email }}</div>
-          
-          <div *ngIf="editMode">
-            <form [formGroup]="nameForm" (ngSubmit)="savename()" class="space-y-4">
-              <input
-                type="text"
-                id="name"
-                formControlName="name" 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
-                placeholder="Enter your name">
-              
-              <!-- Action Buttons -->
-              <div class="flex gap-4">
-                <button 
-                  type="submit" 
-                  class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  title="Save">
-                  Save
-                </button>
-                <button 
-                  type="button"
-                  (click)="cancelEdit()"
-                  class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                  Cancel
-                </button>
+          @if (!editMode) {
+            <div class="flex items-center justify-between">
+              <div class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700">
+                {{ userInfo.name || 'No name set' }}
               </div>
-            </form>
-          </div>
+              <button
+                type="button"
+                (click)="enableEdit()"
+                class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                title="Edit name">
+                Edit
+              </button>
+            </div>
+          }
+
+          <div>{{ userInfo.email }}</div>
+
+          @if (editMode) {
+            <div>
+              <form [formGroup]="nameForm" (ngSubmit)="savename()" class="space-y-4">
+                <input
+                  type="text"
+                  id="name"
+                  formControlName="name"
+                  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                  placeholder="Enter your name">
+                <!-- Action Buttons -->
+                <div class="flex gap-4">
+                  <button
+                    type="submit"
+                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    title="Save">
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    (click)="cancelEdit()"
+                    class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          }
         </div>
 
         <!-- Keyboard Preferences -->
@@ -62,155 +65,175 @@
               type="button"
               (click)="openMidiSetup()"
               class="text-blue-400 hover:text-blue-300 underline underline-offset-2"
-            >
+              >
               Keyboard/MIDI preferences
             </button>
           </div>
-          <div *ngIf="!keyboardEditMode" class="flex items-center justify-between">
-            <div class="w-full px-3 py-2 border rounded-lg ">
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <span class="text-sm ">Midi lowest key:</span>
-                  <span class="ml-2 font-medium">{{ leftmostKeyValue }}</span>
-                </div>
-                <div>
-                  <span class="text-sm">Midi highest key:</span>
-                  <span class="ml-2 font-medium">{{ rightmostKeyValue }}</span>
-                </div>
-                <div>
-                  <span class="text-sm">Draw Fingering:</span>
-                  <span class="ml-2 font-medium">{{ drawFingeringControl?.value ? 'Yes' : 'No' }}</span>
-                </div>
-                <div>
-                  <span class="text-sm">Draw Lyrics:</span>
-                  <span class="ml-2 font-medium">{{ drawLyricsControl?.value ? 'Yes' : 'No' }}</span>
-                </div>
-                <div>
-                  <span class="text-sm">Show Keyboard:</span>
-                  <span class="ml-2 font-medium">{{ showKeyboardControl?.value ? 'Yes' : 'No' }}</span>
+          @if (!keyboardEditMode) {
+            <div class="flex items-center justify-between">
+              <div class="w-full px-3 py-2 border rounded-lg ">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <span class="text-sm ">Midi lowest key:</span>
+                    <span class="ml-2 font-medium">{{ leftmostKeyValue }}</span>
+                  </div>
+                  <div>
+                    <span class="text-sm">Midi highest key:</span>
+                    <span class="ml-2 font-medium">{{ rightmostKeyValue }}</span>
+                  </div>
+                  <div>
+                    <span class="text-sm">Draw Fingering:</span>
+                    <span class="ml-2 font-medium">{{ drawFingeringControl?.value ? 'Yes' : 'No' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-sm">Draw Lyrics:</span>
+                    <span class="ml-2 font-medium">{{ drawLyricsControl?.value ? 'Yes' : 'No' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-sm">Show Keyboard:</span>
+                    <span class="ml-2 font-medium">{{ showKeyboardControl?.value ? 'Yes' : 'No' }}</span>
+                  </div>
                 </div>
               </div>
+              <button
+                type="button"
+                (click)="enableKeyboardEdit()"
+                class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                title="Edit keyboard preferences">
+                Edit
+              </button>
             </div>
-            <button 
-              type="button"
-              (click)="enableKeyboardEdit()" 
-              class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-              title="Edit keyboard preferences">
-              Edit
-            </button>
-          </div>
-          <div *ngIf="keyboardEditMode">
-            <form [formGroup]="keyboardPreferencesForm" (ngSubmit)="savePreferences()" class="space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label for="leftmostKey" class="block text-sm font-medium text-gray-300 mb-1">
-                    Leftmost key on the keyboard
-                    <span class="text-xs text-blue-400 ml-2">(Focus field and play MIDI note)</span>
-                  </label>
-                  <input
-                    type="number"
-                    id="leftmostKey"
-                    formControlName="leftmostKey" 
-                    min="21"
-                    max="108"
-                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
-                    [class.border-red-500]="leftmostKeyControl?.invalid && leftmostKeyControl?.touched"
-                    [class.border-green-400]="focusedField === 'leftmostKey'"
-                    placeholder="21">
-                  <div *ngIf="leftmostKeyControl?.invalid && leftmostKeyControl?.touched" 
-                       class="text-red-500 text-sm mt-1">
-                    <span *ngIf="leftmostKeyControl?.errors?.['required']">This field is required</span>
-                    <span *ngIf="leftmostKeyControl?.errors?.['min']">Value must be at least 21</span>
-                    <span *ngIf="leftmostKeyControl?.errors?.['max']">Value must be at most 108</span>
+          }
+          @if (keyboardEditMode) {
+            <div>
+              <form [formGroup]="keyboardPreferencesForm" (ngSubmit)="savePreferences()" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label for="leftmostKey" class="block text-sm font-medium text-gray-300 mb-1">
+                      Leftmost key on the keyboard
+                      <span class="text-xs text-blue-400 ml-2">(Focus field and play MIDI note)</span>
+                    </label>
+                    <input
+                      type="number"
+                      id="leftmostKey"
+                      formControlName="leftmostKey"
+                      min="21"
+                      max="108"
+                      class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                      [class.border-red-500]="leftmostKeyControl?.invalid && leftmostKeyControl?.touched"
+                      [class.border-green-400]="focusedField === 'leftmostKey'"
+                      placeholder="21">
+                    @if (leftmostKeyControl?.invalid && leftmostKeyControl?.touched) {
+                      <div
+                        class="text-red-500 text-sm mt-1">
+                        @if (leftmostKeyControl?.errors?.['required']) {
+                          <span>This field is required</span>
+                        }
+                        @if (leftmostKeyControl?.errors?.['min']) {
+                          <span>Value must be at least 21</span>
+                        }
+                        @if (leftmostKeyControl?.errors?.['max']) {
+                          <span>Value must be at most 108</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <div>
+                    <label for="rightmostKey" class="block text-sm font-medium text-gray-300 mb-1">
+                      Rightmost key on the keyboard
+                      <span class="text-xs text-blue-400 ml-2">(Focus field and play MIDI note)</span>
+                    </label>
+                    <input
+                      type="number"
+                      id="rightmostKey"
+                      formControlName="rightmostKey"
+                      min="21"
+                      max="108"
+                      class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                      [class.border-red-500]="rightmostKeyControl?.invalid && rightmostKeyControl?.touched"
+                      [class.border-green-400]="focusedField === 'rightmostKey'"
+                      placeholder="108">
+                    @if (rightmostKeyControl?.invalid && rightmostKeyControl?.touched) {
+                      <div
+                        class="text-red-500 text-sm mt-1">
+                        @if (rightmostKeyControl?.errors?.['required']) {
+                          <span>This field is required</span>
+                        }
+                        @if (rightmostKeyControl?.errors?.['min']) {
+                          <span>Value must be at least 21</span>
+                        }
+                        @if (rightmostKeyControl?.errors?.['max']) {
+                          <span>Value must be at most 108</span>
+                        }
+                      </div>
+                    }
                   </div>
                 </div>
-                <div>
-                  <label for="rightmostKey" class="block text-sm font-medium text-gray-300 mb-1">
-                    Rightmost key on the keyboard
-                    <span class="text-xs text-blue-400 ml-2">(Focus field and play MIDI note)</span>
-                  </label>
-                  <input
-                    type="number"
-                    id="rightmostKey"
-                    formControlName="rightmostKey"
-                    min="21"
-                    max="108"
-                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
-                    [class.border-red-500]="rightmostKeyControl?.invalid && rightmostKeyControl?.touched"
-                    [class.border-green-400]="focusedField === 'rightmostKey'"
-                    placeholder="108">
-                  <div *ngIf="rightmostKeyControl?.invalid && rightmostKeyControl?.touched" 
-                       class="text-red-500 text-sm mt-1">
-                    <span *ngIf="rightmostKeyControl?.errors?.['required']">This field is required</span>
-                    <span *ngIf="rightmostKeyControl?.errors?.['min']">Value must be at least 21</span>
-                    <span *ngIf="rightmostKeyControl?.errors?.['max']">Value must be at most 108</span>
+                <!-- Checkbox options -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                  <div class="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="drawFingering"
+                      formControlName="drawFingering"
+                      class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="drawFingering" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
+                      Draw Fingering
+                    </label>
+                  </div>
+                  <div class="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="drawLyrics"
+                      formControlName="drawLyrics"
+                      class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="drawLyrics" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
+                      Draw Lyrics
+                    </label>
+                  </div>
+                  <div class="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="showKeyboard"
+                      formControlName="showKeyboard"
+                      class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    <label for="showKeyboard" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
+                      Show Keyboard
+                    </label>
                   </div>
                 </div>
-              </div>
-              
-              <!-- Checkbox options -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                <div class="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="drawFingering"
-                    formControlName="drawFingering"
-                    class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
-                  <label for="drawFingering" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
-                    Draw Fingering
-                  </label>
+                <!-- MIDI input indication -->
+                @if (focusedField) {
+                  <div class="text-green-400 text-sm">
+                    🎹 Ready to capture MIDI input for {{ focusedField === 'leftmostKey' ? 'leftmost' : 'rightmost' }} key...
+                  </div>
+                }
+                <!-- Range validation error -->
+                @if (keyboardPreferencesForm.errors?.['invalidRange'] && (leftmostKeyControl?.touched || rightmostKeyControl?.touched)) {
+                  <div
+                    class="text-red-500 text-sm">
+                    Leftmost key must be less than rightmost key
+                  </div>
+                }
+                <!-- Action Buttons -->
+                <div class="flex gap-4">
+                  <button
+                    type="submit"
+                    [disabled]="keyboardPreferencesForm.invalid"
+                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    title="Save keyboard preferences">
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    (click)="cancelKeyboardEdit()"
+                    class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    Cancel
+                  </button>
                 </div>
-                <div class="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="drawLyrics"
-                    formControlName="drawLyrics"
-                    class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
-                  <label for="drawLyrics" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
-                    Draw Lyrics
-                  </label>
-                </div>
-                <div class="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="showKeyboard"
-                    formControlName="showKeyboard"
-                    class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
-                  <label for="showKeyboard" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
-                    Show Keyboard
-                  </label>
-                </div>
-              </div>
-              
-              <!-- MIDI input indication -->
-              <div *ngIf="focusedField" class="text-green-400 text-sm">
-                🎹 Ready to capture MIDI input for {{ focusedField === 'leftmostKey' ? 'leftmost' : 'rightmost' }} key...
-              </div>
-              
-              <!-- Range validation error -->
-              <div *ngIf="keyboardPreferencesForm.errors?.['invalidRange'] && (leftmostKeyControl?.touched || rightmostKeyControl?.touched)" 
-                   class="text-red-500 text-sm">
-                Leftmost key must be less than rightmost key
-              </div>
-              
-              <!-- Action Buttons -->
-              <div class="flex gap-4">
-                <button 
-                  type="submit" 
-                  [disabled]="keyboardPreferencesForm.invalid"
-                  class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  title="Save keyboard preferences">
-                  Save
-                </button>
-                <button 
-                  type="button"
-                  (click)="cancelKeyboardEdit()"
-                  class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
+              </form>
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -233,4 +256,4 @@
       (hideKeyboardChange)="keyboardPreferencesForm.patchValue({ showKeyboard: !$event })"
       (closeModal)="closeMidiSetup()"
     ></app-midi-setup>
-</div>
+  </div>

@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo } from '../../../core/api';
 import { AuthService } from '../../services/auth.service';
@@ -8,7 +8,7 @@ import { QuickActionsComponent } from '../../../shared/components/quick-actions/
 
 @Component({
   selector: 'app-account-scores',
-  imports: [CommonModule, RouterModule, ScoreTableComponent, QuickActionsComponent],
+  imports: [RouterModule, ScoreTableComponent, QuickActionsComponent],
   templateUrl: './account-scores.component.html',
   styleUrl: './account-scores.component.css'
 })

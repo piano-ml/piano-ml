@@ -1,6 +1,5 @@
-import { type ApplicationConfig, inject, provideZoneChangeDetection, LOCALE_ID, PLATFORM_ID, ENVIRONMENT_INITIALIZER } from '@angular/core';
-import { IsActiveMatchOptions, NavigationStart, provideRouter, Router, withInMemoryScrolling, withRouterConfig, withViewTransitions } from '@angular/router';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { type ApplicationConfig, inject, provideZoneChangeDetection, LOCALE_ID, PLATFORM_ID, provideEnvironmentInitializer } from '@angular/core';
+import { IsActiveMatchOptions, NavigationStart, isActive, provideRouter, Router, withInMemoryScrolling, withRouterConfig, withViewTransitions } from '@angular/router';
 import { registerLocaleData, isPlatformBrowser } from '@angular/common';
 
 // Load common locales
@@ -22,8 +21,6 @@ import { provideNgIconLoader, withCaching } from '@ng-icons/core';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './account/interceptors/auth.interceptor';
 
-import { provideShareButtonsOptions } from 'ngx-sharebuttons';
-import { shareIcons } from 'ngx-sharebuttons/icons';
 import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
@@ -45,17 +42,17 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions({
         onViewTransitionCreated: ({ transition }) => {
           const router = inject(Router);
-          // biome-ignore lint/style/noNonNullAssertion: <explanation>
-          const targetUrl = router.getCurrentNavigation()?.finalUrl!;
+          const targetUrl = router.currentNavigation()?.finalUrl;
+          if (!targetUrl) return;
           // Skip the transition if the only thing
           // changing is the fragment and queryParams
-          const config = {
+          const config: IsActiveMatchOptions = {
             paths: 'exact',
-            matrixParams: "ignored",
-            fragment: "ignored",
+            matrixParams: 'ignored',
+            fragment: 'ignored',
             queryParams: 'ignored',
-          } as IsActiveMatchOptions;
-          if (router.isActive(targetUrl, config)) {
+          };
+          if (isActive(targetUrl, router, config)()) {
             transition.skipTransition();
           }
         },
@@ -72,10 +69,7 @@ export const appConfig: ApplicationConfig = {
 
       )),
     // Router debug initializer - logs router events on client and SSR for non-production builds
-    {
-      provide: ENVIRONMENT_INITIALIZER,
-      multi: true,
-      useValue: () => {
+    provideEnvironmentInitializer(() => {
         const platformId = inject(PLATFORM_ID);
         const router = inject(Router);
         if (environment.production) return;
@@ -117,11 +111,8 @@ export const appConfig: ApplicationConfig = {
           // eslint-disable-next-line no-console
           if ((e as any).urlAfterRedirects) console.info(`[ROUTER ${side}] urlAfterRedirects:`, (e as any).urlAfterRedirects);
         });
-      }
-    },
-    provideAnimations(),
-    provideShareButtonsOptions(
-      shareIcons()
-    ), provideClientHydration(withEventReplay())
+    }),
+
+    provideClientHydration(withEventReplay())
   ]
 };

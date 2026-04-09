@@ -1,11 +1,11 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, inject } from '@angular/core';
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
 
 @Component({
   selector: 'app-midi-setup',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './midi-setup.component.html',
   styleUrl: './midi-setup.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

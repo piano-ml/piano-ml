@@ -1,12 +1,12 @@
-import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, inject, Inject, OnInit } from '@angular/core';
+
+import { Component, inject, Inject, OnInit, DOCUMENT } from '@angular/core';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-summary',
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './summary.component.html',
   styleUrl: './summary.component.css'
 })

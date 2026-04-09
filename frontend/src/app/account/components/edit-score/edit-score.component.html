@@ -4,66 +4,77 @@
 </div>
 <div class="bg-neutral-700 p-4">
   <!-- Loading State -->
-  <div *ngIf="loading" class="text-center py-8">
-    <div
-      class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full">
+  @if (loading) {
+    <div class="text-center py-8">
+      <div
+        class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full">
+      </div>
+      <p class="mt-2 text-gray-400">{{ score ? 'Saving...' : 'Loading score...' }}</p>
     </div>
-    <p class="mt-2 text-gray-400">{{ score ? 'Saving...' : 'Loading score...' }}</p>
-  </div>
+  }
 
   <!-- Error State -->
-  <div *ngIf="error && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-    <strong>Error:</strong> {{ error }}
-  </div>
+  @if (error && !loading) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <strong>Error:</strong> {{ error }}
+    </div>
+  }
 
   <!-- Success State -->
-  <div *ngIf="success && !loading" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-    <strong>Success:</strong> {{ success }}
-  </div>
+  @if (success && !loading) {
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+      <strong>Success:</strong> {{ success }}
+    </div>
+  }
 
   <!-- Edit Form -->
-  <form *ngIf="!loading && score" [formGroup]="scoreForm" (ngSubmit)="onSubmit()">
-
-
-    <!-- Editable Fields -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Title -->
-      <div>
-        <label for="title" class="block text-sm font-medium text-gray-300 mb-2">
-          Title <span class="text-red-400">*</span>
-        </label>
-        <input type="text" id="title" formControlName="title"
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
-          [class.border-red-500]="isFieldInvalid('title')" placeholder="Enter score title">
-        <div *ngIf="isFieldInvalid('title')" class="text-red-400 text-sm mt-1">
-          {{ getFieldError('title') }}
+  @if (!loading && score) {
+    <form [formGroup]="scoreForm" (ngSubmit)="onSubmit()">
+      <!-- Editable Fields -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Title -->
+        <div>
+          <label for="title" class="block text-sm font-medium text-gray-300 mb-2">
+            Title <span class="text-red-400">*</span>
+          </label>
+          <input type="text" id="title" formControlName="title"
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+            [class.border-red-500]="isFieldInvalid('title')" placeholder="Enter score title">
+          @if (isFieldInvalid('title')) {
+            <div class="text-red-400 text-sm mt-1">
+              {{ getFieldError('title') }}
+            </div>
+          }
+          @if (score.mbid) {
+            <div class="text-gray-400 text-sm mt-1">
+              MusicBrainz ID: <a href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank">{{ score.mbid }}</a>
+            </div>
+          }
         </div>
-        <div *ngIf="score.mbid" class="text-gray-400 text-sm mt-1">
-          MusicBrainz ID: <a href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank">{{ score.mbid }}</a>
-        </div>
-      </div>
-
-      <!-- Author -->
-      <div>
-        <label class="block text-sm font-medium text-gray-300 mb-2">Author</label>
-        <div class="flex gap-2">
-          <div class="flex-1 px-3 py-2 border rounded-lg bg-gray-100 text-gray-700">
-            {{ selectedAuthor || 'No author selected' }}
+        <!-- Author -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Author</label>
+          <div class="flex gap-2">
+            <div class="flex-1 px-3 py-2 border rounded-lg bg-gray-100 text-gray-700">
+              {{ selectedAuthor || 'No author selected' }}
+            </div>
+            <button type="button" (click)="openAuthorModal()"
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+              {{ selectedAuthor ? 'Change' : 'Select' }} Author
+            </button>
           </div>
-          <button type="button" (click)="openAuthorModal()"
-            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
-            {{ selectedAuthor ? 'Change' : 'Select' }} Author
-          </button>
-        </div>
-        <div *ngIf="selectedAuthorId" class="text-gray-400 text-sm mt-1">
-          MusicBrainz ID: <a href="https://musicbrainz.org/artist/{{ selectedAuthorId }}" target="_blank">{{
+          @if (selectedAuthorId) {
+            <div class="text-gray-400 text-sm mt-1">
+              MusicBrainz ID: <a href="https://musicbrainz.org/artist/{{ selectedAuthorId }}" target="_blank">{{
             selectedAuthorId }}</a>
-        </div>
-        <div *ngIf="!selectedAuthorId && selectedAuthor" class="text-gray-400 text-sm mt-1">
-          Manual entry (no MusicBrainz ID)
-        </div>
+          </div>
+        }
+        @if (!selectedAuthorId && selectedAuthor) {
+          <div class="text-gray-400 text-sm mt-1">
+            Manual entry (no MusicBrainz ID)
+          </div>
+        }
       </div>
-
       <!-- Genre -->
       <div>
         <label for="genre_id" class="block text-sm font-medium text-gray-300 mb-2">Genre</label>
@@ -71,54 +82,61 @@
           class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
           [class.border-red-500]="isFieldInvalid('genre_id')">
           <option value="">--- Select Genre ---</option>
-          <option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</option>
+          @for (genre of genres; track genre) {
+            <option [value]="genre.id">{{ genre.name }}</option>
+          }
         </select>
-        <div *ngIf="loadingGenres" class="text-gray-400 text-sm mt-1">Loading genres...</div>
-        <div *ngIf="isFieldInvalid('genre_id')" class="text-red-400 text-sm mt-1">
-          {{ getFieldError('genre_id') }}
+        @if (loadingGenres) {
+          <div class="text-gray-400 text-sm mt-1">Loading genres...</div>
+        }
+        @if (isFieldInvalid('genre_id')) {
+          <div class="text-red-400 text-sm mt-1">
+            {{ getFieldError('genre_id') }}
+          </div>
+        }
+      </div>
+      <div class="flex flex-row ">
+        <!-- Grade -->
+        <div class="w-1/2 pr-2">
+          <label for="grade" class="block text-sm font-medium text-gray-300 mb-2">Grade (1-10)</label>
+          <select id="grade" formControlName="grade"
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+            [class.border-red-500]="isFieldInvalid('grade')">
+            <option [value]="null">---</option>
+            <option [value]="1">1</option>
+            <option [value]="2">2</option>
+            <option [value]="3">3</option>
+            <option [value]="4">4</option>
+            <option [value]="5">5</option>
+            <option [value]="6">6</option>
+            <option [value]="7">7</option>
+            <option [value]="8">8</option>
+            <option [value]="9">9</option>
+            <option [value]="10">10</option>
+          </select>
+          @if (isFieldInvalid('grade')) {
+            <div class="text-red-400 text-sm mt-1">
+              {{ getFieldError('grade') }}
+            </div>
+          }
+        </div>
+        <!-- Tempo -->
+        <div class="w-1/2 pl-2">
+          <label for="tempo" class="block text-sm font-medium text-gray-300 mb-2">Tempo (BPM)</label>
+          <input type="number" id="tempo" formControlName="tempo" min="30" max="300" step="1" placeholder="e.g. 120"
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+            [class.border-red-500]="isFieldInvalid('tempo')" />
+          @if (isFieldInvalid('tempo')) {
+            <div class="text-red-400 text-xs mt-1">
+              {{ getFieldError('tempo') }}
+            </div>
+          }
         </div>
       </div>
-    <div class="flex flex-row ">
-      <!-- Grade -->
-      <div class="w-1/2 pr-2">
-        <label for="grade" class="block text-sm font-medium text-gray-300 mb-2">Grade (1-10)</label>
-        <select id="grade" formControlName="grade"
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
-          [class.border-red-500]="isFieldInvalid('grade')">
-          <option [value]="null">---</option>
-          <option [value]="1">1</option>
-          <option [value]="2">2</option>
-          <option [value]="3">3</option>
-          <option [value]="4">4</option>
-          <option [value]="5">5</option>
-          <option [value]="6">6</option>
-          <option [value]="7">7</option>
-          <option [value]="8">8</option>
-          <option [value]="9">9</option>
-          <option [value]="10">10</option>
-        </select>
-        <div *ngIf="isFieldInvalid('grade')" class="text-red-400 text-sm mt-1">
-          {{ getFieldError('grade') }}
-        </div>
-      </div>
-      <!-- Tempo -->
-
-      <div class="w-1/2 pl-2">
-        <label for="tempo" class="block text-sm font-medium text-gray-300 mb-2">Tempo (BPM)</label>
-        <input type="number" id="tempo" formControlName="tempo" min="30" max="300" step="1" placeholder="e.g. 120"
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
-          [class.border-red-500]="isFieldInvalid('tempo')" />
-        <div *ngIf="isFieldInvalid('tempo')" class="text-red-400 text-xs mt-1">
-          {{ getFieldError('tempo') }}
-        </div>
-      </div>
-      </div>
-
-      <!-- Study Tracks 
+      <!-- Study Tracks
       <div class="study-tracks-container">
         <label class="block text-sm font-medium text-gray-300 mb-2">Study Tracks</label>
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-
           <div class="relative custom-dropdown-container">
             <label for="leftHandTrack" class="block text-xs text-gray-400 mb-1">Left Hand</label>
             <div class="custom-select-wrapper">
@@ -142,7 +160,6 @@
               </div>
             </div>
           </div>
-
           <div class="relative custom-dropdown-container">
             <label for="rightHandTrack" class="block text-xs text-gray-400 mb-1">Right Hand</label>
             <div class="custom-select-wrapper">
@@ -165,17 +182,11 @@
                 </div>
               </div>
             </div>
-
           </div>
-
           <div>&nbsp;</div>
-
-
-
         </div>
-
       </div>
--->
+      -->
     </div>
     <!-- Score Basic Info Display -->
     <app-score-basic-info [score]="score"></app-score-basic-info>
@@ -187,7 +198,6 @@
         [disabled]="loading">
         Delete
       </button>
-
       <!-- Save and Cancel buttons on the right -->
       <div class="flex gap-4">
         <button type="submit"
@@ -195,21 +205,22 @@
           [disabled]="loading || scoreForm.invalid">
           {{ loading ? 'Saving...' : 'Save Changes' }}
         </button>
-
         <button type="button" (click)="onCancel()" class="btn btn-blue m-4" [disabled]="loading">
           Cancel
         </button>
       </div>
     </div>
   </form>
+}
 
-  <!-- Author Search Modal -->
-  <app-author-search-modal [isOpen]="isAuthorModalOpen" [currentAuthor]="selectedAuthor"
-    [currentAuthorId]="selectedAuthorId" (authorSelected)="onAuthorSelected($event)" (closeModal)="closeAuthorModal()">
-  </app-author-search-modal>
+<!-- Author Search Modal -->
+<app-author-search-modal [isOpen]="isAuthorModalOpen" [currentAuthor]="selectedAuthor"
+  [currentAuthorId]="selectedAuthorId" (authorSelected)="onAuthorSelected($event)" (closeModal)="closeAuthorModal()">
+</app-author-search-modal>
 
-  <!-- Delete Confirmation Modal -->
-  <div *ngIf="showDeleteConfirmation"
+<!-- Delete Confirmation Modal -->
+@if (showDeleteConfirmation) {
+  <div
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 max-w-md mx-4">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Confirm Delete</h3>
@@ -226,4 +237,5 @@
       </div>
     </div>
   </div>
+}
 </div>

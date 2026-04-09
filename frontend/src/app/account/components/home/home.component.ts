@@ -1,6 +1,6 @@
 import { Component, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, effect, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
@@ -12,7 +12,7 @@ import { MidiSetupComponent } from '../../../desktop/components/midi-setup/midi-
 @Component({
   selector: 'app-account-home',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterModule, MidiSetupComponent],
+  imports: [ReactiveFormsModule, RouterModule, MidiSetupComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

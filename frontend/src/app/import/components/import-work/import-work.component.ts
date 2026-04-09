@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 // biome-ignore lint/style/useImportType: <explanation>
 import { Component, Input, type OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import * as Midi from '@tonejs/midi';
@@ -12,7 +12,7 @@ import { ScoreApiInfo, ScoreService } from '../../../core/api';
 
 @Component({
     selector: 'app-import-work',
-    imports: [CommonModule, ReactiveFormsModule, NgIcon],
+    imports: [ReactiveFormsModule, NgIcon],
     templateUrl: './import-work.component.html',
     styleUrl: './import-work.component.css',
     viewProviders: [provideIcons({ bootstrapFloppy })],

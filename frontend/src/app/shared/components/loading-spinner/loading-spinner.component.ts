@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-loading-spinner',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './loading-spinner.component.html',
   styleUrl: './loading-spinner.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

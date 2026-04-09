@@ -2,33 +2,36 @@
   <h3 class="text-lg font-semibold mb-3 text-white">Score Additional Information</h3>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
     <div>
-      <strong>Genre:</strong> 
-      <ng-container *ngIf="score.genre && score.genre_slug; else noGenreLink">
+      <strong>Genre:</strong>
+      @if (score.genre && score.genre_slug) {
         <a [routerLink]="['/library/genres', score.genre_slug]" class="underline hover:text-white">
           {{ score.genre }}
         </a>
-      </ng-container>
-      <ng-template #noGenreLink>{{ score.genre || 'N/A' }}</ng-template>
+      } @else {
+        {{ score.genre || 'N/A' }}
+      }
     </div>
     <div>
-      <strong>Author: </strong> 
-      <ng-container *ngIf="score.author_slug && score.author_slug; else noAuthorLink">
+      <strong>Author: </strong>
+      @if (score.author_slug && score.author_slug) {
         <a [routerLink]="['/library/artists', score.author_slug]" class="underline hover:text-white">
           {{ score.author }}
         </a>
-      </ng-container>
-      <ng-template #noAuthorLink>{{ score.author || 'N/A' }}</ng-template>
+      } @else {
+        {{ score.author || 'N/A' }}
+      }
     </div>
 
     <div><strong>Tempo: </strong> {{ score.tempo ? (score.tempo) : 'N/A' }}</div>
     <div>
-      <strong>Key: </strong> 
-      <ng-container *ngIf="score.fullKey && score.genre_slug; else noKeyLink">
+      <strong>Key: </strong>
+      @if (score.fullKey && score.genre_slug) {
         <a [routerLink]="['/library/genres', score.genre_slug]" [queryParams]="{fullKey: score.fullKey}" class="underline hover:text-white">
           {{ score.fullKey }}
         </a>
-      </ng-container>
-      <ng-template #noKeyLink>{{ score.fullKey || 'N/A' }}</ng-template>
+      } @else {
+        {{ score.fullKey || 'N/A' }}
+      }
     </div>
 
     <div><strong>Tracks: </strong> {{ score.tracks_count || 0 }}</div>
@@ -37,18 +40,20 @@
 
     <div>
       <strong>MusicBrainz: </strong>
-      <ng-container *ngIf="(score.author_mbid); else noAuthorMbid">
+      @if ((score.author_mbid)) {
         <a class="underline" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank">author</a>
-      </ng-container>
-      <ng-template #noAuthorMbid>N/A</ng-template>
+      } @else {
+        N/A
+      }
     </div>
 
     <div>
       <strong>MusicBrainz: </strong>
-      <ng-container *ngIf="score.mbid; else noWorkMbid">
+      @if (score.mbid) {
         <a class="underline" href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank">work</a>
-      </ng-container>
-      <ng-template #noWorkMbid>N/A</ng-template>
+      } @else {
+        N/A
+      }
     </div>
     <div><strong>Grade: </strong> {{ score.grade !== undefined && score.grade !== null ? score.grade : 'N/A' }}</div>
 
@@ -58,13 +63,14 @@
 
     <div><strong>Has Lyrics:</strong> {{ score.has_lyrics ? 'Yes' : 'No' }}</div>
 
-        <div>
-          <strong>Public Domain: </strong>
-          <span *ngIf="score.publicDomain; else notPublicDomain" class="text-green-500 font-bold">✓</span>
-          <ng-template #notPublicDomain>
-            <span class="text-red-500 font-bold">🔒</span>
-          </ng-template>
-        </div>
+    <div>
+      <strong>Public Domain: </strong>
+      @if (score.publicDomain) {
+        <span class="text-green-500 font-bold">✓</span>
+      } @else {
+        <span class="text-red-500 font-bold">🔒</span>
+      }
+    </div>
 
   </div>
 </div>

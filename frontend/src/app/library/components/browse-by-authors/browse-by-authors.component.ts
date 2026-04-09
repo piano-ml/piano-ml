@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output, OnInit, OnChanges, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthorWithScoreCount } from '../../../core/api/model/authorWithScoreCount';
@@ -6,7 +6,7 @@ import { ScoreService } from '../../../core/api/api/score.service';
 
 @Component({
   selector: 'app-browse-by-authors',
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './browse-by-authors.component.html',
   styleUrl: './browse-by-authors.component.css'
 })

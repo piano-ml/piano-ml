@@ -1,5 +1,5 @@
 <div class=" bg-neutral-700 p-4">
-<table class="table-auto border-collapse border border-gray-400 w-full">
+  <table class="table-auto border-collapse border border-gray-400 w-full">
     <thead>
       <tr>
 
@@ -8,15 +8,17 @@
         <th class="border border-gray-300 px-4 py-2">Artist</th>
         <th class="border border-gray-300 px-4 py-2">Description</th>
         <th class="border border-gray-300 px-4 py-2">Difficulty</th>
-    </tr>
+      </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let song of manifest" (click)="onSongClick(song)">       
-        <td class="border border-gray-300 px-4 py-2">{{ song.name }}</td>
-        <td class="border border-gray-300 px-4 py-2">{{ song.artist }}</td>
-        <td class="border border-gray-300 px-4 py-2">{{ song.description }}</td>
-        <td class="border border-gray-300 px-4 py-2">{{ song.difficulty }}</td>
-      </tr>
+      @for (song of manifest; track song) {
+        <tr (click)="onSongClick(song)">
+          <td class="border border-gray-300 px-4 py-2">{{ song.name }}</td>
+          <td class="border border-gray-300 px-4 py-2">{{ song.artist }}</td>
+          <td class="border border-gray-300 px-4 py-2">{{ song.description }}</td>
+          <td class="border border-gray-300 px-4 py-2">{{ song.difficulty }}</td>
+        </tr>
+      }
     </tbody>
   </table>
 </div>

@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
-import { ShareButtons } from 'ngx-sharebuttons/buttons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
@@ -14,7 +13,7 @@ import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in
 @Component({
   selector: 'app-score-info',
   standalone: true,
-  imports: [CommonModule, ShareButtons, NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent],
+  imports: [CommonModule,  NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
   viewProviders: [provideIcons({ bootstrapClipboard })]

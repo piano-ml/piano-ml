@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { exercises as agilityExercises } from '../../../exercises/agility/pattern';
 import { exercises as scalesExercises } from '../../../exercises/scales/pattern';
 import { Exercise } from '../../../exercises/model';
@@ -10,7 +10,7 @@ interface ExerciseWithType extends Exercise {
 
 @Component({
   selector: 'app-exercises-in-key',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './exercises-in-key.component.html',
   styleUrl: './exercises-in-key.component.css'
 })

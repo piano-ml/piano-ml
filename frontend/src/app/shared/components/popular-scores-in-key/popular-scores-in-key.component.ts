@@ -1,11 +1,11 @@
 import { Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ScoreService } from '../../../core/api/api/score.service';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 
 @Component({
   selector: 'app-popular-scores-in-key',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './popular-scores-in-key.component.html',
   styleUrl: './popular-scores-in-key.component.css'
 })

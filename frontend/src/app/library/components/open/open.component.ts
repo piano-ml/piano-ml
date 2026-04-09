@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 // biome-ignore lint/style/useImportType: <explanation>
 import { Component, Input, type OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import * as Midi from '@tonejs/midi';
@@ -12,7 +12,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 
 @Component({
   selector: 'app-open',
-  imports: [CommonModule, ReactiveFormsModule, ModalComponent, NgIcon],
+  imports: [ReactiveFormsModule, ModalComponent, NgIcon],
   templateUrl: './open.component.html',
   styleUrl: './open.component.css',
   viewProviders: [provideIcons({ bootstrapFloppy })],

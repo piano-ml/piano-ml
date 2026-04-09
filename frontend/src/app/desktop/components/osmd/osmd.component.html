@@ -1,11 +1,13 @@
 <div class="osmd-wrapper pt-4 pb-4">
   <!-- Error state -->
-  <div *ngIf="error && !loading" class="error-container">
-    <div class="error-content">
-      <h3 class="error-title">Error Loading Score</h3>
-      <p class="error-message">{{ error }}</p>
+  @if (error && !loading) {
+    <div class="error-container">
+      <div class="error-content">
+        <h3 class="error-title">Error Loading Score</h3>
+        <p class="error-message">{{ error }}</p>
+      </div>
     </div>
-  </div>
+  }
   <div #osmdContainer #scrollableElement class="osmd-container">
   </div>
 </div>
