@@ -1,137 +1,133 @@
 @if (isOpen) {
-  <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-    (click)="onBackdropClick($event)">
-    <div class="midi-setup-panel rounded-lg p-6 w-full max-w-3xl max-h-[85vh] overflow-y-auto text-white"
-      (click)="$event.stopPropagation()">
-      <div class="midi-setup-header">
-        <h2 class="text-xl font-semibold">Workbench Setup</h2>
+<div class="modal" (click)="onBackdropClick($event)">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="grid grid-cols-3">
+      <div class="card-title">
+        Workbench Setup
+      </div>
+      <div class="col-span-2 flex justify-end">
         <button (click)="close()" class="midi-setup-close">Close</button>
       </div>
-      @if (error) {
-        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <strong>Error:</strong> {{ error }}
-        </div>
-      }
-      <section class="mb-2">
-        <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
-          <div class="font-medium">Midi&nbsp;In</div>
-          @if (loading) {
-            <div class="text-neutral-300">Loading...</div>
+    </div>
+    @if (error) {
+    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      <strong>Error:</strong> {{ error }}
+    </div>
+    }
+    <!-- MIDI Inputs Section  -->
+    <section class="mb-2">
+      <div class="card-secondary grid grid-cols-3">
+        <div>Midi&nbsp;In </div>
+        <div class="col-span-2 flex justify-end">
+          @if (!loading) {
+
+          @if (!loading && midiInputs.length === 0) {
+          <div class="text-neutral-400 text-sm">
+            No MIDI IN devices detected.
+          </div>
           }
           @if (!loading && midiInputs.length > 0) {
-            <div class="w-[80%]">
-              <select
-                class="w-full bg-neutral-800 text-white rounded border border-neutral-600 focus:outline-none focus:border-cyan-400"
-                (change)="selectInputById($any($event.target).value)">
-                <option value="" [selected]="!getSelectedInput()">-- Select a MIDI Input --</option>
-                @for (input of midiInputs; track input) {
-                  <option [value]="input.id" [selected]="isInputEnabled(input)">
-                    {{ input.name || 'MIDI Input' }} ({{ input.manufacturer || 'Unknown' }})
-                  </option>
-                }
-              </select>
-            </div>
+
+          <select class="w-full input-field" (change)="selectInputById($any($event.target).value)">
+            <option value="" [selected]="!getSelectedInput()">-- Select a MIDI Input --</option>
+            @for (input of midiInputs; track input) {
+            <option [value]="input.id" [selected]="isInputEnabled(input)">
+              {{ input.name || 'MIDI Input' }} ({{ input.manufacturer || 'Unknown' }})
+            </option>
+            }
+          </select>
+
           }
-          @if (!loading && midiInputs.length === 0) {
-            <div class="text-neutral-400 text-sm">
-              No MIDI IN devices detected.
-            </div>
           }
         </div>
-      </section>
-      <section class="mb-2">
-        <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
-          <div class="font-medium">Midi&nbsp;Out</div>
-          @if (loading) {
-            <div class="text-neutral-300">Loading...</div>
+      </div>
+    </section>
+
+    <!-- MIDI Outputs Section  -->
+    <section class="mb-2">
+      <div class="card-secondary grid grid-cols-3">
+        <div>Midi&nbsp;Out</div>
+        <div class="col-span-2 flex justify-end">
+          @if (!loading && midiOutputs.length === 0) {
+          <div class="text-neutral-400 text-sm">No MIDI OUT devices detected.</div>
           }
           @if (!loading && midiOutputs.length > 0) {
-            <div class="w-[80%]">
-              @if (!loading) {
-                <select
-                  class="w-full p-0 m-0 bg-neutral-800 text-white rounded  border border-neutral-600 focus:outline-none focus:border-cyan-400"
-                  (change)="selectOutputById($any($event.target).value)">
-                  <option value="__pianoml__" [selected]="isOutputEnabled(null)">
-                    PianoML — The app might play piano (not the keyboard)
-                  </option>
-                  @for (output of midiOutputs; track output) {
-                    <option [value]="output.id" [selected]="isOutputEnabled(output)">
-                      {{ output.name || 'MIDI Output' }} ({{ output.manufacturer || 'Unknown' }})
-                    </option>
-                  }
-                </select>
-              }
-            </div>
-          }
-          @if (!loading && midiOutputs.length === 0) {
-            <div class="text-neutral-400 text-sm">
-              No MIDI OUT devices detected.
-            </div>
+          <select
+            class="w-full input-field"
+            (change)="selectOutputById($any($event.target).value)">
+            <option value="__pianoml__" [selected]="isOutputEnabled(null)">
+              PianoML — The app might play piano (not the keyboard)
+            </option>
+            @for (output of midiOutputs; track output) {
+            <option [value]="output.id" [selected]="isOutputEnabled(output)">
+              {{ output.name || 'MIDI Output' }} ({{ output.manufacturer || 'Unknown' }})
+            </option>
+            }
+          </select>
           }
         </div>
-      </section>
-      <section class="mb-2">
-        <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
-          <div>
-            <div class="font-medium">Hide Keyboard</div>
-            <div class="text-xs text-neutral-300">To improve your sight-reading skills, disable keyboard visibility.</div>
-          </div>
+      </div>
+    </section>
+    <section class="mb-2">
+      <div class="card-secondary grid grid-cols-3">
+        <div>
+          <div class="font-medium">Hide Keyboard</div>
+          <div class="text-xs text-neutral-300">Disable keyboard visibility to improve sight-reading.</div>
+        </div>
+        <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
             <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
               [checked]="hideKeyboard" (change)="setKeyboardVisibility(!$any($event.target).checked)"
               aria-label="Toggle keyboard visibility" />
             <span
-            class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-600/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
-            <span class="ml-3 text-sm text-neutral-200"></span>
+              class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           </label>
         </div>
-      </section>
-      <section class="mb-2">
-        <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
-          <div>
-            <div class="font-medium">Hide Fingering</div>
-          </div>
+      </div>
+    </section>
+    <section class="mb-2">
+      <div class="card-secondary grid grid-cols-3">
+        <div class="font-medium">Hide Fingering</div>
+        <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
             <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
               [checked]="hideFingering" (change)="setFingeringVisibility(!$any($event.target).checked)"
               aria-label="Toggle fingering visibility" />
             <span
-            class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-600/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
-            <span class="ml-3 text-sm text-neutral-200"></span>
+              class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           </label>
         </div>
-      </section>
-      <section class="mb-2">
-        <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
-          <div>
-            <div class="font-medium">Hide Lyrics</div>
-          </div>
+      </div>
+    </section>
+    <section class="mb-2">
+      <div class="card-secondary grid grid-cols-3">
+        <div class="font-medium">Hide Lyrics</div>
+        <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
             <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
               [checked]="hideLyrics" (change)="setHideLyricsVisibility(!$any($event.target).checked)"
               aria-label="Toggle lyrics visibility" />
             <span
-            class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-600/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
-            <span class="ml-3 text-sm text-neutral-200"></span>
+              class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           </label>
         </div>
-      </section>
-      <section class="mb-2">
-        <div class="flex items-center justify-between gap-4 bg-neutral-700/70 rounded p-3">
-          <div>
-            <div class="font-medium">Hide Fingering & Harmony</div>
-          </div>
+      </div>
+    </section>
+    <section class="mb-2">
+      <div class="card-secondary grid grid-cols-3">
+        <div class="font-medium">Hide Fingering &amp; Harmony</div>
+        <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
             <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
               [checked]="hideFingeringAndHarmony"
               (change)="setFingeringAndHarmonyVisibility(!$any($event.target).checked)"
               aria-label="Toggle fingering and harmony visibility" />
             <span
-            class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-600/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
-            <span class="ml-3 text-sm text-neutral-200"></span>
+              class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           </label>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </div>
+</div>
 }

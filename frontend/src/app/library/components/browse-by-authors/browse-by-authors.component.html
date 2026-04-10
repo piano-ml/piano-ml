@@ -1,25 +1,27 @@
-<div class="mb-6 bg-neutral-800 rounded-lg p-4">
+<div class="mb-6 rounded-lg p-4">
   <!-- <h2 class="text-xl font-semibold text-white mb-4">Browse by Artist</h2> -->
 
   @if (alpha.length > 0) {
     <div class="mb-4 flex flex-wrap items-center gap-2 text-sm">
-      <a
+      <button
         [routerLink]="[]"
         [queryParams]="{ letter: null }"
         queryParamsHandling="merge"
-        class="author-letter-link"
-        [class.author-letter-link-active]="!selectedLetter">
+        [class.btn-secondary]="selectedLetter"
+        [class.btn-primary]="!selectedLetter"
+        >
         All
-      </a>
+    </button>
       @for (letter of alpha; track letter) {
-        <a
+        <button
           [routerLink]="[]"
           [queryParams]="{ letter: letter }"
           queryParamsHandling="merge"
-          class="author-letter-link"
-          [class.author-letter-link-active]="isSelectedLetter(letter)">
+          [class.btn-primary]="isSelectedLetter(letter)"
+          [class.btn-secondary]="!isSelectedLetter(letter)"
+          >
           {{ letter }}
-        </a>
+      </button>
       }
     </div>
   }
@@ -35,7 +37,7 @@
       @for (author of filteredAuthors; track author) {
         <button
           (click)="onAuthorClick(author)"
-          class="bg-neutral-700 hover:bg-blue-600 text-white rounded-lg p-3 transition-colors duration-200 text-left group">
+          class="capsule">
           <div class="font-medium text-sm truncate group-hover:text-blue-100">
             {{ author.author.name }}
           </div>

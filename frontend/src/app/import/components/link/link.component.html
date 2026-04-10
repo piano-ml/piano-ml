@@ -1,228 +1,55 @@
-<div class="bg-neutral-700 p-4">
-  <h3 class="text-xl font-bold mb-4">Import Music Works</h3>
+<article class="main-article">
+
+  <h3 class="page-title">Import Music Works</h3>
   <!-- Not Logged In Message -->
-  @if (!isLoggedIn) {
-    <div class="text-center text-yellow-400 py-8 bg-yellow-900 bg-opacity-20 rounded-lg">
+
+
+  <section class="main-section" aria-label="Score details and actions">
+    @if (!isLoggedIn) {
+    <div class="card-secondary">
       <div class="text-4xl mb-4">🔒</div>
       <h4 class="text-lg font-medium mb-2">Authentication Required</h4>
       <p class="text-sm mb-4">You must be logged in to link musical works.</p>
-      <a
-        routerLink="/account/login"
-        class="inline-block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors">
+      <a routerLink="/account/login" class="btn-primary inline-block">
         Login
       </a>
     </div>
-  }
+    }
 
-  <!-- Main Content (only shown when logged in) -->
-  @if (isLoggedIn) {
-    <div>
-      <!-- Search Form -->
+    <!-- Main Content (only shown when logged in) -->
+    @if (isLoggedIn) {
+    < <!-- Search Form -->
       @if (!showManualCreation) {
-        <div class="mb-6 bg-neutral-600 p-4 rounded-lg">
-          <!-- Quick Search -->
-          <div class="mb-4">
-            <label class="block text-sm font-medium mb-2">Quick Search: select a work to define a title and author</label>
-            <div class="flex gap-2">
-              <input
-                [(ngModel)]="searchQuery"
-                (keyup.enter)="searchWorks()"
-                placeholder="Search for works (e.g., 'redemption song')"
-                class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black">
-              <button
-                (click)="searchWorks()"
-                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
-                [disabled]="loading">
-                {{ loading ? 'Searching...' : 'Search' }}
-              </button>
-              <button
-                (click)="clearSearch()"
-                class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
-                Clear
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-      <!-- Manual Creation Link -->
-      @if (!showManualCreation && hasSearched) {
-        <div class="mb-4 text-center">
-          <button
-            (click)="startManualCreation()"
-            class="text-blue-400 hover:text-blue-300 underline text-sm">
-            Can't find the work you're looking for in the database? Create it manually
+      <div class="card-secondary">
+        <!-- Quick Search -->
+
+        <label class="card-title">Quick Search: select a work to define a title and author</label>
+        <div class="flex gap-2">
+          <input [(ngModel)]="searchQuery" (keyup.enter)="searchWorks()"
+            placeholder="Search for works (e.g., 'redemption song')" class="input-field flex-1">
+          <button (click)="searchWorks()" class="btn-primary" [disabled]="loading">
+            {{ loading ? 'Searching...' : 'Search' }}
+          </button>
+          <button (click)="clearSearch()" class="btn-secondary">
+            Clear
           </button>
         </div>
+
+      </div>
       }
+
+
       <!-- Results Info and Controls -->
       @if (response && !showManualCreation) {
-        <div class="mb-4">
-          <div class="flex justify-between items-center mb-2">
-            <p class="text-sm text-gray-400">
-              Found {{ response.count }} results (showing {{ displayedWorks.length }})
-            </p>
-            <!-- Filter Controls -->
-            <div class="flex gap-2">
-              <button
-                (click)="toggleSongsOnly()"
-                class="px-3 py-1 text-sm rounded transition-colors"
-                [class]="showSongsOnly ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white hover:bg-gray-400'">
-                {{ showSongsOnly ? 'Show All Types' : 'Songs Only' }}
-              </button>
-            </div>
-          </div>
+      <div class="card-secondary">
+        <div class="flex justify-between items-center mb-2">
+          <p class="card-title">
+            {{ displayedWorks.length }} works found
+          </p>
         </div>
-      }
-      <!-- Manual Creation Workflow -->
-      @if (showManualCreation) {
-        <div class="mb-6">
-          <!-- Header -->
-          <div class="bg-neutral-600 p-4 rounded-lg mb-4">
-            <div class="flex justify-between items-center mb-2">
-              <h4 class="text-lg font-semibold">Create Work Manually</h4>
-              <button
-                (click)="cancelManualCreation()"
-                class="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm">
-                Cancel
-              </button>
-            </div>
-            <!-- Step Indicator -->
-            <div class="flex items-center gap-2 text-sm">
-              <span [class]="manualCreationStep === 'artist' ? 'text-blue-400 font-semibold' : 'text-gray-400'">
-                1. Select Artist
-              </span>
-              <span class="text-gray-500">→</span>
-              <span [class]="manualCreationStep === 'title' ? 'text-blue-400 font-semibold' : 'text-gray-400'">
-                2. Enter Title
-              </span>
-            </div>
-          </div>
-          <!-- Step 1: Artist Search -->
-          @if (manualCreationStep === 'artist') {
-            <div class="bg-neutral-600 p-4 rounded-lg">
-              <label class="block text-sm font-medium mb-2">Search for an artist</label>
-              <div class="flex gap-2 mb-4">
-                <input
-                  [(ngModel)]="artistSearchQuery"
-                  (keyup.enter)="searchArtists()"
-                  placeholder="Enter artist name (e.g., 'Bob Marley')"
-                  class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black">
-                <button
-                  (click)="searchArtists()"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
-                  [disabled]="loading">
-                  {{ loading ? 'Searching...' : 'Search' }}
-                </button>
-              </div>
-              <!-- Loading for Artists -->
-              @if (loading && manualCreationStep === 'artist') {
-                <div class="text-center text-gray-400 py-8">
-                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                  <p>Searching for artists...</p>
-                </div>
-              }
-              <!-- Artist Results -->
-              @if (artistResponse && artistResponse.artists.length > 0 && !loading) {
-                <div class="overflow-x-auto">
-                  <p class="text-sm text-gray-400 mb-2">Found {{ artistResponse.count }} artists</p>
-                  <table class="table-auto border-collapse border border-gray-400 w-full">
-                    <thead>
-                      <tr class="bg-neutral-700">
-                        <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left">Type</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left">Country</th>
-                        <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (artist of artistResponse.artists; track artist) {
-                        <tr
-                          class="hover:bg-gray-600 transition-colors cursor-pointer"
-                          (click)="onArtistSelect(artist)">
-                          <td class="border border-gray-300 px-4 py-2">
-                            <div class="font-medium">{{ artist.name }}</div>
-                            @if (artist.disambiguation) {
-                              <div class="text-xs text-gray-400">{{ artist.disambiguation }}</div>
-                            }
-                          </td>
-                          <td class="border border-gray-300 px-4 py-2 text-sm">
-                            {{ artist.type || 'N/A' }}
-                          </td>
-                          <td class="border border-gray-300 px-4 py-2 text-sm">
-                            {{ artist.country || 'N/A' }}
-                          </td>
-                          <td class="border border-gray-300 px-4 py-2 text-center">
-                            <button
-                              (click)="onArtistSelect(artist); $event.stopPropagation()"
-                              class="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-400">
-                              Select
-                            </button>
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              }
-              <!-- No Artist Results -->
-              @if (artistResponse && artistResponse.count === 0 && !loading) {
-                <div
-                  class="text-center text-gray-400 py-8 bg-neutral-700 rounded-lg">
-                  <div class="text-2xl mb-2">🎤</div>
-                  <p>No artists found matching your search.</p>
-                  <p class="text-sm mt-1">Try different search terms.</p>
-                </div>
-              }
-              <!-- Empty State for Artist Search -->
-              @if (!artistResponse && !loading) {
-                <div
-                  class="text-center text-gray-400 py-8 bg-neutral-700 rounded-lg">
-                  <div class="text-3xl mb-3">🎤</div>
-                  <p class="text-sm">Enter an artist name above to search.</p>
-                </div>
-              }
-            </div>
-          }
-          <!-- Step 2: Work Title Input -->
-          @if (manualCreationStep === 'title') {
-            <div class="bg-neutral-600 p-4 rounded-lg">
-              <div class="mb-4 p-3 bg-neutral-700 rounded-lg">
-                <p class="text-sm text-gray-400 mb-1">Selected Artist:</p>
-                <p class="font-medium text-lg">{{ selectedArtist?.name }}</p>
-                @if (selectedArtist?.disambiguation) {
-                  <p class="text-sm text-gray-400">{{ selectedArtist?.disambiguation }}</p>
-                }
-                <button
-                  (click)="backToArtistSearch()"
-                  class="mt-2 text-blue-400 hover:text-blue-300 underline text-sm">
-                  Change artist
-                </button>
-              </div>
-              <label class="block text-sm font-medium mb-2">Enter the work title</label>
-              <input
-                [(ngModel)]="workTitle"
-                (keyup.enter)="submitManualWork()"
-                placeholder="Enter work/song title"
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black mb-4">
-              <div class="flex gap-2 justify-end">
-                <button
-                  (click)="backToArtistSearch()"
-                  class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
-                  Back
-                </button>
-                <button
-                  (click)="submitManualWork()"
-                  [disabled]="!workTitle.trim()"
-                  class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 disabled:bg-gray-500 disabled:cursor-not-allowed">
-                  Create Work
-                </button>
-              </div>
-            </div>
-          }
-        </div>
-      }
-      <!-- Results Table -->
-      @if (response && displayedWorks.length > 0 && !showManualCreation) {
+
+        <!-- Results Table -->
+        @if (response && displayedWorks.length > 0 && !showManualCreation) {
         <div class="overflow-x-auto">
           <table class="table-auto border-collapse border border-gray-400 w-full">
             <thead>
@@ -234,73 +61,197 @@
             </thead>
             <tbody>
               @for (work of displayedWorks; track work) {
-                <tr
-                  (click)="onWorkClick(work); $event.stopPropagation()"
-                  class="hover:bg-gray-600 transition-colors cursor-pointer"
-                  >
-                  <td class="border border-gray-300 px-4 py-2">
-                    <div class="font-medium">{{ work.title }}</div>
-                  </td>
-                  <td class="border border-gray-300 px-4 py-2">
-                    <div class="font-medium">{{ work.artistName }}</div>
-                  </td>
-                  <td class="border border-gray-300 px-4 py-2 text-center">
-                    <button
-                      (click)="onWorkClick(work); $event.stopPropagation()"
-                      class="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-400">
-                      Select
-                    </button>
-                  </td>
-                </tr>
+              <tr (click)="onWorkClick(work); $event.stopPropagation()"
+                class="hover:bg-gray-600 transition-colors cursor-pointer">
+                <td class="border border-gray-300 px-4 py-2">
+                  <div class="font-medium">{{ work.title }}</div>
+                </td>
+                <td class="border border-gray-300 px-4 py-2">
+                  <div class="font-medium">{{ work.artistName }}</div>
+                </td>
+                <td class="border border-gray-300 px-4 py-2 text-center">
+                  <button (click)="onWorkClick(work); $event.stopPropagation()" class="btn-primary">
+                    Select
+                  </button>
+                </td>
+              </tr>
               }
             </tbody>
           </table>
         </div>
-      }
-      <!-- No Results -->
-      @if (response && (response.count === 0 || (response.count > 0 && displayedWorks.length === 0)) && !loading && !showManualCreation) {
-        <div
-          class="text-center text-gray-400 py-8 bg-neutral-600 rounded-lg">
-          <div class="text-2xl mb-2">🎵</div>
+        }
+        <!-- No Results -->
+        @if (response && (response.count === 0 || (response.count > 0 && displayedWorks.length === 0)) && !loading &&
+        !showManualCreation) {
+        <div class="text-center text-gray-400 py-8 bg-neutral-600 rounded-lg">
           @if (response.count === 0) {
-            <p>No works found matching your criteria.</p>
+          <p>No works found matching your criteria.</p>
           }
           @if (response.count > 0 && displayedWorks.length === 0) {
-            <p>No works found after filtering (found {{ response.count }} but none matched the current filters).</p>
+          <p>No works found after filtering (found {{ response.count }} but none matched the current filters).</p>
           }
           <p class="text-sm mt-1">Try adjusting your search terms or filters.</p>
         </div>
+        }
+
+      </div>
       }
+
+      <!-- Manual Creation Link -->
+      @if (!showManualCreation && hasSearched) {
+      <div class="card-secondary">
+        <div class="mb-4 text-center">
+          <button (click)="startManualCreation()" class="btn-primary">
+            Can't find the work you're looking for in the database? Create it manually
+          </button>
+        </div>
+      </div>
+      }
+
+      <!-- Manual Creation Workflow -->
+      @if (showManualCreation) {
+      <div class="mb-6">
+        <!-- Header -->
+        <div class="card-secondary">
+          <div class="flex justify-between items-center mb-2">
+            <h4 class="text-lg font-semibold">Create Work Manually</h4>
+            <button (click)="cancelManualCreation()" class="btn-secondary btn-small">
+              Cancel
+            </button>
+          </div>
+          <!-- Step Indicator -->
+          <div class="flex items-center gap-2 text-sm">
+            <span [class]="manualCreationStep === 'artist' ? 'text-blue-400 font-semibold' : 'text-gray-400'">
+              1. Select Artist
+            </span>
+            <span class="text-gray-500">→</span>
+            <span [class]="manualCreationStep === 'title' ? 'text-blue-400 font-semibold' : 'text-gray-400'">
+              2. Enter Title
+            </span>
+          </div>
+        </div>
+        <!-- Step 1: Artist Search -->
+        @if (manualCreationStep === 'artist') {
+        <div class="card-secondary">
+          <label class="card-title">Search for an artist</label>
+          <div class="flex gap-2 mb-4">
+            <input [(ngModel)]="artistSearchQuery" (keyup.enter)="searchArtists()"
+              placeholder="Enter artist name (e.g., 'Bob Marley')" class="input-field flex-1">
+            <button (click)="searchArtists()" class="btn-primary" [disabled]="loading">
+              {{ loading ? 'Searching...' : 'Search' }}
+            </button>
+          </div>
+          <!-- Loading for Artists -->
+          @if (loading && manualCreationStep === 'artist') {
+          <div class="text-center text-gray-400 py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+            <p>Searching for artists...</p>
+          </div>
+          }
+          <!-- Artist Results -->
+          @if (artistResponse && artistResponse.artists.length > 0 && !loading) {
+          <div class="overflow-x-auto">
+            <p class="text-sm text-gray-400 mb-2">Found {{ artistResponse.count }} artists</p>
+            <table class="table-auto border-collapse border border-gray-400 w-full">
+              <thead>
+                <tr class="bg-neutral-700">
+                  <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left">Type</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left">Country</th>
+                  <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (artist of artistResponse.artists; track artist) {
+                <tr class="hover:bg-gray-600 transition-colors cursor-pointer" (click)="onArtistSelect(artist)">
+                  <td class="border border-gray-300 px-4 py-2">
+                    <div class="font-medium">{{ artist.name }}</div>
+                    @if (artist.disambiguation) {
+                    <div class="text-xs text-gray-400">{{ artist.disambiguation }}</div>
+                    }
+                  </td>
+                  <td class="border border-gray-300 px-4 py-2 text-sm">
+                    {{ artist.type || 'N/A' }}
+                  </td>
+                  <td class="border border-gray-300 px-4 py-2 text-sm">
+                    {{ artist.country || 'N/A' }}
+                  </td>
+                  <td class="border border-gray-300 px-4 py-2 text-center">
+                    <button (click)="onArtistSelect(artist); $event.stopPropagation()" class="btn-primary">
+                      Select
+                    </button>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          }
+          <!-- No Artist Results -->
+          @if (artistResponse && artistResponse.count === 0 && !loading) {
+          <div class="text-center text-gray-400 py-8 bg-neutral-700 rounded-lg">
+            <div class="text-2xl mb-2">🎤</div>
+            <p>No artists found matching your search.</p>
+            <p class="text-sm mt-1">Try different search terms.</p>
+          </div>
+          }
+        </div>
+        }
+        <!-- Step 2: Work Title Input -->
+        @if (manualCreationStep === 'title') {
+        <div class="card-secondary">
+
+          <h4 class="text-lg font-semibold">Selected Artist: {{ selectedArtist?.name }}</h4>
+          @if (selectedArtist?.disambiguation) {
+          <h4 class="text-lg font-semibold">({{ selectedArtist?.disambiguation }})</h4>
+
+
+        }
+
+          <div class="flex justify-end">
+            <button (click)="backToArtistSearch()" class="btn-secondary btn-small">
+              Change artist
+            </button>
+          </div>
+        </div>
+        <div class="card-secondary">
+          <label class="card-title">Enter the work title</label>
+          <input [(ngModel)]="workTitle" (keyup.enter)="submitManualWork()" placeholder="Enter work/song title"
+            class="input-field w-full mb-4">
+          <div class="flex gap-2 justify-end">
+            <button (click)="backToArtistSearch()" class="btn-secondary">
+              Back
+            </button>
+            <button (click)="submitManualWork()" [disabled]="!workTitle.trim()" class="btn-success">
+              Create Work
+            </button>
+          </div>
+        </div>
+
+      }
+      </div>
+      }
+
       <!-- Loading -->
       @if (loading && !showManualCreation) {
-        <div class="text-center text-gray-400 py-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-          <p>Searching MusicBrainz database...</p>
-        </div>
+      <div class="text-center text-gray-400 py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+        <p>Searching MusicBrainz database...</p>
+      </div>
       }
       <!-- Error -->
       @if (error) {
-        <div class="text-center text-red-400 py-8 bg-red-900 bg-opacity-20 rounded-lg">
-          <div class="text-2xl mb-2">⚠️</div>
-          <p class="font-medium">Error occurred</p>
-          <p class="text-sm mt-1">{{ error }}</p>
-          <button
-            (click)="error = null"
-            class="mt-2 px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">
-            Dismiss
-          </button>
-        </div>
+      <div class="text-center text-red-400 py-8 bg-red-900 bg-opacity-20 rounded-lg">
+        <div class="text-2xl mb-2">⚠️</div>
+        <p class="font-medium">Error occurred</p>
+        <p class="text-sm mt-1">{{ error }}</p>
+        <button (click)="error = null" class="btn-danger btn-small mt-2">
+          Dismiss
+        </button>
+      </div>
       }
-      <!-- Empty State -->
-      @if (!response && !loading && !error && !showManualCreation) {
-        <div
-          class="text-center text-gray-400 py-12">
-          <div class="text-4xl mb-4">🎼</div>
-          <h4 class="text-lg font-medium mb-2">Link Music Works</h4>
-          <p class="text-sm">Search for musical works in the MusicBrainz database.</p>
-          <p class="text-xs mt-1">Enter a song title, artist name, or use the advanced search options above.</p>
-        </div>
+
+
       }
-    </div>
-  }
-</div>
+  </section>
+</article>

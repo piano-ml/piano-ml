@@ -1,11 +1,233 @@
-<div class="ml-6 mr-4">
-  <h1 class="page-title">Exercises</h1>
-  <hr>
-    <ul>
-      @for (item of summary; track item) {
-        <li class="mb-4 mt-4">
-          <button [routerLink]="item.url" class="w-64 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded tracking-[00.15rem] transition-colors">{{ item.title }}</button>
-        </li>
-      }
-    </ul>
+<article class="main-article">
+  <div class="flex items-center justify-between gap-4">
+    <div class="page-title">Exercises</div>
   </div>
+
+  <section class="main-section">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+      <div class="card-secondary">
+        <div class="card-secondary-title">DIY Cycle</div>
+        <ul>
+          @for (item of summary; track item) {
+          <li class="mb-4 mt-4">
+            <button [routerLink]="item.url" class="btn-hero w-64">{{ item.title }}</button>
+          </li>
+          }
+        </ul>
+      </div>
+
+
+
+      <div class="card-secondary">
+        <div class="card-secondary-title">Level 1 Cycle</div>
+        <p>
+          Start with 2 keys per day. Each day work on a different key pair. The following
+          sequence takes 12 days to complete a full cycle of all 24 major + minor keys.
+        </p>
+
+        <ul><strong>Major Keys (Sharp):</strong>
+          <li>Day 1: <a routerLink="/exercises/scale/C/major/left_than_right" class="link-primary">C</a> + <a
+              routerLink="/exercises/scale/G/major/left_than_right" class="link-primary">G</a></li>
+          <li>Day 2: <a routerLink="/exercises/scale/D/major/left_than_right" class="link-primary">D</a> + <a
+              routerLink="/exercises/scale/A/major/left_than_right" class="link-primary">A</a></li>
+          <li>Day 3: <a routerLink="/exercises/scale/E/major/left_than_right" class="link-primary">E</a> + <a
+              routerLink="/exercises/scale/B/major/left_than_right" class="link-primary">B</a></li>
+        </ul>
+
+        <ul><strong>Major Keys (Flat):</strong>
+          <li>Day 4: <a routerLink="/exercises/scale/F/major/left_than_right" class="link-primary">F</a> + <a
+              routerLink="/exercises/scale/Bb/major/left_than_right" class="link-primary">Bb</a></li>
+          <li>Day 5: <a routerLink="/exercises/scale/Eb/major/left_than_right" class="link-primary">Eb</a> + <a
+              routerLink="/exercises/scale/Ab/major/left_than_right" class="link-primary">Ab</a></li>
+          <li>Day 6: <a routerLink="/exercises/scale/Db/major/left_than_right" class="link-primary">Db</a> + <a
+              routerLink="/exercises/scale/Gb/major/left_than_right" class="link-primary">Gb</a></li>
+        </ul>
+
+        <ul><strong>Minor Keys (Sharp):</strong>
+          <li>Day 7: <a routerLink="/exercises/scale/Am/minor/left_than_right" class="link-primary">A</a> + <a
+              routerLink="/exercises/scale/Em/minor/left_than_right" class="link-primary">E</a></li>
+          <li>Day 8: <a routerLink="/exercises/scale/Bm/minor/left_than_right" class="link-primary">B</a> + <a
+              routerLink="/exercises/scale/F#m/minor/left_than_right" class="link-primary">F#</a></li>
+          <li>Day 9: <a routerLink="/exercises/scale/C#m/minor/left_than_right" class="link-primary">C#</a> + <a
+              routerLink="/exercises/scale/G#m/minor/left_than_right" class="link-primary">G#</a></li>
+        </ul>
+
+        <ul><strong>Minor Keys (Flat):</strong>
+          <li>Day 10: <a routerLink="/exercises/scale/Dm/minor/left_than_right" class="link-primary">D</a> + <a
+              routerLink="/exercises/scale/Gm/minor/left_than_right" class="link-primary">G</a></li>
+          <li>Day 11: <a routerLink="/exercises/scale/Cm/minor/left_than_right" class="link-primary">C</a> + <a
+              routerLink="/exercises/scale/Fm/minor/left_than_right" class="link-primary">F</a></li>
+          <li>Day 12: <a routerLink="/exercises/scale/Bbm/minor/left_than_right" class="link-primary">Bb</a> + <a
+              routerLink="/exercises/scale/D#m/minor/left_than_right" class="link-primary">Eb</a></li>
+        </ul>
+
+        <p>You can add the Chromatic Scale to any of these keys, starting on the key note.</p>
+        <p>Note that enharmonic keys like C# and Cb major are skipped. These are identical to Db and B, respectively.
+        </p>
+      </div>
+
+      <div class="card-secondary">
+        <div class="card-secondary-title">Level 2 Cycle</div>
+        <p>
+          We can increase the difficulty with a sequence that includes more keys in one day, combining relative major +
+          minor
+          keys, reducing total cycle time to 6 days.
+        </p>
+
+        <ul><strong>Day 1:</strong>
+          <li><a routerLink="/exercises/scale/C/major/parallel_motion_in_octaves" class="link-primary">C major</a> + <a
+              routerLink="/exercises/scale/Am/minor/parallel_motion_in_octaves" class="link-primary">A minor</a></li>
+          <li><a routerLink="/exercises/scale/G/major/parallel_motion_in_octaves" class="link-primary">G major</a> + <a
+              routerLink="/exercises/scale/Em/minor/parallel_motion_in_octaves" class="link-primary">E minor</a></li>
+        </ul>
+
+        <ul><strong>Day 2:</strong>
+          <li><a routerLink="/exercises/scale/D/major/parallel_motion_in_octaves" class="link-primary">D major</a> + <a
+              routerLink="/exercises/scale/Bm/minor/parallel_motion_in_octaves" class="link-primary">B minor</a></li>
+          <li><a routerLink="/exercises/scale/A/major/parallel_motion_in_octaves" class="link-primary">A major</a> + <a
+              routerLink="/exercises/scale/F#m/minor/parallel_motion_in_octaves" class="link-primary">F# minor</a></li>
+        </ul>
+
+        <ul><strong>Day 3:</strong>
+          <li><a routerLink="/exercises/scale/E/major/parallel_motion_in_octaves" class="link-primary">E major</a> + <a
+              routerLink="/exercises/scale/C#m/minor/parallel_motion_in_octaves" class="link-primary">C# minor</a></li>
+          <li><a routerLink="/exercises/scale/B/major/parallel_motion_in_octaves" class="link-primary">B major</a> + <a
+              routerLink="/exercises/scale/G#m/minor/parallel_motion_in_octaves" class="link-primary">G# minor</a></li>
+        </ul>
+
+        <ul><strong>Day 4:</strong>
+          <li><a routerLink="/exercises/scale/F/major/parallel_motion_in_octaves" class="link-primary">F major</a> + <a
+              routerLink="/exercises/scale/Dm/minor/parallel_motion_in_octaves" class="link-primary">D minor</a></li>
+          <li><a routerLink="/exercises/scale/Bb/major/parallel_motion_in_octaves" class="link-primary">Bb major</a> +
+            <a routerLink="/exercises/scale/Gm/minor/parallel_motion_in_octaves" class="link-primary">G minor</a>
+          </li>
+        </ul>
+
+        <ul><strong>Day 5:</strong>
+          <li><a routerLink="/exercises/scale/Eb/major/parallel_motion_in_octaves" class="link-primary">Eb major</a> +
+            <a routerLink="/exercises/scale/Cm/minor/parallel_motion_in_octaves" class="link-primary">C minor</a>
+          </li>
+          <li><a routerLink="/exercises/scale/Ab/major/parallel_motion_in_octaves" class="link-primary">Ab major</a> +
+            <a routerLink="/exercises/scale/Fm/minor/parallel_motion_in_octaves" class="link-primary">F minor</a>
+          </li>
+        </ul>
+
+        <ul><strong>Day 6:</strong>
+          <li><a routerLink="/exercises/scale/Db/major/parallel_motion_in_octaves" class="link-primary">Db major</a> +
+            <a routerLink="/exercises/scale/Bbm/minor/parallel_motion_in_octaves" class="link-primary">Bb minor</a>
+          </li>
+          <li><a routerLink="/exercises/scale/Gb/major/parallel_motion_in_octaves" class="link-primary">Gb major</a> +
+            <a routerLink="/exercises/scale/D#m/minor/parallel_motion_in_octaves" class="link-primary">Eb minor</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-secondary">
+        <div class="card-secondary-title">Level 3 Cycle</div>
+        <p>
+          A more advanced sequence will go through all keys in 2 days, using parallel major + minor keys. It should only
+          be
+          done after the previous patterns can be played automatically from memory.
+        </p>
+
+        <ul><strong>Day 1:</strong>
+          <li><a routerLink="/exercises/scale/C/major/parallel_motion_in_octaves" class="link-primary">C major</a> + <a
+              routerLink="/exercises/scale/Cm/minor/parallel_motion_in_octaves" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/G/major/parallel_motion_in_octaves" class="link-primary">G major</a> + <a
+              routerLink="/exercises/scale/Gm/minor/parallel_motion_in_octaves" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/D/major/parallel_motion_in_octaves" class="link-primary">D major</a> + <a
+              routerLink="/exercises/scale/Dm/minor/parallel_motion_in_octaves" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/A/major/parallel_motion_in_octaves" class="link-primary">A major</a> + <a
+              routerLink="/exercises/scale/Am/minor/parallel_motion_in_octaves" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/E/major/parallel_motion_in_octaves" class="link-primary">E major</a> + <a
+              routerLink="/exercises/scale/Em/minor/parallel_motion_in_octaves" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/B/major/parallel_motion_in_octaves" class="link-primary">B major</a> + <a
+              routerLink="/exercises/scale/Bm/minor/parallel_motion_in_octaves" class="link-primary">minor</a></li>
+        </ul>
+
+        <ul><strong>Day 2:</strong>
+          <li><a routerLink="/exercises/scale/F/major/parallel_motion_in_octaves" class="link-primary">F major</a> + <a
+              routerLink="/exercises/scale/Fm/minor/parallel_motion_in_octaves" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Bb/major/parallel_motion_in_octaves" class="link-primary">Bb major</a> +
+            <a routerLink="/exercises/scale/Bbm/minor/parallel_motion_in_octaves" class="link-primary">minor</a>
+          </li>
+          <li><a routerLink="/exercises/scale/Eb/major/parallel_motion_in_octaves" class="link-primary">Eb major</a> +
+            <a routerLink="/exercises/scale/D#m/minor/parallel_motion_in_octaves" class="link-primary">minor</a>
+          </li>
+          <li><a routerLink="/exercises/scale/Ab/major/parallel_motion_in_octaves" class="link-primary">Ab major</a> +
+            <a routerLink="/exercises/scale/G#m/minor/parallel_motion_in_octaves" class="link-primary">minor</a>
+          </li>
+          <li><a routerLink="/exercises/scale/Db/major/parallel_motion_in_octaves" class="link-primary">Db major</a> +
+            <a routerLink="/exercises/scale/C#m/minor/parallel_motion_in_octaves" class="link-primary">minor</a>
+          </li>
+          <li><a routerLink="/exercises/scale/Gb/major/parallel_motion_in_octaves" class="link-primary">Gb major</a> +
+            <a routerLink="/exercises/scale/F#m/minor/parallel_motion_in_octaves" class="link-primary">minor</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-secondary">
+        <div class="card-secondary-title">Level 4a Cycle: Ascending 5ths</div>
+        <p>The most difficult cycle, playing all keys around the full Circle of 5ths in 1 day.</p>
+        <ul>
+          <li><a routerLink="/exercises/scale/C/major/contrary_motion" class="link-primary">C major</a> + <a
+              routerLink="/exercises/scale/Cm/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/G/major/contrary_motion" class="link-primary">G major</a> + <a
+              routerLink="/exercises/scale/Gm/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/D/major/contrary_motion" class="link-primary">D major</a> + <a
+              routerLink="/exercises/scale/Dm/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/A/major/contrary_motion" class="link-primary">A major</a> + <a
+              routerLink="/exercises/scale/Am/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/E/major/contrary_motion" class="link-primary">E major</a> + <a
+              routerLink="/exercises/scale/Em/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/B/major/contrary_motion" class="link-primary">B major</a> + <a
+              routerLink="/exercises/scale/Bm/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Gb/major/contrary_motion" class="link-primary">F#/Gb major</a> + <a
+              routerLink="/exercises/scale/F#m/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Db/major/contrary_motion" class="link-primary">Db major</a> + <a
+              routerLink="/exercises/scale/C#m/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Ab/major/contrary_motion" class="link-primary">Ab major</a> + <a
+              routerLink="/exercises/scale/G#m/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Eb/major/contrary_motion" class="link-primary">Eb major</a> + <a
+              routerLink="/exercises/scale/D#m/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Bb/major/contrary_motion" class="link-primary">Bb major</a> + <a
+              routerLink="/exercises/scale/Bbm/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/F/major/contrary_motion" class="link-primary">F major</a> + <a
+              routerLink="/exercises/scale/Fm/minor/contrary_motion" class="link-primary">minor</a></li>
+        </ul>
+      </div>
+
+      <div class="card-secondary">
+        <div class="card-secondary-title">Level 4b Cycle: Descending 5ths</div>
+        <p>An alternative sequence goes the opposite direction around the Circle of 5ths.</p>
+        <ul>
+          <li><a routerLink="/exercises/scale/C/major/contrary_motion" class="link-primary">C major</a> + <a
+              routerLink="/exercises/scale/Cm/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/F/major/contrary_motion" class="link-primary">F major</a> + <a
+              routerLink="/exercises/scale/Fm/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Bb/major/contrary_motion" class="link-primary">Bb major</a> + <a
+              routerLink="/exercises/scale/Bbm/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Eb/major/contrary_motion" class="link-primary">Eb major</a> + <a
+              routerLink="/exercises/scale/D#m/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Ab/major/contrary_motion" class="link-primary">Ab major</a> + <a
+              routerLink="/exercises/scale/G#m/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Db/major/contrary_motion" class="link-primary">Db major</a> + <a
+              routerLink="/exercises/scale/C#m/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/Gb/major/contrary_motion" class="link-primary">Gb/F# major</a> + <a
+              routerLink="/exercises/scale/F#m/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/B/major/contrary_motion" class="link-primary">B major</a> + <a
+              routerLink="/exercises/scale/Bm/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/E/major/contrary_motion" class="link-primary">E major</a> + <a
+              routerLink="/exercises/scale/Em/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/A/major/contrary_motion" class="link-primary">A major</a> + <a
+              routerLink="/exercises/scale/Am/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/D/major/contrary_motion" class="link-primary">D major</a> + <a
+              routerLink="/exercises/scale/Dm/minor/contrary_motion" class="link-primary">minor</a></li>
+          <li><a routerLink="/exercises/scale/G/major/contrary_motion" class="link-primary">G major</a> + <a
+              routerLink="/exercises/scale/Gm/minor/contrary_motion" class="link-primary">minor</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</article>

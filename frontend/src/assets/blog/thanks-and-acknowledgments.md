@@ -17,4 +17,7 @@ We particularly want to thank:
 - Weihan Xu, Julian McAuley, Taylor Berg-Kirkpatrick, Shlomo Dubnov, and Hao-Wen Dong for their work on [PDMX](https://github.com/pnlong/PDMX/?tab=readme-ov-file) - Generating Symbolic Music from Natural Language Prompts using an LLM-Enhanced Dataset (arXiv:2410.02084, 2024)
 -  [Temple F. Smith & Michael S. Waterman](https://www.sciencedirect.com/science/article/abs/pii/0022283681900875?via%3Dihub) for  « Identification of Common Molecular Subsequences », shown to be useful on some special edge cases.
 
+- [PianoSyllabus](https://pianosyllabus.com) for providing data to train many models in particular to the team of <b>Can Audio Reveal Music Performance Difficulty? Insights from the Piano Syllabus Dataset</b> by
+Pedro Ramoneda, Minhee Lee, Dasaem Jeong, J.J. Valero-Mas, Xavier Serra [on arxiv](https://arxiv.org/abs/2403.03947)
+
 - And many, many others...

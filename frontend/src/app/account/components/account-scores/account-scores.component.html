@@ -42,7 +42,7 @@
       Total: {{ scores.length }} score{{ scores.length !== 1 ? 's' : '' }}
       <button
         (click)="navigateToOpen()"
-        class="ml-6 bg-blue-600 font-bold hover:bg-blue-700 px-3 py-1 rounded text-sm text-white transition-colors"
+        class="ml-6 btn-primary"
         [disabled]="loading">
         @if (loading) {
           <span class="animate-spin inline-block mr-2">⟳</span>

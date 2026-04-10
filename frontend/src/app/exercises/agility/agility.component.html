@@ -5,19 +5,19 @@
     <div class="flex flex-col md:flex-row gap-6">
 
       <div class="md:w-1/2 flex flex-col gap-3">
-        <select [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()">
+        <select [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()" class="input-field">
           @for (key of keys; track key) {
             <option [ngValue]="key">{{ key }}</option>
           }
         </select>
 
-        <select [(ngModel)]="selectedChord" (ngModelChange)="onChordChange()">
+        <select [(ngModel)]="selectedChord" (ngModelChange)="onChordChange()" class="input-field">
           @for (chord of this.availableChords; track chord) {
             <option [ngValue]="chord">{{ selectedKey }} {{ chord.name }}</option>
           }
         </select>
 
-        <select [(ngModel)]="selectedExcercice" (ngModelChange)="onSelectedExerciceChange()">
+        <select [(ngModel)]="selectedExcercice" (ngModelChange)="onSelectedExerciceChange()" class="input-field">
           @for (exercise of myexcerices; track exercise) {
             <option [ngValue]="exercise">{{ exercise.title }}</option>
           }
@@ -26,7 +26,7 @@
 
       <div class="md:w-1/2">
         <button (click)="load()"
-          class="w-full mt-4 mb-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded tracking-[00.15rem] transition-colors">
+          class="btn-hero w-full mt-4 mb-4">
           🔥 Start
         </button>
 

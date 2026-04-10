@@ -11,13 +11,13 @@
           </label>
           @if (!editMode) {
             <div class="flex items-center justify-between">
-              <div class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700">
+              <div class="w-full px-3 py-2 border rounded-lg">
                 {{ userInfo.name || 'No name set' }}
               </div>
               <button
                 type="button"
                 (click)="enableEdit()"
-                class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                class="btn-primary ml-2"
                 title="Edit name">
                 Edit
               </button>
@@ -33,20 +33,20 @@
                   type="text"
                   id="name"
                   formControlName="name"
-                  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                  class="input-field w-full"
                   placeholder="Enter your name">
                 <!-- Action Buttons -->
                 <div class="flex gap-4">
                   <button
                     type="submit"
-                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    class="btn-success"
                     title="Save">
                     Save
                   </button>
                   <button
                     type="button"
                     (click)="cancelEdit()"
-                    class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    class="btn-secondary">
                     Cancel
                   </button>
                 </div>
@@ -98,7 +98,7 @@
               <button
                 type="button"
                 (click)="enableKeyboardEdit()"
-                class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                class="btn-primary ml-2"
                 title="Edit keyboard preferences">
                 Edit
               </button>
@@ -119,9 +119,9 @@
                       formControlName="leftmostKey"
                       min="21"
                       max="108"
-                      class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                      class="input-field w-full"
                       [class.border-red-500]="leftmostKeyControl?.invalid && leftmostKeyControl?.touched"
-                      [class.border-green-400]="focusedField === 'leftmostKey'"
+                      [class.border-emerald-400]="focusedField === 'leftmostKey'"
                       placeholder="21">
                     @if (leftmostKeyControl?.invalid && leftmostKeyControl?.touched) {
                       <div
@@ -149,9 +149,9 @@
                       formControlName="rightmostKey"
                       min="21"
                       max="108"
-                      class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                      class="input-field w-full"
                       [class.border-red-500]="rightmostKeyControl?.invalid && rightmostKeyControl?.touched"
-                      [class.border-green-400]="focusedField === 'rightmostKey'"
+                      [class.border-emerald-400]="focusedField === 'rightmostKey'"
                       placeholder="108">
                     @if (rightmostKeyControl?.invalid && rightmostKeyControl?.touched) {
                       <div
@@ -204,7 +204,7 @@
                 </div>
                 <!-- MIDI input indication -->
                 @if (focusedField) {
-                  <div class="text-green-400 text-sm">
+                  <div class="text-emerald-400 text-sm">
                     🎹 Ready to capture MIDI input for {{ focusedField === 'leftmostKey' ? 'leftmost' : 'rightmost' }} key...
                   </div>
                 }
@@ -220,14 +220,14 @@
                   <button
                     type="submit"
                     [disabled]="keyboardPreferencesForm.invalid"
-                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    class="btn-success"
                     title="Save keyboard preferences">
                     Save
                   </button>
                   <button
                     type="button"
                     (click)="cancelKeyboardEdit()"
-                    class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    class="btn-secondary">
                     Cancel
                   </button>
                 </div>
@@ -240,11 +240,11 @@
 
     <div class="ml-2 flex gap-4">
 
-      <button (click)="logout()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer">
+      <button (click)="logout()" class="btn-danger">
         Logout
       </button>
 
-      <button routerLink="/account/scores" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer">
+      <button routerLink="/account/scores" class="btn-primary">
         My Scores
       </button>
 

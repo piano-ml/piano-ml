@@ -11,10 +11,10 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
   template: `
     @if (isOpen) {
       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="onBackdropClick($event)">
-        <div class="bg-neutral-800 rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation()">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold text-white">Select Author</h2>
-            <button (click)="close()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            <h2 class="">Select Author</h2>
+            <button (click)="close()" class="btn-secondary">&times;</button>
           </div>
           <!-- Search Input -->
           <div class="mb-4">
@@ -24,12 +24,12 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
                 type="text"
                 [(ngModel)]="searchQuery"
                 (keyup.enter)="searchAuthors()"
-                class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                class="input-field flex-1"
                 placeholder="Enter author name...">
               <button
                 (click)="searchAuthors()"
                 [disabled]="!searchQuery || searching"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                class="btn-primary">
                 {{ searching ? 'Searching...' : 'Search' }}
               </button>
             </div>
@@ -37,13 +37,13 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
           <!-- Search Results -->
           @if (searchResults.length > 0) {
             <div class="mb-4">
-              <h3 class="text-lg font-medium text-white mb-2">Search Results:</h3>
+              <h3 class="text-lg font-medium mb-2">Search Results:</h3>
               <div class="space-y-2 max-h-60 overflow-y-auto">
                 @for (author of searchResults; track author) {
                   <div
                     (click)="selectAuthor(author)"
                     class="p-3 bg-neutral-700 rounded cursor-pointer hover:bg-neutral-600 transition-colors">
-                    <div class="text-white font-medium">{{ author.name }}</div>
+                    <div class="">{{ author.name }}</div>
                     <div class="text-gray-400 text-sm">{{ author.disambiguation || 'No additional info' }}</div>
                     <div class="text-gray-500 text-xs">ID: {{ author.id }}</div>
                   </div>
@@ -70,19 +70,19 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
               <input
                 type="text"
                 [(ngModel)]="manualAuthor"
-                class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                class="input-field flex-1"
                 placeholder="Enter author name manually...">
               <button
                 (click)="selectManualAuthor()"
                 [disabled]="!manualAuthor"
-                class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                class="btn-secondary">
                 Use Manual Entry
               </button>
             </div>
           </div>
           <!-- Action Buttons -->
           <div class="flex justify-end gap-4 mt-6">
-            <button (click)="close()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Cancel</button>
+            <button (click)="close()" class="btn-secondary">Cancel</button>
           </div>
         </div>
       </div>
