@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo } from '../../../core/api';
 import { AuthService } from '../../services/auth.service';
@@ -8,7 +8,7 @@ import { QuickActionsComponent } from '../../../shared/components/quick-actions/
 
 @Component({
   selector: 'app-account-scores',
-  imports: [CommonModule, RouterModule, ScoreTableComponent, QuickActionsComponent],
+  imports: [RouterModule, ScoreTableComponent, QuickActionsComponent],
   templateUrl: './account-scores.component.html',
   styleUrl: './account-scores.component.css'
 })
@@ -46,11 +46,7 @@ export class AccountScoresComponent implements OnInit {
   ];
 
   tableActions: ScoreTableAction[] = [
-    {
-      label: 'Info',
-      class: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm transition-colors',
-      callback: (score) => this.viewScore(score)
-    }
+
   ];
 
   constructor(

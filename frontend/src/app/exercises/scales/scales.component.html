@@ -2,48 +2,54 @@
   <div class="page-title">Scales</div>
   <div class="page-sub-title">Please select a scale and an excercise</div>
   <hr>
-  <div class="flex flex-col md:flex-row gap-6">
+    <div class="flex flex-col md:flex-row gap-6">
 
-    <div class="md:w-1/2 flex flex-col gap-3">
-      <select [(ngModel)]="selectedScale" (ngModelChange)="onScaleChange()">
-        <option *ngFor="let scale of scales" [ngValue]="scale">{{scale.name}}</option>
-      </select>
+      <div class="md:w-1/2 flex flex-col gap-3 pt-4">
+        <select [(ngModel)]="selectedScale" (ngModelChange)="onScaleChange()" class="input-field ">
+          @for (scale of scales; track scale) {
+            <option [ngValue]="scale">{{scale.name}}</option>
+          }
+        </select>
 
-      <select [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()">
-        <option *ngFor="let key of keys" [ngValue]="key">{{key}}</option>
-      </select>
+        <select [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()" class="input-field">
+          @for (key of keys; track key) {
+            <option [ngValue]="key">{{key}}</option>
+          }
+        </select>
 
-      <select [(ngModel)]="selectedExcercice" (ngModelChange)="onExerciseChange()">
-        <option *ngFor="let exercise of myexcerices" [ngValue]="exercise">{{exercise.title}}</option>
-      </select>
-    </div>
+        <select [(ngModel)]="selectedExcercice" (ngModelChange)="onExerciseChange()" class="input-field">
+          @for (exercise of myexcerices; track exercise) {
+            <option [ngValue]="exercise">{{exercise.title}}</option>
+          }
+        </select>
+      </div>
 
-    <div class="md:w-1/2">
-      <button (click)="load()"
-        class="w-full mt-4 mb-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded tracking-[00.15rem] transition-colors">
-         🔥 Start
-      </button>
-      <div class="bg-neutral-700 rounded p-4 text-sm text-neutral-100 whitespace-pre-wrap">
-        <div class="font-semibold mb-2">Scale description</div>
-        {{ selectedScale.description || 'No description available.' }}
+      <div class="md:w-1/2">
+        <button (click)="load()"
+          class="btn-hero w-full mt-4 mb-4">
+          🔥 Start
+        </button>
+        <div class="bg-neutral-700 rounded p-4 text-sm text-neutral-100 whitespace-pre-wrap">
+          <div class="font-semibold mb-2">Scale description</div>
+          {{ selectedScale.description || 'No description available.' }}
 
-        <div class="border-t border-neutral-600 mt-4 pt-4">
-          <div class="font-semibold mb-2">Exercise description</div>
-          <div class="text-neutral-200 mb-2">{{ selectedExcercice.title }}</div>
-          {{ selectedExcercice.advice || 'No description available.' }}
+          <div class="border-t border-neutral-600 mt-4 pt-4">
+            <div class="font-semibold mb-2">Exercise description</div>
+            <div class="text-neutral-200 mb-2">{{ selectedExcercice.title }}</div>
+            {{ selectedExcercice.advice || 'No description available.' }}
+          </div>
         </div>
       </div>
+
+
+
     </div>
 
-
+    @for (_ of [componentKey]; track _) {
+      <app-popular-scores-in-key
+        [fullKey]="fullKey"
+        [limit]="10">
+      </app-popular-scores-in-key>
+    }
 
   </div>
-
-<ng-container *ngFor="let _ of [componentKey]">
-  <app-popular-scores-in-key 
-    [fullKey]="fullKey" 
-    [limit]="10">
-  </app-popular-scores-in-key>
-</ng-container>
-
-</div>

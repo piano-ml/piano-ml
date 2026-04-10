@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgIcon } from '@ng-icons/core';
 
 @Component({
   selector: 'app-tempo-control',
   standalone: true,
-  imports: [CommonModule, NgIcon],
+  imports: [NgIcon],
   templateUrl: './tempo-control.component.html',
   styleUrl: './tempo-control.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

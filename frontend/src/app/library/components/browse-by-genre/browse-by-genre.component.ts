@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output, OnChanges, ChangeDetectorRef } from '@angular/core';
 import { ScoreGenreBrowseGet200ResponseInner } from '../../../core/api/model/scoreGenreBrowseGet200ResponseInner';
 import { ScoreService } from '../../../core/api/api/score.service';
 
 @Component({
   selector: 'app-browse-by-genre',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './browse-by-genre.component.html',
   styleUrl: './browse-by-genre.component.css'
 })

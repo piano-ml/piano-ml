@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MusicbrainzService, MusicBrainzWork, MusicBrainzWorksResponse, MusicBrainzArtistsResponse, MusicBrainzArtistDetailed } from '../../../shared/services/musicbrainz.service';
@@ -7,7 +7,7 @@ import { SimplifiedWork } from './simplified-work';
 import { AuthService } from '../../../account/services/auth.service';
 @Component({
   selector: 'app-link',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule],
   templateUrl: './link.component.html',
   styleUrl: './link.component.css'
 })

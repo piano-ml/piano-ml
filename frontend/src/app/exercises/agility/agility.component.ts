@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { majorKeys, chords, Chord } from '../../desktop/service/music-theory';
 import type {  Exercise } from '../../exercises/model';
@@ -14,7 +14,7 @@ import { PopularScoresInKeyComponent } from '../../shared/components/popular-sco
 
 @Component({
   selector: 'app-agility',
-  imports: [CommonModule, FormsModule, PopularScoresInKeyComponent],
+  imports: [FormsModule, PopularScoresInKeyComponent],
   templateUrl: './agility.component.html',
   styleUrl: './agility.component.css'
 })

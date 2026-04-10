@@ -1,14 +1,16 @@
 <div class="px-6 pt-2 pb-0">
-    <div class="page-title">Agility</div>
-    <div class="page-sub-title">Please select an exercise and a chord</div>
-    <hr>
+  <div class="page-title">Agility</div>
+  <div class="page-sub-title">Please select an exercise and a chord</div>
+  <hr>
     <div >
-  
+
       <select [(ngModel)]="selectedExcercice" (ngModelChange)="onSelectedExerciceChange()">
-        <option *ngFor="let exercise of myexcerices" [ngValue]="exercise" >{{ exercise.title }}</option>
+        @for (exercise of myexcerices; track exercise) {
+          <option [ngValue]="exercise" >{{ exercise.title }}</option>
+        }
       </select>
 
-      <button (click)="load()" class="btn btn-blue  m-4">Load</button>
+      <button (click)="load()" class="btn-primary m-4">Load</button>
     </div>
-  
+
   </div>

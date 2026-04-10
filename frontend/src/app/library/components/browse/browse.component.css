@@ -1,5 +1,5 @@
 @import "nouislider/dist/nouislider.css";
-
+@import "tailwindcss";
 /* Styles pour le composant browse */
 
 /* Screen reader only - visible pour les lecteurs d'écran, caché visuellement */
@@ -19,13 +19,10 @@
   cursor: pointer;
 }
 
-/* Animation pour les lignes du tableau */
-tr:hover {
-  background-color: rgba(107, 114, 128, 0.3) !important;
-}
+
 
 :host ::ng-deep .browse-grade-slider {
-  width: 14rem;
+  width: 12rem;
   margin: 0.25rem 0 1.5rem;
 }
 
@@ -37,7 +34,7 @@ tr:hover {
 }
 
 :host ::ng-deep .browse-grade-slider .noUi-connect {
-  background: #2563eb;
+   @apply bg-emerald-500;
 }
 
 :host ::ng-deep .browse-grade-slider .noUi-handle {

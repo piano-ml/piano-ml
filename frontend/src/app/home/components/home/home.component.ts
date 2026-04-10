@@ -1,4 +1,4 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnDestroy, ViewChild, inject, NgZone, PLATFORM_ID } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
@@ -25,7 +25,7 @@ interface ShaderSet {
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -156,6 +156,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
    */
   private async tryLoadShaderSet(index: number, name?: string, description?: string): Promise<ShaderSet | null> {
     try {
+
       const [fragmentResponse, vertexResponse] = await Promise.all([
         this.http.get(`assets/shader/${index}/fragment_shader.glsl`, { responseType: 'text' }).toPromise(),
         this.http.get(`assets/shader/${index}/vertex_shader.glsl`, { responseType: 'text' }).toPromise()
@@ -183,11 +184,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   selectRandomShader(): void {
     
     // Exclude shader 4 too heavy
-    const filteredShaders = this.availableShaders.filter(s => s.index !== 4);
+    const filteredShaders = this.availableShaders.filter(s => s.index !== 4).filter(s => s.index !== 6);
     if (filteredShaders.length > 0) {
       const randomIndex = Math.floor(Math.random() * filteredShaders.length);
       //const randomIndex=5;
       this.selectedShader = filteredShaders[randomIndex];
+        console.log(`🔍 Loading shader ${this.selectedShader.index} ${this.selectedShader.name}...`);
     }
   }
 

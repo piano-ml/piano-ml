@@ -1,33 +1,30 @@
-<div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50" *ngIf="isOpen"
-  (click)="onBackdropClick($event)">
-  <div class="midi-setup-panel rounded-lg p-6 w-full max-w-md max-h-[85vh] overflow-y-auto text-white"
-    (click)="$event.stopPropagation()">
-    <div class="midi-setup-header">
-      <h2 class="text-xl font-semibold">Tempo</h2>
-      <button (click)="close()" class="midi-setup-close">Close</button>
+@if (isOpen) {
+  <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+    (click)="onBackdropClick($event)">
+    <div class="midi-setup-panel rounded-lg p-6 w-full max-w-md max-h-[85vh] overflow-y-auto"
+      (click)="$event.stopPropagation()">
+      <div class="midi-setup-header">
+        <h2 class="text-xl font-semibold">Tempo</h2>
+        <button (click)="close()" class="midi-setup-close">Close</button>
+      </div>
+      <section class="mb-4">
+        <div class="flex items-center justify-center gap-4 bg-neutral-700/70 rounded p-4">
+          <button class="btn btn-desktop" (click)="decrease()">
+            <ng-icon name="bootstrapDash" class="svg-button" />
+          </button>
+          <input type="number" min="20" max="200" class="w-24 text-center rounded border border-neutral-600"
+            [value]="tempo" (input)="onNumberInput($any($event.target).value)" />
+          <button class="btn btn-desktop" (click)="increase()">
+            <ng-icon name="bootstrapPlus" class="svg-button" />
+          </button>
+        </div>
+      </section>
+      <section>
+        <div class="p-3 bg-neutral-700/70 rounded">
+          <input type="range" min="20" max="200" [value]="tempo" (input)="onRangeInput($any($event.target).value)"
+            class="w-full" />
+        </div>
+      </section>
     </div>
-
-    <section class="mb-4">
-      <div class="flex items-center justify-center gap-4 bg-neutral-700/70 rounded p-4">
-        <button class="btn btn-desktop" (click)="decrease()">
-          <ng-icon name="bootstrapDash" class="svg-button" />
-        </button>
-
-        <input type="number" min="20" max="200" class="w-24 text-center bg-neutral-800 text-white rounded border border-neutral-600"
-          [value]="tempo" (input)="onNumberInput($any($event.target).value)" />
-
-        <button class="btn btn-desktop" (click)="increase()">
-          <ng-icon name="bootstrapPlus" class="svg-button" />
-        </button>
-      </div>
-    </section>
-
-    <section>
-      <div class="p-3 bg-neutral-700/70 rounded">
-        <input type="range" min="20" max="200" [value]="tempo" (input)="onRangeInput($any($event.target).value)"
-          class="w-full" />
-      </div>
-    </section>
-
   </div>
-</div>
+}

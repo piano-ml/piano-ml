@@ -1,53 +1,61 @@
 <div class="px-6 pt-2 pb-0">
-<div class="page-title">My Scores</div>
-<div class="page-sub-title">Manage your uploaded scores</div>
+  <div class="page-title">My Scores</div>
+  <div class="page-sub-title">Manage your uploaded scores</div>
 </div>
 <div class="bg-neutral-700 p-4">
 
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="text-center py-8">
-    <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full"></div>
-    <p class="mt-2 text-gray-400">Loading your scores...</p>
-  </div>
+  @if (loading) {
+    <div class="text-center py-8">
+      <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full"></div>
+      <p class="mt-2 text-gray-400">Loading your scores...</p>
+    </div>
+  }
 
   <!-- Error State -->
-  <div *ngIf="error && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-    <strong>Error:</strong> {{ error }}
-  </div>
+  @if (error && !loading) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <strong>Error:</strong> {{ error }}
+    </div>
+  }
 
   <!-- Scores Table -->
-  <app-score-table *ngIf="!error"
-    [scores]="scores"
-    [loading]="loading"
-    [columns]="tableColumns"
-    [actions]="tableActions"
-    [showRowClick]="true"
-    (scoreClick)="onScoreClick($event)"
-    emptyMessage="You don't have any scores yet. Upload your first MIDI file to get started!"
-    loadingMessage="Loading your scores..."
-    tableClass="table-auto border-collapse border border-gray-400 w-full"
-    rowClass="">
-  </app-score-table>
+  @if (!error) {
+    <app-score-table
+      [scores]="scores"
+      [loading]="loading"
+      [columns]="tableColumns"
+      [actions]="tableActions"
+      [showRowClick]="true"
+      (scoreClick)="onScoreClick($event)"
+      emptyMessage="You don't have any scores yet. Upload your first MIDI file to get started!"
+      loadingMessage="Loading your scores..."
+      tableClass="table-auto border-collapse border border-gray-400 w-full"
+      rowClass="">
+    </app-score-table>
+  }
 
-    <!-- Stats -->
-    <div *ngIf="!loading && !error && scores.length > 0" class="mt-6 text-sm text-gray-400">
+  <!-- Stats -->
+  @if (!loading && !error && scores.length > 0) {
+    <div class="mt-6 text-sm text-gray-400">
       Total: {{ scores.length }} score{{ scores.length !== 1 ? 's' : '' }}
-
-    <button 
-      (click)="navigateToOpen()" 
-      class="ml-6 bg-blue-600 font-bold hover:bg-blue-700 px-3 py-1 rounded text-sm text-white transition-colors"
-      [disabled]="loading">
-      <span *ngIf="loading" class="animate-spin inline-block mr-2">⟳</span>
-      Browse all Scores
-    </button>
-
+      <button
+        (click)="navigateToOpen()"
+        class="ml-6 btn-primary"
+        [disabled]="loading">
+        @if (loading) {
+          <span class="animate-spin inline-block mr-2">⟳</span>
+        }
+        Browse all Scores
+      </button>
     </div>
+  }
 
   <div class="mb-2">
 
   </div>
-  
+
   <div class="divider"></div>
 
   <!-- Quick Actions Section -->

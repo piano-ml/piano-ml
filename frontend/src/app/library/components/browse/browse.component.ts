@@ -1,4 +1,4 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
 import { finalize, catchError } from 'rxjs/operators';
 import { Component, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, PLATFORM_ID, inject } from '@angular/core';
@@ -20,7 +20,7 @@ import wNumb from 'wnumb';
 
 @Component({
   selector: 'app-browse',
-  imports: [CommonModule, FormsModule, ScoreTableComponent, QuickActionsComponent, BrowseByAuthorsComponent, BrowseByGenreComponent],
+  imports: [FormsModule, ScoreTableComponent, QuickActionsComponent, BrowseByAuthorsComponent, BrowseByGenreComponent],
   templateUrl: './browse.component.html',
   styleUrl: './browse.component.css'
 })
@@ -80,22 +80,24 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Table configuration
   tableColumns: ScoreTableColumn[] = [
-    { key: 'playCount', label: 'Play#', visible: true },
-    { key: 'title', label: 'Title', visible: true },
-    { key: 'author', label: 'Artist', visible: true },
     { key: 'genre', label: 'Genre', visible: true },
-    { key: 'duration', label: 'Duration', visible: true },
+    { key: 'author', label: 'Artist', visible: true },
+    { key: 'title', label: 'Title', visible: true },
+    { key: 'duration', label: 'Duration', visible: true },    
+    { key: 'playCount', label: 'Play#', visible: true },
+    { key: 'grade', label: 'Grade', visible: true },    
     { key: 'tracks_count', label: 'Tracks', visible: true }
   ];
 
   tableActions: ScoreTableAction[] = [
-    {
-      label: 'Info',
-      icon: '',
-      class: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm transition-colors',
-      callback: (score) => this.onScoreInfo(score)
-    }
-  ];
+  ]
+  //   {
+  //     label: 'Info',
+  //     icon: '',
+  //     class: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm transition-colors',
+  //     callback: (score) => this.onScoreInfo(score)
+  //   }
+  // ];
 
   constructor(
     private scoreService: ScoreService,

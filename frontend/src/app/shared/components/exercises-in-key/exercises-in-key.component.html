@@ -1,12 +1,17 @@
 
-<div  *ngIf="exercises.length > 0" class="bg-neutral-600 p-4 rounded mt-2">
-  <h3 class="text-lg font-semibold mb-3 text-white">Practice Exercises in this Scale</h3>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">    
-
-    <span *ngFor="let exercise of exercises; let last = last">
-      <a [href]="getExerciseUrl(exercise)" class="text-blue-300 hover:text-blue-200 hover:underline">
-        <span class="font-semibold">{{ exercise.title }}</span>
-        <span class="text-neutral-400"> ({{ getExerciseTypeLabel(exercise.exerciseType) }})</span></a><span *ngIf="!last" class="text-neutral-400">, </span>
-    </span>
+@if (exercises.length > 0) {
+  <div  class="card-secondary">
+    <h3 class="card-secondary-title">Practice Exercises in this Scale</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      @for (exercise of exercises; track exercise; let last = $last) {
+        <span>
+          <a [href]="getExerciseUrl(exercise)">
+            <span >{{ exercise.title }}</span>
+            </a>@if (!last) {
+            <span >, </span>
+          }
+        </span>
+      }
+    </div>
   </div>
-</div>
+}

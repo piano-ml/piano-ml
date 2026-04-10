@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 // biome-ignore lint/style/useImportType: <explanation>
 import { HttpClient } from '@angular/common/http';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -18,7 +18,7 @@ interface ProvidedSong {
 
 @Component({
   selector: 'app-builtin',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './builtin.component.html',
   styleUrl: './builtin.component.css'
 })

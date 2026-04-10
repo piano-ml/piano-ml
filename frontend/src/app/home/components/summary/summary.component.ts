@@ -1,12 +1,12 @@
-import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, inject, Inject, OnInit } from '@angular/core';
+
+import { Component, inject, Inject, OnInit, DOCUMENT } from '@angular/core';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-summary',
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './summary.component.html',
   styleUrl: './summary.component.css'
 })
@@ -16,18 +16,11 @@ export class SummaryComponent implements OnInit {
 
   summary = [
     {
-      url: '/exercises/scale',
-      title: 'Scales',
+      url: '/exercises/',
+      title: 'Exercises',
       description: 'Scales generator and exercises',
       image: 'assets/images/keyboard.webp',
       keywords: 'piano scales, major scales, minor scales, music theory'
-    },
-    {
-      url: '/exercises/agility',
-      title: 'Agility',
-      description: 'Arpeggios, chords, and progression exercises',
-      image: 'assets/images/circle_of_fifths_deluxe.webp',
-      keywords: 'arpeggios, chord progressions, circle of fifths, piano agility'
     },
     {
       url: '/library',
@@ -42,13 +35,6 @@ export class SummaryComponent implements OnInit {
       description: 'Collection of digitized musical books',
       image: 'assets/images/Burgmuller-1.webp',
       keywords: 'Burgmüller, piano études, piano methods, classical piano'
-    },
-    {
-      url: '/blog/help',
-      title: 'Help',
-      description: 'Some help and documentation about the application',
-      image: 'assets/images/cat.webp',
-      keywords: 'help, documentation, tutorial, getting started'
     },
     {
       url: '/blog/thanks-and-acknowledgments',

@@ -1,21 +1,26 @@
-<div class="mb-6 bg-neutral-800 rounded-lg p-4">
+<div class="mb-6 rounded-lg p-4">
   <!-- <h2 class="text-xl font-semibold text-white mb-4">Browse by Genre</h2> -->
-  
-  <div *ngIf="loadingGenres" class="text-gray-400 text-center py-4">
-    Loading genres...
-  </div>
-  
-  <div *ngIf="!loadingGenres && genres.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-    <button 
-      *ngFor="let genre of genres"
-      (click)="onGenreClick(genre)"
-      class="bg-neutral-700 hover:bg-green-600 text-white rounded-lg p-3 transition-colors duration-200 text-left group">
-      <div class="font-medium text-sm truncate group-hover:text-green-100">
-        {{ genre.genre.name || "genre not specified" }}
-      </div>
-      <div class="text-xs text-gray-400 mt-1">
-        {{ genre.count }} {{ genre.count === 1 ? 'score' : 'scores' }}
-      </div>
-    </button>
-  </div>
+
+  @if (loadingGenres) {
+    <div class="text-gray-400 text-center py-4">
+      Loading genres...
+    </div>
+  }
+
+  @if (!loadingGenres && genres.length > 0) {
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      @for (genre of genres; track genre) {
+        <button
+          (click)="onGenreClick(genre)"
+          class="bg-neutral-700 hover:bg-emerald-600 text-white rounded-lg p-3 transition-colors duration-200 text-left group">
+          <div class="font-medium text-sm truncate group-hover:text-emerald-100">
+            {{ genre.genre.name || "genre not specified" }}
+          </div>
+          <div class="text-xs text-gray-400 mt-1">
+            {{ genre.count }} {{ genre.count === 1 ? 'score' : 'scores' }}
+          </div>
+        </button>
+      }
+    </div>
+  }
 </div>
