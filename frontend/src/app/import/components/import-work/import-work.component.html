@@ -1,24 +1,19 @@
-<div class="px-6 pt-2 pb-0">
-  <div class="page-title">Import Work</div>
-  <div class="page-sub-title">Please select a file to import</div>
-  @if (mbid) {
-    <div class="mb-4 p-3 bg-blue-100 border border-blue-300 rounded-lg">
-      <div class="text-sm text-blue-800">
-        <strong>MusicBrainz Work ID:</strong> {{ mbid }}
-      </div>
-    </div>
-  }
+<article class="main-article">
 
-  @if (loading) {
-    <div class="text-center text-gray-400 py-8">
+  <h3 class="page-title">Import Music Works</h3>
+
+
+  <section class="main-section" aria-label="Score details and actions">
+    <div class="card-secondary">
+    <div class="card-title">Please select a file to import</div>
+
+      @if (loading) {
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-      <p>Computing ...</p>
-    </div>
-  }
+      <p>Loading ...</p>
+      }
 
-  @if (!loading) {
-    <div class=" bg-neutral-700 p-4">
-      @if (hasFile) {
+      @if (!loading) {
+        @if (hasFile) {
         <form [formGroup]="checkboxGroup" class="m-2">
           <div class="text-2xl">{{midi?.name || fileName}}</div>
           <table class="table-auto border-collapse border border-gray-400 w-full">
@@ -33,59 +28,60 @@
             </thead>
             <tbody>
               @for (checkbox of checkboxes; track checkbox; let i = $index) {
-                <tr formArrayName="checkboxes">
-                  <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].instrument.percussion ? "🥁" :
+              <tr formArrayName="checkboxes">
+                <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].instrument.percussion ? "🥁" :
                   "♩"}}</td>
-                  <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].notes.length}}</td>
-                  <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].instrument.name}}</td>
-                  <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].name || " ----------------- "}}
-                  </td>
-                  <td class="border border-gray-300 px-4 py-2">
-                    <input type="checkbox" [formControlName]="i" (change)="checkTrack(i)" />
-                  </td>
-                </tr>
+                <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].notes.length}}</td>
+                <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].instrument.name}}</td>
+                <td class="border border-gray-300 px-4 py-2">{{midi!.tracks[i].name || " ----------------- "}}
+                </td>
+                <td class="border border-gray-300 px-4 py-2">
+                  <input type="checkbox" [formControlName]="i" (change)="checkTrack(i)" />
+                </td>
+              </tr>
               }
             </tbody>
           </table>
           @if (studies.length ===1) {
-            <div>
-              <input class="m-4" type="checkbox" id="splitvoices" (change)="splitVoicesChecked()"
-                [checked]="splitVoices" />
-              <label for="splitvoices" class="text-2x1 italic p-2">split voices</label>
-            </div>
+          <div>
+            <input class="m-4" type="checkbox" id="splitvoices" (change)="splitVoicesChecked()"
+              [checked]="splitVoices" />
+            <label for="splitvoices" class="text-2x1 italic p-2">split voices</label>
+          </div>
           }
         </form>
-      }
-      <div class="">
-        @if (!hasFile) {
-          <div class="flex items-center justify-center w-full">
-            <label for="dropzone-file"
-              class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+        }
+        <div class="">
+          @if (!hasFile) {
+
+            <label for="dropzone-file" class="">
               <div class="flex flex-col items-center justify-center pt-5 pb-6">
                 <ng-icon name="bootstrapFloppy" class="svg-icon"></ng-icon>
-                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to
-                upload</span> or drag and drop</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">.MID, .MIDI, .KAR, .PDF, .PNG, .JPEG,
-                .MUSICXML, .MXL</p>
+                <p class="mb-2"><span class="font-semibold">Click to
+                    upload</span> or drag and drop</p>
+                <p class="text-xs">.MID, .MIDI, .KAR, .PDF, .PNG, .JPEG,
+                  .MUSICXML, .MXL</p>
               </div>
               <input id="dropzone-file" type="file" class="hidden" #file type="file" (change)="onFileChange(file)"
                 accept=".mid, .midi, .kar, .pdf, .musicxml, .mxl, .png, .jpg, .jpeg" />
             </label>
+          
+          }
+          <div>
+            <input class="m-4" type="checkbox" id="makefingering" (change)="makeFingeringChecked()"
+              [checked]="makeFingering" />
+            <label for="makefingering" class="text-2x1 italic p-2">Enable automatic fingering</label>
           </div>
-        }
-        <div>
-          <input class="m-4" type="checkbox" id="makefingering" (change)="makeFingeringChecked()"
-            [checked]="makeFingering" />
-          <label for="makefingering" class="text-2x1 italic p-2">Enable automatic fingering</label>
-        </div>
-        @if (hasFile) {
+          @if (hasFile) {
           <button class="btn-primary m-4" (click)="load()">load</button>
-        }
-        @if (hasFile) {
+          }
+          @if (hasFile) {
           <button class="btn-secondary m-4" (click)="reset()">reset</button>
-        }
-      </div>
+          }
+        </div>
+      
+      
+    }
     </div>
-  }
-
-</div>
+  </section>
+</article>

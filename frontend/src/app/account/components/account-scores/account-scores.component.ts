@@ -46,11 +46,7 @@ export class AccountScoresComponent implements OnInit {
   ];
 
   tableActions: ScoreTableAction[] = [
-    {
-      label: 'Info',
-      class: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm transition-colors',
-      callback: (score) => this.viewScore(score)
-    }
+
   ];
 
   constructor(

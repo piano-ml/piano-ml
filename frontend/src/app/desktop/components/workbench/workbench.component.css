@@ -1,6 +1,27 @@
 /* @import "nouislider/dist/nouislider.css"; */
 @import "tailwindcss";
 
+/* Remove scrollbars from the entire page */
+html,
+body {
+	overflow: hidden;
+	/* Hides both scrollbars */
+	height: 100%;
+	/* Important for full coverage */
+	margin: 0;
+	padding: 0;
+}
+
+/* Optional: Also hide scrollbars on any scrollable container */
+* {
+	scrollbar-width: none;
+	/* Firefox */
+}
+
+*::-webkit-scrollbar {
+	display: none;
+	/* Chrome, Safari, Edge */
+}
 
 .loader {
 	height: 20%;
@@ -15,6 +36,7 @@
 	position: absolute;
 	top: 10%;
 }
+
 @keyframes l1 {
 	to {
 		background-position: 50% 0, 75% 100%;
@@ -46,34 +68,37 @@
 
 /* Marquee animation for title */
 @keyframes scroll-text {
-  0%, 30% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(var(--scroll-distance, -50%));
-  }
+
+	0%,
+	30% {
+		transform: translateX(0);
+	}
+
+	100% {
+		transform: translateX(var(--scroll-distance, -50%));
+	}
 }
 
 .marquee-container {
-  position: relative;
+	position: relative;
 }
 
 .animate-marquee {
-  display: inline-block;
-  white-space: nowrap;
-  animation: scroll-text 6s ease-in-out forwards;
-  animation-delay: 1s;
-  width: max-content;
+	display: inline-block;
+	white-space: nowrap;
+	animation: scroll-text 6s ease-in-out forwards;
+	animation-delay: 1s;
+	width: max-content;
 }
 
 .animate-marquee:hover {
-  animation-play-state: paused;
+	animation-play-state: paused;
 }
 
 .title-text {
-  display: inline-block;
-  white-space: nowrap;
-  width: max-content;
+	display: inline-block;
+	white-space: nowrap;
+	width: max-content;
 }
 
 @keyframes osmd-slide-up {
@@ -81,6 +106,7 @@
 		opacity: 0;
 		transform: translateY(24px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0);
@@ -175,11 +201,11 @@
 	box-shadow: inset 0 1px 1px black, 0 3px 6px -5px #ccc;
 }
 
-.noUi-tooltip  {
+.noUi-tooltip {
 	background: #2a2a2a !important;
 	color: white !important;
 	border: 1px solid var(--color-neutral-600) !important;
-	bottom: -180%!important;
+	bottom: -180% !important;
 }
 
 /* Boutons desktop avec dimensions fixes */
@@ -244,16 +270,16 @@
 
 
 .score-container {
-	mask-image: linear-gradient(to bottom, 
-		rgba(0, 0, 0, 0.1) 0%, 
-		rgba(0, 0, 0, 1) 5%, 
-		rgba(0, 0, 0, 1) 95%, 
-		rgba(0, 0, 0, 0.1) 100%);
-	-webkit-mask-image: linear-gradient(to bottom, 
-		rgba(0, 0, 0, 0.1) 0%, 
-		rgba(0, 0, 0, 1) 5%, 
-		rgba(0, 0, 0, 1) 95%, 
-		rgba(0, 0, 0, 0.1) 100%);
+	mask-image: linear-gradient(to bottom,
+			rgba(0, 0, 0, 0.1) 0%,
+			rgba(0, 0, 0, 1) 5%,
+			rgba(0, 0, 0, 1) 95%,
+			rgba(0, 0, 0, 0.1) 100%);
+	-webkit-mask-image: linear-gradient(to bottom,
+			rgba(0, 0, 0, 0.1) 0%,
+			rgba(0, 0, 0, 1) 5%,
+			rgba(0, 0, 0, 1) 95%,
+			rgba(0, 0, 0, 0.1) 100%);
 }
 
 .osmd-fade {
@@ -263,9 +289,4 @@
 
 .osmd-fade-visible {
 	opacity: 1;
-}
-
-
-html, body {
-	    overflow: hidden;
 }

@@ -3,17 +3,14 @@
 @import "tailwindcss";
 
 @theme {
-	/* Default font stacks */
 	--font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
 		Oxygen, Ubuntu, Cantarell, "Open Sans", sans-serif;
 	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
 		"Liberation Mono", "Courier New", monospace;
 
-	/* Custom font families — generates font-swiss911 and font-lcd utilities */
 	--font-swiss911: "Swiss911", sans-serif;
 	--font-lcd: "5x8 LCD", monospace;
 
-	/* Custom font size scale (migrated from tailwind.config.js) */
 	--text-xs: 0.875rem;
 	--text-xs--line-height: 1.3;
 	--text-sm: 1rem;
@@ -30,57 +27,103 @@
 	--text-3xl--line-height: 1.3;
 }
 
-
-
 @layer components {
 	.btn {
-		@apply font-bold py-2 px-4 rounded tracking-[0.15rem] bg-neutral-600 text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed;
+		@apply font-bold py-2 px-6 tracking-[0.075em] bg-neutral-700 text-white transition-colors duration-200 cursor-pointer hover:bg-neutral-600 disabled:bg-gray-500 disabled:cursor-not-allowed;
 	}
 
 	.btn-primary {
-		@apply font-bold py-2 px-4 rounded tracking-[0.15rem] text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-700;
+		@apply rounded-sm  font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-neutral-200/10 border-neutral-200/50 text-neutral-200;
 	}
 
 	.btn-secondary {
-		@apply font-bold py-2 px-4 rounded tracking-[0.15rem] text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-gray-600 hover:bg-gray-700;
+		@apply font-bold py-2 px-6 tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-800 disabled:bg-gray-500 disabled:cursor-not-allowed;
 	}
 
 	.btn-success {
-		@apply font-bold py-2 px-4 rounded tracking-[0.15rem] text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-green-600 hover:bg-green-700;
+		@apply font-bold py-2 px-6 rounded-sm tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:bg-gray-500 disabled:cursor-not-allowed;
 	}
 
 	.btn-danger {
-		@apply font-bold py-2 px-4 rounded tracking-[0.15rem] text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-red-600 hover:bg-red-700;
+		@apply font-bold py-2 px-6 rounded-sm tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-red-600 hover:bg-red-500 active:bg-red-700 disabled:bg-gray-500 disabled:cursor-not-allowed;
 	}
 
 	.btn-hero {
-		@apply font-bold py-4 px-4 rounded tracking-[0.15rem] text-white transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-700;
+		@apply font-bold py-4 px-8 rounded-2xl tracking-[0.1em] text-white text-lg transition-all duration-200 cursor-pointer bg-red-400 hover:bg-red-500 active:bg-red-700 disabled:bg-gray-500 disabled:cursor-not-allowed;
+		/*@apply no-underline text-red-400 hover:text-red-300  decoration-red-500/50 hover:decoration-red-300 transition-colors;*/
+
 	}
 
 	.btn-small {
-		@apply px-2 py-1 text-white rounded text-xs transition-colors cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-700;
+		@apply px-3 py-1 rounded-sm font-medium rounded-lg text-white transition-colors duration-200 cursor-pointer bg-red-600 hover:bg-red-500 active:bg-red-700 disabled:bg-gray-500 disabled:cursor-not-allowed;
 	}
 
+	.capsule {
+		@apply font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-emerald-500/10 border-emerald-500/50 text-emerald-400;
+	}
+
+	.capsule-primary {
+		@apply font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-emerald-500/10 border-emerald-500/50 text-emerald-400;
+	}
+
+	.card {
+		@apply border  p-4;
+	}
+
+	.card-primary {
+		@apply bg-neutral-800 border rounded-lg border-neutral-700  text-white;
+	}
+
+	.card-secondary {
+		@apply bg-neutral-600 m-2 mr-0 p-4 border rounded-lg border-neutral-800 text-white;
+	}
+
+	.card-secondary-title {
+		@apply text-lg font-bold text-white mb-4;
+	}
+
+	.item-title {
+		@apply text-lg font-semibold text-white mb-2;
+	}
+
+	.header {
+		@apply bg-black;
+	}
+
+
+	.footer {
+		@apply bg-black text-white;
+	}
+
+
 	.link-primary {
-		@apply text-blue-300 hover:text-blue-200 underline;
+		@apply no-underline text-red-400 hover:text-red-300  decoration-red-500/50 hover:decoration-red-300 transition-colors;
+	}
+
+
+	.link-secondary {
+		@apply text-blue-400 hover:text-red-300 underline decoration-red-500/50 hover:decoration-red-300 transition-colors no-underline;
 	}
 
 	.link-alt {
-		@apply text-blue-400 hover:text-blue-300 underline text-sm;
+		@apply text-red-300 hover:text-red-200 underline text-sm decoration-red-400/50 hover:decoration-red-200 transition-colors;
 	}
 
 	.input-field {
-		@apply px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black;
+		@apply px-4 py-3 bg-neutral-200 border border-neutral-600 rounded-sm text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500/30 transition-all duration-200;
 	}
 }
 
 
+
+html,
 body {
-	@apply text-neutral-200;
+	margin: 0;
+	padding: 0;
+	@apply bg-neutral-900;
 }
 
-
-
+/* Custom fonts */
 @font-face {
 	font-family: "5x8 LCD";
 	src: url("/assets/fonts/5x8_lcd_hd44780u_a02.eot") format("eot"),
@@ -90,13 +133,11 @@ body {
 	font-weight: normal;
 	font-style: normal;
 	font-display: swap;
-	/* Font metric overrides to reduce layout shifts; adjust as needed */
 	ascent-override: 88%;
 	descent-override: 12%;
 	line-gap-override: 0%;
 	size-adjust: 100%;
 }
-
 
 @font-face {
 	font-family: "Swiss911";
@@ -104,62 +145,57 @@ body {
 	font-weight: normal;
 	font-style: normal;
 	font-display: swap;
-	/* Align metrics closer to fallback sans-serif; adjust empirically */
 	ascent-override: 92%;
 	descent-override: 8%;
 	line-gap-override: 0%;
 	size-adjust: 98%;
 }
 
-
-html,
-body {
-	margin: 0;
-	background-color: #2d2d32;
-	font-size: 1.125rem;
-	/* 18px - taille de base augmentée */
-	line-height: 1.5;
-}
-
-/* Global link styling */
-a {
-	text-decoration: underline;
-}
-
-
-
+/* Form elements */
 input[type="checkbox"] {
-	@apply relative shrink-0 w-6 h-6 border-2 border-neutral-500 rounded-sm bg-white checked:bg-green-800 checked:border-0 focus:outline-none focus:ring-offset-0 focus:ring-2 focus:ring-green-100;
+	@apply relative shrink-0 w-6 h-6 border-2 border-zinc-600 rounded-md bg-zinc-900 checked:bg-red-600 checked:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-400/70;
 }
 
-select {
-	@apply tracking-[00.15rem] m-4 ml-0 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-gray-400 focus:border-gray-500;
-}
-
-
+/* Titles - matching the strong red Swiss911 usage */
 .page-title {
-	@apply text-5xl mb-4 mt-4 text-red-500 tracking-[00.15rem] font-swiss911;
+	@apply mt-4 ml-6 pb-4 text-6xl md:text-7xl  text-red-500 tracking-[0.04em] font-swiss911;
+	text-shadow: 0 2px 4px rgba(185, 28, 28, 0.3);
 }
 
 .page-sub-title {
-	@apply text-3xl text-neutral-400 tracking-[00.15rem] mb-4;
+	@apply pl-4 text-3xl md:text-4xl text-neutral-300 tracking-[0.05em] font-medium;
 }
 
 hr {
-	@apply text-neutral-500 mb-4
+	@apply bg-neutral-200 border-neutral-200 my-10;
+}
+
+.modal {
+	@apply fixed inset-0 bg-black/90 flex items-center justify-center z-50;
+}
+
+.modal-content {
+	@apply text-neutral-200 bg-neutral-800 rounded-sm p-6  mx-4;
 }
 
 
-input::placeholder,
-textarea::placeholder {
-	color: #e5e7eb;
-	/* gris très clair, Tailwind gray-200 */
-	opacity: 1;
+.peer {
+	@apply bg-red-600/10 border border-red-600/50 text-red-400 rounded-sm px-3 py-1 font-medium tracking-[0.075em] transition-colors duration-200	;
 }
 
-input,
-textarea {
-	color: #e5e7eb;
-	/* gris très clair, Tailwind gray-200 */
-	opacity: 1;
+/* Router-outlet inserts host element as sibling — make it fill the flex container */
+router-outlet + * {
+	flex: 1 1 0%;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.main-article {
+	@apply flex flex-col flex-1 ;
+	min-height: 0;
+}
+
+.main-section {
+	@apply bg-neutral-700 p-4 flex-1 overflow-y-auto;
 }

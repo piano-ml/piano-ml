@@ -4,20 +4,20 @@
   <hr>
     <div class="flex flex-col md:flex-row gap-6">
 
-      <div class="md:w-1/2 flex flex-col gap-3">
-        <select [(ngModel)]="selectedScale" (ngModelChange)="onScaleChange()">
+      <div class="md:w-1/2 flex flex-col gap-3 pt-4">
+        <select [(ngModel)]="selectedScale" (ngModelChange)="onScaleChange()" class="input-field ">
           @for (scale of scales; track scale) {
             <option [ngValue]="scale">{{scale.name}}</option>
           }
         </select>
 
-        <select [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()">
+        <select [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()" class="input-field">
           @for (key of keys; track key) {
             <option [ngValue]="key">{{key}}</option>
           }
         </select>
 
-        <select [(ngModel)]="selectedExcercice" (ngModelChange)="onExerciseChange()">
+        <select [(ngModel)]="selectedExcercice" (ngModelChange)="onExerciseChange()" class="input-field">
           @for (exercise of myexcerices; track exercise) {
             <option [ngValue]="exercise">{{exercise.title}}</option>
           }

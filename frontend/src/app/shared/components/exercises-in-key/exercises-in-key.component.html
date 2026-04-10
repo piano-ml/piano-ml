@@ -1,14 +1,14 @@
 
 @if (exercises.length > 0) {
-  <div  class="bg-neutral-600 p-4 rounded mt-2">
-    <h3 class="text-lg font-semibold mb-3 text-white">Practice Exercises in this Scale</h3>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
+  <div  class="card-secondary">
+    <h3 class="card-secondary-title">Practice Exercises in this Scale</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       @for (exercise of exercises; track exercise; let last = $last) {
         <span>
-          <a [href]="getExerciseUrl(exercise)" class="link-primary">
-            <span class="font-semibold">{{ exercise.title }}</span>
-            <span class="text-neutral-400"> ({{ getExerciseTypeLabel(exercise.exerciseType) }})</span></a>@if (!last) {
-            <span class="text-neutral-400">, </span>
+          <a [href]="getExerciseUrl(exercise)">
+            <span >{{ exercise.title }}</span>
+            </a>@if (!last) {
+            <span >, </span>
           }
         </span>
       }

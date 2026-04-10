@@ -1,32 +1,32 @@
-<canvas #glCanvas class="gl-canvas" aria-hidden="true"></canvas>
+
 
 <main class="flex flex-col h-full" itemscope itemtype="https://schema.org/WebApplication">
   <meta itemprop="name" content="PianoML">
   <meta itemprop="applicationCategory" content="EducationalApplication">
   <meta itemprop="operatingSystem" content="Web Browser">
 
+      <header class="page-title text-center">
+        <h1 id="main-heading" itemprop="headline">A Machine to Learn Piano</h1>
+
+      </header>
+  
+  <section id="section1" class="section1" aria-labelledby="main-heading">
+
+    <canvas #glCanvas class="gl-canvas" aria-hidden="true"></canvas>
 
 
-    <header class="page-title">
-      <h1 id="main-heading" itemprop="headline">A Machine to Learn Piano</h1>
-      <hr>
-    </header>
+    <div class="absolute inset-0 z-1 flex flex-col items-center justify-center gap-2">
 
-    <div class="flex-grow flex items-center justify-center text-center">
+
 
       <a 
-        class="text-center z-1 font-bold py-4 px-8 rounded tracking-[00.15rem] bg-neutral-600 text-orange p-4 border border-orange-600 mt-[180px]"
+        class="btn-hero"
         (click)="summary()"
         title="Start learning piano with PianoML"
         aria-label="Start your piano learning journey">Take a seat</a>
     </div>
 
-    <nav class="section-link pb-16" aria-label="Page navigation">
-      <a href="#why-a-new-piano-learning-app" class="link-primary" title="Learn why we built PianoML">Why we built PianoML ?</a>
-    </nav>
-
-
-
+  </section>
 
 
 

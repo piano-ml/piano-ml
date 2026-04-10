@@ -1,32 +1,4 @@
-<article class="bg-neutral-800 p-4 pb-1">
-
-  <!-- Page Title (h1) for SEO - visible for screen readers, styled for visual users -->
-  @if (selectedGenre) {
-    <h1 class="sr-only">{{ selectedGenre.genre!.name }} Piano Scores</h1>
-  }
-  @if (selectedAuthor) {
-    <h1 class="sr-only">{{ selectedAuthor.author.name }} Piano Works</h1>
-  }
-  @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'new') {
-    <h1 class="sr-only">New Piano Scores</h1>
-  }
-  @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'genres') {
-    <h1 class="sr-only">Browse Piano Scores by Genre</h1>
-  }
-  @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'artists') {
-    <h1 class="sr-only">Browse Piano Scores by Composer & Artist</h1>
-  }
-  @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'popular') {
-    <h1 class="sr-only">Popular Piano Scores</h1>
-  }
-  @if (activeSearchKeyword) {
-    <h1 class="sr-only">Search Results for "{{ activeSearchKeyword }}"</h1>
-  }
-
-  @if (!(activeSearchKeyword || selectedAuthor || selectedGenre)) {
-    <app-quick-actions></app-quick-actions>
-  }
-
+<article class="p-4 pb-1">
   <!-- Search Section -->
   <section aria-label="Search piano scores" class="">
     <div class="flex gap-2">
@@ -52,8 +24,8 @@
 
     <!-- Stats Line -->
     @if (stats) {
-      <div class="mt-2 mb-2 text-sm text-gray-300 flex flex-wrap items-center gap-4">
-        <span>Scores in database: <span class="font-semibold text-white">{{ stats['public-domain'] + stats.copyrighted }}</span> (<span class="font-semibold text-green-400">{{ stats['public-domain'] }}</span> public domain, <span class="font-semibold text-blue-300">{{ stats.copyrighted }}</span> copyrighted)</span>
+      <div class="mt-2 mb-2 text-sm text-gray-300 flex flex-wrap items-center justify-center gap-4">
+        <span><span class="">{{ stats['public-domain'] + stats.copyrighted }}</span> scores in database (<span class="font-semibold text-emerald-400">{{ stats['public-domain'] }}</span> public domain, <span class="font-semibold text-blue-300">{{ stats.copyrighted }}</span> copyrighted)</span>
         <label class="flex items-center gap-1 cursor-pointer">
           <input type="checkbox" [(ngModel)]="filterOneHand" (change)="applyFilters()" class="cursor-pointer">
           <span>One hand</span>
@@ -63,12 +35,11 @@
           <span>Two hands</span>
         </label>
         <label class="flex items-center gap-2">
-          <span>Key</span>
           <select
             [(ngModel)]="selectedFullKey"
             (change)="applyFilters()"
             [disabled]="loadingFullKeys"
-            class="px-2 py-1 rounded-md text-black focus:outline-none focus:ring focus:border-blue-300">
+            class="px-2 py-1">
             <option value="">All keys</option>
             @for (key of fullKeyOptions; track key) {
               <option [value]="key">{{ key }}</option>
@@ -76,15 +47,20 @@
           </select>
         </label>
         <div class="flex items-center gap-2">
+          <!--
           <span class="mr-2">Grade</span>
-          <div class="flex min-w-56 flex-col gap-2">
+        -->
+          <div class="flex flex-col gap-2">
             <div #gradeSlider class="browse-grade-slider"></div>
           </div>
+
+        <app-quick-actions class="ml-4"></app-quick-actions>
+
         </div>
         <!-- Selected Author Capsule  class="mb-6 bg-neutral-800 rounded-lg p-4"> -->
         @if (selectedAuthor) {
           <span>
-            <div class="inline-flex bg-blue-600 text-white rounded-md px-1 py-1 m-2 items-center gap-3">
+            <div class="inline-flex link-primary rounded-md px-1 py-1 m-2 items-center gap-3">
               <span class="font-medium">{{ selectedAuthor.author.name }}</span>
               <span class="text-xs text-blue-200">({{ selectedAuthor.count }} {{ selectedAuthor.count === 1 ? 'score' : 'scores' }})</span>
               <button
@@ -101,12 +77,12 @@
         <!-- Selected Genre Capsule -->
         @if (selectedGenre) {
           <span >
-            <div class="inline-flex bg-green-600 text-white rounded-md p-2 m-2 items-center gap-3">
+            <div class="inline-flex p-2 m-2 items-center gap-3 btn-primary">
               <span class="font-medium">{{ (selectedGenre.genre!.name ? selectedGenre.genre!.name!.charAt(0).toUpperCase() + selectedGenre.genre!.name!.slice(1) : "genre not specified") }}</span>
-              <span class="text-xs text-green-200">({{ selectedGenre.count }} {{ selectedGenre.count === 1 ? 'score' : 'scores' }})</span>
+              <span class="text-xs ">({{ selectedGenre.count }} {{ selectedGenre.count === 1 ? 'score' : 'scores' }})</span>
               <button
                 (click)="clearGenreFilter()"
-                class="text-green-200 hover:text-white transition-colors duration-200  hover:bg-green-700 rounded-md"
+                class="text-emerald-200 hover:text-white transition-colors duration-200  hover:bg-emerald-700 rounded-md"
                 title="Clear filter">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -127,7 +103,7 @@
       <div class="flex border-b border-neutral-600">
         <button
           (click)="setActiveTab('new')"
-          [class.border-green-500]="activeTab === 'new'"
+          [class.border-emerald-500]="activeTab === 'new'"
           [class.text-white]="activeTab === 'new'"
           [class.text-gray-300]="activeTab !== 'new'"
           class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
@@ -135,7 +111,7 @@
         </button>
         <button
           (click)="setActiveTab('popular')"
-          [class.border-green-500]="activeTab === 'popular'"
+          [class.border-emerald-500]="activeTab === 'popular'"
           [class.text-white]="activeTab === 'popular'"
           [class.text-gray-300]="activeTab !== 'popular'"
           class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
@@ -143,7 +119,7 @@
         </button>
         <button
           (click)="setActiveTab('genres')"
-          [class.border-green-500]="activeTab === 'genres'"
+          [class.border-emerald-500]="activeTab === 'genres'"
           [class.text-white]="activeTab === 'genres'"
           [class.text-gray-300]="activeTab !== 'genres'"
           class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
