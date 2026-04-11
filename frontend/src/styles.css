@@ -112,6 +112,62 @@
 	.input-field {
 		@apply px-4 py-3 bg-neutral-200 border border-neutral-600 rounded-sm text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500/30 transition-all duration-200;
 	}
+
+	.text-error {
+		@apply text-red-500;
+	}
+
+	.text-info {
+		@apply text-blue-400;
+	}
+
+	.text-info-dark {
+		@apply text-blue-600;
+	}
+
+	.text-success {
+		@apply text-emerald-400;
+	}
+
+	.text-muted {
+		@apply text-gray-400;
+	}
+
+	.text-muted-light {
+		@apply text-neutral-300;
+	}
+
+	.border-muted {
+		@apply border-neutral-600;
+	}
+
+	.border-dark {
+		@apply border-neutral-800;
+	}
+
+	.alert-error {
+		@apply bg-red-100 border border-red-400 text-red-700 p-3 rounded-lg;
+	}
+
+	.bg-strength-weak {
+		@apply bg-red-500;
+	}
+
+	.bg-strength-medium {
+		@apply bg-yellow-500;
+	}
+
+	.bg-strength-strong {
+		@apply bg-emerald-500;
+	}
+
+	.bg-strength-off {
+		@apply bg-gray-200;
+	}
+
+	.spinner {
+		@apply animate-spin inline-block border-4 border-current border-t-transparent rounded-full;
+	}
 }
 
 
