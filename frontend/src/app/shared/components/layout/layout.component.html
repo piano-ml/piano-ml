@@ -1,6 +1,6 @@
-<div class="flex flex-col h-screen" id="top">
+<div class="flex flex-col min-h-screen" id="top">
 
-  <header class="header w-full fixed top-0 h-15 flex-grow  pt-4 pr-2 z-3" role="banner">
+  <header class="header w-full h-15  pt-4 pr-2 z-3" role="banner">
     <div class="flex flex-row">
       <nav class="flex-none" aria-label="Breadcrumb navigation">
         @if (true) {
@@ -52,10 +52,10 @@
     </div>
 
   </header>
-  <div class="flex-1 flex flex-col pt-12 pb-12 min-h-0">
+  <div class="flex-1 flex flex-col">
     <router-outlet />
   </div>
-  <footer class="footer fixed bottom-0 w-full h-12 p-3 flex justify-center items-center z-3 gap-2" role="contentinfo">
+  <footer class="footer h-12 p-3 flex justify-center items-center z-3 gap-2" role="contentinfo">
 
     <a href="/blog/legal" class="link-primary px-2 py-2 inline-block"
       title="Read PianoML legal notice and terms of use">
