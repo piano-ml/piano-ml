@@ -1,15 +1,1 @@
-/* Styles specific to popular-authors component */
-
-.author-letter-link {
-	@apply btn-secondary;
-	text-decoration: none;
-}
-
-.author-letter-link:hover {
-	background-color: rgb(37 99 235);
-	color: white;
-}
-
-.author-letter-link-active {
-	@apply btn-primary;
-}
+/* Empty file to fix Tailwind 4 build error */

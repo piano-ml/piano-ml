@@ -1,17 +1,20 @@
-<div class="px-6 pt-2 pb-0">
-  <div class="page-title">User informations and preferences</div>
-  <hr>
+<article class="main-article">
+  <div class="px-6 pt-2 pb-0">
+    <div class="page-title">User informations and preferences</div>
+    <hr>
+  </div>
 
-    <div class="bg-neutral-700 p-4 rounded mb-6">
+  <section class="main-section">
+    <div class="card-secondary">
       <div class="grid grid-cols-1 gap-6">
         <!-- Name Field -->
         <div>
-          <label for="name" class="block text-sm font-medium text-gray-300 mb-2">
-            Name <span class="text-red-400">*</span>
+          <label for="name" class="block text-sm font-medium text-muted-light mb-2">
+            Name <span class="text-error">*</span>
           </label>
           @if (!editMode) {
             <div class="flex items-center justify-between">
-              <div class="w-full px-3 py-2 border rounded-lg">
+              <div class="w-full px-3 py-2 border rounded-lg border-dark">
                 {{ userInfo.name || 'No name set' }}
               </div>
               <button
@@ -24,7 +27,7 @@
             </div>
           }
 
-          <div>{{ userInfo.email }}</div>
+          <div class="mt-2">{{ userInfo.email }}</div>
 
           @if (editMode) {
             <div>
@@ -57,24 +60,24 @@
 
         <!-- Keyboard Preferences -->
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">
+          <label class="block text-sm font-medium text-muted-light mb-2">
             Workbench Preferences
           </label>
           <div class="mb-3">
             <button
               type="button"
               (click)="openMidiSetup()"
-              class="text-blue-400 hover:text-blue-300 underline underline-offset-2"
+              class="text-info hover:text-info-dark underline underline-offset-2"
               >
               Keyboard/MIDI preferences
             </button>
           </div>
           @if (!keyboardEditMode) {
             <div class="flex items-center justify-between">
-              <div class="w-full px-3 py-2 border rounded-lg ">
+              <div class="w-full px-3 py-2 border rounded-lg border-dark">
                 <div class="grid grid-cols-2 gap-4">
                   <div>
-                    <span class="text-sm ">Midi lowest key:</span>
+                    <span class="text-sm">Midi lowest key:</span>
                     <span class="ml-2 font-medium">{{ leftmostKeyValue }}</span>
                   </div>
                   <div>
@@ -109,9 +112,9 @@
               <form [formGroup]="keyboardPreferencesForm" (ngSubmit)="savePreferences()" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label for="leftmostKey" class="block text-sm font-medium text-gray-300 mb-1">
+                    <label for="leftmostKey" class="block text-sm font-medium text-muted-light mb-1">
                       Leftmost key on the keyboard
-                      <span class="text-xs text-blue-400 ml-2">(Focus field and play MIDI note)</span>
+                      <span class="text-xs text-info ml-2">(Focus field and play MIDI note)</span>
                     </label>
                     <input
                       type="number"
@@ -120,12 +123,12 @@
                       min="21"
                       max="108"
                       class="input-field w-full"
-                      [class.border-red-500]="leftmostKeyControl?.invalid && leftmostKeyControl?.touched"
-                      [class.border-emerald-400]="focusedField === 'leftmostKey'"
+                      [class.border-error]="leftmostKeyControl?.invalid && leftmostKeyControl?.touched"
+                      [class.border-success]="focusedField === 'leftmostKey'"
                       placeholder="21">
                     @if (leftmostKeyControl?.invalid && leftmostKeyControl?.touched) {
                       <div
-                        class="text-red-500 text-sm mt-1">
+                        class="text-error text-sm mt-1">
                         @if (leftmostKeyControl?.errors?.['required']) {
                           <span>This field is required</span>
                         }
@@ -139,9 +142,9 @@
                     }
                   </div>
                   <div>
-                    <label for="rightmostKey" class="block text-sm font-medium text-gray-300 mb-1">
+                    <label for="rightmostKey" class="block text-sm font-medium text-muted-light mb-1">
                       Rightmost key on the keyboard
-                      <span class="text-xs text-blue-400 ml-2">(Focus field and play MIDI note)</span>
+                      <span class="text-xs text-info ml-2">(Focus field and play MIDI note)</span>
                     </label>
                     <input
                       type="number"
@@ -150,12 +153,12 @@
                       min="21"
                       max="108"
                       class="input-field w-full"
-                      [class.border-red-500]="rightmostKeyControl?.invalid && rightmostKeyControl?.touched"
-                      [class.border-emerald-400]="focusedField === 'rightmostKey'"
+                      [class.border-error]="rightmostKeyControl?.invalid && rightmostKeyControl?.touched"
+                      [class.border-success]="focusedField === 'rightmostKey'"
                       placeholder="108">
                     @if (rightmostKeyControl?.invalid && rightmostKeyControl?.touched) {
                       <div
-                        class="text-red-500 text-sm mt-1">
+                        class="text-error text-sm mt-1">
                         @if (rightmostKeyControl?.errors?.['required']) {
                           <span>This field is required</span>
                         }
@@ -176,8 +179,8 @@
                       type="checkbox"
                       id="drawFingering"
                       formControlName="drawFingering"
-                      class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
-                    <label for="drawFingering" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
+                      class="w-4 h-4 text-info rounded focus:ring-neutral-900 cursor-pointer">
+                    <label for="drawFingering" class="ml-2 text-sm font-medium text-muted-light cursor-pointer">
                       Draw Fingering
                     </label>
                   </div>
@@ -186,8 +189,8 @@
                       type="checkbox"
                       id="drawLyrics"
                       formControlName="drawLyrics"
-                      class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
-                    <label for="drawLyrics" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
+                      class="w-4 h-4 text-info rounded focus:ring-neutral-900 cursor-pointer">
+                    <label for="drawLyrics" class="ml-2 text-sm font-medium text-muted-light cursor-pointer">
                       Draw Lyrics
                     </label>
                   </div>
@@ -196,22 +199,22 @@
                       type="checkbox"
                       id="showKeyboard"
                       formControlName="showKeyboard"
-                      class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
-                    <label for="showKeyboard" class="ml-2 text-sm font-medium text-gray-300 cursor-pointer">
+                      class="w-4 h-4 text-info rounded focus:ring-neutral-900 cursor-pointer">
+                    <label for="showKeyboard" class="ml-2 text-sm font-medium text-muted-light cursor-pointer">
                       Show Keyboard
                     </label>
                   </div>
                 </div>
                 <!-- MIDI input indication -->
                 @if (focusedField) {
-                  <div class="text-emerald-400 text-sm">
+                  <div class="text-success text-sm">
                     🎹 Ready to capture MIDI input for {{ focusedField === 'leftmostKey' ? 'leftmost' : 'rightmost' }} key...
                   </div>
                 }
                 <!-- Range validation error -->
                 @if (keyboardPreferencesForm.errors?.['invalidRange'] && (leftmostKeyControl?.touched || rightmostKeyControl?.touched)) {
                   <div
-                    class="text-red-500 text-sm">
+                    class="text-error text-sm">
                     Leftmost key must be less than rightmost key
                   </div>
                 }
@@ -238,8 +241,7 @@
       </div>
     </div>
 
-    <div class="ml-2 flex gap-4">
-
+    <div class="mt-6 flex gap-4">
       <button (click)="logout()" class="btn-danger">
         Logout
       </button>
@@ -247,7 +249,6 @@
       <button routerLink="/account/scores" class="btn-primary">
         My Scores
       </button>
-
     </div>
 
     <app-midi-setup
@@ -256,4 +257,5 @@
       (hideKeyboardChange)="keyboardPreferencesForm.patchValue({ showKeyboard: !$event })"
       (closeModal)="closeMidiSetup()"
     ></app-midi-setup>
-  </div>
+  </section>
+</article>

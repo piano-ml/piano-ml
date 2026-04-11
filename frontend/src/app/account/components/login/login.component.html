@@ -1,59 +1,62 @@
-<div class="flex justify-center items-center h-full">
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="p-8 rounded-lg shadow-lg w-full max-w-sm">
-    <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+<article class="main-article">
+  <div class="page-title">Login</div>
 
-    <!-- Error message -->
-    @if (errorMessage) {
-      <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg" (click)="clearError()">
-        {{ errorMessage }}
-        <button type="button" class="float-right font-bold cursor-pointer">×</button>
-      </div>
-    }
+  <section class="main-section">
+    <div class="flex justify-center items-center h-full">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="card-secondary w-full max-w-sm">
+        <h2 class="card-secondary-title text-center">Welcome Back</h2>
 
-    <div class="mb-4">
-      <label for="email" class="block text-sm font-medium mb-2">email</label>
-      <input type="text" id="email" formControlName="email"
-        class="input-field w-full"
-        placeholder="Enter your email">
-      @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-        <div
-          class="text-red-500 text-sm mt-1">
-          email is required.
+        <!-- Error message -->
+        @if (errorMessage) {
+          <div class="alert-error mb-4" (click)="clearError()">
+            {{ errorMessage }}
+            <button type="button" class="float-right font-bold cursor-pointer">×</button>
+          </div>
+        }
+
+        <div class="mb-4">
+          <label for="email" class="block text-sm font-medium mb-2">email</label>
+          <input type="text" id="email" formControlName="email"
+            class="input-field w-full"
+            placeholder="Enter your email">
+          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+            <div
+              class="text-error text-sm mt-1">
+              email is required.
+            </div>
+          }
         </div>
-      }
-    </div>
 
-    <div class="mb-6">
-      <label for="password" class="block text-sm font-medium mb-2">Password</label>
-      <input type="password" id="password" formControlName="password"
-        class="input-field w-full"
-        placeholder="Enter your password">
-      @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-        <div
-          class="text-red-500 text-sm mt-1">
-          Password is required.
+        <div class="mb-6">
+          <label for="password" class="block text-sm font-medium mb-2">Password</label>
+          <input type="password" id="password" formControlName="password"
+            class="input-field w-full"
+            placeholder="Enter your password">
+          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+            <div
+              class="text-error text-sm mt-1">
+              Password is required.
+            </div>
+          }
         </div>
-      }
-    </div>
 
-    <button type="submit" [disabled]="loginForm.invalid || isLoading"
-      class="btn-primary w-full">
-      @if (!isLoading) {
-        <span>Login</span>
-      }
-      @if (isLoading) {
-        <span class="flex items-center justify-center">
-          <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Logging in...
-        </span>
-      }
-    </button>
+        <button type="submit" [disabled]="loginForm.invalid || isLoading"
+          class="btn-primary w-full">
+          @if (!isLoading) {
+            <span>Login</span>
+          }
+          @if (isLoading) {
+            <span class="flex items-center justify-center">
+              <span class="spinner h-5 w-5 border-2 -ml-1 mr-3"></span>
+              Logging in...
+            </span>
+          }
+        </button>
 
-    <div class="text-center mt-4">
-      <a routerLink="/account/create" class="link-primary">Don't have an account? Create one</a>
+        <div class="text-center mt-4">
+          <a routerLink="/account/create" class="link-primary">Don't have an account? Create one</a>
+        </div>
+      </form>
     </div>
-  </form>
-</div>
+  </section>
+</article>
