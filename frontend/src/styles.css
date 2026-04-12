@@ -33,7 +33,8 @@
 	}
 
 	.btn-primary {
-		@apply rounded-sm  font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-neutral-200/10 border-neutral-200/50 text-neutral-200;
+		@apply rounded-sm  font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-neutral-200/10 border-neutral-200/50 text-neutral-200; 
+	/*	@apply rounded-sm  font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-emerald-500/10 border-emerald-500/50 text-emerald-400; */
 	}
 
 	.btn-secondary {
@@ -45,7 +46,7 @@
 	}
 
 	.btn-danger {
-		@apply font-bold py-2 px-6 rounded-sm tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-red-600 hover:bg-red-500 active:bg-red-700 disabled:bg-gray-500 disabled:cursor-not-allowed;
+		@apply font-bold py-2 px-6 rounded-sm tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-red-400 hover:bg-red-500 active:bg-red-300 disabled:bg-gray-500 disabled:cursor-not-allowed;
 	}
 
 	.btn-hero {
@@ -59,7 +60,7 @@
 	}
 
 	.capsule {
-		@apply font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-emerald-500/10 border-emerald-500/50 text-emerald-400;
+		@apply bg-neutral-700 hover:bg-emerald-600 text-white rounded-lg p-3 transition-colors;		
 	}
 
 	.capsule-primary {
@@ -97,7 +98,7 @@
 
 
 	.link-primary {
-		@apply no-underline text-red-400 hover:text-red-300  decoration-red-500/50 hover:decoration-red-300 transition-colors;
+		@apply font-semibold no-underline text-red-400 hover:text-red-300  decoration-red-500/50 hover:decoration-red-300 transition-colors;
 	}
 
 
@@ -176,7 +177,7 @@ html,
 body {
 	margin: 0;
 	padding: 0;
-	@apply bg-neutral-900;
+	@apply bg-neutral-900 text-neutral-200;
 }
 
 /* Custom fonts */
@@ -231,7 +232,7 @@ hr {
 }
 
 .modal-content {
-	@apply text-neutral-200 bg-neutral-800 rounded-sm p-6  mx-4;
+	@apply text-neutral-200 bg-zinc-700 rounded-sm p-6  mx-4;
 }
 
 
@@ -252,4 +253,24 @@ router-outlet + * {
 
 .main-section {
 	@apply bg-neutral-700 p-4 flex-1;
+}
+
+
+thead tr {
+  @apply bg-neutral-700;
+}
+
+
+th, td {
+	@apply border border-zinc-600 text-neutral-200;
+}
+
+tbody tr:hover {
+	/* Animation pour les lignes du tableau, sauf thead */
+	@apply bg-emerald-500;
+}
+
+
+.loading {
+  @apply border-emerald-500;
 }

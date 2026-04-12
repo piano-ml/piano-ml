@@ -3,13 +3,12 @@
   <div  class="card-secondary">
     <h3 class="card-secondary-title">Practice Exercises in this Scale</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      
       @for (exercise of exercises; track exercise; let last = $last) {
         <span>
-          <a [href]="getExerciseUrl(exercise)">
+          <a [href]="getExerciseUrl(exercise)" class="link-primary">
             <span >{{ exercise.title }}</span>
-            </a>@if (!last) {
-            <span >, </span>
-          }
+            </a>
         </span>
       }
     </div>

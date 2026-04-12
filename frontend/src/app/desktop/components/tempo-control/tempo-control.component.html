@@ -1,30 +1,32 @@
 @if (isOpen) {
-  <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-    (click)="onBackdropClick($event)">
-    <div class="midi-setup-panel rounded-lg p-6 w-full max-w-md max-h-[85vh] overflow-y-auto"
-      (click)="$event.stopPropagation()">
-      <div class="midi-setup-header">
-        <h2 class="text-xl font-semibold">Tempo</h2>
-        <button (click)="close()" class="midi-setup-close">Close</button>
+
+<div class="modal" (click)="onBackdropClick($event)">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+
+      <h2 class="card-secondary-title">Tempo</h2>
+
+
+      <div class="flex items-center justify-center gap-2  p-2">
+        <button class="btn btn-desktop" (click)="decrease()">
+          <ng-icon name="bootstrapDash" class="svg-button" />
+        </button>
+        <input type="number" min="20" max="200" class="w-24 text-center input-field" [value]="tempo"
+          (input)="onNumberInput($any($event.target).value)" />
+        <button class="btn btn-desktop" (click)="increase()">
+          <ng-icon name="bootstrapPlus" classZZ="svg-button" />
+        </button>
       </div>
-      <section class="mb-4">
-        <div class="flex items-center justify-center gap-4 bg-neutral-700/70 rounded p-4">
-          <button class="btn btn-desktop" (click)="decrease()">
-            <ng-icon name="bootstrapDash" class="svg-button" />
-          </button>
-          <input type="number" min="20" max="200" class="w-24 text-center rounded border border-neutral-600"
-            [value]="tempo" (input)="onNumberInput($any($event.target).value)" />
-          <button class="btn btn-desktop" (click)="increase()">
-            <ng-icon name="bootstrapPlus" class="svg-button" />
-          </button>
-        </div>
-      </section>
-      <section>
-        <div class="p-3 bg-neutral-700/70 rounded">
-          <input type="range" min="20" max="200" [value]="tempo" (input)="onRangeInput($any($event.target).value)"
-            class="w-full" />
-        </div>
-      </section>
+
+      <div class="p-3">
+        <input type="range" min="20" max="200" [value]="tempo" (input)="onRangeInput($any($event.target).value)"
+          class="w-full accent-emerald-500" />
+      </div>
+
+
+    <div class="flex justify-end mt-4">
+      <button (click)="close()" class="btn-secondary">Close</button>
     </div>
   </div>
+</div>
 }

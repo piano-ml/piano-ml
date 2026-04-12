@@ -2,11 +2,8 @@
 <div class="modal" (click)="onBackdropClick($event)">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="grid grid-cols-3">
-      <div class="card-title">
+      <div class="card-secondary-title ml-4">
         Workbench Setup
-      </div>
-      <div class="col-span-2 flex justify-end">
-        <button (click)="close()" class="midi-setup-close">Close</button>
       </div>
     </div>
     @if (error) {
@@ -52,9 +49,7 @@
           <div class="text-neutral-400 text-sm">No MIDI OUT devices detected.</div>
           }
           @if (!loading && midiOutputs.length > 0) {
-          <select
-            class="w-full input-field"
-            (change)="selectOutputById($any($event.target).value)">
+          <select class="w-full input-field" (change)="selectOutputById($any($event.target).value)">
             <option value="__pianoml__" [selected]="isOutputEnabled(null)">
               PianoML — The app might play piano (not the keyboard)
             </option>
@@ -76,9 +71,9 @@
         </div>
         <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
-            <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
-              [checked]="hideKeyboard" (change)="setKeyboardVisibility(!$any($event.target).checked)"
-              aria-label="Toggle keyboard visibility" />
+            <input type="checkbox" class="peer"
+              style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" [checked]="hideKeyboard"
+              (change)="setKeyboardVisibility(!$any($event.target).checked)" aria-label="Toggle keyboard visibility" />
             <span
               class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           </label>
@@ -90,8 +85,9 @@
         <div class="font-medium">Hide Fingering</div>
         <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
-            <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
-              [checked]="hideFingering" (change)="setFingeringVisibility(!$any($event.target).checked)"
+            <input type="checkbox" class="peer"
+              style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" [checked]="hideFingering"
+              (change)="setFingeringVisibility(!$any($event.target).checked)"
               aria-label="Toggle fingering visibility" />
             <span
               class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
@@ -104,9 +100,9 @@
         <div class="font-medium">Hide Lyrics</div>
         <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
-            <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
-              [checked]="hideLyrics" (change)="setHideLyricsVisibility(!$any($event.target).checked)"
-              aria-label="Toggle lyrics visibility" />
+            <input type="checkbox" class="peer"
+              style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" [checked]="hideLyrics"
+              (change)="setHideLyricsVisibility(!$any($event.target).checked)" aria-label="Toggle lyrics visibility" />
             <span
               class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           </label>
@@ -118,7 +114,8 @@
         <div class="font-medium">Hide Fingering &amp; Harmony</div>
         <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
-            <input type="checkbox" class="peer" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
+            <input type="checkbox" class="peer"
+              style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
               [checked]="hideFingeringAndHarmony"
               (change)="setFingeringAndHarmonyVisibility(!$any($event.target).checked)"
               aria-label="Toggle fingering and harmony visibility" />
@@ -128,6 +125,9 @@
         </div>
       </div>
     </section>
+    <div class="col-span-2 flex justify-end">
+      <button (click)="close()" class="btn-secondary">Close</button>
+    </div>
   </div>
 </div>
 }

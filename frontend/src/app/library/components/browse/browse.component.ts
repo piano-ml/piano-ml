@@ -1,6 +1,4 @@
 import { isPlatformBrowser } from '@angular/common';
-import { forkJoin, of } from 'rxjs';
-import { finalize, catchError } from 'rxjs/operators';
 import { Component, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, PLATFORM_ID, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -20,9 +18,15 @@ import wNumb from 'wnumb';
 
 @Component({
   selector: 'app-browse',
-  imports: [FormsModule, ScoreTableComponent, QuickActionsComponent, BrowseByAuthorsComponent, BrowseByGenreComponent],
   templateUrl: './browse.component.html',
-  styleUrl: './browse.component.css'
+  styleUrl: './browse.component.css',
+  imports: [
+    FormsModule,
+    ScoreTableComponent,
+    QuickActionsComponent,
+    BrowseByAuthorsComponent,
+    BrowseByGenreComponent
+  ]
 })
 export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -53,7 +57,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedAuthor: AuthorWithScoreCount | null = null;
   selectedGenre: ScoreGenreBrowseGet200ResponseInner | null = null;
   activeSearchKeyword = '';
-  loading = false;
+  loading = true;
   searchKeyword = '';
   stats: ScoreStatsGet200Response | null = null;
   loadingStats = false;
@@ -84,27 +88,17 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
     { key: 'author', label: 'Artist', visible: true },
     { key: 'title', label: 'Title', visible: true },
     { key: 'duration', label: 'Duration', visible: true },    
-    { key: 'playCount', label: 'Play#', visible: true },
     { key: 'grade', label: 'Grade', visible: true },    
     { key: 'tracks_count', label: 'Tracks', visible: true }
   ];
 
-  tableActions: ScoreTableAction[] = [
-  ]
-  //   {
-  //     label: 'Info',
-  //     icon: '',
-  //     class: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm transition-colors',
-  //     callback: (score) => this.onScoreInfo(score)
-  //   }
-  // ];
+  tableActions: ScoreTableAction[] = []
 
   constructor(
     private scoreService: ScoreService,
     private router: Router,
     private route: ActivatedRoute,
     private changeDetector: ChangeDetectorRef,
-    private titleService: Title,
     private seo: SeoService
   ) { }
 
@@ -246,7 +240,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
           });
           this.loadScores(true);
         }
-        this.loading = false;
+        //this.loading = false;
         this.changeDetector.detectChanges();
       },
       error: (error) => {
@@ -290,7 +284,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
           });
           this.loadScores(true);
         }
-        this.loading = false;
+        //this.loading = false;
         this.changeDetector.detectChanges();
       },
       error: (error) => {
@@ -325,7 +319,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
       this.hasMore = true;
     }
 
-    if (this.loading || !this.hasMore) return;
+    //if (this.loading || !this.hasMore) return;
 
     this.loading = true;
     const offset = this.currentPage * this.pageSize;
@@ -597,6 +591,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setActiveTab(tab: 'new' | 'artists' | 'genres' | 'popular') {
+    console.log('Setting active tab to', tab);
     this.activeTab = tab;
     // Navigate to the corresponding route
     const path = '/library/' + tab;

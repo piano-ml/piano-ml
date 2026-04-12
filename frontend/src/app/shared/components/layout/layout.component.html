@@ -11,7 +11,7 @@
         <span class="breadcrumb-separator" aria-hidden="true">/</span>
         }
 
-        @for (item of breadcrumbService.items$ | async; track item; let last = $last) {
+        @for (item of breadcrumbService.items$ | async; track item.path; let last = $last) {
         @if (!last) {
         <a [routerLink]="item.path" class="breadcrumb-label" [title]="'Navigate to ' + item.label">{{ item.label }}</a>
         }
@@ -28,9 +28,16 @@
 
       <div class="flex-none mr-2">
 
+        <a class="mr-4 btn-primary" href="https://www.buymeacoffee.com/emmanuelflg" target="_blank"
+          rel="noopener noreferrer" title="Support PianoML">
+          <span class="hidden sm:inline mr-1 ">Buy me a </span>
+          <span aria-hidden="true" class="donation-icon" [class.donation-icon-bump]="donationTick">{{ donationIcon
+            }}</span>
+        </a>
 
         @if ((isLoggedIn$ | async) === true) {
-        <a routerLink="/account/home" class="link-primary uppercase !underline" title="Go to your account page">{{ username$ | async
+        <a routerLink="/account/home" class="link-primary uppercase !underline" title="Go to your account page">{{
+          username$ | async
           }}</a>
         } @else {
         @if (!(router.url === '/account/login')) {
@@ -39,13 +46,7 @@
         }
 
 
-        <a class="ml-4 btn-primary"
-          href="https://www.buymeacoffee.com/emmanuelflg" target="_blank" rel="noopener noreferrer"
-          title="Support PianoML">
-          <span class="hidden sm:inline mr-1 ">Buy me a </span>
-          <span aria-hidden="true" class="donation-icon" [class.donation-icon-bump]="donationTick">{{ donationIcon
-            }}</span>
-        </a>
+
 
       </div>
 
@@ -62,7 +63,11 @@
       Legal Notice
     </a>
     <span class="px-1 font-bold text-xl">&copy;</span>
-    <span class="px-1">PianoML&#64;{{ version.commit }}</span>
+    <span class="px-1">
+    <a class="link-primary"  href="https://github.com/piano-ml/piano-ml">
+      PianoML&#64;{{ version.commit }}
+    </a>    
+    </span>
     <a class="px-2 py-1 inline-block" href="https://github.com/piano-ml/piano-ml"
       aria-label="View PianoML source code on GitHub" title="View PianoML source code on GitHub" target="_blank"
       rel="noopener noreferrer">
