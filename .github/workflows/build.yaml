@@ -85,6 +85,12 @@ jobs:
     - name: Install dependencies
       working-directory: ./frontend
       run: npm --legacy-peer-deps install
+    - name: Generate shader manifest
+      working-directory: ./frontend
+      run: npm run shaders:manifest
+    - name: Generate sitemap
+      working-directory: ./frontend
+      run: npm run generate:sitemap            
     - name: Build frontend
       working-directory: ./frontend
       run: npm run build:prod
