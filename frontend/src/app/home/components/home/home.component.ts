@@ -111,7 +111,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
    */
   private async loadFromManifest(): Promise<ShaderSet[]> {
     try {
-      const manifest = await this.http.get<ShaderManifest>('assets/shader/manifest.json').toPromise();
+      const manifest = await this.http.get<ShaderManifest>('assets/shader/manifest.json?').toPromise();
       if (!manifest?.shaders) {
         return [];
       }
