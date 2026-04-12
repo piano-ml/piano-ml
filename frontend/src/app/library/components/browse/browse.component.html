@@ -2,227 +2,190 @@
   <!-- Search Section -->
   <section aria-label="Search piano scores" class="">
     <div class="flex gap-2">
-      <input
-        [(ngModel)]="searchKeyword"
-        (keyup.enter)="onSearch()"
-        placeholder="Search scores by title, artist, or genre..."
-        class="input-field flex-1">
-      <button
-        (click)="onSearch()"
-        class="btn-primary"
-        [disabled]="loading">
+      <input [(ngModel)]="searchKeyword" (keyup.enter)="onSearch()"
+        placeholder="Search scores by title, artist, or genre..." class="input-field flex-1">
+      <button (click)="onSearch()" class="btn-primary" [disabled]="loading">
         {{ loading ? 'Searching...' : 'Search' }}
       </button>
       @if (activeSearchKeyword) {
-        <button
-          (click)="clearSearchFilter()"
-          class="btn-secondary">
-          Clear
-        </button>
+      <button (click)="clearSearchFilter()" class="btn-secondary">
+        Clear
+      </button>
       }
     </div>
 
     <!-- Stats Line -->
     @if (stats) {
-      <div class="mt-2 mb-2 text-sm text-gray-300 flex flex-wrap items-center justify-center gap-4">
-        <span><span class="">{{ stats['public-domain'] + stats.copyrighted }}</span> scores in database (<span class="font-semibold text-emerald-400">{{ stats['public-domain'] }}</span> public domain, <span class="font-semibold text-blue-300">{{ stats.copyrighted }}</span> copyrighted)</span>
-        <label class="flex items-center gap-1 cursor-pointer">
-          <input type="checkbox" [(ngModel)]="filterOneHand" (change)="applyFilters()" class="cursor-pointer">
-          <span>One hand</span>
-        </label>
-        <label class="flex items-center gap-1 cursor-pointer">
-          <input type="checkbox" [(ngModel)]="filterTwoHands" (change)="applyFilters()" class="cursor-pointer">
-          <span>Two hands</span>
-        </label>
-        <label class="flex items-center gap-2">
-          <select
-            [(ngModel)]="selectedFullKey"
-            (change)="applyFilters()"
-            [disabled]="loadingFullKeys"
-            class="px-2 py-1">
-            <option value="">All keys</option>
-            @for (key of fullKeyOptions; track key) {
-              <option [value]="key">{{ key }}</option>
-            }
-          </select>
-        </label>
-        <div class="flex items-center gap-2">
-          <!--
-          <span class="mr-2">Grade</span>
-        -->
-          <div class="flex flex-col gap-2">
-            <div #gradeSlider class="browse-grade-slider"></div>
-          </div>
 
-        <app-quick-actions class="ml-4"></app-quick-actions>
+ 
+      <div class="mt-4 mb-4 text-sm text-gray-300 flex flex-wrap items-center justify-center gap-4">
 
-        </div>
-        <!-- Selected Author Capsule  class="mb-6 bg-neutral-800 rounded-lg p-4"> -->
-        @if (selectedAuthor) {
-          <span>
-            <div class="inline-flex link-primary rounded-md px-1 py-1 m-2 items-center gap-3">
-              <span class="font-medium">{{ selectedAuthor.author.name }}</span>
-              <span class="text-xs text-blue-200">({{ selectedAuthor.count }} {{ selectedAuthor.count === 1 ? 'score' : 'scores' }})</span>
-              <button
-                (click)="clearAuthorFilter()"
-                class="text-blue-200 hover:text-white transition-colors duration-200 p-1 hover:bg-blue-700 rounded-md ml-1"
-                title="Clear filter">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </span>
-        }
-        <!-- Selected Genre Capsule -->
-        @if (selectedGenre) {
-          <span >
-            <div class="inline-flex p-2 m-2 items-center gap-3 btn-primary">
-              <span class="font-medium">{{ (selectedGenre.genre!.name ? selectedGenre.genre!.name!.charAt(0).toUpperCase() + selectedGenre.genre!.name!.slice(1) : "genre not specified") }}</span>
-              <span class="text-xs ">({{ selectedGenre.count }} {{ selectedGenre.count === 1 ? 'score' : 'scores' }})</span>
-              <button
-                (click)="clearGenreFilter()"
-                class="text-emerald-200 hover:text-white transition-colors duration-200  hover:bg-emerald-700 rounded-md"
-                title="Clear filter">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </span>
-        }
+      <div class="flex flex-col gap-2 mr-4">
+        <div #gradeSlider class="browse-grade-slider"></div>
       </div>
-    }
+
+      <label class="flex items-center gap-1 cursor-pointer">
+        <input type="checkbox" [(ngModel)]="filterOneHand" (change)="applyFilters()" class="cursor-pointer">
+        <span>One hand</span>
+      </label>
+      <label class="flex items-center gap-1 cursor-pointer">
+        <input type="checkbox" [(ngModel)]="filterTwoHands" (change)="applyFilters()" class="cursor-pointer">
+        <span>Two hands</span>
+      </label>
+      <label class="flex items-center gap-2">
+        <select [(ngModel)]="selectedFullKey" (change)="applyFilters()" [disabled]="loadingFullKeys" class="px-2 py-1">
+          <option value="">All keys</option>
+          @for (key of fullKeyOptions; track key) {
+          <option [value]="key">{{ key }}</option>
+          }
+        </select>
+      </label>
+
+      <!-- Selected Author Capsule  class="mb-6 bg-neutral-800 rounded-lg p-4"> -->
+      @if (selectedAuthor) {
+      <span>
+        <div class="inline-flex link-primary rounded-md px-1 py-1 m-2 items-center gap-3">
+          <span class="font-medium">{{ selectedAuthor.author.name }}</span>
+          <span class="text-xs">({{ selectedAuthor.count }} {{ selectedAuthor.count === 1 ? 'score' : 'scores'
+            }})</span>
+          <button (click)="clearAuthorFilter()"
+            class="transition-colors duration-200 p-1 hover:bg-blue-700 rounded-md ml-1" title="Clear filter">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </span>
+      }
+      <!-- Selected Genre Capsule -->
+      @if (selectedGenre) {
+      <span>
+        <div class="inline-flex p-2 m-2 items-center gap-3 btn-primary">
+          <span class="font-medium">{{ (selectedGenre.genre!.name ? selectedGenre.genre!.name!.charAt(0).toUpperCase() +
+            selectedGenre.genre!.name!.slice(1) : "genre not specified") }}</span>
+          <span class="text-xs ">({{ selectedGenre.count }} {{ selectedGenre.count === 1 ? 'score' : 'scores' }})</span>
+          <button (click)="clearGenreFilter()" class="transition-colors duration-200 rounded-md" title="Clear filter">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </span>
+      }
+    </div>
+    <div class="mt-4 mb-4 text-sm text-gray-300 flex flex-wrap items-center justify-center gap-4">
+      <!-- stats + import -->
+      <div class="flex items-center gap-2">
+        <span class="mr-4"><span >{{ stats['public-domain'] + stats.copyrighted }}</span> scores in database
+          <!--
+      (<span class="font-semibold text-emerald-400">{{ stats['public-domain'] }}</span> public domain, 
+      <span class="font-semibold">{{ stats.copyrighted }}        
+      </span> copyrighted)
+        -->
+        </span>
+        <app-quick-actions class=""></app-quick-actions>
+      </div>
+    </div>
+
+  }
   </section>
 
 
   <!-- Tabs Section -->
   @if ( !(selectedAuthor || selectedGenre || activeSearchKeyword)) {
-    <nav class="mb-6" aria-label="Browse options">
-      <!-- Tab Headers -->
-      <div class="flex border-b border-neutral-600">
-        <button
-          (click)="setActiveTab('new')"
-          [class.border-emerald-500]="activeTab === 'new'"
-          [class.text-white]="activeTab === 'new'"
-          [class.text-gray-300]="activeTab !== 'new'"
-          class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
-          New
-        </button>
-        <button
-          (click)="setActiveTab('popular')"
-          [class.border-emerald-500]="activeTab === 'popular'"
-          [class.text-white]="activeTab === 'popular'"
-          [class.text-gray-300]="activeTab !== 'popular'"
-          class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
-          Popular
-        </button>
-        <button
-          (click)="setActiveTab('genres')"
-          [class.border-emerald-500]="activeTab === 'genres'"
-          [class.text-white]="activeTab === 'genres'"
-          [class.text-gray-300]="activeTab !== 'genres'"
-          class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
-          Browse by Genres
-        </button>
-        <button
-          (click)="setActiveTab('artists')"
-          [class.border-blue-500]="activeTab === 'artists'"
-          [class.text-white]="activeTab === 'artists'"
-          [class.text-gray-300]="activeTab !== 'artists'"
-          class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
-          Browse by Artist
-        </button>
-      </div>
-      <!-- Tab Content -->
-      <div class="mt-4" >
-        <!-- Popular Authors Section -->
-        @if (activeTab === 'artists') {
-          <app-browse-by-authors
-            [trackFilter]="getTrackCountFilter()"
-            [fullKeyFilter]="getFullKeyFilter()"
-            [gradeStartFilter]="getGradeStartFilter()"
-            [gradeEndFilter]="getGradeEndFilter()"
-            (authorClick)="onAuthorClick($event)">
-          </app-browse-by-authors>
-        }
-        <!-- Browse by Genre Section -->
-        @if (activeTab === 'genres') {
-          <app-browse-by-genre
-            [trackFilter]="getTrackCountFilter()"
-            [fullKeyFilter]="getFullKeyFilter()"
-            [gradeStartFilter]="getGradeStartFilter()"
-            [gradeEndFilter]="getGradeEndFilter()"
-            (genreClick)="onGenreClick($event)">
-          </app-browse-by-genre>
-        }
-      </div>
-    </nav>
+  <nav class="" aria-label="Browse options">
+    <!-- Tab Headers -->
+    <div class="flex">
+      <button (click)="setActiveTab('new')" [class.border-emerald-500]="activeTab === 'new'"
+        [class.text-white]="activeTab === 'new'" [class.text-gray-300]="activeTab !== 'new'"
+        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200  focus:outline-none">
+        New
+      </button>
+      <button (click)="setActiveTab('popular')" [class.border-emerald-500]="activeTab === 'popular'"
+        [class.text-white]="activeTab === 'popular'" [class.text-gray-300]="activeTab !== 'popular'"
+        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 focus:outline-none">
+        Popular
+      </button>
+      <button (click)="setActiveTab('genres')" [class.border-emerald-500]="activeTab === 'genres'"
+        [class.text-white]="activeTab === 'genres'" [class.text-gray-300]="activeTab !== 'genres'"
+        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+        Browse by Genres
+      </button>
+      <button (click)="setActiveTab('artists')" [class.border-emerald-500]="activeTab === 'artists'"
+        [class.text-white]="activeTab === 'artists'" [class.text-gray-300]="activeTab !== 'artists'"
+        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+        Browse by Artist
+      </button>
+    </div>
+    <!-- Tab Content -->
+    <div class="mt-4">
+      <!-- Popular Authors Section -->
+      @if (activeTab === 'artists') {
+      <app-browse-by-authors [trackFilter]="getTrackCountFilter()" [fullKeyFilter]="getFullKeyFilter()"
+        [gradeStartFilter]="getGradeStartFilter()" [gradeEndFilter]="getGradeEndFilter()"
+        (authorClick)="onAuthorClick($event)">
+      </app-browse-by-authors>
+      }
+      <!-- Browse by Genre Section -->
+      @if (activeTab === 'genres') {
+      <app-browse-by-genre [trackFilter]="getTrackCountFilter()" [fullKeyFilter]="getFullKeyFilter()"
+        [gradeStartFilter]="getGradeStartFilter()" [gradeEndFilter]="getGradeEndFilter()"
+        (genreClick)="onGenreClick($event)">
+      </app-browse-by-genre>
+      }
+    </div>
+  </nav>
   }
 
   <!-- Results Section -->
   <section aria-label="Piano score results" class="">
     <h2 class="sr-only">
       @if (selectedGenre) {
-        <span>{{ selectedGenre.genre!.name }} Piano Scores Collection</span>
+      <span>{{ selectedGenre.genre!.name }} Piano Scores Collection</span>
       }
       @if (selectedAuthor) {
-        <span>{{ selectedAuthor.author.name }} Piano Works Collection</span>
+      <span>{{ selectedAuthor.author.name }} Piano Works Collection</span>
       }
       @if (activeSearchKeyword) {
-        <span>Piano Score Search Results</span>
+      <span>Piano Score Search Results</span>
       }
       @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'new') {
-        <span>Latest Piano Scores</span>
+      <span>Latest Piano Scores</span>
       }
       @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'genres') {
-        <span>Available Music Genres</span>
+      <span>Available Music Genres</span>
       }
       @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'artists') {
-        <span>Featured Composers and Artists</span>
+      <span>Featured Composers and Artists</span>
       }
       @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'popular') {
-        <span>Most Popular Piano Scores</span>
+      <span>Most Popular Piano Scores</span>
       }
     </h2>
 
-    <!-- Results Table
-    *ngIf="selectedGenre || selectedAuthor || activeTab === 'popular' || activeTab === 'new'"
-    -->
-    <app-score-table
-
-      [scores]="scores"
-      [loading]="loading"
-      [columns]="tableColumns"
-      [actions]="tableActions"
-      emptyMessage="No scores found. Try a different search term."
-      loadingMessage="Loading..."
+    <app-score-table [scores]="scores" [loading]="loading" [columns]="tableColumns" [actions]="tableActions"
+      emptyMessage="No scores found. Try a different search term." loadingMessage="Loading..."
       (scoreClick)="onScoreClick($event)">
     </app-score-table>
 
     <!-- Load More Button -->
     @if ((selectedGenre || selectedAuthor || activeTab === 'popular' || activeTab === 'new') && scores.length > 0) {
-      <div class="mt-4 text-center">
-        <button
-          (click)="loadMore()"
-          class="btn-success"
-          [disabled]="loading">
-          {{ loading ? 'Loading...' : 'Load More' }}
-        </button>
-      </div>
+    <div class="mt-4 text-center">
+      <button (click)="loadMore()" class="btn-success" [disabled]="loading">
+        {{ loading ? 'Loading...' : 'Load More' }}
+      </button>
+    </div>
     }
 
     <!-- Results Count -->
     @if (scores.length > 0) {
-      <div class="m-2 text-sm text-gray-300">
-        Showing {{ scores.length }} scores
-      </div>
+    <div class="m-2 text-sm">
+      Showing {{ scores.length }} scores
+    </div>
     }
 
-    <!-- Quick Actions -->
-    @if (activeSearchKeyword || selectedAuthor || selectedGenre) {
-      <app-quick-actions></app-quick-actions>
-    }
 
   </section>
 

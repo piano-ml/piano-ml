@@ -1,78 +1,104 @@
-<div class="overflow-x-auto" *ngIf="scores.length > 0 || loading">
-  <table [class]="tableClass">
+@if (scores.length > 0 && !loading) {
+<div class="m-2 mr-4">
+  <table class="ml-2 mr-2 table-auto border-collapse  w-full">
     <thead>
-      <tr class="bg-neutral-600">
-        <th *ngFor="let column of getVisibleColumns()" class="border border-gray-300 px-4 py-2 text-left">
+      <tr>
+        @for (column of getVisibleColumns(); track column.label) {
+        <th class="px-4 py-2 text-left">
           {{ column.label }}
         </th>
-        <th *ngIf="actions.length > 0" class="border border-gray-300 px-4 py-2 text-center">
+        }
+        @if (actions.length > 0) {
+        <th class="border  px-4 py-2 text-center">
           Actions
         </th>
+        }
       </tr>
     </thead>
     <tbody>
       <!-- Score rows -->
-      <tr *ngFor="let score of scores" [class]="showRowClick ? rowClass : 'hover:bg-gray-600 transition-colors'"
-        (click)="onRowClick(score)">
-        <td *ngFor="let column of getVisibleColumns()" class="border border-gray-300 px-4 py-2">
+      @for (score of scores; track score.id) {
+      <tr (click)="onRowClick(score)">
+        @for (column of getVisibleColumns(); track column.label) {
+        <td class="px-4 py-2">
           <div class="font-medium">{{ getCellValue(score, column) }}</div>
         </td>
-        <td *ngIf="actions.length > 0" class="border border-gray-300 px-4 py-2 text-center">
+        }
+        @if (actions.length > 0) {
+        <td class="border px-4 py-2 text-center">
           <div class="flex gap-1 justify-center">
-            <button *ngFor="let action of actions"
-              (click)="onActionClick(action, score, $event); $event.stopPropagation()" [class]="getButtonClass(action)"
-              [title]="action.label">
-              <span *ngIf="action.icon">{{ action.icon }}</span>
-              <span *ngIf="!action.icon">{{ action.label }}</span>
+            @for (action of actions; track action.label) {
+            <button (click)="onActionClick(action, score, $event); $event.stopPropagation()"
+              [class]="getButtonClass(action)" [title]="action.label">
+              @if (action.icon) {
+              <span>{{ action.icon }}</span>
+              }
+              @if (!action.icon) {
+              <span>{{ action.label }}</span>
+              }
             </button>
+            }
           </div>
         </td>
+        }
       </tr>
+      }
 
-      <!-- Loading state -->
-      <tr *ngIf="loading">
-        <td [attr.colspan]="getVisibleColumns().length + (actions.length > 0 ? 1 : 0)"
-          class="border border-gray-300 px-4 py-2 text-center text-gray-400">
-          <div class="py-4">
-            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
-            {{ loadingMessage }}
-          </div>
-        </td>
-      </tr>
+
     </tbody>
   </table>
 </div>
+}
+
+
+<!-- Loading state -->
+@if (loading) {
+<div class="card-secondary">
+  <div class="py-4">
+    <div class="animate-spin rounded-full h-6 w-6 border-b-2  mx-auto mb-2"></div>
+  </div>
+</div>
+}
 
 <!-- Empty state -->
-<div *ngIf="scores.length === 0 && !loading">
-  <div class=" text-gray-400 py-8 bg-neutral-600 rounded-lg mb-4 p-4">
-    <div class="text-center text-2xl mb-2">
-      <p>{{ emptyMessage }}</p>
-      <p class="text-sm mt-1">Try adjusting your search criteria or find a file to import</p>
-    </div>
+@if (scores.length === 0 && !loading) {
 
+<div class="card-secondary">
+  <div class="card-secondary-title">
+    <p>{{ emptyMessage }}</p>
+    <p class="text-sm mt-1">Try adjusting your search criteria or find a file to import</p>
 
+    <p>
 
-    <p class="text-gray-300">
-      
-        Free MIDI resources: 
-        <a href="https://freemidi.org/" target="_blank" rel="noopener noreferrer">Free MIDI</a>, 
-        <a href="https://bitmidi.com/" target="_blank" rel="noopener noreferrer">BitMidi</a>, 
-        <a href="https://midiworld.com/" target="_blank" rel="noopener noreferrer">MIDI World</a>, 
-        <a href="https://www.mutopiaproject.org/cgibin/make-table.cgi?Instrument=Piano" target="_blank" rel="noopener noreferrer">Mutopia Project</a>
+      Free MIDI resources:
+      <a href="https://freemidi.org/" target="_blank" rel="noopener noreferrer" class="link-primary">Free MIDI</a>,
+      <a href="https://bitmidi.com/" target="_blank" rel="noopener noreferrer" class="link-primary">BitMidi</a>,
+      <a href="https://midiworld.com/" target="_blank" rel="noopener noreferrer" class="link-primary">MIDI World</a>,
+      <a href="https://www.mutopiaproject.org/cgibin/make-table.cgi?Instrument=Piano" target="_blank"
+        rel="noopener noreferrer" class="link-primary">Mutopia Project</a>
       <br>Free PDF resources:
-        <a href="https://imslp.org/" target="_blank" rel="noopener noreferrer">IMSLP</a>, 
-        <a href="https://www.8notes.com/piano/sheet_music/?orderby=5d" target="_blank" rel="noopener noreferrer">8notes</a>, 
-        <a href="https://www.zebrakeys.com/" target="_blank" rel="noopener noreferrer">Zebra Keys</a>, 
-        <a href="https://musopen.org/sheetmusic" target="_blank" rel="noopener noreferrer">Musopen</a>, 
-        <a href="https://www.free-scores.com/partitions_libres.php?CATEGORIE=70" target="_blank" rel="noopener noreferrer">Free Scores</a>, 
-        <a href="https://www.musicnotes.com/" target="_blank" rel="noopener noreferrer">Musicnotes</a>, 
-        <a href="https://www.allpianoscores.com/" target="_blank" rel="noopener noreferrer">All Piano Scores</a>, 
-        <a href="https://sheetsfree.com/" target="_blank" rel="noopener noreferrer">Sheets Free</a>
+      <a href="https://imslp.org/" target="_blank" rel="noopener noreferrer" class="link-primary">IMSLP</a>,
+      <a href="https://www.8notes.com/piano/sheet_music/?orderby=5d" target="_blank" rel="noopener noreferrer"
+        class="link-primary">8notes</a>,
+      <a href="https://www.zebrakeys.com/" target="_blank" rel="noopener noreferrer" class="link-primary">Zebra
+        Keys</a>,
+      <a href="https://musopen.org/sheetmusic" target="_blank" rel="noopener noreferrer"
+        class="link-primary">Musopen</a>,
+      <a href="https://www.free-scores.com/partitions_libres.php?CATEGORIE=70" target="_blank" rel="noopener noreferrer"
+        class="link-primary">Free Scores</a>,
+      <a href="https://www.musicnotes.com/" target="_blank" rel="noopener noreferrer"
+        class="link-primary">Musicnotes</a>,
+      <a href="https://www.allpianoscores.com/" target="_blank" rel="noopener noreferrer" class="link-primary">All
+        Piano
+        Scores</a>,
+      <a href="https://sheetsfree.com/" target="_blank" rel="noopener noreferrer" class="link-primary">Sheets Free</a>
       <br>Free Music XML resources:
-        <a href="https://musetrainer.github.io/library/" target="_blank" rel="noopener noreferrer">MuseTrainer Library</a>
-      
+      <a href="https://musetrainer.github.io/library/" target="_blank" rel="noopener noreferrer"
+        class="link-primary">MuseTrainer Library</a>
+
     </p>
 
-
   </div>
+</div>
+
+}
