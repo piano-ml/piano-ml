@@ -47,7 +47,7 @@ export class PlayerAudioService {
     await ctx.audioWorklet.addModule("/assets/soundfonts/spessasynth_processor.min.js");
     this.spessasynth = new WorkletSynthesizer(ctx);
     this.spessasynth.connect(ctx.destination);
-    const response = await fetch("assets/soundfonts/GeneralUserGS.sf3");
+    const response = await fetch("/assets/soundfonts/GeneralUserGS.sf3");
     const sfont = await response.arrayBuffer();
     await this.spessasynth.soundBankManager.addSoundBank(sfont, "main");
     await this.spessasynth.isReady;
