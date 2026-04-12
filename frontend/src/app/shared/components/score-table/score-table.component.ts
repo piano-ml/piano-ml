@@ -30,7 +30,6 @@ export class ScoreTableComponent implements OnInit {
   @Input() emptyMessage = 'No scores found';
   @Input() loadingMessage = 'Loading...';
   @Input() showRowClick = true;
-  @Input() tableClass = 'table-auto border-collapse border border-gray-400 w-full';
   @Input() rowClass = 'cursor-pointer hover:bg-gray-600 transition-colors';
 
   @Output() scoreClick = new EventEmitter<ScoreApiInfo>();

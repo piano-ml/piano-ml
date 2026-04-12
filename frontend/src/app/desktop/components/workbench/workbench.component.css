@@ -219,14 +219,6 @@ body {
 	border-radius: 0.25rem;
 }
 
-/* ng-icon à l'intérieur des boutons */
-.btn-desktop ng-icon {
-	font-size: 32px;
-	width: 28px;
-	height: 28px;
-	color: white;
-}
-
 /* ng-icon dans les labels de checkbox/radio */
 .label ng-icon {
 	font-size: 32px;

@@ -6,15 +6,11 @@ import { RouterModule } from '@angular/router';
 
 
 @NgModule({
-  declarations: [
-    LayoutComponent
-  ],
   imports: [
     CommonModule,
     RouterModule,
   ],
   exports: [
-    LayoutComponent,
     CommonModule,
     RouterModule,
   ]

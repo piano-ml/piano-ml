@@ -12,7 +12,7 @@
       @for (genre of genres; track genre) {
         <button
           (click)="onGenreClick(genre)"
-          class="bg-neutral-700 hover:bg-emerald-600 text-white rounded-lg p-3 transition-colors duration-200 text-left group">
+          class="capsule">
           <div class="font-medium text-sm truncate group-hover:text-emerald-100">
             {{ genre.genre.name || "genre not specified" }}
           </div>

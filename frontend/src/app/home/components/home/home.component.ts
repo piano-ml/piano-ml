@@ -184,7 +184,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   selectRandomShader(): void {
     
     // Exclude shader 4 too heavy
-    const filteredShaders = this.availableShaders.filter(s => s.index !== 4).filter(s => s.index !== 6);
+    const filteredShaders = this.availableShaders
+    .filter(s => s.index !== 4)
+    .filter(s => s.index == 6);
     if (filteredShaders.length > 0) {
       const randomIndex = Math.floor(Math.random() * filteredShaders.length);
       //const randomIndex=5;
