@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, type AfterViewInit, inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, Component, type AfterViewInit, inject, PLATFORM_ID, signal } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
@@ -21,8 +21,20 @@ export class HomeComponent implements AfterViewInit {
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
 
+  isMobileOrTablet = signal<boolean>(false);
+
   constructor(private router: Router, private titleService: Title, private metaService: Meta) {
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    if (this.isBrowser) {
+      const mediaQuery = window.matchMedia('(max-width: 1024px)');
+      this.isMobileOrTablet.set(mediaQuery.matches);
+
+      // Optional: listen for changes if user resizes window
+      mediaQuery.addEventListener('change', (e) => {
+        this.isMobileOrTablet.set(e.matches);
+      });
+    }
     
     // SEO: Page Title
     this.titleService.setTitle('PianoML: Learn Piano with Smart Sheet Music & Practice Tools');
