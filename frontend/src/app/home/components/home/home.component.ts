@@ -6,10 +6,11 @@ import { Title, Meta } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { noop } from 'rxjs';
 import { HomeglComponent } from '../homegl/homegl.component';
+import { HomecssComponent } from '../homecss/homecss.component';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterModule, HomeglComponent],
+  imports: [RouterModule, HomeglComponent, HomecssComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,11 +51,13 @@ export class HomeComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Warm up the server (ignore response and errors)
-    void this.http.get('/account/userinfo').subscribe({
-      next: noop,
-      error: noop
-    });
+    if (this.isBrowser) {
+      // Warm up the server (ignore response and errors)
+      void this.http.get('/account/userinfo').subscribe({
+        next: noop,
+        error: noop
+      });
+    }
   }
 
 }

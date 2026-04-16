@@ -1,0 +1,48 @@
+.sharp-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px;
+  overflow: hidden;
+}
+
+.bounce-wrapper {
+  animation: mario-bounce 2s ease-in-out infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sharp-3d {
+  font-size: 30vh; /* Scaled to 1/3 of typical section height */
+  color: #39ff14; /* Fluo green (Neon Green) */
+  font-weight: bold;
+  text-shadow:
+    0 0 10px #39ff14,
+    0 0 20px #39ff14,
+    0 0 40px #39ff14,
+    0 0 80px #39ff14;
+  transform-style: preserve-3d;
+  animation: rotate3d 4s linear infinite;
+  user-select: none;
+}
+
+@keyframes rotate3d {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes mario-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-30px);
+  }
+}
