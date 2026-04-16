@@ -1,6 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnDestroy, ViewChild, inject, NgZone, PLATFORM_ID } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 interface ShaderManifest {
   shaders: Array<{
@@ -84,7 +85,7 @@ export class HomeglComponent implements AfterViewInit, OnDestroy {
    */
   private async loadFromManifest(): Promise<ShaderSet[]> {
     try {
-      const manifest = await this.http.get<ShaderManifest>('assets/shader/manifest.json?').toPromise();
+      const manifest = await firstValueFrom(this.http.get<ShaderManifest>('assets/shader/manifest.json?'));
       if (!manifest?.shaders) {
         return [];
       }
@@ -131,8 +132,8 @@ export class HomeglComponent implements AfterViewInit, OnDestroy {
     try {
 
       const [fragmentResponse, vertexResponse] = await Promise.all([
-        this.http.get(`assets/shader/${index}/fragment_shader.glsl`, { responseType: 'text' }).toPromise(),
-        this.http.get(`assets/shader/${index}/vertex_shader.glsl`, { responseType: 'text' }).toPromise()
+        firstValueFrom(this.http.get(`assets/shader/${index}/fragment_shader.glsl`, { responseType: 'text' })),
+        firstValueFrom(this.http.get(`assets/shader/${index}/vertex_shader.glsl`, { responseType: 'text' }))
       ]);
 
       if (fragmentResponse && vertexResponse) {
