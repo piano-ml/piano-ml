@@ -321,7 +321,8 @@ export class PlayerService {
     setTimeout(() => {
       closestVexFlowNote.getSVGGElement().style.transform = "";
       this.message.set("");
-    }, 500);
+      closest.setColor("black", {});
+    }, 1000);
   }
 
   private unHighlightBadNote() {

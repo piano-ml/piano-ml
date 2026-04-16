@@ -1,0 +1,12 @@
+{
+  "packages": {
+    "backend": {
+      "release-type": "maven",
+      "package-name": "backend"
+    },
+    "frontend": {
+      "release-type": "node",
+      "package-name": "frontend"
+    }
+  }
+}

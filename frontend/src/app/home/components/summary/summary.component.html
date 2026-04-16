@@ -8,13 +8,13 @@
         <article class="group w-full h-full">
           <a [routerLink]="item.url" class="block h-full" [attr.aria-label]="item.title + ': ' + item.description">
             <!-- Card Container with shadow effects -->
-            <div class="rounded border border-grey-200 relative bg-gray-200 shadow-md hover:shadow-xl 
+            <div class="rounded  bg-gray-200  relative shadow-md hover:shadow-xl 
             transition-shadow duration-300 ease-out overflow-hidden  h-full flex flex-col">
               <!-- Background Image Container         -->
               <div class="relative aspect-[4/1] w-full overflow-hidden flex-shrink-0">
                 <div class="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent z-10"></div>
               
-                <img [src]="item.image" [alt]="item.title + ' - ' + item.description"
+                <img [src]="item.image" [alt]="item.title +' -' + item.description"
                   [attr.loading]="i === 2 ? 'eager' : 'lazy'"
                   [attr.fetchpriority]="i === 3 ? 'high' : 'auto'"
                   [attr.decoding]="'async'"

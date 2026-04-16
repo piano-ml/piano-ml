@@ -14,29 +14,29 @@ export class PlayerKeyboardService {
   pianoKeys: PianoKeys.Keyboard | null = null;
   keyPressed = new Set<string>();
 
-  COLOR_RIGHT = [
-    '#fffee6',
-    '#fffdd1',
-    '#fffcbb',
-    '#fffaa6',
-    '#fff990',
-    '#fff77a',
-    '#fff665',
-    '#fff44f',
-    '#fff339',
-    '#fff224'
-  ];
+ COLOR_RIGHT = [
+  '#fffaa6', // plus jaune dès le début
+  '#fff77a',
+  '#fff44f',
+  '#fff224',
+  '#ffe600',
+  '#ffd700',
+  '#ffc800',
+  '#ffb800',
+  '#ffa800',
+  '#ff9800'  // jaune-orangé pour finir le dégradé
+];
   COLOR_LEFT = [
-    '#bdddff',
-    '#afd5ff',
-    '#a0cfff',
-    '#90c7ff',
-    '#75baff',
-    '#5aadff',
-    '#45a2ff',
-    '#3499ff',
-    '#1d8eff',
-    '#0080ff'
+    '#90c7ff', // bleu de départ
+    '#7bb8f6',
+    '#66a9ed',
+    '#519ae4',
+    '#3c8bdb',
+    '#277cd2',
+    '#126dc9',
+    '#005fc0',
+    '#0051a8',
+    '#004390'  // bleu plus profond
   ];
   COLOR_WRONG = '#FF0000';
 
