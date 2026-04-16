@@ -33,7 +33,7 @@
 	}
 
 	.btn-primary {
-		@apply rounded-sm  font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-neutral-200/10 border-neutral-200/50 text-neutral-200; 
+		@apply rounded-sm  font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-neutral-200/10 border-emerald-500/50 text-neutral-200; 
 	/*	@apply rounded-sm  font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-emerald-500/10 border-emerald-500/50 text-emerald-400; */
 	}
 
@@ -60,7 +60,7 @@
 	}
 
 	.capsule {
-		@apply bg-neutral-700 hover:bg-emerald-600 text-white rounded-lg p-3 transition-colors;		
+		@apply bg-neutral-700 hover:bg-emerald-600 text-white rounded-lg p-3 border  border-emerald-500/50 transition-colors;		
 	}
 
 	.capsule-primary {
@@ -111,7 +111,7 @@
 	}
 
 	.input-field {
-		@apply px-4 py-3 bg-neutral-200 border border-neutral-600 rounded-sm text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500/30 transition-all duration-200;
+		@apply px-4 py-3 bg-gray-100 border border-emerald-500 rounded-sm text-neutral-800 placeholder:text-neutral-600 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 transition-all duration-200;
 	}
 
 	.text-error {

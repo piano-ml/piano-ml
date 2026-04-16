@@ -9,40 +9,42 @@
 }
 
 .bounce-wrapper {
-  animation: mario-bounce 2s ease-in-out infinite;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
+  top: -24vh;
+  height: 24vh;
 }
 
-.sharp-3d {
-  font-size: 30vh; /* Scaled to 1/3 of typical section height */
-  color: #39ff14; /* Fluo green (Neon Green) */
-  font-weight: bold;
-  text-shadow:
-    0 0 10px #39ff14,
-    0 0 20px #39ff14,
-    0 0 40px #39ff14,
-    0 0 80px #39ff14;
-  transform-style: preserve-3d;
-  animation: rotate3d 4s linear infinite;
-  user-select: none;
-}
 
-@keyframes rotate3d {
+
+@keyframes rotateYpure {
   from {
     transform: rotateY(0deg);
   }
   to {
-    transform: rotateY(360deg);
+    transform: rotateY(270deg);
   }
 }
 
-@keyframes mario-bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-30px);
-  }
+.sharp-3d {
+  font-size: 24vh; /* Scaled to 1/3 of typical section height */
+
+color: #00c98f;
+text-shadow:
+  0 0 2px #00c98f,
+  0 0 4px #4cffc2,
+  0 0 8px #00e6a6;
+  transform-style: preserve-3d;
+  animation: rotateYmusical 6s cubic-bezier(.68,-0.55,.27,1.55);
+  user-select: none;
 }
+
+@keyframes rotateYmusical {
+
+  100% {
+    transform: rotateY(360deg);
+  }
+
+}
+
+
