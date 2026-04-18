@@ -217,7 +217,7 @@ export class AgilityComponent implements OnInit {
       keywords,
       url,
       type: 'website',
-      image: `${baseUrl}/assets/images/pianoml-og-image.jpg`,
+      image: `${baseUrl}/assets/images/pianoml-og-image.png`,
       structuredData
     });
   }

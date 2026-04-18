@@ -11,8 +11,8 @@
 .bounce-wrapper {
   display: flex;
   position: relative;
-  top: -24vh;
-  height: 24vh;
+  top: -18vh;
+  height: 18vh;
 }
 
 
@@ -27,7 +27,7 @@
 }
 
 .sharp-3d {
-  font-size: 24vh; /* Scaled to 1/3 of typical section height */
+  font-size: 18vh; /* Scaled to 1/3 of typical section height */
 
 color: #00c98f;
 text-shadow:
