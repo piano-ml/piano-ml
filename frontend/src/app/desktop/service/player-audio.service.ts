@@ -324,15 +324,25 @@ export class PlayerAudioService {
     let offset = 0;
     const [numerator, denominator] = timeSigEvent?.timeSignature || [4, 4];
     const beatUnitFactor = 4 / denominator;
-    const beatDurationMs = (60000 / bpm) //* beatUnitFactor;
+    const beatDurationMs = (60000 / bpm);
     const beatsPerBar = (denominator === 8 && numerator % 3 === 0)
       ? numerator / 3   // mesure composée
       : numerator;
-    for (let i = 0; i < beatsPerBar * bar; ++i) {
-      offset = (i * beatUnitFactor * beatDurationMs / 1000);
-      Tone.getTransport().scheduleOnce((time: number) => {
-        this.playMetronomeClick(i % beatsPerBar === 0);
-      }, `${i * beatUnitFactor * beatDurationMs / 1000}`);
+    // count-in only
+    if (!this.state.playConfiguration.useMetronome) {
+      for (let i = 0; i < beatsPerBar * bar; ++i) {
+        offset = (i * beatUnitFactor * beatDurationMs / 1000);
+        Tone.getTransport().scheduleOnce((time: number) => {
+          this.playMetronomeClick(i % beatsPerBar === 0);
+        }, `${i * beatUnitFactor * beatDurationMs / 1000}`);
+      }
+    // metronome scheduleRepeat all along
+    } else {
+      Tone.getTransport().scheduleRepeat((time: number) => {
+        const currentBeat = Math.floor((time * 1000) / beatDurationMs) % beatsPerBar;
+        this.playMetronomeClick(currentBeat === 0);
+      }, beatUnitFactor * beatDurationMs / 1000, 0);
+      offset = beatsPerBar * bar * beatUnitFactor * beatDurationMs / 1000;  
     }
     return offset;
   }

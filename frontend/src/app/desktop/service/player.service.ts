@@ -94,6 +94,11 @@ export class PlayerService {
       playConfiguration.tempoFactor = (scoreApiInfo?.tempo || 120) / 120;
     }
 
+    const metronomeStored = localStorage.getItem('tempo-control-metronome');
+    if (metronomeStored !== null) {
+      playConfiguration.useMetronome = JSON.parse(metronomeStored);
+    }
+
     const midiSplit = this.splitMidi(midiAll.toJSON(), study_tracks);
     playConfiguration.accompaniment = midiSplit.other;
     playConfiguration.midi = midiSplit.study;
@@ -209,10 +214,10 @@ export class PlayerService {
 
     await this.audio.start();
     let offset = this.audio.startCountIn(
-      2, 
-      this.playConfiguration.midi!.header.timeSignatures[0], 
+      2,
+      this.playConfiguration.midi!.header.timeSignatures[0],
       this.playConfiguration.midi!.header.tempos[0].bpm * this.playConfiguration.tempoFactor
-    ); 
+    );
     this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], midiStartTime, midiEndTime, offset);
     if (this.playConfiguration.midi!.tracks.length > 1) {
       this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], midiStartTime, midiEndTime, offset);

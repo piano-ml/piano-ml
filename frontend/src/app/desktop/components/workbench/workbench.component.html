@@ -164,6 +164,6 @@
     (hideFingeringAndHarmonyChange)="setHideFingeringAndHarmony($event)" (hideLyricsChange)="setHideLyrics($event)"
   (closeModal)="closeMidiSetup()"></app-midi-setup>
 
-  <app-tempo-control [isOpen]="isTempoOpen" [tempo]="tempo" (tempoChange)="onTempoChanged($event)" (closeModal)="closeTempo()"></app-tempo-control>
+  <app-tempo-control [isOpen]="isTempoOpen" [tempo]="tempo" [metronome]="playConfiguration.useMetronome" (tempoChange)="onTempoChanged($event)" (metronomeStatus)="onMetronomeStatus($event)" (closeModal)="closeTempo()"></app-tempo-control>
 
 </div>

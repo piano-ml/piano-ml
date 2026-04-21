@@ -23,6 +23,10 @@
           class="w-full accent-emerald-500" />
       </div>
 
+      <div class="flex items-center gap-2 p-3">
+        <input type="checkbox" id="metronome" [checked]="metronome" (change)="onMetronomeStatus($event.target.checked)" />
+        <label for="metronome">Metronome</label>
+      </div>
 
     <div class="flex justify-end mt-4">
       <button (click)="close()" class="btn-secondary">Close</button>

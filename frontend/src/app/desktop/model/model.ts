@@ -47,7 +47,8 @@ export interface PlayConfiguration {
   isLoop: boolean;
   staveAndStaveNotesPair: StaveAndStaveNotesPair[];
   accompaniment: Midi.Midi | null;
-  midi: Midi.Midi | null;  
+  midi: Midi.Midi | null;
+  useMetronome: boolean;
 }
 
 

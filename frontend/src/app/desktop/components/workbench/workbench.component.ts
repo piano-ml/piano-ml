@@ -115,8 +115,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     isLoop: false,
     staveAndStaveNotesPair: [],
     accompaniment: null,
-    midi: null
+    midi: null,
+    useMetronome: false
   };
+
 
   // UI state
   hideKeyboard = false;
@@ -213,6 +215,14 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.handleResize(); // Initial check
+
+    // Vérifie si le paramètre de route useMetronome est présent
+    const useMetronomeParam = this.route.snapshot.queryParamMap.get('useMetronome');
+    if (useMetronomeParam !== null) {
+      const value = useMetronomeParam === 'true' || useMetronomeParam === '1';
+      localStorage.setItem('tempo-control-metronome', JSON.stringify(value));
+    }
+
     if (this.router.url.startsWith('/work/')) {
       this.setupWorkMode()
     } else if (
@@ -353,6 +363,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   closeTempo() {
     this.isTempoOpen = false;
     this.showTempo = false;
+    this.changeDetector.markForCheck();
+  }
+
+  onMetronomeStatus(value: boolean) {
+    this.playConfiguration.useMetronome = value;
     this.changeDetector.markForCheck();
   }
 
