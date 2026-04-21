@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Note } from "@tonejs/midi/dist/Note";
 import { MidiStateEvent } from "../../shared/model/webmidi";
 import { CursorService } from "./cursor.service";
+import { PlayerAudioService } from "./player-audio.service";
 
 
 export const GOOD_RANGE = 600 / 1000
@@ -26,7 +27,9 @@ export interface LiveStatus {
 })
 export class PlayerAssessService {
 
-  constructor(private cursorService: CursorService) {
+  constructor(
+    private cursorService: CursorService,
+  ) {
   }
 
 
@@ -53,6 +56,7 @@ export class PlayerAssessService {
   }
 
   learnExpectation(noteTimeStart: number, noteTimeEnd: number, note: Note, hand: string): LiveStatus {
+    console.log(noteTimeStart, note.ticks);
     if (!this.liveStatus.expectations.has(noteTimeStart)) {
       this.liveStatus.expectations.set(noteTimeStart, new Set<string>());
     }
@@ -84,7 +88,13 @@ export class PlayerAssessService {
     return this.liveStatus;
   }
 
-  getNewActual(midiEvent: MidiStateEvent): LiveStatus | null {
+  getNewActual(audioTime: number, midiEvent: MidiStateEvent): LiveStatus | null {
+    console.log("new actual at:",audioTime, midiEvent.note );
+    if (this.isNoteInTime(midiEvent, audioTime)) {
+      console.log("good")
+    } else {
+      console.log("bad")
+    }
     this.liveStatus.bad = null;
     if (!this.maybeRemovePitchFromExpectations(midiEvent.note)) {
       this.liveStatus.bad = midiEvent.note;
@@ -100,6 +110,32 @@ export class PlayerAssessService {
     }
     this.checkShouldPause();
     return this.liveStatus;
+  }
+
+
+      /**
+     * Retourne toutes les notes attendues dans l'intervalle [audioTime - range, audioTime + range]
+     */
+    getNotesInRange(audioTime: number, range: number): { pitch: number, hit: boolean }[] {
+        // audioTimeNoteArray doit être trié par audioTime
+        const result: { pitch: number, hit: boolean }[] = [];
+        for (const [t, notes] of this.cursorService.audioTimeNoteArray) {
+            if (t < audioTime - range) continue;
+            if (t > audioTime + range) break;
+            result.push(...notes.filter(n => n.hit==false));
+        }
+        return result;
+    }
+
+  isNoteInTime(midiEvent: MidiStateEvent, audioTime: number): boolean {
+    const possibleNotes = this.getNotesInRange(audioTime, GOOD_RANGE);
+    for (const possibleNote of possibleNotes) {
+      if (possibleNote.pitch === midiEvent.note && possibleNote.hit === false) {
+        possibleNote.hit = true;
+        return true;
+      }
+    }
+    return false;
   }
 
   maybeRemovePitchFromExpectations(pitch: number): boolean {

@@ -1,3 +1,4 @@
+
 import { Injectable, signal } from "@angular/core";
 import { Midi } from "@tonejs/midi";
 import type { Note as MidiNote, Note } from "@tonejs/midi/dist/Note";
@@ -22,6 +23,7 @@ interface OsmdArrayElement {
     midiPitches: number[] | null;
     midiTicks: number | null;
     midiTicksDuration: number | null;
+    midiTime: number | null;
     graphicalObjectId: number[];
     tremolo: boolean;
 }
@@ -50,6 +52,8 @@ export class CursorService {
     repetitionInstructions: RepetitionInstruction[] = [];
     osmdArray: OsmdArrayElement[] | undefined;
     midiTicksNoteMap: Map<number, MidiNote[]> = new Map();   // ticks => MidiNote[]    
+    audioTimeNoteMapHit: Map<number, { pitch: number, hit: boolean }[]> = new Map();   // audioTime => [{pitch, hit}]
+    audioTimeNoteArray: Array<[number, { pitch: number, hit: boolean }[]]> = [];
     osmdCursorIdxNoteMap: Map<number, OSMDNote[]> = new Map();
     osmdCursorIdxToMeasureMap: Map<number, number> = new Map();
     osmdMeasureNoteMap: Map<number, OSMDNote[]> = new Map();
@@ -87,6 +91,12 @@ export class CursorService {
 
         this.osmdArray = await this.hydrateOsmdArray(this.cursor);
         await this.yieldToUi();
+
+
+        await this.buildAudioTimeNoteMap(this.osmdArray);
+        await this.yieldToUi();
+
+
         this.midiTicksToOsmdCursorIndex = await this.linkMidiTicksToCursorIndex();
         let status = this.verify()
         if (!status) {
@@ -119,6 +129,7 @@ export class CursorService {
         }, 500);
         return status;
     }
+
 
     setAlignmentAlgorithm(algorithm: CursorAlignmentAlgorithm): void {
         this.alignmentAlgorithm = algorithm;
@@ -297,6 +308,7 @@ export class CursorService {
                 midiPitches: null,
                 midiTicks: null,
                 midiTicksDuration: null,
+                midiTime: null,
                 graphicalObjectId,
                 tremolo: isTremolo
             }
@@ -392,10 +404,11 @@ export class CursorService {
             if (osmdArray[Math.max(0, osmdArrayIndex - 1)].tremolo && midiNotesAtTick.map(note => note.durationTicks).every(duration => duration < CursorService.SKIP_SHORT_NOTE_THRESHOLD)) {
                 continue;
             }
-            currentElement.midiPitches = midiNotesAtTick.map(note => this.normalizePitchClass(note.midi - 12));
+            currentElement.midiPitches = midiNotesAtTick.map(note => note.midi - 12);
             currentElement.midiTicksDuration = midiNotesAtTick.length > 0
                 ? Math.max(...midiNotesAtTick.map(note => note.durationTicks))
                 : null;
+            currentElement.midiTime = midiNotesAtTick.length > 0 ? midiNotesAtTick[0].time : null;
             osmdArrayIndex++;
         }
         this.maxMidiMeasure =  Math.max(...osmdArray.map(e => e.midiMeasure))
@@ -573,6 +586,28 @@ export class CursorService {
         cursor.reset();
         return this.osmdMeasureNoteMap;
     }
+
+    /**
+     * Build a map of audio time (seconds) => MidiNote[] using the osmdArray  midiTime information 
+     * 
+     * @param osmdArray
+     */
+    buildAudioTimeNoteMap(osmdArray: OsmdArrayElement[]) {
+        this.audioTimeNoteMapHit.clear();
+        for (const element of osmdArray) {
+            if (element.midiTime != null && element.midiPitches != null) {
+                const bucket = this.audioTimeNoteMapHit.get(element.midiTime) ?? [];
+                for (const pitch of element.midiPitches) {
+                    bucket.push({ pitch, hit: false });
+                }
+                this.audioTimeNoteMapHit.set(element.midiTime, bucket);
+            }
+        }
+        // Génère le tableau trié pour accès rapide par intervalle
+        this.audioTimeNoteArray = Array.from(this.audioTimeNoteMapHit.entries()).sort((a, b) => a[0] - b[0]);
+        return this.audioTimeNoteMapHit;
+    }
+
 
     /*
     * Build a map of midi step (ticks) => MidiNote[]

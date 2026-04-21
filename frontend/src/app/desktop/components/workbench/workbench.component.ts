@@ -620,6 +620,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   setSpeed(speed: number) {
     this.playConfiguration.delayFactor = 1 / speed;
+    this.playConfiguration.tempoFactor = speed;
     this.playerService.reset(this.playConfiguration);
   }
 

@@ -1,4 +1,4 @@
-import { type ElementRef, Injectable, signal, effect, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, effect, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
@@ -9,15 +9,14 @@ import { MidiServiceService } from '../../shared/services/midi-service.service';
 import type { MidiStateEvent } from '../../shared/model/webmidi';
 import { reducedFraction } from '../model/reduced-fraction';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
-import { getStaveDurationTick, midiToPitch } from './midi-maths';
+import { getStaveDurationTick } from './midi-maths';
 import { ScoreApiInfo } from '../../core/api';
 import { Cursor, GraphicalNote, OpenSheetMusicDisplay, Note as OSMDNote, VexFlowGraphicalNote } from 'opensheetmusicdisplay';
 import { PlayerStateService } from './player-state.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
 import { PlayerAudioService } from './player-audio.service';
-import { LiveStatus, PlayerAssessService, QUANT_RANGE } from './player-assess.service';
+import { LiveStatus, PlayerAssessService } from './player-assess.service';
 import { CursorService } from './cursor.service';
-import { Tone } from 'tone/build/esm/core/Tone';
 
 
 
@@ -188,6 +187,7 @@ export class PlayerService {
   }
 
   async reset(playConfiguration: PlayConfiguration) {
+    console.log("Resetting player with playConfiguration:", playConfiguration.tempoFactor, playConfiguration.delayFactor);
     this.playConfiguration = playConfiguration;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
     this.audio.stop();
@@ -201,29 +201,34 @@ export class PlayerService {
     this.audio.clearSchedule();
     this.unHighlightBadNote();
     this.assess.reset();
-    const startOffset = this.calculateStartTime();
-    const endCut = this.calculateEndTime();
+    let midiStartTime = this.calculateStartTime();
+    let midiEndTime = this.calculateEndTime();
     this.playConfiguration = playConfigurations;
     this.playConfiguration.maxPerformanceStaveCount = this.cursorService.maxMidiMeasure;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
 
     await this.audio.start();
-
-    this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], startOffset, endCut);
+    let offset = this.audio.startCountIn(
+      2, 
+      this.playConfiguration.midi!.header.timeSignatures[0], 
+      this.playConfiguration.midi!.header.tempos[0].bpm * this.playConfiguration.tempoFactor
+    ); 
+    this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], midiStartTime, midiEndTime, offset);
     if (this.playConfiguration.midi!.tracks.length > 1) {
-      this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], startOffset, endCut);
+      this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], midiStartTime, midiEndTime, offset);
     }
 
     // Delegate accompaniment scheduling to the audio service
     this.audio.scheduleAccompanimentTracks(
       this.playConfiguration.accompaniment!,
-      startOffset,
-      endCut,
-      this.state.getTimeFactor()
+      midiStartTime,
+      midiEndTime,
+      this.state.getTimeFactor(),
+      offset
     );
 
     // Delegate end scheduling
-    this.audio.scheduleEnd(endCut - startOffset, () => {
+    this.audio.scheduleEnd(midiEndTime - midiStartTime, () => {
       this.message.set('END');
       setTimeout(() => {
         this.message.set('');
@@ -238,12 +243,15 @@ export class PlayerService {
     });
   }
 
-  private scheduleLeftHand(midi: Midi.Track, startTime: number, endCut: number) {
+
+
+  private scheduleLeftHand(midi: Midi.Track, startTime: number, midiEndTime: number, offset: number) {
     this.audio.scheduleHandTrack(
       'lh',
       midi,
       startTime,
-      endCut,
+      midiEndTime,
+      offset,
       this.state.getTimeFactor(),
       {
         onNoteStart: (time, note, liveStatus) => this.handleNoteStart('lh', note, liveStatus),
@@ -252,12 +260,13 @@ export class PlayerService {
     );
   }
 
-  private scheduleRightHand(midi: Midi.Track, startTime: number, endCut: number) {
+  private scheduleRightHand(midi: Midi.Track, startTime: number, midiEndTime: number, offset: number) {
     this.audio.scheduleHandTrack(
       'rh',
       midi,
       startTime,
-      endCut,
+      midiEndTime,
+      offset,
       this.state.getTimeFactor(),
       {
         onNoteStart: (time, note, liveStatus) => this.handleNoteStart('rh', note, liveStatus),
@@ -282,7 +291,7 @@ export class PlayerService {
 
     if (midiEvent.type === 'down' as MidiStateEvent['type']) {
       midiEvent.time = this.audio.getCurrentTime();
-      const liveStatus = this.assess.getNewActual(midiEvent);
+      const liveStatus = this.assess.getNewActual(this.audio.getTransportSeconds(), midiEvent);
       if (liveStatus === null) {
         return;
       }

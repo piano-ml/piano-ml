@@ -1,3 +1,4 @@
+
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import * as Tone from "tone";
@@ -7,6 +8,8 @@ import type * as Midi from '@tonejs/midi';
 import { GOOD_RANGE, LiveStatus, PERFECT_RANGE, QUANT_RANGE, PlayerAssessService } from './player-assess.service';
 import { PlayerStateService } from './player-state.service';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
+import { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
+import { off } from 'process';
 
 /**
  * Service responsable de la gestion de l'audio, des synthétiseurs et du scheduling des notes
@@ -15,9 +18,10 @@ import { MidiServiceService } from '../../shared/services/midi-service.service';
   providedIn: 'root'
 })
 export class PlayerAudioService {
+
   private platformId = inject(PLATFORM_ID);
 
-  spessasynth?: WorkletSynthesizer ;
+  spessasynth?: WorkletSynthesizer;
   pianoMLShouldPlay: boolean = false;
 
   constructor(
@@ -28,6 +32,11 @@ export class PlayerAudioService {
     if (isPlatformBrowser(this.platformId)) {
       this.initSoundFont();
     }
+  }
+
+
+  getTransportSeconds(): number {
+    return Tone.getTransport().seconds;
   }
 
   /**
@@ -63,7 +72,8 @@ export class PlayerAudioService {
     channel: number,
     note: Note,
     startOffset: number,
-    timeFactor: number
+    timeFactor: number,
+    offset: number
   ): void {
     if (note.time < startOffset) return;
     if (note.midi === 0) return; // skip rest notes
@@ -74,12 +84,12 @@ export class PlayerAudioService {
     // Note on
     Tone.getTransport().schedule(() => {
       this.spessasynth?.noteOn(channel, note.midi, Math.round(note.velocity * 127));
-    }, noteStart);
+    }, noteStart + offset);
 
     // Note off
     Tone.getTransport().schedule(() => {
       this.spessasynth?.noteOff(channel, note.midi);
-    }, noteStart + noteDuration);
+    }, noteStart + noteDuration + offset);
   }
 
   /**
@@ -90,13 +100,14 @@ export class PlayerAudioService {
     track: Midi.Track,
     startTime: number,
     endCut: number,
-    timeFactor: number
+    timeFactor: number,
+    offset: number
   ): void {
     // Schedule notes
     for (const note of track.notes) {
       const noteTime = note.time * timeFactor;
       if (noteTime >= startTime && noteTime < endCut) {
-        this.scheduleAccompanimentNote(channel, note, startTime, timeFactor);
+        this.scheduleAccompanimentNote(channel, note, startTime, timeFactor, offset);
       }
     }
   }
@@ -108,8 +119,10 @@ export class PlayerAudioService {
     midi: Midi.Midi,
     startTime: number,
     endCut: number,
-    timeFactor: number
+    timeFactor: number,
+    offset: number
   ): void {
+
     for (const track of midi.tracks) {
       this.spessasynth?.programChange(track.channel, track.instrument.number);
       this.scheduleAccompanimentTrack(
@@ -117,7 +130,8 @@ export class PlayerAudioService {
         track,
         startTime,
         endCut,
-        timeFactor
+        timeFactor,
+        offset
       );
     }
   }
@@ -146,6 +160,7 @@ export class PlayerAudioService {
   pause(): void {
     this.spessasynth?.stopAll();
     Tone.getTransport().pause();
+    console.log("pause at:", Tone.getTransport().seconds);
   }
 
   /**
@@ -212,6 +227,7 @@ export class PlayerAudioService {
     note: Note,
     startTime: number,
     timeFactor: number,
+    offset: number,
     callbacks: {
       onNoteStart: (time: number, note: Note, liveStatus: LiveStatus) => void;
       onNoteEnd: (time: number, note: Note, liveStatus: LiveStatus) => void;
@@ -231,7 +247,7 @@ export class PlayerAudioService {
           callbacks.onNoteStart(time, note, liveStatus);
         }
       }, time);
-    }, noteTimeStart ? noteTimeStart : 0);
+    }, noteTimeStart ? noteTimeStart + offset : 0);
 
     // Schedule piano audio start
     this.schedule((time: number) => {
@@ -242,7 +258,7 @@ export class PlayerAudioService {
           this.spessasynth?.noteOn(0, note.midi, Math.round(note.velocity * 127));
         }
       }
-    }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeStart + PERFECT_RANGE : noteTimeStart);
+    }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeStart + offset : noteTimeStart);
 
     // Schedule note end (keyboard light off, piano audio stop)
     this.schedule((time: number) => {
@@ -257,7 +273,7 @@ export class PlayerAudioService {
         const liveStatus = this.assess.getExpectation();
         callbacks.onNoteEnd(time, note, liveStatus);
       }, time);
-    }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeEnd + PERFECT_RANGE : noteTimeEnd);
+    }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeEnd + offset : noteTimeEnd);
 
   }
 
@@ -271,6 +287,7 @@ export class PlayerAudioService {
     track: Midi.Track,
     startTime: number,
     endCut: number,
+    offset: number,
     timeFactor: number,
     callbacks: {
       onNoteStart: (time: number, note: Note, liveStatus: LiveStatus) => void;
@@ -281,8 +298,45 @@ export class PlayerAudioService {
     for (const note of track.notes) {
       const noteTime = note.time * timeFactor;
       if (noteTime >= startTime && noteTime < endCut) {
-        this.scheduleHandNote(hand, note, startTime, timeFactor, callbacks);
+        this.scheduleHandNote(hand, note, startTime, timeFactor, offset, callbacks);
       }
     }
   }
+
+
+  async playMetronomeClick(isStrong: boolean): Promise<void> {
+    const note = isStrong ? 34 : 33;   // 34 = Metronome Bell, 33 = Metronome Click
+    const velocity = isStrong ? 110 : 80;
+    this.spessasynth?.noteOn(9, note, velocity);
+    this.midiService.pressDrum(note, 1);
+    // Short release for crisp click (≈30-50ms)
+    setTimeout(() => {
+      this.midiService.releaseDrum(note);
+      this.spessasynth?.noteOff(9, note);
+    }, 40);
+  }
+
+
+  /**
+   * Décompte de mesure précis avant le départ, basé sur Tone.Transport
+   */
+  startCountIn(bar: number, timeSigEvent: TimeSignatureEvent, bpm: number): number {
+    let offset = 0;
+    const [numerator, denominator] = timeSigEvent?.timeSignature || [4, 4];
+    const beatUnitFactor = 4 / denominator;
+    const beatDurationMs = (60000 / bpm) //* beatUnitFactor;
+    const beatsPerBar = (denominator === 8 && numerator % 3 === 0)
+      ? numerator / 3   // mesure composée
+      : numerator;
+    for (let i = 0; i < beatsPerBar * bar; ++i) {
+      offset = (i * beatUnitFactor * beatDurationMs / 1000);
+      Tone.getTransport().scheduleOnce((time: number) => {
+        this.playMetronomeClick(i % beatsPerBar === 0);
+      }, `${i * beatUnitFactor * beatDurationMs / 1000}`);
+    }
+    return offset;
+  }
+
+
+
 }
