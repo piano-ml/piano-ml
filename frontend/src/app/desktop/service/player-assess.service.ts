@@ -89,12 +89,12 @@ export class PlayerAssessService {
   }
 
   getNewActual(audioTime: number, midiEvent: MidiStateEvent): LiveStatus | null {
-    console.log("new actual at:",audioTime, midiEvent.note );
-    if (this.isNoteInTime(midiEvent, audioTime)) {
-      console.log("good")
-    } else {
-      console.log("bad")
-    }
+    // console.log("new actual at:",audioTime, midiEvent.note );
+    // if (this.isNoteInTime(midiEvent, audioTime)) {
+    //   console.log("good")
+    // } else {
+    //   console.log("bad")
+    // }
     this.liveStatus.bad = null;
     if (!this.maybeRemovePitchFromExpectations(midiEvent.note)) {
       this.liveStatus.bad = midiEvent.note;
