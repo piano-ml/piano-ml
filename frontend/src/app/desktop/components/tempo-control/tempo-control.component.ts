@@ -14,10 +14,27 @@ import { NgIcon } from '@ng-icons/core';
 export class TempoControlComponent {
   @Input() isOpen = false;
   @Input() tempo = 120;
+  @Input() metronome = false;
   @Output() tempoChange = new EventEmitter<number>();
   @Output() closeModal = new EventEmitter<void>();
+  @Output() metronomeStatus = new EventEmitter<boolean>();
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  private readonly metronomeStorageKey = 'tempo-control-metronome';
+
+  constructor(private cdr: ChangeDetectorRef) {
+    // Initialisation depuis le localStorage si disponible
+    const stored = localStorage.getItem(this.metronomeStorageKey);
+    if (stored !== null) {
+      this.metronome = JSON.parse(stored);
+    }
+  }
+
+  onMetronomeStatus(value: boolean) {
+    this.metronome = value;
+    localStorage.setItem(this.metronomeStorageKey, JSON.stringify(value));
+    this.metronomeStatus.emit(value);
+    this.cdr.markForCheck();
+  }
 
   onBackdropClick(event: Event) {
     if (event.target === event.currentTarget) {

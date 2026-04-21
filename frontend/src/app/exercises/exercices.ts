@@ -23,6 +23,7 @@ export function getWeekOfYear(): number {
 export function loadExercice(router: Router, exercice: Exercise, scaleOrChord: Scale | Chord, key: string) {
   const midi = saveExerciseToStorage(exercice, scaleOrChord, key);
   if (midi) {
+    const queryParams = { useMetronome: 'true' };
     if (scaleOrChord.kind === 'Scale') {
       const scaleKey = normalizeKey(scaleOrChord.key ?? scaleOrChord.name);
       const exerciseKey = normalizeKey(exercice.key ?? exercice.title);
@@ -30,7 +31,8 @@ export function loadExercice(router: Router, exercice: Exercise, scaleOrChord: S
       router.navigate(['/', 'workbench', 'scale', scaleKey, key, exerciseKey], {
         state: {
           fromStorage: true
-        }
+        },
+        queryParams
       });
       return;
     } else if (scaleOrChord.kind === 'Chord') {
@@ -39,7 +41,8 @@ export function loadExercice(router: Router, exercice: Exercise, scaleOrChord: S
       router.navigate(['/', 'workbench', 'agility', scaleKey, key, exerciseKey], {
         state: {
           fromStorage: true
-        }
+        },
+        queryParams
       });
       return;
     }
