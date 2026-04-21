@@ -192,7 +192,6 @@ export class PlayerService {
   }
 
   async reset(playConfiguration: PlayConfiguration) {
-    console.log("Resetting player with playConfiguration:", playConfiguration.tempoFactor, playConfiguration.delayFactor);
     this.playConfiguration = playConfiguration;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
     this.audio.stop();
@@ -208,6 +207,7 @@ export class PlayerService {
     this.assess.reset();
     let midiStartTime = this.calculateStartTime();
     let midiEndTime = this.calculateEndTime();
+
     this.playConfiguration = playConfigurations;
     this.playConfiguration.maxPerformanceStaveCount = this.cursorService.maxMidiMeasure;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
@@ -218,6 +218,8 @@ export class PlayerService {
       this.playConfiguration.midi!.header.timeSignatures[0],
       this.playConfiguration.midi!.header.tempos[0].bpm * this.playConfiguration.tempoFactor
     );
+    midiEndTime = midiEndTime + offset;
+    //midiStartTime = midiStartTime + offset;
     this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], midiStartTime, midiEndTime, offset);
     if (this.playConfiguration.midi!.tracks.length > 1) {
       this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], midiStartTime, midiEndTime, offset);
@@ -435,15 +437,12 @@ export class PlayerService {
 
 
   private calculateEndTime() {
-
+    // Calculating end time for full score
     if (this.playConfiguration.scoreRange[1] === this.playConfiguration.maxStaveCount + 1
       && this.playConfiguration.scoreRange[0] === 0) {
-      const endTime = this.calculateStartTimeInMsForMeasure(
-        this.playConfiguration.maxPerformanceStaveCount,
-        this.playConfiguration.midi!.header
-      ) * this.state.getTimeFactor();
-      return endTime
+      return this.cursorService.audioTimeNoteArray[this.cursorService.audioTimeNoteArray.length - 1][0]
     }
+    // Calculating end time for score range
     const endTime = this.calculateStartTimeInMsForMeasure(
       this.playConfiguration.scoreRange[1] - this.playConfiguration.scoreRange[0],
       this.playConfiguration.midi!.header

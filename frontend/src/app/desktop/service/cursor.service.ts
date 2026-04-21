@@ -5,29 +5,7 @@ import type { Note as MidiNote, Note } from "@tonejs/midi/dist/Note";
 import { AlignmentType, Cursor, RepetitionInstruction, RepetitionInstructionEnum, Note as OSMDNote, GraphicalNote, VexFlowGraphicalNote, OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { CURSOR_BAD_COLOR, CURSOR_GOOD_COLOR } from "../components/osmd/osmd.config";
 import { smithWatermanAlign, smithWatermanAlign2 } from "./smith-waterman";
-
-type CursorAlignmentAlgorithm = "sw1" | "sw2";
-
-interface OsmdArrayElement {
-    midiMeasure: number;
-    osmdMeasure: number;
-    osmdIndex: number;
-    index: number;
-    isFirst: boolean;
-    isLast: boolean;
-    isJump: boolean;
-    target: number | null;
-    targetMeasure: number | null;
-    isSkipable: boolean;
-    osmdPitches: number[] | null;
-    midiPitches: number[] | null;
-    midiTicks: number | null;
-    midiTicksDuration: number | null;
-    midiTime: number | null;
-    graphicalObjectId: number[];
-    tremolo: boolean;
-}
-
+import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
 
 
 @Injectable({
@@ -38,32 +16,30 @@ export class CursorService {
     private static SKIP_SHORT_NOTE_THRESHOLD = 60;
     private static readonly DIAGNOSTIC_STORAGE_KEY = "cursorService.debug";
     private static readonly UI_YIELD_STEP = 8;
-
-    feedbackSignal = signal<{ message: string; percentage: number } | null>(null); // TODO remove unused signal
-    readonly measure = signal<number>(0);
     private diagnosticMode = this.readDiagnosticModeFromStorage();
     private alignmentAlgorithm: CursorAlignmentAlgorithm = "sw2";
     private cursorIndex = 0;
+    private iteratorSize = 0;
+    private repetitionInstructions: RepetitionInstruction[] = [];
+    private osmdArray: OsmdArrayElement[] | undefined;
+    private midiTicksNoteMap: Map<number, MidiNote[]> = new Map();   // ticks => MidiNote[]    
+    private audioTimeNoteMapHit: Map<number, { pitch: number, hit: boolean }[]> = new Map();   // audioTime => [{pitch, hit}]
+    private osmdCursorIdxNoteMap: Map<number, OSMDNote[]> = new Map();
+    private osmdCursorIdxToMeasureMap: Map<number, number> = new Map();
+    private osmdMeasureNoteMap: Map<number, OSMDNote[]> = new Map();
+    private osmdMeasureSequence: number[] = [];
+    private midiBarToOsmdMeasure: Map<number, number> = new Map();
+    private verifyAllElementsOk = false;
+    private verifyAllElementsOkSignal = signal<boolean>(false);
+    public maxMidiMeasure = 0;
+
 
     cursor: Cursor | undefined;
     osmdMeasureCount = 0;
-    iteratorSize = 0;
-
-    repetitionInstructions: RepetitionInstruction[] = [];
-    osmdArray: OsmdArrayElement[] | undefined;
-    midiTicksNoteMap: Map<number, MidiNote[]> = new Map();   // ticks => MidiNote[]    
-    audioTimeNoteMapHit: Map<number, { pitch: number, hit: boolean }[]> = new Map();   // audioTime => [{pitch, hit}]
+    feedbackSignal = signal<{ message: string; percentage: number } | null>(null); // TODO remove unused signal
+    readonly measure = signal<number>(0);    
     audioTimeNoteArray: Array<[number, { pitch: number, hit: boolean }[]]> = [];
-    osmdCursorIdxNoteMap: Map<number, OSMDNote[]> = new Map();
-    osmdCursorIdxToMeasureMap: Map<number, number> = new Map();
-    osmdMeasureNoteMap: Map<number, OSMDNote[]> = new Map();
-    osmdMeasureSequence: number[] = [];
-    midiBarToOsmdMeasure: Map<number, number> = new Map();
     midiTicksToOsmdCursorIndex: Map<number, { osmdIndex: number, osmdMeasure: number }> = new Map(); // ticks => { osmdIndex, osmdMeasure }
-    verifyAllElementsOk = false;
-    verifyAllElementsOkSignal = signal<boolean>(false);
-    osmd: OpenSheetMusicDisplay | undefined;
-    maxMidiMeasure = 0;
 
     public tiltCursor(cursor: Cursor): void {
         this.cursor = cursor;
@@ -114,7 +90,7 @@ export class CursorService {
         await this.yieldToUi();
 
         this.osmdArray!.clear();
-        this.midiTicksNoteMap.clear();        
+        this.midiTicksNoteMap.clear();
         this.osmdCursorIdxNoteMap.clear();
         this.osmdMeasureNoteMap.clear();
         this.osmdMeasureNoteMap.clear();
@@ -267,7 +243,7 @@ export class CursorService {
             let notesUnderCursor: OSMDNote[] = (cursor.iterator.CurrentVoiceEntries ?? [])
                 .flatMap(voiceEntry => voiceEntry.Notes ?? []);
             const isTremolo = notesUnderCursor.at(0)?.TremoloInfo != null;
-            
+
             if (notesUnderCursor.length === 0) {
                 cursor.iterator.moveToNext();
                 index++;
@@ -300,7 +276,7 @@ export class CursorService {
                 index: index,
                 isFirst: firstIter,
                 isLast: lastIter,
-                isSkipable: toSkip, 
+                isSkipable: toSkip,
                 isJump: isJump,
                 target: null, // will be filled in next pass
                 targetMeasure: jumpTargetMeasure,
@@ -411,7 +387,7 @@ export class CursorService {
             currentElement.midiTime = midiNotesAtTick.length > 0 ? midiNotesAtTick[0].time : null;
             osmdArrayIndex++;
         }
-        this.maxMidiMeasure =  Math.max(...osmdArray.map(e => e.midiMeasure))
+        this.maxMidiMeasure = Math.max(...osmdArray.map(e => e.midiMeasure))
         this.debugStep("[main]", osmdArray);
         await this.yieldToUi();
         return osmdArray;

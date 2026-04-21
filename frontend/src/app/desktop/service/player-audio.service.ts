@@ -43,10 +43,6 @@ export class PlayerAudioService {
    * Initialise le soundfont Spessasynth
    */
   async initSoundFont(): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) {
-      console.log('SoundFont initialization skipped on server');
-      return;
-    }
     if (this.spessasynth != null) {
       console.warn('Spessasynth already initialized');
       return; // already initialized
@@ -140,7 +136,6 @@ export class PlayerAudioService {
    * Nettoie tous les événements schedulés
    */
   clearSchedule(): void {
-    console.log('Clearing scheduled events');
     Tone.getTransport().cancel();
     Tone.getDraw().cancel();
   }
@@ -160,7 +155,6 @@ export class PlayerAudioService {
   pause(): void {
     this.spessasynth?.stopAll();
     Tone.getTransport().pause();
-    console.log("pause at:", Tone.getTransport().seconds);
   }
 
   /**
@@ -181,7 +175,7 @@ export class PlayerAudioService {
     Tone.getTransport().schedule(() => {
       this.spessasynth?.stopAll();
       onEndCallback();
-    }, endTime + 3);
+    }, endTime);
   }
 
   /**
@@ -297,7 +291,7 @@ export class PlayerAudioService {
 
     for (const note of track.notes) {
       const noteTime = note.time * timeFactor;
-      if (noteTime >= startTime && noteTime < endCut) {
+      if (noteTime >= startTime  && noteTime < endCut) {
         this.scheduleHandNote(hand, note, startTime, timeFactor, offset, callbacks);
       }
     }

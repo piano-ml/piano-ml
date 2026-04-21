@@ -52,6 +52,32 @@ export interface PlayConfiguration {
 }
 
 
+
+export type CursorAlignmentAlgorithm = "sw1" | "sw2";
+
+export interface OsmdArrayElement {
+    midiMeasure: number;
+    osmdMeasure: number;
+    osmdIndex: number;
+    index: number;
+    isFirst: boolean;
+    isLast: boolean;
+    isJump: boolean;
+    target: number | null;
+    targetMeasure: number | null;
+    isSkipable: boolean;
+    osmdPitches: number[] | null;
+    midiPitches: number[] | null;
+    midiTicks: number | null;
+    midiTicksDuration: number | null;
+    midiTime: number | null;
+    graphicalObjectId: number[];
+    tremolo: boolean;
+}
+
+
 export const MUSIC_XML_STORAGE_KEY = 'musicXMLScore';
 export const MIDI_STORAGE_KEY = 'midiScore';
 export const EXERCICE_INFO_KEY = 'exerciceInfo';
+
+
