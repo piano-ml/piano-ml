@@ -17,6 +17,8 @@ export class MidiServiceService {
   availableInputs: MIDIInput[] = []
   availableOutputs: MIDIOutput[] = []
   octave = 4
+  noteChannel = 144;
+  drumChannel = 153;
   pressedNotes = new Map<number, { time: number; vel: number }>()
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   private midiSetupRetries = 0
@@ -30,41 +32,48 @@ export class MidiServiceService {
     this.onMidiMessage = this.onMidiMessage.bind(this);
   }
 
-  press(note: number, velocity: number) {
-    if (!this.isBrowser) return;
-    const time = Date.now()
-    this.pressedNotes.set(note, { time, vel: velocity })
-    this.notify({ note, velocity, type: 'down', time })
-  }
-
+  /**
+   * Midi out pressing note to connected output devices
+   * @param note 
+   * @param volume 
+   */
   pressOutput(note: number, volume: number) {
-    if (!this.isBrowser) return;
-    const midiNoteOnCh1 = 144
     const velocity = volume * 127
-    const data = [midiNoteOnCh1, note, velocity]
+    const data = [this.noteChannel, note, velocity]
     for (const output of this.enabledOutputDevices) {
       output[1]?.send(data)
     }
   }
 
-  release(note: number) {
-    if (!this.isBrowser) return;
-    this.pressedNotes.delete(note)
-    this.notify({ note, type: 'up', time: Date.now() })
-  }
-
+  /**
+   * Midi out releasing note to connected output devices
+   * @param note 
+   */
   releaseOutput(note: number) {
-    if (!this.isBrowser) return;
-    const midiNoteOffCh1 = 128
     for (const output of this.enabledOutputDevices) {
-      const data = [midiNoteOffCh1, note, 127]
+      const data = [this.noteChannel + 16, note, 127]
       output[1]?.send(data)
     }
   }
 
-  notify(e: MidiStateEvent) {
-    // Émettre via le signal
-    this.midiEvent.set(e);
+
+  pressDrum(note: number, volume: number) {
+    const velocity = volume * 127
+    const data = [this.drumChannel, note, velocity]
+    for (const output of this.enabledOutputDevices) {
+      output[1]?.send(data)
+    }
+  }
+
+  /**
+   * Midi out releasing note to connected output devices
+   * @param note 
+   */
+  releaseDrum(note: number) {
+    for (const output of this.enabledOutputDevices) {
+      const data = [this.drumChannel + 16, note, 127]
+      output[1]?.send(data)
+    }
   }
 
 
@@ -80,6 +89,27 @@ export class MidiServiceService {
     } else {
       this.release(note)
     }
+  }
+
+
+  /**
+   * Midi in event (press) to Angular signal from connected input devices
+   * @param note 
+   * @param velocity 
+   */
+  press(note: number, velocity: number) {
+    const time = Date.now()
+    this.pressedNotes.set(note, { time, vel: velocity })
+    this.midiEvent.set({ note, velocity, type: 'down', time })
+  }
+
+  /**
+   * Midi in event (release) to Angular signal from connected input devices
+   * @param note 
+   */
+  release(note: number) {
+    this.pressedNotes.delete(note)
+    this.midiEvent.set({ note, type: 'up', time: Date.now() })
   }
 
 
@@ -151,7 +181,7 @@ export class MidiServiceService {
   }
 
   enableInputMidiDevice(device: MIDIInput) {
-    if (!this.isBrowser) return;
+
     device.open()
     device.addEventListener('midimessage', this.onMidiMessage)
     this.enabledInputDevices.set(device.id, device)
@@ -171,7 +201,7 @@ export class MidiServiceService {
 
 
   disableInputMidiDevice(deviceParam: MIDIInput) {
-    if (!this.isBrowser) return;
+
     const device = this.enabledInputDevices.get(deviceParam.id)
     if (!device) {
       return
@@ -182,7 +212,7 @@ export class MidiServiceService {
   }
 
   setInputDeviceEnabled(device: MIDIInput, enabled: boolean) {
-    if (!this.isBrowser) return;
+
     if (enabled) {
       this.updateStoredDeviceSelection(this.midiInputStorageKey, this.getDeviceKey(device), true, new Set([this.getDeviceKey(device)]));
       this.disableAllInputsExcept(device);
@@ -233,7 +263,7 @@ export class MidiServiceService {
 
 
   setOutputDeviceEnabled(device: MIDIOutput, enabled: boolean) {
-    if (!this.isBrowser) return;
+
     if (enabled) {
       this.disableAllOutputsExcept(device);
       this.enableOutputMidiDevice(device);
@@ -276,7 +306,7 @@ export class MidiServiceService {
   }
 
   private updateStoredDeviceSelection(storageKey: string, deviceKey: string, enabled: boolean, seed?: Set<string>) {
-    if (!this.isBrowser) return;
+
     const selected = seed ?? this.getStoredDeviceSelection(storageKey) ?? new Set<string>();
 
     if (enabled) {
@@ -307,7 +337,7 @@ export class MidiServiceService {
     inputs: MIDIInputMap | Map<string, MIDIInput>,
     outputs: MIDIOutputMap | Map<string, MIDIOutput>
   ) {
-    if (!this.isBrowser) return;
+
     if (!this.hasStoredDeviceSelection(this.midiInputStorageKey)) {
 
       const inputList = Array.from(inputs.values());
@@ -341,7 +371,7 @@ export class MidiServiceService {
   }
 
   private isThroughPort(name?: string | null) {
-    return (name ?? '').toLowerCase().includes('through') || (name ?? '').toLowerCase().includes('system');
+    return (name ?? '').toLowerCase().includes('through') || (name ?? '').toLowerCase().includes('system');
   }
 
 
