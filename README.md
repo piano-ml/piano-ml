@@ -18,6 +18,7 @@ PianoML is a project designed to help users learn piano and practice exercises.
 - Integrated with Musicbrainz author and Score thesaurus
 - Select track and split hands
 - Automatically grade (0/8) score with handcrafted feature Machine Learning model
+- auto harmonization
 - Real-time feedback
 - Open-source and community-driven
 
