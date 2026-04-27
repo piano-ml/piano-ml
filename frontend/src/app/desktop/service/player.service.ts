@@ -441,6 +441,10 @@ export class PlayerService {
     if (this.playConfiguration.scoreRange[1] === this.playConfiguration.maxStaveCount + 1
       && this.playConfiguration.scoreRange[0] === 0) {
       return this.cursorService.audioTimeNoteArray[this.cursorService.audioTimeNoteArray.length - 1][0]
+        + this.calculateStartTimeInMsForMeasure(
+          1,
+          this.playConfiguration.midi!.header
+        ) * this.state.getTimeFactor()
     }
     // Calculating end time for score range
     const endTime = this.calculateStartTimeInMsForMeasure(
