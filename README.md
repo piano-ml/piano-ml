@@ -43,3 +43,5 @@ Use `frontend/src/environments/environment.ts` in order to select the use of a l
 
 development require local Postgres, see `backend/src/main/resources/db/initdb.sql` for intial schema creation.
 Java code known to work fine with IntelliJ, shall work on all Java Platform
+
+
