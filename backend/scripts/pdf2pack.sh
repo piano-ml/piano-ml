@@ -49,6 +49,10 @@ echo "python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES 
 
 ~/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES > /dev/null
 
+# normalize by converting back and forth to .mid
+musescore3 -o $FROOT-ok.mid $FROOT.musicxml
+musescore3 -o $FROOT-ok.musicxml $FROOT-ok.mid
+
 
 #HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
 #if [ "$HAS_HARMONY" = "0" ]; then
@@ -93,4 +97,4 @@ $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml" > /dev/
 
 zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"  "metadata.json"
 
-rm  "$FROOT"*.png $XMLFILES "$FROOT.pdf"  "$FROOT.mscz" "$FROOT.midi" "$FROOT.musicxml"  "$FROOT.musicxml.bak" "$FROOT.fingering.json" "metadata.json"
+rm  "$FROOT"*.png $XMLFILES "$FROOT.pdf"  "$FROOT.mscz" "${FROOT}-ok.mid" "$FROOT.midi" "$FROOT.musicxml"  "${FROOT}-ok.musicxml" "$FROOT.musicxml.bak" "$FROOT.fingering.json" "metadata.json"
