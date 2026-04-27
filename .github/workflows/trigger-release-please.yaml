@@ -7,7 +7,6 @@ on:
 
 jobs:
   trigger-release:
-    if: github.event.commits[0].message != 'fix: trigger release'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -19,6 +18,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Create empty commit to trigger release-please
+        if: ${{ github.event.commits[0].message != 'fix: trigger release' }}
         run: |
           git commit --allow-empty -m "fix: trigger release"
           git push origin develop
