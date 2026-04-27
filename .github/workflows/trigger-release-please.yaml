@@ -22,7 +22,7 @@ jobs:
           last_msg=$(git log -1 --pretty=%B)
           if [[ "$last_msg" != "fix: trigger release" ]]; then
             git commit --allow-empty -m "fix: trigger release"
-            git push origin develop
+            git push https://x-access-token:${{ secrets.ACTIONS_PAT }}@github.com/piano-ml/piano-ml.git develop
           else
             echo "Already triggered, skipping."
           fi
