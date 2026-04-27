@@ -5,18 +5,20 @@ import { IOSMDOptions, CursorOptions } from "opensheetmusicdisplay";
  * Documentation complète: https://opensheetmusicdisplay.github.io/classdoc/interfaces/IOSMDOptions.html
  */
 
-export const CURSOR_GOOD_COLOR = "#50FF50";
-export const CURSOR_BAD_COLOR = "#FF5050";
+export const CURSOR_GOOD_COLOR = "#AAFFAA";
+export const CURSOR_BAD_COLOR = "#CC0000";
 
 
 export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     pageFormat: 'Endless',
-    autoBeam: false,
+    autoBeam: true,
+    alignRests: 2,
+    //drawingParameters: "compacttight",
     // autoBeamOptions: {
     //     groups: [[4, 4]],
     // },
     drawLyricist: false, // toggable
-    drawTitle: false, // togable
+    drawTitle: false, // toggable
     drawCredits: false, // always false
     drawComposer: false,
     measureNumberInterval: 1,
@@ -26,7 +28,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
             follow: true,
             color: CURSOR_GOOD_COLOR,
             alpha: 1,
-            type: 4
+            type: 2
         },
     ] as CursorOptions[],
 
