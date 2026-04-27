@@ -5,11 +5,10 @@ import * as Tone from "tone";
 import { WorkletSynthesizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
-import { GOOD_RANGE, LiveStatus, PERFECT_RANGE, QUANT_RANGE, PlayerAssessService } from './player-assess.service';
+import { LiveStatus,  PlayerAssessService } from './player-assess.service';
 import { PlayerStateService } from './player-state.service';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
-import { off } from 'process';
 
 /**
  * Service responsable de la gestion de l'audio, des synthétiseurs et du scheduling des notes
@@ -291,7 +290,7 @@ export class PlayerAudioService {
 
     for (const note of track.notes) {
       const noteTime = note.time * timeFactor;
-      if (noteTime >= startTime  && noteTime < endCut) {
+      if (noteTime >= startTime && noteTime < endCut) {
         this.scheduleHandNote(hand, note, startTime, timeFactor, offset, callbacks);
       }
     }
@@ -322,21 +321,21 @@ export class PlayerAudioService {
     const beatsPerBar = (denominator === 8 && numerator % 3 === 0)
       ? numerator / 3   // mesure composée
       : numerator;
-    // count-in only
-    if (!this.state.playConfiguration.useMetronome) {
-      for (let i = 0; i < beatsPerBar * bar; ++i) {
-        offset = (i * beatUnitFactor * beatDurationMs / 1000);
-        Tone.getTransport().scheduleOnce((time: number) => {
-          this.playMetronomeClick(i % beatsPerBar === 0);
-        }, `${i * beatUnitFactor * beatDurationMs / 1000}`);
-      }
-    // metronome scheduleRepeat all along
-    } else {
+    for (let i = 0; i <= beatsPerBar * bar; i++) {
+      offset = (i * beatUnitFactor * beatDurationMs / 1000);
+
+      Tone.getTransport().scheduleOnce((time: number) => {
+
+        this.playMetronomeClick(i % beatsPerBar === 0);
+      }, `${i * beatUnitFactor * beatDurationMs / 1000}`);
+    }
+    // metronome all allong
+    if (this.state.playConfiguration.useMetronome) {
       Tone.getTransport().scheduleRepeat((time: number) => {
         const currentBeat = Math.floor((time * 1000) / beatDurationMs) % beatsPerBar;
+        //console.log(currentBeat === 0)
         this.playMetronomeClick(currentBeat === 0);
-      }, beatUnitFactor * beatDurationMs / 1000, 0);
-      offset = beatsPerBar * bar * beatUnitFactor * beatDurationMs / 1000;  
+      }, beatUnitFactor * beatDurationMs / 1000, offset);
     }
     return offset;
   }
