@@ -18,7 +18,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Create empty commit to trigger release-please
-        if: ${{ github.event.commits[0].message != 'fix: trigger release' }}
         run: |
-          git commit --allow-empty -m "fix: trigger release"
-          git push origin develop
+          last_msg=$(git log -1 --pretty=%B)
+          if [[ "$last_msg" != "fix: trigger release" ]]; then
+            git commit --allow-empty -m "fix: trigger release"
+            git push origin develop
+          else
+            echo "Already triggered, skipping."
+          fi
