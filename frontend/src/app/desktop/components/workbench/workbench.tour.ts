@@ -1,0 +1,88 @@
+import { BeaconStep } from 'ng-beacon';
+
+export const WORKBENCH_TOUR: BeaconStep[] = [
+  {
+    id: 'welcome',
+    title: 'Welcome to the Workbench!',
+    content: 'This is where you can practice and learn your favorite piano pieces. Let me show you around the controls.',
+    position: 'center',
+    showWithoutTarget: true,
+  },
+  {
+    id: 'midi-setup',
+    title: 'MIDI & Display Setup',
+    content: 'Configure your MIDI input and output devices here. You can also toggle display options like the virtual keyboard, fingering, lyrics, and harmony indicators.',
+    position: 'below',
+    selector: '#midi-setup',
+  },
+  {
+    id: 'right-hand',
+    title: 'Right Hand Practice',
+    content: 'Toggle this to wait for you to play the right-hand notes before the score advances. Great for learning the melody at your own pace.',
+    position: 'below',
+    selector: '#right-hand',
+  },
+  {
+    id: 'left-hand',
+    title: 'Left Hand Practice',
+    content: 'Similarly, toggle this to wait for the left-hand notes. You can enable both for full hands-together practice.',
+    position: 'below',
+    selector: '#left-hand',
+  },
+  {
+    id: 'showTempo',
+    title: 'Tempo & Metronome',
+    content: 'Adjust the playback speed to match your current skill level. You can also toggle the metronome on or off from here.',
+    position: 'below',
+    selector: '#showTempo',
+  },
+  {
+    id: 'play-pause',
+    title: 'Play / Pause',
+    content: 'Start or pause the playback and MIDI monitoring. You can also click on the score itself to toggle playback.',
+    position: 'below',
+    selector: '#play-pause',
+  },
+  {
+    id: 'measure-range',
+    title: 'Measure Selection',
+    content: 'Use this slider to focus on specific measures. Drag the handles to set your practice range.',
+    position: 'below',
+    selector: '#measure-range',
+  },
+  {
+    id: 'loop',
+    title: 'Loop Mode',
+    content: 'When enabled, the selected range (or the entire piece) will repeat automatically, allowing for continuous practice.',
+    position: 'below',
+    selector: '#loop',
+  },
+  {
+    id: 'fullscreen',
+    title: 'Fullscreen Toggle',
+    content: 'Maximize your workspace by entering fullscreen mode. Perfect for focusing entirely on the music.',
+    position: 'below',
+    selector: '#fullscreen',
+  },
+  {
+    id: 'score-info',
+    title: 'Score Information',
+    content: 'Need to check the details of this piece? Click here to go back to the score information page.',
+    position: 'below',
+    selector: '#score-info',
+  },
+  {
+    id: 'reset-score',
+    title: 'Reset Playback',
+    content: 'One click returns you to the beginning of your selected range. A second click resets the score back to the very beginning.',
+    position: 'below',
+    selector: '#reset-score',
+  },
+  {
+    id: 'toggle-keyboard',
+    title: 'Show/Hide Keyboard',
+    content: 'Toggle the virtual piano keyboard at the bottom of the screen. It highlights notes as they are played.',
+    position: 'above',
+    selector: '#toggle-keyboard',
+  },
+];

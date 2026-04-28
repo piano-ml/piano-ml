@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapSpeedometer, bootstrapDash, bootstrapPlus } from '@ng-icons/bootstrap-icons';
+import { bootstrapQuestionCircle, bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapSpeedometer, bootstrapDash, bootstrapPlus } from '@ng-icons/bootstrap-icons';
 import { lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
@@ -15,6 +15,8 @@ import { TempoControlComponent } from '../tempo-control/tempo-control.component'
 import { PlayerService } from '../../service/player.service';
 import * as Midi from '@tonejs/midi';
 import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
+import { BeaconService } from 'ng-beacon';
+import { WORKBENCH_TOUR } from './workbench.tour';
 import noUiSlider, { PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
@@ -41,6 +43,7 @@ import { Note } from '@tonejs/midi/dist/Note';
       bootstrapFullscreen,
       bootstrapFullscreenExit,
       bootstrapGripHorizontal,
+      bootstrapQuestionCircle,
       bootstrapGear,
       bootstrapSpeedometer2,
       bootstrapDash,
@@ -144,6 +147,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   error: string | null = null;
   shouldScroll = false;
 
+
+  private readonly beaconService = inject(BeaconService);
 
   constructor(
     private router: Router,
@@ -260,6 +265,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   fnToggleKeyboard() {
     this.hideKeyboard = !this.hideKeyboard;
+  }
+
+  startTour() {
+    this.beaconService.start(WORKBENCH_TOUR);
   }
 
 
