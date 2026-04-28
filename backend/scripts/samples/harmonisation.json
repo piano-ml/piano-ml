@@ -1,0 +1,1922 @@
+[
+    {
+        "measure": 2,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 3,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 4,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 5,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 6,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 7,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 8,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 9,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 10,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 11,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 12,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 13,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 14,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 15,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 16,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 18,
+        "root": "A",
+        "kind": "diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 19,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 20,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 22,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 23,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 24,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 25,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 26,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 27,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 28,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 28,
+        "root": "C",
+        "kind": "dominant-ninth",
+        "beat": 3.0
+    },
+    {
+        "measure": 29,
+        "root": "F",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 29,
+        "root": "Bb",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 30,
+        "root": "E",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 31,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 31,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 32,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 35,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 36,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 37,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 38,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 39,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 40,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 41,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 42,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 43,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 44,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 45,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 46,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 47,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 48,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 49,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 51,
+        "root": "A",
+        "kind": "diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 52,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 53,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 55,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 56,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 57,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 58,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 59,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 60,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 61,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 61,
+        "root": "C",
+        "kind": "dominant-ninth",
+        "beat": 3.0
+    },
+    {
+        "measure": 62,
+        "root": "F",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 62,
+        "root": "Bb",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 63,
+        "root": "E",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 64,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 64,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 65,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 68,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 69,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 70,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 71,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 72,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 73,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 74,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 75,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 76,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 77,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 78,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 79,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 80,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 81,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 82,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 84,
+        "root": "A",
+        "kind": "diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 85,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 86,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 88,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 89,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 90,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 91,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 92,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 93,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 94,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 94,
+        "root": "C",
+        "kind": "dominant-ninth",
+        "beat": 3.0
+    },
+    {
+        "measure": 95,
+        "root": "F",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 95,
+        "root": "Bb",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 96,
+        "root": "E",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 97,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 97,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 98,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 134,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 135,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 136,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 137,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 138,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 139,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 140,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 141,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 142,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 143,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 144,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 145,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 146,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 147,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 148,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 150,
+        "root": "A",
+        "kind": "diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 151,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 152,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 154,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 155,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 156,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 157,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 158,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 159,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 160,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 160,
+        "root": "C",
+        "kind": "dominant-ninth",
+        "beat": 3.0
+    },
+    {
+        "measure": 161,
+        "root": "F",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 161,
+        "root": "Bb",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 162,
+        "root": "E",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 163,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 163,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 164,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 166,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 167,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 168,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 169,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 170,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 171,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 172,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 173,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 174,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 175,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 176,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 177,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 178,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 179,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 180,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 182,
+        "root": "A",
+        "kind": "diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 183,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 184,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 186,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 187,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 188,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 189,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 190,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 191,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 192,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 192,
+        "root": "C",
+        "kind": "dominant-ninth",
+        "beat": 3.0
+    },
+    {
+        "measure": 193,
+        "root": "F",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 193,
+        "root": "Bb",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 194,
+        "root": "E",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 195,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 195,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 196,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 2,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 3,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 4,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 5,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 6,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 7,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 8,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 9,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 10,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 11,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 12,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 13,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 14,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 15,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 16,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 18,
+        "root": "A",
+        "kind": "diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 19,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 20,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 22,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 23,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 24,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 25,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 26,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 27,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 28,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 28,
+        "root": "C",
+        "kind": "dominant-ninth",
+        "beat": 3.0
+    },
+    {
+        "measure": 29,
+        "root": "F",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 29,
+        "root": "Bb",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 30,
+        "root": "E",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 31,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 31,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 32,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 35,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 36,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 37,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 38,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 39,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 40,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 41,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 42,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 43,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 44,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 45,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 46,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 47,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 48,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 49,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 51,
+        "root": "A",
+        "kind": "diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 52,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 53,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 55,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 56,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 57,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 58,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 59,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 60,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 61,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 61,
+        "root": "C",
+        "kind": "dominant-ninth",
+        "beat": 3.0
+    },
+    {
+        "measure": 62,
+        "root": "F",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 62,
+        "root": "Bb",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 63,
+        "root": "E",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 64,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 64,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 65,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 68,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 69,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 70,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 71,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 72,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 73,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 74,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 75,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 76,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 77,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 78,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 79,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 80,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 81,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 82,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 84,
+        "root": "A",
+        "kind": "diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 85,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 86,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 88,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 89,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 90,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 91,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 92,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 93,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 94,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 94,
+        "root": "C",
+        "kind": "dominant-ninth",
+        "beat": 3.0
+    },
+    {
+        "measure": 95,
+        "root": "F",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 95,
+        "root": "Bb",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 96,
+        "root": "E",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 97,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 97,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 98,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 134,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 135,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 136,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 137,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 138,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 139,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 140,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 141,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 142,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 143,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 144,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 145,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 146,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 147,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 148,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 150,
+        "root": "A",
+        "kind": "diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 151,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 152,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 154,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 155,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 156,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 157,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 158,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 159,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 160,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 160,
+        "root": "C",
+        "kind": "dominant-ninth",
+        "beat": 3.0
+    },
+    {
+        "measure": 161,
+        "root": "F",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 161,
+        "root": "Bb",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 162,
+        "root": "E",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 163,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 163,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 164,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 166,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 167,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 168,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 169,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 170,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 171,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 172,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 173,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 174,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 175,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 176,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 177,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 178,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 179,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 180,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 182,
+        "root": "A",
+        "kind": "diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 183,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 184,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 186,
+        "root": "C",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 187,
+        "root": "F",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 188,
+        "root": "Bb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 189,
+        "root": "Eb",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 190,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 191,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 192,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 192,
+        "root": "C",
+        "kind": "dominant-ninth",
+        "beat": 3.0
+    },
+    {
+        "measure": 193,
+        "root": "F",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 193,
+        "root": "Bb",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 194,
+        "root": "E",
+        "kind": "major-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 195,
+        "root": "A",
+        "kind": "half-diminished-seventh",
+        "beat": 1.0
+    },
+    {
+        "measure": 195,
+        "root": "D",
+        "kind": "dominant-seventh",
+        "beat": 3.0
+    },
+    {
+        "measure": 196,
+        "root": "G",
+        "kind": "minor-seventh",
+        "beat": 1.0
+    }
+]
