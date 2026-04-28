@@ -68,8 +68,8 @@ echo "Generating MusicXML"
 musescore3 -o $FROOT.pdf $FROOT.musicxml > /dev/null 2>&1
 
 echo "Generating Midi"
-musescore3 -o $FROOT.mid $FROOT.musicxml > /dev/null 2>&1
-mv $FROOT.mid $FROOT.midi
+#musescore3 -o $FROOT.mid $FROOT.musicxml > /dev/null 2>&1
+cp $FROOT-ok.mid $FROOT.midi
 
 echo "Building archive"
 zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json" "metadata.json"

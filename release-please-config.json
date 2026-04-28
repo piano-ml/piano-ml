@@ -2,11 +2,13 @@
   "packages": {
     "backend": {
       "release-type": "maven",
-      "package-name": "backend"
+      "package-name": "backend",
+      "release-as": "patch"
     },
     "frontend": {
       "release-type": "node",
-      "package-name": "frontend"
+      "package-name": "frontend",
+      "release-as": "patch"
     }
   }
 }
