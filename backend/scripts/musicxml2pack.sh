@@ -20,12 +20,9 @@ FROOT="${FROOT/upload_/}"
 
 # convert if needed mxl to musicxml
 musescore3 -o $FROOT-ok.musicxml $ORI
-
-# normalize by converting back and forth to .mid
-musescore3 -o $FROOT-ok.mid $FROOT-ok.musicxml
-musescore3 -o $FROOT-ok.musicxml $FROOT-ok.mid
-
 mv $FROOT-ok.musicxml $FROOT.musicxml
+
+
 
 HAS_FINGERING=$(python ./scripts/has_fingering.py "$FROOT.musicxml")
 # Only run pianoplayer fingering detection when MAKE_FINGERING is set
@@ -68,12 +65,12 @@ echo "Generating MusicXML"
 musescore3 -o $FROOT.pdf $FROOT.musicxml > /dev/null 2>&1
 
 echo "Generating Midi"
-#musescore3 -o $FROOT.mid $FROOT.musicxml > /dev/null 2>&1
-cp $FROOT-ok.mid $FROOT.midi
+musescore3 -o $FROOT.mid $FROOT.musicxml > /dev/null 2>&1
+mv $FROOT.mid $FROOT.midi
 
 echo "Building archive"
 zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingering.json" "metadata.json"
 
 printf "Cleaning intermediate files...\n"
 cd $ROOT_DIR
-rm -f "${FROOT}.musicxml.bak" "${FROOT}.pdf" "${FROOT}-ok.midi" "${FROOT}.midi" "${FROOT}.musicxml" "${FROOT}.fingering.json" "metadata.json" "${FROOT}_filtered.musicxml"
+rm -f "${FROOT}.musicxml.bak" "${FROOT}.pdf" "${FROOT}.midi" "${FROOT}.musicxml" "${FROOT}.fingering.json" "metadata.json" "${FROOT}_filtered.musicxml"

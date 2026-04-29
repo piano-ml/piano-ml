@@ -39,11 +39,6 @@ source ~/shared-venv/bin/activate
 #  echo "Harmony already present, skipping auto_harmonize"
 #fi
 
-
-# normalize by converting back and forth to .mid
-musescore3 -o $FROOT-ok.mid $FROOT.musicxml
-musescore3 -o $FROOT-ok.musicxml $FROOT-ok.mid
-
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER" > /dev/null  || exit 1
 
 # sanitize files
@@ -79,4 +74,4 @@ $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml" > /dev/
 
 zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"  "metadata.json"
 
-rm "${FROOT}.png"  "${FROOT}_teaser.png" "$FROOT.pdf" "$FROOT.mscz" "$FROOT.midi" "${FROOT}-ok.mid" "$FROOT.musicxml" "${FROOT}-ok.musicxml" "$FROOT.musicxml.bak" "$FROOT.fingering.json" "metadata.json"
+rm "${FROOT}.png"  "${FROOT}_teaser.png" "$FROOT.pdf"  "$FROOT.mscz" "$FROOT.midi" "$FROOT.musicxml"  "$FROOT.musicxml.bak" "$FROOT.fingering.json" "metadata.json"
