@@ -24,6 +24,7 @@ import { authInterceptor } from './account/interceptors/auth.interceptor';
 import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideBeacon } from 'ng-beacon';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -113,6 +114,7 @@ export const appConfig: ApplicationConfig = {
         });
     }),
 
-    provideClientHydration(withEventReplay())
+    provideClientHydration(withEventReplay()),
+    provideBeacon()
   ]
 };

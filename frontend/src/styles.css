@@ -274,3 +274,52 @@ tbody tr:hover {
 .loading {
   @apply border-emerald-500;
 }
+
+/* Beacon Tour Theming */
+beacon-overlay {
+  --beacon-bg: #18181b; /* zinc-900 / neutral-900 */
+  --beacon-text: #e5e5e5; /* neutral-200 */
+  --beacon-primary: #ef4444; /* red-500 */
+  --beacon-primary-hover: #f87171; /* red-400 */
+  --beacon-radius: 0.125rem; /* rounded-sm */
+  --beacon-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25);
+  --beacon-width: 380px;
+  --beacon-z-index: 1000;
+}
+
+beacon-overlay .beacon-step-indicator {
+  @apply text-emerald-400 font-mono;
+}
+
+beacon-overlay .beacon-title {
+  @apply font-swiss911 tracking-wider text-red-500;
+}
+
+beacon-overlay .beacon-btn-next {
+  @apply font-bold px-4 py-1 text-sm rounded-sm tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700;
+}
+
+beacon-overlay .beacon-btn-prev {
+  @apply font-bold px-4 py-1 text-sm tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-800;
+}
+
+.beacon-highlighted-target {
+  position: relative !important;
+  z-index: 1100 !important; /* Higher than beacon-overlay (1000) */
+  outline: 6px solid #10b981 !important; /* emerald-500 */
+  outline-offset: 4px !important;
+  box-shadow: 0 0 40px 15px rgba(16, 185, 129, 0.9) !important;
+  animation: beacon-highlight-pulse 1.5s ease-in-out infinite !important;
+  transition: all 0.3s ease !important;
+}
+
+@keyframes beacon-highlight-pulse {
+  0%, 100% {
+    box-shadow: 0 0 40px 15px rgba(16, 185, 129, 0.9) !important;
+    outline-color: rgba(16, 185, 129, 1) !important;
+  }
+  50% {
+    box-shadow: 0 0 60px 25px rgba(16, 185, 129, 0.6) !important;
+    outline-color: rgba(16, 185, 129, 0.5) !important;
+  }
+}

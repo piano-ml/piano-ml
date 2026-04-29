@@ -1,2 +1,6 @@
 <router-outlet />
 <app-loading-spinner />
+
+@if (beaconService.isActive()) {
+  <beacon-overlay />
+}
