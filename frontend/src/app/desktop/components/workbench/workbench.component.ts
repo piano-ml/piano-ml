@@ -98,6 +98,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private static readonly textDecoder = new TextDecoder();
 
   storedHideKeyboard: boolean = false;
+  private readonly tourSeenKey = 'workbench-tour-seen';
+  private lastHighlightedElement: HTMLElement | null = null;
 
   // Loading feedback exposed as observable for OnPush template updates
   loadingFeedBack$ = new BehaviorSubject<{ message: string; percentage: number; } | null>(null);
@@ -179,6 +181,30 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
     // Consolidated reactive effect: feedback, player messages, and measure updates
     effect(() => {
+      if (!isPlatformBrowser(this.platformId)) return;
+
+      // Tour completion/dismissal tracking
+      if (this.beaconService.finished() || this.beaconService.dismissed()) {
+        localStorage.setItem(this.tourSeenKey, 'true');
+      }
+
+      // Highlighting logic for the current tour step
+      const currentStep = this.beaconService.currentStep();
+
+      // Clean up previous highlight
+      if (this.lastHighlightedElement) {
+        this.lastHighlightedElement.classList.remove('beacon-highlighted-target');
+        this.lastHighlightedElement = null;
+      }
+
+      if (currentStep?.selector) {
+        const element = document.querySelector(currentStep.selector) as HTMLElement;
+        if (element) {
+          element.classList.add('beacon-highlighted-target');
+          this.lastHighlightedElement = element;
+        }
+      }
+
       // Feedback
       try {
         this.loadingFeedBack$.next(this.cursorService.feedbackSignal());
@@ -221,11 +247,13 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.handleResize(); // Initial check
 
-    // Vérifie si le paramètre de route useMetronome est présent
-    const useMetronomeParam = this.route.snapshot.queryParamMap.get('useMetronome');
-    if (useMetronomeParam !== null) {
-      const value = useMetronomeParam === 'true' || useMetronomeParam === '1';
-      localStorage.setItem('tempo-control-metronome', JSON.stringify(value));
+    if (isPlatformBrowser(this.platformId)) {
+      // Vérifie si le paramètre de route useMetronome est présent
+      const useMetronomeParam = this.route.snapshot.queryParamMap.get('useMetronome');
+      if (useMetronomeParam !== null) {
+        const value = useMetronomeParam === 'true' || useMetronomeParam === '1';
+        localStorage.setItem('tempo-control-metronome', JSON.stringify(value));
+      }
     }
 
     if (this.router.url.startsWith('/work/')) {
@@ -326,6 +354,13 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, this.midi!);
     this.loading$.next(false);
     this.changeDetector.markForCheck();
+
+    // Auto-start tour if never seen
+    if (isPlatformBrowser(this.platformId) && !localStorage.getItem(this.tourSeenKey)) {
+      setTimeout(() => {
+        this.startTour();
+      }, 1000);
+    }
   }
 
   setupSightReadingMode() {
@@ -342,6 +377,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   parseBooleanStorage(key: string): boolean {
+    if (!isPlatformBrowser(this.platformId)) return false;
     const stored = localStorage.getItem(key);
     if (stored !== null) {
       try {
@@ -472,6 +508,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   loadExcerciceFromLocalStorage(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (
       !localStorage.getItem(MUSIC_XML_STORAGE_KEY)
       || !localStorage.getItem(MIDI_STORAGE_KEY)
@@ -888,9 +925,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy() {
-    localStorage.removeItem(MIDI_STORAGE_KEY);
-    localStorage.removeItem(MUSIC_XML_STORAGE_KEY);
-    localStorage.removeItem(EXERCICE_INFO_KEY);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem(MIDI_STORAGE_KEY);
+      localStorage.removeItem(MUSIC_XML_STORAGE_KEY);
+      localStorage.removeItem(EXERCICE_INFO_KEY);
+    }
     // Clean up slider
     if (this.slider) {
       try {

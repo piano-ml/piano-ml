@@ -302,3 +302,8 @@ beacon-overlay .beacon-btn-next {
 beacon-overlay .beacon-btn-prev {
   @apply font-bold px-4 py-1 text-sm tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-800;
 }
+
+.beacon-highlighted-target {
+  @apply relative ring-4 ring-emerald-500 ring-offset-2 ring-offset-neutral-900 transition-all duration-300 z-50;
+  box-shadow: 0 0 20px 5px rgba(16, 185, 129, 0.5); /* emerald-500 glow */
+}
