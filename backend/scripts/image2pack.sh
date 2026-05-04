@@ -39,7 +39,7 @@ source ~/shared-venv/bin/activate
 #  echo "Harmony already present, skipping auto_harmonize"
 #fi
 
-$HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER" > /dev/null  || exit 1
+$HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER" > /dev/null
 
 # sanitize files
 musescore3 -f -o "$FROOT".mscz "$FROOT".musicxml > /dev/null  || exit 1

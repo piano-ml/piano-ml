@@ -6,7 +6,7 @@ import { IOSMDOptions, CursorOptions } from "opensheetmusicdisplay";
  */
 
 export const CURSOR_GOOD_COLOR = "#AAFFAA";
-export const CURSOR_BAD_COLOR = "#CC0000";
+export const CURSOR_BAD_COLOR = "#EEFFEE";
 
 
 export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {

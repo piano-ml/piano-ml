@@ -1,0 +1,32 @@
+@if (show) {
+<div class="modal" (click)="onBackdropClick($event)">
+    <div class="modal-content bg-black" (click)="$event.stopPropagation()">
+        <div class="card-secondary-title ml-4">
+            Encoding issue detected
+        </div>
+        <section class="mb-2">
+            @if (!loading) {
+            <p>
+                Exact conversion from sheet music to sound has not been possible.<br>
+                Ex: A 4/4 bar with 5 quarter notes.
+            </p>
+            }
+            @if (error) {
+            <p class="text-red-500">ERROR{{ errorText }}</p>
+            }
+        </section>
+        @if (loading) {
+        <div class="flex flex-col items-center my-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+            <p>{{ loadingText || 'Loading ...' }}</p>
+        </div>
+        }
+        <div class="flex flex-row justify-between items-center mt-4">
+            <button class="btn btn-secondary" (click)="close()" [disabled]="loading">Close</button>
+            @if (isOwner() && !loading) {
+            <button class="btn btn-primary" (click)="repair()" [disabled]="loading">Repair</button>
+            }
+        </div>
+    </div>
+</div>
+}

@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -23,11 +23,12 @@ import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
 import { midiToPitch } from '../../service/midi-maths';
 import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
+import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
 
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, TempoControlComponent, ElapsedTimePipe],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, TempoControlComponent, ElapsedTimePipe, SlopDialogComponent],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -55,6 +56,8 @@ import { Note } from '@tonejs/midi/dist/Note';
 })
 
 export class WorkbenchComponent implements OnInit, OnDestroy {
+  showSlopDialog = false;
+
 
 
   private platformId = inject(PLATFORM_ID);
@@ -162,6 +165,15 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     private titleService: Title
   ) {
     this.setupGeneric();
+    // Écoute du slopScoreSignal via effect Angular
+    effect(() => {
+      const score = this.cursorService.slopScoreSignal();
+      const shouldShow = score > 15;
+      if (this.showSlopDialog !== shouldShow) {
+        this.showSlopDialog = shouldShow;
+        this.changeDetector.markForCheck();
+      }
+    }, { allowSignalWrites: true });
   }
 
   setupGeneric() {
@@ -324,23 +336,17 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       }, allNotes[0]);
       const minMidiRaw = minNote.midi;
       const bottomCdelta = Math.abs(minMidiRaw - 60);
-      //const minCMidi = Math.floor(minMidiRaw / 12) * 12;
-
       if (this.keyboardMinKey == "C1") {
         this.keyboardMinKey = "A0";
       }
       const maxMidiRaw = maxNote.midi;
       const topCdelta = Math.abs(maxMidiRaw - 60);
       const delta = Math.max(Math.max(bottomCdelta, topCdelta), 11);
-      //const maxCMidi = Math.ceil(maxMidiRaw / 12) * 12;
-
       const minCMidi = Math.max((Math.floor(minMidiRaw / 12) * 12) - 12, 60 - delta);
       const maxCMidi = 60 + delta;
       this.keyboardMinKey = midiToPitch(minCMidi);
       this.keyboardMaxKey = midiToPitch(maxCMidi);
-
       const octaveCount = Math.max(1, Math.ceil((maxCMidi - minCMidi + 1) / 12));
-
       this.keyboardHeight = 180 * (octaveCount / 8);
     }
     this.onLoaded();
@@ -369,7 +375,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   async setupExerciseMode() {
     this.loadExcerciceFromLocalStorage();
-    setTimeout(() => {
+    setTimeout(async () => {
+      if (this.midi && this.cursorService && this.cursorService.cursor) {
+        await this.cursorService.setup(this.cursorService.cursor, this.midi);
+      }
       this.onLoaded();
       this.changeDetector.markForCheck();
     }, 1000);
@@ -615,7 +624,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
         }
       };
-      console.log('record_assessment', request);
       this.scoreService.scorePlayStatsPost(request).subscribe({
         next: (response) => { console.log(response) },
         error: (error) => console.warn('Failed to register play stats:', error)
@@ -925,6 +933,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy() {
+    // Rien à nettoyer, effect() est auto-nettoyé avec DestroyRef
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(MIDI_STORAGE_KEY);
       localStorage.removeItem(MUSIC_XML_STORAGE_KEY);

@@ -119,6 +119,7 @@ export class PlayerAudioService {
   ): void {
 
     for (const track of midi.tracks) {
+      track.channel = track.channel +2; // avoid conflict with piano track (0 and 1)
       this.spessasynth?.programChange(track.channel, track.instrument.number);
       this.scheduleAccompanimentTrack(
         track.channel,
@@ -244,13 +245,12 @@ export class PlayerAudioService {
 
     // Schedule piano audio start
     this.schedule((time: number) => {
-
       if (!this.isNotHandAwaited(hand, note.midi)) {
         this.midiService.pressOutput(note.midi, note.velocity);
         if (this.pianoMLShouldPlay) {
           this.spessasynth?.noteOn(0, note.midi, Math.round(note.velocity * 127));
         }
-      }
+      } 
     }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeStart + offset : noteTimeStart);
 
     // Schedule note end (keyboard light off, piano audio stop)
