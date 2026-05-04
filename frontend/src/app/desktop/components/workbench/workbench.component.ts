@@ -169,10 +169,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     effect(() => {
       const score = this.cursorService.slopScoreSignal();
       const shouldShow = score > 15;
-      if (this.showSlopDialog !== shouldShow) {
-        this.showSlopDialog = shouldShow;
-        this.changeDetector.markForCheck();
-      }
+      // if (this.showSlopDialog !== shouldShow) {
+      //   this.showSlopDialog = shouldShow;
+      //   this.changeDetector.markForCheck();
+      // }
     }, { allowSignalWrites: true });
   }
 
