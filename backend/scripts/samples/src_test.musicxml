@@ -82,7 +82,7 @@
           <fifths>-1</fifths>
           </key>
         <time>
-          <beats>4</beats>
+          <beats>3</beats>
           <beat-type>4</beat-type>
           </time>
         <staves>2</staves>
@@ -176,7 +176,8 @@
         <notations><technical><fingering>1</fingering></technical></notations></note>
       <note default-x="240.54" default-y="-15.00">
         <pitch>
-          <step>C</step>
+          <step>F</step>
+          <alter>1</alter>
           <octave>5</octave>
           </pitch>
         <duration>240</duration>
@@ -317,8 +318,7 @@
         <notations><technical><fingering>4</fingering></technical></notations></note>
       <note default-x="53.80" default-y="-20.00">
         <pitch>
-          <step>B</step>
-          <alter>-1</alter>
+          <step>D</step>
           <octave>4</octave>
           </pitch>
         <duration>240</duration>
@@ -513,7 +513,7 @@
         </note>
       <note default-x="172.56" default-y="-25.00">
         <pitch>
-          <step>A</step>
+          <step>G</step>
           <octave>4</octave>
           </pitch>
         <duration>240</duration>
@@ -734,6 +734,7 @@
         <duration>240</duration>
         <voice>1</voice>
         <type>eighth</type>
+        <stem>down</stem>
         <staff>1</staff>
         </note>
       <backup>
@@ -837,7 +838,7 @@
         </note>
       <note default-x="46.81" default-y="-15.00">
         <pitch>
-          <step>C</step>
+          <step>A</step>
           <octave>5</octave>
           </pitch>
         <duration>480</duration>
@@ -861,7 +862,7 @@
         <notations><technical><fingering>5</fingering></technical></notations></note>
       <note default-x="82.67" default-y="-15.00">
         <pitch>
-          <step>C</step>
+          <step>B</step>
           <octave>5</octave>
           </pitch>
         <duration>240</duration>
@@ -1180,6 +1181,30 @@
       <note default-x="10.94" default-y="-30.00">
         <pitch>
           <step>G</step>
+          <octave>3</octave>
+          </pitch>
+        <duration>48</duration>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem>down</stem>
+        <staff>2</staff>
+        <notations><technical><fingering>5</fingering></technical></notations></note>
+      <note default-x="13.80" default-y="-100.00">
+        <chord />
+        <pitch>
+          <step>B</step>
+          <octave>3</octave>
+          </pitch>
+        <duration>48</duration>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem>down</stem>
+        <staff>2</staff>
+        <notations><technical><fingering>3</fingering></technical></notations></note>
+      <note default-x="13.80" default-y="-90.00">
+        <chord />
+        <pitch>
+          <step>D</step>
           <octave>4</octave>
           </pitch>
         <duration>720</duration>
@@ -1198,7 +1223,31 @@
         </note>
       <note default-x="84.97" default-y="-25.00">
         <pitch>
-          <step>A</step>
+          <step>G</step>
+          <octave>3</octave>
+          </pitch>
+        <duration>48</duration>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem>down</stem>
+        <staff>2</staff>
+        <notations><technical><fingering>5</fingering></technical></notations></note>
+      <note default-x="100.61" default-y="-100.00">
+        <chord />
+        <pitch>
+          <step>B</step>
+          <octave>3</octave>
+          </pitch>
+        <duration>48</duration>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem>down</stem>
+        <staff>2</staff>
+        <notations><technical><fingering>3</fingering></technical></notations></note>
+      <note default-x="100.61" default-y="-90.00">
+        <chord />
+        <pitch>
+          <step>D</step>
           <octave>4</octave>
           </pitch>
         <duration>240</duration>
@@ -1455,7 +1504,7 @@
         <notations><technical><fingering>3</fingering></technical></notations></note>
       <note default-x="90.36" default-y="-30.00">
         <pitch>
-          <step>G</step>
+          <step>B</step>
           <octave>4</octave>
           </pitch>
         <duration>120</duration>
