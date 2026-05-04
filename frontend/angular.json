@@ -2,7 +2,6 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "newProjectRoot": "projects",
-
   "projects": {
     "piano-ml": {
       "projectType": "application",
@@ -10,12 +9,17 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
-   
       "architect": {
-        
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "security": {
+              "allowedHosts": [
+                "*.run.app",
+                "*.pianoml.org",
+                "localhost"
+              ]
+            },
             "outputMode": "server",
             "loader": {
               ".glsl": "text"
@@ -46,7 +50,6 @@
               "entry": "src/server.ts"
             }
           },
-          
           "configurations": {
             "production": {
               "optimization": {
@@ -92,8 +95,8 @@
               "buildTarget": "piano-ml:build:production"
             },
             "development": {
-              "buildTarget": "piano-ml:build:development"
-             ,"proxyConfig": "proxy.conf.json"
+              "buildTarget": "piano-ml:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
