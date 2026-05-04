@@ -32,6 +32,8 @@ export class CursorService {
     private verifyAllElementsOk = false;
     private verifyAllElementsOkSignal = signal<boolean>(false);
     public maxMidiMeasure = 0;
+    // Signal exposé pour le slop score
+    public slopScoreSignal = signal<number>(0);
 
 
     cursor: Cursor | undefined;
@@ -45,7 +47,7 @@ export class CursorService {
         this.cursor = cursor;
     }
 
-    public async setup(cursor: Cursor, midi: Midi): Promise<boolean> {
+    public async setup(cursor: Cursor, midi: Midi): Promise<number> {
         CursorService.SKIP_SHORT_NOTE_THRESHOLD = (midi.header.ppq | 480) / 8;
 
         this.cursor = cursor;
@@ -61,31 +63,18 @@ export class CursorService {
         await this.buildOsmdMeasureSequence();
         await this.yieldToUi();
 
-
         await this.buildMidiTicksNoteMap(midi)
         await this.yieldToUi();
 
         this.osmdArray = await this.hydrateOsmdArray(this.cursor);
         await this.yieldToUi();
 
-
         await this.buildAudioTimeNoteMap(this.osmdArray);
         await this.yieldToUi();
 
-
         this.midiTicksToOsmdCursorIndex = await this.linkMidiTicksToCursorIndex();
-        let status = this.verify()
-        if (!status) {
-            if (this.diagnosticMode) {
-                console.log("[cursor][mapping] initial alignment failed, starting smith-waterman alignment...");
-            }
-            this.osmdArray = this.runSelectedAlignment(this.osmdArray)
-            this.midiTicksToOsmdCursorIndex = await this.linkMidiTicksToCursorIndex();
-            status = this.verify()
-            if (status) {
-                this.cursor!.CursorOptions.color = 'orange';
-            }
-        }
+        let score = this.verify(true);
+        this.slopScoreSignal.set(score);
         this.feedbackSignal.set(null);
         await this.yieldToUi();
 
@@ -103,7 +92,7 @@ export class CursorService {
             this.cursor!.next();
             this.cursor!.previous();
         }, 500);
-        return status;
+        return score;
     }
 
 
@@ -652,8 +641,9 @@ export class CursorService {
      * Verify the mapping by checking if midi ticks and osmd measures are correctly aligned 
      * according to some heuristics.
      */
-    verify(): boolean {
+    verify(getScore = false): number {
         this.yieldToUi();
+        let notOkPercentage = 0;
         if (this.diagnosticMode) {
             const repetitionTypeLabels: Record<number, string> = {
                 [RepetitionInstructionEnum.StartLine]: "StartLine",
@@ -727,10 +717,8 @@ export class CursorService {
 
         this.verifyAllElementsOk = notOkCount === 0;
         this.verifyAllElementsOkSignal.set(this.verifyAllElementsOk);
+        notOkPercentage = Math.round((notOkCount / totalCount) * 1000) / 10 ;
         if (!this.verifyAllElementsOk && this.diagnosticMode) {
-            const notOkPercentage = totalCount > 0
-                ? Math.round((notOkCount / totalCount) * 1000) / 10
-                : 0;
             console.groupCollapsed("[cursor][verify] KO summary");
             console.table([
                 {
@@ -745,7 +733,7 @@ export class CursorService {
             this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
         }
         this.yieldToUi();
-        return this.verifyAllElementsOk;
+        return notOkPercentage;
     }
 
 
@@ -891,7 +879,7 @@ export class CursorService {
     private isOsmdArrayElementOk(element: OsmdArrayElement): boolean {
         const osmdPitchClasses = new Set(element.osmdPitches ?? []);
         const midiPitchClasses = new Set(element.midiPitches ?? []);
-        const midiIsSubsetOfOsmd = Array.from(midiPitchClasses).every(pitch => osmdPitchClasses.has(pitch));
+        const midiIsSubsetOfOsmd = Array.from(midiPitchClasses).map(pitch => pitch % 12).every(pitch => osmdPitchClasses.has(pitch));
         return element.isSkipable || midiIsSubsetOfOsmd;
     }
 

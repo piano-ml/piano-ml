@@ -219,12 +219,6 @@ export class PlayerService {
       this.playConfiguration.midi!.header.tempos[0].bpm * this.playConfiguration.tempoFactor
     );
     midiEndTime = midiEndTime + offset;
-    //midiStartTime = midiStartTime + offset;
-    this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], midiStartTime, midiEndTime, offset);
-    if (this.playConfiguration.midi!.tracks.length > 1) {
-      this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], midiStartTime, midiEndTime, offset);
-    }
-
     // Delegate accompaniment scheduling to the audio service
     this.audio.scheduleAccompanimentTracks(
       this.playConfiguration.accompaniment!,
@@ -233,6 +227,13 @@ export class PlayerService {
       this.state.getTimeFactor(),
       offset
     );
+
+    this.scheduleRightHand(this.playConfiguration.midi!.tracks[0], midiStartTime, midiEndTime, offset);
+    if (this.playConfiguration.midi!.tracks.length > 1) {
+      this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], midiStartTime, midiEndTime, offset);
+    }
+
+
 
     // Delegate end scheduling
     this.audio.scheduleEnd(midiEndTime - midiStartTime, () => {
@@ -400,7 +401,7 @@ export class PlayerService {
     }
   }
 
-  async setOsmd(osmd: OpenSheetMusicDisplay): Promise<boolean> {
+  async setOsmd(osmd: OpenSheetMusicDisplay): Promise<number> {
     this.state.osmd = osmd;
     // half tone pixel shift calculation
     this.verticalPixelShiftValue = this.state.osmd!.EngravingRules.StaffDistance / 2;

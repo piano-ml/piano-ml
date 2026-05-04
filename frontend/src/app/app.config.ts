@@ -73,6 +73,7 @@ export const appConfig: ApplicationConfig = {
     provideEnvironmentInitializer(() => {
         const platformId = inject(PLATFORM_ID);
         const router = inject(Router);
+        if (true) return;
         if (environment.production) return;
 
         const side = isPlatformBrowser(platformId) ? 'CLIENT' : 'SERVER';
