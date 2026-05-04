@@ -30,67 +30,84 @@
             </div>
           </div>
           @if (!loading) {
-            <div class="flex lg:w-1/2 xl:w-1/2 items-end justify-end">
-              @if (!isPlaying) {
-                <div class="checkbox-input m-1">
-                  <label class="label svg-label">
-                    <input type="checkbox" id="fullscreen" [checked]="isFullscreen"
-                      (change)="toggleFullscreen()" />
-                    <ng-icon name="bootstrapFullscreen" class="svg-button" />
-                  </label>
+            <div class="flex lg:w-1/2 xl:w-1/2 items-end justify-center">
+              <div id="tools">
+              <div class="flex flex-col md:flex-row w-full md:items-center md:justify-end">
+                <div class="flex flex-row flex-wrap md:flex-nowrap w-full md:w-auto md:space-x-0">
+                  <button (click)="startTour()" class="btn btn-desktop m-1" id="help-tour">
+                    <ng-icon name="bootstrapQuestionCircle" class="svg-button" />
+                  </button>
+                  @if (!isPlaying) {
+                    <div class="checkbox-input m-1" id="fullscreen">
+                      <label class="label svg-label">
+                        <input type="checkbox" [checked]="isFullscreen"
+                          (change)="toggleFullscreen()" />
+                        <ng-icon name="bootstrapFullscreen" class="svg-button" />
+                      </label>
+                    </div>
+                    <button (click)="showInfo()" class="btn btn-desktop m-1" id="score-info">
+                      <ng-icon name="bootstrapInfoCircleFill" class="svg-button" />
+                    </button>
+                    <button (click)="reset()" class="btn btn-desktop m-1" id="reset-score">
+                      <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
+                    </button>
+                    <div class="checkbox-input m-1" id="midi-setup">
+                      <label class="label svg-label ">
+                        <input type="checkbox" [checked]="!hideKeyboard"
+                          (click)="$event.preventDefault(); openMidiSetup()" />
+                        <ng-icon name="bootstrapGear" class="svg-button" />
+                      </label>
+                    </div>
+
+                  }
                 </div>
-                <button (click)="showInfo()" class="btn btn-desktop m-1">
-                  <ng-icon name="bootstrapInfoCircleFill" class="svg-button" />
-                </button>
-                <button (click)="reset()" class="btn btn-desktop m-1">
-                  <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
-                </button>
-                <div class="checkbox-input m-1">
-                  <label class="label svg-label ">
-                    <input type="checkbox" id="hideKeyboard" [checked]="!hideKeyboard"
-                      (click)="$event.preventDefault(); openMidiSetup()" />
-                    <ng-icon name="bootstrapGear" class="svg-button" />
-                  </label>
+                <div class="flex flex-row flex-wrap md:flex-nowrap w-full md:w-auto md:space-x-0">
+                  @if (!isPlaying) {
+                    <div class="checkbox-input m-1" id="showTempo">
+                      <label class="label svg-label ">
+                        <input type="checkbox" [checked]="!showTempo" (click)="$event.preventDefault(); openTempo()" />
+                        <ng-icon name="bootstrapSpeedometer2" class="svg-button" />
+                      </label>
+                    </div>
+                    <div class="checkbox-input m-1" id="loop">
+                      <label class="label svg-label">
+                        <input type="checkbox" [disabled]="isPlaying" [checked]="playConfiguration.isLoop"
+                          (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
+                        <ng-icon name="bootstrapRepeat" class="svg-button" />
+                      </label>
+                    </div>
+                    <div class="checkbox-input m-1" id="left-hand">
+                      <label class="label svg-label">
+                        <input type="checkbox" [disabled]="isPlaying"
+                          [checked]="playConfiguration.waitForLeftHand"
+                          (change)="setWaitForLeftHand(!playConfiguration.waitForLeftHand)" />
+                        <ng-icon name="lefthand" class="svg-button" />
+                      </label>
+                    </div>
+                    <div class="checkbox-input m-1" id="right-hand">
+                      <label class="label svg-label">
+                        <input type="checkbox" [disabled]="isPlaying"
+                          [checked]="playConfiguration.waitForRightHand"
+                          (change)="setWaitForRightHand(!playConfiguration.waitForRightHand)" />
+                        <ng-icon name="righthand" class="svg-button" />
+                      </label>
+                    </div>
+                  }
+                  <div id="play-pause">
+                    @if (!isPlaying) {
+                      <button (click)="start()" class="btn btn-desktop m-1">
+                        <ng-icon name="bootstrapPlayFill" class="svg-button" />
+                      </button>
+                    } @else {
+                      <button (click)="stop()" class="btn btn-desktop m-1">
+                        <ng-icon name="bootstrapPauseFill" class="svg-button" />
+                      </button>
+                    }
+                  </div>
                 </div>
-                <div class="checkbox-input m-1">
-                  <label class="label svg-label ">
-                    <input type="checkbox" id="showTempo" [checked]="!showTempo" (click)="$event.preventDefault(); openTempo()" />
-                    <ng-icon name="bootstrapSpeedometer2" class="svg-button" />
-                  </label>
-                </div>
-                <div class="checkbox-input m-1">
-                  <label class="label svg-label">
-                    <input type="checkbox" id="loop" [disabled]="isPlaying" [checked]="playConfiguration.isLoop"
-                      (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
-                    <ng-icon name="bootstrapRepeat" class="svg-button" />
-                  </label>
-                </div>
-                <div class="checkbox-input m-1">
-                  <label class="label svg-label">
-                    <input type="checkbox" id="left-hand" [disabled]="isPlaying"
-                      [checked]="playConfiguration.waitForLeftHand"
-                      (change)="setWaitForLeftHand(!playConfiguration.waitForLeftHand)" />
-                    <ng-icon name="lefthand" class="svg-button" />
-                  </label>
-                </div>
-                <div class="checkbox-input m-1">
-                  <label class="label svg-label">
-                    <input type="checkbox" id="right-hand" [disabled]="isPlaying"
-                      [checked]="playConfiguration.waitForRightHand"
-                      (change)="setWaitForRightHand(!playConfiguration.waitForRightHand)" />
-                    <ng-icon name="righthand" class="svg-button" />
-                  </label>
-                </div>
-              }
-              @if (!isPlaying) {
-                <button (click)="start()" class="btn btn-desktop m-1">
-                  <ng-icon name="bootstrapPlayFill" class="svg-button" />
-                </button>
-              } @else {
-                <button (click)="stop()" class="btn btn-desktop m-1">
-                  <ng-icon name="bootstrapPauseFill" class="svg-button" />
-                </button>
-              }
+              </div>
+              </div>
+
             </div>
           }
         </div>
@@ -99,7 +116,7 @@
 
     @if (toggleToolbar) {
       <div class=" bg-transparent l-2 pr-2 p-2 mr-4 ml-4 z-100">
-        <div #range></div>
+        <div #range id="measure-range"></div>
       </div>
     }
 
@@ -145,6 +162,7 @@
 
   <div>
     <button (click)="fnToggleKeyboard()" [attr.aria-pressed]="!toggleToolbar" title="Toggle Keyboard"
+      id="toggle-keyboard"
       class="text-black p-2 w-100 rounded w-full flex items-center justify-center">
       <ng-icon name="bootstrapGripHorizontal" class="" />
     </button>

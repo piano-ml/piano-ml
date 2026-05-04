@@ -20,12 +20,9 @@ FROOT="${FROOT/upload_/}"
 
 # convert if needed mxl to musicxml
 musescore3 -o $FROOT-ok.musicxml $ORI
-
-# normalize by converting back and forth to .mid
-musescore3 -o $FROOT-ok.mid $FROOT-ok.musicxml
-musescore3 -o $FROOT-ok.musicxml $FROOT-ok.mid
-
 mv $FROOT-ok.musicxml $FROOT.musicxml
+
+
 
 HAS_FINGERING=$(python ./scripts/has_fingering.py "$FROOT.musicxml")
 # Only run pianoplayer fingering detection when MAKE_FINGERING is set
@@ -76,4 +73,4 @@ zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml" "$FROOT.fingeri
 
 printf "Cleaning intermediate files...\n"
 cd $ROOT_DIR
-rm -f "${FROOT}.musicxml.bak" "${FROOT}.pdf" "${FROOT}-ok.midi" "${FROOT}.midi" "${FROOT}.musicxml" "${FROOT}.fingering.json" "metadata.json" "${FROOT}_filtered.musicxml"
+rm -f "${FROOT}.musicxml.bak" "${FROOT}.pdf" "${FROOT}.midi" "${FROOT}.musicxml" "${FROOT}.fingering.json" "metadata.json" "${FROOT}_filtered.musicxml"
