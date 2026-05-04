@@ -43,7 +43,8 @@
             "server": "src/main.server.ts",
             "prerender": false,
             "ssr": {
-              "entry": "src/server.ts"
+              "entry": "src/server.ts",
+              "allowedHosts": ["pianoml.org", "localhost"]
             }
           },
           
