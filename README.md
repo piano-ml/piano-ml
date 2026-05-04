@@ -4,7 +4,6 @@
 
 PianoML is a project designed to help users learn piano and practice exercises.
 
-![Build](https://github.com/piano-ml/piano-ml/actions/workflows/release.yaml/badge.svg)
 ![License](https://img.shields.io/github/license/piano-ml/piano-ml)
 
 
