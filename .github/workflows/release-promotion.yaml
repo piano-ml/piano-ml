@@ -1,10 +1,9 @@
 name: Release promotion
 
 on:
-  workflow_run:
-    workflows: ["tests"]
-    types:
-      - completed
+  push:
+    branches:
+      - develop
   workflow_dispatch:
     inputs:
       source_branch:
@@ -23,17 +22,17 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: release-promotion-${{ github.event.workflow_run.head_branch || github.event.inputs.source_branch || 'develop' }}-to-${{ github.event.inputs.target_branch || 'main' }}
+  group: release-promotion-${{ github.ref_name || github.event.inputs.source_branch || 'develop' }}-to-${{ github.event.inputs.target_branch || 'main' }}
   cancel-in-progress: false
 
-env:
-  DEFAULT_SOURCE_BRANCH: develop
-  DEFAULT_TARGET_BRANCH: main
-
 jobs:
+  tests:
+    name: Run tests
+    uses: ./.github/workflows/test.yaml
+
   prepare:
     name: Prepare promotion
-    if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'develop') || github.event_name == 'workflow_dispatch' }}
+    needs: tests
     runs-on: ubuntu-latest
     outputs:
       source_branch: ${{ steps.branches.outputs.source_branch }}
@@ -49,7 +48,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_SOURCE_BRANCH: ${{ github.event.inputs.source_branch }}
           INPUT_TARGET_BRANCH: ${{ github.event.inputs.target_branch }}
-          WORKFLOW_RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          PUSH_BRANCH: ${{ github.ref_name }}
         run: |
           set -euo pipefail
 
@@ -57,8 +56,8 @@ jobs:
             SOURCE_BRANCH="$INPUT_SOURCE_BRANCH"
             TARGET_BRANCH="$INPUT_TARGET_BRANCH"
           else
-            SOURCE_BRANCH="$WORKFLOW_RUN_BRANCH"
-            TARGET_BRANCH="$DEFAULT_TARGET_BRANCH"
+            SOURCE_BRANCH="$PUSH_BRANCH"
+            TARGET_BRANCH="main"
           fi
 
           echo "source_branch=$SOURCE_BRANCH" >> "$GITHUB_OUTPUT"

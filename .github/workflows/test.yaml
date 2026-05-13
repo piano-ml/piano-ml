@@ -5,6 +5,7 @@ on:
     branches: [ "main", "develop"]
   pull_request:
     branches: [ "main", "develop" ]
+  workflow_call:
 
 jobs:
   backend:
@@ -17,7 +18,7 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: maven 
+        cache: maven
     - name: Run tests
       working-directory: ./backend
       run: mvn --batch-mode --update-snapshots verify
