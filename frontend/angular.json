@@ -17,6 +17,7 @@
               "allowedHosts": [
                 "*.run.app",
                 "*.pianoml.org",
+                "pianoml.org",
                 "localhost"
               ]
             },
