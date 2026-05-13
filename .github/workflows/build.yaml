@@ -1,6 +1,4 @@
-
-
-name: Build and Push to Artifact Registry
+name: Build and Push to GHCR
 
 on:
   push:
@@ -9,11 +7,9 @@ on:
       - main
 
 env:
-  PROJECT_ID: sectrack
-  REGION: northamerica-northeast1
-  REPO_NAME: images
-  SERVICE_ACCOUNT: my-service-account
-  PROVIDER_ID: projects/189831140484/locations/global/workloadIdentityPools/my-pool/providers/github-actions-provider
+  REGISTRY: ghcr.io
+  IMAGE_BACKEND: ghcr.io/${{ github.repository_owner }}/pianoml
+  IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner }}/pianoml-fe
   BRANCH_NAME: ${{ github.ref_name }}
 
 jobs:
@@ -25,10 +21,9 @@ jobs:
     needs: tests
     name: Backend - Docker Build & Push
     runs-on: ubuntu-latest
-
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: read
+      packages: write
 
     steps:
       - id: checkout
@@ -41,91 +36,72 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: compile
+
+      - name: Compile
         working-directory: ./backend
         run: mvn --batch-mode --update-snapshots install
 
-      - id: auth
-        name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          token_format: access_token
-          workload_identity_provider: ${{ env.PROVIDER_ID }}
-          service_account: ${{ env.SERVICE_ACCOUNT }}@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-          access_token_lifetime: 300s
-
-      - name: Login to Artifact Registry
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGION }}-docker.pkg.dev
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:${{ env.BRANCH_NAME }} .
         working-directory: ./backend
+        run: docker build -t ${{ env.IMAGE_BACKEND }}:${{ env.BRANCH_NAME }} .
 
       - name: Push image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:${{ env.BRANCH_NAME }}
+        run: docker push ${{ env.IMAGE_BACKEND }}:${{ env.BRANCH_NAME }}
 
   frontend:
     needs: tests
     name: Frontend - Docker Build & Push
     runs-on: ubuntu-latest
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: read
+      packages: write
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22.22.0'
-        cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
-    - name: Install dependencies
-      working-directory: ./frontend
-      run: npm --legacy-peer-deps install
-    - name: Generate shader manifest
-      working-directory: ./frontend
-      run: npm run shaders:manifest
-    - name: Build frontend
-      working-directory: ./frontend
-      run: npm run build:prod
-    - name: Build frontend Docker image
-      working-directory: ./frontend
-      run: docker build -t pianoml-fe .
+      - uses: actions/checkout@v4
 
-    - id: auth
-      name: Authenticate with Google Cloud
-      uses: google-github-actions/auth@v2
-      with:
-        token_format: access_token
-        workload_identity_provider: ${{ env.PROVIDER_ID }}
-        service_account: ${{ env.SERVICE_ACCOUNT }}@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-        access_token_lifetime: 300s
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
-    - name: Login to Artifact Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ${{ env.REGION }}-docker.pkg.dev
-        username: oauth2accesstoken
-        password: ${{ steps.auth.outputs.access_token }}
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm --legacy-peer-deps install
 
-    - name: Build image
-      working-directory: ./frontend
-      run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:${{ env.BRANCH_NAME }} .
+      - name: Generate shader manifest
+        working-directory: ./frontend
+        run: npm run shaders:manifest
 
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build:prod
 
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Smoke test image
-      working-directory: ./frontend
-      run: |
-        docker run -d --rm --name fe-smoke -p 8080:80 ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:${{ env.BRANCH_NAME }}
-            for i in {1..10}; do curl -fsS http://localhost:8080/ && break; sleep 3; done
-            docker logs fe-smoke
-            docker stop fe-smoke
+      - name: Build image
+        working-directory: ./frontend
+        run: docker build -t ${{ env.IMAGE_FRONTEND }}:${{ env.BRANCH_NAME }} .
 
-    - name: Push image
-      run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:${{ env.BRANCH_NAME }}
+      - name: Smoke test image
+        run: |
+          docker run -d --rm --name fe-smoke -p 8080:80 ${{ env.IMAGE_FRONTEND }}:${{ env.BRANCH_NAME }}
+          for i in {1..10}; do curl -fsS http://localhost:8080/ && break; sleep 3; done
+          docker logs fe-smoke
+          docker stop fe-smoke
+
+      - name: Push image
+        run: docker push ${{ env.IMAGE_FRONTEND }}:${{ env.BRANCH_NAME }}
