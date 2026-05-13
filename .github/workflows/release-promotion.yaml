@@ -150,6 +150,11 @@ jobs:
     if: ${{ needs.prepare.result == 'success' && needs.prepare.outputs.needed == 'true' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Create or update promotion PR
         env:
           GH_TOKEN: ${{ github.token }}
@@ -161,25 +166,45 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Find the merge base (last common commit between develop and main)
+          git fetch origin "$SOURCE_BRANCH" "$TARGET_BRANCH"
+          MERGE_BASE=$(git merge-base "origin/$SOURCE_BRANCH" "origin/$TARGET_BRANCH")
+
+          # List commits in develop not yet in main (since merge base)
+          COMMIT_SHAS=$(git log --pretty=format:"%H" "$MERGE_BASE..origin/$SOURCE_BRANCH")
+
+          # For each commit, find if it is the merge commit of a PR and collect PR titles
+          PR_LINES=""
+          while IFS= read -r SHA; do
+            [[ -z "$SHA" ]] && continue
+            PR_TITLE=$(gh api "repos/$REPO/commits/$SHA/pulls" \
+              --jq '[.[] | select(.base.ref == "'"$SOURCE_BRANCH"'") | "- " + .title] | first // empty' 2>/dev/null || true)
+            if [[ -n "$PR_TITLE" ]]; then
+              PR_LINES="${PR_LINES}${PR_TITLE}"$'\n'
+            fi
+          done <<< "$COMMIT_SHAS"
+
+          # Deduplicate (same PR can appear on multiple commits)
+          PR_LINES=$(echo "$PR_LINES" | sort -u)
+
+          if [[ -z "$PR_LINES" ]]; then
+            PR_LINES="_No merged PRs found since last sync._"
+          fi
+
           TITLE="Release: promote $SOURCE_BRANCH to $TARGET_BRANCH"
           BODY=$(cat <<EOF
-          Automated promotion PR.
+          ## Changes included in this release
 
-          - Source: \
-            \
-            $SOURCE_BRANCH
-          - Target: \
-            \
-            $TARGET_BRANCH
-          - Source SHA: \
-            \
-            $SOURCE_SHA
+          ${PR_LINES}
+          ---
+          - Source: $SOURCE_BRANCH @ $SOURCE_SHA
+          - Target: $TARGET_BRANCH
           EOF
           )
 
           if [[ -n "$PR_NUMBER" ]]; then
             gh pr edit "$PR_NUMBER" --repo "$REPO" --title "$TITLE" --body "$BODY"
-            echo "Promotion PR already exists: #$PR_NUMBER"
+            echo "Promotion PR updated: #$PR_NUMBER"
           else
             gh pr create \
               --repo "$REPO" \
