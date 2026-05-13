@@ -1,0 +1,201 @@
+name: Release promotion
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: Source branch to promote
+        required: true
+        type: string
+        default: develop
+      target_branch:
+        description: Target branch
+        required: true
+        type: string
+        default: main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-promotion-${{ github.ref_name || github.event.inputs.source_branch || 'develop' }}-to-${{ github.event.inputs.target_branch || 'main' }}
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    name: Run tests
+    uses: ./.github/workflows/test.yaml
+
+  prepare:
+    name: Prepare promotion
+    needs: tests
+    runs-on: ubuntu-latest
+    outputs:
+      source_branch: ${{ steps.branches.outputs.source_branch }}
+      target_branch: ${{ steps.branches.outputs.target_branch }}
+      pr_number: ${{ steps.pr.outputs.pr_number }}
+      pr_url: ${{ steps.pr.outputs.pr_url }}
+      source_sha: ${{ steps.fetch.outputs.source_sha }}
+      needed: ${{ steps.check.outputs.needed }}
+    steps:
+      - name: Resolve branches
+        id: branches
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_SOURCE_BRANCH: ${{ github.event.inputs.source_branch }}
+          INPUT_TARGET_BRANCH: ${{ github.event.inputs.target_branch }}
+          PUSH_BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            SOURCE_BRANCH="$INPUT_SOURCE_BRANCH"
+            TARGET_BRANCH="$INPUT_TARGET_BRANCH"
+          else
+            SOURCE_BRANCH="$PUSH_BRANCH"
+            TARGET_BRANCH="main"
+          fi
+
+          echo "source_branch=$SOURCE_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "target_branch=$TARGET_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch branches
+        id: fetch
+        env:
+          SOURCE_BRANCH: ${{ steps.branches.outputs.source_branch }}
+          TARGET_BRANCH: ${{ steps.branches.outputs.target_branch }}
+        run: |
+          set -euo pipefail
+          git fetch origin "$SOURCE_BRANCH" "$TARGET_BRANCH"
+          echo "source_sha=$(git rev-parse "origin/$SOURCE_BRANCH")" >> "$GITHUB_OUTPUT"
+
+      - name: Check if promotion is needed
+        id: check
+        env:
+          SOURCE_BRANCH: ${{ steps.branches.outputs.source_branch }}
+          TARGET_BRANCH: ${{ steps.branches.outputs.target_branch }}
+        run: |
+          set -euo pipefail
+
+          # Skip if target already contains all source commits (nothing to promote)
+          if git merge-base --is-ancestor "origin/$SOURCE_BRANCH" "origin/$TARGET_BRANCH"; then
+            echo "$TARGET_BRANCH already contains all commits from $SOURCE_BRANCH. Nothing to promote."
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "needed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Check merge conflicts
+        if: steps.check.outputs.needed == 'true'
+        env:
+          SOURCE_BRANCH: ${{ steps.branches.outputs.source_branch }}
+          TARGET_BRANCH: ${{ steps.branches.outputs.target_branch }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
+          if git merge --no-commit "origin/$SOURCE_BRANCH"; then
+            if [[ -f .git/MERGE_HEAD ]]; then
+              git merge --abort
+            fi
+          else
+            if [[ -f .git/MERGE_HEAD ]]; then
+              git merge --abort
+            fi
+            echo "Merging $SOURCE_BRANCH into $TARGET_BRANCH currently has conflicts or cannot be prepared automatically." >&2
+            exit 1
+          fi
+
+      - name: Find existing promotion PR
+        if: steps.check.outputs.needed == 'true'
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SOURCE_BRANCH: ${{ steps.branches.outputs.source_branch }}
+          TARGET_BRANCH: ${{ steps.branches.outputs.target_branch }}
+        run: |
+          set -euo pipefail
+
+          PR_JSON=$(gh pr list \
+            --repo "$REPO" \
+            --base "$TARGET_BRANCH" \
+            --head "$SOURCE_BRANCH" \
+            --state open \
+            --json number,url \
+            --limit 1)
+
+          PR_NUMBER=$(echo "$PR_JSON" | jq -r '.[0].number // empty')
+          PR_URL=$(echo "$PR_JSON" | jq -r '.[0].url // empty')
+
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+  sync_pr:
+    name: Sync promotion PR
+    needs: prepare
+    if: ${{ needs.prepare.result == 'success' && needs.prepare.outputs.needed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or update promotion PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SOURCE_BRANCH: ${{ needs.prepare.outputs.source_branch }}
+          TARGET_BRANCH: ${{ needs.prepare.outputs.target_branch }}
+          PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
+          SOURCE_SHA: ${{ needs.prepare.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+
+          TITLE="Release: promote $SOURCE_BRANCH to $TARGET_BRANCH"
+          BODY=$(cat <<EOF
+          Automated promotion PR.
+
+          - Source: \
+            \
+            $SOURCE_BRANCH
+          - Target: \
+            \
+            $TARGET_BRANCH
+          - Source SHA: \
+            \
+            $SOURCE_SHA
+          EOF
+          )
+
+          if [[ -n "$PR_NUMBER" ]]; then
+            gh pr edit "$PR_NUMBER" --repo "$REPO" --title "$TITLE" --body "$BODY"
+            echo "Promotion PR already exists: #$PR_NUMBER"
+          else
+            gh pr create \
+              --repo "$REPO" \
+              --base "$TARGET_BRANCH" \
+              --head "$SOURCE_BRANCH" \
+              --title "$TITLE" \
+              --body "$BODY"
+
+            PR_NUMBER=$(gh pr list \
+              --repo "$REPO" \
+              --base "$TARGET_BRANCH" \
+              --head "$SOURCE_BRANCH" \
+              --state open \
+              --json number \
+              --limit 1 \
+              --jq '.[0].number')
+          fi
+
+

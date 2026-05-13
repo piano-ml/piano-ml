@@ -2,13 +2,11 @@
 
 name: Build and Push to Artifact Registry
 
-
 on:
-  workflow_run:
-    workflows: ["tests"]
-    types:
-      - completed
-
+  push:
+    branches:
+      - develop
+      - main
 
 env:
   PROJECT_ID: sectrack
@@ -16,14 +14,18 @@ env:
   REPO_NAME: images
   SERVICE_ACCOUNT: my-service-account
   PROVIDER_ID: projects/189831140484/locations/global/workloadIdentityPools/my-pool/providers/github-actions-provider
-  BRANCH_NAME: ${{ github.event.workflow_run.head_branch }}
+  BRANCH_NAME: ${{ github.ref_name }}
 
 jobs:
+  tests:
+    name: Run tests
+    uses: ./.github/workflows/test.yaml
+
   backend:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'main') }}    
-    name: Backend - Docker Build & Push   
+    needs: tests
+    name: Backend - Docker Build & Push
     runs-on: ubuntu-latest
-  
+
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -31,7 +33,7 @@ jobs:
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -67,8 +69,8 @@ jobs:
         run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml:${{ env.BRANCH_NAME }}
 
   frontend:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'main') }}    
-    name: Frontend - Docker Build & Push    
+    needs: tests
+    name: Frontend - Docker Build & Push
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
@@ -87,7 +89,7 @@ jobs:
       run: npm --legacy-peer-deps install
     - name: Generate shader manifest
       working-directory: ./frontend
-      run: npm run shaders:manifest          
+      run: npm run shaders:manifest
     - name: Build frontend
       working-directory: ./frontend
       run: npm run build:prod
@@ -118,7 +120,7 @@ jobs:
 
 
     - name: Smoke test image
-      working-directory: ./frontend    
+      working-directory: ./frontend
       run: |
         docker run -d --rm --name fe-smoke -p 8080:80 ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/pianoml-fe:${{ env.BRANCH_NAME }}
             for i in {1..10}; do curl -fsS http://localhost:8080/ && break; sleep 3; done

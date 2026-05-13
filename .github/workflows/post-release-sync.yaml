@@ -15,8 +15,7 @@ jobs:
     name: Sync develop with main
     if: >-
       github.event.pull_request.merged == true &&
-      (startsWith(github.event.pull_request.title, 'chore(main): release') ||
-       contains(github.event.pull_request.labels.*.name, 'autorelease: pending'))
+      github.event.pull_request.head.ref == 'develop'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
