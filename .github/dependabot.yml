@@ -1,0 +1,30 @@
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"
+
+  # Backend (Maven)
+  - package-ecosystem: "maven"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"
+
+  # Frontend (npm)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"
+
+  # Python – autoharmonizer
+  - package-ecosystem: "pip"
+    directory: "/backend/autoharmonizer"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"
+
