@@ -1,0 +1,35 @@
+name: Cleanup old GHCR images
+
+on:
+  schedule:
+    # Every Monday at 03:00 UTC
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    name: Delete untagged and old images
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [pianoml, pianoml-fe]
+    steps:
+      - name: Delete untagged versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ matrix.image }}
+          package-type: container
+          # Delete versions that have no tag (dangling layers)
+          delete-only-untagged-versions: true
+          min-versions-to-keep: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Keep only last 5 tagged versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ matrix.image }}
+          package-type: container
+          delete-only-untagged-versions: false
+          min-versions-to-keep: 5
+          token: ${{ secrets.GITHUB_TOKEN }}
+
