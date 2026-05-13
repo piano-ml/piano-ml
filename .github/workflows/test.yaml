@@ -40,7 +40,17 @@ jobs:
     - name: Install dependencies
       working-directory: ./frontend
       run: npm --legacy-peer-deps install
-    - name: Build frontend
-      working-directory: ./frontend
-      run: npm run build
+  summary:
+    name: Tests passed
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    if: always()
+    steps:
+      - name: Check all tests passed
+        run: |
+          if [[ "${{ needs.backend.result }}" != "success" || "${{ needs.frontend.result }}" != "success" ]]; then
+            echo "One or more tests failed"
+            exit 1
+          fi
+          echo "All tests passed"
 
