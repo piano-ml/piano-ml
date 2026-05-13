@@ -10,8 +10,8 @@ PianoML is a project designed to help users learn piano and practice exercises.
 ## Features
 
 - Midi keyboard integration
-- Scale, chords and Arpeggios exercises
-- Load any MusicXML or Midi or Karaoke file
+- Scales, chords and Arpeggios exercises
+- Load any MusicXML, Midi or Karaoke file
 - Load PDF or Image files through Optical Music Recognition (OMR)
 - Score engraving
 - Integrated with Musicbrainz author and Score thesaurus
