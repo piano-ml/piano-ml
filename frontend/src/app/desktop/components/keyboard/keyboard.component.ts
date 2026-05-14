@@ -95,13 +95,11 @@ export class KeyboardComponent implements OnDestroy, AfterViewInit {
     }
 
     this.keyboard.setOnKeyMouseDown((event: MouseEvent, keyInfo: { note: number, name: string }) => {
-      console.log({ key: keyInfo.note, timestamp: Date.now() });
       this.keyPressed.set({ key: 12 + Number(keyInfo.note), timestamp: Date.now() });
       this.keyboardService.press(keyInfo.name, 12 + Number(keyInfo.note)); // Ensure the note is released before pressing again (handles repeated notes)
     });
 
     this.keyboard.setOnKeyMouseUp((event: MouseEvent, keyInfo: { note: number, name: string }) => {
-      console.log({ key: keyInfo.note, timestamp: Date.now() });
       this.keyReleased.set({ key: 12 + Number(keyInfo.note), timestamp: Date.now() });
       this.keyboardService.release(keyInfo.name, 12 + Number(keyInfo.note));
     });
