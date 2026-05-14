@@ -15,7 +15,7 @@ import { Cursor, GraphicalNote, OpenSheetMusicDisplay, Note as OSMDNote, VexFlow
 import { PlayerStateService } from './player-state.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
 import { PlayerAudioService } from './player-audio.service';
-import { LiveStatus, PlayerAssessService } from './player-assess.service';
+import { LiveStatus, NoteKey, PlayerAssessService } from './player-assess.service';
 import { CursorService } from './cursor.service';
 
 
@@ -33,6 +33,8 @@ export class PlayerService {
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
   private timeCounterInterval?: number;
+  private highlightedBadNotes = new Set<GraphicalNote>();
+  private badNoteResetTimers = new Map<GraphicalNote, ReturnType<typeof setTimeout>>();
   verticalPixelShiftValue: number = 1;
   lastBar = 0;
 
@@ -89,7 +91,7 @@ export class PlayerService {
     } else if (midiAll.tracks.length == 2) {
       study_tracks = [0, 1];
     }
-    const midiAsDefaultTempo = midiAll.header.tempos.every((t) => { t.bpm === 120; return true });
+    const midiAsDefaultTempo = midiAll.header.tempos.every((t) => t.bpm === 120);
     if (midiAsDefaultTempo && scoreApiInfo?.tempo) {
       playConfiguration.tempoFactor = (scoreApiInfo?.tempo || 120) / 120;
     }
@@ -115,9 +117,7 @@ export class PlayerService {
 
 
   splitMidi(json: Midi.MidiJSON, studies: number[]): { study: Midi.Midi, other: Midi.Midi } {
-
-    // Remove tracks with no notes
-    json.tracks = json.tracks.filter(track => track.notes.length > 0);
+    const filteredTracks = json.tracks.filter(track => track.notes.length > 0);
 
     // json.tracks.forEach((track, idx) => {
     //   console.log(`Track ${idx}: ${track.name}, instrument: ${track.instrument.name}, notes: ${track.notes.length}`);
@@ -125,34 +125,42 @@ export class PlayerService {
 
     // If studies.length === 1, include all tracks with the same instrument name
     if (studies.length === 1) {
-      const studyTrackInstrument = json.tracks[studies[0]].instrument.name;
-      studies = json.tracks
+      const studyTrackInstrument = filteredTracks[studies[0]].instrument.name;
+      studies = filteredTracks
         .map((track, idx) => ({ idx, instrumentName: track.instrument.name }))
         .filter(item => item.instrumentName === studyTrackInstrument)
         .map(item => item.idx);
     }
 
     //studies = [0,1]
+    const normalizedJson: Midi.MidiJSON = {
+      ...json,
+      tracks: filteredTracks
+    };
+
     const midiAll = new Midi.Midi();
-    midiAll.fromJSON(json)
+    midiAll.fromJSON(normalizedJson)
     this.duration = midiAll.duration;
     if (midiAll.header.timeSignatures.length === 0) {
       midiAll.header.timeSignatures.push({ ticks: 0, timeSignature: [4, 4] });
     }
 
-    const midiStudied = midiAll.clone();
-    const midiOther = midiAll.clone();
+    const studiesSet = new Set(studies);
+    const allTracks = midiAll.tracks;
 
-    const midiStudiedTracks = midiAll.tracks.filter((track, idx) => {
-      return studies?.indexOf(idx) !== -1;
+    const midiStudiedTracks = allTracks.filter((track, idx) => {
+      return studiesSet.has(idx);
     });
+
+    const midiOtherTracks = allTracks.filter((track, idx) => {
+      return !studiesSet.has(idx);
+    });
+
+    const midiStudied = midiAll.clone();
     midiStudied.tracks = midiStudiedTracks;
 
-    const midiOtherTracks = midiAll.tracks.filter((track, idx) => {
-      return studies?.indexOf(idx) === -1;
-    });
-    midiOther.tracks = midiOtherTracks
-    return { study: midiStudied, other: midiOther };
+    midiAll.tracks = midiOtherTracks;
+    return { study: midiStudied, other: midiAll };
   }
 
 
@@ -198,6 +206,14 @@ export class PlayerService {
     this.assess.reset();
     this.lastMidiEventTime = -1;
     this.keyboard.removeAllNotesFromKeyboard();
+    this.cursorService.reset(playConfiguration.scoreRange[0]);
+  }
+
+  resetLight(playConfiguration: PlayConfiguration) {
+    this.playConfiguration = playConfiguration;
+    this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
+    this.unHighlightBadNote();
+    this.lastMidiEventTime = -1;
     this.cursorService.reset(playConfiguration.scoreRange[0]);
   }
 
@@ -304,8 +320,10 @@ export class PlayerService {
         return;
       }
       if (!liveStatus.shouldPause) {
-        await this.audio.start();
-        this.isWaiting = false;
+        if (this.isWaiting) {
+          await this.audio.start();
+          this.isWaiting = false;
+        }
       }
       if (liveStatus.bad) {
         this.highlightBadNote(midiEvent.note);
@@ -318,51 +336,85 @@ export class PlayerService {
 
   private highlightBadNote(pitch: number) {
     const cursor = this.cursorService.cursor!;
-    const osmdNotes = (cursor.GNotesUnderCursor() as GraphicalNote[]).filter(n => n && (n as any).sourceNote);
-    if (osmdNotes.length === 0) return;
-    if (osmdNotes.at(0)?.sourceNote.TremoloInfo != null) {
+    const osmdNotes = cursor.GNotesUnderCursor() as GraphicalNote[];
+    let firstSourceNote: any;
+    let closest: GraphicalNote | undefined;
+    let closestDiff = Number.POSITIVE_INFINITY;
+    const targetPitch = pitch - 12;
+
+    for (const note of osmdNotes) {
+      if (!note) {
+        continue;
+      }
+
+      const sourceNote = (note as any).sourceNote;
+      if (!sourceNote) {
+        continue;
+      }
+
+      if (!firstSourceNote) {
+        firstSourceNote = sourceNote;
+      }
+
+      const halfTone = sourceNote.Pitch?.getHalfTone() || 0;
+      const diff = Math.abs(halfTone - targetPitch);
+      if (diff < closestDiff) {
+        closest = note;
+        closestDiff = diff;
+      }
+    }
+
+    if (!closest) return;
+    if (firstSourceNote?.TremoloInfo != null) {
       // Tremolo note, skipping highlight
       return;
     }
+
     this.message.set("BAD");
-    const closest = osmdNotes.reduce((prev, curr) => {
-      const prevDiff = Math.abs((prev.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
-      const currDiff = Math.abs((curr.sourceNote.Pitch?.getHalfTone() || 0) - (pitch - 12));
-      return (currDiff < prevDiff) ? curr : prev;
-    });
 
     const delta = (closest.sourceNote.halfTone - pitch + 12);
     closest.setColor("#FF0000", {});
+    this.highlightedBadNotes.add(closest);
     const closestVexFlowNote = (closest as VexFlowGraphicalNote);
-    closestVexFlowNote.getSVGGElement().style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
-    setTimeout(() => {
-      closestVexFlowNote.getSVGGElement().style.transform = "";
+    const svgElement = closestVexFlowNote.getSVGGElement();
+    svgElement.style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
+
+    const existingTimeout = this.badNoteResetTimers.get(closest);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+    }
+
+    const timeoutId = setTimeout(() => {
+      svgElement.style.transform = "";
       this.message.set("");
       closest.setColor("black", {});
+      this.highlightedBadNotes.delete(closest);
+      this.badNoteResetTimers.delete(closest);
     }, 1000);
+    this.badNoteResetTimers.set(closest, timeoutId);
   }
 
   private unHighlightBadNote() {
-    if (this.osmd?.GraphicSheet == null) return;
-    this.osmd?.GraphicSheet.MeasureList.forEach(measure => {
-      measure.forEach(graphicalMeasure => {
-        if (graphicalMeasure && graphicalMeasure.staffEntries) {
-          graphicalMeasure.staffEntries.forEach(staffEntry => {
-            staffEntry.graphicalVoiceEntries.forEach(voiceEntry => {
-              if (voiceEntry.notes) {
-                voiceEntry.notes.forEach(graphicalNote => {
-                  try {
-                    graphicalNote.setColor("black", {});
-                  } catch (e) {
-                    // Ignore errors
-                  }
-                });
-              }
-            });
-          });
+    if (this.highlightedBadNotes.size === 0) return;
+
+    for (const graphicalNote of this.highlightedBadNotes) {
+      try {
+        const timeoutId = this.badNoteResetTimers.get(graphicalNote);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          this.badNoteResetTimers.delete(graphicalNote);
         }
-      });
-    });
+
+        graphicalNote.setColor("black", {});
+        (graphicalNote as VexFlowGraphicalNote).getSVGGElement().style.transform = "";
+      } catch (e) {
+        // Ignore errors
+      }
+    }
+
+    this.badNoteResetTimers.clear();
+    this.highlightedBadNotes.clear();
+    this.message.set("");
   }
 
 
@@ -390,13 +442,19 @@ export class PlayerService {
   }
 
   private lightExpectedNotesOnKeyboard(liveStatus: LiveStatus) {
-    const keys = Array.from(liveStatus.expectations.keys());
-    const oldestKey = Math.min(...keys);
-    const oldestValue = liveStatus.expectations.get(oldestKey);
+    let oldestKey = Number.POSITIVE_INFINITY;
+    let oldestValue: Set<NoteKey> | undefined;
+
+    for (const [key, value] of liveStatus.expectations) {
+      if (key < oldestKey) {
+        oldestKey = key;
+        oldestValue = value;
+      }
+    }
+
     if (oldestValue) {
-      for (const expectedString of oldestValue) {
-        const expected = expectedString.split(":")
-        this.keyboard.lightNoteOnKeyboard(expected[0], { midi: parseInt(expected[1], 10), velocity: 255 } as Note);
+      for (const noteKey of oldestValue) {
+        this.keyboard.lightNoteOnKeyboard(noteKey.hand, { midi: noteKey.midi, velocity: 255 } as Note);
       }
     }
   }
@@ -458,9 +516,17 @@ export class PlayerService {
 
   private calculateStartTimeInMsForMeasure(start: number, midiHeader: Midi.Header): number {
     let timeSig: TimeSignatureEvent | undefined = midiHeader.timeSignatures[0];
+    let timeSigIndex = 0;
     let elapsedTicks = 0;
     for (let i = 0; i < start; i++) {
-      timeSig = midiHeader.timeSignatures.filter((t) => t.ticks <= elapsedTicks).at(-1);
+      while (
+        timeSigIndex + 1 < midiHeader.timeSignatures.length
+        && midiHeader.timeSignatures[timeSigIndex + 1].ticks <= elapsedTicks
+      ) {
+        timeSigIndex += 1;
+      }
+
+      timeSig = midiHeader.timeSignatures[timeSigIndex] || timeSig;
       const ts = reducedFraction(timeSig?.timeSignature[0] || 4, timeSig?.timeSignature[1] || 4)
       elapsedTicks += getStaveDurationTick(ts, midiHeader.ppq);
     }

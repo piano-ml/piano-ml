@@ -75,14 +75,16 @@ export class PlayerAudioService {
 
     const noteStart = (note.time * timeFactor) - startOffset;
     const noteDuration = note.duration * timeFactor;
+    const transport = Tone.getTransport();
+    const roundedVelocity = Math.round(note.velocity * 127);
 
     // Note on
-    Tone.getTransport().schedule(() => {
-      this.spessasynth?.noteOn(channel, note.midi, Math.round(note.velocity * 127));
+    transport.schedule(() => {
+      this.spessasynth?.noteOn(channel, note.midi, roundedVelocity);
     }, noteStart + offset);
 
     // Note off
-    Tone.getTransport().schedule(() => {
+    transport.schedule(() => {
       this.spessasynth?.noteOff(channel, note.midi);
     }, noteStart + noteDuration + offset);
   }
@@ -98,12 +100,13 @@ export class PlayerAudioService {
     timeFactor: number,
     offset: number
   ): void {
-    // Schedule notes
-    for (const note of track.notes) {
+    // Notes are time-ordered: skip early notes, then stop once we pass the end window.
+    for (let i = 0; i < track.notes.length; i++) {
+      const note = track.notes[i];
       const noteTime = note.time * timeFactor;
-      if (noteTime >= startTime && noteTime < endCut) {
-        this.scheduleAccompanimentNote(channel, note, startTime, timeFactor, offset);
-      }
+      if (noteTime < startTime) continue;
+      if (noteTime >= endCut) break;
+      this.scheduleAccompanimentNote(channel, note, startTime, timeFactor, offset);
     }
   }
 
@@ -119,10 +122,10 @@ export class PlayerAudioService {
   ): void {
 
     for (const track of midi.tracks) {
-      track.channel = track.channel +2; // avoid conflict with piano track (0 and 1)
-      this.spessasynth?.programChange(track.channel, track.instrument.number);
+      const channel = track.channel + 2; // avoid conflict with piano track (0 and 1)
+      this.spessasynth?.programChange(channel, track.instrument.number);
       this.scheduleAccompanimentTrack(
-        track.channel,
+        channel,
         track,
         startTime,
         endCut,
@@ -136,8 +139,10 @@ export class PlayerAudioService {
    * Nettoie tous les événements schedulés
    */
   clearSchedule(): void {
-    Tone.getTransport().cancel();
-    Tone.getDraw().cancel();
+    const transport = Tone.getTransport();
+    const draw = Tone.getDraw();
+    transport.cancel();
+    draw.cancel();
   }
 
   /**
@@ -145,8 +150,14 @@ export class PlayerAudioService {
    */
   async start(): Promise<void> {
     this.pianoMLShouldPlay = this.midiService.pianoMLShouldPlay();
+    if (!this.spessasynth) {
+      await this.initSoundFont();
+    }
     await Tone.start();
-    Tone.getTransport().start();
+    const transport = Tone.getTransport();
+    if (transport.state !== 'started') {
+      transport.start();
+    }
   }
 
   /**
@@ -161,11 +172,13 @@ export class PlayerAudioService {
    * Arrête et réinitialise le transport
    */
   stop(): void {
-    Tone.getTransport().stop();
-    Tone.getTransport().position = 0;
+    const transport = Tone.getTransport();
+    const draw = Tone.getDraw();
+    transport.stop();
+    transport.position = 0;
     this.clearSchedule();
-    Tone.getDraw().dispose();
-    Tone.getDraw().cancel();
+    draw.dispose();
+    draw.cancel();
   }
 
   /**
@@ -229,11 +242,25 @@ export class PlayerAudioService {
   ): void {
     const noteTimeStart = (note.time * timeFactor) - startTime;
     const noteTimeEnd = noteTimeStart + (note.duration * timeFactor);
+    const playConfig = this.state.playConfiguration;
+    const isHandAwaited = (((hand === 'rh' && playConfig.waitForRightHand)
+      || (hand === 'lh' && playConfig.waitForLeftHand))
+      && (note.midi >= this.state.leftmostKey && note.midi <= this.state.rightmostKey)
+    );
+
+    // Calculate consistent timing: audio & UI both use offset when hand is not awaited
+    const scheduleStartTime = !isHandAwaited ? noteTimeStart + offset : noteTimeStart;
+    const scheduleEndTime = !isHandAwaited ? noteTimeEnd + offset : noteTimeEnd;
+    
+    // Cache transport & draw to avoid repeated accessor calls
+    const transport = Tone.getTransport();
+    const draw = Tone.getDraw();
+    const roundedVelocity = Math.round(note.velocity * 127);
 
     // Schedule note start (UI updates, cursor advance, keyboard light on)
-    this.schedule((time: number) => {
-      this.scheduleDraw(() => {
-        if (this.isNotHandAwaited(hand, note.midi)) {
+    transport.schedule((time: number) => {
+      draw.schedule(() => {
+        if (isHandAwaited) {
           const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), noteTimeEnd, note, hand);
           callbacks.onNoteStart(time, note, liveStatus);
         } else {
@@ -241,32 +268,32 @@ export class PlayerAudioService {
           callbacks.onNoteStart(time, note, liveStatus);
         }
       }, time);
-    }, noteTimeStart ? noteTimeStart + offset : 0);
+    }, scheduleStartTime);
 
     // Schedule piano audio start
-    this.schedule((time: number) => {
-      if (!this.isNotHandAwaited(hand, note.midi)) {
+    transport.schedule((time: number) => {
+      if (!isHandAwaited) {
         this.midiService.pressOutput(note.midi, note.velocity);
         if (this.pianoMLShouldPlay) {
-          this.spessasynth?.noteOn(0, note.midi, Math.round(note.velocity * 127));
+          this.spessasynth?.noteOn(0, note.midi, roundedVelocity);
         }
       } 
-    }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeStart + offset : noteTimeStart);
+    }, scheduleStartTime);
 
     // Schedule note end (keyboard light off, piano audio stop)
-    this.schedule((time: number) => {
-      if (!this.isNotHandAwaited(hand, note.midi)) {
+    transport.schedule((time: number) => {
+      if (!isHandAwaited) {
         this.midiService.releaseOutput(note.midi);
         if (this.pianoMLShouldPlay) {
           this.spessasynth?.noteOff(0, note.midi);
         }
       }
 
-      this.scheduleDraw(() => {
+      draw.schedule(() => {
         const liveStatus = this.assess.getExpectation();
         callbacks.onNoteEnd(time, note, liveStatus);
       }, time);
-    }, !this.isNotHandAwaited(hand, note.midi) ? noteTimeEnd + offset : noteTimeEnd);
+    }, scheduleEndTime);
 
   }
 
@@ -288,16 +315,18 @@ export class PlayerAudioService {
     }
   ): void {
 
-    for (const note of track.notes) {
+    // Notes are time-ordered: skip early notes, then stop once we pass the end window.
+    for (let i = 0; i < track.notes.length; i++) {
+      const note = track.notes[i];
       const noteTime = note.time * timeFactor;
-      if (noteTime >= startTime && noteTime < endCut) {
-        this.scheduleHandNote(hand, note, startTime, timeFactor, offset, callbacks);
-      }
+      if (noteTime < startTime) continue;
+      if (noteTime >= endCut) break;
+      this.scheduleHandNote(hand, note, startTime, timeFactor, offset, callbacks);
     }
   }
 
 
-  async playMetronomeClick(isStrong: boolean): Promise<void> {
+  playMetronomeClick(isStrong: boolean): void {
     const note = isStrong ? 34 : 33;   // 34 = Metronome Bell, 33 = Metronome Click
     const velocity = isStrong ? 110 : 80;
     this.spessasynth?.noteOn(9, note, velocity);
@@ -318,24 +347,27 @@ export class PlayerAudioService {
     const [numerator, denominator] = timeSigEvent?.timeSignature || [4, 4];
     const beatUnitFactor = 4 / denominator;
     const beatDurationMs = (60000 / bpm);
+    const stepSeconds = beatUnitFactor * beatDurationMs / 1000;
     const beatsPerBar = (denominator === 8 && numerator % 3 === 0)
       ? numerator / 3   // mesure composée
       : numerator;
+    
+    // Cache transport to avoid repeated accessor calls in loop
+    const transport = Tone.getTransport();
+    
     for (let i = 0; i <= beatsPerBar * bar; i++) {
-      offset = (i * beatUnitFactor * beatDurationMs / 1000);
+      offset = i * stepSeconds;
 
-      Tone.getTransport().scheduleOnce((time: number) => {
-
+      transport.scheduleOnce((_time: number) => {
         this.playMetronomeClick(i % beatsPerBar === 0);
-      }, `${i * beatUnitFactor * beatDurationMs / 1000}`);
+      }, `${i * stepSeconds}`);
     }
     // metronome all allong
     if (this.state.playConfiguration.useMetronome) {
-      Tone.getTransport().scheduleRepeat((time: number) => {
+      transport.scheduleRepeat((time: number) => {
         const currentBeat = Math.floor((time * 1000) / beatDurationMs) % beatsPerBar;
-        //console.log(currentBeat === 0)
         this.playMetronomeClick(currentBeat === 0);
-      }, beatUnitFactor * beatDurationMs / 1000, offset);
+      }, stepSeconds, offset);
     }
     return offset;
   }
