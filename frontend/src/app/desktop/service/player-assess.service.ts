@@ -9,10 +9,15 @@ export const GOOD_RANGE = 600 / 1000
 export const PERFECT_RANGE = 200 / 1000
 export const QUANT_RANGE = 100 / 1000
 
+export interface NoteKey {
+  hand: string;
+  midi: number;
+}
+
 export interface LiveStatus {
   shouldPause: boolean;
-  expectations: Map<number, Set<string>>;
-  early: Map<number, Set<string>>;
+  expectations: Map<number, Set<NoteKey>>;
+  early: Map<number, Set<NoteKey>>;
   bad: number | null;
   total: number;
   badCount: number;
@@ -27,6 +32,9 @@ export interface LiveStatus {
 })
 export class PlayerAssessService {
 
+  private cachedOldestKey: number | null = null;
+  private unHitNotesByTime: Map<number, { pitch: number, hit: boolean }[]> = new Map();
+
   constructor(
     private cursorService: CursorService,
   ) {
@@ -35,8 +43,8 @@ export class PlayerAssessService {
 
   liveStatus: LiveStatus = {
     shouldPause: false,
-    expectations: new Map<number, Set<string>>(),
-    early: new Map<number, Set<string>>(),
+    expectations: new Map<number, Set<NoteKey>>(),
+    early: new Map<number, Set<NoteKey>>(),
     bad: null,
     total: 0,
     badCount: 0,
@@ -46,28 +54,41 @@ export class PlayerAssessService {
   reset() {
     this.liveStatus = {
       shouldPause: false,
-      expectations: new Map<number, Set<string>>(),
+      expectations: new Map<number, Set<NoteKey>>(),
       bad: null,
-      early: new Map<number, Set<string>>(),
+      early: new Map<number, Set<NoteKey>>(),
       total: 0,
       badCount: 0,
       late: 0,
     }
+    this.cachedOldestKey = null;
+    // Initialize unHitNotesByTime with all notes from audioTimeNoteArray
+    this.unHitNotesByTime.clear();
+    for (const [t, notes] of this.cursorService.audioTimeNoteArray) {
+      const unHitNotes = notes.filter(n => !n.hit);
+      if (unHitNotes.length > 0) {
+        this.unHitNotesByTime.set(t, unHitNotes);
+      }
+    }
   }
 
   learnExpectation(noteTimeStart: number, noteTimeEnd: number, note: Note, hand: string): LiveStatus {
-    console.log(noteTimeStart, note.ticks);
-    if (!this.liveStatus.expectations.has(noteTimeStart)) {
-      this.liveStatus.expectations.set(noteTimeStart, new Set<string>());
+    let setAt = this.liveStatus.expectations.get(noteTimeStart);
+    if (!setAt) {
+      setAt = new Set<NoteKey>();
+      this.liveStatus.expectations.set(noteTimeStart, setAt);
+      this.cachedOldestKey = null; // invalidate cache when expectations change
     }
-    const setAt = this.liveStatus.expectations.get(noteTimeStart)!;
-    const key = `${hand}:${note.midi}`;
+    
+    const noteKey: NoteKey = { hand, midi: note.midi };
+    const keyExists = Array.from(setAt).some(k => k.hand === hand && k.midi === note.midi);
 
-    if (!setAt.has(key) && this.cursorService.midiTicksToOsmdCursorIndex.get(note.ticks) != null) {
-      setAt.add(key);
+    if (!keyExists && this.cursorService.midiTicksToOsmdCursorIndex.get(note.ticks) != null) {
+      setAt.add(noteKey);
     } else {
-      if (this.liveStatus.expectations.get(noteTimeStart)?.size === 0) {
+      if (setAt.size === 0) {
         this.liveStatus.expectations.delete(noteTimeStart);
+        this.cachedOldestKey = null; // invalidate cache
       }
     }
     this.cleanEarly(noteTimeStart);
@@ -77,9 +98,11 @@ export class PlayerAssessService {
   }
 
   cleanEarly(noteTimeStart: number) {
-    const earlyKeys = Array.from(this.liveStatus.early.keys()).filter(k => k < noteTimeStart - GOOD_RANGE);
-    for (const key of earlyKeys) {
-      this.liveStatus.early.delete(key);
+    const threshold = noteTimeStart - GOOD_RANGE;
+    for (const key of this.liveStatus.early.keys()) {
+      if (key < threshold) {
+        this.liveStatus.early.delete(key);
+      }
     }
   }
 
@@ -89,22 +112,18 @@ export class PlayerAssessService {
   }
 
   getNewActual(audioTime: number, midiEvent: MidiStateEvent): LiveStatus | null {
-    // console.log("new actual at:",audioTime, midiEvent.note );
-    // if (this.isNoteInTime(midiEvent, audioTime)) {
-    //   console.log("good")
-    // } else {
-    //   console.log("bad")
-    // }
     this.liveStatus.bad = null;
     if (!this.maybeRemovePitchFromExpectations(midiEvent.note)) {
       this.liveStatus.bad = midiEvent.note;
       this.liveStatus.badCount += 1;
-      if (!this.liveStatus.early.has(midiEvent.time)) {
-        this.liveStatus.early.set(midiEvent.time, new Set<string>());
+      let earlySet = this.liveStatus.early.get(midiEvent.time);
+      if (!earlySet) {
+        earlySet = new Set<NoteKey>();
+        this.liveStatus.early.set(midiEvent.time, earlySet);
       }
-      const earlyKey = `rh:${midiEvent.note}`;
-      const earlySet = this.liveStatus.early.get(midiEvent.time)!;
-      if (!earlySet.has(earlyKey)) {
+      const earlyKey: NoteKey = { hand: 'rh', midi: midiEvent.note };
+      const keyExists = Array.from(earlySet).some(k => k.hand === 'rh' && k.midi === midiEvent.note);
+      if (!keyExists) {
         earlySet.add(earlyKey);
       }
     }
@@ -113,77 +132,95 @@ export class PlayerAssessService {
   }
 
 
-      /**
-     * Retourne toutes les notes attendues dans l'intervalle [audioTime - range, audioTime + range]
-     */
-    getNotesInRange(audioTime: number, range: number): { pitch: number, hit: boolean }[] {
-        // audioTimeNoteArray doit être trié par audioTime
-        const result: { pitch: number, hit: boolean }[] = [];
-        for (const [t, notes] of this.cursorService.audioTimeNoteArray) {
-            if (t < audioTime - range) continue;
-            if (t > audioTime + range) break;
-            result.push(...notes.filter(n => n.hit==false));
-        }
-        return result;
+  /**
+   * Retourne toutes les notes attendues dans l'intervalle [audioTime - range, audioTime + range]
+   * Utilise une structure pré-filtrée des notes unhit pour éviter de filter à chaque appel
+   */
+  getNotesInRange(audioTime: number, range: number): { pitch: number, hit: boolean }[] {
+    const result: { pitch: number, hit: boolean }[] = [];
+    const minTime = audioTime - range;
+    const maxTime = audioTime + range;
+    
+    for (const [t, notes] of this.unHitNotesByTime) {
+      if (t < minTime) continue;
+      if (t > maxTime) break;
+      result.push(...notes);
     }
+    return result;
+  }
 
   isNoteInTime(midiEvent: MidiStateEvent, audioTime: number): boolean {
     const possibleNotes = this.getNotesInRange(audioTime, GOOD_RANGE);
     for (const possibleNote of possibleNotes) {
       if (possibleNote.pitch === midiEvent.note && possibleNote.hit === false) {
         possibleNote.hit = true;
+        // Remove note from pre-filtered unhit map
+        this.removeNoteFromUnHitMap(possibleNote);
         return true;
       }
     }
     return false;
   }
 
-  maybeRemovePitchFromExpectations(pitch: number): boolean {
-    let gotIt = false;
-    const keys = Array.from(this.liveStatus.expectations.keys());
-    const oldestKey = Math.min(...keys);
-    const oldestValue = this.liveStatus.expectations.get(oldestKey);
-    if (oldestValue) {
-      let foundStr: string | undefined;
-      for (const s of oldestValue) {
-        const parts = s.split(':');
-        const midi = parseInt(parts[1], 10);
-        if (midi === pitch) {
-          foundStr = s;
-          break;
+  private removeNoteFromUnHitMap(note: { pitch: number, hit: boolean }): void {
+    for (const [t, notes] of this.unHitNotesByTime) {
+      const index = notes.indexOf(note);
+      if (index >= 0) {
+        notes.splice(index, 1);
+        if (notes.length === 0) {
+          this.unHitNotesByTime.delete(t);
         }
-      }
-      if (foundStr) {
-        gotIt = true;
-        oldestValue.delete(foundStr);
-        if (oldestValue.size === 0) {
-          this.liveStatus.expectations.delete(oldestKey);
-        } else {
-          this.liveStatus.expectations.set(oldestKey, oldestValue);
-        }
+        return;
       }
     }
-    return gotIt;
+  }
+
+  maybeRemovePitchFromExpectations(pitch: number): boolean {
+    // Use cached oldest key or compute it
+    if (this.cachedOldestKey === null && this.liveStatus.expectations.size > 0) {
+      this.cachedOldestKey = Math.min(...Array.from(this.liveStatus.expectations.keys()));
+    }
+    
+    if (this.cachedOldestKey === null) return false;
+
+    const oldestValue = this.liveStatus.expectations.get(this.cachedOldestKey);
+    if (!oldestValue) return false;
+
+    let foundKey: NoteKey | null = null;
+    for (const noteKey of oldestValue) {
+      if (noteKey.midi === pitch) {
+        foundKey = noteKey;
+        break;
+      }
+    }
+
+    if (foundKey) {
+      oldestValue.delete(foundKey);
+      if (oldestValue.size === 0) {
+        this.liveStatus.expectations.delete(this.cachedOldestKey);
+        this.cachedOldestKey = null; // invalidate cache
+      }
+      return true;
+    }
+    return false;
   }
 
   checkExpectationsInEarly(noteTimeStart: number) {
     for (const [earlyTime, earlyNotes] of this.liveStatus.early) {
-      for (const earlyNote of Array.from(earlyNotes)) {
-        try {
-          const parts = earlyNote.split(':');
-          const midi = parseInt(parts[1], 10);
-          if (this.maybeRemovePitchFromExpectations(midi)) {
-            earlyNotes.delete(earlyNote);
-            if (earlyNotes.size === 0) {
-              this.liveStatus.early.delete(earlyTime);
-            }
-          }
-        } catch (e) {
-          this.liveStatus.early = new Map<number, Set<string>>();
-          console.error("Error in checkExpectationsInEarly", e);
+      const notesToDelete: NoteKey[] = [];
+      for (const earlyNote of earlyNotes) {
+        if (this.maybeRemovePitchFromExpectations(earlyNote.midi)) {
+          notesToDelete.push(earlyNote);
         }
       }
-    };
+      // Delete collected notes after iteration
+      for (const noteKey of notesToDelete) {
+        earlyNotes.delete(noteKey);
+      }
+      if (earlyNotes.size === 0) {
+        this.liveStatus.early.delete(earlyTime);
+      }
+    }
   }
 
   checkShouldPause() {

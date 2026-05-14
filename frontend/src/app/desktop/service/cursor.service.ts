@@ -38,10 +38,10 @@ export class CursorService {
 
     cursor: Cursor | undefined;
     osmdMeasureCount = 0;
-    feedbackSignal = signal<{ message: string; percentage: number } | null>(null); // TODO remove unused signal
+    feedbackSignal = signal<{ message: string; percentage: number } | null>(null);
     readonly measure = signal<number>(0);    
     audioTimeNoteArray: Array<[number, { pitch: number, hit: boolean }[]]> = [];
-    midiTicksToOsmdCursorIndex: Map<number, { osmdIndex: number, osmdMeasure: number }> = new Map(); // ticks => { osmdIndex, osmdMeasure }
+    midiTicksToOsmdCursorIndex: Map<number, { osmdIndex: number, osmdMeasure: number }> = new Map();
 
     public tiltCursor(cursor: Cursor): void {
         this.cursor = cursor;
@@ -281,7 +281,7 @@ export class CursorService {
             if (o.isLast && hasMeasureTransition && !isNaturalAdvance) {
                 const targetMeasure = osmdMesureSequence[midiMeasureIndex + 1];
                 this.moveToMeasure(targetMeasure);
-                await setTimeout(() => { }, 0); // yield to let the cursor update
+                await this.yieldToUi(); // yield to let the cursor update
             } else {
                 cursor.iterator.moveToNext();
             }

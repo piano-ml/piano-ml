@@ -1,9 +1,9 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, AfterViewInit, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, DestroyRef } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapQuestionCircle, bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapSpeedometer, bootstrapDash, bootstrapPlus } from '@ng-icons/bootstrap-icons';
+import { bootstrapQuestionCircle, bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapDash, bootstrapPlus } from '@ng-icons/bootstrap-icons';
 import { lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
@@ -165,15 +165,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     private titleService: Title
   ) {
     this.setupGeneric();
-    // Écoute du slopScoreSignal via effect Angular
-    effect(() => {
-      const score = this.cursorService.slopScoreSignal();
-      const shouldShow = score > 15;
-      // if (this.showSlopDialog !== shouldShow) {
-      //   this.showSlopDialog = shouldShow;
-      //   this.changeDetector.markForCheck();
-      // }
-    }, { allowSignalWrites: true });
   }
 
   setupGeneric() {
@@ -191,19 +182,16 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.playConfiguration.waitForLeftHand = this.parseBooleanStorage(this.waitForLeftHandStorageKey);
     this.playConfiguration.waitForRightHand = this.parseBooleanStorage(this.waitForRightHandStorageKey);
 
-    // Consolidated reactive effect: feedback, player messages, and measure updates
+    // Effect 1: Tour step highlight (beacon signals only — fires only on tour events)
     effect(() => {
       if (!isPlatformBrowser(this.platformId)) return;
 
-      // Tour completion/dismissal tracking
       if (this.beaconService.finished() || this.beaconService.dismissed()) {
         localStorage.setItem(this.tourSeenKey, 'true');
       }
 
-      // Highlighting logic for the current tour step
       const currentStep = this.beaconService.currentStep();
 
-      // Clean up previous highlight
       if (this.lastHighlightedElement) {
         this.lastHighlightedElement.classList.remove('beacon-highlighted-target');
         this.lastHighlightedElement = null;
@@ -216,26 +204,23 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
           this.lastHighlightedElement = element;
         }
       }
+    });
 
-      // Feedback
-      try {
-        this.loadingFeedBack$.next(this.cursorService.feedbackSignal());
-      } catch (e) {
-        //this.loadingFeedBack$.next(null);
-      }
-      // Player messages
+    // Effect 2: Player messages END / BAD (fires only on player message signal changes)
+    effect(() => {
+      if (!isPlatformBrowser(this.platformId)) return;
+
       const message = this.playerService.message();
       if (message === 'END') {
         this.isPlaying = false;
         this.recordAssessment();
+        this.changeDetector.markForCheck();
       } else if (message === 'BAD') {
         this.arenaClass = 'bad';
         this.hideKeyboard = false;
         setTimeout(() => {
           this.playerService.displayLiveOnKeyboard();
         }, 0);
-
-        // Remove the bad class after a short duration
         setTimeout(() => {
           this.arenaClass = '';
           this.changeDetector.markForCheck();
@@ -245,19 +230,31 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
           this.hideKeyboard = this.storedHideKeyboard;
           this.changeDetector.markForCheck();
         }, 5000);
+        this.changeDetector.markForCheck();
+      }
+    });
+
+    // Effect 3: Loading feedback + measure progress + slider (fires on every note advance)
+    effect(() => {
+      if (!isPlatformBrowser(this.platformId)) return;
+
+      try {
+        this.loadingFeedBack$.next(this.cursorService.feedbackSignal());
+      } catch (e) {
+        //this.loadingFeedBack$.next(null);
       }
 
-      // Measure updates
-      this.playConfiguration.currentStave = this.cursorService.measure() + 1;
-      this.updateSlider();
-
-      // Single mark for check after all updates
-      this.changeDetector.markForCheck();
+      // this.playConfiguration.currentStave = this.cursorService.measure() + 1;
+      // this.updateSlider();
+      // this.changeDetector.markForCheck();
     });
   }
 
   async ngOnInit(): Promise<void> {
     this.handleResize(); // Initial check
+    if (isPlatformBrowser(this.platformId)) {
+      window.addEventListener('resize', this.handleResize);
+    }
 
     if (isPlatformBrowser(this.platformId)) {
       // Vérifie si le paramètre de route useMetronome est présent
@@ -498,17 +495,13 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
     this.osmdLoading$.next(loading);
     this.changeDetector.markForCheck();
-    if (!loading) {
-      this.setupSlider();
-      setTimeout(() => {
-        this.title = `${this.scoreData!.author} - ${this.scoreData!.title}`;
-        this.updatePageTitle()
-        this.changeDetector.detectChanges();
-        this.checkIfScrollNeeded();
-      }, 100);
-    }
-    // here I do not need the observables
-
+    this.setupSlider();
+    setTimeout(() => {
+      this.title = `${this.scoreData!.author} - ${this.scoreData!.title}`;
+      this.updatePageTitle()
+      this.changeDetector.detectChanges();
+      this.checkIfScrollNeeded();
+    }, 100);
   }
 
   failOnLocalStorage() {
@@ -581,20 +574,14 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     type: 'midi' | 'musicxml',
     processor: (data: any) => Promise<void>
   ): Promise<void> {
-    // Don't set loading here since it's managed at higher level
-    return new Promise((resolve, reject) => {
-      this.scoreService.scoreOwnerIdTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.id!, type, scoreData.version || 1, 1).subscribe({
-        next: async (data) => {
-          try {
-            await processor(data);
-            resolve();
-          } catch (error) {
-            reject(error);
-          }
-        },
-        error: (error) => this.handleLoadError(error)
-      });
-    });
+    try {
+      const data = await firstValueFrom(
+        this.scoreService.scoreOwnerIdTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.id!, type, scoreData.version || 1, 1)
+      );
+      await processor(data);
+    } catch (error) {
+      this.handleLoadError(error);
+    }
   }
 
   private handleLoadError(error: any): void {
@@ -631,17 +618,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     } else {
       console.warn('No score data available to record assessment');
     }
-  }
-
-  private normalizeKey(value: string): string {
-    return value
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/&/g, ' and ')
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '')
-      .replace(/_{2,}/g, '_');
   }
 
   summary() {
@@ -690,7 +666,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   setSpeed(speed: number) {
     this.playConfiguration.delayFactor = 1 / speed;
     this.playConfiguration.tempoFactor = speed;
-    this.playerService.reset(this.playConfiguration);
+    this.playerService.resetLight(this.playConfiguration);
   }
 
   toggleFullscreen() {
@@ -753,7 +729,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   setupSlider() {
     if (!this.range) return;
-    this.slider = null;
+    if (this.slider) {
+      this.slider.destroy();
+    }
     this.slider = noUiSlider.create(this.range.nativeElement, {
       ...this.getSliderBaseConfig(),
       pips: {
@@ -819,7 +797,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.playConfiguration.scoreRange[0] = Math.round(start);
       this.playConfiguration.currentStave = Math.round(current);
       this.playConfiguration.scoreRange[1] = Math.round(end);
-      this.playerService.reset(this.playConfiguration);
+      this.playerService.resetLight(this.playConfiguration);
 
       this.updateSlider();
     });
