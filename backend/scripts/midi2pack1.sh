@@ -62,7 +62,6 @@ if [ -n "$MAKE_FINGERING" ]; then
       echo "Running pianoplayer for fingering detection"
       pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null
 
-      python ./scripts/extract_fingering.py "$FROOT.musicxml"
       ;;
     *)
       echo "Skipping fingering detection (MAKE_FINGERING='$MAKE_FINGERING')"
@@ -75,7 +74,7 @@ fi
 
 
 printf "Extracting fingering ...\n"
-python ./scripts/extract_fingering.py "${FROOT}.musicxml"
+python ./scripts/extract_fingering.py "${FROOT}.musicxml" || echo "set extract fingering failed !"
 
 cp -- "${FROOT}.musicxml" "${FROOT}_filtered.musicxml"
 
@@ -90,7 +89,8 @@ cp -- "${FROOT}.musicxml" "${FROOT}_filtered.musicxml"
 #fi
 
 printf "Setting metadata in files ...\n"
-python ./scripts/set_metadata.py "${FROOT}.musicxml" "$TITLE" "$COMPOSER"
+printf "./scripts/set_metadata.py "${FROOT}.musicxml" "$TITLE" "$COMPOSER"\n"
+python ./scripts/set_metadata.py "${FROOT}.musicxml" "$TITLE" "$COMPOSER" #|| echo "set metadata failed !"
 
 printf "Exporting metadata ...\n"
 python ./scripts/get_metadata.py "${FROOT}.musicxml"

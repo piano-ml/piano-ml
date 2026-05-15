@@ -32,8 +32,6 @@ if [ -n "$MAKE_FINGERING" ] && [ "$HAS_FINGERING" = "0" ]; then
     1|true|yes|y)
       echo "Running pianoplayer for fingering detection"
       pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null 2>&1
-
-      python ./scripts/extract_fingering.py "$FROOT.musicxml" > /dev/null 2>&1
       ;;
     *)
       echo "Skipping fingering detection (MAKE_FINGERING='$MAKE_FINGERING')"
@@ -45,7 +43,7 @@ fi
 
 
 echo "Generating fingering"
-python ./scripts/extract_fingering.py "$FROOT.musicxml" > /dev/null 2>&1
+python ./scripts/extract_fingering.py "$FROOT.musicxml" || echo "set extract fingering failed !"
 
 #HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
 #if [ "$HAS_HARMONY" = "0" ]; then

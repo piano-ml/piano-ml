@@ -53,8 +53,6 @@ if [ -n "$MAKE_FINGERING" ]; then
     1|true|yes|y)
       echo "Running pianoplayer for fingering detection"
       pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null  || exit 1
-
-      $HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml"
       ;;
     *)
       echo "Skipping fingering detection (MAKE_FINGERING='$MAKE_FINGERING')"
@@ -65,7 +63,7 @@ else
 fi
 
 
-$HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml" > /dev/null  || exit 1
+$HOME/shared-venv/bin/python ./scripts/extract_fingering.py "$FROOT.musicxml" > /dev/null  || echo "set extract fingering failed !"
 
 
 musescore3 -f -o "$FROOT".pdf "$FROOT".musicxml > /dev/null  || exit 1

@@ -334,18 +334,6 @@ def process_musicxml(path, title, composer):
         except Exception:
             pass
 
-    # Appliquer métadonnées
-    if not score.metadata:
-        score.metadata = metadata.Metadata()
-    score.metadata.title = title
-    score.metadata.composer = composer
-
-    # Supprimer movementName et movementNumber pour empêcher music21
-    # de recréer automatiquement le tag <movement-title>
-    score.metadata.movementName = None
-    score.metadata.movementNumber = None
-
-
     # Backup du fichier original avant d'écraser
     try:
         backup_path = path + '.bak'
@@ -355,8 +343,41 @@ def process_musicxml(path, title, composer):
     except Exception as e:
         print("Warning: could not create backup:", e)
 
-    # Écrire le résultat (écrase le fichier MusicXML)
-    score.write('musicxml', fp=path)
+    # Modifier les métadonnées directement dans le XML au lieu de passer par music21.write()
+    # pour éviter les problèmes de conversion de durées "inexpressible"
+    try:
+        root = ET.fromstring(xml_for_parse)
+    except ET.ParseError as e:
+        print(f"Error: Could not parse XML for metadata insertion: {e}")
+        return
+
+    # Trouver ou créer la section <work-title>
+    work_info = root.find('.//{*}work')
+    if work_info is None:
+        # Créer un élément <work> s'il n'existe pas
+        work_info = ET.Element('work')
+        root.insert(0, work_info)
+
+    work_title = work_info.find('{*}work-title')
+    if work_title is None:
+        work_title = ET.SubElement(work_info, 'work-title')
+    work_title.text = title
+
+    # Trouver ou créer la section <identification> pour le compositeur
+    identification = root.find('.//{*}identification')
+    if identification is None:
+        identification = ET.Element('identification')
+        root.insert(1 if work_info is not None else 0, identification)
+
+    composer_elem = identification.find('{*}composer')
+    if composer_elem is None:
+        composer_elem = ET.SubElement(identification, 'composer')
+    composer_elem.text = composer
+
+    # Écrire le XML modifié directement sans passer par music21.write()
+    output_bytes = ET.tostring(root, encoding='utf-8', xml_declaration=True)
+    with open(path, 'wb') as f:
+        f.write(output_bytes)
 
 
 if __name__ == '__main__':
