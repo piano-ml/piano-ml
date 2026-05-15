@@ -170,22 +170,43 @@ jobs:
           git fetch origin "$SOURCE_BRANCH" "$TARGET_BRANCH"
           MERGE_BASE=$(git merge-base "origin/$SOURCE_BRANCH" "origin/$TARGET_BRANCH")
 
-          # List commits in develop not yet in main (since merge base)
-          COMMIT_SHAS=$(git log --pretty=format:"%H" "$MERGE_BASE..origin/$SOURCE_BRANCH")
+          # List commits on the DIRECT ancestry path from merge-base to the source branch tip.
+          # --ancestry-path excludes commits that are reachable from the source branch via old
+          # diverged develop commits that were already squash-merged into main in a previous
+          # release: without this flag, those commits would appear because they are reachable
+          # from develop (via the post-release merge commit) but not from main (squash has a
+          # single parent, so the original develop commits are not in main's ancestry).
+          COMMIT_SHAS=$(git log --ancestry-path --pretty=format:"%H" "$MERGE_BASE..origin/$SOURCE_BRANCH")
 
-          # For each commit, find if it is the merge commit of a PR and collect PR titles
+          # For each commit on the direct path, find if it is the merge commit of a PR and
+          # collect PR titles. Skip bot sync commits (direct pushes, no associated PR).
           PR_LINES=""
+          SEEN_PRS=""
           while IFS= read -r SHA; do
             [[ -z "$SHA" ]] && continue
-            PR_TITLE=$(gh api "repos/$REPO/commits/$SHA/pulls" \
-              --jq '[.[] | select(.base.ref == "'"$SOURCE_BRANCH"'") | "- " + .title] | first // empty' 2>/dev/null || true)
-            if [[ -n "$PR_TITLE" ]]; then
-              PR_LINES="${PR_LINES}${PR_TITLE}"$'\n'
+
+            # Skip the post-release sync merge commits (bot push, no PR)
+            COMMIT_SUBJECT=$(git log -1 --pretty=format:"%s" "$SHA")
+            if [[ "$COMMIT_SUBJECT" == "chore: sync"* ]]; then
+              continue
             fi
+
+            PR_DATA=$(gh api "repos/$REPO/commits/$SHA/pulls" \
+              --jq '[.[] | select(.base.ref == "'"$SOURCE_BRANCH"'")] | .[]? | (.number | tostring) + "|" + .title' \
+              2>/dev/null || true)
+
+            while IFS= read -r LINE; do
+              [[ -z "$LINE" ]] && continue
+              PR_NUM="${LINE%%|*}"
+              PR_TITLE_TEXT="${LINE#*|}"
+              # Deduplicate by PR number (a PR can appear on multiple commits)
+              if [[ -n "$PR_NUM" ]] && ! echo "$SEEN_PRS" | grep -qw "$PR_NUM"; then
+                SEEN_PRS="$SEEN_PRS $PR_NUM"
+                PR_LINES="${PR_LINES}- ${PR_TITLE_TEXT}"$'\n'
+              fi
+            done <<< "$PR_DATA"
           done <<< "$COMMIT_SHAS"
 
-          # Deduplicate (same PR can appear on multiple commits)
-          PR_LINES=$(echo "$PR_LINES" | sort -u)
 
           if [[ -z "$PR_LINES" ]]; then
             PR_LINES="_No merged PRs found since last sync._"
