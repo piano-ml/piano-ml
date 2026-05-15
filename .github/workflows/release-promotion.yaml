@@ -37,6 +37,7 @@ jobs:
     outputs:
       source_branch: ${{ steps.branches.outputs.source_branch }}
       target_branch: ${{ steps.branches.outputs.target_branch }}
+      promotion_branch: ${{ steps.branches.outputs.promotion_branch }}
       pr_number: ${{ steps.pr.outputs.pr_number }}
       pr_url: ${{ steps.pr.outputs.pr_url }}
       source_sha: ${{ steps.fetch.outputs.source_sha }}
@@ -60,8 +61,13 @@ jobs:
             TARGET_BRANCH="main"
           fi
 
+          SAFE_SOURCE_BRANCH=${SOURCE_BRANCH//\//-}
+          SAFE_TARGET_BRANCH=${TARGET_BRANCH//\//-}
+          PROMOTION_BRANCH="release/promotion-${SAFE_SOURCE_BRANCH}-to-${SAFE_TARGET_BRANCH}"
+
           echo "source_branch=$SOURCE_BRANCH" >> "$GITHUB_OUTPUT"
           echo "target_branch=$TARGET_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "promotion_branch=$PROMOTION_BRANCH" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -125,7 +131,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          SOURCE_BRANCH: ${{ steps.branches.outputs.source_branch }}
+          PROMOTION_BRANCH: ${{ steps.branches.outputs.promotion_branch }}
           TARGET_BRANCH: ${{ steps.branches.outputs.target_branch }}
         run: |
           set -euo pipefail
@@ -133,7 +139,7 @@ jobs:
           PR_JSON=$(gh pr list \
             --repo "$REPO" \
             --base "$TARGET_BRANCH" \
-            --head "$SOURCE_BRANCH" \
+            --head "$PROMOTION_BRANCH" \
             --state open \
             --json number,url \
             --limit 1)
@@ -161,14 +167,36 @@ jobs:
           REPO: ${{ github.repository }}
           SOURCE_BRANCH: ${{ needs.prepare.outputs.source_branch }}
           TARGET_BRANCH: ${{ needs.prepare.outputs.target_branch }}
+          PROMOTION_BRANCH: ${{ needs.prepare.outputs.promotion_branch }}
           PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
           SOURCE_SHA: ${{ needs.prepare.outputs.source_sha }}
         run: |
           set -euo pipefail
 
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           # Find the merge base (last common commit between develop and main)
           git fetch origin "$SOURCE_BRANCH" "$TARGET_BRANCH"
           MERGE_BASE=$(git merge-base "origin/$SOURCE_BRANCH" "origin/$TARGET_BRANCH")
+
+          # Build a deterministic promotion branch from target + squash(source).
+          # This keeps the PR commit tab clean (single release commit).
+          git checkout -B "$PROMOTION_BRANCH" "origin/$TARGET_BRANCH"
+          if git merge --squash --no-commit "origin/$SOURCE_BRANCH"; then
+            if git diff --cached --quiet; then
+              echo "No content changes to promote after squash."
+            else
+              git commit -m "Release: promote $SOURCE_BRANCH to $TARGET_BRANCH"
+            fi
+          else
+            git merge --abort || true
+            echo "Squash promotion from $SOURCE_BRANCH to $TARGET_BRANCH has conflicts." >&2
+            exit 1
+          fi
+
+          # Always refresh the promotion branch to match latest source/target state.
+          git push --force-with-lease origin "$PROMOTION_BRANCH"
 
           # List commits on the DIRECT ancestry path from merge-base to the source branch tip.
           # --ancestry-path excludes commits that are reachable from the source branch via old
@@ -230,14 +258,14 @@ jobs:
             gh pr create \
               --repo "$REPO" \
               --base "$TARGET_BRANCH" \
-              --head "$SOURCE_BRANCH" \
+              --head "$PROMOTION_BRANCH" \
               --title "$TITLE" \
               --body "$BODY"
 
             PR_NUMBER=$(gh pr list \
               --repo "$REPO" \
               --base "$TARGET_BRANCH" \
-              --head "$SOURCE_BRANCH" \
+              --head "$PROMOTION_BRANCH" \
               --state open \
               --json number \
               --limit 1 \
