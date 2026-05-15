@@ -49,21 +49,21 @@ cleanup() {
   rm -f "${FROOT}.midi" "${FROOT}.musicxml" "${FROOT}.pdf" "${FROOT}.fingering.json" "metadata.json" "${FROOT}_filtered.musicxml"
   :
 }
-trap cleanup EXIT
+#trap cleanup EXIT
 
 printf "Converting MIDI <-> MusicXML using %s\n" musescore3
 
 # Convert and normalize format (do each step and fail fast)
-musescore3 -o "${FROOT}.musicxml" "${FROOT}.midi"
-musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml"
-musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid"
+musescore3 -o "${FROOT}.musicxml" "${FROOT}.midi" > /dev/null 2>&1
+musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml" > /dev/null 2>&1
+musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid" > /dev/null 2>&1
 
 # Restore canonical extension
 mv -- "${FROOT}.mid" "${FROOT}.midi"
 
 if [ -n "$TRACK_RIGHT" ]; then
   printf "Extracting left/right hand track %s %s for %s.midi\n" "$TRACK_RIGHT" "$TRACK_LEFT" "$FROOT"
-  python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT" "$TRACK_LEFT"
+  python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT" "$TRACK_LEFT" > /dev/null 2>&1
 else
   printf "No track specified in original midi file\n" >&2
   exit 5
@@ -87,8 +87,8 @@ fi
 
 
 
-#printf "Extracting fingering ...\n"
-#python ./scripts/extract_fingering.py "${FROOT}.musicxml"
+printf "Extracting fingering ...\n"
+python ./scripts/extract_fingering.py "${FROOT}.musicxml"
 
 cp -- "${FROOT}.musicxml" "${FROOT}_filtered.musicxml"
 
