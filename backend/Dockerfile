@@ -13,7 +13,7 @@ ENV JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
 # Install essential packages, including locales for UTF-8 support
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        locales vim joe python3.11 python3-pip python3-venv pipx git openjdk-17-jre-headless \
+        locales python3.11 python3-pip python3-venv pipx git openjdk-17-jre-headless \
         poppler-utils zip musescore3 curl ca-certificates sudo unzip && \
     sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
     sed -i 's/^# *\(fr_FR.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
@@ -33,16 +33,22 @@ RUN ln -s /usr/bin/python3.11 /usr/bin/python
 USER appuser
 WORKDIR /home/appuser
 
-# Create a global shared virtual environment for common Python packages
+# --- Layer: heavy ML packages (cached separately, changes rarely) ---
+# Use CPU-only PyTorch to save ~2 GB vs the full CUDA wheel
 RUN python -m venv /home/appuser/shared-venv && \
-    /home/appuser/shared-venv/bin/pip install --upgrade pip && \
-    /home/appuser/shared-venv/bin/pip install music21 musicxml pretty_midi
-RUN /home/appuser/shared-venv/bin/pip3 install --break-system-package miditok music21 musicxml pretty_midi symusic torch transformers[torch] scikit-learn lightgbm matplotlib seaborn numpy safetensors
+    /home/appuser/shared-venv/bin/pip install --upgrade pip --no-cache-dir && \
+    /home/appuser/shared-venv/bin/pip install --no-cache-dir \
+        torch --index-url https://download.pytorch.org/whl/cpu && \
+    /home/appuser/shared-venv/bin/pip install --no-cache-dir \
+        transformers scikit-learn lightgbm safetensors
 
+# --- Layer: lighter Python packages ---
+RUN /home/appuser/shared-venv/bin/pip install --no-cache-dir \
+        miditok music21 musicxml pretty_midi symusic matplotlib seaborn numpy
 
 # install piano-syllabus-classifier
-
-RUN git clone https://github.com/piano-ml/piano-syllabus-classifier.git
+RUN git clone --depth=1 https://github.com/piano-ml/piano-syllabus-classifier.git && \
+    rm -rf piano-syllabus-classifier/.git
 
 # Install Poetry using pipx (recommended for Debian 12)
 RUN pipx install poetry && \
@@ -50,29 +56,33 @@ RUN pipx install poetry && \
 ENV PATH="/home/appuser/.local/bin:$PATH"
 
 # Clone and install HOMR (Optical Music Recognition)
-RUN git config --global user.email "you@example.com" &&  \
+# Note: using --depth=1 on default branch (specific commit hash was removed from upstream)
+RUN git config --global user.email "you@example.com" && \
     git config --global user.name "Your Name" && \
-    git clone https://github.com/liebharc/homr.git &&  \
+    git clone --depth=1 https://github.com/liebharc/homr.git && \
     cd homr && \
-    git fetch --tags && \
-    git checkout ddfc632a75bf9c266e1a54c8b36c8383d3e83f43 && \
-    poetry install  --only main && \
-    poetry run python -c "from homr.main import main; import sys; sys.argv = ['homr', '--init']; main()"
+    poetry install --only main && \
+    poetry run python -c "from homr.main import main; import sys; sys.argv = ['homr', '--init']; main()" && \
+    rm -rf /home/appuser/homr/.git
 
 # Clone and install relieur (MusicXML merger)
-RUN git clone https://github.com/piano-ml/relieur.git && \
+RUN git clone --depth=1 https://github.com/piano-ml/relieur.git && \
     cd relieur && \
-    poetry install
+    poetry install && \
+    rm -rf /home/appuser/relieur/.git
 
 # Clone pianoplayer (will use shared venv instead of its own)
-RUN git clone https://github.com/marcomusy/pianoplayer.git \
-    && cd pianoplayer &&  pip3 install --break-system-package pianoplayer
+RUN git clone --depth=1 https://github.com/marcomusy/pianoplayer.git && \
+    cd pianoplayer && \
+    pip3 install --no-cache-dir --break-system-package pianoplayer && \
+    rm -rf /home/appuser/pianoplayer/.git
 
 # Clone autoharmonizer2
-RUN git clone https://github.com/piano-ml/autoharmonizer.git && \
+RUN git clone --depth=1 https://github.com/piano-ml/autoharmonizer.git && \
     cd autoharmonizer && \
     . /home/appuser/shared-venv/bin/activate && \
-    pip install -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt && \
+    rm -rf /home/appuser/autoharmonizer/.git
 
 # Copy the backend jar file into the container
 COPY --chown=appuser:appuser target/backend.jar /home/appuser/target/backend.jar
