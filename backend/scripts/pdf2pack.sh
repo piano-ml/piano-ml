@@ -28,16 +28,33 @@ FILES=$(ls -p "$FROOT"*.png)
 
 XMLFILES=""
 cd homr
+HOMR_TOTAL=0
+HOMR_SUCCESSES=0
+HOMR_ERRORS=0
 for FILE in $FILES; do
+  HOMR_TOTAL=$((HOMR_TOTAL + 1))
   echo "starting homr $FILE"
-   poetry run homr "$FILE" > /dev/null #|| exit 1
-  XML_FILE="${FILE%.png}.musicxml"
-  if [ -z "$XMLFILES" ]; then
-    XMLFILES="$XML_FILE"
+  if poetry run homr "$FILE" > /dev/null 2>&1; then
+    HOMR_SUCCESSES=$((HOMR_SUCCESSES + 1))
+    XML_FILE="${FILE%.png}.musicxml"
+    if [ -z "$XMLFILES" ]; then
+      XMLFILES="$XML_FILE"
+    else
+      XMLFILES="$XMLFILES $XML_FILE"
+    fi
   else
-    XMLFILES="$XMLFILES $XML_FILE"
+    RC=$?
+    HOMR_ERRORS=$((HOMR_ERRORS + 1))
+    echo "Warning: homr failed for '$FILE' (exit code: $RC)" >&2
   fi
 done
+
+echo "homr summary: $HOMR_SUCCESSES success(es), $HOMR_ERRORS error(s), $HOMR_TOTAL file(s) processed"
+
+if [ "$HOMR_TOTAL" -gt 0 ] && [ "$HOMR_SUCCESSES" -eq 0 ]; then
+  echo "Error: homr failed for all input PNG files ($HOMR_ERRORS/$HOMR_TOTAL)." >&2
+  exit 1
+fi
 sleep 1
 
 cd ..
