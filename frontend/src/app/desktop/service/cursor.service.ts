@@ -6,6 +6,7 @@ import { AlignmentType, Cursor, RepetitionInstruction, RepetitionInstructionEnum
 import { CURSOR_BAD_COLOR, CURSOR_GOOD_COLOR } from "../components/osmd/osmd.config";
 import { smithWatermanAlign, smithWatermanAlign2 } from "./smith-waterman";
 import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
+import { last } from "rxjs";
 
 
 @Injectable({
@@ -111,23 +112,35 @@ export class CursorService {
             : smithWatermanAlign(osmdArray);
     }
 
+    currentMeasure=-1;
+
     nextNote(note: Note) {
         const link = this.midiTicksToOsmdCursorIndex.get(note.ticks);
         if (link != null) {
+            let newMeasureFlag=false;
             this.moveCursorToOsmdIndex(this.cursor!, link.osmdIndex);
-            if (this.isCursorOk(note)) {
-                this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
-                this.cursor!.CursorOptions.type = 4;
-            } else {
-                if (this.diagnosticMode) {
-                    this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
-                }
-                this.cursor!.CursorOptions.type = 3; // measure rectangle
-            }
             const newOsmdMeasure = link.osmdMeasure;
             if (newOsmdMeasure !== this.measure()) {
                 this.measure.set(newOsmdMeasure);
+                newMeasureFlag=true;
+                console.log(newOsmdMeasure);
             }
+
+            if (this.isCursorOk(note)) {
+                this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
+                //this.cursor!.CursorOptions.type = 4;
+            } else {
+                if (newMeasureFlag) {
+                    console.log("correcting !!!!")
+                    this.moveToMeasure(newOsmdMeasure);
+                    this.cursor!.previous();
+                }
+                if (this.diagnosticMode) {
+                    this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
+                }
+                //this.cursor!.CursorOptions.type = 4; // measure rectangle
+            }
+
         } else {
             console.warn("note not found", note.midi, "ticks:", note.ticks);
         }
@@ -355,26 +368,53 @@ export class CursorService {
         // without being overwritten by link rebuilding.
         const sortedTicks = Array.from(this.midiTicksNoteMap.keys()).sort((a, b) => a - b);
         let osmdArrayIndex = 0;
+        let accumulatedMidiPitches: Set<number> = new Set();
+        let lastAdvancedMidiTicks: number | null = null;
         for (const ticks of sortedTicks) {
             while (osmdArrayIndex < osmdArray.length && osmdArray[osmdArrayIndex].isSkipable) {
                 osmdArrayIndex++;
+                accumulatedMidiPitches.clear();
             }
             const currentElement = osmdArray[osmdArrayIndex];
+
             if (!currentElement) {
                 break;
             }
+
             currentElement.midiTicks = ticks;
             const midiNotesAtTick = this.midiTicksNoteMap.get(ticks) ?? [];
             // TODO skip short note arbitrary...
-            if (osmdArray[Math.max(0, osmdArrayIndex - 1)].tremolo && midiNotesAtTick.map(note => note.durationTicks).every(duration => duration < CursorService.SKIP_SHORT_NOTE_THRESHOLD)) {
-                continue;
-            }
-            currentElement.midiPitches = midiNotesAtTick.map(note => note.midi - 12);
+            //if (osmdArray[Math.max(0, osmdArrayIndex - 1)].tremolo && midiNotesAtTick.map(note => note.durationTicks).every(duration => duration < CursorService.SKIP_SHORT_NOTE_THRESHOLD)) {
+            //    continue;
+            //}
+            const currentMidiPitches = midiNotesAtTick.map(note => note.midi)
+                //.map(n => n.midi)
+                .filter((pitch): pitch is number => pitch != null)
+                .map(pitch => this.normalizePitchClass(pitch));
+            
+            // Accumulate MIDI pitches for this OSMD element
+            currentMidiPitches.forEach(pitch => accumulatedMidiPitches.add(pitch));
+            currentElement.midiPitches = Array.from(accumulatedMidiPitches);
+
             currentElement.midiTicksDuration = midiNotesAtTick.length > 0
                 ? Math.max(...midiNotesAtTick.map(note => note.durationTicks))
                 : null;
             currentElement.midiTime = midiNotesAtTick.length > 0 ? midiNotesAtTick[0].time : null;
-            osmdArrayIndex++;
+            
+            // Only advance to next OSMD element if all expected pitches have been played
+            const expectedPitches = new Set(currentElement.osmdPitches ?? []);
+            const allPitchesPlayed = Array.from(expectedPitches).every(pitch => accumulatedMidiPitches.has(pitch));
+            let exceedsShortNoteThreshold = lastAdvancedMidiTicks != null
+                && ticks - lastAdvancedMidiTicks > (CursorService.SKIP_SHORT_NOTE_THRESHOLD*4) -1;
+            //console.log(currentElement.osmdMeasure, CursorService.SKIP_SHORT_NOTE_THRESHOLD,lastAdvancedMidiTicks, ticks, ticks - lastAdvancedMidiTicks! , exceedsShortNoteThreshold)
+            exceedsShortNoteThreshold = false;
+            if (allPitchesPlayed || expectedPitches.size === 0 || exceedsShortNoteThreshold) {
+                lastAdvancedMidiTicks = ticks;
+                osmdArrayIndex++;
+                accumulatedMidiPitches.clear();
+            } else {
+              //  console.log("!!!!!")
+            }
         }
         this.maxMidiMeasure = Math.max(...osmdArray.map(e => e.midiMeasure))
         this.debugStep("[main]", osmdArray);
@@ -678,7 +718,7 @@ export class CursorService {
             if (this.osmdArray) {
                 console.table(
                     this.osmdArray
-                        //.slice(0, 100)
+                        .filter(o => o.midiMeasure>17)
                         //.filter(o => (o.isFirst || o.isLast))
                         .map(o => {
                             const osmdPitches = o.osmdPitches ?? [];

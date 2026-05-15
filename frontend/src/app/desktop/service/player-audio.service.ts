@@ -1,6 +1,5 @@
 
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable, inject } from '@angular/core';
 import * as Tone from "tone";
 import { WorkletSynthesizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
@@ -18,8 +17,6 @@ import { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 })
 export class PlayerAudioService {
 
-  private platformId = inject(PLATFORM_ID);
-
   spessasynth?: WorkletSynthesizer;
   pianoMLShouldPlay: boolean = false;
 
@@ -27,11 +24,7 @@ export class PlayerAudioService {
     private assess: PlayerAssessService,
     private state: PlayerStateService,
     private midiService: MidiServiceService
-  ) {
-    if (isPlatformBrowser(this.platformId)) {
-      this.initSoundFont();
-    }
-  }
+  ) { }
 
 
   getTransportSeconds(): number {
