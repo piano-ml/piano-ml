@@ -75,7 +75,7 @@ if [ -n "$MAKE_FINGERING" ]; then
       echo "Running pianoplayer for fingering detection"
       pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null
 
-      python ./scripts/extract_fingering.py "$FROOT.musicxml"
+
       ;;
     *)
       echo "Skipping fingering detection (MAKE_FINGERING='$MAKE_FINGERING')"
@@ -87,8 +87,8 @@ fi
 
 
 
-printf "Extracting fingering ...\n"
-python ./scripts/extract_fingering.py "${FROOT}.musicxml"
+#printf "Extracting fingering ...\n"
+#python ./scripts/extract_fingering.py "${FROOT}.musicxml"
 
 cp -- "${FROOT}.musicxml" "${FROOT}_filtered.musicxml"
 
