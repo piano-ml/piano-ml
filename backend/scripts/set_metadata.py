@@ -224,6 +224,7 @@ def clean_musicxml_optimized(xml_text):
         'ornaments': 0,
         'arpeggiate': 0,
         'credits': 0,
+        'creators': 0,
         'movement_title': 0,
         'print_new_page': 0
     }
@@ -246,6 +247,12 @@ def clean_musicxml_optimized(xml_text):
             if child_tag == 'credit':
                 parent.remove(child)
                 stats['credits'] += 1
+                continue
+
+            # Supprimer creator (ex: <creator type="composer">...)</n+
+            if child_tag == 'creator':
+                parent.remove(child)
+                stats['creators'] += 1
                 continue
 
             # Supprimer movement-title
@@ -280,6 +287,13 @@ def _clean_with_regex_fallback(xml_text, stats):
     if credits:
         xml_for_parse, credits_removed = remove_credits(xml_for_parse)
         stats['credits'] = credits_removed
+
+    # Creator tags (identification/creator)
+    creator_pattern = re.compile(r'<creator\b[^>]*>.*?</creator>|<creator\b[^>]*/>', re.IGNORECASE | re.DOTALL)
+    creator_matches = creator_pattern.findall(xml_for_parse)
+    if creator_matches:
+        xml_for_parse = creator_pattern.sub('', xml_for_parse)
+        stats['creators'] = len(creator_matches)
 
     # Movement-title
     mts = detect_movement_title(xml_for_parse)
@@ -317,6 +331,8 @@ def process_musicxml(path, title, composer):
         print(f"Removed {stats['arpeggiate']} arpeggiate element(s)")
     if stats['credits'] > 0:
         print(f"Removed {stats['credits']} credit element(s)")
+    if stats['creators'] > 0:
+        print(f"Removed {stats['creators']} creator element(s)")
     if stats['movement_title'] > 0:
         print(f"Removed {stats['movement_title']} movement-title element(s)")
     if stats['print_new_page'] > 0:
@@ -373,6 +389,17 @@ def process_musicxml(path, title, composer):
     if composer_elem is None:
         composer_elem = ET.SubElement(identification, 'composer')
     composer_elem.text = composer
+
+    # Find or create creator element with type="composer"
+    creator_elem = None
+    for elem in identification.findall('{*}creator'):
+        if elem.get('type') == 'composer':
+            creator_elem = elem
+            break
+    if creator_elem is None:
+        creator_elem = ET.SubElement(identification, 'creator')
+        creator_elem.set('type', 'composer')
+    creator_elem.text = composer
 
     # Écrire le XML modifié directement sans passer par music21.write()
     output_bytes = ET.tostring(root, encoding='utf-8', xml_declaration=True)

@@ -26,7 +26,7 @@ fi
 
 cd homr
 echo "Running homr"
-poetry run homr "$FROOT.png" > /dev/null  || exit 1
+poetry run homr "$FROOT.png" > /dev/null 2>&1  || exit 1
 cd ..
 
 source ~/shared-venv/bin/activate
