@@ -12,51 +12,47 @@
   <hr class="mx-4 sm:mx-6">
 
   <!-- ── Toolbar ────────────────────────────────────────── -->
-  <div class="flex items-center justify-between px-4 sm:px-6">
-    <p class="text-xs text-neutral-400"></p>
-
-    <div class="flex items-center gap-3">
-      @if (score) {
-      <button (click)="copyUrlToClipboard()" class="btn-primary gap-1.5" title="Copy link">
-        <ng-icon name="bootstrapClipboard" size="13"></ng-icon>
-        <span>Copy link</span>
-      </button>
-      }
-      <button (click)="onBack()" class="btn-secondary">← Browse</button>
-      @if (isOwner()) {
-      <button (click)="editScore()" class="btn-primary">Edit</button>
-      }
-      @if (score?.has_files) {
-      <button
-        (click)="downloadFile('midi')"
-        [disabled]="!isOwnerOrPublic()"
-        [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download MIDI'"
-        class="btn-primary"
-        [class.opacity-40]="!isOwnerOrPublic()"
-        [class.cursor-not-allowed]="!isOwnerOrPublic()">
-        MIDI
-      </button>
-      <button
-        (click)="downloadFile('musicxml')"
-        [disabled]="!isOwnerOrPublic()"
-        [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download MusicXML'"
-        class="btn-primary"
-        [class.opacity-40]="!isOwnerOrPublic()"
-        [class.cursor-not-allowed]="!isOwnerOrPublic()">
-        MusicXML
-      </button>
-      <button
-        (click)="downloadFile('pdf')"
-        [disabled]="!isOwnerOrPublic()"
-        [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download PDF'"
-        class="btn-primary"
-        [class.opacity-40]="!isOwnerOrPublic()"
-        [class.cursor-not-allowed]="!isOwnerOrPublic()">
-        PDF
-      </button>
-      <button (click)="playScore()" class="btn-hero">Practice</button>
-      }
-    </div>
+  <div class="flex flex-wrap items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:justify-end">
+    @if (score) {
+    <button (click)="copyUrlToClipboard()" class="btn-primary gap-1.5" title="Copy link">
+      <ng-icon name="bootstrapClipboard" size="13"></ng-icon>
+      <span>Copy link</span>
+    </button>
+    }
+    <button (click)="onBack()" class="btn-secondary">← Browse</button>
+    @if (isOwner()) {
+    <button (click)="editScore()" class="btn-primary">Edit</button>
+    }
+    @if (score?.has_files) {
+    <button
+      (click)="downloadFile('midi')"
+      [disabled]="!isOwnerOrPublic()"
+      [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download MIDI'"
+      class="btn-primary"
+      [class.opacity-40]="!isOwnerOrPublic()"
+      [class.cursor-not-allowed]="!isOwnerOrPublic()">
+      MIDI
+    </button>
+    <button
+      (click)="downloadFile('musicxml')"
+      [disabled]="!isOwnerOrPublic()"
+      [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download MusicXML'"
+      class="btn-primary"
+      [class.opacity-40]="!isOwnerOrPublic()"
+      [class.cursor-not-allowed]="!isOwnerOrPublic()">
+      MusicXML
+    </button>
+    <button
+      (click)="downloadFile('pdf')"
+      [disabled]="!isOwnerOrPublic()"
+      [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download PDF'"
+      class="btn-primary"
+      [class.opacity-40]="!isOwnerOrPublic()"
+      [class.cursor-not-allowed]="!isOwnerOrPublic()">
+      PDF
+    </button>
+    <button (click)="playScore()" class="btn-hero w-full sm:w-auto justify-center">Practice</button>
+    }
   </div>
 
   <div class="px-4 sm:px-6 pb-12 flex flex-col gap-5 mt-6">
