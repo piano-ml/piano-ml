@@ -251,7 +251,6 @@ export class CursorService {
             notesUnderCursor = (cursor.iterator.CurrentVoiceEntries ?? [])
                 .flatMap(voiceEntry => voiceEntry.Notes ?? []);
 
-
             const osmdPitches = notesUnderCursor
                 .map(n => n.Pitch?.getHalfTone())
                 .filter((pitch): pitch is number => pitch != null)
@@ -358,9 +357,9 @@ export class CursorService {
         // without being overwritten by link rebuilding.
         const sortedTicks = Array.from(this.midiTicksNoteMap.keys()).sort((a, b) => a - b);
         let osmdArrayIndex = 0;
-        let awaitOsmdPitches: Array<number> = [...osmdArray[0]?.osmdPitches ?? []];
-        let awaitMidiPitches:Array<number>  = [];
-        let lastAdvancedMidiTicks: number | null = null;
+        let awaitOsmdPitches = new Set<number>(osmdArray[0]?.osmdPitches ?? []);
+        let awaitMidiPitches = new Set<number>();
+        let lastAdvancedMidiTicks: number | null = 0;
         for (const ticks of sortedTicks) {
             while (osmdArrayIndex < osmdArray.length && osmdArray[osmdArrayIndex].isSkipable) {
                 osmdArrayIndex++;
@@ -371,32 +370,56 @@ export class CursorService {
                 break;
             }
             // add various debug informations to the osmd array element for diagnostic of alignment
-            const midiNotesAtTick = this.midiTicksNoteMap.get(ticks) ?? [];
+            const midiNotesAtTick = [...this.midiTicksNoteMap.get(ticks) ?? []];
+
+
             osmdArrayStep.midiTicks = ticks;
+            
             osmdArrayStep.midiTime = midiNotesAtTick.length > 0 ? midiNotesAtTick[0].time : null;
             osmdArrayStep.midiTicksDuration = midiNotesAtTick.length > 0
                 ? Math.max(...midiNotesAtTick.map(note => note.durationTicks))
                 : null;
             // fill link information
             if (!osmdArrayStep.midiPitches) {
-                osmdArrayStep.midiPitches = midiNotesAtTick.map(note => note.midi);
+                osmdArrayStep.midiPitches = midiNotesAtTick.map(note => note.midi)
+                // filter only if in smdArrayStep.osmdPitches
+                .filter(midi => osmdArrayStep.osmdPitches?.includes(midi ));
             } else {
-                osmdArrayStep.midiPitches.push(...midiNotesAtTick.map(note => note.midi));
+                const deduplicatedMidiPitches = new Set<number>([
+                    ...osmdArrayStep.midiPitches,
+                    ...midiNotesAtTick
+                        .map(note => note.midi)
+                        .filter(midi => osmdArrayStep.osmdPitches?.includes(midi )),
+                ]);
+                osmdArrayStep.midiPitches = Array.from(deduplicatedMidiPitches);
             }
-            //
             // remove of awaitingOsmdPiches the pitches that are played at this tick
             midiNotesAtTick.forEach(note => {
-                const index = awaitOsmdPitches.indexOf(note.midi);
-                if (index !== -1) {
-                    awaitOsmdPitches.splice(index, 1);
+                if (awaitOsmdPitches.has(note.midi)) {
+                    awaitOsmdPitches.delete(note.midi);
+                } else {
+                    awaitMidiPitches.add(note.midi);
                 }
             });
 
-            let exceedsShortNoteThreshold = false;
+            let exceedsShortNoteThreshold = ticks - lastAdvancedMidiTicks! > (CursorService.SKIP_SHORT_NOTE_THRESHOLD * 4) ;
             let allPitchesPlayed = true;
-            if (awaitOsmdPitches.length === 0 || exceedsShortNoteThreshold) {
+            if (awaitOsmdPitches.size === 0 || exceedsShortNoteThreshold) {
+                // going ahead
+                osmdArrayStep.osmdPitches?.forEach(note => {
+                    // // add to awaitingMidiPitches the pitches that are played at this tick and not in osmdArrayStep.midiPitches
+                    awaitMidiPitches.delete(note);
+                });
+
+
+                if (awaitMidiPitches.size > 0) {
+                    console.log(osmdArrayStep.midiTicks, awaitMidiPitches.size)
+                }
+
+
+
                 osmdArrayIndex++;
-                awaitOsmdPitches = [...osmdArray[osmdArrayIndex]?.osmdPitches ?? []];
+                awaitOsmdPitches = new Set<number>(osmdArray[osmdArrayIndex]?.osmdPitches ?? []);
                 lastAdvancedMidiTicks = ticks;
             }
 
