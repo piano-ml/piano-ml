@@ -6,7 +6,6 @@ import { AlignmentType, Cursor, RepetitionInstruction, RepetitionInstructionEnum
 import { CURSOR_BAD_COLOR, CURSOR_GOOD_COLOR } from "../components/osmd/osmd.config";
 import { smithWatermanAlign, smithWatermanAlign2 } from "./smith-waterman";
 import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
-import { last } from "rxjs";
 
 
 @Injectable({
@@ -40,9 +39,10 @@ export class CursorService {
     cursor: Cursor | undefined;
     osmdMeasureCount = 0;
     feedbackSignal = signal<{ message: string; percentage: number } | null>(null);
-    readonly measure = signal<number>(0);    
+    readonly measure = signal<number>(0);
     audioTimeNoteArray: Array<[number, { pitch: number, hit: boolean }[]]> = [];
     midiTicksToOsmdCursorIndex: Map<number, { osmdIndex: number, osmdMeasure: number }> = new Map();
+    private sortedMappedMidiTicks: number[] = [];
 
     public tiltCursor(cursor: Cursor): void {
         this.cursor = cursor;
@@ -112,35 +112,27 @@ export class CursorService {
             : smithWatermanAlign(osmdArray);
     }
 
-    currentMeasure=-1;
-
     nextNote(note: Note) {
-        const link = this.midiTicksToOsmdCursorIndex.get(note.ticks);
+        const directLink = this.midiTicksToOsmdCursorIndex.get(note.ticks);
+        const link = directLink ?? this.findNearestMappedLink(note.ticks);
         if (link != null) {
-            let newMeasureFlag=false;
             this.moveCursorToOsmdIndex(this.cursor!, link.osmdIndex);
-            const newOsmdMeasure = link.osmdMeasure;
-            if (newOsmdMeasure !== this.measure()) {
-                this.measure.set(newOsmdMeasure);
-                newMeasureFlag=true;
-                console.log(newOsmdMeasure);
-            }
-
             if (this.isCursorOk(note)) {
                 this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
-                //this.cursor!.CursorOptions.type = 4;
+                //this.cursor!.CursorOptions.type = 2;
             } else {
-                if (newMeasureFlag) {
-                    console.log("correcting !!!!")
-                    this.moveToMeasure(newOsmdMeasure);
-                    this.cursor!.previous();
-                }
                 if (this.diagnosticMode) {
                     this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
                 }
-                //this.cursor!.CursorOptions.type = 4; // measure rectangle
+                //this.cursor!.CursorOptions.type = 2; // measure rectangle
             }
-
+            const newOsmdMeasure = link.osmdMeasure;
+            if (newOsmdMeasure !== this.measure()) {
+                this.measure.set(newOsmdMeasure);
+            }
+            if (this.diagnosticMode && directLink == null) {
+                console.warn(`[cursor][mapping] nearest tick fallback used for note.ticks=${note.ticks}`);
+            }
         } else {
             console.warn("note not found", note.midi, "ticks:", note.ticks);
         }
@@ -266,7 +258,7 @@ export class CursorService {
             const osmdPitches = notesUnderCursor
                 .map(n => n.Pitch?.getHalfTone())
                 .filter((pitch): pitch is number => pitch != null)
-                .map(pitch => this.normalizePitchClass(pitch));
+            //.map(pitch => this.normalizePitchClass(pitch));
             const graphicalObjectId = notesUnderCursor
                 .map(n => n.NoteToGraphicalNoteObjectId)
                 .filter((id): id is number => id != null);
@@ -368,53 +360,172 @@ export class CursorService {
         // without being overwritten by link rebuilding.
         const sortedTicks = Array.from(this.midiTicksNoteMap.keys()).sort((a, b) => a - b);
         let osmdArrayIndex = 0;
-        let accumulatedMidiPitches: Set<number> = new Set();
-        let lastAdvancedMidiTicks: number | null = null;
+        const pendingTicks: Array<{ ticks: number; midiNotes: MidiNote[] }> = [];
+        let missCountAtCurrentIndex = 0;
+        let staleEvictionsAtCurrentIndex = 0;
+        const debugOsmdIndexStart = 590;
+        const debugOsmdIndexEnd = 680;
+        const isDebugRange = (idx: number) => idx >= debugOsmdIndexStart && idx <= debugOsmdIndexEnd;
+
+        if (this.diagnosticMode) {
+            console.groupCollapsed("[hydrateOsmdArray] input summary");
+            console.log("sortedTicks count:", sortedTicks.length, "| first:", sortedTicks[0], "| last:", sortedTicks.at(-1));
+            console.log("osmdArray length:", osmdArray.length);
+            const nonSkippable = osmdArray.filter(e => !e.isSkipable);
+            console.log("non-skippable osmdArray elements:", nonSkippable.length);
+            console.groupEnd();
+        }
+
         for (const ticks of sortedTicks) {
+            const midiNotesAtTick = this.midiTicksNoteMap.get(ticks) ?? [];
+            pendingTicks.push({ ticks, midiNotes: midiNotesAtTick });
+
+            // Evict pending ticks that are too far behind the current tick; they will never
+            // be a useful retroactive match and would cause timeline jumps.
+            const baseStaleThreshold = CursorService.SKIP_SHORT_NOTE_THRESHOLD * 4;
+            const adaptiveStaleThreshold = baseStaleThreshold + missCountAtCurrentIndex * CursorService.SKIP_SHORT_NOTE_THRESHOLD * 2;
+            while (pendingTicks.length > 1 && ticks - pendingTicks[0].ticks > adaptiveStaleThreshold) {
+                pendingTicks.shift();
+                staleEvictionsAtCurrentIndex++;
+            }
+
             while (osmdArrayIndex < osmdArray.length && osmdArray[osmdArrayIndex].isSkipable) {
                 osmdArrayIndex++;
-                accumulatedMidiPitches.clear();
             }
             const currentElement = osmdArray[osmdArrayIndex];
-
             if (!currentElement) {
                 break;
             }
+            const osmdPitches = currentElement.osmdPitches ?? [];
+            const minDistanceToOsmd = (midiPitch: number) => osmdPitches.length > 0
+                ? Math.min(...osmdPitches.map(p => Math.abs(midiPitch - p)))
+                : 0;
+            const currentOsmdPitchSet = new Set(currentElement.osmdPitches ?? []);
+            const currentOsmdPitchClassSet = new Set((currentElement.osmdPitches ?? []).map(p => ((p % 12) + 12) % 12));
+            // Use `some` instead of `every`: a tick matches when at least one of its MIDI notes
+            // appears in the OSMD pitch set. Multi-voice MIDI ticks often contain extra bass or
+            // accompaniment notes that are absent from the OSMD step, making `every` too strict.
+            const exactMatchIndex = currentOsmdPitchSet.size === 0
+                ? 0
+                : pendingTicks.findIndex(pendingTick => pendingTick.midiNotes.some(note => currentOsmdPitchSet.has(note.midi - 12)));
 
-            currentElement.midiTicks = ticks;
-            const midiNotesAtTick = this.midiTicksNoteMap.get(ticks) ?? [];
-            // TODO skip short note arbitrary...
-            //if (osmdArray[Math.max(0, osmdArrayIndex - 1)].tremolo && midiNotesAtTick.map(note => note.durationTicks).every(duration => duration < CursorService.SKIP_SHORT_NOTE_THRESHOLD)) {
-            //    continue;
-            //}
-            const currentMidiPitches = midiNotesAtTick.map(note => note.midi)
-                //.map(n => n.midi)
-                .filter((pitch): pitch is number => pitch != null)
-                .map(pitch => this.normalizePitchClass(pitch));
-            
-            // Accumulate MIDI pitches for this OSMD element
-            currentMidiPitches.forEach(pitch => accumulatedMidiPitches.add(pitch));
-            currentElement.midiPitches = Array.from(accumulatedMidiPitches);
-
-            currentElement.midiTicksDuration = midiNotesAtTick.length > 0
-                ? Math.max(...midiNotesAtTick.map(note => note.durationTicks))
-                : null;
-            currentElement.midiTime = midiNotesAtTick.length > 0 ? midiNotesAtTick[0].time : null;
-            
-            // Only advance to next OSMD element if all expected pitches have been played
-            const expectedPitches = new Set(currentElement.osmdPitches ?? []);
-            const allPitchesPlayed = Array.from(expectedPitches).every(pitch => accumulatedMidiPitches.has(pitch));
-            let exceedsShortNoteThreshold = lastAdvancedMidiTicks != null
-                && ticks - lastAdvancedMidiTicks > (CursorService.SKIP_SHORT_NOTE_THRESHOLD*4) -1;
-            //console.log(currentElement.osmdMeasure, CursorService.SKIP_SHORT_NOTE_THRESHOLD,lastAdvancedMidiTicks, ticks, ticks - lastAdvancedMidiTicks! , exceedsShortNoteThreshold)
-            exceedsShortNoteThreshold = false;
-            if (allPitchesPlayed || expectedPitches.size === 0 || exceedsShortNoteThreshold) {
-                lastAdvancedMidiTicks = ticks;
-                osmdArrayIndex++;
-                accumulatedMidiPitches.clear();
-            } else {
-              //  console.log("!!!!!")
+            // Secondary strategy: allow octave-insensitive match before forced fallback.
+            // This helps when MIDI and score voice-leading diverge by octave.
+            const minMissesBeforePitchClass = 8;
+            let pitchClassMatchIndex = -1;
+            if (exactMatchIndex < 0 && currentOsmdPitchClassSet.size > 0 && missCountAtCurrentIndex >= minMissesBeforePitchClass) {
+                let bestDistance = Number.POSITIVE_INFINITY;
+                let bestTick = Number.POSITIVE_INFINITY;
+                for (let i = 0; i < pendingTicks.length; i++) {
+                    const pendingTick = pendingTicks[i];
+                    for (const note of pendingTick.midiNotes) {
+                        const midiPitch = note.midi - 12;
+                        const pitchClass = ((midiPitch % 12) + 12) % 12;
+                        if (!currentOsmdPitchClassSet.has(pitchClass)) {
+                            continue;
+                        }
+                        const distance = minDistanceToOsmd(midiPitch);
+                        if (distance < bestDistance || (distance === bestDistance && pendingTick.ticks < bestTick)) {
+                            bestDistance = distance;
+                            bestTick = pendingTick.ticks;
+                            pitchClassMatchIndex = i;
+                        }
+                    }
+                }
             }
+
+            // Fallback: if we've missed too many ticks without a pitch match, take the first
+            // pending tick chronologically rather than leaving this OSMD step unmatched forever.
+            const maxMissesBeforeFallback = 32;
+            const matchingPendingIndex = exactMatchIndex >= 0
+                ? exactMatchIndex
+                : pitchClassMatchIndex >= 0
+                    ? pitchClassMatchIndex
+                : missCountAtCurrentIndex >= maxMissesBeforeFallback ? 0 : -1;
+
+            if (matchingPendingIndex < 0) {
+                missCountAtCurrentIndex++;
+                if (this.diagnosticMode && isDebugRange(osmdArrayIndex)) {
+                    console.warn(`[hydrateOsmdArray] ❌ no match osmdIdx=${osmdArrayIndex} ticks=${ticks} miss=${missCountAtCurrentIndex}/${maxMissesBeforeFallback} staleEvictions=${staleEvictionsAtCurrentIndex} pendingSize=${pendingTicks.length} osmdPitches=[${currentElement.osmdPitches}] pending=[${pendingTicks.map(p => p.ticks + ':' + p.midiNotes.map(n => n.midi - 12)).join(' | ')}]`);
+                }
+                continue;
+            }
+
+            const selectedPendingTick = pendingTicks[matchingPendingIndex];
+            const selectedNotes = selectedPendingTick.midiNotes;
+            let matchedNotes: MidiNote[];
+
+            if (exactMatchIndex >= 0) {
+                const targetCount = Math.max(1, osmdPitches.length);
+                matchedNotes = selectedNotes
+                    .filter(note => currentOsmdPitchSet.has(note.midi - 12))
+                    .sort((a, b) => minDistanceToOsmd(a.midi - 12) - minDistanceToOsmd(b.midi - 12))
+                    .slice(0, targetCount);
+            } else if (pitchClassMatchIndex >= 0) {
+                const targetCount = Math.max(1, osmdPitches.length);
+                matchedNotes = selectedNotes
+                    .filter(note => currentOsmdPitchClassSet.has(this.normalizePitchClass(note.midi - 12)))
+                    .sort((a, b) => minDistanceToOsmd(a.midi - 12) - minDistanceToOsmd(b.midi - 12))
+                    .slice(0, targetCount);
+            } else {
+                // Forced fallback: keep only the closest note to avoid draining a full chord
+                // that could still be useful for upcoming OSMD elements.
+                if (osmdPitches.length > 0 && selectedNotes.length > 0) {
+                    const bestNote = selectedNotes.reduce((best, note) => {
+                        const midiPitch = note.midi - 12;
+                        const bestDistance = Math.min(...osmdPitches.map(p => Math.abs((best.midi - 12) - p)));
+                        const currentDistance = Math.min(...osmdPitches.map(p => Math.abs(midiPitch - p)));
+                        return currentDistance < bestDistance ? note : best;
+                    }, selectedNotes[0]);
+                    matchedNotes = [bestNote];
+                } else {
+                    matchedNotes = selectedNotes.slice(0, 1);
+                }
+            }
+
+            if (matchedNotes.length === 0 && selectedNotes.length > 0) {
+                matchedNotes = selectedNotes.slice(0, 1);
+            }
+
+            const matchedNotesSet = new Set(matchedNotes);
+            const remainingNotes = selectedNotes.filter(note => !matchedNotesSet.has(note));
+            const matchedTick = { ticks: selectedPendingTick.ticks, midiNotes: matchedNotes };
+
+            if (remainingNotes.length > 0) {
+                pendingTicks[matchingPendingIndex] = { ticks: selectedPendingTick.ticks, midiNotes: remainingNotes };
+            } else {
+                pendingTicks.splice(matchingPendingIndex, 1);
+            }
+            const missBeforeMatch = missCountAtCurrentIndex;
+            missCountAtCurrentIndex = 0;
+            // Use the matched tick's own values so linkMidiTicksToCursorIndex can find them
+            // by the original note.ticks key. Stale eviction above keeps matches close in time.
+            currentElement.midiTicks = matchedTick.ticks;
+            currentElement.midiPitches = matchedTick.midiNotes.map(note => note.midi - 12);
+            currentElement.midiTicksDuration = matchedTick.midiNotes.length > 0
+                ? Math.max(...matchedTick.midiNotes.map(note => note.durationTicks))
+                : null;
+            currentElement.midiTime = matchedTick.midiNotes.length > 0 ? matchedTick.midiNotes[0].time : null;
+            if (this.diagnosticMode && isDebugRange(osmdArrayIndex)) {
+                const matchType = exactMatchIndex >= 0
+                    ? "EXACT"
+                    : pitchClassMatchIndex >= 0
+                        ? "PITCH_CLASS"
+                        : "FALLBACK";
+                console.log(`[hydrateOsmdArray] ✅ matched osmdIdx=${osmdArrayIndex} ticks=${matchedTick.ticks} matchType=${matchType} missBeforeMatch=${missBeforeMatch} staleEvictions=${staleEvictionsAtCurrentIndex} pendingSize=${pendingTicks.length} consumedNotes=${matchedTick.midiNotes.length} remainingAtTick=${remainingNotes.length} pitches=[${currentElement.midiPitches}] osmdPitches=[${currentElement.osmdPitches}]`);
+            }
+            osmdArrayIndex++;
+            missCountAtCurrentIndex = 0;
+            staleEvictionsAtCurrentIndex = 0;
+        }
+        if (this.diagnosticMode) {
+            console.groupCollapsed("[hydrateOsmdArray] elements without midiTicks (null)");
+            const unmatched = osmdArray
+                .filter(e => !e.isSkipable && e.midiTicks === null)
+                .map(e => ({ osmdIndex: e.osmdIndex, osmdMeasure: e.osmdMeasure, midiMeasure: e.midiMeasure, osmdPitches: (e.osmdPitches ?? []).join(",") }));
+            console.log("unmatched count:", unmatched.length, "/ non-skippable total:", osmdArray.filter(e => !e.isSkipable).length);
+            if (unmatched.length > 0) console.table(unmatched.slice(0, 40));
+            console.groupEnd();
         }
         this.maxMidiMeasure = Math.max(...osmdArray.map(e => e.midiMeasure))
         this.debugStep("[main]", osmdArray);
@@ -659,22 +770,59 @@ export class CursorService {
         // this will be notre nouvelle sortie
         const link = new Map<number, { osmdIndex: number, osmdMeasure: number }>();
         if (!this.osmdArray || this.osmdArray.length === 0) {
+            this.sortedMappedMidiTicks = [];
             return link;
         }
         this.osmdArray.forEach(element => {
             if (element.midiTicks !== null) {
-                link.set(element.midiTicks!, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
+                if (!link.has(element.midiTicks)) {
+                    link.set(element.midiTicks, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
+                }
             }
             this.osmdCursorIdxToMeasureMap.set(element.osmdIndex, element.osmdMeasure);
         });
 
         this.midiTicksToOsmdCursorIndex = link;
+        this.sortedMappedMidiTicks = Array.from(link.keys()).sort((a, b) => a - b);
         if (this.diagnosticMode) {
             console.groupCollapsed("[cursor][mapping] mapMidiTicksToOsmdCursorIndex");
             console.table(Array.from(link.entries()).map(([midiTicks, v]) => ({ midiTicks, osmdIndex: v.osmdIndex, osmdMeasure: v.osmdMeasure })));
             console.groupEnd();
         }
         return link;
+    }
+
+    private findNearestMappedLink(targetTicks: number): { osmdIndex: number, osmdMeasure: number } | null {
+        if (this.sortedMappedMidiTicks.length === 0) {
+            return null;
+        }
+
+        let left = 0;
+        let right = this.sortedMappedMidiTicks.length - 1;
+        let best: number | null = null;
+
+        while (left <= right) {
+            const mid = Math.floor((left + right) / 2);
+            const tick = this.sortedMappedMidiTicks[mid];
+            if (tick <= targetTicks) {
+                best = tick;
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        if (best == null) {
+            return null;
+        }
+
+        // Guardrail: do not jump from an event that is too far in time.
+        const maxFallbackDelta = CursorService.SKIP_SHORT_NOTE_THRESHOLD * 8;
+        if (targetTicks - best > maxFallbackDelta) {
+            return null;
+        }
+
+        return this.midiTicksToOsmdCursorIndex.get(best) ?? null;
     }
 
     /**
@@ -718,7 +866,7 @@ export class CursorService {
             if (this.osmdArray) {
                 console.table(
                     this.osmdArray
-                        .filter(o => o.midiMeasure>17)
+                        //.slice(0, 100)
                         //.filter(o => (o.isFirst || o.isLast))
                         .map(o => {
                             const osmdPitches = o.osmdPitches ?? [];
@@ -757,7 +905,7 @@ export class CursorService {
 
         this.verifyAllElementsOk = notOkCount === 0;
         this.verifyAllElementsOkSignal.set(this.verifyAllElementsOk);
-        notOkPercentage = Math.round((notOkCount / totalCount) * 1000) / 10 ;
+        notOkPercentage = Math.round((notOkCount / totalCount) * 1000) / 10;
         if (!this.verifyAllElementsOk && this.diagnosticMode) {
             console.groupCollapsed("[cursor][verify] KO summary");
             console.table([
@@ -919,7 +1067,9 @@ export class CursorService {
     private isOsmdArrayElementOk(element: OsmdArrayElement): boolean {
         const osmdPitchClasses = new Set(element.osmdPitches ?? []);
         const midiPitchClasses = new Set(element.midiPitches ?? []);
-        const midiIsSubsetOfOsmd = Array.from(midiPitchClasses).map(pitch => pitch % 12).every(pitch => osmdPitchClasses.has(pitch));
+        const midiIsSubsetOfOsmd = Array.from(midiPitchClasses)
+            //.map(pitch => pitch % 12)
+            .every(pitch => osmdPitchClasses.has(pitch));
         return element.isSkipable || midiIsSubsetOfOsmd;
     }
 

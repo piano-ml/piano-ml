@@ -14,7 +14,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
     pageFormat: 'Endless',
     autoBeam: true,
     alignRests: 2,
-    //drawingParameters: "compacttight",
+    //drawingParameters: "compact",
     // autoBeamOptions: {
     //     groups: [[4, 4]],
     // },
@@ -29,7 +29,7 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
             follow: true,
             color: CURSOR_GOOD_COLOR,
             alpha: 1,
-            type: 2
+            type: 3
         },
     ] as CursorOptions[],
 
