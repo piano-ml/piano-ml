@@ -1,23 +1,21 @@
 @if (!loadingScores && popularScores.length > 0) {
-  <div class="mt-6">
-    <div class="bg-neutral-700 rounded p-4 text-sm">
-      <div class="flex items-center gap-2 mb-3">
-        <span class="text-neutral-300 font-semibold">Popular works in this scale:</span>
-        <a [href]="getLibraryUrl()" class="link-primary text-sm">
-          View all
-        </a>
-      </div>
-      @for (score of popularScores; track score; let last = $last) {
-        <span>
-          <a [href]="getScoreUrl(score)" class="link-primary">
-            <span class="font-semibold">{{ score.title }}</span>
-            @if (score.author) {
-              <span class="text-neutral-400"> ({{ score.author }})</span>
-            }</a>@if (!last) {
-            <span class="text-neutral-400">, </span>
+  <section class="popular-scores-section" aria-label="Popular works in this key">
+
+    <div class="popular-scores-header">
+      <span class="popular-scores-label">Popular works in this key</span>
+      <a [href]="getLibraryUrl()" class="popular-scores-view-all">View all →</a>
+    </div>
+
+    <div class="popular-scores-list">
+      @for (score of popularScores; track score) {
+        <a [href]="getScoreUrl(score)" class="popular-score-pill">
+          <span class="popular-score-title">{{ score.title }}</span>
+          @if (score.author) {
+            <span class="popular-score-author">{{ score.author }}</span>
           }
-        </span>
+        </a>
       }
     </div>
-  </div>
+
+  </section>
 }

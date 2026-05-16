@@ -1,15 +1,1 @@
-/* Quick Actions Component Styles */
-
-
-.import-link {
-  transition: all 0.3s ease;
-}
-
-.import-link:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-a {
-	text-decoration: none;
-}
+/* Layout handled by shared design system classes in styles.css */

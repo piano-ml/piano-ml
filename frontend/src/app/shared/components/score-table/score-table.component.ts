@@ -13,7 +13,16 @@ export interface ScoreTableColumn {
   key: string;
   label: string;
   visible: boolean;
+  /** 'center' or 'right' — default is 'left' */
+  align?: 'left' | 'center' | 'right';
+  /** Narrow icon-only column: fixed small padding, centered, skips flush logic */
+  narrow?: boolean;
   formatter?: (value: any, score: ScoreApiInfo) => string;
+}
+
+export interface ScoreTableEvent {
+  score: ScoreApiInfo;
+  openInNewTab: boolean;
 }
 
 @Component({
@@ -30,9 +39,8 @@ export class ScoreTableComponent implements OnInit {
   @Input() emptyMessage = 'No scores found';
   @Input() loadingMessage = 'Loading...';
   @Input() showRowClick = true;
-  @Input() rowClass = 'cursor-pointer hover:bg-gray-600 transition-colors';
 
-  @Output() scoreClick = new EventEmitter<ScoreApiInfo>();
+  @Output() scoreClick = new EventEmitter<ScoreTableEvent>();
 
   defaultColumns: ScoreTableColumn[] = [
     { key: 'title', label: 'Title', visible: true },
@@ -64,30 +72,37 @@ export class ScoreTableComponent implements OnInit {
     return path.split('.').reduce((o, p) => o?.[p], obj);
   }
 
-  onRowClick(score: ScoreApiInfo) {
+  getHeaderClass(column: ScoreTableColumn, isFirst: boolean, isLast: boolean): string {
+    const base = 'pb-3 pt-1 text-xs font-semibold uppercase tracking-widest text-neutral-400';
+    if (column.narrow) return `${base} px-2 text-center`;
+    const pl = isFirst ? 'pl-0' : 'pl-3';
+    const pr = isLast && this.actions.length === 0 ? 'pr-0' : 'pr-3';
+    const align = column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : 'text-left';
+    return `${base} ${pl} ${pr} ${align}`;
+  }
+
+  getCellClass(column: ScoreTableColumn, isFirst: boolean, isLast: boolean): string {
+    const base = 'py-2.5 text-sm text-neutral-300';
+    if (column.narrow) return `${base} px-2 text-center`;
+    const pl = isFirst ? 'pl-0' : 'pl-3';
+    const pr = isLast && this.actions.length === 0 ? 'pr-0' : 'pr-3';
+    const align = column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : 'text-left';
+    return `${base} ${pl} ${pr} ${align}`;
+  }
+
+  onRowClick(score: ScoreApiInfo, event: MouseEvent) {
     if (this.showRowClick) {
-      this.scoreClick.emit(score);
+      this.scoreClick.emit({ score, openInNewTab: event.ctrlKey || event.metaKey });
     }
   }
 
   onActionClick(action: ScoreTableAction, score: ScoreApiInfo, event: Event) {
-    event.stopPropagation(); // Empêcher la propagation vers le clic de ligne
+    event.stopPropagation();
     action.callback(score);
   }
 
   getButtonClass(action: ScoreTableAction): string {
-    if (action.class) {
-      return action.class;
-    }
-    
-    // Classes par défaut basées sur le type d'action
-    const baseClass = 'px-2 py-1 text-white rounded text-xs focus:outline-none focus:ring-1 transition-colors';
-    
-    if (action.label.toLowerCase().includes('delete') || action.icon === '🗑️') {
-      return `${baseClass} bg-red-500 hover:bg-red-600 focus:ring-red-400`;
-    }
-    
-    return `${baseClass} bg-blue-500 hover:bg-blue-600 focus:ring-blue-400`;
+    return action.class ?? 'btn-small';
   }
 
   getDifficultyText(grade: number | null | undefined): string {

@@ -1,76 +1,95 @@
-<div class="card-secondary">
-  <h3 class="card-secondary-title">Score Additional Information</h3>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div>
-      <span class="item-title">Genre:</span>
-      @if (score.genre && score.genre_slug) {
-        <a [routerLink]="['/library/genres', score.genre_slug]" class="link-primary text-white no-underline">
-          {{ score.genre }}
-        </a>
-      } @else {
-        {{ score.genre || 'N/A' }}
+<div class="exercise-desc-card">
+  <div class="exercise-desc-section">
+    <p class="exercise-desc-label">Score information</p>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 mt-3">
+
+      <div>
+        <p class="field-label">Genre</p>
+        @if (score.genre && score.genre_slug) {
+          <a [routerLink]="['/library/genres', score.genre_slug]" class="link-primary text-sm mt-0.5 block">{{ score.genre }}</a>
+        } @else {
+          <p class="text-sm text-neutral-300 mt-0.5">{{ score.genre || '—' }}</p>
+        }
+      </div>
+
+      <div>
+        <p class="field-label">Author</p>
+        @if (score.author_slug) {
+          <a [routerLink]="['/library/artists', score.author_slug]" class="link-primary text-sm mt-0.5 block">{{ score.author }}</a>
+        } @else {
+          <p class="text-sm text-neutral-300 mt-0.5">{{ score.author || '—' }}</p>
+        }
+      </div>
+
+      <div>
+        <p class="field-label">Key</p>
+        @if (score.fullKey && score.genre_slug) {
+          <a [routerLink]="['/library/genres', score.genre_slug]" [queryParams]="{fullKey: score.fullKey}" class="link-primary text-sm mt-0.5 block">{{ score.fullKey }}</a>
+        } @else {
+          <p class="text-sm text-neutral-300 mt-0.5">{{ score.fullKey || '—' }}</p>
+        }
+      </div>
+
+      <div>
+        <p class="field-label">Difficulty</p>
+        <p class="text-sm text-neutral-300 mt-0.5">{{ getDifficultyText(score.grade) }}</p>
+      </div>
+
+      <div>
+        <p class="field-label">Duration</p>
+        <p class="text-sm text-neutral-300 mt-0.5">{{ formatDuration(score.duration) }}</p>
+      </div>
+
+      <div>
+        <p class="field-label">Tempo</p>
+        <p class="text-sm text-neutral-300 mt-0.5">{{ score.tempo || '—' }}</p>
+      </div>
+
+      <div>
+        <p class="field-label">Tracks</p>
+        <p class="text-sm text-neutral-300 mt-0.5">{{ score.tracks_count || '—' }}</p>
+      </div>
+
+      <div>
+        <p class="field-label">Measures</p>
+        <p class="text-sm text-neutral-300 mt-0.5">{{ score.measures || '—' }}</p>
+      </div>
+
+      <div>
+        <p class="field-label">Public Domain</p>
+        @if (score.publicDomain) {
+          <span class="text-xs font-semibold uppercase tracking-widest text-emerald-400 mt-0.5 block">Yes</span>
+        } @else {
+          <span class="text-xs font-semibold uppercase tracking-widest text-red-400 mt-0.5 block">No</span>
+        }
+      </div>
+
+      @if (score.has_lyrics) {
+        <div>
+          <p class="field-label">Lyrics</p>
+          <p class="text-sm text-neutral-300 mt-0.5">Yes</p>
+        </div>
       }
-    </div>
-    <div>
-      <span class="item-title">Author: </span>
-      @if (score.author_slug && score.author_slug) {
-        <a [routerLink]="['/library/artists', score.author_slug]" class="link-primary text-white no-underline">
-          {{ score.author }}
-        </a>
-      } @else {
-        {{ score.author || 'N/A' }}
+
+      <div>
+        <p class="field-label">Uploaded</p>
+        <p class="text-sm text-neutral-300 mt-0.5">{{ score.uploaded_at | date:'mediumDate' }}</p>
+      </div>
+
+      @if (score.author_mbid || score.mbid) {
+        <div>
+          <p class="field-label">MusicBrainz</p>
+          <div class="flex gap-3 mt-0.5">
+            @if (score.author_mbid) {
+              <a class="link-primary text-sm" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank" rel="noopener noreferrer">Artist</a>
+            }
+            @if (score.mbid) {
+              <a class="link-primary text-sm" href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank" rel="noopener noreferrer">Work</a>
+            }
+          </div>
+        </div>
       }
+
     </div>
-
-    <div><span class="item-title">Tempo: </span> {{ score.tempo ? (score.tempo) : 'N/A' }}</div>
-    <div>
-      <span class="item-title">Key: </span>
-      @if (score.fullKey && score.genre_slug) {
-        <a [routerLink]="['/library/genres', score.genre_slug]" [queryParams]="{fullKey: score.fullKey}" class="link-primary text-white no-underline">
-          {{ score.fullKey }}
-        </a>
-      } @else {
-        {{ score.fullKey || 'N/A' }}
-      }
-    </div>
-
-    <div><span class="item-title">Tracks: </span> {{ score.tracks_count || 0 }}</div>
-    <div><span class="item-title">Measure: </span> {{ score.measures || 'N/A' }}</div>
-    <div><span class="item-title">Duration: </span> {{ score.duration ? (score.duration + ' seconds') : 'N/A' }}</div>
-
-    <div>
-      <span class="item-title">MusicBrainz: </span>
-      @if ((score.author_mbid)) {
-        <a class="link-primary text-white no-underline" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank">author</a>
-      } @else {
-        N/A
-      }
-    </div>
-
-    <div>
-      <span class="item-title">MusicBrainz: </span>
-      @if (score.mbid) {
-        <a class="link-primary text-white no-underline" href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank">work</a>
-      } @else {
-        N/A
-      }
-    </div>
-    <div><span class="item-title">Grade: </span> {{ score.grade !== undefined && score.grade !== null ? score.grade : 'N/A' }}</div>
-
-    <div><span class="item-title">Uploaded: </span> {{ score.uploaded_at | date:'medium' }}</div>
-    <div><span class="item-title">Owner: </span> {{ score.owner }}</div>
-    <div><span class="item-title">Version: </span> {{ score.version || 1 }}</div>
-
-    <div><span class="item-title">Has Lyrics:</span> {{ score.has_lyrics ? 'Yes' : 'No' }}</div>
-
-    <div>
-      <span class="item-title">Public Domain: </span>
-      @if (score.publicDomain) {
-        <span class="text-emerald-500 font-bold">✓</span>
-      } @else {
-        <span class="text-red-500 font-bold">🔒</span>
-      }
-    </div>
-
   </div>
 </div>

@@ -1,1 +1,36 @@
-/* Component-specific styles */
+@import "tailwindcss";
+
+.popular-scores-section {
+  @apply mt-10 pt-6 border-t border-neutral-800;
+}
+
+.popular-scores-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.popular-scores-label {
+  @apply text-xs font-semibold uppercase tracking-widest text-neutral-400;
+}
+
+.popular-scores-view-all {
+  @apply text-xs text-neutral-400 no-underline hover:text-neutral-200 transition-colors duration-150;
+}
+
+.popular-scores-list {
+  @apply flex flex-wrap gap-2;
+}
+
+.popular-score-pill {
+  @apply inline-flex items-center gap-2 px-3 py-1.5
+         bg-neutral-800/60 border border-neutral-700/60 rounded-sm
+         no-underline transition-colors duration-150
+         hover:border-neutral-600 hover:bg-neutral-800;
+}
+
+.popular-score-title {
+  @apply text-xs font-medium text-neutral-300;
+}
+
+.popular-score-author {
+  @apply text-xs text-neutral-500;
+}

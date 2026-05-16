@@ -1,21 +1,23 @@
 <article class="main-article">
-  <div class="flex items-center justify-between gap-4">
+  <div class="px-4 sm:px-6 pt-4">
     <div class="page-title">Exercises</div>
+    <div class="page-sub-title">Practice cycles and technique programs</div>
   </div>
 
-  <section class="main-section">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <hr class="mx-4 sm:mx-6">
 
-      <div class="card-secondary">
-        <div class="card-secondary-title">DIY Cycle</div>
-        <ul>
-          @for (item of summary; track item) {
-          <li class="mb-4 mt-4">
-            <button [routerLink]="item.url" class="btn-hero w-64">{{ item.title }}</button>
-          </li>
-          }
-        </ul>
-      </div>
+  <!-- ── Toolbar ────────────────────────────────────────── -->
+  <div class="flex items-center justify-between px-4 sm:px-6 mb-5">
+    <p class="page-sub-title">&nbsp;</p>
+    <div class="flex items-center gap-3">
+      <a routerLink="/exercises/scale" class="btn-primary">Scales</a>
+      <a routerLink="/exercises/agility" class="btn-primary">Agility</a>
+    </div>
+  </div>
+
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mx-4 sm:mx-6 mb-8">
+
 
 
 
@@ -229,5 +231,5 @@
         </ul>
       </div>
     </div>
-  </section>
+  
 </article>

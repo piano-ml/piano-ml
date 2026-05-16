@@ -1,192 +1,148 @@
 <article class="main-article">
-
   <h1 class="sr-only">{{ score?.title }} by {{ score?.author }} - Piano Score</h1>
 
+  <div class="px-4 sm:px-6 pt-4">
 
-  <div class="flex items-center justify-between gap-4">
-    <div class="page-title" role="heading" aria-level="2">{{ pageTitle }}
-      
-    </div>
-
-
-
-    <div class="flex items-center justify-end gap-2">
-      <span></span>
-      <button (click)="copyUrlToClipboard()" class="px-3 py-2 text-white rounded" title="Copy URL">
-        <ng-icon name="bootstrapClipboard" size="16"></ng-icon>
-      </button>
-    </div>
-
+    @if (score?.author) {
+    <div class="page-title">{{ score!.title }}</div>
+    <h2 class="page-sub-title">{{ score!.author }}</h2>
+    }
   </div>
-    
 
+  <hr class="mx-4 sm:mx-6">
 
-  <section class="main-section" aria-label="Score details and actions">
-    <!-- Loading State -->
+  <!-- ── Toolbar ────────────────────────────────────────── -->
+  <div class="flex items-center justify-between px-4 sm:px-6">
+    <p class="text-xs text-neutral-400"></p>
+
+    <div class="flex items-center gap-3">
+      @if (score) {
+      <button (click)="copyUrlToClipboard()" class="btn-primary gap-1.5" title="Copy link">
+        <ng-icon name="bootstrapClipboard" size="13"></ng-icon>
+        <span>Copy link</span>
+      </button>
+      }
+      <button (click)="onBack()" class="btn-secondary">← Browse</button>
+      @if (isOwner()) {
+      <button (click)="editScore()" class="btn-primary">Edit</button>
+      }
+      @if (score?.has_files) {
+      <button
+        (click)="downloadFile('midi')"
+        [disabled]="!isOwnerOrPublic()"
+        [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download MIDI'"
+        class="btn-primary"
+        [class.opacity-40]="!isOwnerOrPublic()"
+        [class.cursor-not-allowed]="!isOwnerOrPublic()">
+        MIDI
+      </button>
+      <button
+        (click)="downloadFile('musicxml')"
+        [disabled]="!isOwnerOrPublic()"
+        [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download MusicXML'"
+        class="btn-primary"
+        [class.opacity-40]="!isOwnerOrPublic()"
+        [class.cursor-not-allowed]="!isOwnerOrPublic()">
+        MusicXML
+      </button>
+      <button
+        (click)="downloadFile('pdf')"
+        [disabled]="!isOwnerOrPublic()"
+        [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download PDF'"
+        class="btn-primary"
+        [class.opacity-40]="!isOwnerOrPublic()"
+        [class.cursor-not-allowed]="!isOwnerOrPublic()">
+        PDF
+      </button>
+      <button (click)="playScore()" class="btn-hero">Practice</button>
+      }
+    </div>
+  </div>
+
+  <div class="px-4 sm:px-6 pb-12 flex flex-col gap-5 mt-6">
+
+    <!-- ── Loading ────────────────────────────────────────── -->
     @if (loading) {
-    <div class="text-center py-8">
-      <div
-        class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full">
-      </div>
-      <p class="mt-2 text-gray-300">Loading score...</p>
+    <div class="flex items-center gap-3 py-10">
+      <div class="spinner w-4 h-4 text-neutral-500"></div>
+      <p class="text-sm text-neutral-400">Loading score…</p>
     </div>
     }
 
-    <!-- Error State -->
+    <!-- ── Error ──────────────────────────────────────────── -->
     @if (error && !loading) {
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <div class="alert-error">
       <strong>Error:</strong> {{ error }}
     </div>
     }
 
-    <!-- Score Details -->
     @if (!loading && score) {
-    <div>
-      @if (!score.has_files) {
-      <div class="card-secondary">
-        <h3 class="text-lg font-semibold mb-4 text-white">File Processing Status</h3>
-        <!-- Loading workload info -->
+
+    <!-- ── File processing status ────────────────────────── -->
+    @if (!score.has_files) {
+    <div class="exercise-desc-card">
+      <div class="exercise-desc-section">
+        <p class="exercise-desc-label">Processing status</p>
+
         @if (loadingWorkload) {
-        <div class="text-center py-4">
-          <div
-            class="animate-spin inline-block w-6 h-6 border-4 border-current border-t-transparent text-blue-600 rounded-full">
-          </div>
-          <p class="mt-2 text-gray-300">Loading processing status...</p>
+        <div class="flex items-center gap-2 mt-3">
+          <div class="spinner w-3 h-3 text-neutral-500"></div>
+          <span class="text-sm text-neutral-400">Loading status…</span>
         </div>
         }
-        <!-- Workload information -->
+
         @if (!loadingWorkload && workload) {
-        <div class="space-y-3">
+        <div class="flex flex-col gap-2.5 mt-3">
           <div class="flex items-center justify-between">
-            <span class="text-gray-300">Status:</span>
-            <span class="px-3 py-1 rounded-full text-sm font-semibold" [ngClass]="{
-                  'bg-yellow-100 text-yellow-800': workload.status === 'PENDING',
-                  'bg-blue-100 text-blue-800': workload.status === 'RUNNING',
-                  'bg-emerald-100 text-emerald-800': workload.status === 'COMPLETED',
-                  'bg-red-100 text-red-800': workload.status === 'FAILED'
-                }">
-              {{ workload.status }}
-            </span>
+            <span class="field-label">Status</span>
+            <span class="text-xs font-semibold uppercase tracking-widest" [ngClass]="{
+                    'text-yellow-400':  workload.status === 'PENDING',
+                    'text-blue-400':    workload.status === 'RUNNING',
+                    'text-emerald-400': workload.status === 'COMPLETED',
+                    'text-red-400':     workload.status === 'FAILED'
+                  }">{{ workload.status }}</span>
           </div>
           @if (workload.kind) {
           <div class="flex items-center justify-between">
-            <span class="text-gray-300">Type:</span>
-            <span class="text-white">{{ workload.kind }}</span>
+            <span class="field-label">Type</span>
+            <span class="text-sm text-neutral-300">{{ workload.kind }}</span>
           </div>
           }
           @if (workload.createdAt) {
           <div class="flex items-center justify-between">
-            <span class="text-gray-300">Created:</span>
-            <span class="text-white">{{ workload.createdAt | date:'medium' }}</span>
+            <span class="field-label">Created</span>
+            <span class="text-sm text-neutral-300">{{ workload.createdAt | date:'medium' }}</span>
           </div>
           }
           @if (workload.duration) {
           <div class="flex items-center justify-between">
-            <span class="text-gray-300">Duration:</span>
-            <span class="text-white">{{ workload.duration }}ms</span>
-          </div>
-          }
-          @if (workload.workloadSize) {
-          <div class="flex items-center justify-between">
-            <span class="text-gray-300">Workload Size:</span>
-            <span class="text-white">{{ workload.workloadSize }}</span>
+            <span class="field-label">Duration</span>
+            <span class="text-sm text-neutral-300">{{ workload.duration }}ms</span>
           </div>
           }
           @if (workload.errorMessage) {
-          <div class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            <strong>Error:</strong> {{ workload.errorMessage }}
-          </div>
+          <div class="alert-error mt-3">{{ workload.errorMessage }}</div>
           }
         </div>
         }
-        <!-- No workload info available -->
+
         @if (!loadingWorkload && !workload) {
-        <div class="text-center py-4 text-gray-300">
-          <p>No processing information available for this score.</p>
-          <p class="text-sm mt-2">Files may not have been processed yet.</p>
-        </div>
+        <p class="text-sm text-neutral-400 mt-3">No processing information available. Files may not have been submitted
+          yet.</p>
         }
-      </div>
-      }
-      <!-- Download Section -->
-      @if (score.has_files) {
-      <div class="card-secondary">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <!-- MIDI Download -->
-          <div class="text-center">
-            <button (click)="downloadFile('midi')" [disabled]="!isOwnerOrPublic()"
-              [class.opacity-50]="!isOwnerOrPublic()" [class.cursor-not-allowed]="!isOwnerOrPublic()"
-              class="btn-primary w-full">
-              @if (!score.publicDomain) {
-              <span class="mr-2">🔒</span>
-              }
-              <i class="fas fa-music mr-2"></i>
-              Download MIDI
-            </button>
-            @if (score.publicDomain) {
-            <p class="text-gray-300 text-sm mt-2">Digital audio format</p>
-            }
-            @if (!score.publicDomain) {
-            <p class="text-gray-300 text-sm mt-2"><span class="mr-2">🔒</span> Downloading disabled due to copyright</p>
-            }
-          </div>
-          <!-- MusicXML Download -->
-          <div class="text-center">
-            <button (click)="downloadFile('musicxml')" [disabled]="!isOwnerOrPublic()"
-              [class.opacity-50]="!isOwnerOrPublic()" [class.cursor-not-allowed]="!isOwnerOrPublic()"
-              class="btn-primary w-full btn-primary">
-              @if (!score.publicDomain) {
-              <span class="mr-2">🔒</span>
-              }
-              <i class="fas fa-code mr-2"></i>
-              MusicXML
-            </button>
-
-          </div>
-          <!-- PDF Download -->
-          <div class="text-center">
-            <button (click)="downloadFile('pdf')" [disabled]="!isOwnerOrPublic()"
-              [class.opacity-50]="!isOwnerOrPublic()" [class.cursor-not-allowed]="!isOwnerOrPublic()"
-              class="btn-primary w-full">
-              @if (!score.publicDomain) {
-              <span class="mr-2">🔒</span>
-              }
-              <i class="fas fa-file-pdf mr-2"></i>
-              Download PDF
-            </button>
-
-          </div>
-          <!-- Practice -->
-          <div class="text-center">
-            <button (click)="playScore()" class="btn-primary w-full ">
-              <i class="fas fa-play mr-2"></i>
-              <i class="fas fa-keyboard mr-2"></i>
-              🔥 Practice
-            </button>
-            <p class="text-gray-300 text-sm mt-2">Open in the Practice Studio</p>
-          </div>
-        </div>
-      </div>
-      }
-      <!-- Score Basic Info Display -->
-      <app-score-basic-info [score]="score"></app-score-basic-info>
-      <!-- Exercises in Key -->
-      @if (score && score.fullKey) {
-      <app-exercises-in-key [fullKey]="score.fullKey!"></app-exercises-in-key>
-      }
-      <!-- Action Buttons -->
-      <div class="flex gap-4 justify-end mt-2">
-        <button (click)="onBack()" class="btn-secondary">
-          <i class="fas fa-arrow-left mr-2"></i>
-          << Browse all Scores </button>
-            @if (isOwner()) {
-            <button (click)="editScore()" class="btn-primary">
-              <i class="fas fa-edit mr-2"></i>
-              Edit Score
-            </button>
-            }
       </div>
     </div>
     }
-  </section>
+
+    <!-- ── Metadata ───────────────────────────────────────── -->
+    <app-score-basic-info [score]="score"></app-score-basic-info>
+
+    <!-- ── Exercises in key ───────────────────────────────── -->
+    @if (score.fullKey) {
+    <app-exercises-in-key [fullKey]="score.fullKey!"></app-exercises-in-key>
+    }
+
+    }
+  </div>
+
 </article>
