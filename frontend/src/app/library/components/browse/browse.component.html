@@ -78,7 +78,7 @@
     <div class="mt-4 mb-4 text-sm text-gray-300 flex flex-wrap items-center justify-center gap-4">
       <!-- stats + import -->
       <div class="flex items-center gap-2">
-        <span class="mr-4"><span >{{ stats['public-domain'] + stats.copyrighted }}</span> scores in database
+        <span class="mr-4"><span >{{ stats['public-domain'] + stats.copyrighted | number }}</span> scores in database
           <!--
       (<span class="font-semibold text-emerald-400">{{ stats['public-domain'] }}</span> public domain, 
       <span class="font-semibold">{{ stats.copyrighted }}        

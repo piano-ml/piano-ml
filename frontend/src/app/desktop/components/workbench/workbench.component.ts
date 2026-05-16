@@ -243,10 +243,20 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       } catch (e) {
         //this.loadingFeedBack$.next(null);
       }
+    });
 
-      // this.playConfiguration.currentStave = this.cursorService.measure() + 1;
-      // this.updateSlider();
-      // this.changeDetector.markForCheck();
+    // Effect 4: keep the active stave and slider in sync with the cursor measure signal.
+    effect(() => {
+      if (!isPlatformBrowser(this.platformId)) return;
+
+      const nextStave = this.cursorService.measure() + 1;
+      if (nextStave === this.playConfiguration.currentStave) {
+        return;
+      }
+
+      this.playConfiguration.currentStave = nextStave;
+      this.updateSlider();
+      this.changeDetector.markForCheck();
     });
   }
 

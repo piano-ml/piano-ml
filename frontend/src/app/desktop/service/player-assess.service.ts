@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { Note } from "@tonejs/midi/dist/Note";
 import { MidiStateEvent } from "../../shared/model/webmidi";
 import { CursorService } from "./cursor.service";
@@ -30,7 +30,7 @@ export interface LiveStatus {
 @Injectable({
   providedIn: 'root'
 })
-export class PlayerAssessService {
+export class PlayerAssessService implements OnDestroy {
 
   private cachedOldestKey: number | null = null;
   private unHitNotesByTime: Map<number, { pitch: number, hit: boolean }[]> = new Map();
@@ -229,6 +229,14 @@ export class PlayerAssessService {
     if (!previousShouldPause && this.liveStatus.shouldPause) {
       this.liveStatus.late += 1;
     }
+  }
+
+  ngOnDestroy(): void {
+    // Clear all Maps and Sets to release references
+    this.liveStatus.expectations.clear();
+    this.liveStatus.early.clear();
+    this.unHitNotesByTime.clear();
+    this.cachedOldestKey = null;
   }
 
 }
