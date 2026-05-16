@@ -29,9 +29,14 @@ export default defineConfig({
       '@tonejs/midi',
       '@tonejs/piano', 
       'tone',
+      'spessasynth_lib',
       'nouislider',
       'wnumb',
       'lodash'
-    ]
+    ],
+    esbuildOptions: {
+      // Désactiver les source maps pour éviter les avertissements DevTools sur le WASM de spessasynth
+      sourcemap: false
+    }
   }
 });
