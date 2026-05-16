@@ -1,4 +1,4 @@
-import { Injectable, effect, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, effect, PLATFORM_ID, inject, OnDestroy, DestroyRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
@@ -26,15 +26,18 @@ const TIME_COUNTER_TIMESTEP = 200
 @Injectable({
   providedIn: 'root'
 })
-export class PlayerService {
+export class PlayerService implements OnDestroy {
 
 
 
   private platformId = inject(PLATFORM_ID);
+  private destroyRef = inject(DestroyRef);
   private isBrowser: boolean;
   private timeCounterInterval?: number;
   private highlightedBadNotes = new Set<GraphicalNote>();
   private badNoteResetTimers = new Map<GraphicalNote, ReturnType<typeof setTimeout>>();
+  private midiEventEffectFn?: any;
+  private cachedTimeSignatureIndices?: Map<Midi.Header, number[]>;
   verticalPixelShiftValue: number = 1;
   lastBar = 0;
 
@@ -74,7 +77,7 @@ export class PlayerService {
     this.reset = this.reset.bind(this);
 
     // Effect to process MIDI events via signal
-    effect(() => {
+    this.midiEventEffectFn = effect(() => {
       const midiEvent = this.midiService.midiEvent();
       if (midiEvent) {
         this.processMidiEvent(midiEvent);
@@ -442,15 +445,11 @@ export class PlayerService {
   }
 
   private lightExpectedNotesOnKeyboard(liveStatus: LiveStatus) {
-    let oldestKey = Number.POSITIVE_INFINITY;
-    let oldestValue: Set<NoteKey> | undefined;
+    if (liveStatus.expectations.size === 0) return;
 
-    for (const [key, value] of liveStatus.expectations) {
-      if (key < oldestKey) {
-        oldestKey = key;
-        oldestValue = value;
-      }
-    }
+    // Find oldest key using Math.min instead of looping
+    const oldestKey = Math.min(...liveStatus.expectations.keys());
+    const oldestValue = liveStatus.expectations.get(oldestKey);
 
     if (oldestValue) {
       for (const noteKey of oldestValue) {
@@ -518,19 +517,47 @@ export class PlayerService {
     let timeSig: TimeSignatureEvent | undefined = midiHeader.timeSignatures[0];
     let timeSigIndex = 0;
     let elapsedTicks = 0;
+    const timeSignatures = midiHeader.timeSignatures;
+    const tsLength = timeSignatures.length;
+
     for (let i = 0; i < start; i++) {
+      // Find the correct time signature index for current elapsed ticks
       while (
-        timeSigIndex + 1 < midiHeader.timeSignatures.length
-        && midiHeader.timeSignatures[timeSigIndex + 1].ticks <= elapsedTicks
+        timeSigIndex + 1 < tsLength
+        && timeSignatures[timeSigIndex + 1].ticks <= elapsedTicks
       ) {
         timeSigIndex += 1;
       }
 
-      timeSig = midiHeader.timeSignatures[timeSigIndex] || timeSig;
+      timeSig = timeSignatures[timeSigIndex] || timeSig;
       const ts = reducedFraction(timeSig?.timeSignature[0] || 4, timeSig?.timeSignature[1] || 4)
       elapsedTicks += getStaveDurationTick(ts, midiHeader.ppq);
     }
     return midiHeader.ticksToSeconds(elapsedTicks);
+  }
+
+  ngOnDestroy(): void {
+    // Clear time counter interval
+    if (this.timeCounterInterval) {
+      clearInterval(this.timeCounterInterval);
+      this.timeCounterInterval = undefined;
+    }
+
+    // Clean up all bad note highlight timers
+    for (const timeoutId of this.badNoteResetTimers.values()) {
+      clearTimeout(timeoutId);
+    }
+    this.badNoteResetTimers.clear();
+    this.highlightedBadNotes.clear();
+
+    // Stop audio playback
+    this.audio.stop();
+
+    // Cleanup via DestroyRef for effect and other resource cleanup
+    this.destroyRef.onDestroy(() => {
+      // Effect will be auto-cleaned up by Angular
+      this.midiEventEffectFn = null;
+    });
   }
 
 }

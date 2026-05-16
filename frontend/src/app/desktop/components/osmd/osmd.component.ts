@@ -131,15 +131,16 @@ export class OsmdComponent implements OnInit, OnDestroy {
                 }
                 const partCount = this.osmd!.GraphicSheet.MeasureList[0].length;
                 const positionAndShape = this.osmd!.GraphicSheet.MeasureList[0][partCount - 1].PositionAndShape;
-                let y = 100;
+                let y = 50;
                 const cursorElement = document.getElementById('cursorImg-0');
                 if (cursorElement) {
+                    cursorElement!.style.setProperty('height', y + "px", 'important');
                     if (partCount === 1) {
                         y = (positionAndShape.Parent.BoundingRectangle.height) * 5;
                         cursorElement!.style.setProperty('height', y + "px", 'important');
                     } else {
                         //y = positionAndShape.Parent.BoundingRectangle.height
-                        y = (positionAndShape.Parent.AbsolutePosition.y + positionAndShape.Parent.BoundingRectangle.height) * 5;
+                        y = (positionAndShape.Parent.AbsolutePosition.y + positionAndShape.Parent.BoundingRectangle.height) * 4.6;
                         cursorElement!.style.setProperty('height', y + "px", 'important');
                     }
 

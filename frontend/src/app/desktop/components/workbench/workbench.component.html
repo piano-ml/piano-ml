@@ -112,11 +112,11 @@
     </div>
     }
 
-    @if (toggleToolbar) {
+    <!-- @if (toggleToolbar) {    } -->
     <div class=" bg-transparent l-2 pr-2 p-2 mr-4 ml-4 z-100">
       <div #range id="measure-range"></div>
     </div>
-    }
+
 
     @if ((osmdLoading$ | async)) {
     <div class="flex flex-col items-center justify-center w-full h-dvh text-6xl osmd-state-transition">

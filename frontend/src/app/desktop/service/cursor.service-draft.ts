@@ -1,24 +1,21 @@
 
-import { Injectable, signal, OnDestroy, DestroyRef, inject } from "@angular/core";
+import { Injectable, signal } from "@angular/core";
 import { Midi } from "@tonejs/midi";
 import type { Note as MidiNote, Note } from "@tonejs/midi/dist/Note";
 import { AlignmentType, Cursor, RepetitionInstruction, RepetitionInstructionEnum, Note as OSMDNote, GraphicalNote, VexFlowGraphicalNote, OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { CURSOR_BAD_COLOR, CURSOR_GOOD_COLOR } from "../components/osmd/osmd.config";
 import { smithWatermanAlign, smithWatermanAlign2 } from "./smith-waterman";
 import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
-import { last } from "rxjs";
 
 
 @Injectable({
     providedIn: 'root'
 })
-export class CursorService implements OnDestroy {
+export class CursorService {
 
     private static SKIP_SHORT_NOTE_THRESHOLD = 60;
     private static readonly DIAGNOSTIC_STORAGE_KEY = "cursorService.debug";
     private static readonly UI_YIELD_STEP = 8;
-    private destroyRef = inject(DestroyRef);
-    private setupTimeoutId?: ReturnType<typeof setTimeout>;
     private diagnosticMode = this.readDiagnosticModeFromStorage();
     private alignmentAlgorithm: CursorAlignmentAlgorithm = "sw2";
     private cursorIndex = 0;
@@ -45,7 +42,6 @@ export class CursorService implements OnDestroy {
     readonly measure = signal<number>(0);
     audioTimeNoteArray: Array<[number, { pitch: number, hit: boolean }[]]> = [];
     midiTicksToOsmdCursorIndex: Map<number, { osmdIndex: number, osmdMeasure: number }> = new Map();
-    private sortedMappedMidiTicks: number[] = [];
 
     public tiltCursor(cursor: Cursor): void {
         this.cursor = cursor;
@@ -92,7 +88,7 @@ export class CursorService implements OnDestroy {
         // this.osmdCursorIdxToMeasureMap.clear(); is used for slider and must not be cleared
         // this.midiTicksToOsmdCursorIndex will be our main output and must not be cleared
 
-        this.setupTimeoutId = setTimeout(() => {
+        setTimeout(() => {
             this.cursor!.next();
             this.cursor!.previous();
         }, 500);
@@ -123,9 +119,9 @@ export class CursorService implements OnDestroy {
                 this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
                 this.cursor!.CursorOptions.type = 4;
             } else {
-                //if (this.diagnosticMode) {
-                //    this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
-                //}
+                if (this.diagnosticMode) {
+                    this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
+                }
                 this.cursor!.CursorOptions.type = 3; // measure rectangle
             }
             const newOsmdMeasure = link.osmdMeasure;
@@ -253,10 +249,11 @@ export class CursorService implements OnDestroy {
             notesUnderCursor = (cursor.iterator.CurrentVoiceEntries ?? [])
                 .flatMap(voiceEntry => voiceEntry.Notes ?? []);
 
+
             const osmdPitches = notesUnderCursor
                 .map(n => n.Pitch?.getHalfTone())
                 .filter((pitch): pitch is number => pitch != null)
-                .map(pitch => pitch + 12); // align octave with midi
+                .map(pitch => this.normalizePitchClass(pitch));
             const graphicalObjectId = notesUnderCursor
                 .map(n => n.NoteToGraphicalNoteObjectId)
                 .filter((id): id is number => id != null);
@@ -358,9 +355,12 @@ export class CursorService implements OnDestroy {
         // without being overwritten by link rebuilding.
         const sortedTicks = Array.from(this.midiTicksNoteMap.keys()).sort((a, b) => a - b);
         let osmdArrayIndex = 0;
+        let accumulatedMidiPitches: Set<number> = new Set();
+                let lastAdvancedMidiTicks: number | null = null;
         for (const ticks of sortedTicks) {
             while (osmdArrayIndex < osmdArray.length && osmdArray[osmdArrayIndex].isSkipable) {
                 osmdArrayIndex++;
+                accumulatedMidiPitches.clear();
             }
             const currentElement = osmdArray[osmdArrayIndex];
             if (!currentElement) {
@@ -372,157 +372,21 @@ export class CursorService implements OnDestroy {
             if (osmdArray[Math.max(0, osmdArrayIndex - 1)].tremolo && midiNotesAtTick.map(note => note.durationTicks).every(duration => duration < CursorService.SKIP_SHORT_NOTE_THRESHOLD)) {
                 continue;
             }
+            // Only advance to next OSMD element if all expected pitches have been played
+            const expectedPitches = new Set(currentElement.osmdPitches ?? []);
+            const allPitchesPlayed = Array.from(expectedPitches).every(pitch => accumulatedMidiPitches.has(pitch));
+            let exceedsShortNoteThreshold = lastAdvancedMidiTicks != null
+                && ticks - lastAdvancedMidiTicks > (CursorService.SKIP_SHORT_NOTE_THRESHOLD * 4) - 1;
             currentElement.midiPitches = midiNotesAtTick.map(note => note.midi - 12);
             currentElement.midiTicksDuration = midiNotesAtTick.length > 0
                 ? Math.max(...midiNotesAtTick.map(note => note.durationTicks))
                 : null;
             currentElement.midiTime = midiNotesAtTick.length > 0 ? midiNotesAtTick[0].time : null;
-            osmdArrayIndex++;
-        }
-        this.maxMidiMeasure = Math.max(...osmdArray.map(e => e.midiMeasure))
-        this.debugStep("[main]", osmdArray);
-        await this.yieldToUi();
-        return osmdArray;
-    }
-
-    async hydrateOsmdArrayNEWCANDIDATE1(cursor: Cursor): Promise<OsmdArrayElement[]> {
-        // first pass build a simple osmd step sequence
-        const osmdMeasureToFirstStepIndex = await this.buildOsmdStepsSequence(cursor);
-        // second pass detect last/jump/skippable
-        let osmdArray = await this.initOsmdArray();
-        // third pass say target cause o.isFirst was not filled if in first pass
-        osmdArray = await this.hydrateTargets(osmdArray, osmdMeasureToFirstStepIndex);
-        const sortedTicks = Array.from(this.midiTicksNoteMap.keys()).sort((a, b) => a - b);
-        let osmdArrayIndex = 0;
-        let awaitOsmdPitches: Array<number> = [...osmdArray[0]?.osmdPitches ?? []];
-        let awaitMidiPitches:Array<number>  = [];
-        let lastAdvancedMidiTicks: number | null = null;
-        for (const ticks of sortedTicks) {
-            while (osmdArrayIndex < osmdArray.length && osmdArray[osmdArrayIndex].isSkipable) {
-                osmdArrayIndex++;
-                //accumulatedMidiPitches.clear();
-            }
-            const osmdArrayStep = osmdArray[osmdArrayIndex];
-            if (!osmdArrayStep) {
-                break;
-            }
-            // add various debug informations to the osmd array element for diagnostic of alignment
-            const midiNotesAtTick = this.midiTicksNoteMap.get(ticks) ?? [];
-            osmdArrayStep.midiTicks = ticks;
-            osmdArrayStep.midiTime = midiNotesAtTick.length > 0 ? midiNotesAtTick[0].time : null;
-            osmdArrayStep.midiTicksDuration = midiNotesAtTick.length > 0
-                ? Math.max(...midiNotesAtTick.map(note => note.durationTicks))
-                : null;
-            // fill link information
-            if (!osmdArrayStep.midiPitches) {
-                osmdArrayStep.midiPitches = midiNotesAtTick.map(note => note.midi);
-            } else {
-                osmdArrayStep.midiPitches.push(...midiNotesAtTick.map(note => note.midi));
-            }
-            //
-            // remove of awaitingOsmdPitches the pitches that are played at this tick
-            midiNotesAtTick.forEach(note => {
-                const index = awaitOsmdPitches.indexOf(note.midi);
-                if (index !== -1) {
-                    awaitOsmdPitches.splice(index, 1);
-                }
-            });
-
-            let exceedsShortNoteThreshold = false;
-            let allPitchesPlayed = true;
-            if (awaitOsmdPitches.length === 0 || exceedsShortNoteThreshold) {
-                osmdArrayIndex++;
-                awaitOsmdPitches = [...osmdArray[osmdArrayIndex]?.osmdPitches ?? []];
+            if (allPitchesPlayed || expectedPitches.size === 0 || exceedsShortNoteThreshold) {
                 lastAdvancedMidiTicks = ticks;
-            }
-
-        }
-        this.maxMidiMeasure = Math.max(...osmdArray.map(e => e.midiMeasure))
-        this.debugStep("[main]", osmdArray);
-        await this.yieldToUi();
-        return osmdArray;
-    }
-
-
-    async hydrateOsmdArrayNEWCANDIDATE2(cursor: Cursor): Promise<OsmdArrayElement[]> {
-        // first pass build a simple osmd step sequence
-        const osmdMeasureToFirstStepIndex = await this.buildOsmdStepsSequence(cursor);
-        // second pass detect last/jump/skippable
-        let osmdArray = await this.initOsmdArray();
-        // third pass say target cause o.isFirst was not filled if in first pass
-        osmdArray = await this.hydrateTargets(osmdArray, osmdMeasureToFirstStepIndex);
-        // Final hydration pass: attach MIDI events to the built OSMD array once.
-        // This must happen here (and not in linkMidiTicksToCursorIndex) so any
-        // subsequent alignment (e.g. smith-waterman) can safely realign midi fields
-        // without being overwritten by link rebuilding.
-        const sortedTicks = Array.from(this.midiTicksNoteMap.keys()).sort((a, b) => a - b);
-        let osmdArrayIndex = 0;
-        let awaitOsmdPitches = new Set<number>(osmdArray[0]?.osmdPitches ?? []);
-        let awaitMidiPitches = new Set<number>();
-        let lastAdvancedMidiTicks: number | null = 0;
-        for (const ticks of sortedTicks) {
-            while (osmdArrayIndex < osmdArray.length && osmdArray[osmdArrayIndex].isSkipable) {
                 osmdArrayIndex++;
-                //accumulatedMidiPitches.clear();
+                accumulatedMidiPitches.clear();
             }
-            const osmdArrayStep = osmdArray[osmdArrayIndex];
-            if (!osmdArrayStep) {
-                break;
-            }
-            // add various debug informations to the osmd array element for diagnostic of alignment
-            const midiNotesAtTick = [...this.midiTicksNoteMap.get(ticks) ?? []];
-
-
-            osmdArrayStep.midiTicks = ticks;
-            
-            osmdArrayStep.midiTime = midiNotesAtTick.length > 0 ? midiNotesAtTick[0].time : null;
-            osmdArrayStep.midiTicksDuration = midiNotesAtTick.length > 0
-                ? Math.max(...midiNotesAtTick.map(note => note.durationTicks))
-                : null;
-            // fill link information
-            if (!osmdArrayStep.midiPitches) {
-                osmdArrayStep.midiPitches = midiNotesAtTick.map(note => note.midi)
-                // filter only if in smdArrayStep.osmdPitches
-                .filter(midi => osmdArrayStep.osmdPitches?.includes(midi ));
-            } else {
-                const deduplicatedMidiPitches = new Set<number>([
-                    ...osmdArrayStep.midiPitches,
-                    ...midiNotesAtTick
-                        .map(note => note.midi)
-                        .filter(midi => osmdArrayStep.osmdPitches?.includes(midi )),
-                ]);
-                osmdArrayStep.midiPitches = Array.from(deduplicatedMidiPitches);
-            }
-            // remove of awaitingOsmdPiches the pitches that are played at this tick
-            midiNotesAtTick.forEach(note => {
-                if (awaitOsmdPitches.has(note.midi)) {
-                    awaitOsmdPitches.delete(note.midi);
-                } else {
-                    awaitMidiPitches.add(note.midi);
-                }
-            });
-
-            let exceedsShortNoteThreshold = ticks - lastAdvancedMidiTicks! > (CursorService.SKIP_SHORT_NOTE_THRESHOLD * 4) ;
-            let allPitchesPlayed = true;
-            if (awaitOsmdPitches.size === 0 || exceedsShortNoteThreshold) {
-                // going ahead
-                osmdArrayStep.osmdPitches?.forEach(note => {
-                    // // add to awaitingMidiPitches the pitches that are played at this tick and not in osmdArrayStep.midiPitches
-                    awaitMidiPitches.delete(note);
-                });
-
-
-                if (awaitMidiPitches.size > 0) {
-                    console.log(osmdArrayStep.midiTicks, awaitMidiPitches.size)
-                }
-
-
-
-                osmdArrayIndex++;
-                awaitOsmdPitches = new Set<number>(osmdArray[osmdArrayIndex]?.osmdPitches ?? []);
-                lastAdvancedMidiTicks = ticks;
-            }
-
         }
         this.maxMidiMeasure = Math.max(...osmdArray.map(e => e.midiMeasure))
         this.debugStep("[main]", osmdArray);
@@ -767,20 +631,16 @@ export class CursorService implements OnDestroy {
         // this will be notre nouvelle sortie
         const link = new Map<number, { osmdIndex: number, osmdMeasure: number }>();
         if (!this.osmdArray || this.osmdArray.length === 0) {
-            this.sortedMappedMidiTicks = [];
             return link;
         }
         this.osmdArray.forEach(element => {
             if (element.midiTicks !== null) {
-                if (!link.has(element.midiTicks)) {
-                    link.set(element.midiTicks, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
-                }
+                link.set(element.midiTicks!, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
             }
             this.osmdCursorIdxToMeasureMap.set(element.osmdIndex, element.osmdMeasure);
         });
 
         this.midiTicksToOsmdCursorIndex = link;
-        this.sortedMappedMidiTicks = Array.from(link.keys()).sort((a, b) => a - b);
         if (this.diagnosticMode) {
             console.groupCollapsed("[cursor][mapping] mapMidiTicksToOsmdCursorIndex");
             console.table(Array.from(link.entries()).map(([midiTicks, v]) => ({ midiTicks, osmdIndex: v.osmdIndex, osmdMeasure: v.osmdMeasure })));
@@ -1031,9 +891,7 @@ export class CursorService implements OnDestroy {
     private isOsmdArrayElementOk(element: OsmdArrayElement): boolean {
         const osmdPitchClasses = new Set(element.osmdPitches ?? []);
         const midiPitchClasses = new Set(element.midiPitches ?? []);
-        const midiIsSubsetOfOsmd = Array.from(midiPitchClasses)
-            //.map(pitch => pitch % 12)
-            .every(pitch => osmdPitchClasses.has(pitch));
+        const midiIsSubsetOfOsmd = Array.from(midiPitchClasses).map(pitch => pitch % 12).every(pitch => osmdPitchClasses.has(pitch));
         return element.isSkipable || midiIsSubsetOfOsmd;
     }
 
@@ -1095,38 +953,6 @@ export class CursorService implements OnDestroy {
             return;
         }
         console.log(`[cursor][debug] ${message}`, data);
-    }
-
-    ngOnDestroy(): void {
-        // Clear setup timeout
-        if (this.setupTimeoutId) {
-            clearTimeout(this.setupTimeoutId);
-            this.setupTimeoutId = undefined;
-        }
-
-        // Clear temporary Maps/Arrays used during setup phase
-        // These are cleared after setup() completes, so safe to destroy
-        this.midiTicksNoteMap.clear();
-        this.audioTimeNoteMapHit.clear();
-        this.osmdCursorIdxNoteMap.clear();
-        this.osmdMeasureNoteMap.clear();
-        this.midiBarToOsmdMeasure.clear();
-        this.repetitionInstructions = [];
-        this.osmdMeasureSequence = [];
-        this.sortedMappedMidiTicks = [];
-        this.audioTimeNoteArray = [];
-
-        // Clear OSMD array if present
-        if (this.osmdArray) {
-            this.osmdArray.clear();
-            this.osmdArray = undefined;
-        }
-
-        // DO NOT clear:
-        // - midiTicksToOsmdCursorIndex (used by slider and playback)
-        // - osmdCursorIdxToMeasureMap (used by slider)
-        // - cursor (reference, not owned by this service)
-        // These are intentionally kept for the lifetime of the score playback session
     }
 
 }

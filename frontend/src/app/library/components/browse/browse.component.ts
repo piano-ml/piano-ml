@@ -1,4 +1,4 @@
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, DecimalPipe } from '@angular/common';
 import { Component, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, PLATFORM_ID, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -25,7 +25,8 @@ import wNumb from 'wnumb';
     ScoreTableComponent,
     QuickActionsComponent,
     BrowseByAuthorsComponent,
-    BrowseByGenreComponent
+    BrowseByGenreComponent,
+    DecimalPipe
   ]
 })
 export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
