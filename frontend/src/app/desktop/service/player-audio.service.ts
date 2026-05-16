@@ -1,5 +1,5 @@
 
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, OnDestroy, DestroyRef } from '@angular/core';
 import * as Tone from "tone";
 import { WorkletSynthesizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
@@ -15,10 +15,14 @@ import { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 @Injectable({
   providedIn: 'root'
 })
-export class PlayerAudioService {
+export class PlayerAudioService implements OnDestroy {
 
   spessasynth?: WorkletSynthesizer;
   pianoMLShouldPlay: boolean = false;
+  private audioContext?: AudioContext;
+  private metronomTimeouts: Set<ReturnType<typeof setTimeout>> = new Set();
+  private destroyRef = inject(DestroyRef);
+  private soundFontAbortController?: AbortController;
 
   constructor(
     private assess: PlayerAssessService,
@@ -40,11 +44,16 @@ export class PlayerAudioService {
       return; // already initialized
     }
 
-    const ctx = new AudioContext();
-    await ctx.audioWorklet.addModule("/assets/soundfonts/spessasynth_processor.min.js");
-    this.spessasynth = new WorkletSynthesizer(ctx);
-    this.spessasynth.connect(ctx.destination);
-    const response = await fetch("/assets/soundfonts/GeneralUserGS.sf3");
+    this.audioContext = new AudioContext();
+    await this.audioContext.audioWorklet.addModule("/assets/soundfonts/spessasynth_processor.min.js");
+    this.spessasynth = new WorkletSynthesizer(this.audioContext);
+    this.spessasynth.connect(this.audioContext.destination);
+    
+    // Use AbortController to cancel fetch if service is destroyed
+    this.soundFontAbortController = new AbortController();
+    const response = await fetch("/assets/soundfonts/GeneralUserGS.sf3", {
+      signal: this.soundFontAbortController.signal
+    });
     const sfont = await response.arrayBuffer();
     await this.spessasynth.soundBankManager.addSoundBank(sfont, "main");
     await this.spessasynth.isReady;
@@ -170,6 +179,14 @@ export class PlayerAudioService {
     transport.stop();
     transport.position = 0;
     this.clearSchedule();
+    
+    // Clear all metronome timeouts
+    for (const timeoutId of this.metronomTimeouts) {
+      clearTimeout(timeoutId);
+    }
+    this.metronomTimeouts.clear();
+    
+    // Cancel draw
     draw.dispose();
     draw.cancel();
   }
@@ -325,10 +342,12 @@ export class PlayerAudioService {
     this.spessasynth?.noteOn(9, note, velocity);
     this.midiService.pressDrum(note, 1);
     // Short release for crisp click (≈30-50ms)
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       this.midiService.releaseDrum(note);
       this.spessasynth?.noteOff(9, note);
+      this.metronomTimeouts.delete(timeoutId);
     }, 40);
+    this.metronomTimeouts.add(timeoutId);
   }
 
 
@@ -365,6 +384,50 @@ export class PlayerAudioService {
     return offset;
   }
 
+  ngOnDestroy(): void {
+    // Cancel any ongoing fetch requests
+    if (this.soundFontAbortController) {
+      this.soundFontAbortController.abort();
+      this.soundFontAbortController = undefined;
+    }
 
+    // Clear all metronome timeouts
+    for (const timeoutId of this.metronomTimeouts) {
+      clearTimeout(timeoutId);
+    }
+    this.metronomTimeouts.clear();
+
+    // Stop transport and clear all schedules
+    try {
+      const transport = Tone.getTransport();
+      if (transport.state === 'started' || transport.state === 'paused') {
+        transport.stop();
+        transport.position = 0;
+      }
+      this.clearSchedule();
+      // Note: Do NOT call draw.dispose() as Tone.Draw is a global singleton
+      // shared with other services. Only cancel pending draws.
+      const draw = Tone.getDraw();
+      draw.cancel();
+    } catch (e) {
+      // Tone may be disposed
+    }
+
+    // Dispose WorkletSynthesizer
+    if (this.spessasynth) {
+      this.spessasynth.stopAll();
+      this.spessasynth = undefined;
+    }
+
+    // Close AudioContext
+    if (this.audioContext) {
+      if (this.audioContext.state !== 'closed') {
+        this.audioContext.suspend().catch(() => {
+          // Context already closed or suspended
+        });
+      }
+      this.audioContext = undefined;
+    }
+  }
 
 }
