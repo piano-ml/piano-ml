@@ -1,47 +1,128 @@
 @import "tailwindcss";
 
+/* ── HEADER ─────────────────────────────────────────────────────── */
 
-.breadcrumb-label {
-    @apply text-neutral-400 m-4 uppercase font-bold ;
+.site-header {
+  @apply sticky top-0 z-20 bg-black backdrop-blur-sm border-b border-neutral-800;
 }
 
-.breadcrumb-with-circle {
-    @apply text-neutral-400 m-4 uppercase font-bold relative ;
+.header-inner {
+  @apply flex items-center justify-between px-4 sm:px-6 h-14;
 }
 
-.breadcrumb-with-circle::before {
-    content: '';
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    background-color: #FFDD00; /* Ukrainian flag yellow - official shade */
-    border-radius: 50%;
-    margin-right: 8px;
-    vertical-align: middle;
-    position: relative;
-    top: -1px;
+/* Breadcrumb */
+.breadcrumb-nav {
+  @apply flex items-center gap-0.5 min-w-0 overflow-hidden;
 }
 
-.breadcrumb-label-separator {
-    @apply text-neutral-700;
+.brand-mark {
+  @apply flex items-center gap-2 text-neutral-200 font-bold text-xs uppercase
+         tracking-widest no-underline hover:text-white transition-colors shrink-0;
 }
 
-.breadcrumb-label-last {
-    @apply text-red-500 m-4 uppercase
+.brand-dot {
+  @apply inline-block w-2.5 h-2.5 rounded-full bg-[#FFDD00] shrink-0;
 }
 
-.donation-link {
-    text-decoration: none !important;
+.crumb-sep {
+  @apply text-neutral-700 mx-1.5 text-xs select-none;
 }
+
+.crumb-link {
+  @apply text-neutral-400 text-xs uppercase tracking-wider font-medium
+         no-underline hover:text-neutral-200 transition-colors
+         truncate max-w-[100px] sm:max-w-[180px] md:max-w-xs;
+}
+
+.crumb-current {
+  @apply text-red-400 hover:text-red-400 cursor-default;
+}
+
+/* Actions */
+.header-actions {
+  @apply flex items-center gap-2 sm:gap-3 shrink-0 ml-4;
+}
+
+.support-btn {
+  @apply flex items-center gap-1.5 text-xs font-medium text-neutral-400
+         hover:text-neutral-200 border border-neutral-700 hover:border-neutral-600
+         rounded-sm px-3 py-1.5 no-underline transition-all duration-200
+         focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-500;
+}
+
+.login-btn {
+  @apply text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300
+         no-underline border border-red-500/30 hover:border-red-400/60
+         rounded-sm px-3 py-1.5 transition-all duration-200
+         focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-red-500;
+}
+
+.user-link {
+  @apply text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300
+         no-underline underline underline-offset-4 decoration-red-500/40
+         hover:decoration-red-400/80 transition-all;
+}
+
+/* ── FOOTER ─────────────────────────────────────────────────────── */
+
+.site-footer {
+  @apply bg-black border-t border-neutral-800/80 z-20 relative;
+}
+
+.footer-inner {
+  @apply flex flex-col sm:flex-row items-center justify-between
+         px-4 sm:px-6 py-4 gap-3 sm:gap-0 max-w-screen-2xl mx-auto;
+}
+
+.footer-brand {
+  @apply flex items-center gap-2.5;
+}
+
+.footer-logo {
+  @apply flex items-center gap-2 text-neutral-400 font-bold text-xs uppercase tracking-widest;
+}
+
+.footer-version {
+  @apply font-mono text-xs text-neutral-400 hover:text-neutral-200
+         no-underline transition-colors;
+}
+
+.footer-links {
+  @apply flex items-center gap-2;
+}
+
+.footer-link {
+  @apply text-neutral-400 hover:text-neutral-200 no-underline text-xs
+         transition-colors focus-visible:outline-none focus-visible:text-neutral-200;
+}
+
+.footer-sep {
+  @apply text-neutral-800 text-xs select-none;
+}
+
+.footer-meta {
+  @apply flex items-center gap-3;
+}
+
+.footer-icon-link {
+  @apply text-neutral-400 hover:text-neutral-200 no-underline transition-colors text-sm
+         focus-visible:outline-none focus-visible:text-neutral-200;
+}
+
+.footer-copy {
+  @apply text-neutral-400 text-xs;
+}
+
+/* ── DONATION ICON ──────────────────────────────────────────────── */
 
 .donation-icon {
-    display: inline-block;
-    transition: transform 160ms ease, opacity 160ms ease;
-    transform: translateY(0) scale(1);
-    opacity: 0.95;
+  display: inline-block;
+  transition: transform 160ms ease, opacity 160ms ease;
+  transform: translateY(0) scale(1);
+  opacity: 0.9;
 }
 
 .donation-icon-bump {
-    transform: translateY(-1px) scale(1.12) rotate(-6deg);
-    opacity: 1;
+  transform: translateY(-2px) scale(1.15) rotate(-6deg);
+  opacity: 1;
 }

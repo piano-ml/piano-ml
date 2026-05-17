@@ -1,82 +1,94 @@
 <div class="flex flex-col min-h-screen" id="top">
 
-  <header class="header w-full h-15  pt-4 pr-2 relative z-20" role="banner">
-    <div class="flex flex-row">
-      <nav class="flex-none" aria-label="Breadcrumb navigation">
-        @if (true) {
-        <a routerLink="/home" class="breadcrumb-label breadcrumb-with-circle"
-          title="Return to PianoML home page">PianoML</a>
-        }
-        @if (true) {
-        <span class="breadcrumb-separator" aria-hidden="true">/</span>
-        }
+  <!-- ─── HEADER ───────────────────────────────────────────────── -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+
+      <nav class="breadcrumb-nav" aria-label="Breadcrumb navigation">
+        <a routerLink="/home" class="brand-mark" title="Return to PianoML home page">
+          <span class="brand-dot" aria-hidden="true"></span>
+          PianoML
+        </a>
 
         @for (item of breadcrumbService.items$ | async; track item.path; let last = $last) {
-        @if (!last) {
-        <a [routerLink]="item.path" class="breadcrumb-label" [title]="'Navigate to ' + item.label">{{ item.label }}</a>
-        }
-        @if (last) {
-        <span class="breadcrumb-label breadcrumb-label-last" aria-current="page">{{ item.label }}</span>
-        }
-        @if (!last) {
-        <span class="breadcrumb-separator" aria-hidden="true">/</span>
-        }
+          <span class="crumb-sep" aria-hidden="true">/</span>
+          @if (!last) {
+            <a [routerLink]="item.path" class="crumb-link" [title]="'Navigate to ' + item.label">
+              {{ item.label }}
+            </a>
+          } @else {
+            <span class="crumb-link crumb-current" aria-current="page">{{ item.label }}</span>
+          }
         }
       </nav>
 
-      <div class="flex-grow"></div>
-
-      <div class="flex-none mr-2">
-
-        <a class="mr-4 btn-primary" href="https://www.buymeacoffee.com/emmanuelflg" target="_blank"
-          rel="noopener noreferrer" title="Support PianoML">
-          <span class="hidden sm:inline mr-1 ">Buy me a </span>
-          <span aria-hidden="true" class="donation-icon" [class.donation-icon-bump]="donationTick">{{ donationIcon
-            }}</span>
+      <div class="header-actions">
+        <a class="support-btn"
+           href="https://www.buymeacoffee.com/emmanuelflg"
+           target="_blank" rel="noopener noreferrer"
+           title="Support PianoML">
+          <span class="hidden sm:inline">Buy me a</span>
+          <span aria-hidden="true" class="donation-icon" [class.donation-icon-bump]="donationTick">{{ donationIcon }}</span>
         </a>
 
         @if ((isLoggedIn$ | async) === true) {
-        <a routerLink="/account/home" class="link-primary uppercase !underline" title="Go to your account page">{{
-          username$ | async
-          }}</a>
+          <a routerLink="/account/home" class="user-link" title="Go to your account page">
+            {{ username$ | async }}
+          </a>
         } @else {
-        @if (!(router.url === '/account/login')) {
-        <a routerLink="/account/login" class="link-primary" title="Log in to your PianoML account">LOGIN</a>
+          @if (!(router.url === '/account/login')) {
+            <a routerLink="/account/login" class="login-btn" title="Log in to your PianoML account">
+              Login
+            </a>
+          }
         }
-        }
-
-
-
-
       </div>
 
     </div>
-
   </header>
+
+  <!-- ─── CONTENT ──────────────────────────────────────────────── -->
   <div class="flex-1 flex flex-col">
     <router-outlet />
   </div>
-  <footer class="footer h-12 p-3 flex justify-center items-center relative z-20 gap-2" role="contentinfo">
 
-    <a href="/blog/legal" class="link-primary px-2 py-2 inline-block"
-      title="Read PianoML legal notice and terms of use">
-      Legal Notice
-    </a>
-    <span class="px-1 font-bold text-xl">&copy;</span>
-    <span class="px-1">
-    <a class="link-primary"  href="https://github.com/piano-ml/piano-ml">
-      PianoML&#64;{{ version.commit }}
-    </a>    
-    </span>
-    <a class="px-2 py-1 inline-block" href="https://github.com/piano-ml/piano-ml"
-      aria-label="View PianoML source code on GitHub" title="View PianoML source code on GitHub" target="_blank"
-      rel="noopener noreferrer">
-      <ng-icon name="bootstrapGithub"></ng-icon>
-    </a>
+  <!-- ─── FOOTER ───────────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
 
-    <a class="link-primary px-2 py-2 inline-block" href="https://github.com/piano-ml/piano-ml/issues"
-      title="Report a bug or request a feature on GitHub" target="_blank" rel="noopener noreferrer">
-      Report An Issue
-    </a>
+      <!-- Brand + version -->
+      <div class="footer-link">
+          PianoML&#64;{{ version.commit }}
+      </div>
+
+      <!-- Navigation légale -->
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="/blog/legal" class="footer-link" title="Legal notice and terms of use">
+          Legal Notice
+        </a>
+        <span class="footer-sep" aria-hidden="true">&middot;</span>
+        <a href="https://github.com/piano-ml/piano-ml/issues"
+           class="footer-link"
+           target="_blank" rel="noopener noreferrer"
+           title="Report a bug or request a feature">
+          Report an Issue
+        </a>
+      </nav>
+
+      <!-- Social + copyright -->
+      <div class="footer-meta">
+        <a href="https://github.com/piano-ml/piano-ml"
+           class="footer-icon-link"
+           aria-label="View source on GitHub"
+           title="View PianoML source code on GitHub"
+           target="_blank" rel="noopener noreferrer">
+          <ng-icon name="bootstrapGithub"></ng-icon>
+          <span class="ml-2 pb-2">source</span>
+        </a>
+        
+      </div>
+
+    </div>
   </footer>
+
 </div>
