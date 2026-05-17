@@ -3,7 +3,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo } from '../../../core/api';
 import { AuthService } from '../../services/auth.service';
-import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn } from '../../../shared/components/score-table/score-table.component';
+import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn, ScoreTableEvent } from '../../../shared/components/score-table/score-table.component';
 import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
 
 @Component({
@@ -23,6 +23,8 @@ export class AccountScoresComponent implements OnInit {
       key: 'has_files',
       label: '',
       visible: true,
+      narrow: true,
+      align: 'center',
       formatter: (value, score) => score.has_files === false ? '⚠️' : '✅'
     },
     { key: 'playCount', label: '#played', visible: true },
@@ -93,8 +95,8 @@ export class AccountScoresComponent implements OnInit {
     this.router.navigate(['/library']);
   }
 
-  onScoreClick(score: ScoreApiInfo) {
-    this.viewScore(score);
+  onScoreClick(event: ScoreTableEvent) {
+    this.viewScore(event.score, event.openInNewTab);
   }
 
   formatDuration(seconds: number): string {
@@ -103,10 +105,14 @@ export class AccountScoresComponent implements OnInit {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
-  viewScore(score: ScoreApiInfo) {
+  viewScore(score: ScoreApiInfo, openInNewTab = false) {
     const slug = score.immutableSlug || score.mutableSlug;
     if (slug) {
-      this.router.navigate(['/score', slug]);
+      if (openInNewTab) {
+        window.open(`/score/${slug}`, '_blank', 'noopener');
+      } else {
+        this.router.navigate(['/score', slug]);
+      }
     } else {
       console.error('Score slug is missing');
     }

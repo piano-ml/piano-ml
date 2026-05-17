@@ -1,48 +1,10 @@
 @import "tailwindcss";
-/* Table styling to match link component */
-table {
-  border-collapse: collapse;
-  width: 100%;
-  background-color: transparent;
-}
 
-
-th {
-  padding: 0.5rem 1rem;
-  text-align: left;
-  font-weight: 500;
-}
-
-th:last-child {
-  text-align: center;
-}
-
-/* Body styling */
 tbody tr {
-  transition: background-color 0.2s ease-in-out;
-  cursor: pointer;
+	@apply border-b border-neutral-800/60 transition-colors duration-150;
 }
 
-
-
-td {
-  padding: 0.5rem 1rem;
-}
-
-/* Font styling for cell content */
-.font-medium {
-  font-weight: 500;
-}
-
-
-/* Loading spinner */
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+tbody tr:hover {
+	@apply bg-neutral-800/40;
 }
 

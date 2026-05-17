@@ -16,31 +16,35 @@ export class SummaryComponent implements OnInit {
 
   summary = [
     {
-      url: '/exercises/',
-      title: 'Exercises',
-      description: 'Scales generator and exercises',
-      image: 'assets/images/keyboard.webp',
-      keywords: 'piano scales, major scales, minor scales, music theory'
-    },
-    {
       url: '/library',
       title: 'Library',
-      description: 'Practice score from library, upload PDF/MIDI/MusicXML files',
-      image: 'assets/images/midi.webp',
+      description: 'Practice scores from the library — upload PDF, MIDI or MusicXML files — search for specific pieces, genre, grade, tonic.',
+      image: 'assets/images/keyboard.webp',
+      cta: 'Open library',
       keywords: 'sheet music, PDF upload, MIDI files, MusicXML, digital scores'
+    },
+    {
+      url: '/exercises/',
+      title: 'Exercises',
+      description: 'Scales generator, arpeggios, and practice exercises around the circle of fifths.',
+      image: 'assets/images/midi.webp',
+      cta: 'Scales & exercises',
+      keywords: 'piano scales, major scales, minor scales, music theory'
     },
     {
       url: '/blog/methods',
       title: 'Études for Pianists',
-      description: 'Collection of digitized musical books',
+      description: 'Collection of digitized musical courses for classical piano study.',
       image: 'assets/images/Burgmuller-1.webp',
+      cta: 'Browse collection',
       keywords: 'Burgmüller, piano études, piano methods, classical piano'
     },
     {
       url: '/blog/thanks-and-acknowledgments',
-      title: 'Thanks and acknowledgments',
-      description: 'They did it !',
+      title: 'Acknowledgments',
+      description: 'The people and open-source projects that made PianoML possible.',
       image: 'assets/images/one-piece-straw-hat-luffy-black-and-white-pfp-o546iu7rtqxomb0b.webp',
+      cta: 'Read more',
       keywords: 'acknowledgments, credits, contributors'
     }
   ]

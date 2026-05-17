@@ -29,34 +29,53 @@
 
 @layer components {
 	.btn {
-		@apply font-bold py-2 px-6 tracking-[0.075em] bg-neutral-700 text-white transition-colors duration-200 cursor-pointer hover:bg-neutral-600 disabled:bg-gray-500 disabled:cursor-not-allowed;
+		@apply rounded-sm font-bold py-2 px-6 tracking-[0.075em] bg-neutral-700 text-white
+		       transition-all duration-200 cursor-pointer hover:bg-neutral-600
+		       active:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed;
 	}
 
 	.btn-primary {
-		@apply rounded-sm  font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-neutral-200/10 border-emerald-500/50 text-neutral-200; 
-	/*	@apply rounded-sm  font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-emerald-500/10 border-emerald-500/50 text-emerald-400; */
+		@apply inline-flex items-center rounded-sm font-bold py-2 px-6 text-sm tracking-[0.075em] border transition-all duration-200
+		       bg-neutral-200/10 border-neutral-600 text-neutral-200
+		       hover:bg-neutral-200/20 hover:border-neutral-400
+		       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/50
+		       disabled:opacity-40 disabled:cursor-not-allowed;
 	}
 
 	.btn-secondary {
-		@apply font-bold py-2 px-6 tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-800 disabled:bg-gray-500 disabled:cursor-not-allowed;
+		@apply inline-flex items-center rounded-sm font-bold py-2 px-6 text-sm tracking-[0.075em] border border-zinc-600
+		       text-white transition-colors duration-200 cursor-pointer
+		       bg-zinc-700 hover:bg-zinc-600 hover:border-zinc-500 active:bg-zinc-800
+		       disabled:opacity-40 disabled:cursor-not-allowed;
 	}
 
 	.btn-success {
-		@apply font-bold py-2 px-6 rounded-sm tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:bg-gray-500 disabled:cursor-not-allowed;
+		@apply inline-flex items-center rounded-sm font-bold py-2 px-6 text-sm tracking-[0.075em] border border-transparent
+		       text-white transition-colors duration-200 cursor-pointer
+		       bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700
+		       disabled:opacity-40 disabled:cursor-not-allowed;
 	}
 
 	.btn-danger {
-		@apply font-bold py-2 px-6 rounded-sm tracking-[0.075em] text-white transition-colors duration-200 cursor-pointer bg-red-400 hover:bg-red-500 active:bg-red-300 disabled:bg-gray-500 disabled:cursor-not-allowed;
+		@apply inline-flex items-center rounded-sm font-bold py-2 px-6 text-sm tracking-[0.075em] border border-transparent
+		       text-white transition-colors duration-200 cursor-pointer
+		       bg-red-400 hover:bg-red-500 active:bg-red-300
+		       disabled:opacity-40 disabled:cursor-not-allowed;
 	}
 
 	.btn-hero {
-		@apply font-bold py-4 px-8 rounded-2xl tracking-[0.1em] text-white text-lg transition-all duration-200 cursor-pointer bg-red-400 hover:bg-red-500 active:bg-red-700 disabled:bg-gray-500 disabled:cursor-not-allowed;
-		/*@apply no-underline text-red-400 hover:text-red-300  decoration-red-500/50 hover:decoration-red-300 transition-colors;*/
-
+		@apply inline-flex items-center rounded-sm font-bold py-2 px-6 text-sm tracking-[0.075em] border border-transparent
+		       text-white transition-all duration-200 cursor-pointer
+		       bg-red-600 hover:bg-red-500 active:bg-red-700
+		       shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]
+		       disabled:opacity-40 disabled:cursor-not-allowed;
 	}
 
 	.btn-small {
-		@apply px-3 py-1 rounded-sm font-medium rounded-lg text-white transition-colors duration-200 cursor-pointer bg-red-600 hover:bg-red-500 active:bg-red-700 disabled:bg-gray-500 disabled:cursor-not-allowed;
+		@apply px-3 py-1.5 rounded-sm font-medium text-sm text-white
+		       transition-colors duration-200 cursor-pointer
+		       bg-red-600 hover:bg-red-500 active:bg-red-700
+		       disabled:opacity-40 disabled:cursor-not-allowed;
 	}
 
 	.capsule {
@@ -76,26 +95,20 @@
 	}
 
 	.card-secondary {
-		@apply bg-neutral-600 m-2 mr-0 p-4 border rounded-lg border-neutral-800 text-white;
+		@apply bg-neutral-800 m-2 mr-0 p-4 border rounded-sm border-neutral-700 text-white;
+	}
+
+	.section-label {
+		@apply text-xs font-semibold uppercase tracking-widest text-neutral-400;
 	}
 
 	.card-secondary-title {
-		@apply text-lg font-bold text-white mb-4;
+		@apply text-sm font-bold uppercase tracking-widest text-neutral-400 mb-4;
 	}
 
 	.item-title {
 		@apply text-lg font-semibold text-white mb-2;
 	}
-
-	.header {
-		@apply bg-black;
-	}
-
-
-	.footer {
-		@apply bg-black text-white;
-	}
-
 
 	.link-primary {
 		@apply font-semibold no-underline text-red-400 hover:text-red-300  decoration-red-500/50 hover:decoration-red-300 transition-colors;
@@ -103,7 +116,7 @@
 
 
 	.link-secondary {
-		@apply text-blue-400 hover:text-red-300 underline decoration-red-500/50 hover:decoration-red-300 transition-colors no-underline;
+		@apply text-blue-400 hover:text-red-300 underline decoration-blue-500/50 hover:decoration-red-300 transition-colors;
 	}
 
 	.link-alt {
@@ -111,7 +124,14 @@
 	}
 
 	.input-field {
-		@apply px-4 py-3 bg-gray-100 border border-emerald-500 rounded-sm text-neutral-800 placeholder:text-neutral-600 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 transition-all duration-200;
+		@apply w-full px-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-sm
+		       text-neutral-200 placeholder:text-neutral-500
+		       focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30
+		       transition-all duration-200;
+	}
+
+	.field-label {
+		@apply text-xs font-semibold uppercase tracking-widest text-neutral-400;
 	}
 
 	.text-error {
@@ -169,6 +189,49 @@
 	.spinner {
 		@apply animate-spin inline-block border-4 border-current border-t-transparent rounded-full;
 	}
+
+	/* ── Shared exercise page layout ────────────────────────── */
+
+	.exercise-page {
+		@apply px-4 sm:px-6 pt-4 pb-12 flex flex-col flex-1;
+	}
+
+	.exercise-body {
+		@apply flex flex-col md:flex-row gap-8 md:gap-10 mt-6;
+	}
+
+	.exercise-controls {
+		@apply flex flex-col gap-4 w-full md:w-80 shrink-0;
+	}
+
+	.exercise-desc {
+		@apply flex-1 min-w-0;
+	}
+
+	.exercise-desc-card {
+		@apply bg-neutral-800/50 border border-neutral-700/60 rounded-sm flex flex-col;
+	}
+
+	.exercise-desc-section {
+		@apply px-5 py-4;
+	}
+
+	.exercise-desc-label {
+		@apply text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-2;
+	}
+
+	.exercise-desc-text {
+		@apply text-sm text-neutral-400 leading-relaxed whitespace-pre-wrap;
+	}
+
+	.exercise-desc-divider {
+		@apply border-t border-neutral-700/60;
+	}
+
+	/* ── CTA below the exercise body ── */
+	.exercise-cta {
+		@apply mt-6;
+	}
 }
 
 
@@ -213,18 +276,31 @@ input[type="checkbox"] {
 	@apply relative shrink-0 w-6 h-6 border-2 border-zinc-600 rounded-md bg-zinc-900 checked:bg-red-600 checked:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-400/70;
 }
 
+/* Select — custom dark arrow, no OS chrome */
+select.input-field {
+	appearance: none;
+	-webkit-appearance: none;
+	color-scheme: dark;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 1rem;
+	padding-right: 2.5rem;
+	cursor: pointer;
+}
+
 /* Titles - matching the strong red Swiss911 usage */
 .page-title {
-	@apply mt-4 ml-6 pb-4 text-6xl md:text-7xl  text-red-500 tracking-[0.04em] font-swiss911;
+	@apply mt-4 pb-2 text-6xl md:text-7xl text-red-500 tracking-[0.04em] font-swiss911;
 	text-shadow: 0 2px 4px rgba(185, 28, 28, 0.3);
 }
 
 .page-sub-title {
-	@apply pl-4 text-3xl md:text-4xl text-neutral-300 tracking-[0.05em] font-medium;
+	@apply pb-1 text-base md:text-lg text-neutral-400 tracking-[0.01em] font-normal;
 }
 
 hr {
-	@apply bg-neutral-200 border-neutral-200 my-10;
+	@apply bg-neutral-800 border-neutral-800 my-6;
 }
 
 .modal {
@@ -236,8 +312,8 @@ hr {
 }
 
 
-.peer {
-	@apply bg-red-600/10 border border-red-600/50 text-red-400 rounded-sm px-3 py-1 font-medium tracking-[0.075em] transition-colors duration-200	;
+.filter-tag {
+	@apply bg-red-600/10 border border-red-600/50 text-red-400 rounded-sm px-3 py-1 font-medium tracking-[0.075em] transition-colors duration-200;
 }
 
 /* Router-outlet inserts host element as sibling — make it fill the flex container */
@@ -252,7 +328,7 @@ router-outlet + * {
 }
 
 .main-section {
-	@apply bg-neutral-700 p-4 flex-1;
+	@apply bg-neutral-800/50 border border-neutral-700/50 p-4 flex-1;
 }
 
 

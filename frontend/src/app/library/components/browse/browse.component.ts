@@ -8,7 +8,7 @@ import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { AuthorWithScoreCount } from '../../../core/api/model/authorWithScoreCount';
 import { ScoreGenreBrowseGet200ResponseInner } from '../../../core/api/model/scoreGenreBrowseGet200ResponseInner';
 import { ScoreStatsGet200Response } from '../../../core/api/model/scoreStatsGet200Response';
-import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn } from '../../../shared/components/score-table/score-table.component';
+import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn, ScoreTableEvent } from '../../../shared/components/score-table/score-table.component';
 import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
 import { BrowseByAuthorsComponent } from '../browse-by-authors/browse-by-authors.component';
 import { BrowseByGenreComponent } from '../browse-by-genre/browse-by-genre.component';
@@ -386,9 +386,13 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadScores(true);
   }
 
-  onScoreClick(score: ScoreApiInfo) {
-    if (score.immutableSlug) {
-      this.router.navigate(['/score', score.immutableSlug]);
+  onScoreClick(event: ScoreTableEvent) {
+    if (event.score.immutableSlug) {
+      if (event.openInNewTab) {
+        window.open(`/score/${event.score.immutableSlug}`, '_blank', 'noopener');
+      } else {
+        this.router.navigate(['/score', event.score.immutableSlug]);
+      }
     }
   }
 

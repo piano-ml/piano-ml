@@ -1,26 +1,37 @@
 <article class="main-article">
-  <div class="px-6 pt-2 pb-0">
+
+  <div class="px-4 sm:px-6 pt-4">
     <div class="page-title">My Scores</div>
-    <div class="page-sub-title">Manage your uploaded scores</div>
+    <div class="page-sub-title">Your uploaded and curated collection</div>
   </div>
 
-  <section class="main-section">
-    <!-- Loading State -->
-    @if (loading) {
-      <div class="text-center py-8">
-        <div class="spinner w-8 h-8 text-info"></div>
-        <p class="mt-2 text-muted">Loading your scores...</p>
-      </div>
-    }
+  <hr class="mx-4 sm:mx-6">
 
-    <!-- Error State -->
+  <div class="px-4 sm:px-6 pb-12 flex flex-col gap-5">
+
+    <!-- ── Toolbar ────────────────────────────────────────── -->
+    <div class="flex items-center justify-between gap-4">
+      <p class="page-sub-title">
+        @if (!loading && scores.length > 0) {
+          {{ scores.length }} score{{ scores.length !== 1 ? 's' : '' }}
+        }
+      </p>
+      <div class="flex items-center gap-3">
+        <app-quick-actions></app-quick-actions>
+        <button (click)="navigateToOpen()" class="btn-primary" [disabled]="loading">
+          Browse library
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Error ──────────────────────────────────────────── -->
     @if (error && !loading) {
       <div class="alert-error">
         <strong>Error:</strong> {{ error }}
       </div>
     }
 
-    <!-- Scores Table -->
+    <!-- ── Scores table ───────────────────────────────────── -->
     @if (!error) {
       <app-score-table
         [scores]="scores"
@@ -29,31 +40,12 @@
         [actions]="tableActions"
         [showRowClick]="true"
         (scoreClick)="onScoreClick($event)"
-        emptyMessage="You don't have any scores yet. Upload your first MIDI file to get started!"
-        loadingMessage="Loading your scores..."
+        emptyMessage="No scores yet — upload your first MIDI file to get started."
+        loadingMessage="Loading your scores…"
         rowClass="">
       </app-score-table>
     }
 
-    <!-- Stats -->
-    @if (!loading && !error && scores.length > 0) {
-      <div class="mt-6 text-sm text-muted">
-        Total: {{ scores.length }} score{{ scores.length !== 1 ? 's' : '' }}
-        <button
-          (click)="navigateToOpen()"
-          class="ml-6 btn-primary"
-          [disabled]="loading">
-          @if (loading) {
-            <span class="spinner h-4 w-4 border-2 mr-2"></span>
-          }
-          Browse all Scores
-        </button>
-      </div>
-    }
+  </div>
 
-    <div class="divider"></div>
-
-    <!-- Quick Actions Section -->
-    <app-quick-actions></app-quick-actions>
-  </section>
 </article>

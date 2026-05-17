@@ -1,55 +1,78 @@
-<div class="px-6 pt-2 pb-0">
-  <div class="page-title">Scales</div>
-  <div class="page-sub-title">Please select a scale and an excercise</div>
+<div class="exercise-page">
+
+  <header>
+    <div class="page-title">Scales</div>
+    <div class="page-sub-title">Select a scale, key, and exercise to begin</div>
+  </header>
+
   <hr>
-    <div class="flex flex-col md:flex-row gap-6">
 
-      <div class="md:w-1/2 flex flex-col gap-3 pt-4">
-        <select [(ngModel)]="selectedScale" (ngModelChange)="onScaleChange()" class="input-field ">
+  <!-- ── Toolbar ─────────────────────────────────────── -->
+  <div class="flex items-center justify-between">
+    <p class="page-sub-title">{{ selectedKey }} · {{ selectedScale.name }} · {{ selectedExcercice.title }}</p>
+    <button (click)="load()" class="btn-hero">Start</button>
+  </div>
+
+  <div class="exercise-body">
+
+    <!-- ── Controls ──────────────────────────────────────── -->
+    <div class="exercise-controls">
+
+      <div class="flex flex-col gap-1.5">
+        <label class="field-label" for="select-scale">Scale type</label>
+        <select id="select-scale" [(ngModel)]="selectedScale" (ngModelChange)="onScaleChange()" class="input-field">
           @for (scale of scales; track scale) {
-            <option [ngValue]="scale">{{scale.name}}</option>
+            <option [ngValue]="scale">{{ scale.name }}</option>
           }
         </select>
+      </div>
 
-        <select [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()" class="input-field">
+      <div class="flex flex-col gap-1.5">
+        <label class="field-label" for="select-key">Key</label>
+        <select id="select-key" [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()" class="input-field">
           @for (key of keys; track key) {
-            <option [ngValue]="key">{{key}}</option>
+            <option [ngValue]="key">{{ key }}</option>
           }
         </select>
+      </div>
 
-        <select [(ngModel)]="selectedExcercice" (ngModelChange)="onExerciseChange()" class="input-field">
+      <div class="flex flex-col gap-1.5">
+        <label class="field-label" for="select-exercise">Exercise</label>
+        <select id="select-exercise" [(ngModel)]="selectedExcercice" (ngModelChange)="onExerciseChange()" class="input-field">
           @for (exercise of myexcerices; track exercise) {
-            <option [ngValue]="exercise">{{exercise.title}}</option>
+            <option [ngValue]="exercise">{{ exercise.title }}</option>
           }
         </select>
       </div>
-
-      <div class="md:w-1/2">
-        <button (click)="load()"
-          class="btn-hero w-full mt-4 mb-4">
-          🔥 Start
-        </button>
-        <div class="bg-neutral-700 rounded p-4 text-sm text-neutral-100 whitespace-pre-wrap">
-          <div class="font-semibold mb-2">Scale description</div>
-          {{ selectedScale.description || 'No description available.' }}
-
-          <div class="border-t border-neutral-600 mt-4 pt-4">
-            <div class="font-semibold mb-2">Exercise description</div>
-            <div class="text-neutral-200 mb-2">{{ selectedExcercice.title }}</div>
-            {{ selectedExcercice.advice || 'No description available.' }}
-          </div>
-        </div>
-      </div>
-
-
 
     </div>
 
-    @for (_ of [componentKey]; track _) {
-      <app-popular-scores-in-key
-        [fullKey]="fullKey"
-        [limit]="10">
-      </app-popular-scores-in-key>
-    }
+    <!-- ── Description ───────────────────────────────────── -->
+    <div class="exercise-desc">
+      <div class="exercise-desc-card">
+
+        <div class="exercise-desc-section">
+          <p class="exercise-desc-label">Scale</p>
+          <p class="exercise-desc-text">{{ selectedScale.description || 'No description available.' }}</p>
+        </div>
+
+        <div class="exercise-desc-divider"></div>
+
+        <div class="exercise-desc-section">
+          <p class="exercise-desc-label">Exercise — <span class="text-neutral-300">{{ selectedExcercice.title }}</span></p>
+          <p class="exercise-desc-text">{{ selectedExcercice.advice || 'No description available.' }}</p>
+        </div>
+
+      </div>
+    </div>
 
   </div>
+
+  @for (_ of [componentKey]; track _) {
+    <app-popular-scores-in-key
+      [fullKey]="fullKey"
+      [limit]="10">
+    </app-popular-scores-in-key>
+  }
+
+</div>
