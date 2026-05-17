@@ -1,104 +1,100 @@
 @if (scores.length > 0 && !loading) {
-<div class="m-2 mr-4">
-  <table class="ml-2 mr-2 table-auto border-collapse  w-full">
-    <thead>
-      <tr>
-        @for (column of getVisibleColumns(); track column.label) {
-        <th class="px-4 py-2 text-left">
-          {{ column.label }}
-        </th>
-        }
-        @if (actions.length > 0) {
-        <th class="border  px-4 py-2 text-center">
-          Actions
-        </th>
-        }
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Score rows -->
-      @for (score of scores; track score.id) {
-      <tr (click)="onRowClick(score)">
-        @for (column of getVisibleColumns(); track column.label) {
-        <td class="px-4 py-2">
-          <div class="font-medium">{{ getCellValue(score, column) }}</div>
-        </td>
-        }
-        @if (actions.length > 0) {
-        <td class="border px-4 py-2 text-center">
-          <div class="flex gap-1 justify-center">
-            @for (action of actions; track action.label) {
-            <button (click)="onActionClick(action, score, $event); $event.stopPropagation()"
-              [class]="getButtonClass(action)" [title]="action.label">
-              @if (action.icon) {
-              <span>{{ action.icon }}</span>
-              }
-              @if (!action.icon) {
-              <span>{{ action.label }}</span>
-              }
-            </button>
+  <div class="overflow-x-auto">
+    <table class="w-full">
+
+      <thead>
+        <tr class="border-b border-neutral-800">
+          @for (column of getVisibleColumns(); track column.label; let isFirst = $first, isLast = $last) {
+            <th [class]="getHeaderClass(column, isFirst, isLast)">
+              {{ column.label }}
+            </th>
+          }
+          @if (actions.length > 0) {
+            <th class="pb-3 pt-1 pr-0 text-right text-xs font-semibold uppercase tracking-widest text-neutral-400">
+              Actions
+            </th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (score of scores; track score.id) {
+          <tr (click)="onRowClick(score, $event)" [class.cursor-pointer]="showRowClick">
+            @for (column of getVisibleColumns(); track column.label; let isFirst = $first, isLast = $last) {
+              <td [class]="getCellClass(column, isFirst, isLast)">
+                {{ getCellValue(score, column) }}
+              </td>
             }
-          </div>
-        </td>
+            @if (actions.length > 0) {
+              <td class="pl-3 py-2.5 pr-0">
+                <div class="flex gap-1 justify-end">
+                  @for (action of actions; track action.label) {
+                    <button
+                      (click)="onActionClick(action, score, $event)"
+                      [class]="getButtonClass(action)"
+                      [title]="action.label">
+                      {{ action.icon || action.label }}
+                    </button>
+                  }
+                </div>
+              </td>
+            }
+          </tr>
         }
-      </tr>
-      }
+      </tbody>
 
-
-    </tbody>
-  </table>
-</div>
+    </table>
+  </div>
 }
-
 
 <!-- Loading state -->
 @if (loading) {
-<div class="card-secondary">
-  <div class="py-4">
-    <div class="animate-spin rounded-full h-6 w-6 border-b-2  mx-auto mb-2"></div>
+  <div class="flex items-center gap-3 py-10">
+    <div class="spinner w-4 h-4 text-neutral-500"></div>
+    <p class="text-sm text-neutral-400">{{ loadingMessage }}</p>
   </div>
-</div>
 }
 
 <!-- Empty state -->
 @if (scores.length === 0 && !loading) {
+  <div class="exercise-desc-card">
+    <div class="exercise-desc-section">
+      <p class="text-sm text-neutral-400 mb-5">{{ emptyMessage }}</p>
 
-<div class="card-secondary">
-  <div class="card-secondary-title">
-    <p>{{ emptyMessage }}</p>
-    <p class="text-sm mt-1">Try adjusting your search criteria or find a file to import</p>
+      <div class="flex flex-col gap-4">
 
-    <p>
+        <div>
+          <p class="exercise-desc-label">Free MIDI</p>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5">
+            <a href="https://freemidi.org/" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">Free MIDI</a>
+            <a href="https://bitmidi.com/" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">BitMidi</a>
+            <a href="https://midiworld.com/" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">MIDI World</a>
+            <a href="https://www.mutopiaproject.org/cgibin/make-table.cgi?Instrument=Piano" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">Mutopia Project</a>
+          </div>
+        </div>
 
-      Free MIDI resources:
-      <a href="https://freemidi.org/" target="_blank" rel="noopener noreferrer" class="link-primary">Free MIDI</a>,
-      <a href="https://bitmidi.com/" target="_blank" rel="noopener noreferrer" class="link-primary">BitMidi</a>,
-      <a href="https://midiworld.com/" target="_blank" rel="noopener noreferrer" class="link-primary">MIDI World</a>,
-      <a href="https://www.mutopiaproject.org/cgibin/make-table.cgi?Instrument=Piano" target="_blank"
-        rel="noopener noreferrer" class="link-primary">Mutopia Project</a>
-      <br>Free PDF resources:
-      <a href="https://imslp.org/" target="_blank" rel="noopener noreferrer" class="link-primary">IMSLP</a>,
-      <a href="https://www.8notes.com/piano/sheet_music/?orderby=5d" target="_blank" rel="noopener noreferrer"
-        class="link-primary">8notes</a>,
-      <a href="https://www.zebrakeys.com/" target="_blank" rel="noopener noreferrer" class="link-primary">Zebra
-        Keys</a>,
-      <a href="https://musopen.org/sheetmusic" target="_blank" rel="noopener noreferrer"
-        class="link-primary">Musopen</a>,
-      <a href="https://www.free-scores.com/partitions_libres.php?CATEGORIE=70" target="_blank" rel="noopener noreferrer"
-        class="link-primary">Free Scores</a>,
-      <a href="https://www.musicnotes.com/" target="_blank" rel="noopener noreferrer"
-        class="link-primary">Musicnotes</a>,
-      <a href="https://www.allpianoscores.com/" target="_blank" rel="noopener noreferrer" class="link-primary">All
-        Piano
-        Scores</a>,
-      <a href="https://sheetsfree.com/" target="_blank" rel="noopener noreferrer" class="link-primary">Sheets Free</a>
-      <br>Free Music XML resources:
-      <a href="https://musetrainer.github.io/library/" target="_blank" rel="noopener noreferrer"
-        class="link-primary">MuseTrainer Library</a>
+        <div>
+          <p class="exercise-desc-label">Free sheet music (PDF)</p>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5">
+            <a href="https://imslp.org/" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">IMSLP</a>
+            <a href="https://www.8notes.com/piano/sheet_music/?orderby=5d" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">8notes</a>
+            <a href="https://www.zebrakeys.com/" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">Zebra Keys</a>
+            <a href="https://musopen.org/sheetmusic" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">Musopen</a>
+            <a href="https://www.free-scores.com/partitions_libres.php?CATEGORIE=70" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">Free Scores</a>
+            <a href="https://www.musicnotes.com/" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">Musicnotes</a>
+            <a href="https://www.allpianoscores.com/" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">All Piano Scores</a>
+            <a href="https://sheetsfree.com/" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">Sheets Free</a>
+          </div>
+        </div>
 
-    </p>
+        <div>
+          <p class="exercise-desc-label">MusicXML</p>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5">
+            <a href="https://musetrainer.github.io/library/" target="_blank" rel="noopener noreferrer" class="link-primary text-xs">MuseTrainer Library</a>
+          </div>
+        </div>
 
+      </div>
+    </div>
   </div>
-</div>
-
 }

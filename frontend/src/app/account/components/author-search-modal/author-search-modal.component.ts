@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output, OnInit, ChangeDetectorRef } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MusicbrainzService } from '../../../core/api/api/musicbrainz.service';
@@ -10,80 +10,104 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
   imports: [FormsModule],
   template: `
     @if (isOpen) {
-      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="onBackdropClick($event)">
-        <div class="rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation()">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="">Select Author</h2>
-            <button (click)="close()" class="btn-secondary">&times;</button>
+      <div
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-[12vh] z-50 px-4"
+        (click)="onBackdropClick($event)">
+        <div
+          class="bg-neutral-900 border border-neutral-700/80 rounded-xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden"
+          (click)="$event.stopPropagation()">
+
+          <!-- Search row -->
+          <div class="flex items-center gap-3 px-4 py-3.5 border-b border-neutral-800">
+            <svg class="w-4 h-4 text-neutral-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="6"/><path stroke-linecap="round" d="M20 20l-3.5-3.5"/>
+            </svg>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (keyup.enter)="searchAuthors()"
+              class="flex-1 bg-transparent text-sm text-neutral-100 placeholder-neutral-500 outline-none"
+              placeholder="Search composer…"
+              autofocus>
+            @if (searching) {
+              <div class="spinner w-3.5 h-3.5 text-neutral-500 shrink-0"></div>
+            } @else if (searchQuery) {
+              <button type="button" (click)="searchAuthors()" class="text-xs text-neutral-500 hover:text-neutral-300 transition-colors shrink-0 px-1">↵</button>
+            }
           </div>
-          <!-- Search Input -->
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-300 mb-2">Search for an author:</label>
-            <div class="flex gap-2">
-              <input
-                type="text"
-                [(ngModel)]="searchQuery"
-                (keyup.enter)="searchAuthors()"
-                class="input-field flex-1"
-                placeholder="Enter author name...">
-              <button
-                (click)="searchAuthors()"
-                [disabled]="!searchQuery || searching"
-                class="btn-primary">
-                {{ searching ? 'Searching...' : 'Search' }}
-              </button>
-            </div>
-          </div>
-          <!-- Search Results -->
-          @if (searchResults.length > 0) {
-            <div class="mb-4">
-              <h3 class="text-lg font-medium mb-2">Search Results:</h3>
-              <div class="space-y-2 max-h-60 overflow-y-auto">
+
+          <!-- Body -->
+          <div class="max-h-[320px] overflow-y-auto">
+
+            <!-- Error -->
+            @if (error) {
+              <div class="px-4 py-3 border-b border-neutral-800">
+                <p class="text-xs text-red-400">{{ error }}</p>
+              </div>
+            }
+
+            <!-- Results -->
+            @if (searchResults.length > 0) {
+              <div class="py-1">
                 @for (author of searchResults; track author) {
-                  <div
+                  <button
+                    type="button"
                     (click)="selectAuthor(author)"
-                    class="p-3 bg-neutral-700 rounded cursor-pointer hover:bg-neutral-600 transition-colors">
-                    <div class="">{{ author.name }}</div>
-                    <div class="text-gray-400 text-sm">{{ author.disambiguation || 'No additional info' }}</div>
-                    <div class="text-gray-500 text-xs">ID: {{ author.id }}</div>
-                  </div>
+                    class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-800 transition-colors text-left group">
+                    <div class="w-7 h-7 rounded-full bg-neutral-800 group-hover:bg-neutral-700 flex items-center justify-center text-xs font-semibold text-neutral-400 shrink-0 transition-colors select-none">
+                      {{ author.name?.charAt(0)?.toUpperCase() }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm text-neutral-200 truncate">{{ author.name }}</p>
+                      @if (author.disambiguation) {
+                        <p class="text-xs text-neutral-500 truncate">{{ author.disambiguation }}</p>
+                      }
+                    </div>
+                    <span class="text-xs text-neutral-600 group-hover:text-neutral-400 transition-colors shrink-0">Select ↵</span>
+                  </button>
                 }
               </div>
-            </div>
-          }
-          <!-- No Results -->
-          @if (searchQuery && !searching && searchResults.length === 0 && hasSearched) {
-            <div class="mb-4">
-              <p class="text-gray-400">No authors found for "{{ searchQuery }}"</p>
-            </div>
-          }
-          <!-- Error -->
-          @if (error) {
-            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              <strong>Error:</strong> {{ error }}
-            </div>
-          }
-          <!-- Manual Entry Option -->
-          <div class="border-t border-neutral-600 pt-4">
-            <p class="text-gray-300 mb-2">Can't find the author?</p>
-            <div class="flex gap-2">
-              <input
-                type="text"
-                [(ngModel)]="manualAuthor"
-                class="input-field flex-1"
-                placeholder="Enter author name manually...">
+            }
+
+            <!-- No results -->
+            @if (hasSearched && !searching && searchResults.length === 0) {
+              <div class="px-4 py-10 text-center">
+                <p class="text-sm text-neutral-500">No results for "{{ searchQuery }}"</p>
+                <p class="text-xs text-neutral-600 mt-1">Try a different spelling or use the name directly below</p>
+              </div>
+            }
+
+            <!-- Initial prompt -->
+            @if (!hasSearched && !searching && !error) {
+              <div class="px-4 py-10 text-center">
+                <p class="text-xs text-neutral-600">Type a name and press ↵ to search MusicBrainz</p>
+              </div>
+            }
+
+          </div>
+
+          <!-- Use as author (escape hatch) -->
+          @if (searchQuery) {
+            <div class="border-t border-neutral-800">
               <button
-                (click)="selectManualAuthor()"
-                [disabled]="!manualAuthor"
-                class="btn-secondary">
-                Use Manual Entry
+                type="button"
+                (click)="manualAuthor = searchQuery; selectManualAuthor()"
+                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors text-left group">
+                <div class="w-7 h-7 rounded-full border border-dashed border-neutral-700 group-hover:border-neutral-500 flex items-center justify-center text-neutral-600 group-hover:text-neutral-400 text-base shrink-0 transition-colors">+</div>
+                <div>
+                  <p class="text-sm text-neutral-400">Use <span class="text-neutral-200">"{{ searchQuery }}"</span> as author</p>
+                  <p class="text-xs text-neutral-600">Without MusicBrainz link</p>
+                </div>
               </button>
             </div>
+          }
+
+          <!-- Dismiss bar -->
+          <div class="border-t border-neutral-800 px-4 py-2.5 flex justify-between items-center">
+            <span class="text-xs text-neutral-600">esc to close</span>
+            <button type="button" (click)="close()" class="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">Cancel</button>
           </div>
-          <!-- Action Buttons -->
-          <div class="flex justify-end gap-4 mt-6">
-            <button (click)="close()" class="btn-secondary">Cancel</button>
-          </div>
+
         </div>
       </div>
     }
@@ -111,6 +135,11 @@ export class AuthorSearchModalComponent implements OnInit {
       this.searchQuery = this.currentAuthor;
       this.manualAuthor = this.currentAuthor;
     }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    if (this.isOpen) this.close();
   }
 
   onBackdropClick(event: Event) {
