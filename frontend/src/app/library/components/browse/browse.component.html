@@ -33,7 +33,7 @@
         <span>Two hands</span>
       </label>
       <label class="flex items-center gap-2">
-        <select [(ngModel)]="selectedFullKey" (change)="applyFilters()" [disabled]="loadingFullKeys" class="px-2 py-1">
+        <select [(ngModel)]="selectedFullKey" (change)="applyFilters()" [disabled]="loadingFullKeys" class="px-2 py-1" aria-label="Key signature">
           <option value="">All keys</option>
           @for (key of fullKeyOptions; track key) {
           <option [value]="key">{{ key }}</option>
