@@ -78,17 +78,6 @@
 		       disabled:opacity-40 disabled:cursor-not-allowed;
 	}
 
-	.tab-btn {
-		@apply px-5 py-2.5 text-xs font-bold uppercase tracking-wider
-		       border-b-2 border-transparent -mb-px
-		       text-neutral-500 hover:text-neutral-300
-		       transition-colors duration-200 focus-visible:outline-none cursor-pointer;
-	}
-
-	.tab-btn-active {
-		@apply text-neutral-200 border-red-500;
-	}
-
 	.capsule {
 		@apply bg-neutral-700 hover:bg-emerald-600 text-white rounded-lg p-3 border  border-emerald-500/50 transition-colors;		
 	}
