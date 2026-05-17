@@ -58,6 +58,10 @@ jobs:
     - name: Generate shader manifest
       working-directory: ./frontend
       run: npm run shaders:manifest
+    - name: Generate sitemap (main branch only)
+      if: github.ref == 'refs/heads/main'
+      working-directory: ./frontend
+      run: npm run generate:sitemap
     - name: Build frontend
       working-directory: ./frontend
       run: npm run build:prod

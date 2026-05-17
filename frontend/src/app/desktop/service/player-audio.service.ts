@@ -339,8 +339,8 @@ export class PlayerAudioService implements OnDestroy {
   playMetronomeClick(isStrong: boolean): void {
     const note = isStrong ? 34 : 33;   // 34 = Metronome Bell, 33 = Metronome Click
     const velocity = isStrong ? 110 : 80;
-    this.spessasynth?.noteOn(9, note, velocity);
-    this.midiService.pressDrum(note, 1);
+    this.spessasynth?.noteOn(9, note, 43);
+    this.midiService.pressDrum(note, .33);
     // Short release for crisp click (≈30-50ms)
     const timeoutId = setTimeout(() => {
       this.midiService.releaseDrum(note);
