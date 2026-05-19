@@ -41,6 +41,7 @@
 /* Actions */
 .header-actions {
   @apply flex items-center gap-2 sm:gap-3 shrink-0 ml-4;
+  min-width: 9rem;
 }
 
 .support-btn {
