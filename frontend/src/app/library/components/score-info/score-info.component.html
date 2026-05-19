@@ -1,15 +1,13 @@
 <article class="main-article">
   <h1 class="sr-only">{{ score?.title }} by {{ score?.author }} - Piano Score</h1>
 
-<<<<<<< HEAD
-=======
   <div class="px-4 sm:px-6 pt-4 min-h-[130px] md:min-h-[160px]">
->>>>>>> develop
 
-  <div class="flex items-center justify-between gap-4">
-    <div class="page-title" role="heading" aria-level="2">{{ pageTitle }}
-      
-    </div>
+    @if (score?.author) {
+    <div class="page-title">{{ score!.title }}</div>
+    <h2 class="page-sub-title">{{ score!.author }}</h2>
+    }
+  </div>
 
   <hr class="mx-4 sm:mx-6">
 
@@ -142,3 +140,5 @@
 
     }
   </div>
+
+</article>
