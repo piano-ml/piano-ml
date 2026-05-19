@@ -6,9 +6,7 @@ import { AlignmentType, Cursor, RepetitionInstruction, RepetitionInstructionEnum
 import { CURSOR_BAD_COLOR, CURSOR_GOOD_COLOR } from "../components/osmd/osmd.config";
 import { smithWatermanAlign, smithWatermanAlign2 } from "./smith-waterman";
 import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
-import { last } from "rxjs";
-import { F } from "@stringsync/musicxml/dist/generated/elements";
-import { cp } from "fs";
+
 
 
 @Injectable({
@@ -86,8 +84,10 @@ export class CursorService implements OnDestroy {
         await this.yieldToUi();
 
 
-        this.hydrateOsmdArray(this.cursor);
+        this.hydrateOsmdArray();
         await this.yieldToUi();
+
+        this.debugStep("Final hydration", this.osmdArray!);
 
         this.linkMidiTicksToCursorIndex();
         await this.yieldToUi();
@@ -328,11 +328,11 @@ export class CursorService implements OnDestroy {
     }
 
     debugStep(feedbackMessage: string, osmdArray: OsmdArrayElement[]): void {
-        if (this.diagnosticMode) {
-            console.groupCollapsed("[cursor][mapping][hydrateOsmdArray]" + feedbackMessage);
-            console.table(Array.from(osmdArray));
-            console.groupEnd();
-        }
+        //if (this.diagnosticMode) {
+        console.groupCollapsed("[cursor][mapping][hydrateOsmdArray]" + feedbackMessage);
+        console.table(Array.from(osmdArray));
+        console.groupEnd();
+        //}
 
     }
 
@@ -365,11 +365,9 @@ export class CursorService implements OnDestroy {
         }
         this.debugStep(feedbackMessage, osmdArray); //.filter(o => o.osmdMeasure==8));
         this.feedback(feedbackMessage, 100);
-    
+
         return osmdArray;
     }
-
-
 
 
     inDebugRange(idx: number): boolean {
@@ -384,101 +382,108 @@ export class CursorService implements OnDestroy {
     }
 
 
-    /**
-     * This function loop on osmdArray and match midi notes ticks with osmdCursor position (index)
-     * Sometimes note arrive in different order than osmd cursor (e.g. for voicing or tremolo) 
-     * so we have to keep track of "awaiting" notes to assign them to next osmd cursor position 
-     * if they are not matched at the current one
-     * @param cursor 
-     * @returns 
-     */
-    hydrateOsmdArray(cursor: Cursor): OsmdArrayElement[] {
-        const osmdArray = this.osmdArray!; // shorthand
-        const sortedTicks = this.sortedMidiTicks; // shorthand
-        let index = 0;
-        // Map<tick, piFtches[]>: midi pitches received at a given tick that are awaiting assignment to an osmd step
-        let awaitMidiPitches: Map<number, number[]> = new Map();
 
-        // we are going to loop on osmdArray to match osmdPitches with midiPitches
-        // Map<tick, pitches[]>: remaining unmatched osmd pitches of the current step, keyed by the tick that opened the step
-        // initialised with a placeholder tick (-1) that is re-keyed to the first real tick on entry into the loop
-        let awaitOsmdPitches: Map<number, number[]> = new Map([[-1, [...(osmdArray[0]?.osmdPitches ?? [])]]]);
-        // loop on midi ticks
-        for (const ticks of sortedTicks) {
-            // some cursor index have no notes playable (+ loop protection)
-            while (index < osmdArray.length && osmdArray[index].isSkipable) {
-                index++;
-            }
-            const step = osmdArray[index]; // short hand
-            if (!step) {
-                break;
-            }
+    hydrateOsmdArray(lookahead = 6): OsmdArrayElement[] {
+        const osmdArray = this.osmdArray!;
+        const sortedTicks = this.sortedMidiTicks;
+        const midiTicksNoteMap = this.
 
-            // Re-key the placeholder initial entry to the first real tick
-            if (awaitOsmdPitches.has(-1)) {
-                const v = awaitOsmdPitches.get(-1)!;
-                awaitOsmdPitches.delete(-1);
-                awaitOsmdPitches.set(ticks, v);
-            }
+            midiTicksNoteMap;
 
-            const midiNotesAtTick = this.midiTicksNoteMap.get(ticks) ?? []; // short hand            
-            // assign the midi ticks to the step for functional purpose
-            step.midiTicks = ticks;
-            // assign the midi ticks to the step for functional purpose
-            step.midiTime = midiNotesAtTick.length > 0 ? midiNotesAtTick[0].time : null;
+        /** Return the index of the first non-skippable step at or after `from`. */
+        const nextPlayable = (from: number): number => {
+            let i = from;
+            while (i < osmdArray.length && osmdArray[i].isSkipable) i++;
+            return i;
+        };
 
-            if (this.inDebugRange(index)) {
-                console.log(ticks, index, midiNotesAtTick.map(note => note.midi));
-            }
-
-            // get the current step's entry (always exactly one entry while a step is active)
-            const [stepOpenTick, stepOsmdNotes] = [...awaitOsmdPitches.entries()][0];
-
-            // add all notes in awaitedMidiPitches
-            for (const [t, notes] of [...awaitMidiPitches.entries()]) {
-                for (const note of [...notes]) {
-                    if (step.osmdPitches?.includes(note)) {
-                        step.midiPitches.push(note);
-                        this.arrRemove(notes, note);
-                        this.arrRemove(stepOsmdNotes, note);
-                    }
+        /**
+         * Scan up to `lookahead` non-skippable steps ahead of `osmdIdx`.
+         * Returns the index of the first step whose osmdPitches overlap with
+         * `eventPitches`, or -1 if none is found within the window.
+         */
+        const findAheadMatch = (eventPitches: number[]): number => {
+            let ahead = nextPlayable(osmdIdx + 1);
+            for (let k = 0; k < lookahead && ahead < osmdArray.length; k++) {
+                const aheadPitches = new Set(osmdArray[ahead].osmdPitches ?? []);
+                if (aheadPitches.size > 0 && eventPitches.some(p => aheadPitches.has(p))) {
+                    return ahead;
                 }
-                if (notes.length === 0) awaitMidiPitches.delete(t);
+                ahead = nextPlayable(ahead + 1);
             }
+            return -1;
+        };
 
-            // dispatch played notes
-            midiNotesAtTick.forEach(note => {
-                if (step.osmdPitches?.includes(note.midi)) {
-                    // played note is in the current step, we can assign it directly
-                    step.midiPitches.push(note.midi)
+        let osmdIdx = nextPlayable(0);
+        let midiIdx = 0;
+
+        while (osmdIdx < osmdArray.length && midiIdx < sortedTicks.length) {
+            const step = osmdArray[osmdIdx];
+            const stepPitchSet = new Set(step.osmdPitches ?? []);
+            const assignedSet = new Set(step.midiPitches);
+
+            // Pitches the score still expects but that haven't been matched yet
+            const remainingSet = new Set([...stepPitchSet].filter(p => !assignedSet.has(p)));
+            const stepSatisfied = remainingSet.size === 0;
+
+            const ticks = sortedTicks[midiIdx];
+            const midiNotes = midiTicksNoteMap.get(ticks) ?? [];
+            const eventPitches = midiNotes.map(n => n.midi);
+
+            const matchesCurrent = !stepSatisfied && eventPitches.some(p => remainingSet.has(p));
+            // Only pay the lookahead cost when the current step can't absorb the event
+            const aheadMatchIdx = !matchesCurrent ? findAheadMatch(eventPitches) : -1;
+            const matchesAhead = aheadMatchIdx !== -1;
+
+            // ── Advance decision ──────────────────────────────────────────────
+            if (stepSatisfied) {
+                if (matchesAhead) {
+                    // Step complete and a later step wants this event → advance, retry tick
+                    osmdIdx = aheadMatchIdx;
                 } else {
-                    // played note is not in the current step, we add it to the awaited list to be assigned to next steps
-                    const existing = awaitMidiPitches.get(ticks);
-                    if (existing) {
-                        existing.push(note.midi);
-                    } else {
-                        awaitMidiPitches.set(ticks, [note.midi]);
-                    }
+                    // Step complete but event is an embellishment → consume, stay
+                    midiIdx++;
                 }
-            });
-
-            // remove of awaitingOsmdPitches the pitches that are played at this tick
-            midiNotesAtTick.forEach(note => {
-                this.arrRemove(stepOsmdNotes, note.midi);
-            });
-
-            if (stepOsmdNotes.length === 0 || step?.midiPitches.length === step?.osmdPitches?.length) {
-                if (this.inDebugRange(index)) {
-                    console.warn(index, step.osmdMeasure, step.osmdPitches, step.midiPitches, stepOsmdNotes.length, awaitMidiPitches);
-                }
-                awaitOsmdPitches.delete(stepOpenTick);
-                index++;
-                awaitOsmdPitches.set(ticks, [...(osmdArray[index]?.osmdPitches ?? [])]);
+                continue;
             }
+
+            if (!matchesCurrent && matchesAhead) {
+                // Voicing gap: event belongs to a later step → advance, retry tick
+                osmdIdx = aheadMatchIdx;
+                continue;
+            }
+
+            // ── Assignment ───────────────────────────────────────────────────
+            // Collect only the score-expected pitches present in this event
+            const pitchesToAdd = eventPitches.filter(p => stepPitchSet.has(p) && !assignedSet.has(p));
+            if (pitchesToAdd.length > 0) {
+                if (step.midiTicks === null) {
+                    step.midiTicks = ticks;
+                    step.midiTime = midiNotes[0]?.time ?? null;
+                }
+                step.midiPitches.push(...pitchesToAdd);
+            }
+            // If pitchesToAdd is empty (pure embellishment / no match), the tick is
+            // consumed without touching midiTicks so the step isn't polluted.
+
+            if (this.inDebugRange(osmdIdx)) {
+                console.log('[hydrateOsmdArray]', ticks, osmdIdx, step.osmdPitches, step.midiPitches);
+            }
+
+            midiIdx++;
         }
-        //this.osmdArray = osmdArray;
+
+        this.debugStep("Hydrating MIDI pitches", osmdArray);
         return osmdArray;
     }
+
+    /***     */
+    //    async hydrateOsmdArray(cursor: Cursor): Promise<OsmdArrayElement[]> {
+    //     }
+    /**      */
+
+
+
 
 
     /**
@@ -711,7 +716,7 @@ export class CursorService implements OnDestroy {
      */
     linkMidiTicksToCursorIndex(): Map<number, { osmdIndex: number, osmdMeasure: number }> {
         this.osmdArray!.forEach(element => {
-            this.midiTicksToOsmdCursorIndex.set(element.midiTicks ?? -1, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });        
+            this.midiTicksToOsmdCursorIndex.set(element.midiTicks ?? -1, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
         });
         console.log("linkMidiTicksToCursorIndex done");
         return this.midiTicksToOsmdCursorIndex;
