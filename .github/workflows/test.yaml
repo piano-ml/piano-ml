@@ -34,7 +34,7 @@ jobs:
       working-directory: ./backend
       run: mvn --batch-mode --update-snapshots verify
     - name: Upload JAR artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: backend-jar-${{ github.sha }}
         path: backend/target/backend.jar
@@ -58,11 +58,15 @@ jobs:
     - name: Generate shader manifest
       working-directory: ./frontend
       run: npm run shaders:manifest
+    - name: Generate sitemap (main branch only)
+      if: github.ref == 'refs/heads/main'
+      working-directory: ./frontend
+      run: npm run generate:sitemap
     - name: Build frontend
       working-directory: ./frontend
       run: npm run build:prod
     - name: Upload dist artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: frontend-dist-${{ github.sha }}
         path: frontend/dist/

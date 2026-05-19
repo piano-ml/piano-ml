@@ -668,6 +668,10 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
+    const handles = this.gradeSliderHost.nativeElement.querySelectorAll('.noUi-handle');
+    if (handles[0]) handles[0].setAttribute('aria-label', 'Minimum grade');
+    if (handles[1]) handles[1].setAttribute('aria-label', 'Maximum grade');
+
     this.gradeSlider.on('update', (values: (number | string)[]) => {
       const [start, end] = values.map((value) => this.clampGrade(Number(value)));
       this.selectedGradeStart = start;
