@@ -46,7 +46,7 @@ export class ScoreTableComponent implements OnInit {
     { key: 'title', label: 'Title', visible: true },
     { key: 'author', label: 'Author', visible: true },
     { key: 'genre', label: 'Genre', visible: true, formatter: (value) => value || 'N/A' },
-    { key: 'grade', label: 'Difficulty', visible: true, formatter: (value) => this.getDifficultyText(value) },
+    { key: 'grade', label: 'Difficulty', visible: true },
     { key: 'duration', label: 'Duration', visible: true, formatter: (value) => this.formatDuration(value) },
     { key: 'tracks_count', label: 'Tracks', visible: true, formatter: (value) => value || 'N/A' },
     { key: 'version', label: 'Version', visible: false, formatter: (value) => `v${value || 1}` },
@@ -105,11 +105,7 @@ export class ScoreTableComponent implements OnInit {
     return action.class ?? 'btn-small';
   }
 
-  getDifficultyText(grade: number | null | undefined): string {
-    if (!grade) return 'N/A';
-    const difficulties = ['Beginner', 'Easy', 'Medium', 'Hard', 'Expert', 'Master'];
-    return difficulties[grade - 1] || `Grade ${grade}`;
-  }
+
 
   formatDuration(seconds: number | null | undefined): string {
     if (!seconds) return 'N/A';
