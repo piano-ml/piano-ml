@@ -46,7 +46,7 @@ export class ScoreTableComponent implements OnInit {
     { key: 'title', label: 'Title', visible: true },
     { key: 'author', label: 'Author', visible: true },
     { key: 'genre', label: 'Genre', visible: true, formatter: (value) => value || 'N/A' },
-    { key: 'grade', label: 'Difficulty', visible: true, formatter: (value) => this.getDifficultyText(value) },
+    { key: 'grade', label: 'Difficulty', visible: true },
     { key: 'duration', label: 'Duration', visible: true, formatter: (value) => this.formatDuration(value) },
     { key: 'tracks_count', label: 'Tracks', visible: true, formatter: (value) => value || 'N/A' },
     { key: 'version', label: 'Version', visible: false, formatter: (value) => `v${value || 1}` },
@@ -75,7 +75,7 @@ export class ScoreTableComponent implements OnInit {
   getHeaderClass(column: ScoreTableColumn, isFirst: boolean, isLast: boolean): string {
     const base = 'pb-3 pt-1 text-xs font-semibold uppercase tracking-widest text-neutral-400';
     if (column.narrow) return `${base} px-2 text-center`;
-    const pl = isFirst ? 'pl-0' : 'pl-3';
+    const pl = isFirst ? 'pl-3' : 'pl-3';
     const pr = isLast && this.actions.length === 0 ? 'pr-0' : 'pr-3';
     const align = column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : 'text-left';
     return `${base} ${pl} ${pr} ${align}`;
@@ -84,7 +84,7 @@ export class ScoreTableComponent implements OnInit {
   getCellClass(column: ScoreTableColumn, isFirst: boolean, isLast: boolean): string {
     const base = 'py-2.5 text-sm text-neutral-300';
     if (column.narrow) return `${base} px-2 text-center`;
-    const pl = isFirst ? 'pl-0' : 'pl-3';
+    const pl = isFirst ? 'pl-3' : 'pl-3';
     const pr = isLast && this.actions.length === 0 ? 'pr-0' : 'pr-3';
     const align = column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : 'text-left';
     return `${base} ${pl} ${pr} ${align}`;
@@ -105,11 +105,7 @@ export class ScoreTableComponent implements OnInit {
     return action.class ?? 'btn-small';
   }
 
-  getDifficultyText(grade: number | null | undefined): string {
-    if (!grade) return 'N/A';
-    const difficulties = ['Beginner', 'Easy', 'Medium', 'Hard', 'Expert', 'Master'];
-    return difficulties[grade - 1] || `Grade ${grade}`;
-  }
+
 
   formatDuration(seconds: number | null | undefined): string {
     if (!seconds) return 'N/A';

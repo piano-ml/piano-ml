@@ -13,10 +13,7 @@ import { ScoreApiInfo } from '../../../core/api';
 export class ScoreBasicInfoComponent {
   @Input() score!: ScoreApiInfo;
 
-  getDifficultyText(grade: number | null | undefined): string {
-    if (!grade) return '—';
-    return ['Beginner', 'Easy', 'Medium', 'Hard', 'Expert', 'Master'][grade - 1] ?? `Grade ${grade}`;
-  }
+
 
   formatDuration(seconds: number | null | undefined): string {
     if (!seconds) return '—';

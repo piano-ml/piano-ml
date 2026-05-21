@@ -75,7 +75,7 @@ public class PackService {
       packScriptDto.getInputStream().transferTo(out);
     }
     if (packScriptDto.getTrackLeft() == null || packScriptDto.getTrackLeft().equals("")) {
-      return runPackScript("scripts/midi2pack1.sh", tempFile, packScriptDto);
+      return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto);
     } else {
       return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto);
     }

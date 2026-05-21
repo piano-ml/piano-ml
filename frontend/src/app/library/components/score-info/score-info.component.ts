@@ -5,7 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapClipboard } from '@ng-icons/bootstrap-icons';
+import { bootstrapClipboard, bootstrapDownload, bootstrapPencil } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
 import { SeoService } from '../../../shared/services/seo.service';
 import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in-key/exercises-in-key.component';
@@ -16,7 +16,7 @@ import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in
   imports: [CommonModule,  NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
-  viewProviders: [provideIcons({ bootstrapClipboard })]
+  viewProviders: [provideIcons({ bootstrapClipboard, bootstrapDownload, bootstrapPencil })]
 })
 export class ScoreInfoComponent implements OnInit {
   loading = false;

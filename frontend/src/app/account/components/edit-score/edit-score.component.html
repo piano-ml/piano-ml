@@ -92,23 +92,7 @@
                 }
               </div>
 
-              <!-- Grade -->
-              <div>
-                <label for="grade" class="field-label">Difficulty</label>
-                <select id="grade" formControlName="grade" class="input-field w-full mt-1"
-                  [class.border-red-500]="isFieldInvalid('grade')">
-                  <option [value]="null">—</option>
-                  <option [value]="1">1 — Beginner</option>
-                  <option [value]="2">2 — Easy</option>
-                  <option [value]="3">3 — Medium</option>
-                  <option [value]="4">4 — Hard</option>
-                  <option [value]="5">5 — Expert</option>
-                  <option [value]="6">6 — Master</option>
-                </select>
-                @if (isFieldInvalid('grade')) {
-                  <p class="text-red-400 text-xs mt-1">{{ getFieldError('grade') }}</p>
-                }
-              </div>
+
 
               <!-- Tempo -->
               <div>

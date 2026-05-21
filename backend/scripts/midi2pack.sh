@@ -12,7 +12,7 @@ source ~/shared-venv/bin/activate
 
 # Script: `scripts/midi2pack.sh`
 usage() {
-  printf "Usage: %s <INPUT_FILE> <TITLE> <COMPOSER> <TRACK_RIGHT> <TRACK_LEFT>\n" "$0" >&2
+  printf "Usage: %s <INPUT_FILE> <TITLE> <COMPOSER> <MAKE_FINGERING> <TRACK_RIGHT> [TRACK_LEFT]\n" "$0" >&2
   exit 2
 }
 
@@ -25,7 +25,7 @@ TITLE="$2"
 COMPOSER="$3"
 MAKE_FINGERING="$4"
 TRACK_RIGHT="$5"
-TRACK_LEFT="$6"
+TRACK_LEFT="${6:-}"
 
 ls -lah "$INPUT"
 
@@ -56,14 +56,18 @@ printf "Converting MIDI <-> MusicXML using %s\n" musescore3
 # Convert and normalize format (do each step and fail fast)
 musescore3 -o "${FROOT}.musicxml" "${FROOT}.midi" > /dev/null 2>&1
 musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml" > /dev/null 2>&1
-musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid" > /dev/null 2>&1
 
 # Restore canonical extension
 mv -- "${FROOT}.mid" "${FROOT}.midi"
 
 if [ -n "$TRACK_RIGHT" ]; then
-  printf "Extracting left/right hand track %s %s for %s.midi\n" "$TRACK_RIGHT" "$TRACK_LEFT" "$FROOT"
-  python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT" "$TRACK_LEFT" > /dev/null 2>&1
+  if [ -n "$TRACK_LEFT" ]; then
+    printf "Extracting left/right hand track %s %s for %s.midi\n" "$TRACK_RIGHT" "$TRACK_LEFT" "$FROOT"
+    python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT" "$TRACK_LEFT" > /dev/null 2>&1
+  else
+    printf "Extracting track %s for %s.midi (TRACK_LEFT omitted)\n" "$TRACK_RIGHT" "$FROOT"
+    python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT" > /dev/null 2>&1
+  fi
 else
   printf "No track specified in original midi file\n" >&2
   exit 5

@@ -67,7 +67,7 @@ export interface OsmdArrayElement {
     targetMeasure: number | null;
     isSkipable: boolean;
     osmdPitches: number[] | null;
-    midiPitches: number[] | null;
+    midiPitches: number[] ;
     midiTicks: number | null;
     midiTicksDuration: number | null;
     midiTime: number | null;
