@@ -58,7 +58,16 @@
 
       <!-- Brand + version -->
       <div class="footer-link">
-          PianoML&#64;{{ version.commit }}
+
+        <a href="https://github.com/piano-ml/piano-ml"
+           class="footer-icon-link"
+           aria-label="View source on GitHub"
+           title="View PianoML source code on GitHub"
+           target="_blank" rel="noopener noreferrer">
+          <ng-icon name="bootstrapGithub"></ng-icon>
+          <span class="ml-2 pb-2">source</span>
+        </a>
+
       </div>
 
       <!-- Navigation légale -->
@@ -76,15 +85,9 @@
       </nav>
 
       <!-- Social + copyright -->
-      <div class="footer-meta">
-        <a href="https://github.com/piano-ml/piano-ml"
-           class="footer-icon-link"
-           aria-label="View source on GitHub"
-           title="View PianoML source code on GitHub"
-           target="_blank" rel="noopener noreferrer">
-          <ng-icon name="bootstrapGithub"></ng-icon>
-          <span class="ml-2 pb-2">source</span>
-        </a>
+      <div class="footer-link">
+
+        PianoML&#64;{{ version.commit }}
         
       </div>
 
