@@ -28,6 +28,17 @@
   font-weight: 900;
 }
 
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  justify-content: center;
+}
+
+.download-btn ng-icon {
+  flex-shrink: 0;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .grid-cols-2 {

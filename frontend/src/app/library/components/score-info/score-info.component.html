@@ -14,44 +14,53 @@
   <!-- ── Toolbar ────────────────────────────────────────── -->
   <div class="flex flex-wrap items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:justify-end">
     @if (score) {
-    <button (click)="copyUrlToClipboard()" class="btn-primary gap-1.5" title="Copy link">
+    <button (click)="copyUrlToClipboard()" class="btn-primary inline-flex items-center gap-1.5" title="Copy link">
       <ng-icon name="bootstrapClipboard" size="13"></ng-icon>
       <span>Copy link</span>
     </button>
     }
     <button (click)="onBack()" class="btn-secondary">← Browse</button>
     @if (isOwner()) {
-    <button (click)="editScore()" class="btn-primary">Edit</button>
+    <button (click)="editScore()" class="btn-primary inline-flex items-center gap-1.5">
+      <ng-icon name="bootstrapPencil" size="13"></ng-icon>
+      <span>Edit</span>
+    </button>
     }
     @if (score?.has_files) {
     <button
       (click)="downloadFile('midi')"
       [disabled]="!isOwnerOrPublic()"
       [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download MIDI'"
-      class="btn-primary"
+      class="btn-primary download-btn"
       [class.opacity-40]="!isOwnerOrPublic()"
       [class.cursor-not-allowed]="!isOwnerOrPublic()">
-      MIDI
+      <ng-icon name="bootstrapDownload" size="13"></ng-icon>
+      <span>MIDI</span>
     </button>
     <button
       (click)="downloadFile('musicxml')"
       [disabled]="!isOwnerOrPublic()"
       [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download MusicXML'"
-      class="btn-primary"
+      class="btn-primary download-btn"
       [class.opacity-40]="!isOwnerOrPublic()"
       [class.cursor-not-allowed]="!isOwnerOrPublic()">
-      MusicXML
+      <ng-icon name="bootstrapDownload" size="13"></ng-icon>
+      <span>MusicXML</span>
     </button>
     <button
       (click)="downloadFile('pdf')"
       [disabled]="!isOwnerOrPublic()"
       [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download PDF'"
-      class="btn-primary"
+      class="btn-primary download-btn"
       [class.opacity-40]="!isOwnerOrPublic()"
       [class.cursor-not-allowed]="!isOwnerOrPublic()">
-      PDF
+      <ng-icon name="bootstrapDownload" size="13"></ng-icon>
+      <span>PDF</span>
     </button>
-    <button (click)="playScore()" class="btn-hero w-full sm:w-auto justify-center">Practice</button>
+    <button (click)="playScore()" class="btn-hero w-full sm:w-auto justify-center inline-flex items-center gap-1.5">
+      <span aria-hidden="true">🎹</span>
+      <span>Practice</span>
+    </button>
     }
   </div>
 
