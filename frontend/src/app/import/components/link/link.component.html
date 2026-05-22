@@ -1,7 +1,9 @@
 <article class="main-article">
 
-  <h3 class="page-title">Import Music Works</h3>
-  <!-- Not Logged In Message -->
+  <div class="px-4 sm:px-6 pt-4">
+    <h3 class="page-title">Import Music Works</h3>
+    <div class="page-sub-title">Please select a title or artist & title to import</div>
+  </div>
 
 
   <section class="main-section" aria-label="Score details and actions">
@@ -18,7 +20,7 @@
 
     <!-- Main Content (only shown when logged in) -->
     @if (isLoggedIn) {
-    < <!-- Search Form -->
+    <!-- Search Form -->
       @if (!showManualCreation) {
       <div class="card-secondary">
         <!-- Quick Search -->
