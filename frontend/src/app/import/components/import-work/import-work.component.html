@@ -7,7 +7,6 @@
 
   <hr class="mx-4 sm:mx-6">
 
-  <hr>
   <section class="main-section" aria-label="Score details and actions">
     <div class="card-secondary">
 
@@ -89,3 +88,13 @@
     </div>
   </section>
 </article>
+
+@if (isModalOpen) {
+  <div class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="import-error-title">
+    <div class="modal-card">
+      <h3 id="import-error-title" class="modal-title">{{ modalTitle || 'Error' }}</h3>
+      <p class="modal-content">{{ modalContent || 'An unexpected error occurred.' }}</p>
+      <button class="btn-secondary" (click)="closeModal()">Close</button>
+    </div>
+  </div>
+}
