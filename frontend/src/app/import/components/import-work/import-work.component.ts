@@ -48,6 +48,20 @@ export class ImportWorkComponent implements OnInit {
     file: File | undefined;
     loading = false;
 
+    private openErrorModal(error: unknown, title: string, fallbackMessage: string) {
+        const nestedError = (error as any)?.error?.error;
+        const directError = (error as any)?.error;
+        const resolvedError = nestedError || directError || error;
+        const message = (resolvedError as any)?.message || (error as any)?.message || fallbackMessage;
+
+        this.error = resolvedError as Error;
+        this.modalContent = message;
+        this.modalTitle = title;
+        this.isModalOpen = true;
+        this.loading = false;
+        this.changeDetector.detectChanges();
+    }
+
 
     constructor(
         private fb: FormBuilder,
@@ -129,6 +143,7 @@ export class ImportWorkComponent implements OnInit {
         this.checkboxGroup = this.fb.group({
             checkboxes: this.fb.array(this.checkboxes.map(x => false))
         });
+        console.log(this.midi)
         const fa = this.checkboxGroup.controls['checkboxes'] as FormArray;
         for (let i = 0; i < fa.controls.length; i++) {
             if (this.midi?.tracks[i].instrument.percussion) {
@@ -207,12 +222,7 @@ export class ImportWorkComponent implements OnInit {
         } as unknown as ScoreApiInfo
         this.scoreService.scorePost(scoreApiInfo).subscribe({
             error: (error) => {
-                this.error = error.error?.error || error;
-                this.modalContent = error.error?.error.message || 'An error occurred while creating the score.';
-                this.modalTitle = 'Creation Error';
-                this.isModalOpen = true;
-                this.loading = false;
-                this.changeDetector.detectChanges();
+                this.openErrorModal(error, 'Creation Error', 'An error occurred while creating the score.');
             }, next: (data) => {
                 this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, type, data.version!, 0, blob,undefined,undefined, this.makeFingering).subscribe({
                     next: (data2) => {
@@ -242,12 +252,7 @@ export class ImportWorkComponent implements OnInit {
                     error: (error) => {
                         console.error("Error uploading MIDI file:", error);
                         console.error("Error uploading MIDI file:", error.error?.error);
-                        this.error = error.error.error;
-                        this.modalContent = error.error.error.message || 'An error occurred while uploading the MIDI file.';
-                        this.modalTitle = 'Upload Error';
-                        this.isModalOpen = true;
-                        this.loading = false;
-                        this.changeDetector.detectChanges();
+                        this.openErrorModal(error, 'Upload Error', 'An error occurred while uploading the MIDI file.');
                     }
                 });
             }
@@ -303,12 +308,7 @@ export class ImportWorkComponent implements OnInit {
             this.scoreService.scorePost(scoreApiInfo).subscribe({
                 error: (error) => {
                     console.error("Error creating score:", error);
-                    this.error = error.error?.error || error;
-                    this.modalContent = error.error?.error.message || 'An error occurred while creating the score.';
-                    this.modalTitle = 'Creation Error';
-                    this.isModalOpen = true;
-                    this.loading = false;
-                    this.changeDetector.detectChanges();
+                    this.openErrorModal(error, 'Creation Error', 'An error occurred while creating the score.');
                 },
                 next: (data) => {
                     if (data.version === null) {
@@ -344,12 +344,7 @@ export class ImportWorkComponent implements OnInit {
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);
                             console.error("Error uploading MIDI file:", error.error?.error);
-                            this.error = error.error.error;
-                            this.modalContent = error.error.error.message || 'An error occurred while uploading the MIDI file.';
-                            this.modalTitle = 'Upload Error';
-                            this.isModalOpen = true;
-                            this.loading = false;
-                            this.changeDetector.detectChanges();
+                            this.openErrorModal(error, 'Upload Error', 'An error occurred while uploading the MIDI file.');
                         }
                     });
                 }
@@ -429,5 +424,10 @@ export class ImportWorkComponent implements OnInit {
         // TODO this is a not so bad default but make reversion possible in UI checkbox should be better
         this.reverseInPlace(this.studies);
 
+    }
+
+    closeModal() {
+        this.isModalOpen = false;
+        this.changeDetector.detectChanges();
     }
 }
