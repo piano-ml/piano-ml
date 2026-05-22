@@ -67,10 +67,13 @@ if [ -n "$TRACK_RIGHT" ]; then
   else
     printf "Extracting track %s for %s.midi (TRACK_LEFT omitted)\n" "$TRACK_RIGHT" "$FROOT"
     python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT" > /dev/null 2>&1
+<<<<<<< HEAD
     sleep 1
     musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml" > /dev/null 2>&1
     musescore3 -M midioperations.xml -o "${FROOT}.musicxml" "${FROOT}.mid"
     #mv -- "${FROOT}.mid" "${FROOT}.midi"
+=======
+>>>>>>> main
   fi
 else
   printf "No track specified in original midi file\n" >&2
