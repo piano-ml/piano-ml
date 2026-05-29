@@ -58,7 +58,7 @@ fi
 sleep 1
 
 cd ..
-n start
+
 source ~/shared-venv/bin/activate
 
 echo "Running relieur to merge musicxml files: $XMLFILES"
