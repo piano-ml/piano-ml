@@ -83,7 +83,6 @@ if [ -n "$MAKE_FINGERING" ]; then
       echo "Running pianoplayer for fingering detection"
       pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null
 
-
       ;;
     *)
       echo "Skipping fingering detection (MAKE_FINGERING='$MAKE_FINGERING')"
