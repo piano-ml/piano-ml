@@ -37,3 +37,5 @@ databaseChangeLog:
       file: db/changelog/changes/017-add-youtube-and-bio.yaml
   - include:
       file: db/changelog/changes/018-alter-score-grade.yaml
+  - include:
+      file: db/changelog/changes/019-add-youtube-rank.yaml
