@@ -40,24 +40,10 @@ public class YoutubeService {
         }
 
         try {
-            YouTube youtube = new YouTube.Builder(
-                    new NetHttpTransport(),
-                    JacksonFactory.getDefaultInstance(),
-                    request -> {
-                    })
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
-
             String query = buildQuery(title, composer);
             log.debug("YouTube search query: {}", query);
 
-            YouTube.Search.List search = youtube.search().list(List.of("snippet"));
-            search.setKey(apiKey);
-            search.setQ(query);
-            search.setType(List.of("video"));
-            search.setMaxResults(MAX_RESULTS);
-
-            SearchListResponse response = search.execute();
+            SearchListResponse response = executeSearch(query);
             List<SearchResult> items = response.getItems();
 
             if (items == null) {
@@ -72,6 +58,28 @@ public class YoutubeService {
             log.error("Error calling YouTube API: {}", e.getMessage(), e);
             throw new YoutubeApiException("Failed to query YouTube API", e);
         }
+    }
+
+    /**
+     * Executes the YouTube search API call.
+     * Extracted as a protected method to allow mocking in unit tests.
+     */
+    protected SearchListResponse executeSearch(String query) throws IOException {
+        YouTube youtube = new YouTube.Builder(
+                new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(),
+                request -> {
+                })
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+
+        YouTube.Search.List search = youtube.search().list(List.of("snippet"));
+        search.setKey(apiKey);
+        search.setQ(query);
+        search.setType(List.of("video"));
+        search.setMaxResults(MAX_RESULTS);
+
+        return search.execute();
     }
 
     private String buildQuery(String title, String composer) {
