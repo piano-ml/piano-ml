@@ -7,9 +7,11 @@ import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
+import org.pianoml.backend.repository.YoutubeRankRepository;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
+import org.pianoml.backend.service.YoutubeService;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,26 +34,30 @@ public class ScoreControllerAttachmentApiTest {
   private MockMvc mockMvc;
 
   private ScoreService scoreService;
+  private YoutubeService youtubeService;
   private UserRepository userRepository;
   private ScoreRepository scoreRepository;
   private AccountService accountService;
+  private YoutubeRankRepository youtubeRankRepository;
 
   private ScoreController controller;
 
   @BeforeEach
   void setup() {
     scoreService = Mockito.mock(ScoreService.class);
+    youtubeService = Mockito.mock(YoutubeService.class);
     userRepository = Mockito.mock(UserRepository.class);
     scoreRepository = Mockito.mock(ScoreRepository.class);
     accountService = Mockito.mock(AccountService.class);
+    youtubeRankRepository = Mockito.mock(YoutubeRankRepository.class);
 
-    controller = new ScoreController(scoreService, userRepository, accountService, scoreRepository);
+    controller = new ScoreController(scoreService, youtubeService, userRepository, accountService, scoreRepository, youtubeRankRepository);
     // Inject mocks into controller's fields
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
     ReflectionTestUtils.setField(controller, "userRepository", userRepository);
     ReflectionTestUtils.setField(controller, "userService", accountService);
     ReflectionTestUtils.setField(controller, "scoreRepository", scoreRepository);
-    //ReflectionTestUtils.setField(controller, "tokenProvider", jwtTokenProvider);
+    ReflectionTestUtils.setField(controller, "youtubeRankRepository", youtubeRankRepository);
 
     mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
   }
