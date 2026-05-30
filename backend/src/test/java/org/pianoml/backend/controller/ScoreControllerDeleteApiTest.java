@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
+import org.pianoml.backend.repository.YoutubeRankRepository;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
+import org.pianoml.backend.service.YoutubeService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +31,8 @@ public class ScoreControllerDeleteApiTest {
   private AccountService accountService;
   private UserRepository userRepository;
   private ScoreRepository scoreRepository;
+  private YoutubeService youtubeService;
+  private YoutubeRankRepository youtubeRankRepository;
 
   @BeforeEach
   void setup() {
@@ -36,8 +40,10 @@ public class ScoreControllerDeleteApiTest {
     userRepository = mock(UserRepository.class);
     scoreRepository = mock(ScoreRepository.class);
     accountService = mock(AccountService.class);
+    youtubeService = mock(YoutubeService.class);
+    youtubeRankRepository = mock(YoutubeRankRepository.class);
 
-    ScoreController controller = new ScoreController(scoreService, userRepository, accountService, scoreRepository);
+    ScoreController controller = new ScoreController(scoreService, youtubeService, userRepository, accountService, scoreRepository, youtubeRankRepository);
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
     ReflectionTestUtils.setField(controller, "userService", accountService);
 

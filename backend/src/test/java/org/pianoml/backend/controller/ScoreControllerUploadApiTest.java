@@ -9,8 +9,10 @@ import org.pianoml.backend.entity.Workload;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.repository.WorkloadRepository;
+import org.pianoml.backend.repository.YoutubeRankRepository;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
+import org.pianoml.backend.service.YoutubeService;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -46,12 +48,12 @@ public class ScoreControllerUploadApiTest {
   void setup() {
     scoreService = mock(ScoreService.class);
     userRepository = mock(UserRepository.class);
-
-
     scoreRepository = mock(ScoreRepository.class);
     AccountService accountService = mock(AccountService.class);
+    YoutubeService youtubeService = mock(YoutubeService.class);
+    YoutubeRankRepository youtubeRankRepository = mock(YoutubeRankRepository.class);
 
-    ScoreController controller = new ScoreController(scoreService, userRepository, accountService, scoreRepository);
+    ScoreController controller = new ScoreController(scoreService, youtubeService, userRepository, accountService, scoreRepository, youtubeRankRepository);
     // Inject mocks
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
     ReflectionTestUtils.setField(controller, "userRepository", userRepository);

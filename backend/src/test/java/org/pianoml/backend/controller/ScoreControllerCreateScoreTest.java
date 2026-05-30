@@ -10,9 +10,11 @@ import org.pianoml.backend.entity.User;
 import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
+import org.pianoml.backend.repository.YoutubeRankRepository;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
+import org.pianoml.backend.service.YoutubeService;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -42,6 +44,8 @@ public class ScoreControllerCreateScoreTest {
   private ScoreRepository scoreRepository;
   private AccountService accountService;
   private JwtTokenProvider jwtTokenProvider;
+  private YoutubeService youtubeService;
+  private YoutubeRankRepository youtubeRankRepository;
 
   private ScoreController controller;
 
@@ -51,10 +55,12 @@ public class ScoreControllerCreateScoreTest {
     userRepository = mock(UserRepository.class);
     scoreRepository = mock(ScoreRepository.class);
     accountService = mock(AccountService.class);
+    youtubeService = mock(YoutubeService.class);
+    youtubeRankRepository = mock(YoutubeRankRepository.class);
     objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JsonNullableModule());
 
-    controller = new ScoreController(scoreService, userRepository, accountService, scoreRepository);
+    controller = new ScoreController(scoreService, youtubeService, userRepository, accountService, scoreRepository, youtubeRankRepository);
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
     ReflectionTestUtils.setField(controller, "userRepository", userRepository);
     ReflectionTestUtils.setField(controller, "userService", accountService);

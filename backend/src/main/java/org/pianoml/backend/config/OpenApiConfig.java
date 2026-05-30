@@ -22,7 +22,7 @@ public class OpenApiConfig {
             .license(new License().name("GPLv3").url("https://www.gnu.org/licenses/gpl-3.0.txt")))
         .servers(List.of(
             new Server().url("https://api.pianoml.org").description("Production HTTPS server"),
-            new Server().url("https://localhost:8080").description("Local HTTPS server")
+            new Server().url("http://localhost:8080").description("Local HTTP server")
         ));
   }
 }

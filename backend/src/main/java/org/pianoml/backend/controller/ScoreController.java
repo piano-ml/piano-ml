@@ -5,15 +5,19 @@ import lombok.RequiredArgsConstructor;
 import org.pianoml.backend.api.ScoreApi;
 import org.pianoml.backend.entity.Score;
 import org.pianoml.backend.entity.User;
+import org.pianoml.backend.entity.YoutubeRank;
 import org.pianoml.backend.exception.EntityAlreadyExistsException;
 import org.pianoml.backend.exception.UserNotLoggedInException;
 import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.model.ScorePlayStatsPostRequest;
 import org.pianoml.backend.model.ScoreStatsGet200Response;
+import org.pianoml.backend.model.YoutubeVideoApiInfo;
 import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
+import org.pianoml.backend.repository.YoutubeRankRepository;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
+import org.pianoml.backend.service.YoutubeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +44,7 @@ public class ScoreController implements ScoreApi {
 
   private final ScoreService scoreService;
 
+  private final YoutubeService youtubeService;
 
   private final UserRepository userRepository;
 
@@ -47,6 +52,68 @@ public class ScoreController implements ScoreApi {
 
   private final ScoreRepository scoreRepository;
 
+  private final YoutubeRankRepository youtubeRankRepository;
+
+
+  @Override
+  public ResponseEntity<ScoreApiInfo> scoreYoutubeEdit(String id, String youtubeId, String action, Object body) {
+    UUID scoreId;
+    try {
+      scoreId = UUID.fromString(id);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    // Ensure the score exists
+    if (scoreRepository.findById(scoreId).isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    // Upsert the YoutubeRank row (get or create)
+    YoutubeRank youtubeRank = youtubeRankRepository
+        .findByScoreIdAndVideoId(scoreId, youtubeId)
+        .orElseGet(() -> {
+          YoutubeRank newEntry = new YoutubeRank(scoreId, youtubeId);
+          return youtubeRankRepository.save(newEntry);
+        });
+
+    switch (action) {
+      case "upvote":
+        youtubeRankRepository.incrementRank(scoreId, youtubeId);
+        break;
+      case "downvote":
+        youtubeRankRepository.decrementRank(scoreId, youtubeId);
+        break;
+      case "view":
+        youtubeRankRepository.incrementViews(scoreId, youtubeId);
+        break;
+      case "report":
+        youtubeRankRepository.incrementReports(scoreId, youtubeId);
+        break;
+      default:
+        log.warn("Unknown action '{}' for scoreYoutubeEdit", action);
+        return ResponseEntity.badRequest().build();
+    }
+
+    return scoreService.getScore(scoreId)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+  }
+
+  @Override
+  public ResponseEntity<List<YoutubeVideoApiInfo>> scoreIdVideoGet(String id) {    Optional<ScoreApiInfo> optScore = scoreService.getScore(UUID.fromString(id));
+    if (optScore.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+    ScoreApiInfo score = optScore.get();
+    try {
+      List<YoutubeVideoApiInfo> videos = youtubeService.searchVideos(score.getTitle(), score.getAuthor());
+      return ResponseEntity.ok(videos);
+    } catch (YoutubeService.YoutubeApiException e) {
+      log.error("YouTube API error for score {}: {}", id, e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+    }
+  }
 
   @Override
   public ResponseEntity<ScoreApiInfo> scoreIdGet(String id) {
