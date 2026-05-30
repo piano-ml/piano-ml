@@ -43,6 +43,7 @@ model/scoreStatsGet200Response.ts
 model/userApiInfo.ts
 model/workloadApiInfo.ts
 model/youtubeLink.ts
+model/youtubeVideoApiInfo.ts
 param.ts
 provide-api.ts
 variables.ts
