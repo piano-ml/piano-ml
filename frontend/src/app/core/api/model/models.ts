@@ -26,3 +26,4 @@ export * from './scoreStatsGet200Response';
 export * from './userApiInfo';
 export * from './workloadApiInfo';
 export * from './youtubeLink';
+export * from './youtubeVideoApiInfo';
