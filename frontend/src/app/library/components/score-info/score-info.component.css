@@ -79,3 +79,9 @@ button:active {
   border-color: #f59e0b;
   color: #92400e;
 }
+
+.video-lessons-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

@@ -26,6 +26,8 @@ import { ScoreGenreBrowseGet200ResponseInner } from '../model/scoreGenreBrowseGe
 import { ScorePlayStatsPostRequest } from '../model/scorePlayStatsPostRequest';
 // @ts-ignore
 import { ScoreStatsGet200Response } from '../model/scoreStatsGet200Response';
+// @ts-ignore
+import { YoutubeVideoApiInfo } from '../model/youtubeVideoApiInfo';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -578,6 +580,61 @@ export class ScoreService extends BaseService {
     }
 
     /**
+     * Search YouTube videos related to a score
+     * Queries YouTube for videos related to the score\&#39;s title and composer (piano tutorial).
+     * @param id The ID of the score
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public scoreIdVideoGet(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<YoutubeVideoApiInfo>>;
+    public scoreIdVideoGet(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<YoutubeVideoApiInfo>>>;
+    public scoreIdVideoGet(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<YoutubeVideoApiInfo>>>;
+    public scoreIdVideoGet(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling scoreIdVideoGet.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/score/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/video`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<YoutubeVideoApiInfo>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                transferCache: localVarTransferCache,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Download a file for a specific score
      * @param owner The User Id
      * @param id The ID of the score
@@ -923,21 +980,21 @@ export class ScoreService extends BaseService {
      * Edit a YouTube link associated with a score (add/increment/reduce/remove)
      * Perform an action on a YouTube link attached to a score. The &#x60;youtube_link&#x60; path parameter should be URL-encoded if it contains characters not valid in a path. 
      * @param id The ID of the score
-     * @param youtubeLink The YouTube link or identifier (URL-encoded)
+     * @param youtubeId The YouTube link or identifier (URL-encoded)
      * @param action The action to perform on the link: plus, minus, or delete
      * @param body 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public scoreYoutubeEdit(id: string, youtubeLink: string, action: 'plus' | 'minus' | 'delete', body?: object, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ScoreApiInfo>;
-    public scoreYoutubeEdit(id: string, youtubeLink: string, action: 'plus' | 'minus' | 'delete', body?: object, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ScoreApiInfo>>;
-    public scoreYoutubeEdit(id: string, youtubeLink: string, action: 'plus' | 'minus' | 'delete', body?: object, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ScoreApiInfo>>;
-    public scoreYoutubeEdit(id: string, youtubeLink: string, action: 'plus' | 'minus' | 'delete', body?: object, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public scoreYoutubeEdit(id: string, youtubeId: string, action: 'upvote' | 'downvote' | 'report' | 'view', body?: object, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ScoreApiInfo>;
+    public scoreYoutubeEdit(id: string, youtubeId: string, action: 'upvote' | 'downvote' | 'report' | 'view', body?: object, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ScoreApiInfo>>;
+    public scoreYoutubeEdit(id: string, youtubeId: string, action: 'upvote' | 'downvote' | 'report' | 'view', body?: object, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ScoreApiInfo>>;
+    public scoreYoutubeEdit(id: string, youtubeId: string, action: 'upvote' | 'downvote' | 'report' | 'view', body?: object, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling scoreYoutubeEdit.');
         }
-        if (youtubeLink === null || youtubeLink === undefined) {
-            throw new Error('Required parameter youtubeLink was null or undefined when calling scoreYoutubeEdit.');
+        if (youtubeId === null || youtubeId === undefined) {
+            throw new Error('Required parameter youtubeId was null or undefined when calling scoreYoutubeEdit.');
         }
         if (action === null || action === undefined) {
             throw new Error('Required parameter action was null or undefined when calling scoreYoutubeEdit.');
@@ -977,7 +1034,7 @@ export class ScoreService extends BaseService {
             }
         }
 
-        let localVarPath = `/score/youtube/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "youtubeLink", value: youtubeLink, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "action", value: action, in: "path", style: "simple", explode: false, dataType: "'plus' | 'minus' | 'delete'", dataFormat: undefined})}`;
+        let localVarPath = `/score/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/video/${this.configuration.encodeParam({name: "youtubeId", value: youtubeId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "action", value: action, in: "path", style: "simple", explode: false, dataType: "'upvote' | 'downvote' | 'report' | 'view'", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ScoreApiInfo>('post', `${basePath}${localVarPath}`,
             {

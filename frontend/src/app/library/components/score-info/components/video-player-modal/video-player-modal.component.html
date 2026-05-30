@@ -1,0 +1,65 @@
+@if (open && video; as currentVideo) {
+<div class="video-modal" role="dialog" aria-modal="true" (click)="onBackdropClick()">
+  <section class="video-panel" (click)="$event.stopPropagation()">
+    <header class="video-panel-head">
+      <div class="min-w-0">
+        <h3 class="video-panel-title">{{ currentVideo.title || 'PianoML Video' }}</h3>
+        @if (currentVideo.channelTitle) {
+        <p class="video-panel-sub">{{ currentVideo.channelTitle }}</p>
+        }
+      </div>
+      <div class="video-actions">
+        <button
+          class="btn-secondary icon-btn"
+          type="button"
+          [disabled]="actionLoading.upvote"
+          (click)="onYoutubeAction('upvote')"
+          aria-label="Upvote video"
+          title="Upvote">
+          <ng-icon name="bootstrapHandThumbsUp" size="14"></ng-icon>
+        </button>
+
+        <button
+          class="btn-secondary icon-btn"
+          type="button"
+          [disabled]="actionLoading.downvote"
+          (click)="onYoutubeAction('downvote')"
+          aria-label="Downvote video"
+          title="Downvote">
+          <ng-icon name="bootstrapHandThumbsDown" size="14"></ng-icon>
+        </button>
+
+        <button
+          class="btn-secondary icon-btn"
+          type="button"
+          [disabled]="actionLoading.report"
+          (click)="onYoutubeAction('report')"
+          aria-label="Report video"
+          title="Report">
+          <ng-icon name="bootstrapEyeSlash" size="14"></ng-icon>
+        </button>
+
+        <button class="btn-secondary close-btn" type="button" (click)="onClose()" aria-label="Close video">
+          ✕
+        </button>
+      </div>
+    </header>
+
+    <div class="video-frame-wrap">
+      @if (currentVideo.videoId) {
+      <youtube-player
+        class="player"
+        [videoId]="currentVideo.videoId"
+        [height]="playerHeight"
+        [width]="playerWidth"
+        (stateChange)="onPlayerStateChange($event)">
+      </youtube-player>
+      }
+    </div>
+
+    @if (currentVideo.description) {
+    <p class="video-description">{{ currentVideo.description }}</p>
+    }
+  </section>
+</div>
+}

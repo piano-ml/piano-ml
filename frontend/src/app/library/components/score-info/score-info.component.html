@@ -147,7 +147,36 @@
     <app-exercises-in-key [fullKey]="score.fullKey!"></app-exercises-in-key>
     }
 
+    <!-- ── Video lessons ──────────────────────────────────── -->
+    <section class="video-lessons-section">
+      @if (loadingVideos) {
+      <div class="flex items-center gap-3 py-2">
+        <div class="spinner w-4 h-4 text-neutral-500"></div>
+        <p class="text-sm text-neutral-400">Loading related videos…</p>
+      </div>
+      }
+
+      @if (videosError) {
+      <div class="alert-error">
+        <strong>Video API error:</strong> {{ videosError }}
+      </div>
+      }
+
+      @if (!loadingVideos && !videosError && videos.length > 0) {
+      <app-video-carousel [videos]="videos" (selectVideo)="openVideoPlayer($event)"></app-video-carousel>
+      }
+    </section>
+
+
+
     }
   </div>
+
+  <app-video-player-modal
+    [open]="isVideoPlayerOpen"
+    [video]="selectedVideo"
+    [scoreId]="score?.id || null"
+    (close)="closeVideoPlayer()">
+  </app-video-player-modal>
 
 </article>

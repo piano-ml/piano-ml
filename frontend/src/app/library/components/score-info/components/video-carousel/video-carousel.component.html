@@ -1,0 +1,31 @@
+<div class="carousel-wrap">
+  <div class="carousel-head">
+    <p class="section-label">Video lessons</p>
+    <div class="carousel-controls">
+      <button
+        class="btn-secondary carousel-btn"
+        type="button"
+        (click)="scrollLeft()"
+        [disabled]="!canScrollLeft"
+        aria-label="Scroll left">
+        ←
+      </button>
+      <button
+        class="btn-secondary carousel-btn"
+        type="button"
+        (click)="scrollRight()"
+        [disabled]="!canScrollRight"
+        aria-label="Scroll right">
+        →
+      </button>
+    </div>
+  </div>
+
+  <div class="carousel-track" #track (scroll)="onTrackScroll()">
+    @for (video of videos; track video.videoId) {
+    <div class="carousel-item">
+      <app-video-carousel-item [video]="video" (selectVideo)="onVideoSelect($event)"></app-video-carousel-item>
+    </div>
+    }
+  </div>
+</div>
