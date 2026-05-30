@@ -2,18 +2,20 @@ import { Component, OnInit, ChangeDetectorRef, PLATFORM_ID, inject } from '@angu
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo } from '../../../core/api';
+import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo, YoutubeVideoApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard, bootstrapDownload, bootstrapPencil } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
 import { SeoService } from '../../../shared/services/seo.service';
 import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in-key/exercises-in-key.component';
+import { VideoCarouselComponent } from './components/video-carousel/video-carousel.component';
+import { VideoPlayerModalComponent } from './components/video-player-modal/video-player-modal.component';
 
 @Component({
   selector: 'app-score-info',
   standalone: true,
-  imports: [CommonModule,  NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent],
+  imports: [CommonModule, NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent, VideoCarouselComponent, VideoPlayerModalComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
   viewProviders: [provideIcons({ bootstrapClipboard, bootstrapDownload, bootstrapPencil })]
@@ -28,6 +30,11 @@ export class ScoreInfoComponent implements OnInit {
   selectedGenre: GenreApiInfo | null = null;
   workload: WorkloadApiInfo | null = null;
   loadingWorkload = false;
+  videos: YoutubeVideoApiInfo[] = [];
+  loadingVideos = false;
+  videosError: string | null = null;
+  selectedVideo: YoutubeVideoApiInfo | null = null;
+  isVideoPlayerOpen = false;
   siteUrl = '';
   shareLinks = ['facebook', 'x', 'reddit', 'xing']
   slug: string | null = null;
@@ -93,6 +100,7 @@ export class ScoreInfoComponent implements OnInit {
         this.updatePageTitle(score);
         this.updateSelectedGenre();
         this.loading = false;
+        this.loadVideos(score.id || '');
         // Load workload info if score doesn't have files
         if (!score.has_files && score.id) {
           this.loadWorkload(score.id);
@@ -106,6 +114,48 @@ export class ScoreInfoComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  loadVideos(scoreId: string) {
+    if (!scoreId) {
+      this.videos = [];
+      this.videosError = null;
+      this.loadingVideos = false;
+      return;
+    }
+
+    this.loadingVideos = true;
+    this.videosError = null;
+    this.cdr.detectChanges();
+
+    this.scoreService.scoreIdVideoGet(scoreId).subscribe({
+      next: (videos) => {
+        this.videos = (videos || []).filter(video => !!video.videoId);
+        this.loadingVideos = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.videosError = error?.message || 'Failed to load videos';
+        this.videos = [];
+        this.loadingVideos = false;
+        console.error('Error loading videos:', error);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openVideoPlayer(video: YoutubeVideoApiInfo): void {
+    if (!video.videoId) {
+      return;
+    }
+
+    this.selectedVideo = video;
+    this.isVideoPlayerOpen = true;
+  }
+
+  closeVideoPlayer(): void {
+    this.isVideoPlayerOpen = false;
+    this.selectedVideo = null;
   }
 
   private buildScorePageTitle(score: ScoreApiInfo | null): string {

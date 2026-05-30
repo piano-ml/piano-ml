@@ -1,0 +1,22 @@
+<button class="video-card" (click)="onSelect()" type="button" [attr.aria-label]="'Play video ' + (video.title || '')">
+  <div class="video-thumb-wrap">
+    <img
+      class="video-thumb"
+      [src]="video.thumbnailUrl || ''"
+      [alt]="video.title || 'Video thumbnail'"
+      loading="lazy">
+    <div class="play-overlay" aria-hidden="true">
+      <span class="play-icon">▶</span>
+    </div>
+  </div>
+
+  <div class="video-meta">
+    <h4 class="video-title">{{ video.title || 'Untitled video' }}</h4>
+    @if (video.channelTitle) {
+    <p class="video-channel">{{ video.channelTitle }}</p>
+    }
+    @if (video.publishedAt) {
+    <p class="video-date">{{ video.publishedAt | date:'mediumDate' }}</p>
+    }
+  </div>
+</button>
