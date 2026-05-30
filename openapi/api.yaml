@@ -216,7 +216,7 @@ paths:
         '400':
           description: Bad request
 
-  /score/youtube/{id}/{youtube_link}/{action}:
+  /score/{id}/video/{youtube_id}/{action}:
     post:
       operationId: scoreYoutubeEdit
       tags:
@@ -232,7 +232,7 @@ paths:
           schema:
             type: string
           description: The ID of the score
-        - name: youtube_link
+        - name: youtube_id
           in: path
           required: true
           schema:
@@ -243,7 +243,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [plus, minus, delete]
+            enum: [upvote, downvote, report, view]
           description: 'The action to perform on the link: plus, minus, or delete'
       requestBody:
         required: false
@@ -467,6 +467,34 @@ paths:
           description: Play count registered successfully
         '400':
           description: Bad request
+
+  /score/{id}/video:
+    get:
+      operationId: scoreIdVideoGet
+      tags:
+        - score
+      summary: Search YouTube videos related to a score
+      description: Queries YouTube for videos related to the score's title and composer (piano tutorial).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the score
+      responses:
+        '200':
+          description: List of relevant YouTube videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/YoutubeVideoApiInfo'
+        '404':
+          description: Score not found
+        '502':
+          description: YouTube API error
 
   /score/{id}/info:
     get:
@@ -1535,6 +1563,29 @@ components:
               format: date
             ended:
               type: boolean
+    YoutubeVideoApiInfo:
+      type: object
+      properties:
+        videoId:
+          type: string
+          description: YouTube video ID
+        title:
+          type: string
+          description: Video title
+        description:
+          type: string
+          description: Video description snippet
+        thumbnailUrl:
+          type: string
+          description: URL of the video thumbnail
+        channelTitle:
+          type: string
+          description: Name of the YouTube channel
+        publishedAt:
+          type: string
+          format: date-time
+          description: Publication date of the video
+
     ErrorApiInfo:
       type: object
       properties:

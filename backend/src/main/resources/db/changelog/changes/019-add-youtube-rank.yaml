@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: 019-add-youtube-rank
+      author: eflorent
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                schemaName: pianoml
+                tableName: youtube_rank
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: youtube_rank
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: score_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: video_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rank
+                  type: INT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: views
+                  type: INT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reports
+                  type: INT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            schemaName: pianoml
+            tableName: youtube_rank
+            columnNames: score_id, video_id
+            constraintName: uq_youtube_rank_score_video
+      rollback:
+        - dropTable:
+            schemaName: pianoml
+            tableName: youtube_rank
+
