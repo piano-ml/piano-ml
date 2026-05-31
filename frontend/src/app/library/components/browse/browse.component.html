@@ -2,10 +2,13 @@
   <!-- Search Section -->
   <section aria-label="Search piano scores" class="">
     <div class="flex gap-2">
-      <input [(ngModel)]="searchKeyword" (keyup.enter)="onSearch()"
+      <input id="browse-search-keyword" #searchKeywordInput [(ngModel)]="searchKeyword" (keyup.enter)="onSearch()"
         placeholder="Search scores by title, artist, or genre..." class="input-field flex-1">
       <button (click)="onSearch()" class="btn-primary" [disabled]="loading">
         {{ loading ? 'Searching...' : 'Search' }}
+      </button>
+      <button (click)="startTour()" class="btn-secondary" aria-label="Restart library tour" title="Show help tour">
+        Help
       </button>
       @if (activeSearchKeyword) {
       <button (click)="clearSearchFilter()" class="btn-secondary">
@@ -22,19 +25,21 @@
       <div class="mt-4 mb-4 text-sm text-gray-300 flex flex-wrap items-center justify-center gap-4">
 
       <div class="flex flex-col gap-2 mr-4">
-        <div #gradeSlider class="browse-grade-slider"></div>
+        <div id="browse-grade-range" #gradeSlider class="browse-grade-slider"></div>
       </div>
 
-      <label class="flex items-center gap-1 cursor-pointer">
-        <input type="checkbox" [(ngModel)]="filterOneHand" (change)="applyFilters()" class="cursor-pointer">
-        <span>One hand</span>
-      </label>
-      <label class="flex items-center gap-1 cursor-pointer">
-        <input type="checkbox" [(ngModel)]="filterTwoHands" (change)="applyFilters()" class="cursor-pointer">
-        <span>Two hands</span>
-      </label>
+      <div id="browse-handedness" class="flex items-center gap-3">
+        <label class="flex items-center gap-1 cursor-pointer">
+          <input type="checkbox" [(ngModel)]="filterOneHand" (change)="applyFilters()" class="cursor-pointer">
+          <span>One hand</span>
+        </label>
+        <label class="flex items-center gap-1 cursor-pointer">
+          <input type="checkbox" [(ngModel)]="filterTwoHands" (change)="applyFilters()" class="cursor-pointer">
+          <span>Two hands</span>
+        </label>
+      </div>
       <label class="flex items-center gap-2">
-        <select [(ngModel)]="selectedFullKey" (change)="applyFilters()" [disabled]="loadingFullKeys" class="px-2 py-1" aria-label="Key signature">
+        <select id="browse-tonality" [(ngModel)]="selectedFullKey" (change)="applyFilters()" [disabled]="loadingFullKeys" class="px-2 py-1" aria-label="Key signature">
           <option value="">All keys</option>
           @for (key of fullKeyOptions; track key) {
           <option [value]="key">{{ key }}</option>

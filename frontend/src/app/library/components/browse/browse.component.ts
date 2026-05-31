@@ -1,8 +1,7 @@
 import { isPlatformBrowser, DecimalPipe } from '@angular/common';
-import { Component, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, PLATFORM_ID, inject } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, PLATFORM_ID, inject, effect } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Title } from '@angular/platform-browser';
 import { ScoreService } from '../../../core/api/api/score.service';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { AuthorWithScoreCount } from '../../../core/api/model/authorWithScoreCount';
@@ -15,6 +14,8 @@ import { BrowseByGenreComponent } from '../browse-by-genre/browse-by-genre.compo
 import { SeoService } from '../../../shared/services/seo.service';
 import noUiSlider, { API as NoUiSliderApi, PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
+import { BeaconService } from 'ng-beacon';
+import { BROWSE_TOUR } from './browse.tour';
 
 @Component({
   selector: 'app-browse',
@@ -32,10 +33,15 @@ import wNumb from 'wnumb';
 export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly beaconService = inject(BeaconService);
   private readonly newestSortBy: 'uploadedAt_desc' = 'uploadedAt_desc';
+  private readonly tourSeenKey = 'browse-tour-seen';
   private gradeSlider: NoUiSliderApi | null = null;
   private syncingGradeSlider = false;
+  private searchInputFocusPending = false;
   private gradeSliderHost?: ElementRef<HTMLDivElement>;
+  @ViewChild('searchKeywordInput') searchKeywordInput?: ElementRef<HTMLInputElement>;
+  private lastHighlightedElement: HTMLElement | null = null;
 
   @ViewChild('gradeSlider')
   set gradeSliderElement(element: ElementRef<HTMLDivElement> | undefined) {
@@ -101,7 +107,9 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private changeDetector: ChangeDetectorRef,
     private seo: SeoService
-  ) { }
+  ) {
+    this.setupTourEffects();
+  }
 
   ngOnInit() {
       // Read the URL path to set active tab
@@ -152,6 +160,9 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       Promise.all([fullKeys$, stats$]).then(() => {
+        this.startTourIfNeeded();
+        this.focusSearchInputSoon();
+
         // Subscribe to both params and query params to handle browser back/forward navigation
         this.route.params
           .subscribe(params => {
@@ -206,8 +217,83 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    if (this.lastHighlightedElement) {
+      this.lastHighlightedElement.classList.remove('beacon-highlighted-target');
+      this.lastHighlightedElement = null;
+    }
+
     this.gradeSlider?.destroy();
     this.gradeSlider = null;
+  }
+
+  startTour() {
+    this.beaconService.start(BROWSE_TOUR);
+  }
+
+  private setupTourEffects() {
+    effect(() => {
+      if (!isPlatformBrowser(this.platformId)) return;
+
+      if (this.beaconService.finished() || this.beaconService.dismissed()) {
+        localStorage.setItem(this.tourSeenKey, 'true');
+        this.focusSearchInputSoon(250);
+      }
+
+      const currentStep = this.beaconService.currentStep();
+
+      if (this.lastHighlightedElement) {
+        this.lastHighlightedElement.classList.remove('beacon-highlighted-target');
+        this.lastHighlightedElement = null;
+      }
+
+      if (currentStep?.selector) {
+        const element = document.querySelector(currentStep.selector) as HTMLElement;
+        if (element) {
+          element.classList.add('beacon-highlighted-target');
+          this.lastHighlightedElement = element;
+        }
+      }
+    });
+  }
+
+  private startTourIfNeeded() {
+    if (!isPlatformBrowser(this.platformId) || localStorage.getItem(this.tourSeenKey)) {
+      return;
+    }
+
+    this.waitForTourTargetsAndStart(0);
+  }
+
+  private waitForTourTargetsAndStart(attempt: number) {
+    const selectors = ['#browse-grade-range', '#browse-handedness', '#browse-tonality', '#browse-search-keyword'];
+    const allTargetsReady = selectors.every((selector) => Boolean(document.querySelector(selector)));
+
+    if (allTargetsReady) {
+      setTimeout(() => this.startTour(), 300);
+      return;
+    }
+
+    if (attempt >= 20) {
+      return;
+    }
+
+    setTimeout(() => this.waitForTourTargetsAndStart(attempt + 1), 200);
+  }
+
+  private focusSearchInputSoon(delayMs = 0) {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    if (this.searchInputFocusPending) {
+      return;
+    }
+
+    this.searchInputFocusPending = true;
+    setTimeout(() => {
+      this.searchInputFocusPending = false;
+      this.searchKeywordInput?.nativeElement.focus();
+    }, delayMs);
   }
 
   loadAuthorAndFilter(artistSlug: string) {
@@ -354,6 +440,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
         this.hasMore = data.length === this.pageSize;
         this.currentPage++;
         this.loading = false;
+        this.focusSearchInputSoon();
         this.changeDetector.detectChanges();
       },
       error: (error) => {
@@ -481,6 +568,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
         this.hasMore = data.length === this.pageSize;
         this.currentPage++;
         this.loading = false;
+        this.focusSearchInputSoon();
         this.changeDetector.detectChanges();
       },
       error: (error) => {
@@ -553,6 +641,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
         this.hasMore = data.length === this.pageSize;
         this.currentPage++;
         this.loading = false;
+        this.focusSearchInputSoon();
         this.changeDetector.detectChanges();
       },
       error: (error) => {
