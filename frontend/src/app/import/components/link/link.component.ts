@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -11,7 +11,8 @@ import { AuthService } from '../../../account/services/auth.service';
   templateUrl: './link.component.html',
   styleUrl: './link.component.css'
 })
-export class LinkComponent implements OnInit {
+export class LinkComponent implements OnInit, AfterViewInit {
+  @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
   searchQuery = '';
   loading = false;
   error: string | null = null;
@@ -39,6 +40,21 @@ export class LinkComponent implements OnInit {
   ngOnInit() {
     this.authService.isLoggedIn.subscribe(isLoggedIn => {
       this.isLoggedIn = isLoggedIn;
+      if (isLoggedIn) {
+        this.focusSearchInput();
+      }
+    });
+  }
+
+  ngAfterViewInit() {
+    this.focusSearchInput();
+  }
+
+  private focusSearchInput() {
+    setTimeout(() => {
+      if (typeof this.searchInput?.nativeElement?.focus === 'function') {
+        this.searchInput.nativeElement.focus();
+      }
     });
   }
 

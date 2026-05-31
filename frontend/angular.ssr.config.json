@@ -1,3 +1,4 @@
 {
-  "allowedHosts": ["pianoml.org", "localhost"]
+  "allowedHosts": ["pianoml.org", "www.pianoml.org", "localhost"],
+  "trustProxyHeaders": ["x-forwarded-host", "x-forwarded-proto", "x-forwarded-for"]
 }

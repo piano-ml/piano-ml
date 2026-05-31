@@ -67,8 +67,9 @@ if [ -n "$TRACK_RIGHT" ]; then
   else
     printf "Extracting track %s for %s.midi (TRACK_LEFT omitted)\n" "$TRACK_RIGHT" "$FROOT"
     python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT"
+    echo "spliting parts !"
     musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml" > /dev/null 2>&1
-    musescore3 -M midioperations.xml -o "${FROOT}.musicxml" "${FROOT}.mid"
+    musescore3 -M ./scripts/midioperations.xml -o "${FROOT}.musicxml" "${FROOT}.mid"
     #mv -- "${FROOT}.mid" "${FROOT}.midi"
 
   fi
@@ -76,6 +77,8 @@ else
   printf "No track specified in original midi file\n" >&2
   exit 5
 fi
+
+
 
 if [ -n "$MAKE_FINGERING" ]; then
   case "$(echo "$MAKE_FINGERING" | tr '[:upper:]' '[:lower:]')" in
@@ -127,7 +130,7 @@ done
 
 zip -j "${FROOT}.zip" "${FROOT}.pdf" "${FROOT}.midi" "${FROOT}.musicxml" "metadata.json"
 
-#printf "Cleaning intermediate files...\n"
-rm -f "${FROOT}.musicxml.bak"  "${FROOT}.pdf" "${FROOT}.midi" "${FROOT}.musicxml" "${FROOT}.fingering.json" "metadata.json" "${FROOT}_filtered.musicxml"
+printf "Cleaning intermediate files...\n"
+rm -f "${FROOT}.musicxml.bak"  "${FROOT}.pdf" "${FROOT}.mid" "${FROOT}.midi" "${FROOT}.musicxml" "${FROOT}.fingering.json" "metadata.json" "${FROOT}_filtered.musicxml"
 
 printf "Done: %s.zip\n" "${FROOT}"
