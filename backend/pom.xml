@@ -34,6 +34,25 @@
 	</properties>
 	<dependencyManagement>
       <dependencies>
+        <!-- Force gax to 2.80.0 to match google-cloud-run 0.92.0 compilation target.
+             spring-cloud-gcp-dependencies 7.1.0 (via gapic-generator-java-bom 2.60.2)
+             downgrades gax to 2.68.2 which removed ResourceNameExtractor, causing
+             NoClassDefFoundError at runtime. Explicit entries override imported BOMs. -->
+        <dependency>
+          <groupId>com.google.api</groupId>
+          <artifactId>gax</artifactId>
+          <version>2.80.0</version>
+        </dependency>
+        <dependency>
+          <groupId>com.google.api</groupId>
+          <artifactId>gax-grpc</artifactId>
+          <version>2.80.0</version>
+        </dependency>
+        <dependency>
+          <groupId>com.google.api</groupId>
+          <artifactId>gax-httpjson</artifactId>
+          <version>2.80.0</version>
+        </dependency>
         <dependency>
           <groupId>com.google.cloud</groupId>
           <artifactId>spring-cloud-gcp-dependencies</artifactId>
