@@ -3,23 +3,24 @@ import sys
 import xml.etree.ElementTree as ET
 from copy import deepcopy
 
-from music21 import converter, stream
-
 if len(sys.argv) not in (3, 4):
     print("Usage: python scripts/extract_midi_tracks.py <score_file> <track1> [track2]")
     sys.exit(1)
 
 musicxml_path = sys.argv[1]
-track1 = int(sys.argv[2])
+track1 = int(sys.argv[2]) - 1
 
 track2 = None
 if len(sys.argv) == 4:
     try:
-        track2 = int(sys.argv[3])
+        track2 = int(sys.argv[3]) - 1
     except ValueError:
         track2 = None
 
+print ("extracting tracks", track1, "and", track2 if track2 is not None else "(none)")        
+
 def _selected_indexes(total_parts: int, right_idx: int, left_idx: int | None) -> set[int]:
+    print("total parts:", total_parts, "requested right_idx:", right_idx, "requested left_idx:", left_idx)
     if right_idx < 0 or right_idx >= total_parts:
         raise IndexError(f"track1 index {right_idx} out of range (0..{total_parts - 1})")
 
@@ -53,12 +54,18 @@ def _extract_parts_in_place_musicxml(path: str, right_idx: int, left_idx: int | 
     if not parts:
         return False
 
+    index_to_part_id = [part.attrib.get("id") for part in parts]
+    print("Part index -> part id:", {idx: pid for idx, pid in enumerate(index_to_part_id)})
+    print("Note: indexes are 0-based, MusicXML part IDs are labels (often P1..Pn).")
+
     selected_indexes = _selected_indexes(len(parts), right_idx, left_idx)
     selected_ids = {
         parts[idx].attrib.get("id")
         for idx in sorted(selected_indexes)
         if parts[idx].attrib.get("id") is not None
     }
+    print(f"Selected part IDs: {selected_indexes} -> {selected_ids}")
+    print("============================================")
 
     for child in list(root):
         if child.tag == part_tag and child.attrib.get("id") not in selected_ids:
@@ -80,28 +87,17 @@ def _extract_parts_in_place_musicxml(path: str, right_idx: int, left_idx: int | 
 base, ext = os.path.splitext(musicxml_path)
 new_path = f"{base}.musicxml"
 
-handled_by_xml = False
-if ext.lower() in (".musicxml", ".xml"):
-    try:
-        handled_by_xml = _extract_parts_in_place_musicxml(new_path, track1, track2)
-    except Exception as exc:
-        print(
-            f"MusicXML direct filtering failed ({exc}), trying music21 fallback...",
-            file=sys.stderr,
-        )
 
-if not handled_by_xml:
-    score = converter.parse(musicxml_path)
-    selected_indexes = _selected_indexes(len(score.parts), track1, track2)
 
-    new_score = stream.Score()
-    for idx, part in enumerate(score.parts):
-        if idx in selected_indexes:
-            new_score.append(deepcopy(part))
+try:
+    handled_by_xml = _extract_parts_in_place_musicxml(new_path, track1, track2)
+except Exception as exc:
+    print(
+        f"MusicXML direct filtering failed ({exc}), trying music21 fallback...",
+        file=sys.stderr,
+    )
 
-    try:
-        new_score.write("musicxml", fp=new_path, makeNotation=False)
-    except TypeError:
-        new_score.write("musicxml", fp=new_path)
+
+
 
 print(f"Fichier créé : {new_path}")
