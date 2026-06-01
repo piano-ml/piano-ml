@@ -1,5 +1,5 @@
 
-import { Injectable, signal, OnDestroy, DestroyRef, inject } from "@angular/core";
+import { Injectable, signal, OnDestroy } from "@angular/core";
 import { Midi } from "@tonejs/midi";
 import type { Note as MidiNote, Note } from "@tonejs/midi/dist/Note";
 import { AlignmentType, Cursor, RepetitionInstruction, RepetitionInstructionEnum, Note as OSMDNote, GraphicalNote, VexFlowGraphicalNote, OpenSheetMusicDisplay } from "opensheetmusicdisplay";
@@ -14,12 +14,11 @@ import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
 })
 export class CursorService implements OnDestroy {
 
-    private static SKIP_SHORT_NOTE_THRESHOLD = 60;
     private static readonly DIAGNOSTIC_STORAGE_KEY = "cursorService.debug";
+    private static readonly DIAGNOSTIC_SAMPLE_LIMIT = 12;
     private static readonly UI_YIELD_STEP = 8;
-    private destroyRef = inject(DestroyRef);
     private setupTimeoutId?: ReturnType<typeof setTimeout>;
-    private diagnosticMode = true; //this.readDiagnosticModeFromStorage();
+    private diagnosticMode = this.readDiagnosticModeFromStorage();
     private alignmentAlgorithm: CursorAlignmentAlgorithm = "sw2";
     private cursorIndex = 0;
     private iteratorSize = 0;
@@ -53,14 +52,53 @@ export class CursorService implements OnDestroy {
         this.cursor = cursor;
     }
 
+    public resetSession(): void {
+        if (this.setupTimeoutId) {
+            clearTimeout(this.setupTimeoutId);
+            this.setupTimeoutId = undefined;
+        }
+
+        this.feedbackSignal.set(null);
+        this.measure.set(0);
+        this.slopScoreSignal.set(0);
+        this.cursorIndex = 0;
+        this.iteratorSize = 0;
+        this.maxMidiMeasure = 0;
+        this.osmdMeasureCount = 0;
+        this.verifyAllElementsOk = false;
+        this.verifyAllElementsOkSignal.set(false);
+
+        this.midiTicksNoteMap.clear();
+        this.osmdCursorIdxNoteMap.clear();
+        this.osmdCursorIdxToMeasureMap.clear();
+        this.osmdMeasureNoteMap.clear();
+        this.midiBarToOsmdMeasure.clear();
+        this.midiTicksToOsmdCursorIndex.clear();
+        this.osmdMeasureToFirstStepIndex.clear();
+        this.repetitionInstructions = [];
+        this.osmdMeasureSequence = [];
+        this.sortedMappedMidiTicks = [];
+        this.sortedMidiTicks = [];
+        this.audioTimeNoteArray = [];
+
+        if (this.osmdArray) {
+            this.osmdArray.clear();
+            this.osmdArray = undefined;
+        }
+
+        this.cursor = undefined;
+        this.debugLog("cursor session reset");
+    }
+
     public async setup(cursor: Cursor, midi: Midi): Promise<number> {
-        CursorService.SKIP_SHORT_NOTE_THRESHOLD = (midi.header.ppq | 480) / 8;
 
         this.cursor = cursor;
+        this.midiTicksToOsmdCursorIndex.clear();
         this.feedbackSignal.set({ message: 'Initializing...', percentage: 0 });
         await this.yieldToUi();
 
         this.buildMidiTicksNoteMap(midi)
+        midi = null as any; // free memory
         await this.yieldToUi();
 
         this.hydrateRepetitionInstructions(this.cursor);
@@ -114,12 +152,7 @@ export class CursorService implements OnDestroy {
         this.osmdMeasureSequence = [];
         this.midiBarToOsmdMeasure.clear();
         // this.osmdCursorIdxToMeasureMap.clear(); is used for slider and must not be cleared
-        // this.midiTicksToOsmdCursorIndex will be our main output and must not be cleared
-
-        this.setupTimeoutId = setTimeout(() => {
-            this.cursor!.next();
-            this.cursor!.previous();
-        }, 500);
+        // this.midiTicksToOsmdCursorIndex will be our main output and must not be cleared    
         return score;
     }
 
@@ -141,7 +174,6 @@ export class CursorService implements OnDestroy {
 
     nextNote(note: Note) {
         const link = this.midiTicksToOsmdCursorIndex.get(note.ticks);
-        console.log("nextNote", note.ticks, link?.osmdIndex);
         if (link != null) {
             this.moveCursorToOsmdIndex(this.cursor!, link.osmdIndex);
             if (this.isCursorOk(note)) {
@@ -157,9 +189,10 @@ export class CursorService implements OnDestroy {
             if (newOsmdMeasure !== this.measure()) {
                 this.measure.set(newOsmdMeasure);
             }
-        } else {
-            console.warn("note not found", note.midi, "ticks:", note.ticks);
-        }
+        } 
+        //else {
+            //console.warn("note not found", note.midi, "ticks:", note.ticks);
+        //}
     }
 
     /**
@@ -279,9 +312,6 @@ export class CursorService implements OnDestroy {
                 .map(n => n.Pitch?.getHalfTone())
                 .filter((pitch): pitch is number => pitch != null)
                 .map(pitch => pitch + 12); // align octave with midi
-            const graphicalObjectId = notesUnderCursor
-                .map(n => n.NoteToGraphicalNoteObjectId)
-                .filter((id): id is number => id != null);
             const toSkip = notesUnderCursor.every(n => this.isSkipable(n));
             const o: OsmdArrayElement = {
                 midiMeasure: midiMeasureIndex,
@@ -298,9 +328,7 @@ export class CursorService implements OnDestroy {
                 midiPitches: [],
                 midiTicks: null,
                 midiTicksDuration: null,
-                midiTime: null,
-                graphicalObjectId,
-                tremolo: isTremolo
+                midiTime: null
             }
             osmdArray.push(o);
             if (o.isLast && hasMeasureTransition && !isNaturalAdvance) {
@@ -328,16 +356,17 @@ export class CursorService implements OnDestroy {
     }
 
     debugStep(feedbackMessage: string, osmdArray: OsmdArrayElement[]): void {
-        //if (this.diagnosticMode) {
+        if (!this.diagnosticMode) {
+            return;
+        }
         console.groupCollapsed("[cursor][mapping][hydrateOsmdArray]" + feedbackMessage);
         console.table(Array.from(osmdArray));
         console.groupEnd();
-        //}
 
     }
 
     hydrateTargets(osmdMeasureToFirstStepIndex: Map<number, number>): OsmdArrayElement[] {
-        console.log("hydrateTargets start (need osmdMeasureToFirstStepIndex)", osmdMeasureToFirstStepIndex);
+        //console.log("hydrateTargets start (need osmdMeasureToFirstStepIndex)", osmdMeasureToFirstStepIndex);
         const osmdArray = this.osmdArray!;
         const feedbackMessage = "Hydrating Cursor";
         let targetOsmdIndex = 0;
@@ -381,6 +410,53 @@ export class CursorService implements OnDestroy {
         }
     }
 
+    private hasAnyPitchOverlap(expectedPitches: number[] | null | undefined, eventPitches: number[]): boolean {
+        if (!expectedPitches || expectedPitches.length === 0 || eventPitches.length === 0) {
+            return false;
+        }
+
+        for (const eventPitch of eventPitches) {
+            if (expectedPitches.includes(eventPitch)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private areAllExpectedPitchesAssigned(expectedPitches: number[] | null | undefined, assignedPitches: number[]): boolean {
+        if (!expectedPitches || expectedPitches.length === 0) {
+            return true;
+        }
+
+        for (const expectedPitch of expectedPitches) {
+            if (!assignedPitches.includes(expectedPitch)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private collectUnassignedMatchingPitches(expectedPitches: number[] | null | undefined, assignedPitches: number[], eventPitches: number[]): number[] {
+        if (!expectedPitches || expectedPitches.length === 0 || eventPitches.length === 0) {
+            return [];
+        }
+
+        const pitchesToAdd: number[] = [];
+        for (const eventPitch of eventPitches) {
+            if (!expectedPitches.includes(eventPitch)) {
+                continue;
+            }
+            if (assignedPitches.includes(eventPitch) || pitchesToAdd.includes(eventPitch)) {
+                continue;
+            }
+            pitchesToAdd.push(eventPitch);
+        }
+
+        return pitchesToAdd;
+    }
+
 
 
     hydrateOsmdArray(lookahead = 6): OsmdArrayElement[] {
@@ -405,8 +481,7 @@ export class CursorService implements OnDestroy {
         const findAheadMatch = (eventPitches: number[]): number => {
             let ahead = nextPlayable(osmdIdx + 1);
             for (let k = 0; k < lookahead && ahead < osmdArray.length; k++) {
-                const aheadPitches = new Set(osmdArray[ahead].osmdPitches ?? []);
-                if (aheadPitches.size > 0 && eventPitches.some(p => aheadPitches.has(p))) {
+                if (this.hasAnyPitchOverlap(osmdArray[ahead].osmdPitches, eventPitches)) {
                     return ahead;
                 }
                 ahead = nextPlayable(ahead + 1);
@@ -419,18 +494,18 @@ export class CursorService implements OnDestroy {
 
         while (osmdIdx < osmdArray.length && midiIdx < sortedTicks.length) {
             const step = osmdArray[osmdIdx];
-            const stepPitchSet = new Set(step.osmdPitches ?? []);
-            const assignedSet = new Set(step.midiPitches);
-
-            // Pitches the score still expects but that haven't been matched yet
-            const remainingSet = new Set([...stepPitchSet].filter(p => !assignedSet.has(p)));
-            const stepSatisfied = remainingSet.size === 0;
+            const stepPitches = step.osmdPitches ?? [];
+            const assignedPitches = step.midiPitches;
+            const stepSatisfied = this.areAllExpectedPitchesAssigned(stepPitches, assignedPitches);
 
             const ticks = sortedTicks[midiIdx];
             const midiNotes = midiTicksNoteMap.get(ticks) ?? [];
             const eventPitches = midiNotes.map(n => n.midi);
 
-            const matchesCurrent = !stepSatisfied && eventPitches.some(p => remainingSet.has(p));
+            const pitchesToAdd = stepSatisfied
+                ? []
+                : this.collectUnassignedMatchingPitches(stepPitches, assignedPitches, eventPitches);
+            const matchesCurrent = pitchesToAdd.length > 0;
             // Only pay the lookahead cost when the current step can't absorb the event
             const aheadMatchIdx = !matchesCurrent ? findAheadMatch(eventPitches) : -1;
             const matchesAhead = aheadMatchIdx !== -1;
@@ -455,7 +530,6 @@ export class CursorService implements OnDestroy {
 
             // ── Assignment ───────────────────────────────────────────────────
             // Collect only the score-expected pitches present in this event
-            const pitchesToAdd = eventPitches.filter(p => stepPitchSet.has(p) && !assignedSet.has(p));
             if (pitchesToAdd.length > 0) {
                 if (step.midiTicks === null) {
                     step.midiTicks = ticks;
@@ -729,6 +803,43 @@ export class CursorService implements OnDestroy {
     verify(getScore = false): number {
         this.yieldToUi();
         let notOkPercentage = 0;
+        const osmdArray = this.osmdArray ?? [];
+        let firstNotOkIndex: number | null = null;
+        let notOkCount = 0;
+        const totalCount = osmdArray.length;
+        const invalidSamples: Array<{
+            index: number;
+            osmdIndex: number;
+            osmdMeasure: number;
+            midiMeasure: number;
+            midiTicks: number | null;
+            osmdPitches: string;
+            midiPitches: string;
+        }> = [];
+
+        osmdArray.forEach((element, index) => {
+            if (!this.isOsmdArrayElementOk(element)) {
+                if (firstNotOkIndex == null) {
+                    firstNotOkIndex = index;
+                }
+                notOkCount++;
+                if (this.diagnosticMode && invalidSamples.length < CursorService.DIAGNOSTIC_SAMPLE_LIMIT) {
+                    invalidSamples.push({
+                        index,
+                        osmdIndex: element.osmdIndex,
+                        osmdMeasure: element.osmdMeasure,
+                        midiMeasure: element.midiMeasure,
+                        midiTicks: element.midiTicks,
+                        osmdPitches: (element.osmdPitches ?? []).join(","),
+                        midiPitches: (element.midiPitches ?? []).join(","),
+                    });
+                }
+            }
+        });
+
+        this.verifyAllElementsOk = notOkCount === 0;
+        this.verifyAllElementsOkSignal.set(this.verifyAllElementsOk);
+        notOkPercentage = Math.round((notOkCount / totalCount) * 1000) / 10;
         if (this.diagnosticMode) {
             const repetitionTypeLabels: Record<number, string> = {
                 [RepetitionInstructionEnum.StartLine]: "StartLine",
@@ -747,71 +858,38 @@ export class CursorService implements OnDestroy {
                 [RepetitionInstructionEnum.Segno]: "Segno",
                 [RepetitionInstructionEnum.None]: "None",
             };
-            console.groupCollapsed("[verify] repetitions instructions");
-            console.table(this.repetitionInstructions.map((instr) => ({
-                ...instr,
-                typeText: repetitionTypeLabels[instr.type] ?? String(instr.type),
-                endingIndices: instr.endingIndices ? instr.endingIndices.join(",") : "",
-            })));
-            console.groupEnd();
-            // ================================================
-            console.groupCollapsed("[verify] osmdMeasureSequence");
-            console.table(this.osmdMeasureSequence.map((osmdMeasure, index) => ({ index, osmdMeasure })));
-            console.groupEnd();
-
-            console.groupCollapsed("[verify] osmdArray");
-            if (this.osmdArray) {
-                console.table(
-                    this.osmdArray
-                        //.slice(0, 100)
-                        //.filter(o => (o.isFirst || o.isLast))
-                        .map(o => {
-                            const osmdPitches = o.osmdPitches ?? [];
-                            const midiPitches = o.midiPitches ?? [];
-                            const ok = this.isOsmdArrayElementOk(o);
-                            // if (!ok) {
-                            //     this.colorGraphicalObjectsByIdInRed(o.osmdIndex, o.graphicalObjectId);
-                            // }
-                            return {
-                                ...o,
-                                osmdPitches: osmdPitches.join(","),
-                                midiPitches: midiPitches.join(","),
-                                graphicalObjectId: o.graphicalObjectId.join(","),
-                                ok: ok ? "✅" : "❌",
-                            };
-                        })
-                )
-            } else {
-                console.error("osmdArray is not defined");
-            }
+            const repetitionSample = this.repetitionInstructions
+                .slice(0, CursorService.DIAGNOSTIC_SAMPLE_LIMIT)
+                .map((instr) => ({
+                    measureIndex: instr.measureIndex,
+                    alignment: instr.alignment,
+                    typeText: repetitionTypeLabels[instr.type] ?? String(instr.type),
+                    endingIndices: instr.endingIndices ? instr.endingIndices.join(",") : "",
+                }));
+            console.groupCollapsed("[verify] summary");
+            console.log("repetitionInstructions", {
+                count: this.repetitionInstructions.length,
+                sample: repetitionSample,
+            });
+            console.log("osmdMeasureSequence", {
+                count: this.osmdMeasureSequence.length,
+                head: this.osmdMeasureSequence.slice(0, CursorService.DIAGNOSTIC_SAMPLE_LIMIT),
+                tail: this.osmdMeasureSequence.slice(-CursorService.DIAGNOSTIC_SAMPLE_LIMIT),
+            });
+            console.log("osmdArray", {
+                count: osmdArray.length,
+                invalidSampleCount: invalidSamples.length,
+                invalidSamples,
+            });
             console.groupEnd();
         }
-        const osmdArray = this.osmdArray ?? [];
-        let firstNotOkIndex: number | null = null;
-        let notOkCount = 0;
-        const totalCount = osmdArray.length;
-
-        osmdArray.forEach((element, index) => {
-            if (!this.isOsmdArrayElementOk(element)) {
-                if (firstNotOkIndex == null) {
-                    firstNotOkIndex = index;
-                }
-                notOkCount++;
-            }
-        });
-
-        this.verifyAllElementsOk = notOkCount === 0;
-        this.verifyAllElementsOkSignal.set(this.verifyAllElementsOk);
-        notOkPercentage = Math.round((notOkCount / totalCount) * 1000) / 10;
         if (!this.verifyAllElementsOk && this.diagnosticMode) {
             console.groupCollapsed("[cursor][verify] KO summary");
-            console.table([
-                {
-                    firstNotOkIndex,
-                    notOkCount,
-                    notOkPercentage,
-                }
-            ]);
+            console.log({
+                firstNotOkIndex,
+                notOkCount,
+                notOkPercentage,
+            });
             console.groupEnd();
             this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
         } else {
@@ -1031,35 +1109,7 @@ export class CursorService implements OnDestroy {
     }
 
     ngOnDestroy(): void {
-        // Clear setup timeout
-        if (this.setupTimeoutId) {
-            clearTimeout(this.setupTimeoutId);
-            this.setupTimeoutId = undefined;
-        }
-
-        // Clear temporary Maps/Arrays used during setup phase
-        // These are cleared after setup() completes, so safe to destroy
-        this.midiTicksNoteMap.clear();
-        //this.audioTimeNoteMapHit.clear();
-        this.osmdCursorIdxNoteMap.clear();
-        this.osmdMeasureNoteMap.clear();
-        this.midiBarToOsmdMeasure.clear();
-        this.repetitionInstructions = [];
-        this.osmdMeasureSequence = [];
-        this.sortedMappedMidiTicks = [];
-        this.audioTimeNoteArray = [];
-
-        // Clear OSMD array if present
-        if (this.osmdArray) {
-            this.osmdArray.clear();
-            this.osmdArray = undefined;
-        }
-
-        // DO NOT clear:
-        // - midiTicksToOsmdCursorIndex (used by slider and playback)
-        // - osmdCursorIdxToMeasureMap (used by slider)
-        // - cursor (reference, not owned by this service)
-        // These are intentionally kept for the lifetime of the score playback session
+        this.resetSession();
     }
 
 }

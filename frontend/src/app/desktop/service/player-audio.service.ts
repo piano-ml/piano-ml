@@ -78,7 +78,7 @@ export class PlayerAudioService implements OnDestroy {
     const noteStart = (note.time * timeFactor) - startOffset;
     const noteDuration = note.duration * timeFactor;
     const transport = Tone.getTransport();
-    const roundedVelocity = Math.round(note.velocity * 127);
+    const roundedVelocity = Math.round(note.velocity * 84); // * 127 * 0.66 to reduce volume 
 
     // Note on
     transport.schedule(() => {
@@ -189,6 +189,16 @@ export class PlayerAudioService implements OnDestroy {
     // Cancel draw
     draw.dispose();
     draw.cancel();
+  }
+
+  resetSession(): void {
+    this.stop();
+    this.pianoMLShouldPlay = false;
+    for (const timeoutId of this.metronomTimeouts) {
+      clearTimeout(timeoutId);
+    }
+    this.metronomTimeouts.clear();
+    this.spessasynth?.stopAll();
   }
 
   /**

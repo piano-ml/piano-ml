@@ -77,4 +77,17 @@ export class PlayerStateService {
   reset(): void {
     this.lastMidiEventTime = -1;
   }
+
+  resetSession(): void {
+    this.osmd = null;
+    this.message.set("");
+    this.elapsedTime.next(0);
+    this.duration = 0;
+    this.isWaiting = false;
+    this.currentMeasure = -1;
+    this.lastMidiEventTime = -1;
+    this.ticks = 0;
+    this.tick = 0;
+    this.invalidateTimeFactorCache();
+  }
 }
