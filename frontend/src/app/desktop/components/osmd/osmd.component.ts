@@ -31,6 +31,8 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
     private cursorObserver?: MutationObserver;
     private scrollAnimationFrame?: number;
+    private recalculateTimeoutId?: ReturnType<typeof setTimeout>;
+    private cursorNudgeTimeoutId?: ReturnType<typeof setTimeout>;
     private readonly hideFingeringStorageKey = 'hideFingering';
     private readonly hideFingeringAndHarmonyStorageKey = 'hideFingeringAndHarmony';    
     private readonly hideLyricsStorageKey = 'hideLyrics';
@@ -48,12 +50,29 @@ export class OsmdComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.logLifecycle('destroy:start', {
+            hasOsmd: this.osmd != null,
+            childCount: this.osmdContainer?.nativeElement?.childElementCount ?? 0,
+        });
+
         if (this.cursorObserver) {
             this.cursorObserver.disconnect();
+            this.cursorObserver = undefined;
         }
 
         if (this.scrollAnimationFrame) {
             cancelAnimationFrame(this.scrollAnimationFrame);
+            this.scrollAnimationFrame = undefined;
+        }
+
+        if (this.recalculateTimeoutId) {
+            clearTimeout(this.recalculateTimeoutId);
+            this.recalculateTimeoutId = undefined;
+        }
+
+        if (this.cursorNudgeTimeoutId) {
+            clearTimeout(this.cursorNudgeTimeoutId);
+            this.cursorNudgeTimeoutId = undefined;
         }
 
         // Nettoyer l'instance OSMD
@@ -61,6 +80,12 @@ export class OsmdComponent implements OnInit, OnDestroy {
             this.osmd.clear();
             this.osmd = null;
         }
+
+        this.playerService.releaseScoreSession();
+        this.osmdContainer.nativeElement.replaceChildren();
+        this.logLifecycle('destroy:end', {
+            childCount: this.osmdContainer?.nativeElement?.childElementCount ?? 0,
+        });
     }
 
     private async loadMusicXML() {
@@ -103,7 +128,7 @@ export class OsmdComponent implements OnInit, OnDestroy {
                             this.loadingChange.emit(false);
                         });
 
-                        setTimeout(() => {
+                        this.cursorNudgeTimeoutId = setTimeout(() => {
                             //this.osmd!.cursors[0].previous();
                             this.osmd!.cursors[0].next();
                             this.osmd!.cursors[0].previous();
@@ -125,7 +150,7 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
     recalculateCursorPosition() {
         this.ngZone.runOutsideAngular(() => {
-            setTimeout(() => {
+            this.recalculateTimeoutId = setTimeout(() => {
                 if (!this.osmd || !this.osmd.GraphicSheet || !this.osmd.GraphicSheet.MeasureList || this.osmd.GraphicSheet.MeasureList.length === 0) {
                     return;
                 }
@@ -148,6 +173,29 @@ export class OsmdComponent implements OnInit, OnDestroy {
                 this.playerService.tiltCursor(this.osmd!.Cursor);
             }, 1000);
         });
+    }
+
+    private logLifecycle(message: string, data?: unknown): void {
+        if (!this.isDiagnosticEnabled()) {
+            return;
+        }
+        if (data === undefined) {
+            console.log(`[osmd][lifecycle] ${message}`);
+            return;
+        }
+        console.log(`[osmd][lifecycle] ${message}`, data);
+    }
+
+    private isDiagnosticEnabled(): boolean {
+        if (!isPlatformBrowser(this.platformId)) {
+            return false;
+        }
+
+        try {
+            return window.localStorage.getItem('cursorService.debug') === '1';
+        } catch {
+            return false;
+        }
     }
 
 

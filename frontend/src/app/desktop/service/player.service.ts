@@ -198,6 +198,18 @@ export class PlayerService implements OnDestroy {
     await this.audio.initSoundFont();
   }
 
+  releaseScoreSession(): void {
+    this.audio.resetSession();
+    this.midiService.resetSessionOutputs();
+    this.unHighlightBadNote();
+    this.keyboard.removeAllNotesFromKeyboard();
+    this.cursorService.resetSession();
+    this.assess.reset();
+    this.state.resetSession();
+    this.verticalPixelShiftValue = 1;
+    this.lastBar = 0;
+  }
+
   pause() {
     this.audio.pause();
   }
@@ -550,8 +562,8 @@ export class PlayerService implements OnDestroy {
     this.badNoteResetTimers.clear();
     this.highlightedBadNotes.clear();
 
-    // Stop audio playback
-    this.audio.stop();
+    // Stop audio playback and release score-scoped state
+    this.releaseScoreSession();
 
     // Cleanup via DestroyRef for effect and other resource cleanup
     this.destroyRef.onDestroy(() => {
