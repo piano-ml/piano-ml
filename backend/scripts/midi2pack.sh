@@ -63,7 +63,7 @@ mv -- "${FROOT}.mid" "${FROOT}.midi"
 if [ -n "$TRACK_RIGHT" ]; then
   if [ -n "$TRACK_LEFT" ]; then
     printf "Extracting left/right hand track %s %s for %s.midi\n" "$TRACK_RIGHT" "$TRACK_LEFT" "$FROOT"
-    python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT" "$TRACK_LEFT"
+    python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT" "$TRACK_LEFT" 
   else
     printf "Extracting track %s for %s.midi (TRACK_LEFT omitted)\n" "$TRACK_RIGHT" "$FROOT"
     python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT"
