@@ -180,6 +180,23 @@ export class MidiServiceService {
     });
   }
 
+  resetSessionOutputs(): void {
+    // Ensure no stuck external notes remain between two score sessions.
+    for (const note of this.pressedNotes.keys()) {
+      this.releaseOutput(note);
+      this.releaseDrum(note);
+    }
+
+    // Best-effort panic for devices that may have missed note-off events.
+    for (let midiNote = 0; midiNote < 128; midiNote++) {
+      this.releaseOutput(midiNote);
+      this.releaseDrum(midiNote);
+    }
+
+    this.pressedNotes.clear();
+    this.midiEvent.set(null);
+  }
+
   enableInputMidiDevice(device: MIDIInput) {
 
     device.open()
@@ -398,7 +415,7 @@ function parseMidiMessage(event: MIDIMessageEvent): MidiEvent | null {
 export async function getMidiInputs(): Promise<MIDIInputMap> {
   const result = await navigator.permissions.query({ name: "midi" })
   if (result.state === "denied") {
-    alert(`Your browser is not allowing MIDI. Please consider enabling it in your browser settings.`);
+    console.warn('Your browser is not allowing MIDI. Please consider enabling it in your browser settings.');
     throw new Error('MIDI permission denied');
   }
   try {
@@ -428,7 +445,7 @@ export async function getMidiInputs(): Promise<MIDIInputMap> {
 
 
   } catch (error) {
-    alert(`Error accessing MIDI devices: ${error}`)
+    console.warn(`Error accessing MIDI devices: ${error}`)
     throw error;
   }
 }

@@ -69,9 +69,8 @@ if [ -n "$TRACK_RIGHT" ]; then
     python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT"
     echo "spliting parts !"
     musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml" > /dev/null 2>&1
-    musescore3 -M ./scripts/midioperations.xml -o "${FROOT}.musicxml" "${FROOT}.mid"
-    #mv -- "${FROOT}.mid" "${FROOT}.midi"
-
+    #musescore3 -M ./scripts/midioperations.xml -o "${FROOT}.musicxml" "${FROOT}.mid"
+    musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid"
   fi
 else
   printf "No track specified in original midi file\n" >&2

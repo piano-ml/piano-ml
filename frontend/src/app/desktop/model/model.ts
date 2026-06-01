@@ -71,8 +71,6 @@ export interface OsmdArrayElement {
     midiTicks: number | null;
     midiTicksDuration: number | null;
     midiTime: number | null;
-    graphicalObjectId: number[];
-    tremolo: boolean;
 }
 
 

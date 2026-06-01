@@ -3,7 +3,7 @@
 CUR_DIR=$(dirname "$(realpath "$0")")
 
 cp "$CUR_DIR"/samples/src_test.midi "$CUR_DIR"/samples/test.mid
-./scripts/midi2pack.sh  "$CUR_DIR"/samples/test.mid "test title" "test composer" 0 0 || exit 1
+./scripts/midi2pack.sh  "$CUR_DIR"/samples/test.mid "test title" "test composer" 0 3 || exit 1
 # rm -f "$CUR_DIR"/samples/test.zip
 # #
 # cp "$CUR_DIR"/samples/src_test1.midi "$CUR_DIR"/samples/test.mid
