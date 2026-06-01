@@ -7,6 +7,7 @@ import { bootstrapQuestionCircle, bootstrapSpeedometer2, bootstrapGear, bootstra
 import { lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { OsmdComponent } from '../osmd/osmd.component';
 import { FormsModule } from '@angular/forms';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
@@ -154,6 +155,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
 
   private readonly beaconService = inject(BeaconService);
+  private routeParamSubscription?: Subscription;
+  private currentLoadId = 0;
+  private lastRouteKey: string | null = null;
 
   constructor(
     private router: Router,
@@ -275,15 +279,48 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       }
     }
 
+    this.routeParamSubscription = this.route.paramMap.subscribe(() => {
+      void this.loadRouteContent();
+    });
+  }
+
+  private async loadRouteContent(): Promise<void> {
+    const routeKey = this.router.url;
+    if (routeKey === this.lastRouteKey) {
+      return;
+    }
+
+    this.lastRouteKey = routeKey;
+    const loadId = ++this.currentLoadId;
+
     if (this.router.url.startsWith('/work/')) {
-      this.setupWorkMode()
+      await this.prepareScoreLoad(loadId);
+      await this.setupWorkMode(loadId);
     } else if (
       this.router.url.startsWith('/workbench/scale')
       || this.router.url.startsWith('/workbench/agility')
     ) {
-      this.setupExerciseMode()
+      await this.prepareScoreLoad(loadId);
+      await this.setupExerciseMode(loadId);
     } else if (this.router.url.startsWith('/workbench/sightreadng')) {
-      this.setupSightReadingMode()
+      this.setupSightReadingMode();
+    }
+  }
+
+  private async prepareScoreLoad(loadId: number): Promise<void> {
+    this.loading$.next(true);
+    this.osmdLoading$.next(true);
+    this.loadingFeedBack$.next({ message: 'resetting previous score', percentage: 0 });
+    this.showOsmd = false;
+    this.isPlaying = false;
+    this.error = null;
+    this.playerService.releaseScoreSession();
+    this.clearData();
+    this.changeDetector.markForCheck();
+    await Promise.resolve();
+
+    if (loadId !== this.currentLoadId) {
+      return;
     }
   }
 
@@ -319,16 +356,23 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
 
-  async setupWorkMode() {
+  async setupWorkMode(loadId: number) {
     const slug = this.route.snapshot.paramMap.get('slug');
     this.scoreData = await firstValueFrom(this.scoreService.scoreGetBySlug(slug!));
+    if (loadId !== this.currentLoadId) {
+      return;
+    }
     this.loadingFeedBack$.next({ message: 'download loading score', percentage: 5 });
     const [midiResult, musicXmlResult] = await Promise.all([
       this.downloadMidi(this.scoreData!),
       this.downloadMusicXML(this.scoreData!)
     ]);
+    if (loadId !== this.currentLoadId) {
+      return;
+    }
     this.midi = midiResult;
     this.musicXml = musicXmlResult;
+    this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, this.midi!);
     // Compute keyboard bounds from MIDI notes (if available)
     const smallScreen = window.innerWidth <= 1024;
     if (smallScreen) {
@@ -356,6 +400,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       const octaveCount = Math.max(1, Math.ceil((maxCMidi - minCMidi + 1) / 12));
       this.keyboardHeight = 180 * (octaveCount / 8);
     }
+    this.showOsmd = true;
     this.onLoaded();
   }
 
@@ -364,7 +409,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.tempo = Math.round(this.scoreData?.tempo || this.midi?.header.tempos[0]?.bpm || 120);
     this.midiOriginalTempo = this.tempo;
     this.loadingFeedBack$.next({ message: 'build configuration', percentage: 30 });
-    this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, this.midi!);
     this.loading$.next(false);
     this.changeDetector.markForCheck();
 
@@ -380,12 +424,20 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     throw new Error('Method not implemented.');
   }
 
-  async setupExerciseMode() {
+  async setupExerciseMode(loadId: number) {
     this.loadExcerciceFromLocalStorage();
+    if (this.midi && this.scoreData) {
+      this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData, this.playConfiguration, this.midi);
+    }
     setTimeout(async () => {
-      if (this.midi && this.cursorService && this.cursorService.cursor) {
-        await this.cursorService.setup(this.cursorService.cursor, this.midi);
+      if (loadId !== this.currentLoadId) {
+        return;
       }
+      if (this.playConfiguration.midi && this.cursorService && this.cursorService.cursor) {
+        console.log('Setting up cursor with MIDI data for exercise mode');
+        await this.cursorService.setup(this.cursorService.cursor, this.playConfiguration.midi);
+      }
+      this.showOsmd = true;
       this.onLoaded();
       this.changeDetector.markForCheck();
     }, 1000);
@@ -927,6 +979,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       localStorage.removeItem(MUSIC_XML_STORAGE_KEY);
       localStorage.removeItem(EXERCICE_INFO_KEY);
     }
+    this.routeParamSubscription?.unsubscribe();
+    this.routeParamSubscription = undefined;
     // Clean up slider
     if (this.slider) {
       try {
@@ -936,6 +990,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       }
       this.slider = null;
     }
+    this.playerService.releaseScoreSession();
     this.clearData();
     // Remove resize listener
     if (isPlatformBrowser(this.platformId)) {

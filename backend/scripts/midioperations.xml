@@ -14,7 +14,7 @@
      -->
   <VoiceCount>3</VoiceCount>
   <!--  list of supported Tuplets: true or false per type  -->
-  <Duplets>false</Duplets>
+  <Duplets>true</Duplets>
   <Triplets>true</Triplets>
   <Quadruplets>true</Quadruplets>
   <Quintuplets>true</Quintuplets>
