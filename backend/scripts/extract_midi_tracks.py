@@ -8,16 +8,16 @@ if len(sys.argv) not in (3, 4):
     sys.exit(1)
 
 musicxml_path = sys.argv[1]
-track1 = int(sys.argv[2]) - 1
+track1 = int(sys.argv[2])
 
 track2 = None
 if len(sys.argv) == 4:
     try:
-        track2 = int(sys.argv[3]) - 1
+        track2 = int(sys.argv[3])
     except ValueError:
         track2 = None
 
-print ("extracting tracks", track1, "and", track2 if track2 is not None else "(none)")        
+print ("extracting tracks", track1, "and", track2 if track2 is not None else "(none)")
 
 def _selected_indexes(total_parts: int, right_idx: int, left_idx: int | None) -> set[int]:
     print("total parts:", total_parts, "requested right_idx:", right_idx, "requested left_idx:", left_idx)
