@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for YoutubeService.
- *
  * The YouTube HTTP client is extracted into the protected {@code executeSearch} method,
  * allowing a Mockito spy to stub it without making real network calls.
  */
@@ -34,7 +33,7 @@ public class YoutubeServiceTest {
 
     @BeforeEach
     void setup() {
-        service = spy(new YoutubeService());
+        service = spy(new YoutubeService(null));
         // Inject a non-blank API key so the early-exit guard is bypassed
         ReflectionTestUtils.setField(service, "apiKey", "FAKE_API_KEY");
     }
@@ -268,5 +267,4 @@ public class YoutubeServiceTest {
         return id;
     }
 }
-
 

@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,6 +16,11 @@ import java.util.UUID;
 public interface YoutubeRankRepository extends CrudRepository<YoutubeRank, Long> {
 
     Optional<YoutubeRank> findByScoreIdAndVideoId(UUID scoreId, String videoId);
+
+    /**
+     * Returns all cached YoutubeRank rows for a given scoreId that have API info stored.
+     */
+    List<YoutubeRank> findByScoreIdAndYoutubeVideoApiInfoIsNotNull(UUID scoreId);
 
     @Transactional
     @Modifying

@@ -89,7 +89,7 @@ public class ScoreControllerYoutubeApiTest {
     video2.setChannelTitle("ClassicalPiano");
 
     when(scoreService.getScore(eq(scoreId))).thenReturn(Optional.of(scoreApiInfo));
-    when(youtubeService.searchVideos(eq("Moonlight Sonata"), eq("Beethoven")))
+    when(youtubeService.searchVideos(eq(scoreId), eq("Moonlight Sonata"), eq("Beethoven")))
         .thenReturn(List.of(video1, video2));
 
     mockMvc.perform(get("/score/{id}/video", scoreId))
@@ -110,7 +110,7 @@ public class ScoreControllerYoutubeApiTest {
     scoreApiInfo.setAuthor("Debussy");
 
     when(scoreService.getScore(eq(scoreId))).thenReturn(Optional.of(scoreApiInfo));
-    when(youtubeService.searchVideos(any(), any()))
+    when(youtubeService.searchVideos(any(UUID.class), any(), any()))
         .thenThrow(new YoutubeService.YoutubeApiException("API error", new RuntimeException()));
 
     mockMvc.perform(get("/score/{id}/video", scoreId))

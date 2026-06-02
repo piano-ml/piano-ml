@@ -3,6 +3,9 @@ package org.pianoml.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.pianoml.backend.model.YoutubeVideoApiInfo;
 
 import java.util.UUID;
 
@@ -35,9 +38,19 @@ public class YoutubeRank {
     @Column(name = "reports", nullable = false)
     private int reports = 0;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "youtube_video_api_info", columnDefinition = "jsonb")
+    private YoutubeVideoApiInfo youtubeVideoApiInfo;
+
     public YoutubeRank(UUID scoreId, String videoId) {
         this.scoreId = scoreId;
         this.videoId = videoId;
+    }
+
+    public YoutubeRank(UUID scoreId, String videoId, YoutubeVideoApiInfo youtubeVideoApiInfo) {
+        this.scoreId = scoreId;
+        this.videoId = videoId;
+        this.youtubeVideoApiInfo = youtubeVideoApiInfo;
     }
 }
 
