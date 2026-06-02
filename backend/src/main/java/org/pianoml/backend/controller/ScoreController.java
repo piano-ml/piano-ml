@@ -101,13 +101,21 @@ public class ScoreController implements ScoreApi {
   }
 
   @Override
-  public ResponseEntity<List<YoutubeVideoApiInfo>> scoreIdVideoGet(String id) {    Optional<ScoreApiInfo> optScore = scoreService.getScore(UUID.fromString(id));
+  public ResponseEntity<List<YoutubeVideoApiInfo>> scoreIdVideoGet(String id) {
+    UUID scoreId;
+    try {
+      scoreId = UUID.fromString(id);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    Optional<ScoreApiInfo> optScore = scoreService.getScore(scoreId);
     if (optScore.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
     ScoreApiInfo score = optScore.get();
     try {
-      List<YoutubeVideoApiInfo> videos = youtubeService.searchVideos(score.getTitle(), score.getAuthor());
+      List<YoutubeVideoApiInfo> videos = youtubeService.searchVideos(scoreId, score.getTitle(), score.getAuthor());
       return ResponseEntity.ok(videos);
     } catch (YoutubeService.YoutubeApiException e) {
       log.error("YouTube API error for score {}: {}", id, e.getMessage());
