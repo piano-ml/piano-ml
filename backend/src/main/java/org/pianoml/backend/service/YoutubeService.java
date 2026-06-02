@@ -5,19 +5,25 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.pianoml.backend.entity.YoutubeRank;
 import org.pianoml.backend.model.YoutubeVideoApiInfo;
+import org.pianoml.backend.repository.YoutubeRankRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class YoutubeService {
 
     private static final String APPLICATION_NAME = "PianoML";
@@ -26,8 +32,52 @@ public class YoutubeService {
     @Value("${youtube.api.key:}")
     private String apiKey;
 
+    private final YoutubeRankRepository youtubeRankRepository;
+
     /**
      * Search YouTube for piano tutorial videos related to a score.
+     * Checks the database cache first; falls back to the YouTube API if no cached results exist.
+     *
+     * @param scoreId  the UUID of the score (used as cache key)
+     * @param title    the score title
+     * @param composer the composer name
+     * @return list of YoutubeVideoApiInfo
+     */
+    @Transactional
+    public List<YoutubeVideoApiInfo> searchVideos(UUID scoreId, String title, String composer) {
+        // 1. Check the database cache
+        if (scoreId != null) {
+            List<YoutubeRank> cachedRows = youtubeRankRepository
+                    .findByScoreIdAndYoutubeVideoApiInfoIsNotNull(scoreId);
+            if (!cachedRows.isEmpty()) {
+                log.debug("YouTube cache hit for scoreId={}, {} result(s)", scoreId, cachedRows.size());
+                return cachedRows.stream()
+                        .map(YoutubeRank::getYoutubeVideoApiInfo)
+                        .collect(Collectors.toList());
+            }
+        }
+
+        // 2. Cache miss – call the YouTube API
+        List<YoutubeVideoApiInfo> videos = searchVideos(title, composer);
+
+        // 3. Persist results into the cache
+        if (scoreId != null && !videos.isEmpty()) {
+            for (YoutubeVideoApiInfo info : videos) {
+                if (info.getVideoId() == null) continue;
+                YoutubeRank row = youtubeRankRepository
+                        .findByScoreIdAndVideoId(scoreId, info.getVideoId())
+                        .orElseGet(() -> new YoutubeRank(scoreId, info.getVideoId()));
+                row.setYoutubeVideoApiInfo(info);
+                youtubeRankRepository.save(row);
+            }
+            log.debug("YouTube cache stored {} result(s) for scoreId={}", videos.size(), scoreId);
+        }
+
+        return videos;
+    }
+
+    /**
+     * Search YouTube without caching (raw API call).
      *
      * @param title    the score title
      * @param composer the composer name
@@ -88,7 +138,7 @@ public class YoutubeService {
             sb.append(title.trim());
         }
         if (composer != null && !composer.isBlank()) {
-            if (sb.length() > 0) sb.append("+");
+            if (!sb.isEmpty()) sb.append("+");
             sb.append(composer.trim());
         }
         sb.append("+piano+tutorial");
@@ -132,4 +182,3 @@ public class YoutubeService {
         }
     }
 }
-
