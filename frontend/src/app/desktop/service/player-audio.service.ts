@@ -20,6 +20,8 @@ export class PlayerAudioService implements OnDestroy {
   spessasynth?: WorkletSynthesizer;
   pianoMLShouldPlay: boolean = false;
   private audioContext?: AudioContext;
+  private initSoundFontPromise?: Promise<void>;
+  private startPromise?: Promise<void>;
   private metronomTimeouts: Set<ReturnType<typeof setTimeout>> = new Set();
   private destroyRef = inject(DestroyRef);
   private soundFontAbortController?: AbortController;
@@ -39,25 +41,38 @@ export class PlayerAudioService implements OnDestroy {
    * Initialise le soundfont Spessasynth
    */
   async initSoundFont(): Promise<void> {
+    if (this.initSoundFontPromise) {
+      await this.initSoundFontPromise;
+      return;
+    }
+
     if (this.spessasynth != null) {
       console.warn('Spessasynth already initialized');
       return; // already initialized
     }
 
-    this.audioContext = new AudioContext();
-    await this.audioContext.audioWorklet.addModule("/assets/soundfonts/spessasynth_processor.min.js");
-    this.spessasynth = new WorkletSynthesizer(this.audioContext);
-    this.spessasynth.connect(this.audioContext.destination);
-    
-    // Use AbortController to cancel fetch if service is destroyed
-    this.soundFontAbortController = new AbortController();
-    const response = await fetch("/assets/soundfonts/GeneralUserGS.sf3", {
-      signal: this.soundFontAbortController.signal
-    });
-    const sfont = await response.arrayBuffer();
-    await this.spessasynth.soundBankManager.addSoundBank(sfont, "main");
-    await this.spessasynth.isReady;
-    console.log('SoundFont initialized successfully');
+    this.initSoundFontPromise = (async () => {
+      this.audioContext = this.audioContext ?? new AudioContext();
+      await this.audioContext.audioWorklet.addModule("/assets/soundfonts/spessasynth_processor.min.js");
+      this.spessasynth = new WorkletSynthesizer(this.audioContext);
+      this.spessasynth.connect(this.audioContext.destination);
+
+      // Use AbortController to cancel fetch if service is destroyed
+      this.soundFontAbortController = new AbortController();
+      const response = await fetch("/assets/soundfonts/GeneralUserGS.sf3", {
+        signal: this.soundFontAbortController.signal
+      });
+      const sfont = await response.arrayBuffer();
+      await this.spessasynth.soundBankManager.addSoundBank(sfont, "main");
+      await this.spessasynth.isReady;
+      console.log('SoundFont initialized successfully');
+    })();
+
+    try {
+      await this.initSoundFontPromise;
+    } finally {
+      this.initSoundFontPromise = undefined;
+    }
   }
 
 
@@ -151,14 +166,33 @@ export class PlayerAudioService implements OnDestroy {
    * Démarre le transport
    */
   async start(): Promise<void> {
-    this.pianoMLShouldPlay = this.midiService.pianoMLShouldPlay();
-    if (!this.spessasynth) {
-      await this.initSoundFont();
+    if (this.startPromise) {
+      await this.startPromise;
+      return;
     }
-    await Tone.start();
-    const transport = Tone.getTransport();
-    if (transport.state !== 'started') {
-      transport.start();
+
+    this.pianoMLShouldPlay = this.midiService.pianoMLShouldPlay();
+
+    this.startPromise = (async () => {
+      if (!this.spessasynth) {
+        await this.initSoundFont();
+      }
+
+      if (this.audioContext?.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+
+      await Tone.start();
+      const transport = Tone.getTransport();
+      if (transport.state !== 'started') {
+        transport.start();
+      }
+    })();
+
+    try {
+      await this.startPromise;
+    } finally {
+      this.startPromise = undefined;
     }
   }
 
@@ -346,11 +380,10 @@ export class PlayerAudioService implements OnDestroy {
   }
 
 
-  playMetronomeClick(isStrong: boolean): void {
+  playMetronomeClick(isStrong: boolean, velocity: number=43): void {
     const note = isStrong ? 34 : 33;   // 34 = Metronome Bell, 33 = Metronome Click
-    const velocity = isStrong ? 110 : 80;
-    this.spessasynth?.noteOn(9, note, 43);
-    this.midiService.pressDrum(note, .33);
+    this.spessasynth?.noteOn(9, note, velocity);
+    this.midiService.pressDrum(note, velocity/127);
     // Short release for crisp click (≈30-50ms)
     const timeoutId = setTimeout(() => {
       this.midiService.releaseDrum(note);
@@ -367,27 +400,45 @@ export class PlayerAudioService implements OnDestroy {
   startCountIn(bar: number, timeSigEvent: TimeSignatureEvent, bpm: number): number {
     let offset = 0;
     const [numerator, denominator] = timeSigEvent?.timeSignature || [4, 4];
-    const beatUnitFactor = 4 / denominator;
+
     const beatDurationMs = (60000 / bpm);
-    const stepSeconds = beatUnitFactor * beatDurationMs / 1000;
-    const beatsPerBar = (denominator === 8 && numerator % 3 === 0)
-      ? numerator / 3   // mesure composée
-      : numerator;
-    
+    const beatUnitFactor = 4 / denominator;
+    const measureDurationSeconds = numerator * beatUnitFactor * beatDurationMs / 1000;
+
+    let beatsPerBar = numerator;
+    if (denominator > 8) {
+      // Try to normalize meter to an equivalent x/4 pulse grid.
+      // Example: 12/16 -> 3/4, 6/8 -> 3/4.
+      const quarterBasedNumerator = (numerator * 4) / denominator;
+      if (Number.isInteger(quarterBasedNumerator) && quarterBasedNumerator > 0) {
+        beatsPerBar = quarterBasedNumerator;
+      } else if ((denominator === 8 || denominator === 16) && numerator % 3 === 0) {
+        // Fallback for compound meters that cannot be represented as an integer x/4.
+        beatsPerBar = numerator / 3;
+      }
+    }
+
+    const stepSeconds = measureDurationSeconds / beatsPerBar;
+
     // Cache transport to avoid repeated accessor calls in loop
     const transport = Tone.getTransport();
-    
-    for (let i = 0; i <= beatsPerBar * bar; i++) {
+
+    const totalCountInBeats = beatsPerBar * bar;
+    for (let i = 0; i < totalCountInBeats; i++) {
       offset = i * stepSeconds;
 
       transport.scheduleOnce((_time: number) => {
         this.playMetronomeClick(i % beatsPerBar === 0);
       }, `${i * stepSeconds}`);
     }
+
+    offset = totalCountInBeats * stepSeconds;
     // metronome all allong
     if (this.state.playConfiguration.useMetronome) {
-      transport.scheduleRepeat((time: number) => {
-        const currentBeat = Math.floor((time * 1000) / beatDurationMs) % beatsPerBar;
+      let beatInBar = 0;
+      transport.scheduleRepeat((_time: number) => {
+        const currentBeat = beatInBar;
+        beatInBar = (beatInBar + 1) % beatsPerBar;
         this.playMetronomeClick(currentBeat === 0);
       }, stepSeconds, offset);
     }

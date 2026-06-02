@@ -596,7 +596,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     const exerciceInfo = JSON.parse(localStorage.getItem(EXERCICE_INFO_KEY)!);
     this.scoreData = {
       id: 'exercise',
-      author: exerciceInfo.tonic + " " + exerciceInfo.mode ,
+      author: exerciceInfo.tonic + " " + exerciceInfo.mode,
       title: exerciceInfo.title || 'Exercise',
       owner_id: 'local',
       tonic: exerciceInfo?.tonic,
@@ -751,10 +751,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
   }
 
-  start() {
+  async start() {
     this.toggleToolbar = this.isSmallScreen() ? false : true;
     this.isPlaying = true;
-    this.playerService.play(this.playConfiguration);
+
     this.setSliderState(false);
     if (this.scoreData?.id && this.scoreData.id !== 'exercise' && this.playConfiguration.scoreRange[0] === 1) {
       const request: ScorePlayStatsPostRequest = { id: this.scoreData.id };
@@ -763,6 +763,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
         error: (error) => console.warn('Failed to register play stats:', error)
       });
     }
+    await this.playerService.play(this.playConfiguration);
   }
 
   startStop() {
@@ -860,7 +861,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.playConfiguration.currentStave = Math.round(current);
       this.playConfiguration.scoreRange[1] = Math.round(end);
       this.playerService.resetLight(this.playConfiguration);
-
       this.updateSlider();
     });
   }
