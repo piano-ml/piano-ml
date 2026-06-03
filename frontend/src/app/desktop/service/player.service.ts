@@ -244,6 +244,7 @@ export class PlayerService implements OnDestroy {
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
 
     await this.audio.start();
+
     let offset = this.audio.startCountIn(
       2,
       this.playConfiguration.midi!.header.timeSignatures[0],
@@ -264,8 +265,6 @@ export class PlayerService implements OnDestroy {
       this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], midiStartTime, midiEndTime, offset);
     }
 
-
-
     // Delegate end scheduling
     this.audio.scheduleEnd(midiEndTime - midiStartTime, () => {
       this.message.set('END');
@@ -280,6 +279,7 @@ export class PlayerService implements OnDestroy {
       }
       this.lastMidiEventTime = -1;
     });
+
   }
 
 
@@ -336,6 +336,7 @@ export class PlayerService implements OnDestroy {
       }
       if (!liveStatus.shouldPause) {
         if (this.isWaiting) {
+          console.log("Resuming playback from MIDI event!");
           await this.audio.start();
           this.isWaiting = false;
         }
@@ -518,7 +519,7 @@ export class PlayerService implements OnDestroy {
     // }
     // Calculating end time for score range
     const endTime = this.calculateStartTimeInMsForMeasure(
-      this.playConfiguration.scoreRange[1] - this.playConfiguration.scoreRange[0] +1,
+      this.playConfiguration.scoreRange[1] - this.playConfiguration.scoreRange[0],
       this.playConfiguration.midi!.header
     ) * this.state.getTimeFactor();
     return endTime + this.calculateStartTime();

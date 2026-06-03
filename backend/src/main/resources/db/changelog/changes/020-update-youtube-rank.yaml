@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-update-youtube-rank
+      author: eflorent
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - columnExists:
+                schemaName: pianoml
+                tableName: youtube_rank
+                columnName: youtube_video_api_info
+      changes:
+        - addColumn:
+            schemaName: pianoml
+            tableName: youtube_rank
+            columns:
+              - column:
+                  name: youtube_video_api_info
+                  type: jsonb
+                  constraints:
+                    nullable: true
+      rollback:
+        - dropColumn:
+            schemaName: pianoml
+            tableName: youtube_rank
+            columnName: youtube_video_api_info
+

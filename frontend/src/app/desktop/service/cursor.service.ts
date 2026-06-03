@@ -213,6 +213,8 @@ export class CursorService implements OnDestroy {
         this.cursorIndex = 0;
         cursor.reset();
         const targetCursorIndex = this.findCursorIndexForMeasure(targetMeasure);
+
+
         this.moveCursorToOsmdIndex(cursor, targetCursorIndex);
     }
     /**
@@ -687,7 +689,6 @@ export class CursorService implements OnDestroy {
             new Map(this.repetitionInstructions.map(instr => [instr, instr])).values()
         );
         this.feedback(feedbackMessage, Math.min(100, this.iteratorSize));
-        console.log("repetitionInstructions done");
         return this.repetitionInstructions;
     }
 
@@ -725,7 +726,6 @@ export class CursorService implements OnDestroy {
         this.osmdMeasureCount = maxMeasureNumberXml;
         this.feedback(feedbackMessage, 100);
         cursor.reset();
-        console.log("osmdMeasureNoteMap done");
         return this.osmdMeasureNoteMap;
     }
 
@@ -778,7 +778,6 @@ export class CursorService implements OnDestroy {
         this.midiTicksNoteMap = midiTicksNoteMap;
         this.sortedMidiTicks = Array.from(this.midiTicksNoteMap.keys()).sort((a, b) => a - b);
         this.feedback(feedbackMessage, 100);
-        console.log("midiTicksNoteMap done");
         return this.midiTicksNoteMap;
     }
 
@@ -791,8 +790,10 @@ export class CursorService implements OnDestroy {
     linkMidiTicksToCursorIndex(): Map<number, { osmdIndex: number, osmdMeasure: number }> {
         this.osmdArray!.forEach(element => {
             this.midiTicksToOsmdCursorIndex.set(element.midiTicks ?? -1, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
+            if (!this.osmdCursorIdxToMeasureMap.has(element.osmdMeasure)) {
+                this.osmdCursorIdxToMeasureMap.set(element.osmdMeasure, element.osmdIndex);            
+            }
         });
-        console.log("linkMidiTicksToCursorIndex done");
         return this.midiTicksToOsmdCursorIndex;
     }
 
@@ -1051,21 +1052,7 @@ export class CursorService implements OnDestroy {
 
 
     private findCursorIndexForMeasure(targetMeasure: number): number {
-        if (this.osmdCursorIdxToMeasureMap.size === 0) {
-            return 0;
-        }
-        let bestAtOrAfter: number | null = null;
-        let lastBefore = 0;
-        for (const [cursorIndex, measureIndex] of this.osmdCursorIdxToMeasureMap) {
-            if (measureIndex < targetMeasure) {
-                lastBefore = cursorIndex;
-                continue;
-            }
-            if (bestAtOrAfter == null || cursorIndex < bestAtOrAfter) {
-                bestAtOrAfter = cursorIndex;
-            }
-        }
-        return bestAtOrAfter ?? lastBefore;
+        return this.osmdCursorIdxToMeasureMap.get(targetMeasure) ?? 0;
     }
 
     /* =========================================================================
