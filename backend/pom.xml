@@ -27,7 +27,7 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
-		<springdoc-openapi-ui.version>2.8.0</springdoc-openapi-ui.version>
+		<springdoc-openapi-ui.version>2.8.17</springdoc-openapi-ui.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<spring-cloud-aws.version>4.0.2</spring-cloud-aws.version>
 		<spring-cloud.version>2023.0.0</spring-cloud.version>
