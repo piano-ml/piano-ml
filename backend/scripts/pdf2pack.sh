@@ -75,6 +75,11 @@ echo "python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES 
 #  echo "Harmony already present, skipping auto_harmonize"
 #fi
 
+musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml" > /dev/null 2>&1
+musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid" > /dev/null 2>&1
+
+
+
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER" > /dev/null
 
 # sanitize files
