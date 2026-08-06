@@ -16,7 +16,12 @@ export function app(): express.Express {
   const browserDistFolder = resolve(serverDistFolder, '../browser');
 
   // Here, we now use the `AngularNodeAppEngine` instead of the `CommonEngine`
-  const angularNodeAppEngine = new AngularNodeAppEngine();
+  // Cloud Run always sets `X-Forwarded-For`. Angular only trusts `x-forwarded-host`
+  // and `x-forwarded-proto` by default, and silently falls back to client-side
+  // rendering on any other `X-Forwarded-*` header, which disables SSR entirely.
+  const angularNodeAppEngine = new AngularNodeAppEngine({
+    trustProxyHeaders: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host'],
+  });
 
   server.use('/api/**', (req, res) => res.json({ hello: 'foo' }));
 
