@@ -131,7 +131,7 @@ export class ScalesComponent implements OnInit {
       keywords = `piano learning app, sight reading, ${selectedKey} ${scaleName} scale, piano scales, scale exercises, piano practice, piano learning`;
     } else {
       title = 'Piano Scale Exercises | PianoML - Practice Major & Minor Scales';
-      description = 'Practice piano scales on PianoML with interactive exercises. Contrary motion starting on the same note, Parallel motion in octaves, Left than Right Learn major and minor scales with hands-separated practice, adjustable speed, and various exercise patterns. Improve your piano technique.';
+      description = 'Practice piano scales on PianoML with interactive exercises. Contrary motion starting on the same note, Parallel motion in octaves, Parallel motion in thirds, Parallel motion in sixths, Parallel motion in tenths, Left than Right Learn major and minor scales with hands-separated practice, adjustable speed, and various exercise patterns. Improve your piano technique.';
       url = `${baseUrl}/exercises/scale`;
       keywords = 'piano scales, piano learning app, sight reading, major scales, minor scales, Harmonic Minor, Melodic Minor, Jazz Minor Scale, Blues Heptatonic, Dorian Scale, Phrygian Dominant, piano exercises, scale practice, circle of fifths, piano technique, piano learning';
     }
