@@ -1,6 +1,7 @@
 import type { Router } from "@angular/router";
 import { Chord, getChordNote, majorKeySpellings, MinorKeys, minorKeySignatureSharpFlats, minorKeySpellings, Scale } from "../desktop/service/music-theory";
 import type { Exercise } from "./model";
+import type { ReducedFraction } from "../desktop/model/reduced-fraction";
 import * as Midi from '@tonejs/midi';
 import { Header } from '@tonejs/midi';
 //import { getNote } from "../shared/services/midi-service.service";
@@ -167,7 +168,8 @@ export function generateExerciseAsMusicXML(exercice: Exercise, scaleOrChord: Sca
 }
 
 function createMusicXMLWithAPI(exercice: Exercise, scaleOrChord: Scale | Chord, key: string, title: string): MusicXML {
-  const divisions = 4; // Quarter note = 4 divisions
+  // Divisions per quarter note, fine enough for the shortest note of this exercise
+  const divisions = computeDivisions(exercice);
 
   const musicXml = MusicXML.createPartwise();
 
@@ -235,7 +237,7 @@ function createMusicXMLWithAPI(exercice: Exercise, scaleOrChord: Scale | Chord, 
 }
 
 
-function createElementNote(numberInPattern: number, finger: number, duration: number, scaleOrChord: Scale | Chord, octave: number, key: string, isChord: boolean): elements.Note {
+function createElementNote(numberInPattern: number, finger: number, duration: number, shape: { type: string, dots: number }, scaleOrChord: Scale | Chord, octave: number, key: string, isChord: boolean): elements.Note {
   let midiNoteNum: number;
   if (scaleOrChord.kind === "Scale") {
     midiNoteNum = getScaleNotes(scaleOrChord, octave, key, numberInPattern);
@@ -287,8 +289,8 @@ function createElementNote(numberInPattern: number, finger: number, duration: nu
       null, // elements.Footnote
       null, // elements.Level
       null, // elements.Voice
-      null, // elements.Type
-      new Array<elements.Dot>(),
+      new elements.Type({ contents: [shape.type as any] }),
+      createElementDots(shape.dots),
       null, // elements.Accidental
       null, // elements.TimeModification
       null, // elements.Stem
@@ -433,36 +435,43 @@ function createPartWithAPI(
   const attributesNextMeasure = createAttributeNextMeasure(hand, exercice, divisions, key);
 
   // Create measure with attributes and notes
-  const measures = [];
+  const measures: elements.MeasurePartwise[] = [];
   let noteElements: elements.Note[] = [];
-  let measureCounter = 0;
   let sumDuration = 0;
+  const measureLength = measureLengthInWholeNotes(exercice.beat);
+
+  let shortMeasures = 0;
+
+  const flushMeasure = () => {
+    if (noteElements.length === 0) return;
+    if (sumDuration < measureLength - 1e-9) shortMeasures++;
+    const attributes = measures.length === 0 ? attributesFirstMeasure : attributesNextMeasure;
+    measures.push(new elements.MeasurePartwise({
+      attributes: { number: '' + (measures.length + 1) },
+      contents: [
+        [attributes, ...noteElements],
+      ],
+    }));
+    noteElements = [];
+    sumDuration = 0;
+  };
+
   // Répéter le pattern selon exercice.repeat
   for (let repeat = 0; repeat < exercice.repeat; repeat++) {
     for (let i = 0; i < notesInPattern.length; i++) {
 
-      // Create new measure based on noteInPattern loop, not note loop
-      if (sumDuration >= 1) {
-        let attributes;
-        if (measureCounter == 0) {
-          attributes = attributesFirstMeasure
-        } else {
-          attributes = attributesNextMeasure
-        }
-        const newMeasure: elements.MeasurePartwise = new elements.MeasurePartwise({
-          attributes: { number: '' + (measures.length + 1) },
-          contents: [
-            [attributes, ...noteElements],
-          ],
-        })
-        measures.push(newMeasure);
-        noteElements = [];
-        measureCounter = measureCounter + 1;
-        sumDuration = 0;
+      const noteInPattern = notesInPattern[i];
+      const noteLength = durationInWholeNotes(noteInPattern.duration);
+
+      // Close the measure before it overflows: notes are never split across a
+      // barline, so a pattern that does not divide the measure evenly leaves the
+      // measure short rather than running over it.
+      if (sumDuration + noteLength > measureLength + 1e-9) {
+        flushMeasure();
       }
 
-      const noteInPattern = notesInPattern[i];
       const duration = convertDurationToMusicXML(noteInPattern.duration, divisions);
+      const shape = describeNoteShape(noteInPattern.duration);
       if (noteInPattern.note[0] !== 0) {
         // Generate notes as a chord if multiple notes, otherwise as a single note
         for (let j = 0; j < noteInPattern.note.length; j++) {
@@ -475,37 +484,30 @@ function createPartWithAPI(
           } else {
             noteStart = noteInPattern.note[j];
           }
-          const note = createElementNote(noteStart, noteInPattern.finger?.[j] || 0, duration, scaleOrChord, octave, key, j > 0);
+          const note = createElementNote(noteStart, noteInPattern.finger?.[j] || 0, duration, shape, scaleOrChord, octave, key, j > 0);
           noteElements.push(note);
         }
       } else {
-        const rest = createElementRest(duration)
+        const rest = createElementRest(duration, shape)
         noteElements.push(rest);
       }
 
-      sumDuration = sumDuration + (1 / noteInPattern.duration);
+      sumDuration = sumDuration + noteLength;
 
     }
+  }
 
-    // Add any remaining notes to a final measure
-    if (noteElements.length > 0) {
-      let attributes;
-      if (measureCounter == 0) {
-        attributes = attributesFirstMeasure
-      } else {
-        attributes = attributesNextMeasure
-      }
-      const newMeasure: elements.MeasurePartwise = new elements.MeasurePartwise({
-        attributes: { number: '' + (measures.length + 1) },
-        contents: [
-          [attributes, ...noteElements],
-        ],
-      })
-      measures.push(newMeasure);
-    }
+  // Add any remaining notes to a final measure
+  const lastMeasureIsShort = sumDuration < measureLength - 1e-9;
+  flushMeasure();
 
-
-
+  // A final short measure is expected (the pattern simply ends); short measures
+  // in the middle mean the pattern does not divide the measure evenly.
+  if (shortMeasures - (lastMeasureIsShort ? 1 : 0) > 0) {
+    console.warn(
+      `${exercice.title} (${hand}): pattern does not fill ${exercice.beat.numerator}/${exercice.beat.denominator} measures evenly, ` +
+      `${shortMeasures} measure(s) are short. Notes are not tied across barlines.`
+    );
   }
 
   return new elements.PartPartwise({
@@ -513,7 +515,11 @@ function createPartWithAPI(
   }).setMeasures(measures);
 }
 
-function createElementRest(duration: number): elements.Note {
+function createElementDots(dots: number): elements.Dot[] {
+  return Array.from({ length: dots }, () => new elements.Dot({}));
+}
+
+function createElementRest(duration: number, shape: { type: string, dots: number }): elements.Note {
   const rest = new elements.Note({
     contents: [
       [
@@ -526,8 +532,8 @@ function createElementRest(duration: number): elements.Note {
       null, // elements.Footnote
       null, // elements.Level
       null, // elements.Voice
-      null, // elements.Type
-      new Array<elements.Dot>(),
+      new elements.Type({ contents: [shape.type as any] }),
+      createElementDots(shape.dots),
       null, // elements.Accidental
       null, // elements.TimeModification
       null, // elements.Stem
@@ -558,8 +564,72 @@ function midiNoteToPitch(midiNote: number, keySignature: String): { step: string
   };
 }
 
+/**
+ * Durations in a pattern are divisors of a whole note: 1 = whole, 2 = half,
+ * 4 = quarter, 8 = eighth... A note therefore lasts `1 / duration` whole note,
+ * which is the single source of truth for the MIDI ticks, the MusicXML
+ * <duration>, the engraved note shape and the measure splitting below.
+ *
+ * Fractional divisors express dotted values: a dotted quarter lasts 3/8 of a
+ * whole note, so its divisor is 8/3.
+ */
+function durationInWholeNotes(duration: number): number {
+  return 1 / duration;
+}
+
+const NOTE_TYPES: { type: string, wholeNotes: number }[] = [
+  { type: 'whole', wholeNotes: 1 },
+  { type: 'half', wholeNotes: 1 / 2 },
+  { type: 'quarter', wholeNotes: 1 / 4 },
+  { type: 'eighth', wholeNotes: 1 / 8 },
+  { type: '16th', wholeNotes: 1 / 16 },
+  { type: '32nd', wholeNotes: 1 / 32 },
+  { type: '64th', wholeNotes: 1 / 64 },
+];
+
+const MAX_DOTS = 2;
+
+/**
+ * Engraved shape of a note: the base note type plus the number of dots needed to
+ * reach its actual length. A dotted note of `n` dots lasts `2 - 2^-n` times its
+ * base type, e.g. a dotted quarter is 1.5 quarters.
+ */
+function describeNoteShape(duration: number): { type: string, dots: number } {
+  const wholeNotes = durationInWholeNotes(duration);
+  for (const { type, wholeNotes: base } of NOTE_TYPES) {
+    for (let dots = 0; dots <= MAX_DOTS; dots++) {
+      const dotted = base * (2 - 2 ** -dots);
+      if (Math.abs(dotted - wholeNotes) < 1e-9) {
+        return { type, dots };
+      }
+    }
+  }
+  console.warn('Unsupported note duration, falling back to a quarter note:', duration);
+  return { type: 'quarter', dots: 0 };
+}
+
+/**
+ * MusicXML expresses <duration> in divisions per quarter note and requires whole
+ * numbers, so divisions has to be fine enough for every duration in the
+ * exercise: the shortest note, and dotted notes, need more than the 4 divisions
+ * a plain quarter note would.
+ */
+function computeDivisions(exercice: Exercise): number {
+  const durations = [...exercice.patternRightHand, ...exercice.patternLeftHand].map(n => n.duration);
+  let divisions = 4;
+  while (divisions < 512 && durations.some(d => !Number.isInteger(4 * divisions * durationInWholeNotes(d)))) {
+    divisions = divisions * 2;
+  }
+  return divisions;
+}
+
 function convertDurationToMusicXML(duration: number, divisions: number): number {
-  return 4 * divisions / duration;
+  return Math.round(4 * divisions * durationInWholeNotes(duration));
+}
+
+/** Length of one measure, in whole notes: 4/4 is a whole note, 3/4 three quarters. */
+function measureLengthInWholeNotes(beat: ReducedFraction): number {
+  return beat.numerator / beat.denominator;
 }
 
 
