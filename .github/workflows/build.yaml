@@ -93,8 +93,42 @@ jobs:
 
       - name: Smoke test image
         run: |
-          docker pull ${{ env.IMAGE_FRONTEND }}:${{ env.BRANCH_NAME }}
-          docker run -d --rm --name fe-smoke -p 8080:4000 ${{ env.IMAGE_FRONTEND }}:${{ env.BRANCH_NAME }}
-          for i in {1..10}; do curl -fsS http://localhost:8080/ && break; sleep 3; done
+          set -euo pipefail
+
+          IMAGE="${{ env.IMAGE_FRONTEND }}:${{ env.BRANCH_NAME }}"
+          docker pull "$IMAGE"
+          docker run -d --rm --name fe-smoke -p 8080:4000 "$IMAGE"
+
+          fail() {
+            echo "::error::$1"
+            docker logs fe-smoke || true
+            docker stop fe-smoke || true
+            exit 1
+          }
+
+          # Wait for readiness. The previous loop swallowed a permanently dead
+          # container: once it ran out of attempts the step simply carried on.
+          ready=false
+          for i in $(seq 1 10); do
+            if curl -fsS http://localhost:8080/ >/dev/null 2>&1; then
+              ready=true
+              break
+            fi
+            sleep 3
+          done
+          [ "$ready" = true ] || fail "Container never became ready"
+
+          # Cloud Run always sets X-Forwarded-For. @angular/ssr treats any
+          # untrusted X-Forwarded-* header as a reason to fall back to
+          # client-side rendering, returning 200 with an empty <app-root>, so a
+          # plain request cannot tell working SSR from silently broken SSR.
+          curl -fsS --compressed -H 'X-Forwarded-For: 1.2.3.4' \
+            http://localhost:8080/ -o /tmp/smoke-ssr.html \
+            || fail "Request with proxy headers failed"
+
+          grep -q 'ng-server-context="ssr"' /tmp/smoke-ssr.html \
+            || fail "SSR deopted to client-side rendering behind proxy headers"
+
+          echo "SSR verified behind proxy headers"
           docker logs fe-smoke
           docker stop fe-smoke

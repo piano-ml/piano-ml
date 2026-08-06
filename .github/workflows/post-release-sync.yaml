@@ -13,9 +13,14 @@ permissions:
 jobs:
   sync-develop:
     name: Sync develop with main
+    # release-promotion.yaml opens the release PR from a
+    # `release/promotion-<source>-to-<target>` branch, never from `develop`
+    # directly, so matching only 'develop' here never fired and develop was
+    # left permanently behind main.
     if: >-
       github.event.pull_request.merged == true &&
-      github.event.pull_request.head.ref == 'develop'
+      (github.event.pull_request.head.ref == 'develop' ||
+      startsWith(github.event.pull_request.head.ref, 'release/promotion-'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
