@@ -7,7 +7,7 @@ import { AuthService } from '../../../account/services/auth.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard, bootstrapDownload, bootstrapPencil } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
-import { SeoService } from '../../../shared/services/seo.service';
+import { SeoService, displayAuthorName } from '../../../shared/services/seo.service';
 import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in-key/exercises-in-key.component';
 import { VideoCarouselComponent } from './components/video-carousel/video-carousel.component';
 import { VideoPlayerModalComponent } from './components/video-player-modal/video-player-modal.component';
@@ -79,6 +79,11 @@ export class ScoreInfoComponent implements OnInit {
         this.genres = genres || [];
         this.loadingGenres = false;
         this.updateSelectedGenre();
+        // Les genres peuvent arriver après la partition : rejouer le SEO pour
+        // que le nom de genre résolu remplace le slug brut.
+        if (this.score) {
+          this.updatePageTitle(this.score);
+        }
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -163,11 +168,32 @@ export class ScoreInfoComponent implements OnInit {
       return 'Score';
     }
 
-    const authorName = (score.author || '').trim();
+    const authorName = displayAuthorName(score.author);
     const scoreName = (score.title || '').trim();
 
     const base = `${authorName} - ${scoreName}`.trim();
     return base ? `${base} piano score` : 'Score';
+  }
+
+  /**
+   * Description de repli lorsque l'API n'en fournit pas : sans elle, la page
+   * partait sans balise description du tout.
+   */
+  private buildFallbackDescription(score: ScoreApiInfo, authorName: string, scoreName: string, genreName: string): string {
+    const facts: string[] = [];
+
+    if (score.fullKey) {
+      facts.push(`in ${score.fullKey}`);
+    }
+    if (genreName) {
+      facts.push(`${genreName} style`);
+    }
+    if (score.measures) {
+      facts.push(`${score.measures} measures`);
+    }
+
+    const details = facts.length ? ` — ${facts.join(', ')}.` : '.';
+    return `Play and practise ${scoreName} by ${authorName} on PianoML${details} Interactive piano sheet music with playback, tempo control and hands-separate practice.`;
   }
 
   private updatePageTitle(score: ScoreApiInfo | null) {
@@ -176,16 +202,19 @@ export class ScoreInfoComponent implements OnInit {
       return;
     }
 
-    const authorName = (score.author || 'Unknown Artist').trim();
+    const authorName = displayAuthorName(score.author);
     const scoreName = (score.title || 'Untitled').trim();
     const genreName = this.selectedGenre?.name || score.genre || '';
 
-    // Build SEO-friendly title
-    const title = `${authorName} - ${scoreName}`;
-    this.pageTitle = title;
+    // Titre affiché dans l'app
+    this.pageTitle = `${authorName} - ${scoreName}`;
+
+    // Titre de l'onglet : porte le mot-clé et la marque
+    const title = `${scoreName} — ${authorName} piano sheet music | PianoML`;
 
     // Build rich description
-    let description = score.description ? `${score.description.trim()} ` : '';
+    const description = score.description?.trim()
+      || this.buildFallbackDescription(score, authorName, scoreName, genreName);
 
     // Keywords
     const keywords = [
@@ -207,19 +236,30 @@ export class ScoreInfoComponent implements OnInit {
 
     // URL
     const url = `${this.siteUrl}/score/${score.immutableSlug || score.mutableSlug || this.slug}`;
+    const image = score.image || `${this.siteUrl}/assets/images/pianoml-og-image.png`;
 
     // Structured Data
-    const structuredData = {
-      '@context': 'https://schema.org',
-      '@type': 'MusicComposition',
-      'name': scoreName,
-      'composer': {
-        '@type': 'Person',
-        'name': authorName
-      },
-      'inLanguage': 'en',
-      'url': url
-    };
+    const composition = this.seo.generateMusicCompositionStructuredData(score, {
+      url,
+      siteUrl: this.siteUrl,
+      image,
+      genreName
+    });
+
+    const breadcrumbItems = [
+      { name: 'Home', url: `${this.siteUrl}/` },
+      { name: 'Library', url: `${this.siteUrl}/library` }
+    ];
+    if (genreName && score.genre_slug) {
+      const genreLabel = genreName.charAt(0).toUpperCase() + genreName.slice(1);
+      breadcrumbItems.push({ name: genreLabel, url: `${this.siteUrl}/library/genres/${score.genre_slug}` });
+    }
+    if (score.author_slug) {
+      breadcrumbItems.push({ name: authorName, url: `${this.siteUrl}/library/artists/${score.author_slug}` });
+    }
+    breadcrumbItems.push({ name: scoreName, url });
+
+    const breadcrumb = this.seo.generateBreadcrumbStructuredData(breadcrumbItems);
 
     // Update SEO tags
     this.seo.updateMetaTags({
@@ -228,8 +268,9 @@ export class ScoreInfoComponent implements OnInit {
       keywords: keywords.join(', '),
       url,
       type: 'music.song',
-      image: `${this.siteUrl}/assets/images/pianoml-og-image.png`,
-      structuredData
+      image,
+      imageAlt: `${scoreName} by ${authorName} — piano sheet music`,
+      structuredData: [composition, breadcrumb]
     });
   }
 
