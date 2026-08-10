@@ -23,7 +23,7 @@ jobs:
     outputs:
       artifact-name: backend-jar-${{ github.sha }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set up JDK 17
       uses: actions/setup-java@v5
       with:
@@ -45,7 +45,7 @@ jobs:
     outputs:
       artifact-name: frontend-dist-${{ github.sha }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
