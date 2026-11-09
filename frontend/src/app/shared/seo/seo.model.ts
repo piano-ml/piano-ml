@@ -37,13 +37,23 @@ export interface SeoData {
 const DESCRIPTION_MAX = 160;
 
 /**
+ * Longest a title may be before the site suffix is dropped. Search results cut
+ * titles around 60 characters, and the piece and composer matter more there
+ * than the brand — score titles alone can run past that on their own.
+ */
+const TITLE_BUDGET = 55;
+
+/**
  * Appends the site suffix unless the title already names the site, so page
- * titles stay consistent without ending up as "… | PianoML | PianoML".
+ * titles stay consistent without ending up as "… | PianoML | PianoML", and
+ * unless the title is long enough that the suffix would only be truncated.
  */
 export function pageTitle(title?: string): string {
   const base = (title || '').trim();
   if (!base) return SITE.defaultTitle;
-  return base.toLowerCase().includes(SITE.name.toLowerCase()) ? base : base + SITE.titleSuffix;
+
+  const namesSite = base.toLowerCase().includes(SITE.name.toLowerCase());
+  return namesSite || base.length > TITLE_BUDGET ? base : base + SITE.titleSuffix;
 }
 
 /**

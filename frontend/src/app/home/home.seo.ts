@@ -1,10 +1,45 @@
 import { SITE, type SeoData } from '../shared/seo';
 
+/** The brand, declared once on the site root. */
+const ORGANIZATION = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${SITE.url}/#organization`,
+  name: SITE.name,
+  url: SITE.url,
+  logo: `${SITE.url}${SITE.ogImage}`,
+  description: SITE.defaultDescription,
+  sameAs: ['https://github.com/piano-ml/piano-ml']
+};
+
+/**
+ * The site itself, with the library search exposed as a SearchAction — this is
+ * what a sitelinks search box in the results is built from.
+ */
+const WEBSITE = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${SITE.url}/#website`,
+  name: SITE.name,
+  url: SITE.url,
+  publisher: { '@id': `${SITE.url}/#organization` },
+  inLanguage: 'en',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${SITE.url}/library/popular?search={search_term_string}`
+    },
+    'query-input': 'required name=search_term_string'
+  }
+};
+
 export const HOME_SEO: SeoData = {
   title: SITE.defaultTitle,
   description: SITE.defaultDescription,
   image: '/assets/images/keyboard.webp',
-  canonical: '/'
+  canonical: '/',
+  structuredData: [ORGANIZATION, WEBSITE]
 };
 
 const SUMMARY_DESCRIPTION =

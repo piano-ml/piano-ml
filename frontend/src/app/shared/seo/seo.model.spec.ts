@@ -9,6 +9,12 @@ describe('pageTitle', () => {
     expect(pageTitle('PianoML: Learn Piano')).toBe('PianoML: Learn Piano');
   });
 
+  it('drops the suffix when the title is already long enough to be truncated', () => {
+    const long = 'Johann Sebastian Bach - Prelude I in C major BWV 846 Well Tempered Clavier';
+
+    expect(pageTitle(long)).toBe(long);
+  });
+
   it('falls back to the default title', () => {
     expect(pageTitle('   ')).toBe(SITE.defaultTitle);
   });

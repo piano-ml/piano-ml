@@ -48,7 +48,18 @@ describe('buildBrowseSeo', () => {
     expect(seo.title).toBe('Search: "moonlight"');
   });
 
-  it('falls back to generic wording when no score has loaded yet', () => {
-    expect(buildBrowseSeo(state({ activeTab: 'artists' })).description).toContain('classical, jazz and contemporary');
+  it('words the sentence without the clause when no score has loaded yet', () => {
+    const seo = buildBrowseSeo(state({ activeTab: 'artists' }));
+
+    expect(seo.description).toBe(
+      'Discover 3000+ piano scores by composer, from classical to contemporary, with interactive practice features.'
+    );
+  });
+
+  it('drops the artist clause on a genre page with no scores loaded', () => {
+    const seo = buildBrowseSeo(state({ selectedGenre: { genre: { name: 'blues', slug: 'blues' } } }));
+
+    expect(seo.description).not.toContain(' by ');
+    expect(seo.description).toContain('Browse and practice Blues piano scores on PianoML');
   });
 });

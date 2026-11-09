@@ -23,7 +23,10 @@ export function buildBrowseSeo(state: BrowseSeoState): SeoData {
 
   if (genre?.name) {
     const name = capitalize(genre.name);
-    const description = `Browse and practice ${name} piano scores by ${sample(state.scores, s => s.author)}. Interactive sheet music with hands-separated practice and MIDI support.`;
+    const artists = sample(state.scores, s => s.author);
+    const description = artists
+      ? `Browse and practice ${name} piano scores by ${artists}. Interactive sheet music with hands-separated practice and MIDI support.`
+      : `Browse and practice ${name} piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and MIDI support.`;
 
     return {
       title: `${name} Piano Scores`,
@@ -35,7 +38,10 @@ export function buildBrowseSeo(state: BrowseSeoState): SeoData {
 
   if (author?.name) {
     const name = capitalize(author.name);
-    const description = `Play ${name} piano scores: ${sample(state.scores, s => s.title)}. Interactive sheet music with adjustable tempo and real-time feedback.`;
+    const titles = sample(state.scores, s => s.title);
+    const description = titles
+      ? `Play ${name} piano scores: ${titles}. Interactive sheet music with adjustable tempo and real-time feedback.`
+      : `Play ${name} piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and real-time feedback.`;
 
     return {
       title: `${name} Piano Scores`,
@@ -58,7 +64,12 @@ export function buildBrowseSeo(state: BrowseSeoState): SeoData {
     case 'genres':
       return {
         title: 'Browse Piano Scores by Genre',
-        description: `Explore ${state.totalScores}+ piano scores by genre and style — ${sample(state.scores, s => s.genre)} — with interactive practice features.`,
+        description: withNames(
+          state.scores,
+          s => s.genre,
+          names => `Explore ${state.totalScores}+ piano scores by genre and style — ${names} — with interactive practice features.`,
+          `Explore ${state.totalScores}+ piano scores by genre and style, with hands-separated practice, adjustable tempo and MIDI support.`
+        ),
         // A bare `/library` shows this same tab, and it is the URL in the sitemap.
         canonical: LIBRARY_PATH,
         structuredData: collectionPage('Browse Piano Scores by Genre', state.totalScores, {
@@ -71,7 +82,12 @@ export function buildBrowseSeo(state: BrowseSeoState): SeoData {
     case 'artists':
       return {
         title: 'Browse Piano Scores by Composer & Artist',
-        description: `Discover ${state.totalScores}+ piano scores and learn works by ${sample(state.scores, s => s.author)}.`,
+        description: withNames(
+          state.scores,
+          s => s.author,
+          names => `Discover ${state.totalScores}+ piano scores and learn works by ${names}.`,
+          `Discover ${state.totalScores}+ piano scores by composer, from classical to contemporary, with interactive practice features.`
+        ),
         canonical: `${LIBRARY_PATH}/artists`,
         structuredData: collectionPage('Browse Piano Scores by Composer', state.totalScores, {
           '@type': 'Thing',
@@ -122,14 +138,27 @@ function collectionPage(name: string, numberOfItems: number, about: Record<strin
 /**
  * A few representative names rather than every loaded row — the previous
  * version pasted the whole page into the description, which reads as spam and
- * gets truncated anyway.
+ * gets truncated anyway. Null when nothing has loaded yet, which happens on the
+ * server render of the tab pages: the caller then words the sentence without
+ * the clause instead of naming placeholder genres.
  */
-function sample(scores: ScoreApiInfo[], pick: (score: ScoreApiInfo) => string | undefined, limit = 3): string {
+function sample(scores: ScoreApiInfo[], pick: (score: ScoreApiInfo) => string | undefined, limit = 3): string | null {
   const names = Array.from(new Set(scores.map(pick).filter((name): name is string => !!name)));
   const shown = names.slice(0, limit).join(', ');
 
-  if (!shown) return 'classical, jazz and contemporary pieces';
+  if (!shown) return null;
   return names.length > limit ? `${shown} and more` : shown;
+}
+
+/** Picks the phrasing that fits whether or not any names are available. */
+function withNames(
+  scores: ScoreApiInfo[],
+  pick: (score: ScoreApiInfo) => string | undefined,
+  withClause: (names: string) => string,
+  fallback: string
+): string {
+  const names = sample(scores, pick);
+  return names ? withClause(names) : fallback;
 }
 
 function capitalize(value: string): string {

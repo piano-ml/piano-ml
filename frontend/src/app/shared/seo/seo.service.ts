@@ -50,12 +50,24 @@ export class SeoService {
 
   private routeSeo: SeoData = {};
   private override: SeoData = {};
+  // biome-ignore lint/suspicious/noExplicitAny: JSON-LD is free-form by nature
+  private graph: any[] = [];
   private url = '/';
 
   /** Applies the metadata declared by the activated route. */
   setRouteSeo(data: SeoData | undefined, url: string): void {
     this.routeSeo = data ?? {};
     this.url = url;
+    this.render();
+  }
+
+  /**
+   * Site-level JSON-LD rendered on every page, in addition to whatever the
+   * page itself declares — the breadcrumb trail, for instance.
+   */
+  // biome-ignore lint/suspicious/noExplicitAny: JSON-LD is free-form by nature
+  setGraph(entries: any[]): void {
+    this.graph = entries.filter(Boolean);
     this.render();
   }
 
@@ -115,7 +127,7 @@ export class SeoService {
     }
 
     this.setCanonical(canonical);
-    this.setStructuredData(data.structuredData);
+    this.setStructuredData([...this.graph, ...toArray(data.structuredData)]);
   }
 
   /**
@@ -148,14 +160,12 @@ export class SeoService {
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: JSON-LD is free-form by nature
-  private setStructuredData(data: any | any[] | undefined): void {
+  private setStructuredData(entries: any[]): void {
     for (const script of Array.from(this.document.querySelectorAll(`script[${JSONLD_MARKER}]`))) {
       script.remove();
     }
 
-    if (!data) return;
-
-    for (const entry of (Array.isArray(data) ? data : [data]).filter(Boolean)) {
+    for (const entry of entries) {
       const script = this.document.createElement('script');
       script.type = 'application/ld+json';
       script.setAttribute(JSONLD_MARKER, '');
@@ -163,6 +173,12 @@ export class SeoService {
       this.document.head.appendChild(script);
     }
   }
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: JSON-LD is free-form by nature
+function toArray(data: any | any[] | undefined): any[] {
+  if (!data) return [];
+  return (Array.isArray(data) ? data : [data]).filter(Boolean);
 }
 
 /** Drops undefined entries so a partial update cannot blank out route values. */

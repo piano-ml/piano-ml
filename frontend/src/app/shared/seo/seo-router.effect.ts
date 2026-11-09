@@ -1,5 +1,6 @@
 import { type EnvironmentProviders, Injectable, inject, makeEnvironmentProviders, provideEnvironmentInitializer } from '@angular/core';
 import { type ActivatedRoute, NavigationEnd, NavigationStart, Router } from '@angular/router';
+import { type BreadcrumbEntry, breadcrumbStructuredData, resolveBreadcrumbLabel } from './breadcrumbs';
 import type { SeoData } from './seo.model';
 import { SeoService } from './seo.service';
 
@@ -19,27 +20,47 @@ export class SeoRouterEffect {
       if (event instanceof NavigationStart) {
         this.seo.resetOverride();
       } else if (event instanceof NavigationEnd) {
-        this.seo.setRouteSeo(collectSeo(this.router.routerState.root), event.urlAfterRedirects);
+        const { seo, trail } = walkRoute(this.router.routerState.root);
+
+        this.seo.setGraph([breadcrumbStructuredData(trail)]);
+        this.seo.setRouteSeo(seo, event.urlAfterRedirects);
       }
     });
   }
 }
 
 /**
- * Merges the `seo` route data from the root down to the deepest activated
- * route, so a parent can set defaults a child then refines.
+ * Walks from the root down to the deepest activated route, merging the `seo`
+ * data so a parent can set defaults a child then refines, and collecting the
+ * `breadcrumb` labels into a trail of absolute paths.
  */
-function collectSeo(route: ActivatedRoute): SeoData | undefined {
+function walkRoute(route: ActivatedRoute): { seo: SeoData | undefined; trail: BreadcrumbEntry[] } {
   let current: ActivatedRoute | null = route;
-  let merged: SeoData | undefined;
+  let seo: SeoData | undefined;
+  const trail: BreadcrumbEntry[] = [];
+  let url = '';
 
   while (current) {
-    const seo = current.snapshot.routeConfig?.data?.['seo'] as SeoData | undefined;
-    if (seo) merged = { ...merged, ...seo };
+    const config = current.snapshot.routeConfig;
+    const data = config?.data;
+
+    const routeSeo = data?.['seo'] as SeoData | undefined;
+    if (routeSeo) seo = { ...seo, ...routeSeo };
+
+    const path = current.snapshot.url.map(segment => segment.path).join('/');
+    if (path) url += `/${path}`;
+
+    const label = resolveBreadcrumbLabel(data?.['breadcrumb'], current.snapshot.data);
+    // The home route is the trail's root already, and a wildcard match has no
+    // URL of its own worth linking to.
+    if (label && url && config?.path !== '**') {
+      trail.push({ name: label, url });
+    }
+
     current = current.firstChild;
   }
 
-  return merged;
+  return { seo, trail };
 }
 
 /** Wires the title / meta / canonical / JSON-LD handling for the whole app. */

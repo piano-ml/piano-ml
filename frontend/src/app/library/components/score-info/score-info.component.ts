@@ -6,7 +6,7 @@ import { AuthService } from '../../../account/services/auth.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard, bootstrapDownload, bootstrapPencil } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
-import { SeoService } from '../../../shared/seo';
+import { ResponseStatusService, SeoService } from '../../../shared/seo';
 import { buildScoreSeo } from './score-info.seo';
 import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in-key/exercises-in-key.component';
 import { VideoCarouselComponent } from './components/video-carousel/video-carousel.component';
@@ -48,7 +48,8 @@ export class ScoreInfoComponent implements OnInit {
     private workloadService: WorkloadService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-    private seo: SeoService
+    private seo: SeoService,
+    private responseStatus: ResponseStatusService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
@@ -63,6 +64,8 @@ export class ScoreInfoComponent implements OnInit {
     this.loadGenres();
     if (!this.slug) {
       this.error = 'No score slug provided';
+      this.responseStatus.set(404);
+      this.updatePageTitle(null);
       return;
     }
     this.loadScoreBySlug(this.slug);
@@ -108,6 +111,13 @@ export class ScoreInfoComponent implements OnInit {
       error: (error) => {
         this.error = error.message || 'Failed to load score';
         this.loading = false;
+        // No score behind this slug: noindex either way, and a real 404 when
+        // that is what the API said, so the unbounded slug space stays out of
+        // the index rather than answering 200 with the site defaults.
+        if (error?.status === 404) {
+          this.responseStatus.set(404);
+        }
+        this.updatePageTitle(null);
         console.error('Error loading score:', error);
         this.cdr.detectChanges();
       }
@@ -130,6 +140,8 @@ export class ScoreInfoComponent implements OnInit {
       next: (videos) => {
         this.videos = (videos || []).filter(video => !!video.videoId);
         this.loadingVideos = false;
+        // The videos become VideoObject entries in the page's JSON-LD.
+        this.updatePageTitle(this.score);
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -157,7 +169,12 @@ export class ScoreInfoComponent implements OnInit {
   }
 
   private updatePageTitle(score: ScoreApiInfo | null) {
-    this.seo.update(buildScoreSeo(score, this.slug, this.selectedGenre?.name));
+    this.seo.update(buildScoreSeo({
+      score,
+      slug: this.slug,
+      genreName: this.selectedGenre?.name,
+      videos: this.videos
+    }));
   }
 
 

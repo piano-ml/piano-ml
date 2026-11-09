@@ -11,7 +11,7 @@ import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn, ScoreTableEven
 import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
 import { BrowseByAuthorsComponent } from '../browse-by-authors/browse-by-authors.component';
 import { BrowseByGenreComponent } from '../browse-by-genre/browse-by-genre.component';
-import { SeoService } from '../../../shared/seo';
+import { ResponseStatusService, SeoService } from '../../../shared/seo';
 import { buildBrowseSeo } from './browse.seo';
 import noUiSlider, { API as NoUiSliderApi, PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
@@ -65,6 +65,8 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedAuthor: AuthorWithScoreCount | null = null;
   selectedGenre: ScoreGenreBrowseGet200ResponseInner | null = null;
   activeSearchKeyword = '';
+  /** Set when the URL names a genre or artist the API does not know. */
+  private slugNotFound = false;
   loading = true;
   searchKeyword = '';
   stats: ScoreStatsGet200Response | null = null;
@@ -107,7 +109,8 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private changeDetector: ChangeDetectorRef,
-    private seo: SeoService
+    private seo: SeoService,
+    private responseStatus: ResponseStatusService
   ) {
     this.setupTourEffects();
   }
@@ -182,6 +185,8 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
               }
               this.gradeFilterPristine = this.isDefaultGradeRange();
               this.syncGradeSliderFromState();
+
+              this.slugNotFound = false;
 
               if (keyword) {
                 this.searchKeyword = keyword;
@@ -321,11 +326,10 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
           this.updatePageTitle();
           this.loadScoresByAuthor(author);
         } else {
-          // Author not found, clear filters and load all scores
-          this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: {}
-          });
+          // Author not found: still show the library, but do not let an arbitrary
+          // slug be indexed as a copy of it. Navigating here to clear the query
+          // params would start a new navigation, which resets that state.
+          this.markSlugNotFound();
           this.loadScores(true);
         }
         //this.loading = false;
@@ -365,11 +369,10 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
           this.updatePageTitle();
           this.loadScoresByGenre(genre);
         } else {
-          // Genre not found, clear filters and load all scores
-          this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: {}
-          });
+          // Genre not found: still show the library, but do not let an arbitrary
+          // slug be indexed as a copy of it. Navigating here to clear the query
+          // params would start a new navigation, which resets that state.
+          this.markSlugNotFound();
           this.loadScores(true);
         }
         //this.loading = false;
@@ -867,7 +870,18 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private markSlugNotFound() {
+    this.slugNotFound = true;
+    this.responseStatus.set(404);
+    this.updatePageTitle();
+  }
+
   updatePageTitle() {
+    if (this.slugNotFound) {
+      this.seo.update({ title: 'Not Found', noindex: true, structuredData: null });
+      return;
+    }
+
     this.seo.update(buildBrowseSeo({
       activeTab: this.activeTab,
       scores: this.scores,
