@@ -1,21 +1,25 @@
 import type { Routes } from '@angular/router';
 import { LayoutComponent } from './shared/components/layout/layout.component';
+import type { SeoData } from './shared/seo';
+
+/** Mirrors the Disallow rules in robots.txt for routes rendered in-app. */
+const NOINDEX_SEO: SeoData = { noindex: true };
 
 export const routes: Routes = [
     {
         path: 'work',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Practice' }
+        data: { breadcrumb: 'Practice', seo: NOINDEX_SEO }
     },
     {
         path: 'desktop',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Desktop' }
+        data: { breadcrumb: 'Desktop', seo: NOINDEX_SEO }
     },
     {
         path: 'workbench',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Workbench' }
+        data: { breadcrumb: 'Workbench', seo: NOINDEX_SEO }
     },
     {
         component: LayoutComponent,
@@ -35,7 +39,7 @@ export const routes: Routes = [
         component: LayoutComponent,
         path: 'account',
         loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
-        data: { breadcrumb: 'Account' }
+        data: { breadcrumb: 'Account', seo: NOINDEX_SEO }
     },
     {
         component: LayoutComponent,
@@ -48,7 +52,7 @@ export const routes: Routes = [
         component: LayoutComponent,
         path: 'import',
         loadChildren: () => import('./import/import.module').then(m => m.ImportModule),
-        data: { breadcrumb: 'Import' }
+        data: { breadcrumb: 'Import', seo: NOINDEX_SEO }
     },
     {
         path: 'library',
@@ -72,7 +76,7 @@ export const routes: Routes = [
     {
         path: 'error',
         loadComponent: () => import('./shared/components/error/error.component').then(m => m.ErrorComponent),
-        data: { breadcrumb: 'Erreur' }
+        data: { breadcrumb: 'Error', seo: { title: 'Page Error', ...NOINDEX_SEO } }
     },
     {
         path: '**',

@@ -11,7 +11,8 @@ import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn, ScoreTableEven
 import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
 import { BrowseByAuthorsComponent } from '../browse-by-authors/browse-by-authors.component';
 import { BrowseByGenreComponent } from '../browse-by-genre/browse-by-genre.component';
-import { SeoService } from '../../../shared/services/seo.service';
+import { SeoService } from '../../../shared/seo';
+import { musicCollectionStructuredData } from '../../../shared/seo/structured-data';
 import noUiSlider, { API as NoUiSliderApi, PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { BeaconService } from 'ng-beacon';
@@ -886,7 +887,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
       url = `${baseUrl}/library/genres/${this.selectedGenre.genre.slug}`;
       keywords = `piano ${genreName}, score, pdf, musicxml, midi, ${artistKeywords}`;
 
-      structuredData = this.seo.generateMusicCollectionStructuredData(
+      structuredData = musicCollectionStructuredData(
         this.scores,
         `${genreName} Piano Scores`,
         description
@@ -899,7 +900,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
       url = `${baseUrl}/library/artists/${this.selectedAuthor.author.slug}`;
       keywords = `${authorName} piano, score, ${titleKeywords}`;
 
-      structuredData = this.seo.generateMusicCollectionStructuredData(
+      structuredData = musicCollectionStructuredData(
         this.scores,
         `${authorName} Piano Works`,
         description
@@ -998,11 +999,10 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       };
     }
-    this.seo.updateMetaTags({
+    this.seo.update({
       title,
       description,
-      keywords,
-      url,
+      canonical: url,
       type: 'website',
       image: `${baseUrl}/assets/images/pianoml-og-image.png`,
       structuredData

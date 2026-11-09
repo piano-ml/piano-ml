@@ -8,7 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { getWeekOfYear, loadExercice } from '../exercices';
-import { SeoService } from '../../shared/services/seo.service';
+import { SeoService } from '../../shared/seo';
 import { PopularScoresInKeyComponent } from '../../shared/components/popular-scores-in-key/popular-scores-in-key.component';
 
 
@@ -211,11 +211,10 @@ export class AgilityComponent implements OnInit {
       };
     }
 
-    this.seo.updateMetaTags({
+    this.seo.update({
       title,
       description,
-      keywords,
-      url,
+      canonical: url,
       type: 'website',
       image: `${baseUrl}/assets/images/pianoml-og-image.png`,
       structuredData

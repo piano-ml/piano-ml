@@ -7,7 +7,7 @@ import { AuthService } from '../../../account/services/auth.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard, bootstrapDownload, bootstrapPencil } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
-import { SeoService } from '../../../shared/services/seo.service';
+import { SeoService } from '../../../shared/seo';
 import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in-key/exercises-in-key.component';
 import { VideoCarouselComponent } from './components/video-carousel/video-carousel.component';
 import { VideoPlayerModalComponent } from './components/video-player-modal/video-player-modal.component';
@@ -222,11 +222,10 @@ export class ScoreInfoComponent implements OnInit {
     };
 
     // Update SEO tags
-    this.seo.updateMetaTags({
+    this.seo.update({
       title,
       description: description.trim(),
-      keywords: keywords.join(', '),
-      url,
+      canonical: url,
       type: 'music.song',
       image: `${this.siteUrl}/assets/images/pianoml-og-image.png`,
       structuredData

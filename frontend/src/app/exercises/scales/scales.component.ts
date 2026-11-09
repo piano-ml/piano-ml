@@ -8,7 +8,7 @@ import { getWeekOfYear, loadExercice } from '../exercices';
 import type { Exercise } from '../model';
 
 import { FormsModule } from '@angular/forms';
-import { SeoService } from '../../shared/services/seo.service';
+import { SeoService } from '../../shared/seo';
 import { PopularScoresInKeyComponent } from '../../shared/components/popular-scores-in-key/popular-scores-in-key.component';
 
 @Component({
@@ -150,11 +150,10 @@ export class ScalesComponent implements OnInit {
       }
     };
 
-    this.seo.updateMetaTags({
+    this.seo.update({
       title,
       description,
-      keywords,
-      url,
+      canonical: url,
       type: 'website',
       image: `${baseUrl}/assets/images/pianoml-og-image.png`,
       structuredData
