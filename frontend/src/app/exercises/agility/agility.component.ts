@@ -1,5 +1,5 @@
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { majorKeys, chords, Chord } from '../../desktop/service/music-theory';
 import type {  Exercise } from '../../exercises/model';
 import { exercises } from './pattern';
@@ -16,6 +16,7 @@ import { PopularScoresInKeyComponent } from '../../shared/components/popular-sco
   selector: 'app-agility',
   imports: [FormsModule, PopularScoresInKeyComponent],
   templateUrl: './agility.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './agility.component.css'
 })
 export class AgilityComponent implements OnInit {

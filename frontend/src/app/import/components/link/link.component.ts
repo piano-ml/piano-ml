@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, AfterViewInit, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -9,6 +9,7 @@ import { AuthService } from '../../../account/services/auth.service';
   selector: 'app-link',
   imports: [FormsModule, RouterModule],
   templateUrl: './link.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './link.component.css'
 })
 export class LinkComponent implements OnInit, AfterViewInit {

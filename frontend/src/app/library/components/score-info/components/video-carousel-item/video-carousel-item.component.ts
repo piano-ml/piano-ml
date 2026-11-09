@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { YoutubeVideoApiInfo } from '../../../../../core/api';
 
 @Component({
@@ -7,6 +7,7 @@ import { YoutubeVideoApiInfo } from '../../../../../core/api';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './video-carousel-item.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './video-carousel-item.component.css'
 })
 export class VideoCarouselItemComponent {

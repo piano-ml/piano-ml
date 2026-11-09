@@ -1,4 +1,4 @@
-import { Component, type OnInit } from '@angular/core';
+import { Component, type OnInit, ChangeDetectionStrategy } from '@angular/core';
 // biome-ignore lint/style/useImportType: <explanation>
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BrowseComponent } from "../browse/browse.component";
@@ -9,6 +9,7 @@ import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../../../desktop/model/
   selector: 'app-library-home',
   imports: [BrowseComponent, RouterModule, QuickActionsComponent],
   templateUrl: './library-home.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './library-home.component.css'
 })
 export class LibraryHomeComponent implements OnInit {

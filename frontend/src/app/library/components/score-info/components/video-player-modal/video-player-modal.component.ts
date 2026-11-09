@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { YouTubePlayerModule } from '@angular/youtube-player';
 import { ScoreService, YoutubeVideoApiInfo } from '../../../../../core/api';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -13,6 +13,7 @@ type YoutubeAction = 'upvote' | 'downvote' | 'report' | 'view';
   imports: [CommonModule, YouTubePlayerModule, NgIcon],
   templateUrl: './video-player-modal.component.html',
   styleUrl: './video-player-modal.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   viewProviders: [provideIcons({ bootstrapHandThumbsUp, bootstrapHandThumbsDown, bootstrapEyeSlash })]
 })
 export class VideoPlayerModalComponent {

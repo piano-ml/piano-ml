@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { ScoreApiInfo } from '../../../core/api';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../account/services/auth.service';
@@ -8,6 +8,7 @@ import { ScoreService } from '../../../core/api/api/score.service';
     selector: 'app-slop-dialog',
     templateUrl: './slop-dialog.component.html',
     styleUrls: ['./slop-dialog.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule]
 })
 
