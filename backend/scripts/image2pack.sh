@@ -41,11 +41,7 @@ source ~/shared-venv/bin/activate
 
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER" > /dev/null
 
-# sanitize files
-musescore3 -f -o "$FROOT".mscz "$FROOT".musicxml > /dev/null  || exit 1
-musescore3 -f -o "$FROOT".mid "$FROOT".mscz > /dev/null  || exit 1
-musescore3 -f -o "$FROOT".musicxml "$FROOT".mscz > /dev/null  || exit 1
-
+musescore3 -f -o "$FROOT".mid "$FROOT".musicxml > /dev/null  || exit 1
 mv "$FROOT".mid "$FROOT".midi
 
 if [ -n "$MAKE_FINGERING" ]; then
@@ -72,4 +68,4 @@ $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml" > /dev/
 
 zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"  "metadata.json"
 
-rm "${FROOT}.png"  "${FROOT}_teaser.png" "$FROOT.pdf"  "$FROOT.mscz" "$FROOT.midi" "$FROOT.musicxml"  "$FROOT.musicxml.bak" "$FROOT.fingering.json" "metadata.json"
+rm "${FROOT}.png"  "${FROOT}_teaser.png" "$FROOT.pdf"  "$FROOT.midi" "$FROOT.musicxml"  "$FROOT.musicxml.bak" "$FROOT.fingering.json" "metadata.json"

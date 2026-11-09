@@ -1,0 +1,15 @@
+{
+  "tracks_count": 1,
+  "duration_seconds": 25.083333333333332,
+  "measures_count": 13,
+  "has_lyrics": false,
+  "tempo": 120,
+  "grade": 1.538,
+  "analysis": {
+    "tonic": "F",
+    "mode": "major",
+    "full_key": "F major",
+    "certainty": 1.5847916270440898
+  },
+  "harmony": []
+}
