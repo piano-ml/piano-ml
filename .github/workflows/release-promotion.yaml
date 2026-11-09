@@ -96,9 +96,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Skip if target already contains all source commits (nothing to promote)
-          if git merge-base --is-ancestor "origin/$SOURCE_BRANCH" "origin/$TARGET_BRANCH"; then
-            echo "$TARGET_BRANCH already contains all commits from $SOURCE_BRANCH. Nothing to promote."
+          # Skip if target already has the same content as source (nothing to promote).
+          # Compare trees, not ancestry: releases are squash-merged, so source
+          # commits never become ancestors of target even when fully promoted.
+          if git diff --quiet "origin/$TARGET_BRANCH" "origin/$SOURCE_BRANCH"; then
+            echo "$TARGET_BRANCH already has the same content as $SOURCE_BRANCH. Nothing to promote."
             echo "needed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
