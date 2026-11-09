@@ -1,9 +1,10 @@
 name: Release promotion
 
 on:
-  push:
-    branches:
-      - develop
+  # Called by build.yaml on pushes to develop, after tests and image builds,
+  # so the test suite is not re-run here. github.event_name / ref_name are the
+  # caller's ("push" / "develop"), so branch resolution below is unchanged.
+  workflow_call:
   workflow_dispatch:
     inputs:
       source_branch:
@@ -28,11 +29,14 @@ concurrency:
 jobs:
   tests:
     name: Run tests
+    # Only for manual runs; when called from build.yaml tests already passed.
+    if: github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/test.yaml
 
   prepare:
     name: Prepare promotion
     needs: tests
+    if: ${{ !cancelled() && (needs.tests.result == 'success' || needs.tests.result == 'skipped') }}
     runs-on: ubuntu-latest
     outputs:
       source_branch: ${{ steps.branches.outputs.source_branch }}
