@@ -10,10 +10,16 @@ ENV LANGUAGE=en_US:en
 ENV PYTHONUTF8=1
 ENV JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
 
+# Java 25 runtime: Debian 12 has no openjdk-25 package, so take the official
+# Temurin JRE (kept on Debian 12 for python3.11).
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+COPY --from=eclipse-temurin:25-jre /opt/java/openjdk /opt/java/openjdk
+
 # Install essential packages, including locales for UTF-8 support
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        locales python3.11 python3-pip python3-venv pipx git openjdk-17-jre-headless \
+        locales python3.11 python3-pip python3-venv pipx git \
         poppler-utils zip musescore3 curl ca-certificates sudo unzip && \
     sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
     sed -i 's/^# *\(fr_FR.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
