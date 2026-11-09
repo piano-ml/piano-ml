@@ -5,10 +5,10 @@ import type {  Exercise } from '../../exercises/model';
 import { exercises } from './pattern';
 // biome-ignore lint/style/useImportType: <explanation>
 import { ActivatedRoute, Router } from '@angular/router';
-import { Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { getWeekOfYear, loadExercice } from '../exercices';
 import { SeoService } from '../../shared/seo';
+import { buildAgilitySeo } from './agility.seo';
 import { PopularScoresInKeyComponent } from '../../shared/components/popular-scores-in-key/popular-scores-in-key.component';
 
 
@@ -37,7 +37,6 @@ export class AgilityComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private titleService: Title,
     private seo: SeoService
   ) {
 
@@ -139,86 +138,13 @@ export class AgilityComponent implements OnInit {
   }
 
   private updatePageTitle() {
-    const chordName = this.selectedChord?.name;
-    const exerciseName = this.selectedExcercice?.title;
-    const selectedKey = this.selectedKey;
-    const baseUrl = 'https://pianoml.org';
-
-    let title: string;
-    let description: string;
-    let url: string;
-    let keywords: string;
-    let structuredData: any;
-
-    if (chordName && selectedKey && exerciseName) {
-      const exerciseKey = this.selectedExcercice.key;
-      const chordKey = chordName.toLowerCase();
-      
-      title = `${exerciseName} - ${selectedKey} ${chordName}`;
-      description = `Practice piano agility with ${selectedKey} ${chordName} chord in ${exerciseName}. Improve your piano technique with interactive exercises and real-time feedback.`;
-      url = `${baseUrl}/exercises/agility/${selectedKey}/${chordKey}/${exerciseKey}`;
-      keywords = `midi, piano, sight reading, ${exerciseName}`;
-      
-      structuredData = {
-        '@context': 'https://schema.org',
-        '@type': 'Course',
-        'name': `${selectedKey} ${chordName} - ${exerciseName}`,
-        'description': description,
-        'educationalLevel': 'Beginner to Advanced',
-        'teaches': `Piano agility using ${selectedKey} ${chordName} chord in ${exerciseName} pattern`,
-        'provider': {
-          '@type': 'Organization',
-          'name': 'PianoML',
-          'url': baseUrl
-        }
-      };
-    } else if (chordName && selectedKey) {
-      title = `${selectedKey} ${chordName} Chord | Piano Agility Exercises | PianoML`;
-      description = `Learn and practice ${selectedKey} ${chordName} chord progressions with interactive piano agility exercises. Improve finger dexterity and chord transitions.`;
-      url = `${baseUrl}/exercises/agility`;
-      keywords = `piano agility, ${chordName} chord, ${selectedKey} key, piano exercises, chord practice, piano technique`;
-      
-      structuredData = {
-        '@context': 'https://schema.org',
-        '@type': 'Course',
-        'name': `Piano Agility Exercises - ${selectedKey} ${chordName}`,
-        'description': description,
-        'educationalLevel': 'Beginner to Advanced',
-        'provider': {
-          '@type': 'Organization',
-          'name': 'PianoML',
-          'url': baseUrl
-        }
-      };
-    } else {
-      title = 'Piano Agility Exercises | PianoML - Improve Piano Technique & Finger Dexterity';
-      description = 'Practice piano agility with interactive exercises. Develop finger dexterity, speed, and accuracy.';
-      url = `${baseUrl}/exercises/agility`;
-      keywords = 'circle of fifths, scales and arpeggios, arpeggio in root position two octaves, two octave arpeggios root 1st and 2nd inversions,  piano agility, piano exercises, finger dexterity, chord progressions, piano technique, piano practice';
-      
-      structuredData = {
-        '@context': 'https://schema.org',
-        '@type': 'Course',
-        'name': 'Piano Agility Exercises',
-        'description': description,
-        'educationalLevel': 'Beginner to Advanced',
-        'coursePrerequisites': 'Basic piano knowledge',
-        'provider': {
-          '@type': 'Organization',
-          'name': 'PianoML',
-          'url': baseUrl
-        }
-      };
-    }
-
-    this.seo.update({
-      title,
-      description,
-      canonical: url,
-      type: 'website',
-      image: `${baseUrl}/assets/images/pianoml-og-image.png`,
-      structuredData
-    });
+    this.seo.update(buildAgilitySeo({
+      chordName: this.selectedChord?.name,
+      chordKey: this.selectedChord?.name?.toLowerCase(),
+      exerciseName: this.selectedExcercice?.title,
+      exerciseKey: this.selectedExcercice?.key,
+      selectedKey: this.selectedKey
+    }));
   }
 
   private updateFullKey(): void {

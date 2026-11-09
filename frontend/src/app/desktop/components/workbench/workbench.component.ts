@@ -1,11 +1,12 @@
 import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Title } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapQuestionCircle, bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapDash, bootstrapPlus } from '@ng-icons/bootstrap-icons';
 import { lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
+// biome-ignore lint/style/useImportType: <explanation>
+import { SeoService } from '../../../shared/seo';
 import { firstValueFrom, BehaviorSubject } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { OsmdComponent } from '../osmd/osmd.component';
@@ -166,7 +167,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     private cursorService: CursorService,
     private changeDetector: ChangeDetectorRef,
     private scoreService: ScoreService,
-    private titleService: Title
+    private seo: SeoService
   ) {
     this.setupGeneric();
   }
@@ -958,17 +959,16 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   updatePageTitle() {
-    if (this.scoreData) {
-      const author = this.scoreData.author || '';
-      const title = this.scoreData.title || this.title || '';
-      if (author && title) {
-        this.titleService.setTitle(`${author} - ${title}`);
-      } else if (title) {
-        this.titleService.setTitle(`${title}`);
-      } else {
-        this.titleService.setTitle('PianoML: Play and Learn Piano');
-      }
+    if (!this.scoreData) {
+      return;
     }
+
+    const author = this.scoreData.author || '';
+    const title = this.scoreData.title || this.title || '';
+
+    // The practice routes are noindex (see app.routes.ts); this is only here so
+    // the browser tab and bookmarks name the piece being played.
+    this.seo.update({ title: [author, title].filter(Boolean).join(' - ') || undefined });
   }
 
 

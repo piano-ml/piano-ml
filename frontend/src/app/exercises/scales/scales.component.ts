@@ -3,12 +3,12 @@ import { majorKeys, minorKeys, Scale, scales } from '../../desktop/service/music
 import { exercises } from './pattern';
 // biome-ignore lint/style/useImportType: <explanation>
 import { ActivatedRoute, Router } from '@angular/router';
-import { Title } from '@angular/platform-browser';
 import { getWeekOfYear, loadExercice } from '../exercices';
 import type { Exercise } from '../model';
 
 import { FormsModule } from '@angular/forms';
 import { SeoService } from '../../shared/seo';
+import { buildScalesSeo } from './scales.seo';
 import { PopularScoresInKeyComponent } from '../../shared/components/popular-scores-in-key/popular-scores-in-key.component';
 
 @Component({
@@ -34,7 +34,6 @@ export class ScalesComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private titleService: Title,
     private seo: SeoService
   ) { }
 
@@ -106,58 +105,13 @@ export class ScalesComponent implements OnInit {
   }
 
   private updatePageTitle() {
-    const baseUrl = 'https://pianoml.org';
-    const scaleName = this.selectedScale?.name;
-    const exerciseName = this.selectedExcercice?.title;
-    const selectedKey = this.selectedKey;
-
-    let title: string;
-    let description: string;
-    let url: string;
-    let keywords: string;
-
-    if (scaleName && selectedKey && exerciseName) {
-      title = `${scaleName} Scale  of ${selectedKey} - ${exerciseName}`;
-      description = `Practice ${selectedKey} ${scaleName} scale with ${exerciseName} exercise on PianoML. Interactive piano scale exercises with adjustable speed and hands-separated practice.`;
-      const scaleKey = this.selectedScale.key ?? this.selectedScale.name.toLowerCase();
-      const exerciseKey = this.selectedExcercice.key;
-      url = `${baseUrl}/exercises/scale/${selectedKey}/${scaleKey}/${exerciseKey}`;
-      keywords = `piano learning app, sight reading, ${selectedKey} ${scaleName} scale, ${exerciseName}, piano exercises, scale practice`;
-    } else if (scaleName && selectedKey) {
-      title = `${selectedKey} ${scaleName} Scale | PianoML Piano Exercises`;
-      description = `Learn ${selectedKey} ${scaleName} scale on PianoML. Practice with interactive piano scale exercises, hands-separated practice, and adjustable tempo.`;
-      const scaleKey = this.selectedScale.key ?? this.selectedScale.name.toLowerCase();
-      url = `${baseUrl}/exercises/scale/${selectedKey}/${scaleKey}`;
-      keywords = `piano learning app, sight reading, ${selectedKey} ${scaleName} scale, piano scales, scale exercises, piano practice, piano learning`;
-    } else {
-      title = 'Piano Scale Exercises | PianoML - Practice Major & Minor Scales';
-      description = 'Practice piano scales on PianoML with interactive exercises. Contrary motion starting on the same note, Parallel motion in octaves, Parallel motion in thirds, Parallel motion in sixths, Parallel motion in tenths, Left than Right Learn major and minor scales with hands-separated practice, adjustable speed, and various exercise patterns. Improve your piano technique.';
-      url = `${baseUrl}/exercises/scale`;
-      keywords = 'piano scales, piano learning app, sight reading, major scales, minor scales, Harmonic Minor, Melodic Minor, Jazz Minor Scale, Blues Heptatonic, Dorian Scale, Phrygian Dominant, piano exercises, scale practice, circle of fifths, piano technique, piano learning';
-    }
-
-    const structuredData = {
-      '@context': 'https://schema.org',
-      '@type': 'LearningResource',
-      'name': title,
-      'description': description,
-      'learningResourceType': 'Interactive Exercise',
-      'educationalLevel': 'Beginner to Advanced',
-      'about': {
-        '@type': 'Thing',
-        'name': 'Piano Scales',
-        'description': 'Musical scales for piano practice and technique development'
-      }
-    };
-
-    this.seo.update({
-      title,
-      description,
-      canonical: url,
-      type: 'website',
-      image: `${baseUrl}/assets/images/pianoml-og-image.png`,
-      structuredData
-    });
+    this.seo.update(buildScalesSeo({
+      scaleName: this.selectedScale?.name,
+      scaleKey: this.selectedScale?.key ?? this.selectedScale?.name?.toLowerCase(),
+      exerciseName: this.selectedExcercice?.title,
+      exerciseKey: this.selectedExcercice?.key,
+      selectedKey: this.selectedKey
+    }));
   }
 
   private syncKeysForScale(resetSelectedKey = false) {

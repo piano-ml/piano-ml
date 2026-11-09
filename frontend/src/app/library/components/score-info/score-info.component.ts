@@ -1,13 +1,13 @@
 import { Component, OnInit, ChangeDetectorRef, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Title } from '@angular/platform-browser';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo, YoutubeVideoApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapClipboard, bootstrapDownload, bootstrapPencil } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
 import { SeoService } from '../../../shared/seo';
+import { buildScoreSeo } from './score-info.seo';
 import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in-key/exercises-in-key.component';
 import { VideoCarouselComponent } from './components/video-carousel/video-carousel.component';
 import { VideoPlayerModalComponent } from './components/video-player-modal/video-player-modal.component';
@@ -24,7 +24,6 @@ export class ScoreInfoComponent implements OnInit {
   loading = false;
   error: string | null = null;
   score: ScoreApiInfo | null = null;
-  pageTitle = 'Score';
   genres: GenreApiInfo[] = [];
   loadingGenres = false;
   selectedGenre: GenreApiInfo | null = null;
@@ -44,7 +43,6 @@ export class ScoreInfoComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private title: Title,
     private scoreService: ScoreService,
     private genreService: GenreService,
     private workloadService: WorkloadService,
@@ -158,78 +156,8 @@ export class ScoreInfoComponent implements OnInit {
     this.selectedVideo = null;
   }
 
-  private buildScorePageTitle(score: ScoreApiInfo | null): string {
-    if (!score) {
-      return 'Score';
-    }
-
-    const authorName = (score.author || '').trim();
-    const scoreName = (score.title || '').trim();
-
-    const base = `${authorName} - ${scoreName}`.trim();
-    return base ? `${base} piano score` : 'Score';
-  }
-
   private updatePageTitle(score: ScoreApiInfo | null) {
-    if (!score) {
-      this.pageTitle = 'Score';
-      return;
-    }
-
-    const authorName = (score.author || 'Unknown Artist').trim();
-    const scoreName = (score.title || 'Untitled').trim();
-    const genreName = this.selectedGenre?.name || score.genre || '';
-
-    // Build SEO-friendly title
-    const title = `${authorName} - ${scoreName}`;
-    this.pageTitle = title;
-
-    // Build rich description
-    let description = score.description ? `${score.description.trim()} ` : '';
-
-    // Keywords
-    const keywords = [
-      `${scoreName} piano`,
-      `${authorName} piano`,
-      `${scoreName} sheet music`,
-      `${authorName} compositions`,
-      'piano score',
-      'piano practice',
-      'interactive sheet music',
-      'piano learning machine'
-    ];
-    if (genreName) {
-      keywords.push(`${genreName} piano`);
-    }
-    if (score.publicDomain) {
-      keywords.push('public domain piano', 'free piano music');
-    }
-
-    // URL
-    const url = `${this.siteUrl}/score/${score.immutableSlug || score.mutableSlug || this.slug}`;
-
-    // Structured Data
-    const structuredData = {
-      '@context': 'https://schema.org',
-      '@type': 'MusicComposition',
-      'name': scoreName,
-      'composer': {
-        '@type': 'Person',
-        'name': authorName
-      },
-      'inLanguage': 'en',
-      'url': url
-    };
-
-    // Update SEO tags
-    this.seo.update({
-      title,
-      description: description.trim(),
-      canonical: url,
-      type: 'music.song',
-      image: `${this.siteUrl}/assets/images/pianoml-og-image.png`,
-      structuredData
-    });
+    this.seo.update(buildScoreSeo(score, this.slug, this.selectedGenre?.name));
   }
 
 
@@ -254,6 +182,9 @@ export class ScoreInfoComponent implements OnInit {
   updateSelectedGenre() {
     if (this.score?.genre_id && this.genres.length > 0) {
       this.selectedGenre = this.genres.find(g => g.id === this.score?.genre_id) || null;
+      // The genre feeds the description and the JSON-LD, so refresh them once
+      // it is known — genres and the score itself load independently.
+      this.updatePageTitle(this.score);
     }
   }
 
