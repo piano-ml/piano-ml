@@ -157,7 +157,9 @@ jobs:
   sync_pr:
     name: Sync promotion PR
     needs: prepare
-    if: ${{ needs.prepare.result == 'success' && needs.prepare.outputs.needed == 'true' }}
+    # !cancelled(): without a status function GitHub adds success(), which is
+    # false when the upstream tests job was skipped (workflow_call path).
+    if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.prepare.outputs.needed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
