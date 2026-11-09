@@ -7,8 +7,15 @@ import { HomeComponent } from './home/home.component';
 const routes: Routes = [
   {
     path: '',
-    component: HomeComponent
-},
+    component: HomeComponent,
+    data: {
+      seo: {
+        title: 'Piano Exercises: Scales, Arpeggios & Agility',
+        description:
+          'Practice piano scales, arpeggios and agility exercises around the circle of fifths, with hands-separated practice, adjustable tempo and MIDI feedback.'
+      }
+    }
+  },
   {
     path: 'agility',
     component: AgilityComponent,

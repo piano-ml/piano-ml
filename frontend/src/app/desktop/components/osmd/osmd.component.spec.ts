@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { PLATFORM_ID } from '@angular/core';
+import { provideTesting } from '../../../testing/test-providers';
 
 import { OsmdComponent } from './osmd.component';
 
@@ -8,7 +10,13 @@ describe('OsmdComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OsmdComponent]
+      imports: [OsmdComponent],
+      providers: [
+        ...provideTesting(),
+        // Skips loadMusicXML(), which builds a real OpenSheetMusicDisplay and
+        // leaves async work running past the end of the spec.
+        { provide: PLATFORM_ID, useValue: 'server' }
+      ]
     })
     .compileComponents();
 

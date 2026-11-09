@@ -1,33 +1,36 @@
 import type { Routes } from '@angular/router';
 import { LayoutComponent } from './shared/components/layout/layout.component';
+import type { SeoData } from './shared/seo';
+
+/** Mirrors the Disallow rules in robots.txt for routes rendered in-app. */
+const NOINDEX_SEO: SeoData = { noindex: true };
 
 export const routes: Routes = [
     {
         path: 'work',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Practice' }
+        data: { breadcrumb: 'Practice', seo: NOINDEX_SEO }
     },
     {
         path: 'desktop',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Desktop' }
+        data: { breadcrumb: 'Desktop', seo: NOINDEX_SEO }
     },
     {
         path: 'workbench',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Workbench' }
+        data: { breadcrumb: 'Workbench', seo: NOINDEX_SEO }
     },
     {
         component: LayoutComponent,
         path: 'score',
-        data: { breadcrumb: 'Score' },
+        // No breadcrumb here: /score is not a page, so a trail ending on it
+        // would link to a 404. The score itself names the crumb.
         children: [
             {
                 path: ':slug',
                 loadComponent: () => import('./library/components/score-info/score-info.component').then(m => m.ScoreInfoComponent),
-                resolve: {
-                    score: () => import('./library/resolvers/score-info.resolver').then(m => m.scoreInfoResolver)
-                }
+                data: { breadcrumb: 'Score' }
             }
         ]
     },
@@ -35,7 +38,7 @@ export const routes: Routes = [
         component: LayoutComponent,
         path: 'account',
         loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
-        data: { breadcrumb: 'Account' }
+        data: { breadcrumb: 'Account', seo: NOINDEX_SEO }
     },
     {
         component: LayoutComponent,
@@ -48,7 +51,7 @@ export const routes: Routes = [
         component: LayoutComponent,
         path: 'import',
         loadChildren: () => import('./import/import.module').then(m => m.ImportModule),
-        data: { breadcrumb: 'Import' }
+        data: { breadcrumb: 'Import', seo: NOINDEX_SEO }
     },
     {
         path: 'library',
@@ -72,10 +75,13 @@ export const routes: Routes = [
     {
         path: 'error',
         loadComponent: () => import('./shared/components/error/error.component').then(m => m.ErrorComponent),
-        data: { breadcrumb: 'Erreur' }
+        data: { breadcrumb: 'Error', seo: { title: 'Page Error', ...NOINDEX_SEO } }
     },
     {
+        // Unknown URLs used to redirect to the homepage, which search engines
+        // read as a soft 404. Answer in place, with a real 404 and noindex.
         path: '**',
-        redirectTo: ''
+        loadComponent: () => import('./shared/components/error/error.component').then(m => m.ErrorComponent),
+        data: { breadcrumb: 'Not found', status: 404, seo: { title: 'Page Not Found', ...NOINDEX_SEO } }
     }
 ];

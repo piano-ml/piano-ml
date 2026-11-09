@@ -8,21 +8,46 @@ const GENRE_API_URL = 'https://api.pianoml.org/score/genre/browse';
 const AUTHOR_API_URL = 'https://api.pianoml.org/score/author/browse';
 const SCORE_SEARCH_API_URL = 'https://api.pianoml.org/score/search';
 const SCORE_PAGINATION_LIMIT = 100;
+const BLOG_DIR = path.join(__dirname, '../src/assets/blog');
+// Kept out of the index by robots.txt, so they do not belong in the sitemap.
+const BLOG_EXCLUDED = ['help', 'legal'];
 
 // Static URLs to include in the sitemap (app router compatible - no hash routes)
+// Every loc here must match a real route, and the canonical the page emits.
 const staticUrls = [
   { loc: `${BASE_URL}/`, priority: '1.0' },
   { loc: `${BASE_URL}/library`, priority: '1' },
+  { loc: `${BASE_URL}/library/artists`, priority: '0.9' },
+  { loc: `${BASE_URL}/library/new`, priority: '0.9' },
+  { loc: `${BASE_URL}/library/popular`, priority: '0.9' },
+  { loc: `${BASE_URL}/summary`, priority: '0.8' },
+  { loc: `${BASE_URL}/exercises`, priority: '0.8' },
+  { loc: `${BASE_URL}/blog`, priority: '0.8' },
 
   { loc: `${BASE_URL}/exercises/scale/C/major/left_than_right`, priority: '1' },
   { loc: `${BASE_URL}/exercises/scale/G/major/intervals`, priority: '1' },
   { loc: `${BASE_URL}/exercises/scale/D/major/contrary_motion`, priority: '1' },
   { loc: `${BASE_URL}/exercises/scale/A/major/parallel_motion_in_octaves`, priority: '1' },
   { loc: `${BASE_URL}/exercises/agility/E/major/two_octave_arpeggios`, priority: '1' },
-  { loc: `${BASE_URL}/exercises/agility/B/major/arpeggio_root_position`, priority: '1' },    
-  { loc: `${BASE_URL}/blog/thanks-and-acknowledgments`, priority: '0.5' },
-  
+  { loc: `${BASE_URL}/exercises/agility/B/major/arpeggio_root_position`, priority: '1' },
 ];
+
+/**
+ * Blog posts are markdown files served from assets, so the sitemap reads the
+ * directory instead of listing them by hand.
+ */
+function blogUrls() {
+  if (!fs.existsSync(BLOG_DIR)) {
+    console.warn(`! Blog directory not found at ${BLOG_DIR}, skipping blog URLs`);
+    return [];
+  }
+
+  return fs.readdirSync(BLOG_DIR)
+    .filter(file => file.endsWith('.md'))
+    .map(file => path.basename(file, '.md'))
+    .filter(slug => !BLOG_EXCLUDED.includes(slug))
+    .map(slug => ({ loc: `${BASE_URL}/blog/${slug}`, priority: '0.5' }));
+}
 
 /**
  * Fetch data from API
@@ -128,7 +153,7 @@ function generateSitemap(genres, authors, scores) {
   const allUrls = [];
 
   // Add static URLs
-  staticUrls.forEach(({ loc, priority }) => {
+  [...staticUrls, ...blogUrls()].forEach(({ loc, priority }) => {
     allUrls.push({ loc, priority: parseFloat(priority), lastmod: currentDate });
   });
 
@@ -160,7 +185,7 @@ function generateSitemap(genres, authors, scores) {
       // Use updatedAt from API if available, otherwise fall back to currentDate
       const authorLastMod = item.updatedAt ? new Date(item.updatedAt).toISOString() : currentDate;
       allUrls.push({
-        loc: `${BASE_URL}/library/authors/${encodeURIComponent(authorSlug)}`,
+        loc: `${BASE_URL}/library/artists/${encodeURIComponent(authorSlug)}`,
         priority,
         lastmod: authorLastMod
       });
