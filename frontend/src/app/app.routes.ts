@@ -30,10 +30,7 @@ export const routes: Routes = [
             {
                 path: ':slug',
                 loadComponent: () => import('./library/components/score-info/score-info.component').then(m => m.ScoreInfoComponent),
-                data: { breadcrumb: 'Score' },
-                resolve: {
-                    score: () => import('./library/resolvers/score-info.resolver').then(m => m.scoreInfoResolver)
-                }
+                data: { breadcrumb: 'Score' }
             }
         ]
     },
