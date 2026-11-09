@@ -1,26 +1,24 @@
 name: Post-release sync
 
+# Runs on every push to main, not only on merged release PRs: hotfix PRs
+# merged straight into main (e.g. #335) must flow back to develop too,
+# otherwise develop drifts and the next promotion re-diffs them.
 on:
-  pull_request:
-    types:
-      - closed
+  push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: post-release-sync
+  cancel-in-progress: false
+
 jobs:
   sync-develop:
     name: Sync develop with main
-    # release-promotion.yaml opens the release PR from a
-    # `release/promotion-<source>-to-<target>` branch, never from `develop`
-    # directly, so matching only 'develop' here never fired and develop was
-    # left permanently behind main.
-    if: >-
-      github.event.pull_request.merged == true &&
-      (github.event.pull_request.head.ref == 'develop' ||
-      startsWith(github.event.pull_request.head.ref, 'release/promotion-'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -43,8 +41,15 @@ jobs:
             exit 0
           fi
 
-          # Merge main back into develop to include the merge commit
+          # Merge main back into develop. The "chore: sync" subject prefix is
+          # relied on by release-promotion.yaml to skip these in the changelog.
           git checkout -B develop origin/develop
-          git merge --ff origin/main -m "chore: sync develop with main after release"
-          git push origin develop
+          if ! git merge --no-edit origin/main -m "chore: sync develop with main"; then
+            git merge --abort || true
+            echo "::error::Merging main into develop conflicts; sync it manually."
+            exit 1
+          fi
 
+          # Note: a push made with GITHUB_TOKEN does not trigger other
+          # workflows, and fails if develop requires PRs via branch protection.
+          git push origin develop
