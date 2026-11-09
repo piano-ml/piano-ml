@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTesting } from '../../../testing/test-providers';
 
 import { BrowseComponent } from './browse.component';
 
@@ -8,7 +9,8 @@ describe('BrowseComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BrowseComponent]
+      imports: [BrowseComponent],
+      providers: provideTesting()
     })
     .compileComponents();
 

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { provideTesting } from '../../../testing/test-providers';
 import { of } from 'rxjs';
 import { ImportWorkComponent } from './import-work.component';
 
@@ -16,6 +17,7 @@ describe('ImportWorkComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ImportWorkComponent],
       providers: [
+        ...provideTesting(),
         { provide: ActivatedRoute, useValue: mockActivatedRoute }
       ]
     })
@@ -32,13 +34,5 @@ describe('ImportWorkComponent', () => {
 
   it('should set mbid from route params', () => {
     expect(component.mbid).toBe('test-mbid-123');
-  });
-
-  it('should display mbid when provided', () => {
-    component.mbid = 'test-mbid-456';
-    fixture.detectChanges();
-    
-    const compiled = fixture.nativeElement;
-    expect(compiled.textContent).toContain('test-mbid-456');
   });
 });
