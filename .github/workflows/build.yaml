@@ -12,6 +12,12 @@ env:
   IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner }}/pianoml-fe
   BRANCH_NAME: ${{ github.ref_name }}
 
+# A newer push to the same branch supersedes an in-flight build, so an older
+# run can never finish last and leave :main/:develop pointing at stale code.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     name: Run tests
@@ -50,6 +56,9 @@ jobs:
         with:
           context: ./backend
           push: true
+          # Single manifest, no attestation index: cleanup-ghcr.yaml deletes
+          # untagged versions, which would include an index's children.
+          provenance: false
           tags: ${{ env.IMAGE_BACKEND }}:${{ env.BRANCH_NAME }}
           cache-from: type=registry,ref=${{ env.IMAGE_BACKEND }}:cache
           cache-to: type=registry,ref=${{ env.IMAGE_BACKEND }}:cache,mode=max
@@ -82,21 +91,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image
+      # Build into the local daemon first and smoke test it, so a broken image
+      # is never pushed to the branch tag.
+      - name: Build image (local)
         uses: docker/build-push-action@v7
         with:
           context: ./frontend
-          push: true
-          tags: ${{ env.IMAGE_FRONTEND }}:${{ env.BRANCH_NAME }}
+          load: true
+          provenance: false
+          tags: pianoml-fe:smoke
           cache-from: type=registry,ref=${{ env.IMAGE_FRONTEND }}:cache
-          cache-to: type=registry,ref=${{ env.IMAGE_FRONTEND }}:cache,mode=max
 
       - name: Smoke test image
         run: |
           set -euo pipefail
 
-          IMAGE="${{ env.IMAGE_FRONTEND }}:${{ env.BRANCH_NAME }}"
-          docker pull "$IMAGE"
+          IMAGE="pianoml-fe:smoke"
           docker run -d --rm --name fe-smoke -p 8080:4000 "$IMAGE"
 
           fail() {
@@ -132,3 +142,25 @@ jobs:
           echo "SSR verified behind proxy headers"
           docker logs fe-smoke
           docker stop fe-smoke
+
+      # Same context and builder as the local build, so every layer is cached.
+      - name: Push image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./frontend
+          push: true
+          provenance: false
+          tags: ${{ env.IMAGE_FRONTEND }}:${{ env.BRANCH_NAME }}
+          cache-from: type=registry,ref=${{ env.IMAGE_FRONTEND }}:cache
+          cache-to: type=registry,ref=${{ env.IMAGE_FRONTEND }}:cache,mode=max
+
+  # Promotion PR develop -> main, only once tests passed and images are built.
+  # Called from here (instead of its own push trigger) so tests run once.
+  promote:
+    name: Release promotion
+    needs: [backend, frontend]
+    if: github.ref == 'refs/heads/develop'
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: ./.github/workflows/release-promotion.yaml

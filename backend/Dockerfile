@@ -56,10 +56,10 @@ RUN pipx install poetry && \
 ENV PATH="/home/appuser/.local/bin:$PATH"
 
 # Clone and install HOMR (Optical Music Recognition)
-# Note: using --depth=1 on default branch (specific commit hash was removed from upstream)
+# Pinned to release tag v0.7.0 (commit 8b5dcf7d7bdd1a47911dc0c661c573b957271eab)
 RUN git config --global user.email "you@example.com" && \
     git config --global user.name "Your Name" && \
-    git clone --depth=1 https://github.com/liebharc/homr.git && \
+    git clone --depth=1 --branch v0.7.0 https://github.com/liebharc/homr.git && \
     cd homr && \
     poetry install --only main && \
     poetry run python -c "from homr.main import main; import sys; sys.argv = ['homr', '--init']; main()" && \

@@ -75,17 +75,11 @@ echo "python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES 
 #  echo "Harmony already present, skipping auto_harmonize"
 #fi
 
+
 musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml" > /dev/null 2>&1
-musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid" > /dev/null 2>&1
-
-
 
 $HOME/shared-venv/bin/python ./scripts/set_metadata.py "$FROOT.musicxml" "$TITLE" "$COMPOSER" > /dev/null
 
-# sanitize files
-musescore3 -f -o "$FROOT".mscz "$FROOT".musicxml > /dev/null  || exit 1
-musescore3 -f -o "$FROOT".mid "$FROOT".mscz > /dev/null  || exit 1
-musescore3 -f -o "$FROOT".musicxml "$FROOT".mscz > /dev/null  || exit 1
 
 mv "$FROOT".mid "$FROOT".midi
 
@@ -93,7 +87,7 @@ if [ -n "$MAKE_FINGERING" ]; then
   case "$(echo "$MAKE_FINGERING" | tr '[:upper:]' '[:lower:]')" in
     1|true|yes|y)
       echo "Running pianoplayer for fingering detection"
-      pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null  || exit 1
+      pianoplayer "$FROOT".musicxml -o "$FROOT".musicxml -z > /dev/null  || echo "setup fingering failed !"
       ;;
     *)
       echo "Skipping fingering detection (MAKE_FINGERING='$MAKE_FINGERING')"

@@ -11,7 +11,14 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.*;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Map;
 import java.time.OffsetDateTime;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -27,6 +34,8 @@ public class PackService {
   public static final String ORIGINAL_PDF_FILENAME = "ori.pdf";
 
   public static final String ORIGINAL_IMAGE_FILENAME = "ori.png";
+
+  public static final String ORIGINAL_FILENAME_PREFIX = "ori";
 
   @Autowired
   private S3Client s3Client;
@@ -56,7 +65,7 @@ public class PackService {
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
-    return runPackScript("scripts/image2pack.sh", tempFile, packScriptDto);
+    return runPackScript("scripts/image2pack.sh", tempFile, packScriptDto, ".png");
   }
 
   public String packPdf(PackScriptDto packScriptDto) throws IOException {
@@ -65,7 +74,7 @@ public class PackService {
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
-    return runPackScript("scripts/pdf2pack.sh", tempFile, packScriptDto);
+    return runPackScript("scripts/pdf2pack.sh", tempFile, packScriptDto, ".pdf");
   }
 
 
@@ -74,11 +83,7 @@ public class PackService {
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
-    if (packScriptDto.getTrackLeft() == null || packScriptDto.getTrackLeft().equals("")) {
-      return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto);
-    } else {
-      return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto);
-    }
+    return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto, ".midi");
   }
 
   private boolean isZipFile(File file) {
@@ -94,7 +99,7 @@ public class PackService {
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
-    return runPackScript("scripts/musicxml2pack.sh", tempFile, packScriptDto);
+    return runPackScript("scripts/musicxml2pack.sh", tempFile, packScriptDto, packScriptDto.getExtension());
   }
 
   private void uploadOriginalFileToS3(String s3Key, byte[] zipData) {
@@ -192,8 +197,14 @@ public class PackService {
     return baos.toByteArray();
   }
 
-  private String runPackScript(String script, File tempFile, PackScriptDto packScriptDto) throws IOException {
+  /**
+   * Runs a pack script on {@code tempFile} and adds the untouched upload to the resulting zip as
+   * {@code ori<extension>}. The scripts rename or delete their input, so a copy is taken first.
+   */
+  private String runPackScript(String script, File tempFile, PackScriptDto packScriptDto, String extension) throws IOException {
+    Path originalCopy = Files.createTempFile("original_" + packScriptDto.getId(), extension);
     try {
+      Files.copy(tempFile.toPath(), originalCopy, StandardCopyOption.REPLACE_EXISTING);
       // File is already written by calling method, no need to copy inputStream again
 
       // Appel du script de conversion PDF -> MusicXML
@@ -210,15 +221,24 @@ public class PackService {
       if (exitCode != 0) {
         throw new RuntimeException("Error during packing with " + script);
       }
-      return tempFile.getAbsolutePath().replace("upload_", "").split("\\.")[0] + ".zip";
+      String zipPath = tempFile.getAbsolutePath().replace("upload_", "").split("\\.")[0] + ".zip";
+      addOriginalToZip(Paths.get(zipPath), originalCopy, ORIGINAL_FILENAME_PREFIX + extension);
+      return zipPath;
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException("Error during packing", e);
     } finally {
+      Files.deleteIfExists(originalCopy);
       if (tempFile != null && tempFile.exists()) {
         tempFile.delete();
       }
     }
   }
 
-
+  /** Adds {@code file} to an existing zip archive under {@code entryName}, replacing any entry with that name. */
+  static void addOriginalToZip(Path zip, Path file, String entryName) throws IOException {
+    URI uri = URI.create("jar:" + zip.toUri());
+    try (FileSystem zipFs = FileSystems.newFileSystem(uri, Map.of())) {
+      Files.copy(file, zipFs.getPath(entryName), StandardCopyOption.REPLACE_EXISTING);
+    }
+  }
 }
