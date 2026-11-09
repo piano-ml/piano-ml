@@ -25,6 +25,7 @@ import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideBeacon } from 'ng-beacon';
+import { provideSeo } from './shared/seo';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -115,6 +116,7 @@ export const appConfig: ApplicationConfig = {
         });
     }),
 
+    provideSeo(),
     provideClientHydration(withEventReplay()),
     provideBeacon()
   ]
