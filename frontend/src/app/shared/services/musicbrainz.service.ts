@@ -108,7 +108,7 @@ export interface MusicBrainzSearchParams {
 })
 export class MusicbrainzService {
   private readonly baseUrl = 'https://musicbrainz.org/ws/2';
-  private readonly userAgent = 'PianoML-Frontend/1.0 (https://ypianoml.org)';
+  private readonly userAgent = 'PianoML-Frontend/1.0 (https://pianoml.org)';
 
   constructor(private http: HttpClient) {}
 

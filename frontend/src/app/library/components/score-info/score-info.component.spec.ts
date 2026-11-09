@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTesting } from '../../../testing/test-providers';
 
 import { ScoreInfoComponent } from './score-info.component';
 
@@ -8,7 +9,8 @@ describe('ScoreInfoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ScoreInfoComponent]
+      imports: [ScoreInfoComponent],
+      providers: provideTesting()
     })
     .compileComponents();
 

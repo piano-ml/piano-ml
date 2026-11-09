@@ -1,4 +1,4 @@
-import { Injectable, effect, PLATFORM_ID, inject, OnDestroy, DestroyRef } from '@angular/core';
+import { Injectable, effect, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
@@ -31,7 +31,6 @@ export class PlayerService implements OnDestroy {
 
 
   private platformId = inject(PLATFORM_ID);
-  private destroyRef = inject(DestroyRef);
   private isBrowser: boolean;
   private timeCounterInterval?: number;
   private highlightedBadNotes = new Set<GraphicalNote>();
@@ -566,11 +565,10 @@ export class PlayerService implements OnDestroy {
     // Stop audio playback and release score-scoped state
     this.releaseScoreSession();
 
-    // Cleanup via DestroyRef for effect and other resource cleanup
-    this.destroyRef.onDestroy(() => {
-      // Effect will be auto-cleaned up by Angular
-      this.midiEventEffectFn = null;
-    });
+    // Angular cleans the effect up with the injector; just drop the reference.
+    // Registering a destroyRef callback from inside ngOnDestroy throws NG0205,
+    // because by then the injector is already being destroyed.
+    this.midiEventEffectFn = null;
   }
 
 }

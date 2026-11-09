@@ -1,16 +1,10 @@
-import { TestBed } from '@angular/core/testing';
-
+import * as Midi from '@tonejs/midi';
 import { HandDetectorService } from './hand-detector.service';
 
 describe('HandDetectorService', () => {
-  let service: HandDetectorService;
+  it('should be created from a midi object', () => {
+    const service = new HandDetectorService(new Midi.Midi(), false);
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(HandDetectorService);
-  });
-
-  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 });

@@ -8,6 +8,13 @@ const routes: Routes = [
   {
     path: '',
     component: BlogComponent,
+    data: {
+      seo: {
+        title: 'Piano Methods, Études & Articles',
+        description:
+          'Digitized piano methods and études — Burgmüller, Czerny and more — plus articles on practice, sight reading and music theory.'
+      }
+    }
   },
   {
     path: ':slug',
