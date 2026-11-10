@@ -10,13 +10,18 @@ import org.springframework.security.web.csrf.CsrfTokenRepository;
  * Stores the CSRF token in a JS-readable {@code XSRF-TOKEN} cookie (double-submit pattern for the SPA).
  *
  * <p>In production the SPA (pianoml.org) and the API (api.pianoml.org) are different origins, so the cookie
- * must carry {@code Domain=.pianoml.org} for the frontend to read it and echo it in {@code X-XSRF-TOKEN}.
+ * must carry {@code Domain=pianoml.org} (covers every subdomain) for the frontend to read it and echo it in {@code X-XSRF-TOKEN}.
  * Same rule as the login cookie in AccountController: shared domain only when the request Origin is a
  * pianoml.org origin; host-only otherwise (localhost dev, through the /api proxy or direct).
  */
 public class OriginAwareCsrfTokenRepository implements CsrfTokenRepository {
 
-  public static final String SHARED_COOKIE_DOMAIN = ".pianoml.org";
+  /**
+   * No leading dot: Tomcat's RFC 6265 cookie processor rejects ".pianoml.org" (IllegalArgumentException, so every
+   * request from a pianoml.org origin failed with 500). Browsers treat "pianoml.org" exactly like the dotted form:
+   * the cookie is sent to pianoml.org and every subdomain.
+   */
+  public static final String SHARED_COOKIE_DOMAIN = "pianoml.org";
 
   private final CookieCsrfTokenRepository hostOnly = CookieCsrfTokenRepository.withHttpOnlyFalse();
   private final CookieCsrfTokenRepository shared = CookieCsrfTokenRepository.withHttpOnlyFalse();
