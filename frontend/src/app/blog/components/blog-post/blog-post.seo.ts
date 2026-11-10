@@ -34,8 +34,17 @@ function extractFirstParagraph(html: string): string | undefined {
 }
 
 function stripTags(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
+  // Repeat until stable (CodeQL js/incomplete-multi-character-sanitization). With this pattern one pass
+  // cannot leave a complete tag, but the loop keeps that true if the pattern ever changes.
+  let text = html;
+  let previous: string;
+  do {
+    previous = text;
+    text = text.replace(/<[^>]*>/g, '');
+  } while (text !== previous);
+
+  // Entities are decoded last, so a decoded `&lt;` is plain text, never a tag.
+  return text
     .replace(/&(?:amp|lt|gt|quot|#39|nbsp);/g, entity => ENTITIES[entity] ?? ' ')
     .replace(/\s+/g, ' ')
     .trim();

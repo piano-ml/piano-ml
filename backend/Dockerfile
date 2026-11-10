@@ -10,10 +10,16 @@ ENV LANGUAGE=en_US:en
 ENV PYTHONUTF8=1
 ENV JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
 
+# Java 25 runtime: Debian 12 has no openjdk-25 package, so take the official
+# Temurin JRE (kept on Debian 12 for python3.11).
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+COPY --from=eclipse-temurin:25-jre /opt/java/openjdk /opt/java/openjdk
+
 # Install essential packages, including locales for UTF-8 support
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        locales python3.11 python3-pip python3-venv pipx git openjdk-17-jre-headless \
+        locales python3.11 python3-pip python3-venv pipx git \
         poppler-utils zip musescore3 curl ca-certificates sudo unzip && \
     sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
     sed -i 's/^# *\(fr_FR.UTF-8 UTF-8\)/\1/' /etc/locale.gen || true && \
@@ -93,7 +99,15 @@ COPY --chown=appuser:appuser scripts/ /home/appuser/scripts/
 # Expose the application port
 EXPOSE 8080
 
-# Set default JVM options as environment variable
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:+OptimizeStringConcat -Djava.security.egd=file:/dev/urandom -XX:+ExitOnOutOfMemoryError"
+# Default JVM options, tuned for 1 slow CPU and low RAM:
+# - SerialGC: no concurrent GC threads, smallest GC memory overhead on 1 CPU
+# - MaxRAMPercentage=40: the pack scripts (homr/PyTorch, MuseScore) run in
+#   this same container and need the rest of the RAM
+# - InitialRAMPercentage=10: grow the heap on demand instead of reserving it
+# - UseCompactObjectHeaders (Java 25): ~10-20% smaller heap for the same data
+# - TieredStopAtLevel=1: C1 JIT only, much less CPU/RAM spent compiling
+#   (lower peak throughput; remove it if CPU-bound endpoints get slow)
+# - Xss512k / ReservedCodeCacheSize=64m: smaller thread stacks and code cache
+ENV JAVA_OPTS="-XX:+UseSerialGC -XX:MaxRAMPercentage=40.0 -XX:InitialRAMPercentage=10.0 -XX:+UseCompactObjectHeaders -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=64m -Xss512k -Djava.security.egd=file:/dev/urandom -XX:+ExitOnOutOfMemoryError"
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /home/appuser/target/backend.jar \"$@\"", "--"]

@@ -14,10 +14,16 @@ public class PackScriptDto {
   String trackRight = "";
   String trackLeft = "";
   String type;
-  Boolean makeFingerings = true;
+  public static final boolean DEFAULT_MAKE_FINGERINGS = true;
 
-  public PackScriptDto(InputStream inputStream, Score score, String type,  boolean makeFingerings) {
-    this.makeFingerings = makeFingerings;
+  Boolean makeFingerings = DEFAULT_MAKE_FINGERINGS;
+
+  /**
+   * @param makeFingerings null (param omitted, or legacy workload rows without the column) falls back to
+   *                       {@link #DEFAULT_MAKE_FINGERINGS}
+   */
+  public PackScriptDto(InputStream inputStream, Score score, String type, Boolean makeFingerings) {
+    this.makeFingerings = makeFingerings != null ? makeFingerings : DEFAULT_MAKE_FINGERINGS;
     this.id = score.getId().toString();
     this.type = type;
     //this.mbid = score.getMbid().toString();

@@ -1,4 +1,4 @@
-import { Component, type OnInit, ViewEncapsulation, inject } from '@angular/core';
+import { Component, type OnInit, ViewEncapsulation, inject, ChangeDetectionStrategy } from '@angular/core';
 // biome-ignore lint/style/useImportType: <explanation>
 import { ActivatedRoute } from '@angular/router';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -14,6 +14,7 @@ import { postSeo } from './blog-post.seo';
   templateUrl: './blog-post.component.html',
   styleUrls: ['./blog-post.component.css'],
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None
 })
 export class BlogPostComponent implements OnInit {

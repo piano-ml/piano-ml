@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
 
@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
   selector: 'app-summary',
   imports: [RouterModule],
   templateUrl: './summary.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './summary.component.css'
 })
 export class SummaryComponent {

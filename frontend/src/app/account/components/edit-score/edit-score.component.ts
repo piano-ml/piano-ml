@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener, ChangeDetectionStrategy } from '@angular/core';
 
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { ScoreBasicInfoComponent } from "../../../library/components/score-basic
   standalone: true,
   imports: [ReactiveFormsModule, AuthorSearchModalComponent, ScoreBasicInfoComponent],
   templateUrl: './edit-score.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './edit-score.component.css'
 })
 export class EditScoreComponent implements OnInit {

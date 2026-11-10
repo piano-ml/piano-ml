@@ -1,5 +1,5 @@
 import type { EnvironmentProviders, Provider } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideBeacon } from 'ng-beacon';
@@ -17,7 +17,7 @@ import { provideApi } from '../core/api';
 export function provideTesting(): (Provider | EnvironmentProviders)[] {
   return [
     provideRouter([{ path: '**', children: [] }]),
-    provideHttpClient(),
+    provideHttpClient(withXhr()),
     provideHttpClientTesting(),
     provideApi({ basePath: '' }),
     provideBeacon()

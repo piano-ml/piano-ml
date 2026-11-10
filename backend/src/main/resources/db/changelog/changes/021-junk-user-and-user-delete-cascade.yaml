@@ -1,0 +1,128 @@
+# Account self-deletion (POST /account/delete):
+# - a "junk" system user receives the scores of deleted accounts;
+# - score.owner_id gets a real foreign key (ON DELETE RESTRICT): a user who still owns scores cannot be deleted;
+# - user_play_count rows go away with their user (ON DELETE CASCADE).
+databaseChangeLog:
+  - changeSet:
+      id: 021-0-check-junk-name-and-email-free
+      author: pianoml
+      comment: user.name and user.email are unique; fail loudly rather than with a constraint violation.
+      preConditions:
+        - onFail: HALT
+        - onFailMessage: >
+            A real account already uses the name "junk" or the email "junk@pianoml.invalid". Rename it, then restart:
+            changelog 021 creates the "junk" system user that receives the scores of deleted accounts.
+        - sqlCheck:
+            expectedResult: 0
+            sql: >
+              SELECT COUNT(*) FROM pianoml."user"
+              WHERE (name = 'junk' OR email = 'junk@pianoml.invalid') AND id <> '00000000-0000-4000-8000-000000000001'
+      changes:
+        - empty: {}
+
+  - changeSet:
+      id: 021-1-create-junk-user
+      author: pianoml
+      comment: System user owning the scores of deleted accounts. Not a login account (password is not a BCrypt hash).
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM pianoml."user" WHERE id = '00000000-0000-4000-8000-000000000001'
+      changes:
+        - insert:
+            schemaName: pianoml
+            tableName: user
+            columns:
+              - column: { name: id, value: "00000000-0000-4000-8000-000000000001" }
+              - column: { name: email, value: "junk@pianoml.invalid" }
+              - column: { name: name, value: "junk" }
+              - column: { name: password, value: "!no-login" }
+              - column: { name: verified, valueBoolean: false }
+              - column: { name: roles, value: "SYSTEM" }
+
+  - changeSet:
+      id: 021-2-reassign-orphan-scores-to-junk
+      author: pianoml
+      comment: score.owner_id had no foreign key; give scores of already-missing owners to junk so the FK can be added.
+      changes:
+        - sql:
+            sql: >
+              UPDATE pianoml.score SET owner_id = '00000000-0000-4000-8000-000000000001'
+              WHERE owner_id NOT IN (SELECT id FROM pianoml."user")
+
+  - changeSet:
+      id: 021-3-add-score-owner-fk
+      author: pianoml
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - foreignKeyConstraintExists:
+                schemaName: pianoml
+                foreignKeyName: fk_score_owner
+      changes:
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: score
+            baseColumnNames: owner_id
+            constraintName: fk_score_owner
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: RESTRICT
+
+  - changeSet:
+      id: 021-4-create-user-play-count-if-missing
+      author: pianoml
+      comment: >
+        002/007 skip this table where their "tableExists user" precondition misfires (H2 test database).
+        information_schema works the same on PostgreSQL and H2.
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'pianoml' AND table_name = 'user_play_count'
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: user_play_count
+            columns:
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: score_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: count, type: BIGINT, constraints: { nullable: false } }
+              - column: { name: updated_on, type: DATE, constraints: { nullable: false } }
+        - addPrimaryKey:
+            schemaName: pianoml
+            tableName: user_play_count
+            columnNames: user_id,score_id
+            constraintName: pk_user_play_count
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: user_play_count
+            baseColumnNames: score_id
+            constraintName: fk_user_play_count_score
+            referencedTableSchemaName: pianoml
+            referencedTableName: score
+            referencedColumnNames: id
+
+  - changeSet:
+      id: 021-5-drop-user-play-count-user-fk
+      author: pianoml
+      comment: Plain SQL (PostgreSQL and H2) - the foreignKeyConstraintExists precondition is unreliable on H2.
+      changes:
+        - sql:
+            sql: ALTER TABLE pianoml.user_play_count DROP CONSTRAINT IF EXISTS fk_user_play_count_user
+
+  - changeSet:
+      id: 021-6-add-user-play-count-user-fk-cascade
+      author: pianoml
+      changes:
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: user_play_count
+            baseColumnNames: user_id
+            constraintName: fk_user_play_count_user
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: CASCADE

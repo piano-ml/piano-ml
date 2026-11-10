@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
 import { exercises as agilityExercises } from '../../../exercises/agility/pattern';
 import { exercises as scalesExercises } from '../../../exercises/scales/pattern';
@@ -12,6 +12,7 @@ interface ExerciseWithType extends Exercise {
   selector: 'app-exercises-in-key',
   imports: [],
   templateUrl: './exercises-in-key.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './exercises-in-key.component.css'
 })
 export class ExercisesInKeyComponent implements OnChanges {

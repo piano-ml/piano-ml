@@ -2,6 +2,7 @@ import { Component, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, effec
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { isCsrfRejection } from '../../interceptors/xsrf.interceptor';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
@@ -25,6 +26,10 @@ export class AccountHomeComponent implements OnDestroy {
   keyboardPreferencesForm: FormGroup;
   keyboardEditMode = false;
   isMidiSetupOpen = false;
+
+  showDeleteConfirmation = false;
+  deleting = false;
+  deleteError: string | null = null;
   
   private destroy$ = new Subject<void>();
   private midiListeningEnabled = signal<boolean>(false);
@@ -102,6 +107,46 @@ export class AccountHomeComponent implements OnDestroy {
   logout() {
     this.authService.logout();
     this.router.navigate(['/account/login']);
+  }
+
+  openDeleteConfirmation() {
+    this.deleteError = null;
+    this.showDeleteConfirmation = true;
+    this.cdr.markForCheck();
+  }
+
+  cancelDeleteAccount() {
+    if (this.deleting) {
+      return;
+    }
+    this.showDeleteConfirmation = false;
+    this.deleteError = null;
+    this.cdr.markForCheck();
+  }
+
+  confirmDeleteAccount() {
+    if (this.deleting) {
+      return;
+    }
+    this.deleting = true;
+    this.deleteError = null;
+    this.cdr.markForCheck();
+    this.authService.deleteAccount().pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.deleting = false;
+        this.showDeleteConfirmation = false;
+        this.cdr.markForCheck();
+        this.logout();
+      },
+      error: (error: unknown) => {
+        this.deleting = false;
+        // 401 is handled by authInterceptor (session ended); anything else keeps the modal open.
+        this.deleteError = isCsrfRejection(error)
+          ? 'Your session needs a refresh. Please reload the page and try again.'
+          : 'Account deletion failed. Please try again.';
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   loadPreferences() {

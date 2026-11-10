@@ -13,7 +13,10 @@ export interface GenreApiInfo {
     id?: string;
     mbid?: string;
     name?: string;
-    scoreCount?: number;
+    /**
+     * Number of scores in this genre (computed). Read-only; ignored if sent in a request.
+     */
+    readonly scoreCount?: number;
     /**
      * URL-friendly slug for the genre
      */

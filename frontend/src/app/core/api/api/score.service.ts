@@ -497,7 +497,7 @@ export class ScoreService extends BaseService {
      * @param body 
      * @param track1 
      * @param track2 
-     * @param makeFingering 
+     * @param makeFingering Run automatic fingering detection when packing. Defaults to true when omitted.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

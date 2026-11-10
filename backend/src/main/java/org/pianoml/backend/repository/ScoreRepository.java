@@ -36,5 +36,14 @@ public interface ScoreRepository extends CrudRepository<Score, UUID>, IScoreRepo
   @Query("UPDATE Score s SET s.playCount = s.playCount + 1 WHERE s.id = :scoreId")
   void incrementPlayCount(@Param("scoreId") UUID scoreId);
 
+  /**
+   * Moves every score (including soft-deleted ones) from one owner to another.
+   *
+   * @return number of scores moved
+   */
+  @Modifying
+  @Query(value = "UPDATE pianoml.score SET owner_id = :toOwnerId WHERE owner_id = :fromOwnerId", nativeQuery = true)
+  int reassignOwner(@Param("fromOwnerId") UUID fromOwnerId, @Param("toOwnerId") UUID toOwnerId);
+
   // Custom implementation provides countScoresGroupedByAuthor(Integer offset, Integer limit)
 }

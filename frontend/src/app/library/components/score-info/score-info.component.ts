@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, PLATFORM_ID, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo, YoutubeVideoApiInfo } from '../../../core/api';
@@ -18,6 +18,7 @@ import { VideoPlayerModalComponent } from './components/video-player-modal/video
   imports: [CommonModule, NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent, VideoCarouselComponent, VideoPlayerModalComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   viewProviders: [provideIcons({ bootstrapClipboard, bootstrapDownload, bootstrapPencil })]
 })
 export class ScoreInfoComponent implements OnInit {

@@ -16,23 +16,45 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # PR comments need a write token: not available to fork or Dependabot PRs,
+  # which still get the coverage table in the job summary.
+  CAN_COMMENT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' }}
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   backend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       artifact-name: backend-jar-${{ github.sha }}
     steps:
-    - uses: actions/checkout@v6
-    - name: Set up JDK 17
-      uses: actions/setup-java@v5
+    - uses: actions/checkout@v7
+    - name: Set up JDK 25
+      uses: actions/setup-java@v6
       with:
-        java-version: '17'
+        java-version: '25'
         distribution: 'temurin'
         cache: maven
     - name: Build & test
       working-directory: ./backend
       run: mvn --batch-mode --update-snapshots verify
+    - name: Coverage report
+      if: github.event_name == 'pull_request'
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: ${{ github.workspace }}/backend/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: Backend coverage
+        update-comment: true
+        comment-type: ${{ env.CAN_COMMENT == 'true' && 'both' || 'summary' }}
+    - name: Upload coverage summary
+      uses: actions/upload-artifact@v7
+      with:
+        name: coverage-backend-${{ github.sha }}
+        path: backend/target/site/jacoco/jacoco.xml
+        retention-days: 1
     - name: Upload JAR artifact
       uses: actions/upload-artifact@v7
       with:
@@ -41,15 +63,15 @@ jobs:
         retention-days: 1
 
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       artifact-name: frontend-dist-${{ github.sha }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set up Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
-        node-version: '22.22.0'
+        node-version: '26.13.0'
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
     - name: Install dependencies
@@ -65,10 +87,33 @@ jobs:
     - name: Build frontend
       working-directory: ./frontend
       run: npm run build:prod
+    # Vitest runs the specs in headless Chromium through Playwright.
+    - name: Install Playwright Chromium
+      working-directory: ./frontend
+      run: npx playwright install --with-deps chromium
     # After build:prod, whose prebuild step generates src/app/core/api the specs import.
+    - name: Dev proxy and CI script tests
+      working-directory: ./frontend
+      run: npm run test:scripts
     - name: Unit tests
       working-directory: ./frontend
-      run: npx ng test --watch=false --browsers=ChromeHeadless
+      run: npx ng test --watch=false --coverage
+    - name: Coverage report
+      if: always() && hashFiles('frontend/coverage/piano-ml/coverage-summary.json') != ''
+      uses: davelosert/vitest-coverage-report-action@v2
+      with:
+        name: Frontend
+        working-directory: ./frontend
+        json-summary-path: coverage/piano-ml/coverage-summary.json
+        json-final-path: coverage/piano-ml/coverage-final.json
+        file-coverage-mode: changes
+        comment-on: ${{ env.CAN_COMMENT == 'true' && 'pr' || 'none' }}
+    - name: Upload coverage summary
+      uses: actions/upload-artifact@v7
+      with:
+        name: coverage-frontend-${{ github.sha }}
+        path: frontend/coverage/piano-ml/coverage-summary.json
+        retention-days: 1
     - name: Upload dist artifact
       uses: actions/upload-artifact@v7
       with:
@@ -78,7 +123,7 @@ jobs:
 
   summary:
     name: Tests passed
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [backend, frontend]
     if: always()
     steps:

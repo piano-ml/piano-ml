@@ -9,7 +9,7 @@ on:
 jobs:
   cleanup:
     name: Delete untagged and old images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       packages: write  # This allows deletion of packages
     strategy:

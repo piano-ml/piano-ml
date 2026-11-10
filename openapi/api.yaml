@@ -164,16 +164,34 @@ paths:
         '400':
           description: Invalid or expired token
   /account/logout:
-    get:
-      operationId: accountLogoutGet
+    post:
+      operationId: accountLogoutPost
       tags:
         - account
       summary: Log out from the account
+      description: Expires the auth cookie. POST (not GET) so it is CSRF-protected and cannot be triggered by a link.
       responses:
         '200':
           description: Successfully logged out
         '401':
           description: Unauthorized
+  /account/delete:
+    post:
+      operationId: accountDeletePost
+      tags:
+        - account
+      summary: Delete the current user's own account
+      description: >
+        For the logged-in user (no password re-check). The user's scores are kept and moved to the "junk" system
+        user, then the account and its dependent data (play counts) are deleted and the auth cookie is expired.
+        POST rather than DELETE for consistency with logout; CSRF-protected like every write.
+      responses:
+        '204':
+          description: Account deleted
+        '401':
+          description: Not logged in
+        '403':
+          description: CSRF token missing or invalid
   /account/token/renew:
     get:
       operationId: accountTokenRenewGet
@@ -636,8 +654,10 @@ paths:
         - name: makeFingering
           in: query
           required: false
+          description: Run automatic fingering detection when packing. Defaults to true when omitted.
           schema:
             type: boolean
+            default: true
       requestBody:
         required: true
         content:
@@ -1217,11 +1237,19 @@ components:
           type: string
         description:
           type: string
-          description: Description textuelle de l'auteur
+          description: Description textuelle de l'auteur. Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
         composerBioLink:
           type: string
           format: uri
-          description: Link to the composer's biography or external page
+          description: Link to the composer's biography or external page. Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
+        image:
+          type: string
+          maxLength: 255
+          description: Author image URL (standard resolution). Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
+        imageHq:
+          type: string
+          maxLength: 255
+          description: Author image URL (high resolution). Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
     AuthorWithScoreCount:
       type: object
       properties:
@@ -1410,6 +1438,9 @@ components:
         workloadSize:
           type: integer
           format: int32
+        makeFingerings:
+          type: boolean
+          description: Whether automatic fingering detection (pianoplayer) runs for this workload; passed to the *2pack.sh scripts.
 
     UserApiInfo:
       type: object
@@ -1431,6 +1462,8 @@ components:
           format: uri
         roles:
           type: string
+          readOnly: true
+          description: Comma-separated roles (e.g. "USER,ADMIN"). Read-only; ignored if sent in a request.
       required:
         - name
     GenreApiInfo:
@@ -1446,6 +1479,8 @@ components:
         scoreCount:
           type: integer
           format: int32
+          readOnly: true
+          description: Number of scores in this genre (computed). Read-only; ignored if sent in a request.
         slug:
           type: string
           maxLength: 255

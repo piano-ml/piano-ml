@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { YoutubeVideoApiInfo } from '../../../../../core/api';
 import { VideoCarouselItemComponent } from '../video-carousel-item/video-carousel-item.component';
 
@@ -8,6 +8,7 @@ import { VideoCarouselItemComponent } from '../video-carousel-item/video-carouse
   standalone: true,
   imports: [CommonModule, VideoCarouselItemComponent],
   templateUrl: './video-carousel.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './video-carousel.component.css'
 })
 export class VideoCarouselComponent implements AfterViewInit {
