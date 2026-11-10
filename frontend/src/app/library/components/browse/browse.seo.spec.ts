@@ -44,7 +44,7 @@ describe('buildBrowseSeo', () => {
   it('keeps search results out of the index', () => {
     const seo = buildBrowseSeo(state({ searchKeyword: 'moonlight' }));
 
-    expect(seo.noindex).toBeTrue();
+    expect(seo.noindex).toBe(true);
     expect(seo.title).toBe('Search: "moonlight"');
   });
 

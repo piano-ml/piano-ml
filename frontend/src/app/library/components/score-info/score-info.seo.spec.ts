@@ -49,7 +49,7 @@ describe('buildScoreSeo', () => {
 
     expect(composition.musicalKey).toBe('C major');
     expect(composition.duration).toBe('PT3M20S');
-    expect(composition.isAccessibleForFree).toBeTrue();
+    expect(composition.isAccessibleForFree).toBe(true);
   });
 
   it('describes the page videos as VideoObjects', () => {
@@ -66,6 +66,6 @@ describe('buildScoreSeo', () => {
   });
 
   it('keeps a missing score out of the index', () => {
-    expect(buildScoreSeo({ score: null, slug: 'any-slug' }).noindex).toBeTrue();
+    expect(buildScoreSeo({ score: null, slug: 'any-slug' }).noindex).toBe(true);
   });
 });

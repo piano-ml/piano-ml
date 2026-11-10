@@ -65,10 +65,14 @@ jobs:
     - name: Build frontend
       working-directory: ./frontend
       run: npm run build:prod
+    # Vitest runs the specs in headless Chromium through Playwright.
+    - name: Install Playwright Chromium
+      working-directory: ./frontend
+      run: npx playwright install --with-deps chromium
     # After build:prod, whose prebuild step generates src/app/core/api the specs import.
     - name: Unit tests
       working-directory: ./frontend
-      run: npx ng test --watch=false --browsers=ChromeHeadless
+      run: npx ng test --watch=false
     - name: Upload dist artifact
       uses: actions/upload-artifact@v7
       with:
