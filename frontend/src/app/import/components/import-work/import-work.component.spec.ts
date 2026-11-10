@@ -39,7 +39,7 @@ describe('ImportWorkComponent', () => {
 
   describe('upload loading indicator', () => {
     let http: HttpTestingController;
-    const status = () => fixture.nativeElement.querySelector('[role="status"]') as HTMLElement | null;
+    const progress = () => fixture.nativeElement.querySelector('[data-testid="import-progress"]') as HTMLElement | null;
 
     /** Picks a MusicXML file in the drop zone, like a user: the upload starts right away. */
     function pickMusicXml() {
@@ -58,12 +58,13 @@ describe('ImportWorkComponent', () => {
 
     it('shows while the score is created and its file uploaded, replacing the drop zone', () => {
       pickMusicXml();
-      expect(status()?.textContent).toContain('Importing song.musicxml');
+      expect(progress()).not.toBeNull();
+      expect(progress()?.getAttribute('role')).toBe('status'); // announced to screen readers
       expect(fixture.nativeElement.querySelector('#dropzone-file')).toBeNull();
 
       http.expectOne((r) => r.method === 'POST' && r.url.endsWith('/score')).flush({ id: 's1', version: 1 });
       fixture.detectChanges();
-      expect(status()).not.toBeNull(); // still converting on the server
+      expect(progress()).not.toBeNull(); // still converting on the server
     });
 
     it('stays until the new score page opens', () => {
@@ -73,7 +74,7 @@ describe('ImportWorkComponent', () => {
       http.expectOne((r) => r.method === 'POST' && r.url.includes('/score/s1/musicxml/1/0')).flush({});
       fixture.detectChanges();
       expect(navigate).toHaveBeenCalledWith(['/score', 'artist-test']);
-      expect(status()).not.toBeNull();
+      expect(progress()).not.toBeNull();
     });
 
     it('goes away and shows the error dialog when the upload fails', () => {
@@ -82,7 +83,7 @@ describe('ImportWorkComponent', () => {
       http.expectOne((r) => r.method === 'POST' && r.url.includes('/score/s1/musicxml/1/0'))
         .flush({ error: 'boom' }, { status: 500, statusText: 'Server Error' });
       fixture.detectChanges();
-      expect(status()).toBeNull();
+      expect(progress()).toBeNull();
       expect(fixture.nativeElement.querySelector('[role="dialog"]')).not.toBeNull();
     });
   });

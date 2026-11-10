@@ -83,10 +83,10 @@
       
     } @else {
       <!-- Upload + server-side processing (MuseScore, optional automatic fingering) can take a while -->
-      <div class="flex flex-col items-center justify-center gap-3 py-12 text-center" role="status" aria-live="polite">
+      <div class="flex flex-col items-center justify-center gap-3 py-12 text-center" role="status" aria-live="polite" data-testid="import-progress">
         <div class="flex items-center gap-3">
           <div class="spinner w-5 h-5 text-neutral-500"></div>
-          <p class="text-neutral-300">Importing {{ midi?.name || fileName }}…</p>
+          <p class="text-neutral-300">Importing …</p>
         </div>
         <p class="text-sm text-neutral-400">
           Uploading and converting your score{{ makeFingering ? ', with automatic fingering' : '' }}.
