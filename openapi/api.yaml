@@ -175,6 +175,35 @@ paths:
           description: Successfully logged out
         '401':
           description: Unauthorized
+  /account/delete:
+    post:
+      operationId: accountDeletePost
+      tags:
+        - account
+      summary: Delete the current user's own account
+      description: >
+        Requires the current password. The user's scores are kept and moved to the "junk" system user,
+        then the account and its dependent data (play counts) are deleted and the auth cookie is expired.
+        POST with a body rather than DELETE: the password must be confirmed, and DELETE bodies are poorly supported.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  format: password
+              required:
+                - password
+      responses:
+        '204':
+          description: Account deleted
+        '401':
+          description: Not logged in
+        '403':
+          description: Password does not match (or CSRF token missing)
   /account/token/renew:
     get:
       operationId: accountTokenRenewGet

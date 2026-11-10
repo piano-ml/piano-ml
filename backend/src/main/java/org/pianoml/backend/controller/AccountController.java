@@ -58,6 +58,16 @@ public class AccountController implements AccountApi {
   }
 
   @Override
+  public ResponseEntity<Void> accountDeletePost(AccountDeletePostRequest accountDeletePostRequest) {
+    accountService.deleteCurrentUser(SecurityContextHolder.getContext().getAuthentication(),
+      accountDeletePostRequest.getPassword());
+    ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    appendSetCookie(attrs, authCookie("", 0));
+    appendSetCookie(attrs, expireLegacySharedAuthCookie());
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
   public ResponseEntity<Void> accountLogoutPost() {
     ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     appendSetCookie(attrs, authCookie("", 0));

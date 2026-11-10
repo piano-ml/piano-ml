@@ -15,6 +15,7 @@ encoder.ts
 git_push.sh
 index.ts
 model/accountCreatePostRequest.ts
+model/accountDeletePostRequest.ts
 model/accountLoginPost200Response.ts
 model/accountLoginPostRequest.ts
 model/accountPasswordResetPostRequest.ts
