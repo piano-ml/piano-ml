@@ -7,7 +7,8 @@ import { lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 // biome-ignore lint/style/useImportType: <explanation>
 import { SeoService } from '../../../shared/seo';
-import { firstValueFrom, BehaviorSubject } from 'rxjs';
+import { HttpEventType, type HttpEvent } from '@angular/common/http';
+import { firstValueFrom, BehaviorSubject, filter, map, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { OsmdComponent } from '../osmd/osmd.component';
 import { FormsModule } from '@angular/forms';
@@ -109,6 +110,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   // Loading feedback exposed as observable for OnPush template updates
   loadingFeedBack$ = new BehaviorSubject<{ message: string; percentage: number; } | null>(null);
   get loadingFeedBack() { return this.loadingFeedBack$.value; }
+  /** Bytes received / expected per file while the score files download in parallel. */
+  private downloadProgress: Record<'midi' | 'musicxml', { loaded: number; total: number }> = {
+    midi: { loaded: 0, total: 0 },
+    musicxml: { loaded: 0, total: 0 },
+  };
 
 
   // Configuration
@@ -278,6 +284,12 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       }
     }
 
+    if (isPlatformBrowser(this.platformId)) {
+      // Start the heavy soundfont download now, alongside the score, so Play doesn't wait for it.
+      // A failure here is not fatal: start() retries the load when the user presses Play.
+      this.playerService.initSoundFont().catch((error) => console.warn('SoundFont preload failed', error));
+    }
+
     this.routeParamSubscription = this.route.paramMap.subscribe(() => {
       void this.loadRouteContent();
     });
@@ -361,7 +373,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     if (loadId !== this.currentLoadId) {
       return;
     }
-    this.loadingFeedBack$.next({ message: 'download loading score', percentage: 5 });
+    this.downloadProgress = { midi: { loaded: 0, total: 0 }, musicxml: { loaded: 0, total: 0 } };
+    this.loadingFeedBack$.next({ message: 'Downloading score', percentage: 0 });
     const [midiResult, musicXmlResult] = await Promise.all([
       this.downloadMidi(this.scoreData!),
       this.downloadMusicXML(this.scoreData!)
@@ -621,7 +634,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   async downloadMusicXML(scoreData: ScoreApiInfo): Promise<string> {
     await this.loadScoreData(scoreData, 'musicxml', async (data) => {
       const arrayBuffer = await data.arrayBuffer();
-      this.loadingFeedBack$.next({ message: 'decoding musicxml', percentage: 15 });
       const xmlText = WorkbenchComponent.textDecoder.decode(arrayBuffer);
       this.musicXml = xmlText;
       // No return value needed
@@ -637,12 +649,35 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   ): Promise<void> {
     try {
       const data = await firstValueFrom(
-        this.scoreService.scoreOwnerIdTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.id!, type, scoreData.version || 1, 1)
+        this.scoreService.scoreOwnerIdTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.id!, type, scoreData.version || 1, 1, 'events', true).pipe(
+          tap((event: HttpEvent<Blob>) => {
+            if (event.type === HttpEventType.DownloadProgress) {
+              this.reportDownloadProgress(type, event.loaded, event.total);
+            }
+          }),
+          filter((event: HttpEvent<Blob>) => event.type === HttpEventType.Response),
+          map((event) => event.body)
+        )
       );
       await processor(data);
     } catch (error) {
       this.handleLoadError(error);
     }
+  }
+
+  /**
+   * Combined percentage of both files. Only reported once every file has announced its size:
+   * otherwise a small file finishing first would read as 100% before the other one starts.
+   */
+  private reportDownloadProgress(type: 'midi' | 'musicxml', loaded: number, total?: number): void {
+    this.downloadProgress[type] = { loaded, total: total ?? 0 };
+    const files = Object.values(this.downloadProgress);
+    if (files.some((f) => !f.total)) {
+      return;
+    }
+    const expected = files.reduce((sum, f) => sum + f.total, 0);
+    const received = files.reduce((sum, f) => sum + Math.min(f.loaded, f.total), 0);
+    this.loadingFeedBack$.next({ message: 'Downloading score', percentage: Math.min(100, Math.round((received / expected) * 100)) });
   }
 
   private handleLoadError(error: any): void {

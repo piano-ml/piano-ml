@@ -1,8 +1,9 @@
 
 import { ChangeDetectorRef, Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { RETURN_URL_PARAM, safeReturnUrl } from '../../services/return-url';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +21,7 @@ export class LoginComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
@@ -38,7 +40,8 @@ export class LoginComponent {
         next: () => {
           this.isLoading = false;
           this.cdr.detectChanges();
-          this.router.navigate(['/']);
+          // Back to the page the user was on before logging in (validated: same-site paths only)
+          this.router.navigateByUrl(safeReturnUrl(this.route.snapshot.queryParamMap.get(RETURN_URL_PARAM)));
         },
         error: (err) => {
           this.isLoading = false;

@@ -282,3 +282,33 @@ body {
 .osmd-fade-visible {
 	opacity: 1;
 }
+/* ── Score loading feedback (message + percentage + bar) ── */
+.loading-feedback {
+	width: 260px;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.loading-feedback-label {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+}
+
+.loading-feedback-track {
+	height: 4px;
+	width: 100%;
+	border-radius: 9999px;
+	overflow: hidden;
+	background-color: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.loading-feedback-bar {
+	height: 100%;
+	border-radius: inherit;
+	background-color: currentColor;
+	transition: width 150ms linear;
+}

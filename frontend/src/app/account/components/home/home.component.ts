@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { isCsrfRejection } from '../../interceptors/xsrf.interceptor';
 import { AuthService } from '../../services/auth.service';
+import { loginQueryParams } from '../../services/return-url';
 import { Router, RouterModule } from '@angular/router';
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
 import { MidiStateEvent } from '../../../shared/model/webmidi';
@@ -56,7 +57,7 @@ export class AccountHomeComponent implements OnDestroy {
     this.isLoggedIn$ = this.authService.isLoggedIn;
     this.isLoggedIn$.pipe(takeUntil(this.destroy$)).subscribe(isLoggedIn => {
       if (!isLoggedIn) {
-        this.router.navigate(['/account/login']);
+        this.router.navigate(['/account/login'], { queryParams: loginQueryParams(this.router.url) });
       }
     });
     this.loadUserInfo();

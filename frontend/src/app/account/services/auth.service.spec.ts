@@ -98,7 +98,7 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('stores the session, goes home and refreshes from the server', () => {
+    it('stores the session and refreshes from the server, leaving navigation to the caller', () => {
       api['accountLoginPost'].mockReturnValue(of({ userId: 'u1', username: 'Alice', roles: 'USER' }));
       const service = create('browser', null);
       session.getUserId.mockReturnValue('u1');
@@ -106,7 +106,7 @@ describe('AuthService', () => {
       service.login({ email: 'a@example.com', password: 'pw' }).subscribe();
 
       expect(session.persistSessionData).toHaveBeenCalledWith({ userId: 'u1', username: 'Alice', roles: 'USER' });
-      expect(router.navigate).toHaveBeenCalledWith(['/']);
+      expect(router.navigate).not.toHaveBeenCalled();
       expect(api['accountUserinfoGet']).toHaveBeenCalledOnce();
     });
 
@@ -170,10 +170,10 @@ describe('AuthService', () => {
     expect(api['accountUserinfoPut']).toHaveBeenCalledWith({ name: 'b' });
   });
 
-  it('handleUnauthorized clears the session and redirects to login', () => {
+  it('handleUnauthorized clears the session and redirects to login, remembering the page', () => {
     const service = create();
     service.handleUnauthorized();
     expect(session.clearSession).toHaveBeenCalledOnce();
-    expect(router.navigate).toHaveBeenCalledWith(['/account/login']);
+    expect(router.navigate).toHaveBeenCalledWith(['/account/login'], { queryParams: { returnUrl: '/library' } });
   });
 });
