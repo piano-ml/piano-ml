@@ -40,7 +40,10 @@ export function detectKey(chords: Note[][] = []): MajorKeys {
             }
         }
     }
+    // Enharmonic keys score the same and the sort is stable, so on a tie the earlier entry wins:
+    // B (5 sharps) is listed before Cb (7 flats), Gb before F#, Db (5 flats) before C# (7 sharps).
     const keysData: KeyData[] = [
+        { key: MajorKeys.B, value: counts[3] + counts[10] },
         { key: MajorKeys.Cb, value: counts[3] + counts[10] },
         { key: MajorKeys.Gb, value: counts[10] + counts[5] },
         { key: MajorKeys.Db, value: counts[5] + counts[0] },
@@ -53,7 +56,6 @@ export function detectKey(chords: Note[][] = []): MajorKeys {
         { key: MajorKeys.D, value: counts[6] + counts[1] },
         { key: MajorKeys.A, value: counts[1] + counts[8] },
         { key: MajorKeys.E, value: counts[8] + counts[3] },
-        { key: MajorKeys.B, value: counts[3] + counts[10] },
         { key: MajorKeys.FSharp, value: counts[10] + counts[5] },
         { key: MajorKeys.CSharp, value: counts[5] + counts[0] }
     ];
@@ -66,5 +68,6 @@ export function detectKey(chords: Note[][] = []): MajorKeys {
 
 export function isAccentuationSuppressed(keySignature: MajorKeys, pitch: number): boolean {
     const spell = keySpelling[keySignature][pitch % 12]
-    return majorKeySignatureSharpFlats[keySignature]?.indexOf(spell) !== -1
+    // A key whose signature isn't in the table hides nothing (`undefined !== -1` used to hide everything)
+    return majorKeySignatureSharpFlats[keySignature]?.includes(spell) ?? false
   }
