@@ -1,5 +1,6 @@
 package org.pianoml.backend.config;
 
+import org.pianoml.backend.security.CsrfAwareAccessDeniedHandler;
 import org.pianoml.backend.security.CsrfCookieFilter;
 import org.pianoml.backend.security.JwtAuthenticationFilter;
 import org.pianoml.backend.security.OriginAwareCsrfTokenRepository;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
@@ -59,6 +62,12 @@ public class SecurityConfig {
       )
       .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
       .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+      // 401 = no/expired authentication (the SPA ends the session); 403 = refused but still logged in,
+      // with a body telling a CSRF rejection (the SPA retries) from a plain access denial.
+      .exceptionHandling(exceptions -> exceptions
+        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+        .accessDeniedHandler(new CsrfAwareAccessDeniedHandler())
+      )
       .authorizeHttpRequests(authz -> authz
         .requestMatchers(HttpMethod.GET, "/**").permitAll()
         .requestMatchers(HttpMethod.POST,

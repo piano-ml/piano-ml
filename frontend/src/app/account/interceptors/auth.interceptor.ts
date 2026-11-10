@@ -11,7 +11,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   
   return next(req).pipe(
     catchError(error => {
-      if (error.status === 401 || error.status === 403) {
+      // Only 401 means the session is gone (no or expired JWT). A 403 is a refusal for a logged-in user
+      // (not allowed, or a CSRF rejection that xsrfInterceptor already retried): keep the session.
+      if (error.status === 401) {
         console.info('Unauthorized access detected, clearing session');
         
         // Clear session data

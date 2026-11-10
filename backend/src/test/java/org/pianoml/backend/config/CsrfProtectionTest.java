@@ -29,6 +29,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -124,6 +125,60 @@ class CsrfProtectionTest {
         .cookie(new Cookie("Authorization", jwtForNewUser()))
         .contentType(MediaType.APPLICATION_JSON).content(BODY))
       .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void csrfRejection_saysSo_andHandsOutAFreshToken_soTheClientCanRetry() throws Exception {
+    MvcResult rejected = mockMvc.perform(put("/author/{id}", UUID.randomUUID())
+        .cookie(new Cookie("Authorization", jwtForNewUser()))
+        .contentType(MediaType.APPLICATION_JSON).content(BODY))
+      .andExpect(status().isForbidden())
+      .andExpect(jsonPath("$.error").value("CSRF_TOKEN_INVALID"))
+      .andReturn();
+
+    Cookie fresh = xsrfCookie(rejected);
+    assertThat(fresh).as("fresh XSRF-TOKEN on the 403").isNotNull();
+
+    given(authorService.updateAuthor(any(), any(AuthorApiInfo.class), anyBoolean()))
+      .willReturn(Optional.of(new AuthorApiInfo()));
+    mockMvc.perform(put("/author/{id}", UUID.randomUUID())
+        .cookie(new Cookie("Authorization", jwtForNewUser()), fresh)
+        .header("X-XSRF-TOKEN", fresh.getValue())
+        .contentType(MediaType.APPLICATION_JSON).content(BODY))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  void missingAuthentication_is401_notA403() throws Exception {
+    Cookie xsrf = xsrfCookieFromAGet(null);
+    mockMvc.perform(put("/author/{id}", UUID.randomUUID())
+        .cookie(xsrf)
+        .header("X-XSRF-TOKEN", xsrf.getValue())
+        .contentType(MediaType.APPLICATION_JSON).content(BODY))
+      .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void expiredOrInvalidJwt_is401() throws Exception {
+    Cookie xsrf = xsrfCookieFromAGet(null);
+    mockMvc.perform(put("/author/{id}", UUID.randomUUID())
+        .cookie(new Cookie("Authorization", "not-a-valid-jwt"), xsrf)
+        .header("X-XSRF-TOKEN", xsrf.getValue())
+        .contentType(MediaType.APPLICATION_JSON).content(BODY))
+      .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void authenticatedButNotAllowed_staysA403_withoutCsrfCode() throws Exception {
+    // Non-admin genre edit: refused, but the session is valid (the SPA must not log the user out).
+    Cookie xsrf = xsrfCookieFromAGet(null);
+    MvcResult result = mockMvc.perform(put("/genre/{id}", UUID.randomUUID())
+        .cookie(new Cookie("Authorization", jwtForNewUser()), xsrf)
+        .header("X-XSRF-TOKEN", xsrf.getValue())
+        .contentType(MediaType.APPLICATION_JSON).content(BODY))
+      .andExpect(status().isForbidden())
+      .andReturn();
+    assertThat(result.getResponse().getContentAsString()).doesNotContain("CSRF_TOKEN_INVALID");
   }
 
   @Test

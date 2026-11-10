@@ -91,7 +91,7 @@ export class AuthService {
       },
       error: error => {
         console.log('Failed to refresh session from server:', error);
-        if (error?.status === 401 || error?.status === 403) {
+        if (error?.status === 401) {
           this.clearSession(false);
         }
       }

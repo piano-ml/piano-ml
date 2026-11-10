@@ -1,6 +1,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject, InjectionToken, PLATFORM_ID } from '@angular/core';
+import { catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export const XSRF_COOKIE_NAME = 'XSRF-TOKEN';
@@ -12,6 +13,16 @@ export const XSRF_API_BASE = new InjectionToken<string>('XSRF_API_BASE', {
 });
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS', 'TRACE']);
+
+/** Error code the backend puts in the body of a 403 caused by a missing or stale CSRF token. */
+export const CSRF_ERROR_CODE = 'CSRF_TOKEN_INVALID';
+
+/** Marks the single retry, so a request is never retried twice. */
+const CSRF_RETRIED = new HttpContextToken<boolean>(() => false);
+
+export function isCsrfRejection(error: unknown): boolean {
+  return error instanceof HttpErrorResponse && error.status === 403 && error.error?.error === CSRF_ERROR_CODE;
+}
 
 export function readCookie(cookieString: string, name: string): string | null {
   for (const part of cookieString.split(';')) {
@@ -41,6 +52,21 @@ export const xsrfInterceptor: HttpInterceptorFn = (req, next) => {
   if (!req.url.startsWith(inject(XSRF_API_BASE))) {
     return next(req);
   }
-  const token = readCookie(inject(DOCUMENT).cookie ?? '', XSRF_COOKIE_NAME);
-  return next(token ? req.clone({ setHeaders: { [XSRF_HEADER_NAME]: token } }) : req);
+  const document = inject(DOCUMENT);
+  const withToken = (request: HttpRequest<unknown>) => {
+    const token = readCookie(document.cookie ?? '', XSRF_COOKIE_NAME);
+    return token ? request.clone({ setHeaders: { [XSRF_HEADER_NAME]: token } }) : request;
+  };
+
+  return next(withToken(req)).pipe(
+    catchError((error: unknown) => {
+      // The token was missing or stale (first write before any GET, cookie expired or rotated). The 403
+      // response carries a fresh XSRF-TOKEN cookie: retry once with it instead of failing.
+      if (isCsrfRejection(error) && !req.context.get(CSRF_RETRIED)) {
+        const retry = req.clone({ context: req.context.set(CSRF_RETRIED, true) });
+        return next(withToken(retry));
+      }
+      return throwError(() => error);
+    })
+  );
 };
