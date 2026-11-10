@@ -142,7 +142,16 @@
             "browsers": [
               "ChromiumHeadless"
             ],
-            "runnerConfig": true
+            "runnerConfig": true,
+            "coverageReporters": [
+              "json-summary",
+              "json",
+              "html",
+              "text-summary"
+            ],
+            "coverageExclude": [
+              "src/app/core/api/**"
+            ]
           }
         }
       }

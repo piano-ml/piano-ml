@@ -1,3 +1,5 @@
 notes.md
 deno.lock
 #src/assets/version.json
+# Vitest coverage output (ng test --coverage)
+/coverage
