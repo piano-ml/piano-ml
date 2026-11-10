@@ -217,9 +217,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
       const message = this.playerService.message();
       if (message === 'END') {
-        this.isPlaying = false;
-        this.recordAssessment();
-        this.changeDetector.markForCheck();
+        this.onPlaybackEnded();
       } else if (message === 'BAD') {
         this.arenaClass = 'bad';
         this.hideKeyboard = false;
@@ -780,6 +778,20 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.setSliderState(true);
     this.playerService.pause();
     this.isPlaying = false;
+  }
+
+  /**
+   * The score played to its end. Same UI state as stop() (toolbar back, measure range unlocked), except in loop
+   * mode where the player restarts right away and stays "playing".
+   */
+  onPlaybackEnded() {
+    this.recordAssessment();
+    if (!this.playConfiguration.isLoop) {
+      this.isPlaying = false;
+      this.toggleToolbar = true;
+      this.setSliderState(true);
+    }
+    this.changeDetector.markForCheck();
   }
 
   private setSliderState(enabled: boolean) {
