@@ -19,7 +19,7 @@ env:
 
 jobs:
   backend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       artifact-name: backend-jar-${{ github.sha }}
     steps:
@@ -41,7 +41,7 @@ jobs:
         retention-days: 1
 
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       artifact-name: frontend-dist-${{ github.sha }}
     steps:
@@ -82,7 +82,7 @@ jobs:
 
   summary:
     name: Tests passed
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [backend, frontend]
     if: always()
     steps:
