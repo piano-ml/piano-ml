@@ -10,6 +10,7 @@ import {  bootstrapGithub } from '@ng-icons/bootstrap-icons';
 
 import { map, Observable, tap } from 'rxjs';
 import { AuthService } from '../../../account/services/auth.service';
+import { loginQueryParams } from '../../../account/services/return-url';
 
 import versionInfo from '../../../../assets/version.json';
 
@@ -21,7 +22,8 @@ import versionInfo from '../../../../assets/version.json';
     changeDetection: ChangeDetectionStrategy.Eager,
     viewProviders: [provideIcons({ bootstrapGithub })],
 })
-export class LayoutComponent implements OnDestroy {  
+export class LayoutComponent implements OnDestroy {
+  protected readonly loginQueryParams = loginQueryParams;
     version = versionInfo;
   private platformId = inject(PLATFORM_ID);
   private changeDetector = inject(ChangeDetectorRef);

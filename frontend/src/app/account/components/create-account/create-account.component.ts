@@ -61,7 +61,7 @@ export class CreateAccountComponent {
         this.authService.register(this.createAccountForm.value).subscribe({
           next: () => {
             // Redirect to login or home
-            this.router.navigate(['/account/login']);
+            this.router.navigate(['/account/login'], { queryParamsHandling: 'preserve' });
           },
           error: (err) => {
             this.router.navigate(['/error']);            

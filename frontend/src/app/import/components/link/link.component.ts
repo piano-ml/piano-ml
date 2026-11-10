@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { MusicbrainzService, MusicBrainzWork, MusicBrainzWorksResponse, MusicBrainzArtistsResponse, MusicBrainzArtistDetailed } from '../../../shared/services/musicbrainz.service';
 import { SimplifiedWork } from './simplified-work';
 import { AuthService } from '../../../account/services/auth.service';
+import { loginQueryParams } from '../../../account/services/return-url';
 @Component({
   selector: 'app-link',
   imports: [FormsModule, RouterModule],
@@ -13,6 +14,7 @@ import { AuthService } from '../../../account/services/auth.service';
   styleUrl: './link.component.css'
 })
 export class LinkComponent implements OnInit, AfterViewInit {
+  protected readonly loginQueryParams = loginQueryParams;
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
   searchQuery = '';
   loading = false;
@@ -33,7 +35,7 @@ export class LinkComponent implements OnInit, AfterViewInit {
 
   constructor(
     private musicbrainzService: MusicbrainzService,
-    private router: Router,
+    protected router: Router,
     private changeDetector: ChangeDetectorRef,
     private authService: AuthService
   ) { }
