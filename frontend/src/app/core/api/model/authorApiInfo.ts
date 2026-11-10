@@ -26,12 +26,20 @@ export interface AuthorApiInfo {
     slug?: string;
     sortName?: string;
     /**
-     * Description textuelle de l\'auteur
+     * Description textuelle de l\'auteur. Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
      */
     description?: string;
     /**
-     * Link to the composer\'s biography or external page
+     * Link to the composer\'s biography or external page. Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
      */
     composerBioLink?: string;
+    /**
+     * Author image URL (standard resolution). Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
+     */
+    image?: string;
+    /**
+     * Author image URL (high resolution). Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
+     */
+    imageHq?: string;
 }
 

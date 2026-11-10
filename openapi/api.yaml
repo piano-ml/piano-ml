@@ -636,8 +636,10 @@ paths:
         - name: makeFingering
           in: query
           required: false
+          description: Run automatic fingering detection when packing. Defaults to true when omitted.
           schema:
             type: boolean
+            default: true
       requestBody:
         required: true
         content:
@@ -1217,11 +1219,19 @@ components:
           type: string
         description:
           type: string
-          description: Description textuelle de l'auteur
+          description: Description textuelle de l'auteur. Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
         composerBioLink:
           type: string
           format: uri
-          description: Link to the composer's biography or external page
+          description: Link to the composer's biography or external page. Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
+        image:
+          type: string
+          maxLength: 255
+          description: Author image URL (standard resolution). Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
+        imageHq:
+          type: string
+          maxLength: 255
+          description: Author image URL (high resolution). Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
     AuthorWithScoreCount:
       type: object
       properties:
@@ -1410,6 +1420,9 @@ components:
         workloadSize:
           type: integer
           format: int32
+        makeFingerings:
+          type: boolean
+          description: Whether automatic fingering detection (pianoplayer) runs for this workload; passed to the *2pack.sh scripts.
 
     UserApiInfo:
       type: object
@@ -1431,6 +1444,8 @@ components:
           format: uri
         roles:
           type: string
+          readOnly: true
+          description: Comma-separated roles (e.g. "USER,ADMIN"). Read-only; ignored if sent in a request.
       required:
         - name
     GenreApiInfo:
@@ -1446,6 +1461,8 @@ components:
         scoreCount:
           type: integer
           format: int32
+          readOnly: true
+          description: Number of scores in this genre (computed). Read-only; ignored if sent in a request.
         slug:
           type: string
           maxLength: 255

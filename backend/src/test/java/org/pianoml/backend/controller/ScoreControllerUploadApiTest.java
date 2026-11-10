@@ -106,6 +106,35 @@ public class ScoreControllerUploadApiTest {
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .content(body))
       .andExpect(status().isOk());
+
+    // makeFingering omitted -> spec default (true) reaches the service
+    verify(scoreService, times(1)).packAttachmentToScore(eq(score), eq(type), any(), eq(true));
+  }
+
+  @Test
+  void upload_makeFingeringFalse_isPassedThrough() throws Exception {
+    UUID ownerId = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
+    int version = 1;
+    String type = "midi";
+    withAuth(ownerId);
+    User owner = new User();
+    owner.setId(ownerId);
+    Score score = new Score();
+    score.setOwner(owner);
+    score.setMbid(id);
+    score.setVersion(version);
+    when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
+    when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
+      .thenReturn(Optional.of(score));
+
+    mockMvc.perform(post("/score/{mbid}/{type}/{version}/{revision}", id, type, version, 0)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .param("makeFingering", "false")
+        .content("dummy".getBytes()))
+      .andExpect(status().isOk());
+
+    verify(scoreService, times(1)).packAttachmentToScore(eq(score), eq(type), any(), eq(false));
   }
 
 
@@ -234,7 +263,8 @@ public class ScoreControllerUploadApiTest {
     when(userRepository.findById(eq(ownerId))).thenReturn(Optional.of(owner));
     when(scoreRepository.findScoreByIdAndOwnerAndVersion(eq(id), eq(owner), eq(version)))
       .thenReturn(Optional.of(score));
-    doThrow(new java.io.IOException("boom")).when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), eq(null));
+    // makeFingering omitted -> spec default (true)
+    doThrow(new java.io.IOException("boom")).when(scoreService).packAttachmentToScore(eq(score), eq(type), any(), eq(true));
 
     mockMvc.perform(post("/score/{id}/{type}/{version}/{revision}", id, type, version, revision)
         .contentType(MediaType.APPLICATION_OCTET_STREAM)

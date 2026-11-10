@@ -9,6 +9,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -68,7 +72,7 @@ public class AuthorControllerTest {
     createdAuthor.setId(UUID.randomUUID().toString());
     createdAuthor.setName("Jane Doe");
 
-    given(authorService.createAuthor(any(AuthorApiInfo.class))).willReturn(createdAuthor);
+    given(authorService.createAuthor(any(AuthorApiInfo.class), anyBoolean())).willReturn(createdAuthor);
 
     mockMvc.perform(post("/author")
         .contentType(MediaType.APPLICATION_JSON)
@@ -88,7 +92,7 @@ public class AuthorControllerTest {
     updatedAuthor.setId(authorId.toString());
     updatedAuthor.setName("John Smith");
 
-    given(authorService.updateAuthor(any(UUID.class), any(AuthorApiInfo.class))).willReturn(Optional.of(updatedAuthor));
+    given(authorService.updateAuthor(any(UUID.class), any(AuthorApiInfo.class), anyBoolean())).willReturn(Optional.of(updatedAuthor));
 
     mockMvc.perform(put("/author/{id}", authorId)
         .contentType(MediaType.APPLICATION_JSON)
@@ -96,6 +100,59 @@ public class AuthorControllerTest {
       .andExpect(status().isForbidden());
     //.andExpect(jsonPath("$.id").value(authorId.toString()))
     //.andExpect(jsonPath("$.name").value("John Smith"));
+  }
+
+  private String editorialPayload() throws Exception {
+    AuthorApiInfo body = new AuthorApiInfo();
+    body.setMbid(UUID.randomUUID().toString());
+    body.setDescription("d");
+    body.setImage("https://img.example/x.jpg");
+    body.setImageHq("https://img.example/x-hq.jpg");
+    return objectMapper.writeValueAsString(body);
+  }
+
+  @Test
+  @WithMockUser(roles = "USER")
+  public void createAuthor_asUser_isAllowed_andPassesNonAdmin() throws Exception {
+    given(authorService.createAuthor(any(AuthorApiInfo.class), anyBoolean())).willReturn(new AuthorApiInfo());
+
+    mockMvc.perform(post("/author").contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
+      .andExpect(status().isCreated());
+    verify(authorService).createAuthor(any(AuthorApiInfo.class), eq(false));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  public void createAuthor_asAdmin_passesAdmin() throws Exception {
+    given(authorService.createAuthor(any(AuthorApiInfo.class), anyBoolean())).willReturn(new AuthorApiInfo());
+
+    mockMvc.perform(post("/author").contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
+      .andExpect(status().isCreated());
+    verify(authorService).createAuthor(any(AuthorApiInfo.class), eq(true));
+  }
+
+  @Test
+  @WithMockUser(roles = "USER")
+  public void updateAuthor_asUser_passesNonAdmin() throws Exception {
+    UUID id = UUID.randomUUID();
+    given(authorService.updateAuthor(any(UUID.class), any(AuthorApiInfo.class), anyBoolean()))
+      .willReturn(Optional.of(new AuthorApiInfo()));
+
+    mockMvc.perform(put("/author/{id}", id).contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
+      .andExpect(status().isOk());
+    verify(authorService).updateAuthor(eq(id), any(AuthorApiInfo.class), eq(false));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  public void updateAuthor_asAdmin_passesAdmin() throws Exception {
+    UUID id = UUID.randomUUID();
+    given(authorService.updateAuthor(any(UUID.class), any(AuthorApiInfo.class), anyBoolean()))
+      .willReturn(Optional.of(new AuthorApiInfo()));
+
+    mockMvc.perform(put("/author/{id}", id).contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
+      .andExpect(status().isOk());
+    verify(authorService).updateAuthor(eq(id), any(AuthorApiInfo.class), eq(true));
   }
 
 //    @Test
