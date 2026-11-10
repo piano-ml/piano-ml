@@ -25,4 +25,15 @@ describe('postSeo', () => {
   it('has no description when the post has no usable paragraph', () => {
     expect(postSeo('<h1>Title</h1><p>Too short.</p>', 'slug').description).toBeUndefined();
   });
+
+  it('never leaves a complete tag behind, even with nested or malformed markup', () => {
+    for (const heading of ['Safe <scr<b>ipt>x</scr</b>ipt> title', 'a <<b>script>> b', '<<img src=x>>t']) {
+      expect(postSeo(`<h1>${heading}</h1>`, 'slug').title).not.toMatch(/<[^>]*>/);
+    }
+  });
+
+  it('keeps encoded angle brackets as text, decoded after tag removal', () => {
+    const seo = postSeo('<h1>a &lt;b&gt; c</h1>', 'slug');
+    expect(seo.title).toBe('a <b> c');
+  });
 });
