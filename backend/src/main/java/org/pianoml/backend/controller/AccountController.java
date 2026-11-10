@@ -74,9 +74,8 @@ public class AccountController implements AccountApi {
 
     ResponseCookie cookie = cookieBuilder.build();
     log.info("Setting login cookie: {} {} {}", origin, sameSite, isSecure);
-    return ResponseEntity.ok()
-      .header(HttpHeaders.SET_COOKIE, cookie.toString())
-      .body(response);
+    appendSetCookie(attrs, cookie);
+    return ResponseEntity.ok().body(response);
   }
 
   @Override
@@ -110,7 +109,8 @@ public class AccountController implements AccountApi {
     }
 
     ResponseCookie cookie = cookieBuilder.build();
-    return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
+    appendSetCookie(attrs, cookie);
+    return ResponseEntity.ok().build();
   }
 
   @Override
@@ -148,5 +148,16 @@ public class AccountController implements AccountApi {
   public ResponseEntity<UserApiInfo> accountUserinfoPut(UserApiInfo userApiInfo) {
     accountService.updateUserInfo(userApiInfo);
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  /**
+   * Appends the cookie with addHeader. A ResponseEntity Set-Cookie header would replace every Set-Cookie
+   * already on the response, dropping the XSRF-TOKEN cookie written by Spring Security's CSRF filter.
+   */
+  private static void appendSetCookie(ServletRequestAttributes attrs, ResponseCookie cookie) {
+    if (attrs == null || attrs.getResponse() == null) {
+      throw new IllegalStateException("No current HTTP response to set the cookie on");
+    }
+    attrs.getResponse().addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
   }
 }
