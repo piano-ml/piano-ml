@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnDestroy, inject, PLATFORM_ID, NgZone } from '@angular/core';
+import { Component, ChangeDetectorRef, OnDestroy, inject, PLATFORM_ID, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -18,6 +18,7 @@ import versionInfo from '../../../../assets/version.json';
   imports: [RouterModule, CommonModule,   NgIcon],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
+    changeDetection: ChangeDetectionStrategy.Eager,
     viewProviders: [provideIcons({ bootstrapGithub })],
 })
 export class LayoutComponent implements OnDestroy {  

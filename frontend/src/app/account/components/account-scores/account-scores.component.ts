@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo } from '../../../core/api';
@@ -10,6 +10,7 @@ import { QuickActionsComponent } from '../../../shared/components/quick-actions/
   selector: 'app-account-scores',
   imports: [RouterModule, ScoreTableComponent, QuickActionsComponent],
   templateUrl: './account-scores.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './account-scores.component.css'
 })
 export class AccountScoresComponent implements OnInit {

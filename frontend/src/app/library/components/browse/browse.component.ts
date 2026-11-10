@@ -1,5 +1,5 @@
 import { isPlatformBrowser, DecimalPipe } from '@angular/common';
-import { Component, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, PLATFORM_ID, inject, effect } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, PLATFORM_ID, inject, effect, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ScoreService } from '../../../core/api/api/score.service';
@@ -22,6 +22,7 @@ import { BROWSE_TOUR } from './browse.tour';
   selector: 'app-browse',
   templateUrl: './browse.component.html',
   styleUrl: './browse.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     ScoreTableComponent,

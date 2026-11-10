@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { majorKeys, minorKeys, Scale, scales } from '../../desktop/service/music-theory';
 import { exercises } from './pattern';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -15,6 +15,7 @@ import { PopularScoresInKeyComponent } from '../../shared/components/popular-sco
   selector: 'app-scales',
   imports: [FormsModule, PopularScoresInKeyComponent],
   templateUrl: './scales.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './scales.component.css'
 })
 export class ScalesComponent implements OnInit {

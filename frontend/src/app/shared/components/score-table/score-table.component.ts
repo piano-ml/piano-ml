@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api';
 
@@ -29,6 +29,7 @@ export interface ScoreTableEvent {
   selector: 'app-score-table',
   imports: [CommonModule],
   templateUrl: './score-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './score-table.component.css'
 })
 export class ScoreTableComponent implements OnInit {

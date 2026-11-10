@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, Output, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MusicbrainzService } from '../../../core/api/api/musicbrainz.service';
@@ -112,6 +112,7 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
       </div>
     }
     `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: []
 })
 export class AuthorSearchModalComponent implements OnInit {
