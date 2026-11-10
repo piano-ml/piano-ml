@@ -31,8 +31,8 @@ class CsrfComponentsTest {
 
   @Test
   void repository_sharesTheCookieWithPianomlSubdomainsOnly() {
-    assertThat(savedCookie("https://www.pianoml.org")).contains("Domain=.pianoml.org");
-    assertThat(savedCookie("https://staging.pianoml.org")).contains("Domain=.pianoml.org");
+    assertThat(savedCookie("https://www.pianoml.org")).contains("Domain=pianoml.org");
+    assertThat(savedCookie("https://staging.pianoml.org")).contains("Domain=pianoml.org");
     assertThat(savedCookie("https://evil.example")).doesNotContain("Domain=");
     assertThat(savedCookie(null)).doesNotContain("Domain=");
   }
