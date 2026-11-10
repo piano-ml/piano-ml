@@ -26,13 +26,7 @@
     </div>
   }
 
-  @if (loadingAuthors) {
-    <div class="flex items-center justify-center gap-3 py-4" role="status">
-      <div class="spinner w-4 h-4 text-neutral-500"></div>
-      <p class="text-sm text-neutral-400">Loading artists…</p>
-    </div>
-  }
-
+  <!-- No loading indicator here: the score table below loads last and shows the page's single spinner -->
   @if (!loadingAuthors && filteredAuthors.length > 0) {
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
       @for (author of filteredAuthors; track author) {
