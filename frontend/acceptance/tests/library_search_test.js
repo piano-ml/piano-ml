@@ -6,10 +6,23 @@ Scenario('search the library for happy birthday and open the first result', asyn
   // Homepage
   I.amOnPage('/');
   I.waitForText('A Machine to Learn Piano');
+  I.see('Take a seat');
+  I.see('Legal Notice');
+  I.see('LOGIN'); // rendered upper-case by CSS; I.see matches what is displayed
 
   // Homepage -> summary -> library, through the links a visitor would use
   I.click('Take a seat');
   I.waitInUrl('/summary');
+  I.waitForText('Browse library');
+  I.seeElement(locate('a').withAttr({ href: '/exercises' }).withText('Start scales exercices'));
+  for (const [href, title, cta] of [
+    ['/library', 'Library', 'Open library'],
+    ['/exercises', 'Exercises', 'Scales & exercises'],
+    ['/blog/methods', 'Études for Pianists', 'Browse collection'],
+    ['/blog/thanks-and-acknowledgments', 'Acknowledgments', 'Read more'],
+  ]) {
+    I.seeElement(locate('a').withAttr({ href }).withText(title).withText(cta));
+  }
   I.click('Browse library');
   I.waitInUrl('/library');
 
@@ -17,6 +30,19 @@ Scenario('search the library for happy birthday and open the first result', asyn
   I.waitForText('Welcome to the library');
   I.click(locate('button').withAttr({ 'aria-label': 'Close' }));
   I.waitForInvisible('.beacon-tooltip-close');
+
+  // Library controls (the tabs are only shown until a search runs)
+  I.seeElement(locate('#browse-search-keyword').withAttr({ placeholder: 'Search scores by title, artist, or genre...' }));
+  I.seeElement('#browse-grade-range');
+  I.see('One hand');
+  I.see('Two hands');
+  I.seeNumberOfVisibleElements('input[type="checkbox"]', 2);
+  I.seeElement('#browse-tonality');
+  I.see('All keys', '#browse-tonality');
+  I.see('Import');
+  for (const tab of ['New', 'Popular', 'Browse by Genres', 'Browse by Artist']) {
+    I.seeElement(locate('button').withText(tab));
+  }
 
   // Search
   I.fillField('#browse-search-keyword', 'happy birthday');
