@@ -99,7 +99,15 @@ COPY --chown=appuser:appuser scripts/ /home/appuser/scripts/
 # Expose the application port
 EXPOSE 8080
 
-# Set default JVM options as environment variable
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:+OptimizeStringConcat -Djava.security.egd=file:/dev/urandom -XX:+ExitOnOutOfMemoryError"
+# Default JVM options, tuned for 1 slow CPU and low RAM:
+# - SerialGC: no concurrent GC threads, smallest GC memory overhead on 1 CPU
+# - MaxRAMPercentage=40: the pack scripts (homr/PyTorch, MuseScore) run in
+#   this same container and need the rest of the RAM
+# - InitialRAMPercentage=10: grow the heap on demand instead of reserving it
+# - UseCompactObjectHeaders (Java 25): ~10-20% smaller heap for the same data
+# - TieredStopAtLevel=1: C1 JIT only, much less CPU/RAM spent compiling
+#   (lower peak throughput; remove it if CPU-bound endpoints get slow)
+# - Xss512k / ReservedCodeCacheSize=64m: smaller thread stacks and code cache
+ENV JAVA_OPTS="-XX:+UseSerialGC -XX:MaxRAMPercentage=40.0 -XX:InitialRAMPercentage=10.0 -XX:+UseCompactObjectHeaders -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=64m -Xss512k -Djava.security.egd=file:/dev/urandom -XX:+ExitOnOutOfMemoryError"
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /home/appuser/target/backend.jar \"$@\"", "--"]
