@@ -21,6 +21,10 @@ export interface WorkloadApiInfo {
      */
     duration?: number;
     workloadSize?: number;
+    /**
+     * Whether automatic fingering detection (pianoplayer) runs for this workload; passed to the *2pack.sh scripts.
+     */
+    makeFingerings?: boolean;
 }
 export namespace WorkloadApiInfo {
     export const StatusEnum = {

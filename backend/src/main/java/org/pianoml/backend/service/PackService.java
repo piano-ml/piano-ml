@@ -198,6 +198,22 @@ public class PackService {
   }
 
   /**
+   * Command line for the *2pack.sh scripts:
+   * {@code <script> <INPUT_FILE> <TITLE> <COMPOSER> <MAKE_FINGERING> <TRACK_RIGHT> <TRACK_LEFT>}.
+   * MAKE_FINGERING is "true"/"false" (the scripts accept 1|true|yes|y, case-insensitive).
+   */
+  static java.util.List<String> buildScriptCommand(String script, File inputFile, PackScriptDto packScriptDto) {
+    return java.util.Arrays.asList(
+      script,
+      inputFile.getAbsolutePath(),
+      packScriptDto.getTitle(),
+      packScriptDto.getComposer(),
+      String.valueOf(packScriptDto.getMakeFingerings()),
+      packScriptDto.getTrackRight(),
+      packScriptDto.getTrackLeft());
+  }
+
+  /**
    * Runs a pack script on {@code tempFile} and adds the untouched upload to the resulting zip as
    * {@code ori<extension>}. The scripts rename or delete their input, so a copy is taken first.
    */
@@ -208,7 +224,7 @@ public class PackService {
       // File is already written by calling method, no need to copy inputStream again
 
       // Appel du script de conversion PDF -> MusicXML
-      ProcessBuilder pb = new ProcessBuilder(script, tempFile.getAbsolutePath(), packScriptDto.getTitle(), packScriptDto.getComposer(), String.valueOf(packScriptDto.getMakeFingerings()),   packScriptDto.getTrackRight(), packScriptDto.getTrackLeft());
+      ProcessBuilder pb = new ProcessBuilder(buildScriptCommand(script, tempFile, packScriptDto));
       pb.redirectErrorStream(true);
       Process process = pb.start();
       try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()))) {

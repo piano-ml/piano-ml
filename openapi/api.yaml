@@ -636,8 +636,10 @@ paths:
         - name: makeFingering
           in: query
           required: false
+          description: Run automatic fingering detection when packing. Defaults to true when omitted.
           schema:
             type: boolean
+            default: true
       requestBody:
         required: true
         content:
@@ -1418,6 +1420,9 @@ components:
         workloadSize:
           type: integer
           format: int32
+        makeFingerings:
+          type: boolean
+          description: Whether automatic fingering detection (pianoplayer) runs for this workload; passed to the *2pack.sh scripts.
 
     UserApiInfo:
       type: object
