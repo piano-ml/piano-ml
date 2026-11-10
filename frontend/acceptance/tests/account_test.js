@@ -136,7 +136,8 @@ const scoreRow = (title, artistName) => ({
 async function checkPlayable(I, title) {
   I.click(locate('button').withText('Practice'));
   I.waitInUrl('/work/');
-  I.waitForElement('#osmdSvgPage1', 30); // sheet music rendered
+  // Sheet music rendered. Generous: a freshly imported score's files are fetched cold, and production may be busy
+  I.waitForElement('#osmdSvgPage1', 60);
   await closeTourIfShown(I);
   const before = await I.executeScript(() => {
     const c = document.getElementById('cursorImg-0');
