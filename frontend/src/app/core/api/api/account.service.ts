@@ -19,8 +19,6 @@ import { Observable }                                        from 'rxjs';
 // @ts-ignore
 import { AccountCreatePostRequest } from '../model/accountCreatePostRequest';
 // @ts-ignore
-import { AccountDeletePostRequest } from '../model/accountDeletePostRequest';
-// @ts-ignore
 import { AccountLoginPost200Response } from '../model/accountLoginPost200Response';
 // @ts-ignore
 import { AccountLoginPostRequest } from '../model/accountLoginPostRequest';
@@ -165,18 +163,14 @@ export class AccountService extends BaseService {
 
     /**
      * Delete the current user\&#39;s own account
-     * Requires the current password. The user\&#39;s scores are kept and moved to the \&quot;junk\&quot; system user, then the account and its dependent data (play counts) are deleted and the auth cookie is expired. POST with a body rather than DELETE: the password must be confirmed, and DELETE bodies are poorly supported. 
-     * @param accountDeletePostRequest 
+     * For the logged-in user (no password re-check). The user\&#39;s scores are kept and moved to the \&quot;junk\&quot; system user, then the account and its dependent data (play counts) are deleted and the auth cookie is expired. POST rather than DELETE for consistency with logout; CSRF-protected like every write. 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public accountDeletePost(accountDeletePostRequest: AccountDeletePostRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public accountDeletePost(accountDeletePostRequest: AccountDeletePostRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public accountDeletePost(accountDeletePostRequest: AccountDeletePostRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public accountDeletePost(accountDeletePostRequest: AccountDeletePostRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (accountDeletePostRequest === null || accountDeletePostRequest === undefined) {
-            throw new Error('Required parameter accountDeletePostRequest was null or undefined when calling accountDeletePost.');
-        }
+    public accountDeletePost(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public accountDeletePost(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public accountDeletePost(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public accountDeletePost(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -190,15 +184,6 @@ export class AccountService extends BaseService {
 
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
@@ -216,7 +201,6 @@ export class AccountService extends BaseService {
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: accountDeletePostRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

@@ -156,6 +156,28 @@ public class AuthorControllerTest {
     verify(authorService).updateAuthor(eq(id), any(AuthorApiInfo.class), eq(true));
   }
 
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  public void updateAuthor_unknownAuthor_is404() throws Exception {
+    given(authorService.updateAuthor(any(UUID.class), any(AuthorApiInfo.class), anyBoolean())).willReturn(Optional.empty());
+
+    mockMvc.perform(put("/author/{id}", UUID.randomUUID()).with(csrf())
+        .contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
+      .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void controller_withoutAuthentication_treatsTheCallerAsNonAdmin() {
+    // Called outside the security chain (no Authentication at all): never admin.
+    org.springframework.security.core.context.SecurityContextHolder.clearContext();
+    AuthorController controller = new AuthorController(authorService);
+    given(authorService.createAuthor(any(AuthorApiInfo.class), anyBoolean())).willReturn(new AuthorApiInfo());
+
+    controller.authorPost(new AuthorApiInfo());
+
+    verify(authorService).createAuthor(any(AuthorApiInfo.class), eq(false));
+  }
+
 //    @Test
 //    public void testSearchAuthors() throws Exception {
 //        AuthorApiInfo author = new AuthorApiInfo();

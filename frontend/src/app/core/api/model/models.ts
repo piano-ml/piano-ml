@@ -1,5 +1,4 @@
 export * from './accountCreatePostRequest';
-export * from './accountDeletePostRequest';
 export * from './accountLoginPost200Response';
 export * from './accountLoginPostRequest';
 export * from './accountPasswordResetPostRequest';

@@ -13,7 +13,6 @@ import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,23 +46,19 @@ public class AccountService {
   private ScoreRepository scoreRepository;
 
   /**
-   * Deletes the authenticated user's own account, after re-checking the password.
+   * Deletes the authenticated user's own account.
    *
    * <p>Scores are kept and handed to the "junk" system user ({@link SystemUsers#JUNK_ID}); the user row is then
    * deleted and the database removes dependent rows (user_play_count, ON DELETE CASCADE). The score owner
    * foreign key is ON DELETE RESTRICT, so a delete that skipped the move would fail instead of losing scores.
    *
    * @return number of scores moved to the junk user
-   * @throws BadCredentialsException if the password does not match (403, session kept)
    */
   @Transactional
-  public int deleteCurrentUser(Authentication authentication, String password) {
+  public int deleteCurrentUser(Authentication authentication) {
     User user = getUserFromAuthentication(authentication);
     if (SystemUsers.JUNK_ID.equals(user.getId())) {
       throw new IllegalStateException("System users cannot be deleted");
-    }
-    if (password == null || !passwordEncoder.matches(password, user.getPassword())) {
-      throw new BadCredentialsException("Password does not match");
     }
     if (!userRepository.existsById(SystemUsers.JUNK_ID)) {
       throw new IllegalStateException("Junk system user is missing (Liquibase changelog 021)");

@@ -53,4 +53,11 @@ describe('authInterceptor', () => {
     expect(failWith(403)).toBe(403);
     expect(clearSession).not.toHaveBeenCalled();
   });
+
+  it('does not navigate again when already on the login page', () => {
+    (TestBed.inject(Router) as unknown as { url: string }).url = '/account/login';
+    expect(failWith(401)).toBe(401);
+    expect(clearSession).toHaveBeenCalledOnce();
+    expect(navigate).not.toHaveBeenCalled();
+  });
 });

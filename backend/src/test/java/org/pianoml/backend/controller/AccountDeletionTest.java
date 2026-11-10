@@ -28,6 +28,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class AccountDeletionTest {
 
-  private static final String PASSWORD = "s3cret-pw";
+  private static final String PASSWORD = "s3cret-pw"; // login password of test users (not needed to delete)
 
   @Autowired
   private MockMvc mockMvc;
@@ -117,10 +118,6 @@ class AccountDeletionTest {
     return "Bearer " + jwtTokenProvider.generateToken(user);
   }
 
-  private static String body(String password) {
-    return "{\"password\":\"" + password + "\"}";
-  }
-
   // --- migration -------------------------------------------------------------------------------------------
 
   @Test
@@ -175,8 +172,7 @@ class AccountDeletionTest {
     playCount(other.getId(), published);
 
     MvcResult result = mockMvc.perform(post("/account/delete")
-        .header("Authorization", bearer(user))
-        .contentType(MediaType.APPLICATION_JSON).content(body(PASSWORD)))
+        .header("Authorization", bearer(user)))
       .andExpect(status().isNoContent())
       .andReturn();
 
@@ -196,34 +192,36 @@ class AccountDeletionTest {
   }
 
   @Test
-  void delete_withWrongPassword_is403_andChangesNothing() throws Exception {
+  void delete_fromTheBrowser_cookieAuthPlusCsrfToken_succeeds() throws Exception {
     User user = newUser();
     UUID score = newScore(user.getId(), false);
+    MvcResult get = mockMvc.perform(get("/author/search/{q}", "x")).andReturn();
+    String xsrf = get.getResponse().getHeaders("Set-Cookie").stream()
+      .filter(h -> h.startsWith("XSRF-TOKEN=")).findFirst().orElseThrow()
+      .split(";")[0].substring("XSRF-TOKEN=".length());
 
     mockMvc.perform(post("/account/delete")
-        .header("Authorization", bearer(user))
-        .contentType(MediaType.APPLICATION_JSON).content(body("wrong")))
-      .andExpect(status().isForbidden());
+        .cookie(new Cookie("Authorization", jwtTokenProvider.generateToken(user)), new Cookie("XSRF-TOKEN", xsrf))
+        .header("X-XSRF-TOKEN", xsrf))
+      .andExpect(status().isNoContent());
 
-    assertThat(ownerOf(score)).isEqualTo(user.getId());
-    assertThat(count("SELECT COUNT(*) FROM pianoml.\"user\" WHERE id = ?", user.getId())).isEqualTo(1);
+    assertThat(ownerOf(score)).isEqualTo(SystemUsers.JUNK_ID);
+    assertThat(count("SELECT COUNT(*) FROM pianoml.\"user\" WHERE id = ?", user.getId())).isZero();
   }
 
   @Test
-  void delete_withoutPassword_is400() throws Exception {
+  void deletedUsersToken_isNoLongerAccepted() throws Exception {
     User user = newUser();
-    mockMvc.perform(post("/account/delete")
-        .header("Authorization", bearer(user))
-        .contentType(MediaType.APPLICATION_JSON).content("{}"))
-      .andExpect(status().isBadRequest());
-    assertThat(count("SELECT COUNT(*) FROM pianoml.\"user\" WHERE id = ?", user.getId())).isEqualTo(1);
+    String token = bearer(user);
+    mockMvc.perform(post("/account/delete").header("Authorization", token)).andExpect(status().isNoContent());
+
+    mockMvc.perform(post("/account/delete").header("Authorization", token)).andExpect(status().isUnauthorized());
   }
 
   @Test
   void delete_withoutAuthentication_is401() throws Exception {
     mockMvc.perform(post("/account/delete")
-        .header("Authorization", "Bearer not-a-jwt")
-        .contentType(MediaType.APPLICATION_JSON).content(body(PASSWORD)))
+        .header("Authorization", "Bearer not-a-jwt"))
       .andExpect(status().isUnauthorized());
   }
 
@@ -231,8 +229,7 @@ class AccountDeletionTest {
   void delete_withCookieAuthButNoCsrfToken_isRejected() throws Exception {
     User user = newUser();
     mockMvc.perform(post("/account/delete")
-        .cookie(new Cookie("Authorization", jwtTokenProvider.generateToken(user)))
-        .contentType(MediaType.APPLICATION_JSON).content(body(PASSWORD)))
+        .cookie(new Cookie("Authorization", jwtTokenProvider.generateToken(user))))
       .andExpect(status().isForbidden())
       .andExpect(jsonPath("$.error").value("CSRF_TOKEN_INVALID"));
     assertThat(count("SELECT COUNT(*) FROM pianoml.\"user\" WHERE id = ?", user.getId())).isEqualTo(1);
