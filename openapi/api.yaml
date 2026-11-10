@@ -1456,6 +1456,8 @@ components:
         scoreCount:
           type: integer
           format: int32
+          readOnly: true
+          description: Number of scores in this genre (computed). Read-only; ignored if sent in a request.
         slug:
           type: string
           maxLength: 255
