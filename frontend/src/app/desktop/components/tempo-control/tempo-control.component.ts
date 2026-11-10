@@ -12,6 +12,9 @@ import { NgIcon } from '@ng-icons/core';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TempoControlComponent {
+  static readonly MIN = 20;
+  static readonly MAX = 200;
+
   @Input() isOpen = false;
   @Input() tempo = 120;
   @Input() metronome = false;
@@ -47,7 +50,7 @@ export class TempoControlComponent {
   }
 
   setTempo(value: number) {
-    const v = Math.round(Math.min(200, Math.max(20, value)));
+    const v = Math.round(Math.min(TempoControlComponent.MAX, Math.max(TempoControlComponent.MIN, value)));
     if (v !== this.tempo) {
       this.tempo = v;
       this.tempoChange.emit(this.tempo);
@@ -63,9 +66,22 @@ export class TempoControlComponent {
     this.setTempo(this.tempo - 1);
   }
 
+  /** While typing: apply only values inside the range, so "1" on the way to "120" does not jump to 20. */
   onNumberInput(val: string) {
     const n = Number(val);
-    if (!isNaN(n)) this.setTempo(n);
+    if (val !== '' && !isNaN(n) && n >= TempoControlComponent.MIN && n <= TempoControlComponent.MAX) {
+      this.setTempo(n);
+    }
+  }
+
+  /**
+   * On commit (Enter / blur): clamp, then always rewrite the field. [value]="tempo" alone does not refresh the
+   * field when the clamped tempo equals the current one (typing 9999 at 200 used to leave "9999" displayed).
+   */
+  onNumberCommit(input: HTMLInputElement) {
+    const n = Number(input.value);
+    if (input.value !== '' && !isNaN(n)) this.setTempo(n);
+    input.value = String(this.tempo);
   }
 
   onRangeInput(val: string) {

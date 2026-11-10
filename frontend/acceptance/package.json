@@ -1,0 +1,15 @@
+{
+  "name": "pianoml-acceptance",
+  "private": true,
+  "description": "End-to-end acceptance tests (CodeceptJS + Playwright), run against a deployed PianoML site.",
+  "type": "module",
+  "scripts": {
+    "test": "codeceptjs run --steps",
+    "test:headed": "HEADLESS=false codeceptjs run --steps",
+    "install:browser": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "codeceptjs": "4.2.2",
+    "playwright": "1.65.0"
+  }
+}

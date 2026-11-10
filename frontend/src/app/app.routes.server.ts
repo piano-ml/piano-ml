@@ -28,6 +28,26 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   
+  // Private pages: the session lives in the browser (localStorage + HttpOnly cookie sent by the browser), so
+  // server-side rendering always sees a logged-out visitor and redirected /account/home to /account/login on
+  // reload. They have no SEO value: render them in the browser only.
+  {
+    path: 'account/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'account',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'import/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'import',
+    renderMode: RenderMode.Client
+  },
+
   // Toutes les autres routes utilisent le SSR
   {
     path: '**',

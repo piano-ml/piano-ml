@@ -12,6 +12,7 @@
     "test": "ng test",
     "test:proxy": "node --test proxy.conf.test.mjs",
     "test:scripts": "node --test proxy.conf.test.mjs ../.github/scripts/coverage-badge.test.mjs",
+    "acceptance": "npm --prefix acceptance test",
     "generate:api": "openapi-generator-cli generate -i ../openapi/api.yaml -g typescript-angular -o src/app/core/api --additional-properties=ngVersion=17.0.0",
     "prestart": "npm run generate:api",
     "shaders:manifest": "node scripts/generate-shader-manifest.js",
