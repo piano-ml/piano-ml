@@ -1439,6 +1439,8 @@ components:
           format: uri
         roles:
           type: string
+          readOnly: true
+          description: Comma-separated roles (e.g. "USER,ADMIN"). Read-only; ignored if sent in a request.
       required:
         - name
     GenreApiInfo:

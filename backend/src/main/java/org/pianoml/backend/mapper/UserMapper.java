@@ -16,5 +16,7 @@ public interface UserMapper {
   @Mapping(target = "url", ignore = true)
   @Mapping(target = "bio", ignore = true)
   @Mapping(target = "image", ignore = true)
+  // Roles are server-assigned (AccountService sets the default) and never taken from API input.
+  @Mapping(target = "roles", ignore = true)
   User toUser(AccountCreatePostRequest accountCreatePostRequest);
 }
