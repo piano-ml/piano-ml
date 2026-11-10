@@ -74,6 +74,7 @@
     "@types/lodash": "^4.17.16",
     "@types/node": "22.13.14",
     "@vitest/browser-playwright": "^5.1.0",
+    "@vitest/coverage-v8": "^5.1.0",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.10",
     "postcss": "^8.5.14",

@@ -16,6 +16,13 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # PR comments need a write token: not available to fork or Dependabot PRs,
+  # which still get the coverage table in the job summary.
+  CAN_COMMENT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' }}
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   backend:
@@ -33,6 +40,21 @@ jobs:
     - name: Build & test
       working-directory: ./backend
       run: mvn --batch-mode --update-snapshots verify
+    - name: Coverage report
+      if: github.event_name == 'pull_request'
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: ${{ github.workspace }}/backend/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: Backend coverage
+        update-comment: true
+        comment-type: ${{ env.CAN_COMMENT == 'true' && 'both' || 'summary' }}
+    - name: Upload coverage summary
+      uses: actions/upload-artifact@v7
+      with:
+        name: coverage-backend-${{ github.sha }}
+        path: backend/target/site/jacoco/jacoco.xml
+        retention-days: 1
     - name: Upload JAR artifact
       uses: actions/upload-artifact@v7
       with:
@@ -72,7 +94,23 @@ jobs:
     # After build:prod, whose prebuild step generates src/app/core/api the specs import.
     - name: Unit tests
       working-directory: ./frontend
-      run: npx ng test --watch=false
+      run: npx ng test --watch=false --coverage
+    - name: Coverage report
+      if: always() && hashFiles('frontend/coverage/piano-ml/coverage-summary.json') != ''
+      uses: davelosert/vitest-coverage-report-action@v2
+      with:
+        name: Frontend
+        working-directory: ./frontend
+        json-summary-path: coverage/piano-ml/coverage-summary.json
+        json-final-path: coverage/piano-ml/coverage-final.json
+        file-coverage-mode: changes
+        comment-on: ${{ env.CAN_COMMENT == 'true' && 'pr' || 'none' }}
+    - name: Upload coverage summary
+      uses: actions/upload-artifact@v7
+      with:
+        name: coverage-frontend-${{ github.sha }}
+        path: frontend/coverage/piano-ml/coverage-summary.json
+        retention-days: 1
     - name: Upload dist artifact
       uses: actions/upload-artifact@v7
       with:
