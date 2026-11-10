@@ -226,8 +226,7 @@ export class ImportWorkComponent implements OnInit {
             }, next: (data) => {
                 this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, type, data.version!, 0, blob,undefined,undefined, this.makeFingering).subscribe({
                     next: (data2) => {
-                        this.loading = false;
-                        this.changeDetector.detectChanges();
+                        // Keep the loading indicator until the score page opens (no flash of the drop zone)
                         const slug = data.immutableSlug || data.mutableSlug;
                         if (slug) {
                             this.route.navigate(['/score', slug]);
@@ -318,8 +317,7 @@ export class ImportWorkComponent implements OnInit {
                     const track2= this.studies[1] || undefined;
                     this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, "midi", data.version!, 0, blob,track1,track2,this.makeFingering).subscribe({
                         next: (data2) => {
-                            this.loading = false;
-                            this.changeDetector.detectChanges();
+                            // Keep the loading indicator until the score page opens (no flash of the drop zone)
                             const slug = data.immutableSlug || data.mutableSlug;
                             if (slug) {
                                 this.route.navigate(['/score', slug]);
