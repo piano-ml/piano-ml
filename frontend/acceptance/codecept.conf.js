@@ -13,6 +13,8 @@ export const config = {
       browser: 'chromium',
       show: process.env.HEADLESS === 'false',
       windowSize: '1366x900',
+      // Same rendering everywhere (dates in "Score information" depend on locale and timezone).
+      emulate: { locale: 'en-US', timezoneId: 'UTC' },
       // The site keeps long-lived requests open, so the "load" event can take very long:
       // consider a navigation done at DOMContentLoaded and wait for visible elements instead.
       waitForNavigation: 'domcontentloaded',
