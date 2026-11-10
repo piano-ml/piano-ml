@@ -152,7 +152,7 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-run</artifactId>
-      <version>0.92.0</version>
+      <version>0.102.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.apis</groupId>
