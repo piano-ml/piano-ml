@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 
 Feature('Account');
 
-// Dedicated acceptance account. Login is tried first; the account is created only when login fails, and the
-// scenario deletes it at the end, so every run starts from scratch. Override with env vars if needed.
+// Dedicated acceptance account. Each run starts fresh: a leftover account (from a run that failed midway) is
+// deleted first, then the account is created, used and deleted at the end. Override with env vars if needed.
 const USER = {
   name: process.env.ACCEPTANCE_NAME || 'acceptance-test',
   email: process.env.ACCEPTANCE_EMAIL || 'acceptance-test@example.com',
@@ -51,10 +51,35 @@ async function searchMusicBrainz(I, results, attempts = 3) {
   throw new Error(`MusicBrainz search still failing after ${attempts} attempts`);
 }
 
+/**
+ * Deletes the logged-in account from its account page (reached through the header link: a full reload of
+ * /account/home while logged in currently redirects to /account/login, server-side rendering does not see the
+ * session kept in localStorage), then checks the same credentials are refused.
+ */
+async function deleteAccount(I) {
+  I.click(locate('a.user-link').withText(USER.name));
+  I.waitInUrl('/account/home');
+  I.waitForElement(locate('button').withText('Delete account'), 15);
+  I.click(locate('button').withText('Delete account'));
+  I.waitForElement('[role="dialog"]');
+  I.see('This action cannot be undone', '[role="dialog"]');
+  I.click(locate('button').withText('Delete my account'));
+  I.waitInUrl('/account/login', 15);
+  if (await login(I)) throw new Error('the deleted account can still log in');
+  I.see('Access denied - Please check your credentials');
+}
+
 Scenario('log in or sign up, inspect the account, import a score, delete the account', async ({ I }) => {
-  // --- Log in, or create the account then log in --------------------------------------------------------
-  if (!(await login(I))) {
+  // --- Start from a fresh account: a leftover one (from a run that failed midway) is deleted first ---------------
+  if (await login(I)) {
+    I.waitForElement(locate('a.user-link').withText(USER.name), 15);
+    await deleteAccount(I);
+  } else {
     I.see('Access denied - Please check your credentials');
+  }
+
+  // --- Create the account, then log in -----------------------------------------------------------------------
+  {
     I.click("Don't have an account? Create one");
     I.waitInUrl('/account/create');
     I.fillField('#name', USER.name);
@@ -121,36 +146,53 @@ Scenario('log in or sign up, inspect the account, import a score, delete the acc
   I.see('Enable automatic fingering');
 
   // --- Upload the MusicXML sample: choosing a MusicXML file uploads it straight away -----------------------------------
-  // DISABLED for now: on production POST /score answers 404 "MusicBrainz returned no author for mbid ..." (the
-  // backend's own MusicBrainz lookup fails). Re-enable once that is fixed.
-  // // The file input is hidden behind the drop zone: set it through Playwright (I.attachFile wants it visible)
-  // await I.usePlaywrightTo('choose the MusicXML file', async ({ page }) => {
-  //   await page.setInputFiles('#dropzone-file', SAMPLE);
-  // });
-  // I.waitInUrl('/score/', 90); // score created, file packed on the backend
-  // I.waitForText(TITLE, 30, 'h1');
-  // I.see(artistName, 'h1');
-  //
-  // // The new score is listed in My Scores
-  // I.amOnPage('/account/scores');
-  // I.waitForElement(locate('table tbody tr').withText(TITLE), 15);
-  void SAMPLE;
-  void artistName;
+  // The file input is hidden behind the drop zone: set it through Playwright (I.attachFile wants it visible)
+  await I.usePlaywrightTo('choose the MusicXML file', async ({ page }) => {
+    await page.setInputFiles('#dropzone-file', SAMPLE);
+  });
+  I.waitInUrl('/score/', 90); // score created, file packed on the backend
+  I.waitForText(TITLE, 30, 'h1');
+  I.see(artistName, 'h1');
 
-  // --- Delete the account, so the next run starts from scratch ---------------------------------------------------------
-  // Go back through the header link, as a user would. A full reload of /account/home while logged in currently
-  // redirects to /account/login (server-side rendering does not see the session kept in localStorage).
+  // --- My Scores lists the new score; it opens and is playable ------------------------------------------------------------
   I.click(locate('a.user-link').withText(USER.name));
   I.waitInUrl('/account/home');
-  I.waitForElement(locate('button').withText('Delete account'), 15);
-  I.click(locate('button').withText('Delete account'));
-  I.waitForElement('[role="dialog"]');
-  I.see('This action cannot be undone', '[role="dialog"]');
-  I.click(locate('button').withText('Delete my account'));
-  I.waitInUrl('/account/login', 15);
+  I.click(locate('a').withText('My Scores'));
+  I.waitInUrl('/account/scores');
+  const myScore = locate('table tbody tr').withText(TITLE).withText(artistName);
+  I.waitForElement(myScore, 15);
+  I.see('1 score'); // the account owns exactly this score
+  I.click(myScore);
+  I.waitInUrl('/score/');
+  I.waitForText(TITLE, 15, 'h1');
+  I.click(locate('button').withText('Practice'));
+  I.waitInUrl('/work/');
+  I.waitForElement('#osmdSvgPage1', 30); // sheet music rendered
+  I.waitForText('Welcome to the Workbench!', 15); // first-visit guided tour
+  I.click(locate('button').withAttr({ 'aria-label': 'Close' }));
+  I.waitForInvisible('.beacon-tooltip', 5);
+  const before = await I.executeScript(() => {
+    const c = document.getElementById('cursorImg-0');
+    return c ? { left: c.style.left, top: c.style.top } : null;
+  });
+  I.click('#play-pause button');
+  I.waitForElement('#play-pause ng-icon[name="bootstrapPauseFill"]', 5);
+  // Playable: the cursor moves once the soundfont is loaded and the count-in is over
+  I.waitForFunction(
+    (left, top) => {
+      const c = document.getElementById('cursorImg-0');
+      return !!c && (c.style.left !== left || c.style.top !== top);
+    },
+    [before?.left ?? '', before?.top ?? ''],
+    30,
+  );
+  I.click('#play-pause button');
+  I.waitForElement('#play-pause ng-icon[name="bootstrapPlayFill"]', 5);
+  // The workbench has no site header: back to the score page through its info button
+  I.click('#score-info');
+  I.waitInUrl('/score/');
+  I.waitForText(TITLE, 15, 'h1');
 
-  // The account is gone: the same credentials are refused.
-  const stillLoggable = await login(I);
-  if (stillLoggable) throw new Error('the deleted account can still log in');
-  I.see('Access denied - Please check your credentials');
+  // --- Delete the account, so the next run starts from scratch ---------------------------------------------------------
+  await deleteAccount(I);
 });
