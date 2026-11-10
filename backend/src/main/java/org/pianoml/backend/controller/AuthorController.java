@@ -7,11 +7,14 @@ import org.pianoml.backend.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.pianoml.backend.security.SecurityUtils.isAdmin;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +31,7 @@ public class AuthorController implements AuthorApi {
 
   @Override
   public ResponseEntity<AuthorApiInfo> authorMbidPut(String id, AuthorApiInfo authorApiInfo) {
-    Optional<AuthorApiInfo> updatedAuthor = authorService.updateAuthor(UUID.fromString(id),authorApiInfo);
+    Optional<AuthorApiInfo> updatedAuthor = authorService.updateAuthor(UUID.fromString(id), authorApiInfo, currentUserIsAdmin());
     return updatedAuthor.map(apiInfo ->
         new ResponseEntity<>(apiInfo, HttpStatus.OK)
       ).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -36,7 +39,7 @@ public class AuthorController implements AuthorApi {
 
   @Override
   public ResponseEntity<AuthorApiInfo> authorPost(AuthorApiInfo authorApiInfo) {
-    AuthorApiInfo createdAuthor = authorService.createAuthor(authorApiInfo);
+    AuthorApiInfo createdAuthor = authorService.createAuthor(authorApiInfo, currentUserIsAdmin());
     return new ResponseEntity<>(createdAuthor, HttpStatus.CREATED);
   }
 
@@ -44,5 +47,10 @@ public class AuthorController implements AuthorApi {
   public ResponseEntity<List<AuthorApiInfo>> authorSearchQueryGet(String query) {
     List<AuthorApiInfo> authors = authorService.searchAuthors(query);
     return ResponseEntity.ok(authors);
+  }
+
+  private static boolean currentUserIsAdmin() {
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
+    return authentication != null && isAdmin(authentication);
   }
 }

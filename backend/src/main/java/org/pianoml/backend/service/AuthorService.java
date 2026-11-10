@@ -50,11 +50,17 @@ public class AuthorService {
     }
   }
 
-  public AuthorApiInfo createAuthor(AuthorApiInfo authorApiInfo) {
+  /**
+   * Creates (or reuses) an author from MusicBrainz. Any authenticated user may do this;
+   * editorial fields are only applied when {@code isAdmin} is true.
+   */
+  public AuthorApiInfo createAuthor(AuthorApiInfo authorApiInfo, boolean isAdmin) {
     Author author = maybeCreateAuthor(UUID.fromString(authorApiInfo.getMbid()));
-    author.setComposerBioLink(authorApiInfo.getComposerBioLink().toString());
-    author.setDescription(authorApiInfo.getDescription());
-    return authorMapper.toAuthorApiInfo(author);
+    if (!isAdmin) {
+      return authorMapper.toAuthorApiInfo(author);
+    }
+    applyEditorialFields(author, authorApiInfo);
+    return authorMapper.toAuthorApiInfo(authorRepository.save(author));
   }
 
   public Optional<AuthorApiInfo> getAuthor(UUID id) {
@@ -62,17 +68,37 @@ public class AuthorService {
       .map(authorMapper::toAuthorApiInfo);
   }
 
-  public Optional<AuthorApiInfo> updateAuthor(UUID id, AuthorApiInfo authorApiInfo) {
+  public Optional<AuthorApiInfo> updateAuthor(UUID id, AuthorApiInfo authorApiInfo, boolean isAdmin) {
     return authorRepository.findById(id)
       .map(author -> {
         if (authorApiInfo.getName() != null) {
           author.setName(authorApiInfo.getName());
         }
-        author.setDescription(authorApiInfo.getDescription());
-        author.setComposerBioLink(authorApiInfo.getComposerBioLink().toString());
+        if (isAdmin) {
+          applyEditorialFields(author, authorApiInfo);
+        }
         Author updatedAuthor = authorRepository.save(author);
         return authorMapper.toAuthorApiInfo(updatedAuthor);
       });
+  }
+
+  /**
+   * Admin-only fields: description, composer bio link, image, imageHq.
+   * A field that is omitted (null) keeps its stored value, so partial payloads never wipe data.
+   */
+  private static void applyEditorialFields(Author author, AuthorApiInfo authorApiInfo) {
+    if (authorApiInfo.getDescription() != null) {
+      author.setDescription(authorApiInfo.getDescription());
+    }
+    if (authorApiInfo.getComposerBioLink() != null) {
+      author.setComposerBioLink(authorApiInfo.getComposerBioLink().toString());
+    }
+    if (authorApiInfo.getImage() != null) {
+      author.setImage(authorApiInfo.getImage());
+    }
+    if (authorApiInfo.getImageHq() != null) {
+      author.setImageHq(authorApiInfo.getImageHq());
+    }
   }
 
   public List<AuthorApiInfo> searchAuthors(String query) {

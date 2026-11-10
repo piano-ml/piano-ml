@@ -1217,11 +1217,19 @@ components:
           type: string
         description:
           type: string
-          description: Description textuelle de l'auteur
+          description: Description textuelle de l'auteur. Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
         composerBioLink:
           type: string
           format: uri
-          description: Link to the composer's biography or external page
+          description: Link to the composer's biography or external page. Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
+        image:
+          type: string
+          maxLength: 255
+          description: Author image URL (standard resolution). Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
+        imageHq:
+          type: string
+          maxLength: 255
+          description: Author image URL (high resolution). Writable by ADMIN only; ignored for other users. Omitted leaves the stored value unchanged.
     AuthorWithScoreCount:
       type: object
       properties:
