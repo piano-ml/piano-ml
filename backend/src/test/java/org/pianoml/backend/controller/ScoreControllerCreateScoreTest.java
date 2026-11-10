@@ -1,11 +1,10 @@
 package org.pianoml.backend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.openapitools.jackson.nullable.JsonNullableModule;
+import org.openapitools.jackson.nullable.JsonNullableJackson3Module;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.repository.ScoreRepository;
@@ -15,13 +14,14 @@ import org.pianoml.backend.security.JwtTokenProvider;
 import org.pianoml.backend.service.AccountService;
 import org.pianoml.backend.service.ScoreService;
 import org.pianoml.backend.service.YoutubeService;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.UUID;
 
@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ScoreControllerCreateScoreTest {
 
   private MockMvc mockMvc;
-  private ObjectMapper objectMapper;
+  private JsonMapper objectMapper;
 
   private ScoreService scoreService;
   private UserRepository userRepository;
@@ -57,8 +57,7 @@ public class ScoreControllerCreateScoreTest {
     accountService = mock(AccountService.class);
     youtubeService = mock(YoutubeService.class);
     youtubeRankRepository = mock(YoutubeRankRepository.class);
-    objectMapper = new ObjectMapper();
-    objectMapper.registerModule(new JsonNullableModule());
+    objectMapper = JsonMapper.builder().addModule(new JsonNullableJackson3Module()).build();
 
     controller = new ScoreController(scoreService, youtubeService, userRepository, accountService, scoreRepository, youtubeRankRepository);
     ReflectionTestUtils.setField(controller, "scoreService", scoreService);
@@ -67,7 +66,7 @@ public class ScoreControllerCreateScoreTest {
     ReflectionTestUtils.setField(controller, "scoreRepository", scoreRepository);
 
 
-    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(objectMapper);
+    JacksonJsonHttpMessageConverter converter = new JacksonJsonHttpMessageConverter(objectMapper);
     mockMvc = MockMvcBuilders.standaloneSetup(controller).setMessageConverters(converter).build();
   }
 
