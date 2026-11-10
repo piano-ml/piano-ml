@@ -59,7 +59,17 @@ npm run start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-Use `frontend/src/environments/environment.ts` in order to select the use of a local or a remote backend.
+
+The frontend always reaches the API through the dev-server proxy (`frontend/proxy.conf.mjs`), at `/api`:
+
+| Backend | Command |
+|---|---|
+| Remote (`https://api.pianoml.org`, default) | `npm run start` |
+| Local (`http://localhost:8080`) | `API_TARGET=http://localhost:8080 npm run start` |
+
+`ng serve` listens on `localhost` only; to use `http://127.0.0.1:4200/`, start it with `npm run start -- --host 127.0.0.1`.
+
+For the browser every call is same-origin, which is what the API's security model requires: the auth cookie is `HttpOnly; Secure; SameSite=Strict`, CORS does not allow `localhost`, and CSRF protection needs the frontend to read the `XSRF-TOKEN` cookie. The proxy strips the `Origin` header and adapts cookies to plain http (drops `Secure` and production-only `Domain` cookies). Pointing `environment.api` at an absolute API URL from localhost is not supported: login and every write request would fail.
 
 ### backend
 

@@ -164,11 +164,12 @@ paths:
         '400':
           description: Invalid or expired token
   /account/logout:
-    get:
-      operationId: accountLogoutGet
+    post:
+      operationId: accountLogoutPost
       tags:
         - account
       summary: Log out from the account
+      description: Expires the auth cookie. POST (not GET) so it is CSRF-protected and cannot be triggered by a link.
       responses:
         '200':
           description: Successfully logged out

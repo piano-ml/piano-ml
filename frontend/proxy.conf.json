@@ -1,8 +1,0 @@
-{
-  "/api": {
-    "target": "https://api.pianoml.org/",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": { "^/api": "" }
-  }
-}

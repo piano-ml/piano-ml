@@ -104,8 +104,9 @@ class CsrfProtectionTest {
   }
 
   @Test
-  void get_issuesReadableXsrfCookie_hostOnlyForLocalOrigin() throws Exception {
-    Cookie cookie = xsrfCookieFromAGet("http://localhost:4200");
+  void get_withoutOrigin_issuesReadableHostOnlyXsrfCookie() throws Exception {
+    // Same-origin requests (and the dev proxy, which strips Origin) carry no Origin header.
+    Cookie cookie = xsrfCookieFromAGet(null);
     assertThat(cookie.isHttpOnly()).isFalse();
     assertThat(cookie.getDomain()).isNull();
     assertThat(cookie.getValue()).isNotBlank();
@@ -160,7 +161,13 @@ class CsrfProtectionTest {
   }
 
   @Test
-  void login_doesNotRequireToken_andIssuesXsrfCookie() throws Exception {
+  void localhostOrigin_isNoLongerAllowedByCors() throws Exception {
+    // Local development must go through the dev proxy (frontend/proxy.conf.mjs).
+    mockMvc.perform(get("/author/search/{q}", "x").header("Origin", "http://localhost:4200"))
+      .andExpect(status().isForbidden());
+  }
+
+  private MvcResult login() throws Exception {
     String email = UUID.randomUUID() + "@example.com";
     User user = new User();
     user.setEmail(email);
@@ -170,14 +177,54 @@ class CsrfProtectionTest {
     user.setVerified(true);
     userRepository.save(user);
 
-    MvcResult result = mockMvc.perform(post("/account/login")
+    return mockMvc.perform(post("/account/login")
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"email\":\"" + email + "\",\"password\":\"secret\"}"))
       .andExpect(status().isOk())
       .andReturn();
+  }
+
+  private static String authSetCookie(MvcResult result, boolean legacy) {
+    return result.getResponse().getHeaders("Set-Cookie").stream()
+      .filter(h -> h.startsWith("Authorization="))
+      .filter(h -> h.contains("Domain=.pianoml.org") == legacy)
+      .findFirst().orElseThrow();
+  }
+
+  @Test
+  void login_doesNotRequireToken_andIssuesXsrfCookie() throws Exception {
+    MvcResult result = login();
     // Both cookies must be separate Set-Cookie headers (what a real servlet container sends).
     assertThat(result.getResponse().getHeaders("Set-Cookie"))
       .anyMatch(h -> h.startsWith("Authorization="))
       .anyMatch(h -> h.startsWith("XSRF-TOKEN="));
+  }
+
+  @Test
+  void login_setsStrictHostOnlySecureAuthCookie_andExpiresLegacySharedOne() throws Exception {
+    MvcResult result = login();
+
+    String auth = authSetCookie(result, false);
+    assertThat(auth).contains("HttpOnly", "Secure", "SameSite=Strict", "Path=/").doesNotContain("Domain=");
+    assertThat(auth).doesNotStartWith("Authorization=;");
+
+    String legacy = authSetCookie(result, true);
+    assertThat(legacy).startsWith("Authorization=;").contains("Max-Age=0");
+  }
+
+  @Test
+  void logout_isPostOnly_csrfProtected_andExpiresBothCookies() throws Exception {
+    mockMvc.perform(get("/account/logout")).andExpect(status().isMethodNotAllowed());
+    mockMvc.perform(post("/account/logout")).andExpect(status().isForbidden());
+
+    Cookie xsrf = xsrfCookieFromAGet(null);
+    MvcResult result = mockMvc.perform(post("/account/logout")
+        .cookie(xsrf)
+        .header("X-XSRF-TOKEN", xsrf.getValue()))
+      .andExpect(status().isOk())
+      .andReturn();
+
+    assertThat(authSetCookie(result, false)).startsWith("Authorization=;").contains("Max-Age=0", "SameSite=Strict");
+    assertThat(authSetCookie(result, true)).startsWith("Authorization=;").contains("Max-Age=0");
   }
 }

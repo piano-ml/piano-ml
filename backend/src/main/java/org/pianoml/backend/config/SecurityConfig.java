@@ -44,8 +44,9 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-      // The JWT travels in an HttpOnly "Authorization" cookie (SameSite=None in production), which the
-      // browser attaches to cross-site requests: CSRF protection is required. SPA double-submit:
+      // The JWT travels in an HttpOnly "Authorization" cookie. SameSite=Strict (AccountController) already
+      // blocks cross-site requests; the CSRF token also covers same-site attackers (any other *.pianoml.org
+      // host) and browsers without SameSite support. SPA double-submit:
       // the token is exposed in the XSRF-TOKEN cookie and must come back in the X-XSRF-TOKEN header
       // on every state-changing request (GET/HEAD/OPTIONS/TRACE are never checked).
       .csrf(csrf -> csrf
@@ -63,6 +64,8 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.POST,
           "/account/login",
           "/account/create",
+          // Clearing the cookie must work even when the JWT has already expired.
+          "/account/logout",
           "/score/play/stats"
         ).permitAll()
         .anyRequest().authenticated()
@@ -76,12 +79,12 @@ public class SecurityConfig {
 
   private CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
+    // No localhost: local development calls the API through the frontend dev proxy (same-origin for the
+    // browser, Origin header stripped), so the API never sees a cross-origin request from localhost.
     configuration.setAllowedOriginPatterns(List.of(
       "https://pianoml.org",
       "https://www.pianoml.org",
-      "https://staging.pianoml.org",
-      "http://localhost:4200",
-      "http://127.0.0.1:4200"
+      "https://staging.pianoml.org"
     ));
     configuration.setAllowCredentials(true); // necessary for httpOnly cookies
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

@@ -54,7 +54,7 @@ export class AuthService {
 
   logout(): void {
     console.info('Logging out user');
-    this.accountService.accountLogoutGet().subscribe({
+    this.accountService.accountLogoutPost().subscribe({
       next: () => this.clearSession(true),
       error: () => this.clearSession(true)
     });

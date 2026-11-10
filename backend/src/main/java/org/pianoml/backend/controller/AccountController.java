@@ -45,35 +45,9 @@ public class AccountController implements AccountApi {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    // Build secure HttpOnly cookie for cross-site usage. SameSite=None and Secure are required for cross-site cookies.
-    // Determine origin to optionally set cookie domain (allow sharing across subdomains like api.pianoml.org -> pianoml.org)
     ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-    String origin = null;
-    if (attrs != null) {
-      origin = attrs.getRequest().getHeader("Origin");
-    }
-
-    // Determine secure / samesite behavior: browsers require SameSite=None together with Secure=true.
-    // For local HTTP development we switch to SameSite=Lax and Secure=false so the browser accepts the cookie.
-    boolean isLocalHttp = origin != null && (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1"));
-    boolean isSecure = !isLocalHttp;
-    String sameSite = isSecure ? "None" : "Lax";
-
-    // RFC2616 forbids spaces in cookie values; store the raw token (no "Bearer " prefix) in the cookie.
-    ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from("Authorization", token)
-      .httpOnly(true)
-      .sameSite(sameSite)
-      .path("/")
-      .maxAge(jwtTokenProvider.getJwtExpirationInMs() / 1000) // aligned with JWT token lifetime
-      .secure(isSecure);
-
-    // If request comes from a pianoml.org origin, set Domain to .pianoml.org so subdomains share the cookie.
-    if (origin != null && (origin.contains("pianoml.org") || origin.contains("www.pianoml.org"))) {
-      cookieBuilder = cookieBuilder.domain(".pianoml.org");
-    }
-
-    ResponseCookie cookie = cookieBuilder.build();
-    log.info("Setting login cookie: {} {} {}", origin, sameSite, isSecure);
+    appendSetCookie(attrs, expireLegacySharedAuthCookie());
+    ResponseCookie cookie = authCookie(token, jwtTokenProvider.getJwtExpirationInMs() / 1000);
     appendSetCookie(attrs, cookie);
     return ResponseEntity.ok().body(response);
   }
@@ -84,33 +58,48 @@ public class AccountController implements AccountApi {
   }
 
   @Override
-  public ResponseEntity<Void> accountLogoutGet() {
-    // Clear the Authorization cookie on logout
+  public ResponseEntity<Void> accountLogoutPost() {
     ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-    String origin = null;
-    if (attrs != null) {
-      origin = attrs.getRequest().getHeader("Origin");
-    }
+    appendSetCookie(attrs, authCookie("", 0));
+    appendSetCookie(attrs, expireLegacySharedAuthCookie());
+    return ResponseEntity.ok().build();
+  }
 
-    // Logout cookie: same logic for SameSite and Secure as login
-    boolean isLocalHttpLogout = origin != null && (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1"));
-    boolean isSecureLogout = !isLocalHttpLogout;
-    String sameSiteLogout = isSecureLogout ? "None" : "Lax";
-
-    ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from("Authorization", "")
+  /**
+   * Auth cookie policy: HttpOnly, Secure, SameSite=Strict, host-only (no Domain).
+   *
+   * <p>pianoml.org, www.pianoml.org and api.pianoml.org are the same site, so the SPA's XHR calls to the API
+   * carry a Strict cookie; cross-site requests (forms, links, scripts on other sites) never do. Host-only keeps
+   * the JWT on api.pianoml.org instead of sending it to every *.pianoml.org host.
+   *
+   * <p>Local development goes through the frontend dev proxy (frontend/proxy.conf.mjs), which strips the
+   * Secure attribute so the cookie is accepted on http://localhost / http://127.0.0.1.
+   */
+  static ResponseCookie authCookie(String value, long maxAgeSeconds) {
+    // RFC 6265 forbids spaces in cookie values: store the raw token (no "Bearer " prefix).
+    return ResponseCookie.from("Authorization", value)
       .httpOnly(true)
-      .sameSite(sameSiteLogout)
+      .secure(true)
+      .sameSite("Strict")
+      .path("/")
+      .maxAge(maxAgeSeconds)
+      .build();
+  }
+
+  /**
+   * Until 2026-11, login set the auth cookie with Domain=.pianoml.org and SameSite=None. Expire that variant
+   * on login and logout so a stale shared cookie cannot shadow the host-only one. Safe to remove once every
+   * such cookie has expired (one JWT lifetime after this change is deployed).
+   */
+  static ResponseCookie expireLegacySharedAuthCookie() {
+    return ResponseCookie.from("Authorization", "")
+      .httpOnly(true)
+      .secure(true)
+      .sameSite("None")
+      .domain(".pianoml.org")
       .path("/")
       .maxAge(0)
-      .secure(isSecureLogout);
-
-    if (origin != null && (origin.contains("pianoml.org") || origin.contains("www.pianoml.org"))) {
-      cookieBuilder = cookieBuilder.domain(".pianoml.org");
-    }
-
-    ResponseCookie cookie = cookieBuilder.build();
-    appendSetCookie(attrs, cookie);
-    return ResponseEntity.ok().build();
+      .build();
   }
 
   @Override
