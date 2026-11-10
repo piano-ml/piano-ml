@@ -67,7 +67,7 @@ backend, since a fresh database does not know it yet.
 | `tests/library_search_test.js` | **Homepage**: "Take a seat", "Legal Notice", "LOGIN". **/summary** (via "Take a seat"): "Start scales exercices" and the four content cards (Library, Exercises, Études for Pianists, Acknowledgments), each with its link and call to action. **/library** (via "Browse library", first-visit tour closed): search box, grade slider, "One hand" / "Two hands" checkboxes, key combo ("All keys"), Import, and the New / Popular / Browse by Genres / Browse by Artist tabs. Then searches "happy birthday" and opens the first result; the score page heading shows its title (the score page itself gets its own scenario). |
 | `tests/score_page_test.js` | Opens `/score/hill-mildred-j-happy-birthday-to-you` directly. **Score information**: every value (genre, author, key, grade, duration, tempo, tracks, measures, public domain, uploaded date, owner) asserted next to its own label, plus the MusicBrainz Artist / Work links. **Practice Exercises in this Scale**: the 9 exercise links (exact list and count). **Video lessons**: at least one. Then **Practice** leads to `/work/hill-mildred-j-happy-birthday-to-you`: sheet music rendered, play control shown, page title set. |
 | `tests/workbench_test.js` | Opens `/work/hill-mildred-j-happy-birthday-to-you` directly and tortures the player: sheet music and 88-key keyboard rendered, cursor on the first note, measure range 0–17; **tempo** clamped to 200 / 20 (number and slider), +/− buttons; **play** (cursor really advances once the soundfont is loaded, toolbar reduced to play/pause, measure range locked); **pause** (cursor frozen, controls back); **resume** and **play to the end** at 200 BPM (cursor back on the first note); **7 rapid play/pause clicks** end in a consistent state; **clicking the sheet music** toggles playback; on-screen **keys**; **loop / left hand / right hand** toggles; **reset**. Fails on any uncaught JavaScript error. |
-| `tests/account_test.js` | Starts from a fresh **account**: deletes a leftover one (from a run that failed midway), then **creates** it and logs in. Account page (email, name, default workbench preferences), **My Scores**, **Import** → work search → manual creation (first artist matching "Mildred J. Hill") → uploads **`src_test.musicxml`** as "test": listed in My Scores ("1 score"), opens, **Practice** plays (cursor advances). Then imports **`src_test.midi`** as "test midi" (tracks listed, "load"): listed ("2 scores"), playable, then **deleted** through Edit → Delete → confirmation ("1 score" again). Finally **deletes the account** and checks the same credentials are refused. |
+| `tests/account_test.js` | Starts from a fresh **account**: deletes a leftover one (from a run that failed midway), then **creates** it and logs in. Account page (email, name, default workbench preferences), **My Scores**, **Import** → work search → manual creation (first artist matching "Mildred J. Hill") → uploads **`src_test.musicxml`** as "test": listed in My Scores ("1 score"), opens, **Practice** plays (cursor advances). Then imports **`src_test.midi`** as "test midi" (tracks listed, "load"): listed ("2 scores"), playable, then **deleted** through Edit → Delete → confirmation ("1 score" again). Just before the end, **deletes every score left in My Scores** (each one opened, Edit → Delete → confirmation) until the list shows its empty message. Finally **deletes the account** and checks the same credentials are refused. |
 
 ## Account scenario
 
@@ -77,6 +77,11 @@ the end (a leftover from a failed run is deleted first), so it always owns exact
 accounts' scores go to the "junk" system user.
 
 ## Notes
+
+- A score whose import failed midway (created, but its files never produced) never finishes loading
+  ("Loading score…"), so it can neither be opened nor deleted from the UI. The account scenario's start-of-run
+  cleanup deletes a leftover account directly (its scores go to the "junk" user), so such a score does not block
+  later runs.
 
 - The account scenario's MIDI import runs MuseScore + automatic fingering inside the upload request. On
   production's backend (max 2 instances, 1 vCPU) one such import saturated every instance on 2026-11-10 and the
@@ -104,5 +109,7 @@ accounts' scores go to the "junk" system user.
   production answers `POST /score` with 404 "MusicBrainz returned no author for mbid …" (the backend's own
   MusicBrainz lookup fails), so a random artist would make the scenario fail for a reason outside the UI.
 - The workbench has no site header: the scenario goes back to the score page through its info button.
+- `I.waitForFunction(fn, args, seconds)` passes `args` to `fn` as **one array**: write `([a, b]) => …`, not
+  `(a, b) => …` (the latter silently receives the whole array in `a`).
 - `locate().inside()` mis-combines containers whose XPath uses `following-sibling`: write descendant XPaths
   explicitly (see `linkIn` in `score_page_test.js`).

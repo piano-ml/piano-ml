@@ -43,7 +43,7 @@ async function searchMusicBrainz(I, results, attempts = 3) {
   for (let attempt = 1; attempt <= attempts; attempt++) {
     I.click(locate('button').withText('Search'));
     I.waitForFunction(
-      xpath => !!document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
+      ([xpath]) => !!document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
         || document.body.innerText.includes('Error occurred'),
       [results],
       20,
@@ -146,7 +146,7 @@ async function checkPlayable(I, title) {
   I.waitForElement('#play-pause ng-icon[name="bootstrapPauseFill"]', 5);
   // Playable: the cursor moves once the soundfont is loaded and the count-in is over
   I.waitForFunction(
-    (left, top) => {
+    ([left, top]) => {
       const c = document.getElementById('cursorImg-0');
       return !!c && (c.style.left !== left || c.style.top !== top);
     },
@@ -158,6 +158,52 @@ async function checkPlayable(I, title) {
   I.click('#score-info');
   I.waitInUrl('/score/');
   I.waitForText(title, 15, 'h1');
+}
+
+/** On a score page the user owns: Edit -> Delete -> confirmation; lands on My Scores. */
+function deleteOpenScore(I) {
+  // Edit only shows once the score has loaded and its owner is known
+  I.waitForElement(locate('button').withText('Edit'), 30);
+  I.click(locate('button').withText('Edit'));
+  I.waitInUrl('/account/score/edit/');
+  I.click(locate('button').withText('Delete'));
+  I.waitForText('Confirm delete', 5);
+  I.see('This action cannot be undone. Are you sure?');
+  I.click(locate('.modal button').withText('Delete'));
+  I.waitInUrl('/account/scores', 15);
+  I.waitForText('Your uploaded and curated collection');
+}
+
+const MY_SCORES_ROWS = '//table//tbody//tr[td]';
+const MY_SCORES_EMPTY = 'No scores yet — upload your first MIDI file to get started.';
+
+/** Number of scores listed in My Scores, once the list has loaded (rows or the empty message). */
+async function countMyScores(I) {
+  I.waitForFunction(
+    ([rows, empty]) => !!document.evaluate(rows, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
+      || document.body.innerText.includes(empty),
+    [MY_SCORES_ROWS, MY_SCORES_EMPTY],
+    15,
+  );
+  return I.grabNumberOfVisibleElements(MY_SCORES_ROWS);
+}
+
+/** Deletes every score listed in My Scores, one by one, until the list is empty. */
+async function deleteAllMyScores(I) {
+  goToMyScores(I);
+  let remaining = await countMyScores(I);
+  for (let guard = 0; remaining > 0; guard++) {
+    if (guard >= 20) throw new Error(`My Scores still lists ${remaining} score(s) after 20 deletions`);
+    const title = (await I.grabTextFrom({ xpath: `(${MY_SCORES_ROWS})[1]/td[normalize-space()][1]` })).trim();
+    I.click({ xpath: `(${MY_SCORES_ROWS})[1]` });
+    I.waitInUrl('/score/');
+    deleteOpenScore(I);
+    const after = await countMyScores(I);
+    if (after !== remaining - 1) throw new Error(`deleting "${title}" left ${after} score(s), expected ${remaining - 1}`);
+    remaining = after;
+  }
+  I.see(MY_SCORES_EMPTY);
+  I.dontSee('1 score');
 }
 
 /**
@@ -254,16 +300,13 @@ Scenario('log in or sign up, inspect the account, import a score, delete the acc
   await checkPlayable(I, MIDI.title);
 
   // Delete it: owner-only Edit -> Delete -> confirmation -> back to My Scores without it
-  I.click(locate('button').withText('Edit'));
-  I.waitInUrl('/account/score/edit/');
-  I.click(locate('button').withText('Delete'));
-  I.waitForText('Confirm delete', 5);
-  I.see('This action cannot be undone. Are you sure?');
-  I.click(locate('.modal button').withText('Delete'));
-  I.waitInUrl('/account/scores', 15);
+  deleteOpenScore(I);
   I.waitForElement(scoreRow(MUSICXML.title, musicxmlArtist), 15);
   I.dontSeeElement(scoreRow(MIDI.title, midiArtist));
   I.see('1 score');
+
+  // --- Delete every score left in My Scores ------------------------------------------------------------------------------
+  await deleteAllMyScores(I);
 
   // --- Delete the account, so the next run starts from scratch ---------------------------------------------------------
   await deleteAccount(I);

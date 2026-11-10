@@ -25,7 +25,7 @@ const isPlaying = I => I.waitForElement(`#play-pause ng-icon[name="${PAUSE}"]`, 
 const isStopped = (I, seconds = 5) => I.waitForElement(`#play-pause ng-icon[name="${PLAY}"]`, seconds);
 /** Waits until the cursor has moved away from a position (playback really advances, not just the icon). */
 const cursorMovesFrom = (I, from, seconds = 25) => I.waitForFunction(
-  (left, top) => {
+  ([left, top]) => {
     const c = document.getElementById('cursorImg-0');
     return c && getComputedStyle(c).display !== 'none'
       && (parseFloat(c.style.left) !== left || parseFloat(c.style.top) !== top);
