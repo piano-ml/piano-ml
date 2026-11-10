@@ -25,7 +25,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<Object> handleUserNotLoggedIn(
     Exception ex, WebRequest request) {
     return new ResponseEntity<Object>(
-      ex.getMessage(), new HttpHeaders(), HttpStatus.FORBIDDEN);
+      ex.getMessage(), new HttpHeaders(), HttpStatus.UNAUTHORIZED);
   }
 
 

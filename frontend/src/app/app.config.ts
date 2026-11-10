@@ -18,8 +18,9 @@ registerLocaleData(localeIt);
 
 import { routes } from './app.routes';
 import { provideNgIconLoader, withCaching } from '@ng-icons/core';
-import { HttpClient, provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors, withNoXsrfProtection, withXhr } from '@angular/common/http';
 import { authInterceptor } from './account/interceptors/auth.interceptor';
+import { xsrfInterceptor } from './account/interceptors/xsrf.interceptor';
 
 import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
@@ -33,7 +34,8 @@ export const appConfig: ApplicationConfig = {
       provide: LOCALE_ID,
       useValue:  'en-US'
     },
-    provideHttpClient(withXhr(), withInterceptors([authInterceptor])),
+    // CSRF: xsrfInterceptor replaces Angular's built-in XSRF support, which skips absolute API URLs.
+    provideHttpClient(withXhr(), withNoXsrfProtection(), withInterceptors([xsrfInterceptor, authInterceptor])),
     provideApi({ basePath: environment.api, withCredentials: true }),
     provideNgIconLoader(name => {
       const http = inject(HttpClient);

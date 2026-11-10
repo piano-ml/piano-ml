@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -116,7 +117,7 @@ public class AuthorControllerTest {
   public void createAuthor_asUser_isAllowed_andPassesNonAdmin() throws Exception {
     given(authorService.createAuthor(any(AuthorApiInfo.class), anyBoolean())).willReturn(new AuthorApiInfo());
 
-    mockMvc.perform(post("/author").contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
+    mockMvc.perform(post("/author").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
       .andExpect(status().isCreated());
     verify(authorService).createAuthor(any(AuthorApiInfo.class), eq(false));
   }
@@ -126,7 +127,7 @@ public class AuthorControllerTest {
   public void createAuthor_asAdmin_passesAdmin() throws Exception {
     given(authorService.createAuthor(any(AuthorApiInfo.class), anyBoolean())).willReturn(new AuthorApiInfo());
 
-    mockMvc.perform(post("/author").contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
+    mockMvc.perform(post("/author").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
       .andExpect(status().isCreated());
     verify(authorService).createAuthor(any(AuthorApiInfo.class), eq(true));
   }
@@ -138,7 +139,7 @@ public class AuthorControllerTest {
     given(authorService.updateAuthor(any(UUID.class), any(AuthorApiInfo.class), anyBoolean()))
       .willReturn(Optional.of(new AuthorApiInfo()));
 
-    mockMvc.perform(put("/author/{id}", id).contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
+    mockMvc.perform(put("/author/{id}", id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
       .andExpect(status().isOk());
     verify(authorService).updateAuthor(eq(id), any(AuthorApiInfo.class), eq(false));
   }
@@ -150,7 +151,7 @@ public class AuthorControllerTest {
     given(authorService.updateAuthor(any(UUID.class), any(AuthorApiInfo.class), anyBoolean()))
       .willReturn(Optional.of(new AuthorApiInfo()));
 
-    mockMvc.perform(put("/author/{id}", id).contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
+    mockMvc.perform(put("/author/{id}", id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(editorialPayload()))
       .andExpect(status().isOk());
     verify(authorService).updateAuthor(eq(id), any(AuthorApiInfo.class), eq(true));
   }
