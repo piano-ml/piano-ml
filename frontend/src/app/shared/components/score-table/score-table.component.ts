@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { bootstrapExclamationTriangleFill, bootstrapLockFill, bootstrapUnlockFill } from '@ng-icons/bootstrap-icons';
 import { ScoreApiInfo } from '../../../core/api';
 
 export interface ScoreTableAction {
@@ -7,6 +9,14 @@ export interface ScoreTableAction {
   icon?: string;
   class?: string;
   callback: (score: ScoreApiInfo) => void;
+}
+
+/** Icon shown in a cell instead of text. `label` is its tooltip and what screen readers announce. */
+export interface ScoreTableCellIcon {
+  /** ng-icons name; it must be registered in this component's viewProviders */
+  name: 'bootstrapLockFill' | 'bootstrapUnlockFill' | 'bootstrapExclamationTriangleFill';
+  label: string;
+  tone?: 'positive' | 'caution' | 'danger' | 'muted';
 }
 
 export interface ScoreTableColumn {
@@ -18,6 +28,8 @@ export interface ScoreTableColumn {
   /** Narrow icon-only column: fixed small padding, centered, skips flush logic */
   narrow?: boolean;
   formatter?: (value: any, score: ScoreApiInfo) => string;
+  /** Renders an icon instead of text (return null to fall back to the text value) */
+  icon?: (value: any, score: ScoreApiInfo) => ScoreTableCellIcon | null;
 }
 
 export interface ScoreTableEvent {
@@ -27,7 +39,8 @@ export interface ScoreTableEvent {
 
 @Component({
   selector: 'app-score-table',
-  imports: [CommonModule],
+  imports: [CommonModule, NgIcon],
+  viewProviders: [provideIcons({ bootstrapExclamationTriangleFill, bootstrapLockFill, bootstrapUnlockFill })],
   templateUrl: './score-table.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './score-table.component.css'
@@ -67,6 +80,10 @@ export class ScoreTableComponent implements OnInit {
   getCellValue(score: ScoreApiInfo, column: ScoreTableColumn): string {
     const value = this.getPropertyValue(score, column.key);
     return column.formatter ? column.formatter(value, score) : (value?.toString() || '');
+  }
+
+  getCellIcon(score: ScoreApiInfo, column: ScoreTableColumn): ScoreTableCellIcon | null {
+    return column.icon ? column.icon(this.getPropertyValue(score, column.key), score) : null;
   }
 
   private getPropertyValue(obj: any, path: string): any {
