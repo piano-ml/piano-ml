@@ -24,24 +24,27 @@ pdftoppm  -rx 300 -ry 300 -png "$PDF" "$FROOT" || exit 1
 
 sleep 1
 
-FILES=$(ls -p "$FROOT"*.png)
+# Arrays (not space-separated strings) so file names containing spaces stay intact.
+# pdftoppm writes "<root>-<page>.png" and zero-pads page numbers, so the glob sorts in page order.
+shopt -s nullglob
+FILES=("$FROOT"-*.png)
+shopt -u nullglob
+if [ "${#FILES[@]}" -eq 0 ]; then
+  echo "Error: pdftoppm produced no page image for '$PDF'." >&2
+  exit 1
+fi
 
-XMLFILES=""
+XML_FILES=()
 cd homr
 HOMR_TOTAL=0
 HOMR_SUCCESSES=0
 HOMR_ERRORS=0
-for FILE in $FILES; do
+for FILE in "${FILES[@]}"; do
   HOMR_TOTAL=$((HOMR_TOTAL + 1))
   echo "starting homr $FILE"
   if poetry run homr "$FILE" > /dev/null 2>&1; then
     HOMR_SUCCESSES=$((HOMR_SUCCESSES + 1))
-    XML_FILE="${FILE%.png}.musicxml"
-    if [ -z "$XMLFILES" ]; then
-      XMLFILES="$XML_FILE"
-    else
-      XMLFILES="$XMLFILES $XML_FILE"
-    fi
+    XML_FILES+=("${FILE%.png}.musicxml")
   else
     RC=$?
     HOMR_ERRORS=$((HOMR_ERRORS + 1))
@@ -58,13 +61,11 @@ fi
 sleep 1
 
 cd ..
-n start
 source ~/shared-venv/bin/activate
 
-echo "Running relieur to merge musicxml files: $XMLFILES"
-echo "python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES "
+echo "Running relieur to merge musicxml files: ${XML_FILES[*]}"
 
-~/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat $XMLFILES > /dev/null
+~/shared-venv/bin/python ./relieur/relieur/relieur.py -o "$FROOT".musicxml concat "${XML_FILES[@]}" > /dev/null
 
 
 #HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
@@ -107,4 +108,4 @@ $HOME/shared-venv/bin/python ./scripts/get_metadata.py "$FROOT.musicxml" > /dev/
 
 zip -j "$FROOT.zip" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"  "metadata.json"
 
-rm  "$FROOT"*.png $XMLFILES "$FROOT.pdf"  "$FROOT.mscz" "$FROOT.midi" "$FROOT.musicxml"  "$FROOT.musicxml.bak" "$FROOT.fingering.json" "metadata.json"
+rm  "$FROOT"*.png "${XML_FILES[@]}" "$FROOT.pdf" "$FROOT.midi" "$FROOT.musicxml"  "$FROOT.musicxml.bak" "$FROOT.fingering.json" "metadata.json"
