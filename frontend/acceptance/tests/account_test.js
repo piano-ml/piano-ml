@@ -21,9 +21,8 @@ const MIDI = { title: 'test midi', file: path.join(SAMPLES, 'src_test.midi') };
 // Note: the MIDI import runs MuseScore + automatic fingering inside the upload request. On production's small
 // backend (2 instances, 1 vCPU) it saturated every instance on 2026-11-10 (site answered 429 for ~10 minutes).
 
-/** Submits the login form; resolves to true when logged in, false when the credentials were refused. */
-async function login(I) {
-  I.amOnPage('/account/login');
+/** Fills and submits the login form of the current login page; waits until it is left or refused. */
+function submitLogin(I) {
   I.waitForElement('#email');
   I.fillField('#email', USER.email);
   I.fillField('#password', USER.password);
@@ -32,6 +31,12 @@ async function login(I) {
     () => location.pathname !== '/account/login' || document.body.innerText.includes('Access denied'),
     15,
   );
+}
+
+/** Opens the login page and logs in; resolves to true when logged in, false when the credentials were refused. */
+async function login(I) {
+  I.amOnPage('/account/login');
+  submitLogin(I);
   return !(await I.grabCurrentUrl()).includes('/account/login');
 }
 
@@ -223,6 +228,73 @@ async function deleteAccount(I) {
   I.see('Access denied - Please check your credentials');
 }
 
+// Public score page (production catalogue, see score_page_test.js) the login round trip starts from.
+const RETURN_PAGE = { path: '/score/hill-mildred-j-happy-birthday-to-you', title: 'Happy Birthday to You' };
+// Site under test, as configured in codecept.conf.js
+const SITE = new URL(process.env.BASE_URL || 'https://pianoml.org').origin;
+
+/** returnUrl query parameter of the current page, decoded (null when absent). */
+async function returnUrlParam(I) {
+  return new URL(await I.grabCurrentUrl()).searchParams.get('returnUrl');
+}
+
+async function expectReturnUrl(I, expected, where) {
+  const actual = await returnUrlParam(I);
+  if (actual !== expected) {
+    throw new Error(`${where}: returnUrl is ${JSON.stringify(actual)}, expected ${JSON.stringify(expected)}`);
+  }
+}
+
+/** Logs out from the account page (reached through the header link); lands on the login page. */
+function logout(I) {
+  I.click(locate('a.user-link').withText(USER.name));
+  I.waitInUrl('/account/home');
+  I.waitForElement(locate('button').withText('Logout'), 15);
+  I.click(locate('button').withText('Logout'));
+  I.waitInUrl('/account/login', 15);
+}
+
+/**
+ * Login brings the user back to the page they were on. Starts and ends logged in:
+ * - a deliberate logout leads to plain login (no returnUrl);
+ * - from a score page, the header LOGIN button opens /account/login?returnUrl=<score page>, the "Create one" link
+ *   keeps it, and logging in lands on that same score page, logged in;
+ * - a crafted returnUrl to another site is ignored: login stays on the site's homepage.
+ */
+async function checkLoginReturn(I) {
+  logout(I);
+  await expectReturnUrl(I, null, 'after logout');
+
+  I.amOnPage(RETURN_PAGE.path);
+  I.waitForText(RETURN_PAGE.title, 30, 'h1');
+  I.click('a.login-btn');
+  I.waitInUrl('/account/login');
+  await expectReturnUrl(I, RETURN_PAGE.path, 'header LOGIN button');
+
+  // Signing up from there would come back too: the "Create one" link carries the returnUrl
+  I.click("Don't have an account? Create one");
+  I.waitInUrl('/account/create');
+  await expectReturnUrl(I, RETURN_PAGE.path, '"Create one" link');
+  I.executeScript(() => history.back());
+  I.waitInUrl('/account/login');
+  await expectReturnUrl(I, RETURN_PAGE.path, 'back on the login page');
+
+  submitLogin(I);
+  I.waitForFunction(([path]) => location.pathname === path, [RETURN_PAGE.path], 15);
+  I.waitForText(RETURN_PAGE.title, 30, 'h1');
+  I.waitForElement(locate('a.user-link').withText(USER.name), 15);
+  I.dontSeeElement('a.login-btn');
+
+  logout(I);
+  I.amOnPage(`/account/login?returnUrl=${encodeURIComponent('https://example.org/phishing')}`);
+  submitLogin(I);
+  I.waitForElement(locate('a.user-link').withText(USER.name), 15);
+  const landed = new URL(await I.grabCurrentUrl());
+  if (landed.origin !== SITE || landed.pathname !== '/') {
+    throw new Error(`a crafted returnUrl led to ${landed.href}, expected the homepage of ${SITE}`);
+  }
+}
+
 Scenario('log in or sign up, inspect the account, import a score, delete the account', async ({ I }) => {
   // --- Start from a fresh account: a leftover one (from a run that failed midway) is deleted first ---------------
   if (await login(I)) {
@@ -307,6 +379,11 @@ Scenario('log in or sign up, inspect the account, import a score, delete the acc
 
   // --- Delete every score left in My Scores ------------------------------------------------------------------------------
   await deleteAllMyScores(I);
+
+  // --- Login brings the user back: log out, log in from a score page, land back on it ----------------------------------
+  // Placed last so the checks above still run where this feature isn't deployed yet: if it fails, the next run's
+  // start-of-run cleanup deletes the (score-less) account left behind.
+  await checkLoginReturn(I);
 
   // --- Delete the account, so the next run starts from scratch ---------------------------------------------------------
   await deleteAccount(I);
