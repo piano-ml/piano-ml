@@ -5,7 +5,7 @@
     <div class="header-inner">
 
       <nav class="breadcrumb-nav" aria-label="Breadcrumb navigation">
-        <a routerLink="/home" class="brand-mark" title="Return to PianoML home page">
+        <a routerLink="/summary" class="brand-mark" title="Go to the PianoML summary page">
           <span class="brand-dot" aria-hidden="true"></span>
           PianoML
         </a>
@@ -37,7 +37,7 @@
           </a>
         } @else {
           @if (!(router.url === '/account/login')) {
-            <a routerLink="/account/login" class="login-btn" title="Log in to your PianoML account">
+            <a routerLink="/account/login" [queryParams]="loginQueryParams(router.url)" class="login-btn" title="Log in to your PianoML account">
               Login
             </a>
           }

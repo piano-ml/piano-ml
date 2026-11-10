@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService, UserApiInfo } from '../../core/api';
 import { SessionStorageService } from './session-storage.service';
+import { LOGIN_PATH, loginQueryParams } from './return-url';
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +45,7 @@ export class AuthService {
           username: response.username ?? null,
           roles: response.roles ?? null          
         });
-        this.router.navigate(['/']);
+        // No navigation here: the login page decides where to go (back to the returnUrl)
         if (this.isBrowser) {
           this.refreshSessionFromServer();
         }
@@ -55,8 +56,8 @@ export class AuthService {
   logout(): void {
     console.info('Logging out user');
     this.accountService.accountLogoutPost().subscribe({
-      next: () => this.clearSession(true),
-      error: () => this.clearSession(true)
+      next: () => this.clearSession(true, false),
+      error: () => this.clearSession(true, false)
     });
   }
 
@@ -106,13 +107,17 @@ export class AuthService {
     });
   }
 
-  private clearSession(redirect: boolean): void {
+  /** `rememberPage`: after an expired session, login brings the user back; after a logout it doesn't. */
+  private clearSession(redirect: boolean, rememberPage = true): void {
     this.sessionStorage.clearSession();
     
     if (redirect && this.isBrowser) {
-      const target = '/account/login';
-      if (this.router.url !== target) {
-        this.router.navigate([target]);
+      if (!this.router.url.startsWith(LOGIN_PATH)) {
+        if (rememberPage) {
+          this.router.navigate([LOGIN_PATH], { queryParams: loginQueryParams(this.router.url) });
+        } else {
+          this.router.navigate([LOGIN_PATH]);
+        }
       }
     }
   }

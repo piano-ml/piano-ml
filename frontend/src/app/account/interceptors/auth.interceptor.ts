@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { SessionStorageService } from '../services/session-storage.service';
+import { LOGIN_PATH, loginQueryParams } from '../services/return-url';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -20,9 +21,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         sessionStorage.clearSession();
         
         // Redirect to login page
-        const target = '/account/login';
-        if (router.url !== target) {
-          router.navigate([target]);
+        if (!router.url.startsWith(LOGIN_PATH)) {
+          router.navigate([LOGIN_PATH], { queryParams: loginQueryParams(router.url) });
         }
       }
       return throwError(() => error);
