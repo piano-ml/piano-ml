@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MusicbrainzService, MusicBrainzWorksResponse } from './musicbrainz.service';
+import { luceneQuote, MusicbrainzService, MusicBrainzWorksResponse } from './musicbrainz.service';
 
 describe('MusicbrainzService', () => {
   let service: MusicbrainzService;
@@ -76,5 +76,30 @@ describe('MusicbrainzService', () => {
     );
     expect(req.request.method).toBe('GET');
     req.flush({ created: '', count: 0, offset: 0, works: [] });
+  });
+});
+
+describe('luceneQuote', () => {
+  it('wraps a plain value in quotes', () => {
+    expect(luceneQuote('Für Elise')).toBe('"Für Elise"');
+  });
+
+  it('escapes embedded quotes', () => {
+    expect(luceneQuote('The "Moonlight" Sonata')).toBe('"The \\"Moonlight\\" Sonata"');
+  });
+
+  it('escapes backslashes, so a trailing backslash cannot escape the closing quote', () => {
+    expect(luceneQuote('Bach\\')).toBe('"Bach\\\\"');
+  });
+
+  it('cannot be broken out of with a backslash-quote sequence', () => {
+    // Input: x\" OR artist:"y  -> every quote stays escaped inside one phrase.
+    const quoted = luceneQuote('x\\" OR artist:"y');
+    expect(quoted).toBe('"x\\\\\\" OR artist:\\"y"');
+    const inner = quoted.slice(1, -1);
+    // No unescaped quote inside the phrase: every " is preceded by an odd number of backslashes.
+    for (const m of inner.matchAll(/(\\*)"/g)) {
+      expect(m[1].length % 2).toBe(1);
+    }
   });
 });
