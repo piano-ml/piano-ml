@@ -1,5 +1,7 @@
 package org.pianoml.backend.controller;
 
+import org.pianoml.backend.security.OriginAwareCsrfTokenRepository;
+
 import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.api.AccountApi;
 import org.pianoml.backend.model.*;
@@ -105,7 +107,7 @@ public class AccountController implements AccountApi {
       .httpOnly(true)
       .secure(true)
       .sameSite("None")
-      .domain(".pianoml.org")
+      .domain(OriginAwareCsrfTokenRepository.SHARED_COOKIE_DOMAIN) // same cookie for browsers as ".pianoml.org"
       .path("/")
       .maxAge(0)
       .build();

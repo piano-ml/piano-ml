@@ -116,7 +116,7 @@ class CsrfProtectionTest {
   @Test
   void get_fromPianomlOrigin_sharesXsrfCookieWithSubdomains() throws Exception {
     Cookie cookie = xsrfCookieFromAGet("https://pianoml.org");
-    assertThat(cookie.getDomain()).isEqualTo(".pianoml.org");
+    assertThat(cookie.getDomain()).isEqualTo("pianoml.org");
   }
 
   @Test
@@ -242,7 +242,7 @@ class CsrfProtectionTest {
   private static String authSetCookie(MvcResult result, boolean legacy) {
     return result.getResponse().getHeaders("Set-Cookie").stream()
       .filter(h -> h.startsWith("Authorization="))
-      .filter(h -> h.contains("Domain=.pianoml.org") == legacy)
+      .filter(h -> h.contains("Domain=pianoml.org") == legacy)
       .findFirst().orElseThrow();
   }
 
