@@ -55,16 +55,13 @@ accounts' scores go to the "junk" system user.
   `{ pw: '#keyboard svg rect >> nth=39' }`.
 - The workbench downloads a 6.6 MB soundfont on the first play, then counts in two bars: wait for the cursor to
   move rather than for a fixed delay.
-- Known production issues seen by the workbench scenario (not asserted, so the suite stays green): typing an
-  out-of-range tempo when the tempo is already clamped leaves the typed value in the field; the measure range
-  stays locked after the score plays to its end; `/styles.css` is preloaded but returns 404.
+- Out-of-range tempo values are clamped when the field is committed: the workbench scenario presses Tab after
+  typing, like a user leaving the field.
 - MusicBrainz is queried from the browser and answers 503 above about one request per second: the account
   scenario dismisses the error and searches again (up to 3 attempts).
 - The import uses an artist already known to PianoML ("Mildred J. Hill"): for artists not yet in PianoML,
   production answers `POST /score` with 404 "MusicBrainz returned no author for mbid …" (the backend's own
   MusicBrainz lookup fails), so a random artist would make the scenario fail for a reason outside the UI.
 - The workbench has no site header: the scenario goes back to the score page through its info button.
-- A full reload of `/account/home` while logged in redirects to `/account/login` (server-side rendering does not
-  see the session kept in `localStorage`): the scenario navigates through the header link instead.
 - `locate().inside()` mis-combines containers whose XPath uses `following-sibling`: write descendant XPaths
   explicitly (see `linkIn` in `score_page_test.js`).

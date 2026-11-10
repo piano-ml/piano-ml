@@ -52,9 +52,8 @@ async function searchMusicBrainz(I, results, attempts = 3) {
 }
 
 /**
- * Deletes the logged-in account from its account page (reached through the header link: a full reload of
- * /account/home while logged in currently redirects to /account/login, server-side rendering does not see the
- * session kept in localStorage), then checks the same credentials are refused.
+ * Deletes the logged-in account from its account page (reached through the header link, as a user would), then
+ * checks the same credentials are refused.
  */
 async function deleteAccount(I) {
   I.click(locate('a.user-link').withText(USER.name));

@@ -67,13 +67,20 @@ Scenario('torture the workbench player', async ({ I }) => {
   I.click('#showTempo label');
   I.waitForText('Tempo', 5, 'app-tempo-control');
   I.seeInField(tempoNumber, '104'); // the score's own tempo
+  // Out-of-range values are clamped when the field is committed (Tab / Enter), and the field shows the result
   I.fillField(tempoNumber, '999');
+  I.pressKey('Tab');
   I.seeInField(tempoNumber, '200'); // clamped to the maximum
   I.seeInField(tempoRange, '200');
+  I.fillField(tempoNumber, '9999'); // clamps to the same value: the field must still be rewritten
+  I.pressKey('Tab');
+  I.seeInField(tempoNumber, '200');
   I.fillField(tempoNumber, '1');
+  I.pressKey('Tab');
   I.seeInField(tempoNumber, '20'); // clamped to the minimum
   I.seeInField(tempoRange, '20');
   I.fillField(tempoNumber, '199');
+  I.pressKey('Tab');
   I.click(locate('app-tempo-control button').at(2)); // "+"
   I.seeInField(tempoNumber, '200');
   I.seeInField(tempoRange, '200');
@@ -104,6 +111,8 @@ Scenario('torture the workbench player', async ({ I }) => {
   await isStopped(I, 45); // the score ends by itself
   s = await state(I);
   assert.deepEqual(s.cursor, start, 'cursor back on the first note after the end');
+  assert.equal(s.sliderDisabled, false, 'measure range unlocked after the score ends');
+  for (const tool of TOOLS) I.seeElement(tool);
 
   // --- Rapid toggling: 7 clicks end in "playing", one more stops ------------------------------------------
   for (let i = 0; i < 7; i++) I.click('#play-pause button');
