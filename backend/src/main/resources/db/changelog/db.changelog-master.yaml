@@ -43,3 +43,5 @@ databaseChangeLog:
       file: db/changelog/changes/020-update-youtube-rank.yaml
   - include:
       file: db/changelog/changes/021-junk-user-and-user-delete-cascade.yaml
+  - include:
+      file: db/changelog/changes/022-h2-schema-parity.yaml

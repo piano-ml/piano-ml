@@ -22,6 +22,9 @@ public interface ScoreRepository extends CrudRepository<Score, UUID>, IScoreRepo
 
   List<Score> findByImmutableSlugStartingWith(String slugPrefix);
 
+  /** Every score (including soft-deleted ones) owned by a user. */
+  List<Score> findByOwnerId(UUID ownerId);
+
   Optional<Score> findByImmutableSlug(String immutableSlug);
 
   Optional<Score> findScoreByIdAndOwnerAndVersion(UUID uuid, User user, Integer version);

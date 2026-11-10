@@ -41,6 +41,9 @@ public class AccountServiceTest {
   private org.pianoml.backend.repository.ScoreRepository scoreRepository;
 
   @Mock
+  private ScoreService scoreService;
+
+  @Mock
   private PasswordEncoder passwordEncoder;
 
   @Spy
@@ -238,5 +241,62 @@ public class AccountServiceTest {
 
     RuntimeException ex = assertThrows(RuntimeException.class, () -> accountService.renewToken("t"));
     assertEquals("User not found", ex.getMessage());
+  }
+
+  // --- test accounts: scores purged instead of moved to junk -------------------------------------------------
+
+  @Test
+  public void deleteCurrentUser_listedTestAccount_purgesItsScores_insteadOfMovingThem() {
+    ReflectionTestUtils.setField(accountService, "purgeScoresOnDelete", List.of("acceptance-test@example.com"));
+    UUID id = UUID.randomUUID();
+    User user = storedUser(id);
+    user.setEmail(" Acceptance-Test@Example.com "); // case and spaces do not matter
+    when(userRepository.existsById(org.pianoml.backend.entity.SystemUsers.JUNK_ID)).thenReturn(true);
+    org.pianoml.backend.entity.Score first = new org.pianoml.backend.entity.Score();
+    first.setId(UUID.randomUUID()); // Score is a Lombok @Data: distinct ids keep the two scores unequal
+    org.pianoml.backend.entity.Score second = new org.pianoml.backend.entity.Score();
+    second.setId(UUID.randomUUID());
+    when(scoreRepository.findByOwnerId(id)).thenReturn(List.of(first, second));
+
+    int purged = accountService.deleteCurrentUser(authenticated(id));
+
+    assertEquals(2, purged);
+    var order = inOrder(scoreService, userRepository);
+    order.verify(scoreService).purgeScore(first);
+    order.verify(scoreService).purgeScore(second);
+    order.verify(userRepository).delete(user);
+    verify(scoreRepository, never()).reassignOwner(any(), any());
+  }
+
+  @Test
+  public void deleteCurrentUser_regularAccount_stillMovesScoresToJunk() {
+    ReflectionTestUtils.setField(accountService, "purgeScoresOnDelete", List.of("acceptance-test@example.com"));
+    UUID id = UUID.randomUUID();
+    User user = storedUser(id);
+    user.setEmail("someone@example.com");
+    when(userRepository.existsById(org.pianoml.backend.entity.SystemUsers.JUNK_ID)).thenReturn(true);
+    when(scoreRepository.reassignOwner(id, org.pianoml.backend.entity.SystemUsers.JUNK_ID)).thenReturn(4);
+
+    assertEquals(4, accountService.deleteCurrentUser(authenticated(id)));
+
+    verify(scoreRepository, never()).findByOwnerId(any());
+    verifyNoInteractions(scoreService);
+    verify(userRepository).delete(user);
+  }
+
+  @Test
+  public void deleteCurrentUser_emptyOrUnsetPurgeList_movesScoresToJunk() {
+    for (List<String> list : java.util.Arrays.asList(List.<String>of(), List.of(" "), null)) {
+      ReflectionTestUtils.setField(accountService, "purgeScoresOnDelete", list);
+      UUID id = UUID.randomUUID();
+      User user = storedUser(id);
+      user.setEmail("acceptance-test@example.com");
+      when(userRepository.existsById(org.pianoml.backend.entity.SystemUsers.JUNK_ID)).thenReturn(true);
+
+      accountService.deleteCurrentUser(authenticated(id));
+
+      verify(scoreRepository).reassignOwner(id, org.pianoml.backend.entity.SystemUsers.JUNK_ID);
+    }
+    verifyNoInteractions(scoreService);
   }
 }

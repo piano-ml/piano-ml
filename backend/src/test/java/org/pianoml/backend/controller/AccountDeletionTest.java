@@ -28,6 +28,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -82,8 +83,12 @@ class AccountDeletionTest {
   }
 
   private User newUser() {
+    return newUser(UUID.randomUUID() + "@example.com");
+  }
+
+  private User newUser(String email) {
     User user = new User();
-    user.setEmail(UUID.randomUUID() + "@example.com");
+    user.setEmail(email);
     user.setName("to-delete-" + UUID.randomUUID()); // user.name is unique
     user.setPassword(passwordEncoder.encode(PASSWORD));
     user.setRoles("USER");
@@ -216,6 +221,54 @@ class AccountDeletionTest {
     mockMvc.perform(post("/account/delete").header("Authorization", token)).andExpect(status().isNoContent());
 
     mockMvc.perform(post("/account/delete").header("Authorization", token)).andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void delete_testAccount_purgesItsScoresAndTheirData_insteadOfMovingThemToJunk() throws Exception {
+    User testAccount = newUser("acceptance-test@example.com"); // listed in pianoml.account.purge-scores-on-delete
+    User other = newUser();
+    UUID own = newScore(testAccount.getId(), false);
+    UUID ownSoftDeleted = newScore(testAccount.getId(), true);
+    UUID othersScore = newScore(other.getId(), false);
+    playCount(testAccount.getId(), own);
+    playCount(other.getId(), own);            // someone else played the test account's score
+    playCount(testAccount.getId(), othersScore);
+    jdbc.update("INSERT INTO pianoml.youtube_rank (score_id, video_id, rank, views, reports) VALUES (?, 'vid-1', 0, 0, 0)", own);
+
+    mockMvc.perform(post("/account/delete").header("Authorization", bearer(testAccount)))
+      .andExpect(status().isNoContent());
+
+    // The test account's scores and everything attached to them are gone, not moved to junk
+    assertThat(count("SELECT COUNT(*) FROM pianoml.score WHERE id IN (?, ?)", own, ownSoftDeleted)).isZero();
+    assertThat(count("SELECT COUNT(*) FROM pianoml.score WHERE owner_id = ? AND title LIKE 'Score %'",
+      SystemUsers.JUNK_ID)).isZero();
+    assertThat(count("SELECT COUNT(*) FROM pianoml.user_play_count WHERE score_id = ?", own)).isZero();
+    assertThat(count("SELECT COUNT(*) FROM pianoml.youtube_rank WHERE score_id = ?", own)).isZero();
+    assertThat(count("SELECT COUNT(*) FROM pianoml.\"user\" WHERE id = ?", testAccount.getId())).isZero();
+
+    // Other users keep their score and their own play counts
+    assertThat(ownerOf(othersScore)).isEqualTo(other.getId());
+    assertThat(count("SELECT COUNT(*) FROM pianoml.user_play_count WHERE user_id = ?", other.getId())).isZero();
+    assertThat(count("SELECT COUNT(*) FROM pianoml.user_play_count WHERE user_id = ? AND score_id = ?",
+      testAccount.getId(), othersScore)).isZero(); // cascade with the account
+  }
+
+  @Test
+  void scoreWithoutDuration_asLeftByAFailedImport_canBeLoadedAndDeletedByItsOwner() throws Exception {
+    // A failed import leaves a score row whose duration was never set (NULL). With a primitive int field it could
+    // not be loaded: its page stayed on "Loading score..." and it could not be deleted.
+    User owner = newUser();
+    UUID score = newScore(owner.getId(), false);
+    String slug = "no-duration-" + score;
+    jdbc.update("UPDATE pianoml.score SET immutable_slug = ? WHERE id = ?", slug, score);
+
+    mockMvc.perform(get("/score/{slug}", slug))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.title").value("Score " + score));
+
+    mockMvc.perform(delete("/score/{id}/info", score).header("Authorization", bearer(owner)))
+      .andExpect(status().is2xxSuccessful());
+    assertThat(count("SELECT COUNT(*) FROM pianoml.score WHERE id = ?", score)).isZero();
   }
 
   @Test

@@ -68,8 +68,10 @@ public class Score {
   @Column(name = "deleted", nullable = false)
   private Boolean deleted = false;
 
+  // Nullable, like the column: duration is only known once the uploaded file has been packed. As a primitive int,
+  // a score whose packing failed (NULL duration) could not be loaded at all: its page, deletion and purge failed.
   @Column(name = "duration")
-  private int duration;
+  private Integer duration;
 
   @Column(name = "study_tracks")
   private String studyTracks;

@@ -57,6 +57,12 @@ public class ScoreService {
   private UserPlayCountRepository userPlayCountRepository;
 
   @Autowired
+  private org.pianoml.backend.repository.YoutubeRankRepository youtubeRankRepository;
+
+  @Autowired
+  private org.pianoml.backend.repository.WorkloadRepository workloadRepository;
+
+  @Autowired
   private AuthorService authorService;
 
   @Autowired
@@ -370,29 +376,36 @@ public class ScoreService {
       throw new RuntimeException("Unauthorized: Only owner or admin can delete this score");
     }
 
-    // Delete user play counts first to avoid foreign key constraint violation
-    userPlayCountRepository.deleteByScoreId(id);
-    log.info("Successfully deleted user play counts for score: " + id);
+    purgeScore(score);
+    return true;
+  }
 
-    // Delete from S3 if files exist
+  /**
+   * Removes a score for good: play counts, cached YouTube ranks, workloads, its files in S3, then the score row.
+   * No authorization check: callers (deleteScore, account deletion) decide who may purge.
+   */
+  public void purgeScore(Score score) {
+    UUID id = score.getId();
+    userPlayCountRepository.deleteByScoreId(id);
+    youtubeRankRepository.deleteByScoreId(id);
+    workloadRepository.deleteByScoreId(id);
+
     if (score.getHasFiles() != null && score.getHasFiles()) {
+      String key = makeBucketKeyFromScore(score);
       try {
-        String key = makeBucketKeyFromScore(score);
         s3Client.deleteObject(software.amazon.awssdk.services.s3.model.DeleteObjectRequest.builder()
           .bucket(bucketName)
           .key(key)
           .build());
-        log.info("Successfully deleted S3 object: " + key);
+        log.info("Deleted S3 object: " + key);
       } catch (S3Exception e) {
-        log.warn("Failed to delete S3 object for score " + id + ": " + e.getMessage());
         // Continue with database deletion even if S3 deletion fails
+        log.warn("Failed to delete S3 object for score " + id + ": " + e.getMessage());
       }
     }
 
-    // Delete from database
     scoreRepository.delete(score);
-    log.info("Successfully deleted score: " + id);
-    return true;
+    log.info("Deleted score: " + id);
   }
 
 

@@ -41,5 +41,10 @@ public interface YoutubeRankRepository extends CrudRepository<YoutubeRank, Long>
     @Modifying
     @Query("UPDATE YoutubeRank y SET y.reports = y.reports + 1 WHERE y.scoreId = :scoreId AND y.videoId = :videoId")
     void incrementReports(@Param("scoreId") UUID scoreId, @Param("videoId") String videoId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM YoutubeRank y WHERE y.scoreId = :scoreId")
+    void deleteByScoreId(@Param("scoreId") UUID scoreId);
 }
 

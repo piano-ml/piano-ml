@@ -12,6 +12,8 @@ import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.pianoml.backend.entity.Score;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -45,14 +48,25 @@ public class AccountService {
   @Autowired
   private ScoreRepository scoreRepository;
 
+  @Autowired
+  private ScoreService scoreService;
+
+  /**
+   * Accounts whose scores are purged, instead of handed to the junk user, when the account is deleted. Meant for
+   * test accounts (the acceptance suite's account), so test runs leave nothing behind. Comma-separated emails.
+   */
+  @Value("${pianoml.account.purge-scores-on-delete:acceptance-test@example.com}")
+  private List<String> purgeScoresOnDelete = List.of();
+
   /**
    * Deletes the authenticated user's own account.
    *
-   * <p>Scores are kept and handed to the "junk" system user ({@link SystemUsers#JUNK_ID}); the user row is then
-   * deleted and the database removes dependent rows (user_play_count, ON DELETE CASCADE). The score owner
-   * foreign key is ON DELETE RESTRICT, so a delete that skipped the move would fail instead of losing scores.
+   * <p>Scores are kept and handed to the "junk" system user ({@link SystemUsers#JUNK_ID}), except for accounts
+   * listed in {@code pianoml.account.purge-scores-on-delete} (test accounts), whose scores are purged. The user row
+   * is then deleted and the database removes dependent rows (user_play_count, ON DELETE CASCADE). The score owner
+   * foreign key is ON DELETE RESTRICT, so a delete that skipped either step would fail instead of losing scores.
    *
-   * @return number of scores moved to the junk user
+   * @return number of scores moved to the junk user, or purged
    */
   @Transactional
   public int deleteCurrentUser(Authentication authentication) {
@@ -64,10 +78,24 @@ public class AccountService {
       throw new IllegalStateException("Junk system user is missing (Liquibase changelog 021)");
     }
 
+    if (purgesScoresOnDelete(user)) {
+      List<Score> scores = scoreRepository.findByOwnerId(user.getId());
+      scores.forEach(scoreService::purgeScore);
+      userRepository.delete(user);
+      log.info("Deleted account {}; {} score(s) purged (test account)", user.getId(), scores.size());
+      return scores.size();
+    }
+
     int moved = scoreRepository.reassignOwner(user.getId(), SystemUsers.JUNK_ID);
     userRepository.delete(user);
     log.info("Deleted account {}; {} score(s) moved to the junk user", user.getId(), moved);
     return moved;
+  }
+
+  private boolean purgesScoresOnDelete(User user) {
+    return user.getEmail() != null && purgeScoresOnDelete != null && purgeScoresOnDelete.stream()
+      .map(String::trim)
+      .anyMatch(email -> !email.isEmpty() && email.equalsIgnoreCase(user.getEmail().trim()));
   }
 
   public User createUser(AccountCreatePostRequest accountCreatePostRequest) {

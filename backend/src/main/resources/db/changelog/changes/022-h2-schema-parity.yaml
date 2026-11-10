@@ -1,0 +1,36 @@
+# Test database only (H2, in-memory, created fresh on every test run).
+# 017, 019 and 020 are "dbms: postgresql", so the H2 test schema lacked score.youtube_links, author.composer_bio_link
+# and youtube_rank: any test loading a Score with its Author through JPA failed. This mirrors them for H2 so the
+# test schema matches production. No effect on PostgreSQL.
+databaseChangeLog:
+  - changeSet:
+      id: 022-h2-schema-parity
+      author: pianoml
+      dbms: h2
+      changes:
+        - addColumn:
+            schemaName: pianoml
+            tableName: score
+            columns:
+              - column: { name: youtube_links, type: JSON, constraints: { nullable: true } }
+        - addColumn:
+            schemaName: pianoml
+            tableName: author
+            columns:
+              - column: { name: composer_bio_link, type: VARCHAR(255), constraints: { nullable: true } }
+        - createTable:
+            schemaName: pianoml
+            tableName: youtube_rank
+            columns:
+              - column: { name: id, type: BIGINT, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: score_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: video_id, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: rank, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: views, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: reports, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: youtube_video_api_info, type: JSON, constraints: { nullable: true } }
+        - addUniqueConstraint:
+            schemaName: pianoml
+            tableName: youtube_rank
+            columnNames: score_id, video_id
+            constraintName: uq_youtube_rank_score_video

@@ -17,4 +17,9 @@ public interface WorkloadRepository extends JpaRepository<Workload, Integer> {
   List<Workload> findPendingWorkloadsOrderedByCreatedAt();
 
   Optional<Workload> findByScoreId(UUID scoreID);
+
+  @org.springframework.transaction.annotation.Transactional
+  @org.springframework.data.jpa.repository.Modifying
+  @org.springframework.data.jpa.repository.Query("DELETE FROM Workload w WHERE w.scoreId = :scoreId")
+  void deleteByScoreId(@org.springframework.data.repository.query.Param("scoreId") UUID scoreId);
 }
