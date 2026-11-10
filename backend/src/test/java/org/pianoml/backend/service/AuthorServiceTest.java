@@ -16,6 +16,7 @@ import org.pianoml.backend.repository.AuthorRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -218,5 +219,59 @@ public class AuthorServiceTest {
 
     verify(authorRepository, never()).save(any());
     assertEditorialUnchanged(existing);
+  }
+
+  @Test
+  public void maybeCreateAuthor_whenMusicBrainzFails_throwsMusicBrainzException() {
+    when(authorRepository.findByMbid(mbid)).thenReturn(Optional.empty());
+    when(musicBrainzService.getAuthor(mbid)).thenThrow(
+      new org.springframework.web.client.HttpClientErrorException(org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE));
+
+    MusicBrainzException ex = assertThrows(MusicBrainzException.class, () -> authorService.maybeCreateAuthor(mbid));
+    assertTrue(ex.getMessage().startsWith("Failed to fetch author from MusicBrainz"));
+    verify(authorRepository, never()).save(any());
+  }
+
+  @Test
+  public void updateAuthor_withoutName_keepsTheStoredName() {
+    UUID id = UUID.randomUUID();
+    Author stored = storedWithEditorial(id);
+    when(authorRepository.findById(id)).thenReturn(Optional.of(stored));
+    when(authorRepository.save(stored)).thenReturn(stored);
+
+    AuthorApiInfo noName = new AuthorApiInfo();
+    authorService.updateAuthor(id, noName, true);
+
+    assertEquals("Chopin", stored.getName());
+  }
+
+  @Test
+  public void updateAuthor_unknownAuthor_isEmpty() {
+    UUID id = UUID.randomUUID();
+    when(authorRepository.findById(id)).thenReturn(Optional.empty());
+    assertTrue(authorService.updateAuthor(id, payload(), true).isEmpty());
+    verify(authorRepository, never()).save(any());
+  }
+
+  @Test
+  public void getAuthor_mapsByMbid_andIsEmptyWhenUnknown() {
+    Author author = storedAuthorWithImages(UUID.randomUUID());
+    when(authorRepository.findByMbid(mbid)).thenReturn(Optional.of(author));
+    UUID unknown = UUID.randomUUID();
+    when(authorRepository.findByMbid(unknown)).thenReturn(Optional.empty());
+
+    assertEquals("https://img.example/old.jpg", authorService.getAuthor(mbid).orElseThrow().getImage());
+    assertTrue(authorService.getAuthor(unknown).isEmpty());
+  }
+
+  @Test
+  public void searchAuthors_mapsEveryMatch() {
+    when(authorRepository.searchByNameIlike("cho")).thenReturn(
+      List.of(storedAuthorWithImages(UUID.randomUUID()), storedAuthorWithImages(UUID.randomUUID())));
+
+    List<AuthorApiInfo> found = authorService.searchAuthors("cho");
+
+    assertEquals(2, found.size());
+    assertEquals("Chopin", found.get(0).getName());
   }
 }

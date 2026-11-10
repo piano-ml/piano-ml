@@ -3,6 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { HttpClient, HttpErrorResponse, provideHttpClient, withInterceptors, withNoXsrfProtection } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { PLATFORM_ID } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { CSRF_ERROR_CODE, isCsrfRejection, readCookie, XSRF_API_BASE, XSRF_HEADER_NAME, xsrfInterceptor } from './xsrf.interceptor';
 
 const API = 'https://api.example.test';
@@ -150,5 +151,27 @@ describe('readCookie', () => {
 
   it('does not match on a name suffix', () => {
     expect(readCookie('MY-XSRF-TOKEN=nope', 'XSRF-TOKEN')).toBeNull();
+  });
+});
+
+describe('xsrfInterceptor defaults', () => {
+  afterEach(() => TestBed.inject(HttpTestingController).verify());
+
+  it('targets environment.api by default and tolerates a document without cookies', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(withNoXsrfProtection(), withInterceptors([xsrfInterceptor])),
+        provideHttpClientTesting(),
+        { provide: PLATFORM_ID, useValue: 'browser' },
+        { provide: DOCUMENT, useValue: {} },
+      ],
+    });
+    const apiBase = TestBed.inject(XSRF_API_BASE);
+    expect(apiBase).toBe(environment.api);
+
+    TestBed.inject(HttpClient).post(`${apiBase}/account/logout`, {}).subscribe();
+    const req = TestBed.inject(HttpTestingController).expectOne(`${apiBase}/account/logout`);
+    expect(req.request.headers.has(XSRF_HEADER_NAME)).toBe(false);
+    req.flush({});
   });
 });

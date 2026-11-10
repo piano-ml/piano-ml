@@ -60,6 +60,14 @@ export class AuthService {
     });
   }
 
+  /**
+   * Deletes the logged-in user's account. The backend moves the user's scores to the "junk" system user and
+   * expires the auth cookie; callers then log out.
+   */
+  deleteAccount(): Observable<void> {
+    return this.accountService.accountDeletePost();
+  }
+
   register(user: AccountCreatePostRequest) {
     return this.accountService.accountCreatePost(user);
   }

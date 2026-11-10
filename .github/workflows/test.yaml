@@ -92,9 +92,9 @@ jobs:
       working-directory: ./frontend
       run: npx playwright install --with-deps chromium
     # After build:prod, whose prebuild step generates src/app/core/api the specs import.
-    - name: Dev proxy tests
+    - name: Dev proxy and CI script tests
       working-directory: ./frontend
-      run: npm run test:proxy
+      run: npm run test:scripts
     - name: Unit tests
       working-directory: ./frontend
       run: npx ng test --watch=false --coverage

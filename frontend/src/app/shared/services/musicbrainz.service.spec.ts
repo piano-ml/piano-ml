@@ -79,6 +79,26 @@ describe('MusicbrainzService', () => {
   });
 });
 
+describe('MusicbrainzService artist search', () => {
+  it('searchArtistsByName quotes the name safely in the artist query', () => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [MusicbrainzService],
+    });
+    const service = TestBed.inject(MusicbrainzService);
+    const httpMock = TestBed.inject(HttpTestingController);
+
+    service.searchArtistsByName('Bach\\', 5, 10).subscribe();
+
+    const req = httpMock.expectOne(r => r.url.endsWith('/artist'));
+    expect(req.request.params.get('query')).toBe('artist:"Bach\\\\"');
+    expect(req.request.params.get('limit')).toBe('5');
+    expect(req.request.params.get('offset')).toBe('10');
+    req.flush({ created: '', count: 0, offset: 0, artists: [] });
+    httpMock.verify();
+  });
+});
+
 describe('luceneQuote', () => {
   it('wraps a plain value in quotes', () => {
     expect(luceneQuote('Für Elise')).toBe('"Für Elise"');

@@ -175,6 +175,23 @@ paths:
           description: Successfully logged out
         '401':
           description: Unauthorized
+  /account/delete:
+    post:
+      operationId: accountDeletePost
+      tags:
+        - account
+      summary: Delete the current user's own account
+      description: >
+        For the logged-in user (no password re-check). The user's scores are kept and moved to the "junk" system
+        user, then the account and its dependent data (play counts) are deleted and the auth cookie is expired.
+        POST rather than DELETE for consistency with logout; CSRF-protected like every write.
+      responses:
+        '204':
+          description: Account deleted
+        '401':
+          description: Not logged in
+        '403':
+          description: CSRF token missing or invalid
   /account/token/renew:
     get:
       operationId: accountTokenRenewGet
