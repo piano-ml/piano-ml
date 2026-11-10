@@ -12,7 +12,8 @@
           <ng-icon name="bootstrapDash" class="svg-button" />
         </button>
         <input type="number" min="20" max="200" class="w-24 text-center input-field" [value]="tempo"
-          (input)="onNumberInput($any($event.target).value)" />
+          (input)="onNumberInput($any($event.target).value)"
+          (change)="onNumberCommit($any($event.target))" />
         <button class="btn btn-desktop" (click)="increase()">
           <ng-icon name="bootstrapPlus" classZZ="svg-button" />
         </button>
