@@ -46,6 +46,8 @@ curl -fsSL https://deb.nodesource.com/setup_26.x | sudo bash - && sudo apt insta
 sdk install java 25.0.5.0+8-tem
 ```
 
+The frontend unit tests (`npm test`) run with Vitest in headless Chromium. Install the browser once, from `frontend/`, with `npx playwright install chromium`.
+
 ### frontend
 
 To start a local development server, run:
