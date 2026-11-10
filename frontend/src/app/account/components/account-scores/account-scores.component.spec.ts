@@ -153,6 +153,18 @@ describe('AccountScoresComponent', () => {
       expect(el.querySelectorAll('[data-icon="bootstrapExclamationTriangleFill"]')).toHaveLength(0);
     });
 
+    it('formats the upload date, and leaves it empty when unknown', () => {
+      const el = render([score({ uploaded_at: '2026-11-10T12:00:00Z' }), score({ id: 's2', uploaded_at: undefined })]);
+      expect(cell(el, rows(el)[0], 'Uploaded').textContent?.trim()).toBe(new Date('2026-11-10T12:00:00Z').toLocaleString());
+      expect(cell(el, rows(el)[1], 'Uploaded').textContent?.trim()).toBe('');
+    });
+
+    it('formats durations as m:ss', () => {
+      render([]);
+      const component = fixture.componentInstance;
+      expect([component.formatDuration(0), component.formatDuration(65), component.formatDuration(600)]).toEqual(['0:00', '1:05', '10:00']);
+    });
+
     it('lists play count, version, author and genre', () => {
       const el = render([COPYRIGHTED]);
       const row = rows(el)[0];
@@ -161,6 +173,15 @@ describe('AccountScoresComponent', () => {
       expect(cell(el, row, 'Author').textContent?.trim()).toBe('Eric Clapton');
       expect(cell(el, row, 'Genre').textContent?.trim()).toBe('classical');
     });
+  });
+
+  it('refresh() loads the list again', () => {
+    const el = render([PUBLIC]);
+    searchScores.mockReturnValue(of([PUBLIC, COPYRIGHTED]));
+    fixture.componentInstance.refresh();
+    fixture.detectChanges();
+    expect(searchScores).toHaveBeenCalledTimes(2);
+    expect(rows(el)).toHaveLength(2);
   });
 
   describe('navigation', () => {
