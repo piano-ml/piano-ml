@@ -40,7 +40,7 @@ describe('authInterceptor', () => {
   it('ends the session and redirects to login on 401', () => {
     expect(failWith(401)).toBe(401);
     expect(clearSession).toHaveBeenCalledOnce();
-    expect(navigate).toHaveBeenCalledWith(['/account/login']);
+    expect(navigate).toHaveBeenCalledWith(['/account/login'], { queryParams: { returnUrl: '/library' } });
   });
 
   it('keeps the session on a CSRF 403', () => {

@@ -19,7 +19,7 @@
   gap: 1rem;
 }
 
-.spinner {
+.overlay-spinner {
   width: 40px;
   height: 40px;
   position: relative;

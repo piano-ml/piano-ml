@@ -3,7 +3,7 @@
   "version": "2.0.3",
   "scripts": {
     "ng": "ng",
-    "start": "BASE_PATH='http://localhost:8080' ng serve --proxy-config proxy.conf.json",
+    "start": "BASE_PATH='http://localhost:8080' ng serve",
     "start-remote": "BASE_PATH='https://api.pianoml.org' ng serve --host 0.0.0.0",
     "prebuild-common": "npm run generate:api && node scripts/generate-version.js && npm run shaders:manifest",
     "build": "ng build --no-prerender",
@@ -53,7 +53,7 @@
     "midi-writer-js": "^3.1.1",
     "ng-beacon": "^0.1.0",
     "nouislider": "^15.8.1",
-    "opensheetmusicdisplay": "1.9.7",
+    "opensheetmusicdisplay": "2.3.0",
     "postcss": "^8.5.14",
     "rxjs": "~7.8.0",
     "spessasynth_lib": "4.4.7",

@@ -120,16 +120,19 @@
 
     @if ((osmdLoading$ | async)) {
     <div class="flex flex-col items-center justify-center w-full h-dvh text-6xl osmd-state-transition">
-      @if ((loadingFeedBack$ | async); as fb) {
-      <div class="w-[250px] pl-4">
-        <span class="text-sm mt-2">{{ fb.message }} - {{ fb.percentage }}%</span>
+      @let fb = loadingFeedBack$ | async;
+      <div class="loading-feedback" role="status">
+        <div class="loading-feedback-label">
+          <span>{{ fb?.message ?? 'Downloading data…' }}</span>
+          @if (fb) {
+          <span class="tabular-nums">{{ fb.percentage }}%</span>
+          }
+        </div>
+        <div class="loading-feedback-track" role="progressbar" aria-label="Loading progress"
+          aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="fb?.percentage ?? null">
+          <div class="loading-feedback-bar" [style.width.%]="fb?.percentage ?? 0"></div>
+        </div>
       </div>
-      }
-      @if (!(loadingFeedBack$ | async); as fb) {
-      <div class="w-[250px] pl-4">
-        <span class="text-sm mt-2">downloading data...</span>
-      </div>
-      }
     </div>
     }
 

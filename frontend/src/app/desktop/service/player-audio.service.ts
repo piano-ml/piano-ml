@@ -38,41 +38,43 @@ export class PlayerAudioService implements OnDestroy {
   }
 
   /**
-   * Initialise le soundfont Spessasynth
+   * Loads the Spessasynth soundfont once per app session. Safe to call early (e.g. when the work page
+   * opens, before any user gesture): the AudioContext is created suspended and only resumed by start().
+   * Concurrent and later calls share the same load; a failed load can be retried.
    */
-  async initSoundFont(): Promise<void> {
-    if (this.initSoundFontPromise) {
-      await this.initSoundFontPromise;
-      return;
-    }
-
-    if (this.spessasynth != null) {
-      console.warn('Spessasynth already initialized');
-      return; // already initialized
-    }
-
-    this.initSoundFontPromise = (async () => {
-      this.audioContext = this.audioContext ?? new AudioContext();
-      await this.audioContext.audioWorklet.addModule("/assets/soundfonts/spessasynth_processor.min.js");
-      this.spessasynth = new WorkletSynthesizer(this.audioContext);
-      this.spessasynth.connect(this.audioContext.destination);
-
-      // Use AbortController to cancel fetch if service is destroyed
-      this.soundFontAbortController = new AbortController();
-      const response = await fetch("/assets/soundfonts/GeneralUserGS.sf3", {
-        signal: this.soundFontAbortController.signal
-      });
-      const sfont = await response.arrayBuffer();
-      await this.spessasynth.soundBankManager.addSoundBank(sfont, "main");
-      await this.spessasynth.isReady;
-      console.log('SoundFont initialized successfully');
-    })();
-
-    try {
-      await this.initSoundFontPromise;
-    } finally {
+  initSoundFont(): Promise<void> {
+    this.initSoundFontPromise ??= this.loadSoundFont().catch((error) => {
       this.initSoundFontPromise = undefined;
-    }
+      throw error;
+    });
+    return this.initSoundFontPromise;
+  }
+
+  private async loadSoundFont(): Promise<void> {
+    this.audioContext = this.audioContext ?? new AudioContext();
+    const audioContext = this.audioContext;
+
+    // Use AbortController to cancel fetch if service is destroyed
+    this.soundFontAbortController = new AbortController();
+    // The worklet module and the ~10 MB soundfont download in parallel
+    const [, sfont] = await Promise.all([
+      audioContext.audioWorklet.addModule("/assets/soundfonts/spessasynth_processor.min.js"),
+      fetch("/assets/soundfonts/GeneralUserGS.sf3", { signal: this.soundFontAbortController.signal })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`SoundFont download failed: HTTP ${response.status}`);
+          }
+          return response.arrayBuffer();
+        })
+    ]);
+
+    const synth = new WorkletSynthesizer(audioContext);
+    synth.connect(audioContext.destination);
+    await synth.soundBankManager.addSoundBank(sfont, "main");
+    await synth.isReady;
+    // Only expose the synth once it can actually play notes
+    this.spessasynth = synth;
+    console.log('SoundFont initialized successfully');
   }
 
 
@@ -174,9 +176,8 @@ export class PlayerAudioService implements OnDestroy {
     this.pianoMLShouldPlay = this.midiService.pianoMLShouldPlay();
 
     this.startPromise = (async () => {
-      if (!this.spessasynth) {
-        await this.initSoundFont();
-      }
+      // Resolves at once when the page already preloaded the soundfont, waits for it otherwise
+      await this.initSoundFont();
 
       if (this.audioContext?.state === 'suspended') {
         await this.audioContext.resume();
@@ -479,6 +480,7 @@ export class PlayerAudioService implements OnDestroy {
       this.spessasynth.stopAll();
       this.spessasynth = undefined;
     }
+    this.initSoundFontPromise = undefined;
 
     // Close AudioContext
     if (this.audioContext) {
