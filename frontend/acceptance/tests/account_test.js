@@ -14,8 +14,12 @@ const USER = {
 // of fetching it from MusicBrainz (that server-side lookup can fail on production: "MusicBrainz returned no
 // author for mbid ..."). Title is a dummy one.
 const ARTIST_QUERY = process.env.ACCEPTANCE_ARTIST || 'Mildred J. Hill';
-const TITLE = 'test';
-const SAMPLE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../backend/scripts/samples/src_test.musicxml');
+const SAMPLES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../backend/scripts/samples');
+// Two scores: the MusicXML one stays until the account is deleted, the MIDI one is deleted on its own.
+const MUSICXML = { title: 'test', file: path.join(SAMPLES, 'src_test.musicxml') };
+const MIDI = { title: 'test midi', file: path.join(SAMPLES, 'src_test.midi') };
+// Note: the MIDI import runs MuseScore + automatic fingering inside the upload request. On production's small
+// backend (2 instances, 1 vCPU) it saturated every instance on 2026-11-10 (site answered 429 for ~10 minutes).
 
 /** Submits the login form; resolves to true when logged in, false when the credentials were refused. */
 async function login(I) {
@@ -49,6 +53,111 @@ async function searchMusicBrainz(I, results, attempts = 3) {
     I.wait(2 * attempt);
   }
   throw new Error(`MusicBrainz search still failing after ${attempts} attempts`);
+}
+
+/** Closes the workbench guided tour if it shows up (it only opens on the first visit). */
+async function closeTourIfShown(I, seconds = 5) {
+  const shown = await I.executeScript(timeout => new Promise(resolve => {
+    const started = Date.now();
+    const poll = () => {
+      if (document.querySelector('.beacon-tooltip')) return resolve(true);
+      if (Date.now() - started > timeout) return resolve(false);
+      setTimeout(poll, 200);
+    };
+    poll();
+  }), seconds * 1000);
+  if (shown) {
+    I.click(locate('button').withAttr({ 'aria-label': 'Close' }));
+    I.waitForInvisible('.beacon-tooltip', 5);
+  }
+}
+
+/**
+ * From My Scores: Import -> work search -> manual creation (first artist matching ARTIST_QUERY, given title) ->
+ * upload. MusicXML uploads as soon as the file is chosen; MIDI shows its tracks first and needs "load".
+ * Ends on the new score page; returns the artist name.
+ */
+async function importScore(I, { title, file }) {
+  I.click(locate('a').withText('Import'));
+  I.waitInUrl('/import/link');
+  I.waitForText('Quick Search: select a work to define a title and author');
+  I.fillField(locate('input').withAttr({ placeholder: "Search for works (e.g., 'redemption song')" }), title);
+  const manualCreation = "Can't find the work you're looking for in the database? Create it manually";
+  await searchMusicBrainz(I, `//button[normalize-space() = "${manualCreation}"]`);
+  I.click(manualCreation);
+  I.waitForText('Search for an artist');
+  I.fillField(locate('input').withAttr({ placeholder: "Enter artist name (e.g., 'Bob Marley')" }), ARTIST_QUERY);
+  I.wait(1.5); // MusicBrainz rate limit: about one request per second
+  const firstArtist = { xpath: '(//table[.//th[normalize-space() = "Country"]]//tr[td])[1]' };
+  await searchMusicBrainz(I, firstArtist.xpath);
+  const artistName = (await I.grabTextFrom({ xpath: `${firstArtist.xpath}/td[1]` })).trim().split('\n')[0];
+  I.click({ xpath: `${firstArtist.xpath}//button` });
+  I.waitForText('Enter the work title');
+  I.fillField(locate('input').withAttr({ placeholder: 'Enter work/song title' }), title);
+  I.click('Create Work');
+  // The upload page opens with skipLocationChange: the URL stays /import/link
+  I.waitForText('Please select a file to import', 10);
+  I.see('Enable automatic fingering');
+
+  // The file input is hidden behind the drop zone: set it through Playwright (I.attachFile wants it visible)
+  await I.usePlaywrightTo(`choose ${path.basename(file)}`, async ({ page }) => {
+    await page.setInputFiles('#dropzone-file', file);
+  });
+  if (file.endsWith('.midi') || file.endsWith('.mid')) {
+    // MIDI: the tracks are listed (study tracks pre-selected), then "load" creates the score
+    I.waitForElement(locate('th').withText('Track Name'), 15);
+    I.seeElement(locate('table tbody tr').withDescendant('input[type="checkbox"]'));
+    I.click(locate('button').withText('load'));
+  }
+  I.waitInUrl('/score/', 90); // score created, file packed on the backend
+  I.waitForText(title, 30, 'h1');
+  I.see(artistName, 'h1');
+  return artistName;
+}
+
+/** Account page -> My Scores (from any page with the site header). */
+function goToMyScores(I) {
+  I.click(locate('a.user-link').withText(USER.name));
+  I.waitInUrl('/account/home');
+  I.click(locate('a').withText('My Scores'));
+  I.waitInUrl('/account/scores');
+  I.waitForText('Your uploaded and curated collection');
+}
+
+/** My Scores row for a score (the title is matched exactly: "test" must not match "test midi"). */
+const scoreRow = (title, artistName) => ({
+  xpath: `//table//tbody//tr[td[normalize-space() = "${title}"]][contains(., "${artistName}")]`,
+});
+
+/**
+ * On a score page: Practice -> the sheet music renders and the cursor advances on play; pause, then back to the
+ * score page through the workbench info button (the workbench has no site header).
+ */
+async function checkPlayable(I, title) {
+  I.click(locate('button').withText('Practice'));
+  I.waitInUrl('/work/');
+  I.waitForElement('#osmdSvgPage1', 30); // sheet music rendered
+  await closeTourIfShown(I);
+  const before = await I.executeScript(() => {
+    const c = document.getElementById('cursorImg-0');
+    return c ? { left: c.style.left, top: c.style.top } : null;
+  });
+  I.click('#play-pause button');
+  I.waitForElement('#play-pause ng-icon[name="bootstrapPauseFill"]', 5);
+  // Playable: the cursor moves once the soundfont is loaded and the count-in is over
+  I.waitForFunction(
+    (left, top) => {
+      const c = document.getElementById('cursorImg-0');
+      return !!c && (c.style.left !== left || c.style.top !== top);
+    },
+    [before?.left ?? '', before?.top ?? ''],
+    30,
+  );
+  I.click('#play-pause button');
+  I.waitForElement('#play-pause ng-icon[name="bootstrapPlayFill"]', 5);
+  I.click('#score-info');
+  I.waitInUrl('/score/');
+  I.waitForText(title, 15, 'h1');
 }
 
 /**
@@ -122,75 +231,39 @@ Scenario('log in or sign up, inspect the account, import a score, delete the acc
   I.waitForText('Your uploaded and curated collection');
   I.seeElement(locate('button').withText('Browse library'));
 
-  // --- Import: work search, then manual creation (first artist matching ARTIST_QUERY, title TITLE) ------------------
-  I.click(locate('a').withText('Import'));
-  I.waitInUrl('/import/link');
-  I.waitForText('Quick Search: select a work to define a title and author');
-  I.fillField(locate('input').withAttr({ placeholder: "Search for works (e.g., 'redemption song')" }), 'test');
-  const manualCreation = "Can't find the work you're looking for in the database? Create it manually";
-  await searchMusicBrainz(I, `//button[normalize-space() = "${manualCreation}"]`);
-  I.click(manualCreation);
-  I.waitForText('Search for an artist');
-  I.fillField(locate('input').withAttr({ placeholder: "Enter artist name (e.g., 'Bob Marley')" }), ARTIST_QUERY);
-  I.wait(1.5); // MusicBrainz rate limit: about one request per second
-  const firstArtist = { xpath: '(//table[.//th[normalize-space() = "Country"]]//tr[td])[1]' };
-  await searchMusicBrainz(I, firstArtist.xpath);
-  const artistName = (await I.grabTextFrom({ xpath: `${firstArtist.xpath}/td[1]` })).trim().split('\n')[0];
-  I.click({ xpath: `${firstArtist.xpath}//button` });
-  I.waitForText('Enter the work title');
-  I.fillField(locate('input').withAttr({ placeholder: 'Enter work/song title' }), TITLE);
-  I.click('Create Work');
-  // The upload page opens with skipLocationChange: the URL stays /import/link
-  I.waitForText('Please select a file to import', 10);
-  I.see('Enable automatic fingering');
-
-  // --- Upload the MusicXML sample: choosing a MusicXML file uploads it straight away -----------------------------------
-  // The file input is hidden behind the drop zone: set it through Playwright (I.attachFile wants it visible)
-  await I.usePlaywrightTo('choose the MusicXML file', async ({ page }) => {
-    await page.setInputFiles('#dropzone-file', SAMPLE);
-  });
-  I.waitInUrl('/score/', 90); // score created, file packed on the backend
-  I.waitForText(TITLE, 30, 'h1');
-  I.see(artistName, 'h1');
-
-  // --- My Scores lists the new score; it opens and is playable ------------------------------------------------------------
-  I.click(locate('a.user-link').withText(USER.name));
-  I.waitInUrl('/account/home');
-  I.click(locate('a').withText('My Scores'));
-  I.waitInUrl('/account/scores');
-  const myScore = locate('table tbody tr').withText(TITLE).withText(artistName);
-  I.waitForElement(myScore, 15);
+  // --- First score: MusicXML, listed in My Scores and playable --------------------------------------------------------
+  const musicxmlArtist = await importScore(I, MUSICXML);
+  goToMyScores(I);
+  I.waitForElement(scoreRow(MUSICXML.title, musicxmlArtist), 15);
   I.see('1 score'); // the account owns exactly this score
-  I.click(myScore);
+  I.click(scoreRow(MUSICXML.title, musicxmlArtist));
   I.waitInUrl('/score/');
-  I.waitForText(TITLE, 15, 'h1');
-  I.click(locate('button').withText('Practice'));
-  I.waitInUrl('/work/');
-  I.waitForElement('#osmdSvgPage1', 30); // sheet music rendered
-  I.waitForText('Welcome to the Workbench!', 15); // first-visit guided tour
-  I.click(locate('button').withAttr({ 'aria-label': 'Close' }));
-  I.waitForInvisible('.beacon-tooltip', 5);
-  const before = await I.executeScript(() => {
-    const c = document.getElementById('cursorImg-0');
-    return c ? { left: c.style.left, top: c.style.top } : null;
-  });
-  I.click('#play-pause button');
-  I.waitForElement('#play-pause ng-icon[name="bootstrapPauseFill"]', 5);
-  // Playable: the cursor moves once the soundfont is loaded and the count-in is over
-  I.waitForFunction(
-    (left, top) => {
-      const c = document.getElementById('cursorImg-0');
-      return !!c && (c.style.left !== left || c.style.top !== top);
-    },
-    [before?.left ?? '', before?.top ?? ''],
-    30,
-  );
-  I.click('#play-pause button');
-  I.waitForElement('#play-pause ng-icon[name="bootstrapPlayFill"]', 5);
-  // The workbench has no site header: back to the score page through its info button
-  I.click('#score-info');
+  I.waitForText(MUSICXML.title, 15, 'h1');
+  await checkPlayable(I, MUSICXML.title);
+
+  // --- Second score: MIDI, playable, then deleted -------------------------------------------------------------------------
+  goToMyScores(I);
+  const midiArtist = await importScore(I, MIDI);
+  goToMyScores(I);
+  I.waitForElement(scoreRow(MIDI.title, midiArtist), 15);
+  I.seeElement(scoreRow(MUSICXML.title, musicxmlArtist));
+  I.see('2 scores');
+  I.click(scoreRow(MIDI.title, midiArtist));
   I.waitInUrl('/score/');
-  I.waitForText(TITLE, 15, 'h1');
+  I.waitForText(MIDI.title, 15, 'h1');
+  await checkPlayable(I, MIDI.title);
+
+  // Delete it: owner-only Edit -> Delete -> confirmation -> back to My Scores without it
+  I.click(locate('button').withText('Edit'));
+  I.waitInUrl('/account/score/edit/');
+  I.click(locate('button').withText('Delete'));
+  I.waitForText('Confirm delete', 5);
+  I.see('This action cannot be undone. Are you sure?');
+  I.click(locate('.modal button').withText('Delete'));
+  I.waitInUrl('/account/scores', 15);
+  I.waitForElement(scoreRow(MUSICXML.title, musicxmlArtist), 15);
+  I.dontSeeElement(scoreRow(MIDI.title, midiArtist));
+  I.see('1 score');
 
   // --- Delete the account, so the next run starts from scratch ---------------------------------------------------------
   await deleteAccount(I);
