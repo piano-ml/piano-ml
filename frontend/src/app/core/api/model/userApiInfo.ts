@@ -16,6 +16,9 @@ export interface UserApiInfo {
     url?: string;
     bio?: string;
     image?: string;
-    roles?: string;
+    /**
+     * Comma-separated roles (e.g. \"USER,ADMIN\"). Read-only; ignored if sent in a request.
+     */
+    readonly roles?: string;
 }
 

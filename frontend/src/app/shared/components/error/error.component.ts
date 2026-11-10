@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ResponseStatusService } from '../../seo/response-status.service';
 
@@ -7,6 +7,7 @@ import { ResponseStatusService } from '../../seo/response-status.service';
   standalone: true,
   imports: [RouterModule],
   templateUrl: './error.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./error.component.css']
 })
 export class ErrorComponent {

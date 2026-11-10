@@ -5,6 +5,8 @@
 PianoML is a project designed to help users learn piano and practice exercises.
 
 ![License](https://img.shields.io/github/license/piano-ml/piano-ml)
+[![Backend coverage](https://raw.githubusercontent.com/piano-ml/piano-ml/badges/develop/backend.svg)](https://github.com/piano-ml/piano-ml/actions/workflows/build.yaml?query=branch%3Adevelop)
+[![Frontend coverage](https://raw.githubusercontent.com/piano-ml/piano-ml/badges/develop/frontend.svg)](https://github.com/piano-ml/piano-ml/actions/workflows/build.yaml?query=branch%3Adevelop)
 
 
 ## Features
@@ -27,6 +29,27 @@ Visit our [official website](https://www.pianoml.org) to learn more and get star
 
 ## Development server
 
+### Prerequisites
+
+| Tool | Version | Used by |
+|---|---|---|
+| Node.js | ≥ 22.22.3 (or ≥ 24.15.0, or ≥ 26.0.0); CI uses 26.13.0 | frontend (Angular 22) |
+| JDK | 25 | backend (Spring Boot 4) |
+| Maven | 3.9+ | backend build |
+| PostgreSQL | 14 or newer recommended (Hibernate 7 no longer supports 13) | backend database |
+
+Check your versions with `node -v` and `java -version`. One way to install them:
+
+```bash
+# Node.js 26 LTS (Debian/Ubuntu, NodeSource)
+curl -fsSL https://deb.nodesource.com/setup_26.x | sudo bash - && sudo apt install -y nodejs
+
+# JDK 25 (SDKMAN, Temurin, the same distribution CI uses)
+sdk install java 25.0.5.0+8-tem
+```
+
+The frontend unit tests (`npm test`) run with Vitest in headless Chromium. Install the browser once, from `frontend/`, with `npx playwright install chromium`.
+
 ### frontend
 
 To start a local development server, run:
@@ -36,9 +59,19 @@ npm run start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-Use `frontend/src/environments/environment.ts` in order to select the use of a local or a remote backend.
+
+The frontend always reaches the API through the dev-server proxy (`frontend/proxy.conf.mjs`), at `/api`:
+
+| Backend | Command |
+|---|---|
+| Remote (`https://api.pianoml.org`, default) | `npm run start` |
+| Local (`http://localhost:8080`) | `API_TARGET=http://localhost:8080 npm run start` |
+
+`ng serve` listens on `localhost` only; to use `http://127.0.0.1:4200/`, start it with `npm run start -- --host 127.0.0.1`.
+
+For the browser every call is same-origin, which is what the API's security model requires: the auth cookie is `HttpOnly; Secure; SameSite=Strict`, CORS does not allow `localhost`, and CSRF protection needs the frontend to read the `XSRF-TOKEN` cookie. The proxy strips the `Origin` header and adapts cookies to plain http (drops `Secure` and production-only `Domain` cookies). Pointing `environment.api` at an absolute API URL from localhost is not supported: login and every write request would fail.
 
 ### backend
 
 development require local Postgres, see `backend/src/main/resources/db/initdb.sql` for intial schema creation.
-Java code known to work fine with IntelliJ, shall work on all Java Platform
+Java code known to work fine with IntelliJ, and should work with any IDE that supports JDK 25.

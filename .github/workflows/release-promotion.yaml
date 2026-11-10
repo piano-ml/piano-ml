@@ -37,7 +37,7 @@ jobs:
     name: Prepare promotion
     needs: tests
     if: ${{ !cancelled() && (needs.tests.result == 'success' || needs.tests.result == 'skipped') }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       source_branch: ${{ steps.branches.outputs.source_branch }}
       target_branch: ${{ steps.branches.outputs.target_branch }}
@@ -74,7 +74,7 @@ jobs:
           echo "promotion_branch=$PROMOTION_BRANCH" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -96,9 +96,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Skip if target already contains all source commits (nothing to promote)
-          if git merge-base --is-ancestor "origin/$SOURCE_BRANCH" "origin/$TARGET_BRANCH"; then
-            echo "$TARGET_BRANCH already contains all commits from $SOURCE_BRANCH. Nothing to promote."
+          # Skip if target already has the same content as source (nothing to promote).
+          # Compare trees, not ancestry: releases are squash-merged, so source
+          # commits never become ancestors of target even when fully promoted.
+          if git diff --quiet "origin/$TARGET_BRANCH" "origin/$SOURCE_BRANCH"; then
+            echo "$TARGET_BRANCH already has the same content as $SOURCE_BRANCH. Nothing to promote."
             echo "needed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -160,10 +162,10 @@ jobs:
     # !cancelled(): without a status function GitHub adds success(), which is
     # false when the upstream tests job was skipped (workflow_call path).
     if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.prepare.outputs.needed == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

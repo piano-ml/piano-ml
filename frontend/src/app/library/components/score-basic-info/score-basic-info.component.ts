@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ScoreApiInfo } from '../../../core/api';
@@ -8,6 +8,7 @@ import { ScoreApiInfo } from '../../../core/api';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './score-basic-info.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './score-basic-info.component.css'
 })
 export class ScoreBasicInfoComponent {

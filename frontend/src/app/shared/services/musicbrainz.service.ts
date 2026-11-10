@@ -103,6 +103,15 @@ export interface MusicBrainzSearchParams {
   format?: 'json' | 'xml';
 }
 
+/**
+ * Quotes a value as a Lucene phrase for the MusicBrainz search API. Backslashes are escaped together with
+ * quotes: escaping only `"` would let a trailing `\` escape the closing quote and leak the rest of the
+ * input into the query syntax.
+ */
+export function luceneQuote(value: string): string {
+  return `"${value.replace(/[\\"]/g, '\\$&')}"`;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -145,7 +154,7 @@ export class MusicbrainzService {
    * @returns Observable of MusicBrainz works response
    */
   searchWorksByTitle(title: string, limit: number = 25, offset: number = 0): Observable<MusicBrainzWorksResponse> {
-    const query = `"${title.replace(/"/g, '\\"')}"`;
+    const query = luceneQuote(title);
     return this.searchWorks({ query, limit, offset });
   }
 
@@ -158,7 +167,7 @@ export class MusicbrainzService {
    * @returns Observable of MusicBrainz works response
    */
   searchWorksByArtistAndTitle(artist: string, title: string, limit: number = 25, offset: number = 0): Observable<MusicBrainzWorksResponse> {
-    const query = `artist:"${artist.replace(/"/g, '\\"')}" AND work:"${title.replace(/"/g, '\\"')}"`;
+    const query = `artist:${luceneQuote(artist)} AND work:${luceneQuote(title)}`;
     return this.searchWorks({ query, limit, offset });
   }
 
@@ -194,7 +203,7 @@ export class MusicbrainzService {
    * @returns Observable of MusicBrainz artists response
    */
   searchArtistsByName(name: string, limit: number = 25, offset: number = 0): Observable<MusicBrainzArtistsResponse> {
-    const query = `artist:"${name.replace(/"/g, '\\"')}"`;
+    const query = `artist:${luceneQuote(name)}`;
     return this.searchArtists({ query, limit, offset });
   }
 

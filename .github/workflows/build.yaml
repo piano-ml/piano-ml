@@ -22,18 +22,85 @@ jobs:
   tests:
     name: Run tests
     uses: ./.github/workflows/test.yaml
+    # test.yaml asks for pull-requests: write (PR coverage comments); a called
+    # workflow cannot get more than its caller grants. Unused on push.
+    permissions:
+      contents: read
+      pull-requests: write
+
+  coverage-badges:
+    needs: tests
+    name: Publish coverage badges
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+    # develop and main both push to the badges branch: never run two at once.
+    concurrency:
+      group: coverage-badges
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
+
+      - name: Download coverage summaries
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*-${{ github.sha }}
+          path: coverage
+          merge-multiple: true
+
+      - name: Build badges
+        run: |
+          mkdir -p out
+          be=$(node .github/scripts/coverage-badge.mjs --jacoco coverage/jacoco.xml --label "backend coverage" --out out/backend.svg)
+          fe=$(node .github/scripts/coverage-badge.mjs --vitest coverage/coverage-summary.json --label "frontend coverage" --out out/frontend.svg)
+          {
+            echo "### Coverage (${BRANCH_NAME})"
+            echo "| | Lines |"
+            echo "|---|---|"
+            echo "| Backend | ${be} |"
+            echo "| Frontend | ${fe} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Badges live on an orphan "badges" branch (<branch>/backend.svg, <branch>/frontend.svg),
+      # so CI never commits to develop/main. README points at raw.githubusercontent.com.
+      - name: Push badges
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir badges && cd badges
+          git init -q
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          if git fetch -q --depth=1 origin badges; then
+            git checkout -q -b badges FETCH_HEAD
+          else
+            git checkout -q --orphan badges
+          fi
+          mkdir -p "${BRANCH_NAME}"
+          cp ../out/*.svg "${BRANCH_NAME}/"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Badges unchanged"
+            exit 0
+          fi
+          git commit -q -m "coverage badges for ${BRANCH_NAME} @ ${GITHUB_SHA::7}"
+          git push -q origin badges
 
   backend:
     needs: tests
     name: Backend - Docker Build & Push
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download JAR artifact
         uses: actions/download-artifact@v8
@@ -66,14 +133,14 @@ jobs:
   frontend:
     needs: tests
     name: Frontend - Docker Build & Push
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download dist artifact
         uses: actions/download-artifact@v8

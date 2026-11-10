@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, Input, Output, OnChanges, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { ScoreGenreBrowseGet200ResponseInner } from '../../../core/api/model/scoreGenreBrowseGet200ResponseInner';
 import { ScoreService } from '../../../core/api/api/score.service';
 
@@ -7,6 +7,7 @@ import { ScoreService } from '../../../core/api/api/score.service';
   selector: 'app-browse-by-genre',
   imports: [],
   templateUrl: './browse-by-genre.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './browse-by-genre.component.css'
 })
 export class BrowseByGenreComponent implements  OnChanges {

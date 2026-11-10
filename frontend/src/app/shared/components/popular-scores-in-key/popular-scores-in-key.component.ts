@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { ScoreService } from '../../../core/api/api/score.service';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
@@ -7,6 +7,7 @@ import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
   selector: 'app-popular-scores-in-key',
   imports: [],
   templateUrl: './popular-scores-in-key.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './popular-scores-in-key.component.css'
 })
 export class PopularScoresInKeyComponent implements OnChanges {

@@ -2,7 +2,7 @@
 // biome-ignore lint/style/useImportType: <explanation>
 import { HttpClient } from '@angular/common/http';
 // biome-ignore lint/style/useImportType: <explanation>
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router } from '@angular/router';
 
@@ -20,6 +20,7 @@ interface ProvidedSong {
   selector: 'app-builtin',
   imports: [],
   templateUrl: './builtin.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './builtin.component.css'
 })
 export class BuiltinComponent {
