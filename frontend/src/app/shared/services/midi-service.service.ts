@@ -17,8 +17,10 @@ export class MidiServiceService {
   availableInputs: MIDIInput[] = []
   availableOutputs: MIDIOutput[] = []
   octave = 4
-  noteChannel = 144;
-  drumChannel = 153;
+  noteChannel = 144; // 0x90: note on, channel 1
+  drumChannel = 153; // 0x99: note on, channel 10 (drums)
+  /** Note off is 0x80 + channel: 16 below note on (+16 would be 0xA0, polyphonic aftertouch, and notes would hang). */
+  private static readonly NOTE_OFF_OFFSET = -16;
   pressedNotes = new Map<number, { time: number; vel: number }>()
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   private midiSetupRetries = 0
@@ -51,7 +53,7 @@ export class MidiServiceService {
    */
   releaseOutput(note: number) {
     for (const output of this.enabledOutputDevices) {
-      const data = [this.noteChannel + 16, note, 127]
+      const data = [this.noteChannel + MidiServiceService.NOTE_OFF_OFFSET, note, 127]
       output[1]?.send(data)
     }
   }
@@ -71,7 +73,7 @@ export class MidiServiceService {
    */
   releaseDrum(note: number) {
     for (const output of this.enabledOutputDevices) {
-      const data = [this.drumChannel + 16, note, 127]
+      const data = [this.drumChannel + MidiServiceService.NOTE_OFF_OFFSET, note, 127]
       output[1]?.send(data)
     }
   }
@@ -403,6 +405,11 @@ function parseMidiMessage(event: MIDIMessageEvent): MidiEvent | null {
 
   const status = data[0]
   const command = status >>> 4
+  // Only note on (0x9) and note off (0x8): control changes (sustain pedal, mod wheel...) and aftertouch
+  // used to be read as a note off, releasing the note whose number matched the controller or pressure.
+  if (command !== 0x9 && command !== 0x8) {
+    return null
+  }
   return {
     type: command === 0x9 ? 'on' : 'off',
     note: data[1],
