@@ -10,6 +10,9 @@ export PYTHONIOENCODING=utf-8
 
 source ~/shared-venv/bin/activate
 
+# helper scripts next to this one, whatever the current directory
+SCRIPTS_DIR="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
 # Script: `scripts/midi2pack.sh`
 usage() {
   printf "Usage: %s <INPUT_FILE> <TITLE> <COMPOSER> <MAKE_FINGERING> <TRACK_RIGHT> [TRACK_LEFT]\n" "$0" >&2
@@ -29,14 +32,16 @@ TRACK_LEFT="${6:-}"
 
 ls -lah "$INPUT"
 
-# Prepare file roots
-FROOT="${INPUT%.*}"
-# remove leading prefix upload_ if present
-FROOT="${FROOT/upload_/}"
+# Prepare file roots: same folder, file name without its extension and without a leading "upload_"
+# (PackService expects the zip there). Only the file name is changed: a folder named upload_... is left alone.
+INPUT_DIR="$(cd "$(dirname -- "$INPUT")" && pwd)"
+INPUT_NAME="$(basename -- "$INPUT")"
+INPUT_NAME="${INPUT_NAME%.*}"
+FROOT="${INPUT_DIR}/${INPUT_NAME#upload_}"
 
-#if [[ "${INPUT}" == *.mid ]]; then
-  mv -- "${INPUT}" "${FROOT}.midi" || echo ""
-#fi
+if [ "$INPUT_DIR/$(basename -- "$INPUT")" != "${FROOT}.midi" ]; then
+  mv -- "${INPUT}" "${FROOT}.midi"
+fi
 
 # Ensure input exists
 if [ ! -f "${FROOT}.midi" ]; then
@@ -44,38 +49,30 @@ if [ ! -f "${FROOT}.midi" ]; then
   exit 4
 fi
 
+# metadata.json is written to the current directory by get_metadata.py: give each run its own, so concurrent
+# imports cannot zip or delete each other's metadata.
+WORK_DIR="$(mktemp -d)"
+
 cleanup() {
-  # keep only final zip; remove intermediates if present
-  rm -f "${FROOT}.midi" "${FROOT}.musicxml" "${FROOT}.pdf" "${FROOT}.fingering.json" "metadata.json" "${FROOT}_filtered.musicxml"
-  :
+  # keep only final zip; remove intermediates if present (also when a step fails)
+  rm -f "${FROOT}.midi" "${FROOT}.musicxml" "${FROOT}.musicxml.bak" "${FROOT}.pdf" "${FROOT}.fingering.json" "${FROOT}_filtered.musicxml"
+  rm -rf "$WORK_DIR"
 }
-#trap cleanup EXIT
+trap cleanup EXIT
 
-printf "Converting MIDI <-> MusicXML using %s\n" musescore3
-
-# Convert and normalize format (do each step and fail fast)
-musescore3 -o "${FROOT}.musicxml" "${FROOT}.midi" > /dev/null 2>&1
-musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml" > /dev/null 2>&1
-
-# Restore canonical extension
-mv -- "${FROOT}.mid" "${FROOT}.midi"
-
-if [ -n "$TRACK_RIGHT" ]; then
-  if [ -n "$TRACK_LEFT" ]; then
-    printf "Extracting left/right hand track %s %s for %s.midi\n" "$TRACK_RIGHT" "$TRACK_LEFT" "$FROOT"
-    python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT" "$TRACK_LEFT" 
-  else
-    printf "Extracting track %s for %s.midi (TRACK_LEFT omitted)\n" "$TRACK_RIGHT" "$FROOT"
-    python ./scripts/extract_midi_tracks.py "${FROOT}.musicxml" "$TRACK_RIGHT"
-    echo "spliting parts !"
-    musescore3 -o "${FROOT}.mid" "${FROOT}.musicxml" > /dev/null 2>&1
-    #musescore3 -M ./scripts/midioperations.xml -o "${FROOT}.musicxml" "${FROOT}.mid"
-    musescore3 -o "${FROOT}.musicxml" "${FROOT}.mid"
-  fi
-else
+# ${FROOT}.midi is the upload, byte for byte, and is never modified: it goes into the zip for the player,
+# which plays every track and finds the study tracks in it by the numbers the import page showed.
+# Only the sheet music (musicxml, pdf) is reduced to the chosen tracks, from a copy holding just those.
+if [ -z "$TRACK_RIGHT" ]; then
   printf "No track specified in original midi file\n" >&2
   exit 5
 fi
+
+printf "Selecting track(s) %s %s of %s.midi for the score\n" "$TRACK_RIGHT" "$TRACK_LEFT" "$FROOT"
+python "$SCRIPTS_DIR"/select_midi_tracks.py "${FROOT}.midi" "$WORK_DIR/score.mid" "$TRACK_RIGHT" ${TRACK_LEFT:+"$TRACK_LEFT"}
+
+printf "Converting MIDI -> MusicXML using %s\n" musescore3
+musescore3 -o "${FROOT}.musicxml" "$WORK_DIR/score.mid" > /dev/null 2>&1
 
 
 
@@ -97,39 +94,39 @@ fi
 
 
 printf "Extracting fingering ...\n"
-python ./scripts/extract_fingering.py "${FROOT}.musicxml"
+python "$SCRIPTS_DIR"/extract_fingering.py "${FROOT}.musicxml"
 
 cp -- "${FROOT}.musicxml" "${FROOT}_filtered.musicxml"
 
 
 
-#HAS_HARMONY=$(python ./scripts/has_harmony.py "$FROOT.musicxml")
+#HAS_HARMONY=$(python "$SCRIPTS_DIR"/has_harmony.py "$FROOT.musicxml")
 #if [ "$HAS_HARMONY" = "0" ]; then
 #  echo "No harmony found, running auto_harmonizer"
-#  ./scripts/auto_harmonize.sh "$FROOT.musicxml" > /dev/null 2>&1 || exit 1
+#  "$SCRIPTS_DIR"/auto_harmonize.sh "$FROOT.musicxml" > /dev/null 2>&1 || exit 1
 #else
 #  echo "Harmony already present, skipping auto_harmonize"
 #fi
 
 printf "Setting metadata in files ...\n"
-python ./scripts/set_metadata.py "${FROOT}.musicxml" "$TITLE" "$COMPOSER"
+python "$SCRIPTS_DIR"/set_metadata.py "${FROOT}.musicxml" "$TITLE" "$COMPOSER"
 
 printf "Exporting metadata ...\n"
-python ./scripts/get_metadata.py "${FROOT}.musicxml"
+(cd "$WORK_DIR" && python "$SCRIPTS_DIR/get_metadata.py" "${FROOT}.musicxml")
 
 printf "Creating PDF ...\n"
 musescore3 -o "${FROOT}.pdf" "${FROOT}.musicxml"
 
 # ensure files exist before zipping
-for f in "${FROOT}.pdf" "${FROOT}.midi" "${FROOT}.musicxml"  metadata.json; do
+for f in "${FROOT}.pdf" "${FROOT}.midi" "${FROOT}.musicxml" "$WORK_DIR/metadata.json"; do
   if [ ! -f "$f" ]; then
     printf "Warning: expected file missing: %s\n" "$f" >&2
   fi
 done
 
-zip -j "${FROOT}.zip" "${FROOT}.pdf" "${FROOT}.midi" "${FROOT}.musicxml" "metadata.json"
+zip -j "${FROOT}.zip" "${FROOT}.pdf" "${FROOT}.midi" "${FROOT}.musicxml" "$WORK_DIR/metadata.json"
 
 printf "Cleaning intermediate files...\n"
-rm -f "${FROOT}.musicxml.bak"  "${FROOT}.pdf" "${FROOT}.mid" "${FROOT}.midi" "${FROOT}.musicxml" "${FROOT}.fingering.json" "metadata.json" "${FROOT}_filtered.musicxml"
+cleanup
 
 printf "Done: %s.zip\n" "${FROOT}"
