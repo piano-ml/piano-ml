@@ -427,8 +427,10 @@ function createPartWithAPI(
   divisions: number
 ): elements.PartPartwise {
   const notesInPattern = hand === 'lh' ? exercice.patternLeftHand : exercice.patternRightHand;
-  const m = getNote(`${key}4`);
-  const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift - 2 || 0) + (m < 65 ? 1 : 0);
+  // Same octave as the MIDI track (generateMidiTrack): the score shows exactly the notes the player plays.
+  // The previous formula wrote keys from F upwards an octave below the MIDI, and took contrary motion below
+  // the piano's lowest key in F, F#, G and Ab, where getNote() has no note and the generation crashed.
+  const octave = (hand === 'lh' ? 3 : 4) + (exercice.octaveShift || 0);
 
   // Create attributes for the measure
   const attributesFirstMeasure = createAttributeFirstMeasure(hand, exercice, divisions, key);
@@ -551,16 +553,23 @@ function createElementRest(duration: number, shape: { type: string, dots: number
 }
 
 
+const STEP_SEMITONES: { [step: string]: number } = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+
+/**
+ * The written pitch of a MIDI note in the key's spelling. The octave is the scientific one (C4 = 60), taken
+ * from the spelled note so that it sounds at midiNote: B#3 and C4 are both 60, Cb5 and B4 both 71.
+ */
 function midiNoteToPitch(midiNote: number, keySignature: String): { step: string, octave: number, alter?: number } {
-  let octave = Math.floor(midiNote / 12);
   const noteIndex = midiNote % 12;
   const scaleKey = keySignature.includes('m') ? keySignature as MinorKeys : keySignature as MajorKeys;
   const spellings = keySignature.includes('m') ? minorKeySpellings[scaleKey as MinorKeys] : majorKeySpellings[scaleKey as MajorKeys];
   const noteName = spellings[noteIndex];
+  const step = noteName[0];
+  const alter = noteName.includes('#') ? 1 : noteName.includes('b') ? -1 : 0;
   return {
-    step: noteName[0],
-    octave: octave,
-    alter: noteName.includes('#') ? 1 : noteName.includes('b') ? -1 : 0
+    step,
+    octave: Math.round((midiNote - STEP_SEMITONES[step] - alter) / 12) - 1,
+    alter
   };
 }
 

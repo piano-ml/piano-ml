@@ -1,0 +1,160 @@
+name: Acceptance (develop)
+
+# Informational: reports a status on develop commits, gates nothing. It is a workflow of its own, so
+# build.yaml (tests, images, deploy) never waits for it, and a failure only shows as a red check.
+#  - pack scripts: backend/scripts/test_midi.sh and test.sh inside the backend image built from the commit;
+#  - acceptance: frontend/acceptance (CodeceptJS) against the frontend image built from the commit, served as
+#    https://pianoml.org, with the production API. The account scenario writes to production (it creates,
+#    uses and deletes its own account and scores).
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+# One run at a time: two account scenarios at once would share the same production account.
+concurrency:
+  group: acceptance
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: read # registry layer caches of build.yaml
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  IMAGE_BACKEND: ghcr.io/${{ github.repository_owner }}/pianoml
+  IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner }}/pianoml-fe
+
+jobs:
+  pack-scripts:
+    name: Pack scripts (backend image)
+    runs-on: ubuntu-26.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v6
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build the jar
+        working-directory: ./backend
+        run: mvn --batch-mode -DskipTests package
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build the backend image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          load: true
+          provenance: false
+          tags: pianoml:acceptance
+          cache-from: type=registry,ref=${{ env.IMAGE_BACKEND }}:cache
+
+      # The scripts run where they run in production: in the image, as appuser, from /home/appuser.
+      - name: test_midi.sh (track selection)
+        run: docker run --rm --entrypoint bash -w /home/appuser pianoml:acceptance scripts/test_midi.sh
+
+      - name: test.sh (every *2pack.sh)
+        if: ${{ !cancelled() }}
+        run: docker run --rm --entrypoint bash -w /home/appuser pianoml:acceptance scripts/test.sh
+
+  acceptance:
+    name: Acceptance (frontend image, production API)
+    runs-on: ubuntu-26.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26.13.0'
+          cache: 'npm'
+          cache-dependency-path: |
+            frontend/package-lock.json
+            frontend/acceptance/package-lock.json
+
+      - name: Build the frontend
+        working-directory: ./frontend
+        run: |
+          npm --legacy-peer-deps install
+          npm run build:prod
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build the frontend image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./frontend
+          load: true
+          provenance: false
+          tags: pianoml-fe:acceptance
+          cache-from: type=registry,ref=${{ env.IMAGE_FRONTEND }}:cache
+
+      - name: Serve it as https://pianoml.org
+        run: frontend/acceptance/ci/serve.sh start pianoml-fe:acceptance
+
+      - name: Install the acceptance tests
+        working-directory: ./frontend/acceptance
+        run: npm ci
+
+      - name: Playwright version
+        id: playwright
+        working-directory: ./frontend/acceptance
+        run: echo "version=$(node -p "require('playwright/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      # No --with-deps: the runner image has Chromium's libraries (see test.yaml).
+      - name: Install Chromium
+        working-directory: ./frontend/acceptance
+        timeout-minutes: 5
+        run: npx playwright install chromium
+
+      - name: Run the acceptance tests
+        working-directory: ./frontend/acceptance
+        env:
+          BASE_URL: https://pianoml.org
+          SITE_ADDRESS: 127.0.0.1
+        run: npx codeceptjs run --steps
+
+      - name: Frontend container logs
+        if: failure()
+        run: frontend/acceptance/ci/serve.sh logs
+
+      - name: Upload screenshots and traces
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: acceptance-output-${{ github.sha }}
+          path: frontend/acceptance/output/
+          retention-days: 7
+
+      - name: Stop the frontend image
+        if: always()
+        run: frontend/acceptance/ci/serve.sh stop
