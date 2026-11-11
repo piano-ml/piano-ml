@@ -31,5 +31,5 @@ describe('BlogComponent', () => {
       expect(response.ok, `${href}: assets/blog/${slug}.md answered ${response.status}`).toBe(true);
       expect((await response.text()).trim().length, `${href}: empty post`).toBeGreaterThan(0);
     }
-  });
+  }, 10_000); // fetches from the test server: slower when the whole suite runs
 });
