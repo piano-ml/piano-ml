@@ -31,11 +31,16 @@ describe('HomeComponent', () => {
     http = TestBed.inject(HttpTestingController);
   });
 
-  it('wakes the API server up through the API base URL, ignoring the answer', () => {
+  it('wakes the API server up through a public endpoint of the API, ignoring the answer', () => {
     render();
-    const warmUp = http.expectOne(`${environment.api}/account/userinfo`);
+    const warmUp = http.expectOne(`${environment.api}/score/stats`);
     expect(warmUp.request.method).toBe('GET');
-    expect(() => warmUp.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' })).not.toThrow();
+    expect(() => warmUp.flush('Unavailable', { status: 503, statusText: 'Service Unavailable' })).not.toThrow();
+  });
+
+  it('never warms up through an account endpoint (its 401 would end the session and open the login page)', () => {
+    render();
+    expect(http.match((request) => request.url.includes('/account/'))).toEqual([]);
   });
 
   it('"Take a seat" goes to the summary page', () => {
