@@ -87,10 +87,30 @@ jobs:
     - name: Build frontend
       working-directory: ./frontend
       run: npm run build:prod
-    # Vitest runs the specs in headless Chromium through Playwright.
+    # Vitest runs the specs in headless Chromium through Playwright. The browser comes from Playwright's CDN
+    # (cached per Playwright version); the runner image already has the system libraries it needs, so apt
+    # (--with-deps: fonts we don't use, and a run failed when the Ubuntu mirrors were unreachable) only
+    # runs if a library is actually missing.
+    - name: Playwright version
+      id: playwright
+      working-directory: ./frontend
+      run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+    - name: Cache Playwright browsers
+      uses: actions/cache@v6
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
     - name: Install Playwright Chromium
       working-directory: ./frontend
-      run: npx playwright install --with-deps chromium
+      timeout-minutes: 5
+      run: |
+        npx playwright install chromium
+        missing=$(find ~/.cache/ms-playwright -type f \( -name chrome -o -name chrome-headless-shell \) -exec ldd {} + 2>/dev/null | grep "not found" || true)
+        if [ -n "$missing" ]; then
+          echo "::warning::Chromium libraries missing, installing them with apt:"; echo "$missing"
+          echo 'Acquire::Retries "5";' | sudo tee /etc/apt/apt.conf.d/80-retries > /dev/null
+          npx playwright install-deps chromium
+        fi
     # After build:prod, whose prebuild step generates src/app/core/api the specs import.
     - name: Dev proxy and CI script tests
       working-directory: ./frontend
