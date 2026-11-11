@@ -16,6 +16,10 @@ describe('postSeo', () => {
     expect(postSeo('<h1><img src="cover.webp" alt="Czerny studies"></h1>', 'czerny').title).toBe('Czerny studies');
   });
 
+  it('falls back to the slug for an image-only heading without alt text', () => {
+    expect(postSeo('<h1><img src="cover.webp"></h1>', 'czerny-studies').title).toBe('Czerny studies');
+  });
+
   it('falls back to the slug when there is no heading', () => {
     const seo = postSeo('<p>No heading here at all, just a paragraph of prose.</p>', 'thanks-and-acknowledgments');
 

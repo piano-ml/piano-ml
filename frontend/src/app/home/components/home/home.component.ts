@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { noop } from 'rxjs';
 import { HomeglComponent } from '../homegl/homegl.component';
 import { HomecssComponent } from '../homecss/homecss.component';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -42,8 +43,9 @@ export class HomeComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if (this.isBrowser) {
-      // Warm up the server (ignore response and errors)
-      void this.http.get('/account/userinfo').subscribe({
+      // Warm up the API server (ignore response and errors). Through the API base like every API call:
+      // a bare '/account/userinfo' went to the frontend's own server (a 404 page), never waking the API.
+      void this.http.get(`${environment.api}/account/userinfo`).subscribe({
         next: noop,
         error: noop
       });

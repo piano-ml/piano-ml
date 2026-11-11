@@ -8,3 +8,39 @@ tbody tr:hover {
 	@apply bg-neutral-800/40;
 }
 
+/* ── Icon cells (e.g. public domain / copyrighted) ── */
+.cell-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  vertical-align: middle;
+}
+
+.cell-icon--positive {
+  color: rgb(52 211 153);                 /* emerald-400 */
+  background-color: rgb(16 185 129 / 0.12);
+  border-color: rgb(16 185 129 / 0.25);
+}
+
+.cell-icon--caution {
+  color: rgb(251 191 36 / 0.85);          /* amber-400, softened */
+  background-color: rgb(245 158 11 / 0.08);
+  border-color: rgb(245 158 11 / 0.2);
+}
+
+.cell-icon--danger {
+  color: rgb(251 113 133);                /* rose-400 */
+  background-color: rgb(244 63 94 / 0.12);
+  border-color: rgb(244 63 94 / 0.3);
+}
+
+.cell-icon--muted {
+  color: rgb(163 163 163);                /* neutral-400 */
+  background-color: rgb(255 255 255 / 0.04);
+  border-color: rgb(255 255 255 / 0.08);
+}
+
