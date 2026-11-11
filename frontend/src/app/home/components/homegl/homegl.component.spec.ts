@@ -2,28 +2,58 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { SHADER_FILES } from '../../../testing/shader-fixtures';
 import { HomeglComponent } from './homegl.component';
 
 /** The homepage's animated WebGL background: loads GLSL shaders from assets/shader and renders one. */
 describe('HomeglComponent', () => {
   let fixture: ComponentFixture<HomeglComponent>;
   let component: HomeglComponent;
+  /** Set when the shader requests are answered with the real files (no test-server fetch: not served on CI). */
+  let shaderServer: HttpTestingController | null = null;
+
+  /** Answers every pending request with the matching file of src/assets/shader, or a 404. */
+  function serveShaders() {
+    for (const request of shaderServer?.match(() => true) ?? []) {
+      const file = SHADER_FILES[request.request.url];
+      if (file === undefined) request.flush('missing', { status: 404, statusText: 'Not Found' });
+      else request.flush(file);
+    }
+  }
 
   async function waitFor(condition: () => boolean, timeout = 8000) {
     const start = Date.now();
+    serveShaders();
     while (!condition()) {
       if (Date.now() - start > timeout) throw new Error('timed out waiting');
       await new Promise((resolve) => setTimeout(resolve, 20));
+      serveShaders();
     }
+  }
+
+  /** Awaits a promise whose shader requests still need answering. */
+  async function served<T>(promise: Promise<T>): Promise<T> {
+    let done = false;
+    const result = promise.finally(() => (done = true));
+    await waitFor(() => done);
+    return result;
+  }
+
+  function provideShaderFiles() {
+    TestBed.configureTestingModule({ imports: [HomeglComponent], providers: [provideHttpClient(), provideHttpClientTesting()] });
+    shaderServer = TestBed.inject(HttpTestingController);
   }
   const canvas = () => fixture.nativeElement.querySelector('canvas') as HTMLCanvasElement;
 
-  afterEach(() => fixture?.destroy());
+  afterEach(() => {
+    fixture?.destroy();
+    shaderServer = null;
+  });
 
-  describe('with the real shaders (served from assets/shader)', () => {
+  describe('with the real shaders (the files of assets/shader)', () => {
     beforeEach(() => {
       vi.spyOn(console, 'log').mockImplementation(() => undefined);
-      TestBed.configureTestingModule({ imports: [HomeglComponent], providers: [provideHttpClient()] });
+      provideShaderFiles();
       fixture = TestBed.createComponent(HomeglComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
@@ -90,7 +120,7 @@ describe('HomeglComponent', () => {
 
     it('reloads the shaders on demand', async () => {
       await waitFor(() => component.getAvailableShaderIndexes().length > 0);
-      await component.reloadShaders();
+      await served(component.reloadShaders());
       expect(component.getAvailableShaderIndexes().length).toBe(7);
     });
   });
@@ -139,7 +169,7 @@ describe('HomeglComponent', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const alert = vi.spyOn(window, 'alert').mockImplementation(() => undefined);
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
-    TestBed.configureTestingModule({ imports: [HomeglComponent], providers: [provideHttpClient()] });
+    provideShaderFiles();
     fixture = TestBed.createComponent(HomeglComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

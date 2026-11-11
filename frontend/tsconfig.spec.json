@@ -4,7 +4,9 @@
     "outDir": "./out-tsc/spec",
     "types": [
       "vitest/globals"
-    ]
+    ],
+    "module": "esnext",
+    "resolveJsonModule": true
   },
   "include": [
     "src/**/*.spec.ts",
