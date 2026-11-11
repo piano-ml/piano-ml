@@ -59,7 +59,8 @@ public class CloudRunJobService {
   }
 
 
-  private JobsClient createJobsClient() throws IOException {
+  /** Package-private so tests can supply a client; production builds one from the configured credentials. */
+  JobsClient createJobsClient() throws IOException {
     GoogleCredentials credentials = getCredentials();
 
     JobsSettings jobsSettings = JobsSettings.newBuilder()

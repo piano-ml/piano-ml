@@ -49,24 +49,29 @@ public class WorkloadProcessingService {
    * Returns when all workloads are processed
    */
   public void processAllWorkloads() {
+    processPendingWorkloads();
+    log.info("Exiting.");
+    System.exit(0);
+  }
+
+  /**
+   * Processes every pending workload, oldest first; one failing does not stop the others.
+   *
+   * @return the number of workloads processed
+   */
+  public int processPendingWorkloads() {
     log.info("Starting workload processing...");
-
     List<Workload> pendingWorkloads = workloadRepository.findPendingWorkloadsOrderedByCreatedAt();
-
     if (pendingWorkloads.isEmpty()) {
-      log.info("No pending workloads found. Exiting.");
-      System.exit(0);
-      return;
+      log.info("No pending workloads found.");
+      return 0;
     }
-
     log.info("Found {} pending workloads to process", pendingWorkloads.size());
-
     for (Workload workload : pendingWorkloads) {
       processOpticalMusicRecognition(workload);
     }
-
-    log.info("All workloads processed. Exiting.");
-    System.exit(0);
+    log.info("All workloads processed.");
+    return pendingWorkloads.size();
   }
 
 
@@ -145,6 +150,6 @@ public class WorkloadProcessingService {
         }
       }
     }
-    throw new RuntimeException("PDF file '" + PackService.ORIGINAL_PDF_FILENAME + "' not found in ZIP");
+    throw new RuntimeException("Original file '" + originalFileName + "' not found in ZIP " + s3Key);
   }
 }

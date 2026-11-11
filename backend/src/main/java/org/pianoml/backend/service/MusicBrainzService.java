@@ -1,5 +1,10 @@
 package org.pianoml.backend.service;
 
+import java.net.URI;
+import java.util.Map;
+import java.util.TreeMap;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.entity.Author;
 import org.pianoml.backend.mapper.MbAuthorApiInfoMapper;
@@ -17,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Slf4j
@@ -32,17 +35,30 @@ public class MusicBrainzService {
   private MbAuthorApiInfoMapper mbAuthorApiInfoMapper;
 
   public AllWorksApiInfo searchWorks(String query) {
-    String url = "https://musicbrainz.org/ws/2/work?query=" + query + "&limit=25&method=indexed&fmt=json";
+    URI url = searchUri("work", query, Map.of("limit", "25", "method", "indexed"));
     return restTemplate.getForObject(url, AllWorksApiInfo.class);
   }
 
   public ArtistSearchResult searchArtistByName(String query) {
-    String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
-    String url = "https://musicbrainz.org/ws/2/artist?query=" + encodedQuery + "&fmt=json&offset=0";
+    URI url = searchUri("artist", query, Map.of("offset", "0"));
     log.info("Searching artists in MusicBrainz: {}", url);
     ArtistSearchResult result = restTemplate.getForObject(url, ArtistSearchResult.class);
     log.info("Found {} artists for query: {}", result != null ? result.getCount() : 0, query);
     return result;
+  }
+
+  /**
+   * A MusicBrainz search URI with every parameter encoded exactly once. Passed to RestTemplate as a URI, which
+   * it does not encode again: a String URL is re-encoded, so a query pre-encoded with URLEncoder reached
+   * MusicBrainz double-encoded ("Dvořák" became "Dvo%25C5%2599...": no result), and an unencoded one let an
+   * "&" in the query start a new parameter.
+   */
+  static URI searchUri(String entity, String query, Map<String, String> params) {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://musicbrainz.org/ws/2/" + entity)
+      .queryParam("query", query)
+      .queryParam("fmt", "json");
+    new TreeMap<>(params).forEach(builder::queryParam);
+    return builder.encode().build().toUri();
   }
 
   public Author getAuthor(UUID mbid) {

@@ -22,7 +22,15 @@
           <tr (click)="onRowClick(score, $event)" [class.cursor-pointer]="showRowClick">
             @for (column of getVisibleColumns(); track column.label; let isFirst = $first, isLast = $last) {
               <td [class]="getCellClass(column, isFirst, isLast)">
-                {{ getCellValue(score, column) }}
+                @let icon = getCellIcon(score, column);
+                @if (icon) {
+                  <span [class]="'cell-icon cell-icon--' + (icon.tone ?? 'muted')" [title]="icon.label" [attr.data-icon]="icon.name">
+                    <ng-icon [name]="icon.name" size="14" aria-hidden="true" />
+                    <span class="sr-only">{{ icon.label }}</span>
+                  </span>
+                } @else {
+                  {{ getCellValue(score, column) }}
+                }
               </td>
             }
             @if (actions.length > 0) {

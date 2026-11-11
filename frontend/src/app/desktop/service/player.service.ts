@@ -145,6 +145,9 @@ export class PlayerService implements OnDestroy {
     this.duration = midiAll.duration;
     if (midiAll.header.timeSignatures.length === 0) {
       midiAll.header.timeSignatures.push({ ticks: 0, timeSignature: [4, 4] });
+      // update() computes the signature's `measures`: without it every note's `bars` is NaN
+      // (and so are maxStaveCount, the score range and the playback end time)
+      midiAll.header.update();
     }
 
     const studiesSet = new Set(studies);

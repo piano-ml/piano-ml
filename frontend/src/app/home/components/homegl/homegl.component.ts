@@ -254,7 +254,9 @@ export class HomeglComponent implements AfterViewInit, OnDestroy {
       console.error('Error initializing WebGL', e);
     }
     if (!this.gl) {
-      alert('Unable to initialize WebGL. Your browser or machine may not support it.');
+      // The animated background is decorative: without WebGL the homepage simply goes without it
+      // (a blocking alert() used to greet these visitors).
+      console.warn('WebGL unavailable: the homepage background animation is disabled.');
       return;
     }
 

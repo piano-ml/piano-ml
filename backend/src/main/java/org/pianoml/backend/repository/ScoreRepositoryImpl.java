@@ -136,7 +136,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
         } else if (gStart != null) {
           predicate = cb.and(predicate, cb.ge(root.get("grade").as(Float.class), gStart));
         } else if (gEnd != null) {
-          predicate = cb.and(predicate, cb.lessThan(root.get("grade").as(Float.class) , gEnd +1));
+          predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("grade").as(Float.class), gEnd));
         }
       }
     }
@@ -281,9 +281,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
      jpql.append(" GROUP BY s.author ORDER BY s.author.sortName ASC, COUNT(s) DESC");
 
      TypedQuery<Object[]> query = em.createQuery(jpql.toString(), Object[].class);
-     if (user != null && !isAdmin) {
-       query.setParameter("userId", user.getId());
-     }
+     // no :userId parameter: the visibility clause above is disabled
      if (tracks != null && !tracks.isEmpty()) {
        query.setParameter("tracksList", tracks);
      }
@@ -389,7 +387,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     // to the expected format [Genre entity (or null), Long count, OffsetDateTime maxUploadedAt]
     List<UUID> rootIds = rawResults.stream()
       .filter(row -> row[0] != null)
-      .map(row -> (UUID) row[0])
+      .map(row -> toUuid(row[0]))
       .collect(java.util.stream.Collectors.toList());
 
     java.util.Map<UUID, org.pianoml.backend.entity.Genre> genreById = java.util.Collections.emptyMap();
@@ -404,7 +402,7 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
 
     List<Object[]> results = new java.util.ArrayList<>();
     for (Object[] row : rawResults) {
-      UUID rootId = (UUID) row[0];
+      UUID rootId = toUuid(row[0]);
       long count = ((Number) row[4]).longValue();
       OffsetDateTime maxUploadedAt = null;
       if (row[5] != null) {
@@ -448,5 +446,15 @@ public class ScoreRepositoryImpl implements IScoreRepositoryCustom {
     String jpql = "SELECT s.fullKey FROM Score s WHERE s.fullKey IS NOT NULL GROUP BY s.fullKey ORDER BY s.fullKey ASC";
     TypedQuery<String> query = em.createQuery(jpql, String.class);
     return query.getResultList();
+  }
+
+  /** A UUID column from a native query: a UUID on PostgreSQL, 16 bytes or text on other drivers. */
+  static UUID toUuid(Object value) {
+    if (value == null || value instanceof UUID) return (UUID) value;
+    if (value instanceof byte[] bytes && bytes.length == 16) {
+      java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(bytes);
+      return new UUID(buffer.getLong(), buffer.getLong());
+    }
+    return UUID.fromString(value.toString());
   }
 }

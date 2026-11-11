@@ -21,22 +21,28 @@ export class AccountScoresComponent implements OnInit {
   // Table configuration
   tableColumns: ScoreTableColumn[] = [
     {
-      key: 'has_files',
-      label: '',
+      key: 'playCount',
+      label: '#played',
+      visible: true,
+      align: 'center',
+      // A score whose import failed midway has no files: it can't be played, flag it instead of a count
+      icon: (value, score) => score.has_files === false
+        ? { name: 'bootstrapExclamationTriangleFill', label: 'Files missing: the import did not finish', tone: 'danger' }
+        : null
+    },
+    { key: 'version', label: 'Version', visible: true },
+    {
+      key: 'publicDomain',
+      label: 'Public domain',
       visible: true,
       narrow: true,
       align: 'center',
-      formatter: (value, score) => score.has_files === false ? '⚠️' : '✅'
+      // A score without the flag is treated as copyrighted, like the score page does for downloads
+      icon: (value) => value === true
+        ? { name: 'bootstrapUnlockFill', label: 'Public domain', tone: 'positive' }
+        : { name: 'bootstrapLockFill', label: 'Copyrighted, downloads restricted', tone: 'caution' }
     },
-    { key: 'playCount', label: '#played', visible: true },
-    { key: 'version', label: 'Version', visible: true },
-    { key: 'publicDomain', label: 'Public Domain', visible: true },
-    {
-      key: 'title',
-      label: 'Title',
-      visible: true,
-      formatter: (value, score) => score.publicDomain ? (score.title || '') : '🔒' + (score.title || '')
-    },
+    { key: 'title', label: 'Title', visible: true },
     { key: 'author', label: 'Author', visible: true },
     { key: 'genre', label: 'Genre', visible: true },
 
