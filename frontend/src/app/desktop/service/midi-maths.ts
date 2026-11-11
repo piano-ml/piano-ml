@@ -7,81 +7,42 @@ import { quantiseTick, reducedFractionfromTicks, reduction, type ReducedFraction
 import { flatSpelling } from "./music-theory";
 
 
-export function detectDuration(tick: number, timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
-
+/**
+ * Note value closest to `tick` (quantized to a 32nd): "1" whole, "2" half, "4" quarter... with 0 or 1 dot.
+ * Every candidate, plain or dotted, is compared at once: picking the closest plain value first and then
+ * trying to dot it missed most dotted notes (a dotted half, 3/4, tied between half and whole and became
+ * a whole note).
+ */
+function closestNoteValue(tick: number, ppq: number, shortest: number): { duration: string, dots: number } {
   const tickQuant = quantiseTick(tick, ppq);
-  const d = reduction(reducedFractionfromTicks(tickQuant, ppq))
+  const d = reduction(reducedFractionfromTicks(tickQuant, ppq));
   if (d.numerator === 1) {
     return { duration: String(d.denominator), dots: 0 };
   }
 
-  const possibleValues = [
-    1 / 1, // ronde
-    1 / 2, // blanche
-    1 / 4, // noire
-    1 / 8, // croche
-    1 / 16, // double croche
-    1 / 32 // triple croche
-  ];
-
-  const possibleValueDots = [
-    [1 / 1, 1 / 1 + 1 / 2],
-    [1 / 2, 1 / 2 + 1 / 4],
-    [1 / 4, 1 / 4 + 1 / 8],
-    [1 / 8, 1 / 8 + 1 / 16],
-    [1 / 16, 1 / 16 + 1 / 32],
-    [1 / 32]
-  ];
-
   const goal = d.numerator / d.denominator;
-  const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-  const subarray = possibleValueDots[possibleValues.indexOf(closest)];
-  const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-
-  return {
-    duration: String(1 / closest),
-    dots: subarray.indexOf(closestDot)
-  };
+  let best = { duration: '1', dots: 0, distance: Number.POSITIVE_INFINITY };
+  for (let denominator = 1; denominator <= shortest; denominator *= 2) {
+    // A dotted 32nd (or shorter) is below the quantization step: plain values only there
+    const dotted = denominator < 32 ? [0, 1] : [0];
+    for (const dots of dotted) {
+      const value = (1 / denominator) * (dots ? 1.5 : 1);
+      const distance = Math.abs(value - goal);
+      if (distance < best.distance) {
+        best = { duration: String(denominator), dots, distance };
+      }
+    }
+  }
+  return { duration: best.duration, dots: best.dots };
 }
 
+export function detectDuration(tick: number, _timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
+  return closestNoteValue(tick, ppq, 32);
+}
 
-
-export function detectDuration2(tick: number, timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
-
-  const tickQuant = quantiseTick(tick, ppq);
-  const d = reduction(reducedFractionfromTicks(tickQuant, ppq))
-  if (d.numerator === 1) {
-    return { duration: String(d.denominator), dots: 0 };
-  }
-
-  const possibleValues = [
-    1 / 1, // ronde
-    1 / 2, // blanche
-    1 / 4, // noire
-    1 / 8, // croche
-    1 / 16, // double croche
-    1 / 32, // triple croche
-    1 / 64
-  ];
-
-  const possibleValueDots = [
-    [1 / 1, 1 / 1 + 1 / 2],
-    [1 / 2, 1 / 2 + 1 / 4],
-    [1 / 4, 1 / 4 + 1 / 8],
-    [1 / 8, 1 / 8 + 1 / 16],
-    [1 / 16, 1 / 16 + 1 / 32],
-    [1 / 32],
-    [1 / 64]
-  ];
-  const goal = d.numerator / d.denominator;
-  const closest = possibleValues.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-  const subarray = possibleValueDots[possibleValues.indexOf(closest)];
-  const closestDot = subarray.reduce((prev, curr) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev));
-
-  return {
-    duration: String(1 / closest),
-    dots: subarray.indexOf(closestDot)
-  };
+/** Same as detectDuration, with 64th notes as candidates too. */
+export function detectDuration2(tick: number, _timeSig: ReducedFraction, ppq: number): { duration: string, dots: number } {
+  return closestNoteValue(tick, ppq, 64);
 }
 
 

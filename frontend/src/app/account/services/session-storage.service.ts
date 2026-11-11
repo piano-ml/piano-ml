@@ -12,13 +12,12 @@ interface SessionLike {
   providedIn: 'root'
 })
 export class SessionStorageService {
-  private loggedIn = new BehaviorSubject<boolean>(this.hasStoredSession());
+  // Order matters: field initializers run top to bottom, and the initial login state needs isBrowser.
+  // (It used to be computed first, while isBrowser was still undefined: a session stored before a reload
+  // read as logged out until the server answered, and the account page redirected to login.)
   private platformId = inject(PLATFORM_ID);
-  private isBrowser: boolean;
-
-  constructor() {
-    this.isBrowser = isPlatformBrowser(this.platformId);
-  }
+  private isBrowser = isPlatformBrowser(this.platformId);
+  private loggedIn = new BehaviorSubject<boolean>(this.hasStoredSession());
 
   get isLoggedIn(): Observable<boolean> {
     return this.loggedIn.asObservable();

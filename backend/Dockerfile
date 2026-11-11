@@ -50,7 +50,7 @@ RUN python -m venv /home/appuser/shared-venv && \
 
 # --- Layer: lighter Python packages ---
 RUN /home/appuser/shared-venv/bin/pip install --no-cache-dir \
-        miditok music21 musicxml pretty_midi symusic matplotlib seaborn numpy
+        miditok mido music21 musicxml pretty_midi symusic matplotlib seaborn numpy
 
 # install piano-syllabus-classifier
 RUN git clone --depth=1 https://github.com/piano-ml/piano-syllabus-classifier.git && \

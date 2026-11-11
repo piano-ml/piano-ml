@@ -16,7 +16,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.time.OffsetDateTime;
@@ -49,6 +48,14 @@ public class PackService {
   @Value("${aws.s3.bucket-name:'no-bucket'}")
   private String bucketName;
 
+  /** Folder of the *2pack.sh conversion scripts (relative to the working directory by default). */
+  @Value("${pack.scripts-dir:scripts}")
+  private String scriptsDir = "scripts";
+
+  private String script(String name) {
+    return scriptsDir + "/" + name;
+  }
+
   public String packArchive(PackScriptDto packScriptDto, String kind) throws IOException {
     if (kind.equals(KIND_OMR_PDF)) {
       return packPdf(packScriptDto);
@@ -65,7 +72,7 @@ public class PackService {
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
-    return runPackScript("scripts/image2pack.sh", tempFile, packScriptDto, ".png");
+    return runPackScript(script("image2pack.sh"), tempFile, packScriptDto, ".png");
   }
 
   public String packPdf(PackScriptDto packScriptDto) throws IOException {
@@ -74,7 +81,7 @@ public class PackService {
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
-    return runPackScript("scripts/pdf2pack.sh", tempFile, packScriptDto, ".pdf");
+    return runPackScript(script("pdf2pack.sh"), tempFile, packScriptDto, ".pdf");
   }
 
 
@@ -83,23 +90,15 @@ public class PackService {
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
-    return runPackScript("scripts/midi2pack.sh", tempFile, packScriptDto, ".midi");
+    return runPackScript(script("midi2pack.sh"), tempFile, packScriptDto, ".midi");
   }
-
-  private boolean isZipFile(File file) {
-    try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {
-      return zis.getNextEntry() != null;
-    } catch (IOException e) {
-      return false;
-    }
-  }
-
+  
   public String packMusicXml(PackScriptDto packScriptDto) throws IOException {
     File tempFile = Files.createTempFile("upload_" + packScriptDto.getId(), packScriptDto.getExtension()).toFile();
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
       packScriptDto.getInputStream().transferTo(out);
     }
-    return runPackScript("scripts/musicxml2pack.sh", tempFile, packScriptDto, packScriptDto.getExtension());
+    return runPackScript(script("musicxml2pack.sh"), tempFile, packScriptDto, packScriptDto.getExtension());
   }
 
   private void uploadOriginalFileToS3(String s3Key, byte[] zipData) {
@@ -159,7 +158,9 @@ public class PackService {
     try {
       cloudRunJobService.executeJob(packScriptDto.getId(), s3Key)
         .whenComplete((executionName, throwable) -> {
-          if (throwable != null) {
+          // CloudRunJobService completes with null (not exceptionally) when the job could not start: without this
+          // check such a workload stayed PENDING forever
+          if (throwable != null || executionName == null) {
             workload.setStatus(Workload.WorkloadStatus.FAILED);
             log.error("Failed to execute Cloud Run job for scoreId: {}", packScriptDto.getId(), throwable);
             workloadRepository.save(workload);
@@ -237,9 +238,9 @@ public class PackService {
       if (exitCode != 0) {
         throw new RuntimeException("Error during packing with " + script);
       }
-      String zipPath = tempFile.getAbsolutePath().replace("upload_", "").split("\\.")[0] + ".zip";
-      addOriginalToZip(Paths.get(zipPath), originalCopy, ORIGINAL_FILENAME_PREFIX + extension);
-      return zipPath;
+      Path zipPath = resultZipPath(tempFile.toPath());
+      addOriginalToZip(zipPath, originalCopy, ORIGINAL_FILENAME_PREFIX + extension);
+      return zipPath.toString();
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException("Error during packing", e);
     } finally {
@@ -248,6 +249,18 @@ public class PackService {
         tempFile.delete();
       }
     }
+  }
+
+  /**
+   * Where a pack script writes its zip: next to the input, named like it without "upload_" and the extension
+   * (the scripts' FROOT). Computed on the file name only: splitting the whole path on its first dot broke
+   * whenever the temp folder path contained one.
+   */
+  static Path resultZipPath(Path input) {
+    String name = input.getFileName().toString();
+    int dot = name.lastIndexOf('.');
+    String root = (dot > 0 ? name.substring(0, dot) : name).replaceFirst("upload_", "");
+    return input.resolveSibling(root + ".zip");
   }
 
   /** Adds {@code file} to an existing zip archive under {@code entryName}, replacing any entry with that name. */

@@ -1,0 +1,41 @@
+# Test schema: the real changelog, plus the PostgreSQL-only changesets (017-020) replayed for H2 so the
+# tests' database matches the entities (author.composer_bio_link, score.youtube_links, score.grade FLOAT, youtube_rank).
+databaseChangeLog:
+  - include:
+      file: db/changelog/db.changelog-master.yaml
+  - changeSet:
+      id: test-h2-017-020
+      author: tests
+      dbms: h2
+      changes:
+        - addColumn:
+            schemaName: pianoml
+            tableName: author
+            columns:
+              - column: { name: composer_bio_link, type: VARCHAR(255) }
+        - addColumn:
+            schemaName: pianoml
+            tableName: score
+            columns:
+              - column: { name: youtube_links, type: JSON }
+        - modifyDataType:
+            schemaName: pianoml
+            tableName: score
+            columnName: grade
+            newDataType: FLOAT
+        - createTable:
+            schemaName: pianoml
+            tableName: youtube_rank
+            columns:
+              - column: { name: id, type: BIGINT, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: score_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: video_id, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: rank, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: views, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: reports, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: youtube_video_api_info, type: JSON }
+        - addUniqueConstraint:
+            schemaName: pianoml
+            tableName: youtube_rank
+            columnNames: score_id, video_id
+            constraintName: uq_youtube_rank_score_video

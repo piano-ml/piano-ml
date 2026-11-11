@@ -41,6 +41,7 @@ import java.util.UUID;
 public class ScoreController implements ScoreApi {
 
   private static final Logger log = LoggerFactory.getLogger(ScoreController.class);
+  private static final java.util.Set<String> YOUTUBE_ACTIONS = java.util.Set.of("upvote", "downvote", "view", "report");
 
   private final ScoreService scoreService;
 
@@ -61,6 +62,12 @@ public class ScoreController implements ScoreApi {
     try {
       scoreId = UUID.fromString(id);
     } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    // Validate the action first: an unknown one used to answer 400 after creating a ranking row anyway
+    if (!YOUTUBE_ACTIONS.contains(action)) {
+      log.warn("Unknown action '{}' for scoreYoutubeEdit", action);
       return ResponseEntity.badRequest().build();
     }
 

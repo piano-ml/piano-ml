@@ -504,6 +504,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   setHideKeyboard(value: boolean) {
     this.hideKeyboard = value;
+    // What the keyboard returns to after a wrong note briefly shows it (it used to keep the value read at load)
+    this.storedHideKeyboard = value;
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(this.hideKeyboardStorageKey, JSON.stringify(value));
     }
@@ -790,7 +792,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.isPlaying = true;
 
     this.setSliderState(false);
-    if (this.scoreData?.id && this.scoreData.id !== 'exercise' && this.playConfiguration.scoreRange[0] === 1) {
+    // Count a play when it starts from the first bar. The range is 0-based since the cursor engine rework
+    // (it was 1-based when this check was written, so plays stopped being counted).
+    if (this.scoreData?.id && this.scoreData.id !== 'exercise' && this.playConfiguration.scoreRange[0] === 0) {
       const request: ScorePlayStatsPostRequest = { id: this.scoreData.id };
       this.scoreService.scorePlayStatsPost(request).subscribe({
         next: () => { },
