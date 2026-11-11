@@ -115,9 +115,10 @@ jobs:
     - name: Dev proxy and CI script tests
       working-directory: ./frontend
       run: npm run test:scripts
+    # *.webgl.spec.ts render on real WebGL: the runners have no GPU, so they only run locally.
     - name: Unit tests
       working-directory: ./frontend
-      run: npx ng test --watch=false --coverage
+      run: npx ng test --watch=false --coverage --exclude '**/*.webgl.spec.ts'
     - name: Coverage report
       if: always() && hashFiles('frontend/coverage/piano-ml/coverage-summary.json') != ''
       uses: davelosert/vitest-coverage-report-action@v2
