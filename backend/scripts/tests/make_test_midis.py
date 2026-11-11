@@ -12,6 +12,7 @@ Usage: python make_test_midis.py <output_dir>
   format0_two_channels.mid format 0, one track with RH on channel 1 and LH on channel 2: the frontend splits
                            it into two tracks (0 RH, 1 LH)
   two_hands_same_channel.mid  format 1, conductor + RH + LH both on channel 1, program 0
+  left_hand_first.mid      format 1, conductor + LH + RH: the left hand stored first, as in many downloaded files
 """
 import os
 import sys
@@ -97,6 +98,7 @@ def main(out):
     save(os.path.join(out, "with_empty_track.mid"), 1, [conductor(), intro, notes_track("RH", RH), notes_track("LH", LH, channel=1)])
     save(os.path.join(out, "format0_two_channels.mid"), 0, [merge("Piano", conductor(), notes_track("RH", RH), notes_track("LH", LH, channel=1))])
     save(os.path.join(out, "two_hands_same_channel.mid"), 1, [conductor(), notes_track("RH", RH), notes_track("LH", LH)])
+    save(os.path.join(out, "left_hand_first.mid"), 1, [conductor(), notes_track("LH", LH, channel=1), notes_track("RH", RH)])
 
 
 if __name__ == "__main__":
