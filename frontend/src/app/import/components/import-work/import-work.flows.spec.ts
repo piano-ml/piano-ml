@@ -281,9 +281,13 @@ describe('ImportWorkComponent flows', () => {
   });
 
   describe('opening a bundled MIDI file (/import/import-work/:mbid?filename=)', () => {
+    // The spec files share one window: a fetch stub left behind breaks later specs that really fetch
+    // (the blog's "body stream already read"), so restore it, and give each call its own Response.
+    afterEach(() => vi.restoreAllMocks());
+
     it('loads it from assets/midi and lists its tracks', async () => {
       const bytes = await midiFile().arrayBuffer();
-      const fetchSpy = vi.spyOn(window, 'fetch').mockResolvedValue(new Response(bytes));
+      const fetchSpy = vi.spyOn(window, 'fetch').mockImplementation(async () => new Response(bytes));
       params = { mbid: 'w1', filename: 'demo.mid' };
       render();
       await waitFor(() => component.hasFile);
@@ -293,7 +297,7 @@ describe('ImportWorkComponent flows', () => {
     });
 
     it('shows an error when it cannot be loaded', async () => {
-      vi.spyOn(window, 'fetch').mockResolvedValue(new Response('', { status: 404, statusText: 'Not Found' }));
+      vi.spyOn(window, 'fetch').mockImplementation(async () => new Response('', { status: 404, statusText: 'Not Found' }));
       params = { mbid: 'w1', filename: 'missing.mid' };
       render();
       await waitFor(() => component.isModalOpen);
@@ -302,7 +306,7 @@ describe('ImportWorkComponent flows', () => {
 
     it('also accepts the file name as an input', async () => {
       const bytes = await midiFile().arrayBuffer();
-      vi.spyOn(window, 'fetch').mockResolvedValue(new Response(bytes));
+      vi.spyOn(window, 'fetch').mockImplementation(async () => new Response(bytes));
       fixture = TestBed.createComponent(ImportWorkComponent);
       fixture.componentRef.setInput('fileParam', 'input.mid');
       component = fixture.componentInstance;
