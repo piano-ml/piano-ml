@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { bootstrapFloppy } from '@ng-icons/bootstrap-icons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { ScoreApiInfo, ScoreService } from '../../../core/api';
+import { defaultStudyTracks, inHandOrder } from './study-tracks';
 
 @Component({
     selector: 'app-import-work',
@@ -38,7 +39,10 @@ export class ImportWorkComponent implements OnInit {
     checkboxGroup!: FormGroup;
     checkboxes: Array<boolean> = [];
     checkedNumber = 0;
+    /** Study tracks, as indexes in the uploaded file (what the backend and the player use), right hand first. */
     studies: Array<number> = [];
+    /** Index in the file of each listed track: only tracks with notes are listed. */
+    private fileTrackIndexes: number[] = [];
     splitVoices = false;
     makeFingering = true;
     error: Error | undefined;
@@ -146,19 +150,18 @@ export class ImportWorkComponent implements OnInit {
         });
         console.log(this.midi)
         const fa = this.checkboxGroup.controls['checkboxes'] as FormArray;
+        const tracks = this.midi?.tracks ?? [];
+        // The piano by default (its two tracks when it has two), see defaultStudyTracks
+        for (const row of defaultStudyTracks(tracks)) {
+            fa.controls[row].setValue(true);
+        }
         for (let i = 0; i < fa.controls.length; i++) {
-            if (this.midi?.tracks[i].instrument.percussion) {
+            if (tracks[i].instrument.percussion) {
                 fa.controls[i].disable();
             }
-            if (this.countStudyTrack() < 2 && !this.midi?.tracks[i].instrument.percussion) {
-                fa.controls[i].setValue(true);
-            }
         }
-        for (let i = 0; i < fa.controls.length; i++) {
-            if (fa.controls[i].value) {
-                this.studies.push(i);
-            }
-        }
+        this.lockOrUnlockTracks();
+        this.updateStudies();
         // if only one voice activate split voice option by default
         //this.splitVoices = fa.controls.filter(control => control.value === true).length === 1;
     }
@@ -355,18 +358,6 @@ export class ImportWorkComponent implements OnInit {
     }
 
 
-    reverseInPlace(array: Array<number>) {
-        let i = 0;
-        const n = array.length;
-        const middle = Math.floor(n / 2);
-        let temp = null;
-        for (; i < middle; i += 1) {
-            temp = array[i];
-            array[i] = array[n - 1 - i];
-            array[n - 1 - i] = temp;
-        }
-        return array;
-    }
 
 
     reset() {
@@ -375,6 +366,9 @@ export class ImportWorkComponent implements OnInit {
     }
 
     enjoy(midi: Midi.Midi) {
+        // Only tracks with notes are listed, but the study tracks are sent as indexes in the uploaded file
+        // (@tonejs/midi's numbering, as midi2pack.sh and the player count them): keep each one's file index.
+        this.fileTrackIndexes = midi.tracks.map((_, i) => i).filter((i) => midi.tracks[i].notes.length > 0);
         midi.tracks = midi.tracks.filter(track => track.notes.length > 0);
         this.checkboxes = [];
         for (let i = 0; i < midi.tracks.length; i++) {
@@ -396,34 +390,30 @@ export class ImportWorkComponent implements OnInit {
         return this.checkboxGroup.controls['checkboxes'].value.filter((x: boolean) => x === true).length;
     }
 
-    checkTrack(i: number) {
+    checkTrack(_i: number) {
+        this.lockOrUnlockTracks();
+        this.updateStudies();
+    }
 
-        const count = this.countStudyTrack();
+    /** Two study tracks at most: once two are chosen, the other tracks are locked. */
+    private lockOrUnlockTracks() {
         const fa = this.checkboxGroup.controls['checkboxes'] as FormArray;
-
-        if (count >= 2) {
-            for (let i = 0; i < fa.controls.length; i++) {
-                if (!fa.controls[i].value) {
-                    fa.controls[i].disable();
-                }
-            }
-        } else {
-            for (let i = 0; i < fa.controls.length; i++) {
-                if (!fa.controls[i].value && !this.midi?.tracks[i].instrument.percussion) {
-                    fa.controls[i].enable();
-                }
-            }
-        }
-        this.studies = [];
-
+        const full = this.countStudyTrack() >= 2;
         for (let i = 0; i < fa.controls.length; i++) {
-            if (fa.controls[i].value) {
-                this.studies.push(i);
+            if (fa.controls[i].value) continue;
+            if (full) {
+                fa.controls[i].disable();
+            } else if (!this.midi?.tracks[i].instrument.percussion) {
+                fa.controls[i].enable();
             }
         }
-        // TODO this is a not so bad default but make reversion possible in UI checkbox should be better
-        this.reverseInPlace(this.studies);
+    }
 
+    /** The checked tracks, right hand (higher pitch) first, as indexes in the uploaded file. */
+    private updateStudies() {
+        const fa = this.checkboxGroup.controls['checkboxes'] as FormArray;
+        const rows = fa.controls.map((control, i) => (control.value ? i : -1)).filter((i) => i >= 0);
+        this.studies = inHandOrder(this.midi?.tracks ?? [], rows).map((row) => this.fileTrackIndexes[row] ?? row);
     }
 
     closeModal() {

@@ -8,7 +8,9 @@ Track numbers are the ones the frontend shows and stores in study_tracks, i.e. @
   - empty tracks are kept;
   - in a format 1 file, the first track is dropped when it has no notes (the conductor track).
 The output is a format 1 file: a conductor track with the tempo / time / key signatures of every other
-track, then the chosen tracks in file order. The input is never modified.
+track, then the chosen tracks from the highest-pitched to the lowest: the score shows the right hand above the
+left hand, whatever their order in the file or in the arguments (the import page sends the right hand first, by the
+same rule). The input is never modified.
 """
 import sys
 
@@ -64,6 +66,12 @@ def frontend_tracks(midi):
     return tracks, indexes
 
 
+def average_pitch(events):
+    """Average pitch of a track's notes (0 without notes)."""
+    notes = [m.note for _, m in events if m.type == "note_on" and m.velocity > 0]
+    return sum(notes) / len(notes) if notes else 0
+
+
 def to_track(events):
     track = mido.MidiTrack()
     now = 0
@@ -94,7 +102,8 @@ def main(argv):
         if n < 0 or n >= len(indexes):
             print(f"Error: track {n} out of range (0..{len(indexes) - 1})", file=sys.stderr)
             return 1
-    chosen = sorted({indexes[n] for n in wanted})
+    # Right hand (higher) first: MuseScore keeps the track order as the order of the parts, top to bottom.
+    chosen = sorted({indexes[n] for n in wanted}, key=lambda i: -average_pitch(tracks[i]))
     if not any(m.type == "note_on" and m.velocity > 0 for i in chosen for _, m in tracks[i]):
         # MuseScore cannot engrave a score without notes (it crashes making the PDF)
         print(f"Error: the chosen track(s) {wanted} have no notes", file=sys.stderr)
