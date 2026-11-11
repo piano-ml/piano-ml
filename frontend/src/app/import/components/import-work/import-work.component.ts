@@ -84,8 +84,9 @@ export class ImportWorkComponent implements OnInit {
             this.modalTitle = this.error?.name || '';
             if (this.error) {
                 console.error(this.error);
+                // No detectChanges() here: the view doesn't exist yet in the constructor (Angular rejects it);
+                // the first render shows the dialog.
                 this.isModalOpen = true;
-                this.changeDetector.detectChanges();
             }
         }
 
@@ -313,8 +314,9 @@ export class ImportWorkComponent implements OnInit {
                     if (data.version === null) {
                         data.version = 1;
                     }
-                    const track1= this.studies[0] || undefined;
-                    const track2= this.studies[1] || undefined;
+                    // `??`, not `||`: track 0 is a real track (with `||` it was sent as "no track")
+                    const track1 = this.studies[0] ?? undefined;
+                    const track2 = this.studies[1] ?? undefined;
                     this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, "midi", data.version!, 0, blob,track1,track2,this.makeFingering).subscribe({
                         next: (data2) => {
                             // Keep the loading indicator until the score page opens (no flash of the drop zone)

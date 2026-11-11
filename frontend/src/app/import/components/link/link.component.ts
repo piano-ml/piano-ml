@@ -61,30 +61,22 @@ export class LinkComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * The work with the artist to credit: its composer when known, otherwise its first related artist.
+   * (It used to return the first related artist, so a lyricist listed before the composer was credited.)
+   */
   fromMusicBrainzWorkToSimplified(work: MusicBrainzWork): SimplifiedWork | undefined {
-
-    //    const artistCredit = work['artist-credit'] && work['artist-credit'].length > 0 ? work['artist-credit'][0] : null;
-    for (const rel of work.relations || []) {
-      if (rel.type === 'composer' && rel.artist) {
-        return {
-          mbid: work.id,
-          title: work.title,
-          artistMbId: rel.artist.id,
-          artistName: rel.artist.name,
-        };
-      }
-      if (rel.artist) {
-        return {
-          mbid: work.id,
-          title: work.title,
-          artistMbId: rel.artist.id,
-          artistName: rel.artist.name,
-        };
-      }
-
-
+    const relations = work.relations || [];
+    const credited = relations.find((rel) => rel.type === 'composer' && rel.artist) ?? relations.find((rel) => rel.artist);
+    if (!credited?.artist) {
+      return undefined;
     }
-    return undefined;
+    return {
+      mbid: work.id,
+      title: work.title,
+      artistMbId: credited.artist.id,
+      artistName: credited.artist.name,
+    };
   }
 
   searchWorks() {
