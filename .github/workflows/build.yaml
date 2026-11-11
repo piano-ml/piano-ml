@@ -118,17 +118,36 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image
+      # Built first, pushed separately: on main the previous :main is deleted in between, so a build that
+      # fails never leaves main without an image.
+      - name: Build image
         uses: docker/build-push-action@v7
         with:
           context: ./backend
-          push: true
+          push: false
           # Single manifest, no attestation index: cleanup-ghcr.yaml deletes
           # untagged versions, which would include an index's children.
           provenance: false
           tags: ${{ env.IMAGE_BACKEND }}:${{ env.BRANCH_NAME }}
           cache-from: type=registry,ref=${{ env.IMAGE_BACKEND }}:cache
           cache-to: type=registry,ref=${{ env.IMAGE_BACKEND }}:cache,mode=max
+
+      # Avoid cache issues with the previous :main: delete it right before the new one is pushed.
+      - name: Delete the previous :main image
+        if: github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/scripts/delete-ghcr-tag.sh "${{ github.repository_owner }}" pianoml main
+
+      # Same context and builder as the build above, so every layer is cached.
+      - name: Push image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          push: true
+          provenance: false
+          tags: ${{ env.IMAGE_BACKEND }}:${{ env.BRANCH_NAME }}
+          cache-from: type=registry,ref=${{ env.IMAGE_BACKEND }}:cache
 
   frontend:
     needs: tests
@@ -209,6 +228,14 @@ jobs:
           echo "SSR verified behind proxy headers"
           docker logs fe-smoke
           docker stop fe-smoke
+
+      # Avoid cache issues with the previous :main: delete it right before the new one is pushed, once the
+      # new image has passed the smoke test.
+      - name: Delete the previous :main image
+        if: github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/scripts/delete-ghcr-tag.sh "${{ github.repository_owner }}" pianoml-fe main
 
       # Same context and builder as the local build, so every layer is cached.
       - name: Push image

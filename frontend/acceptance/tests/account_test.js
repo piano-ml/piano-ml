@@ -18,8 +18,9 @@ const SAMPLES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../.
 // Two scores: the MusicXML one stays until the account is deleted, the MIDI one is deleted on its own.
 const MUSICXML = { title: 'test', file: path.join(SAMPLES, 'src_test.musicxml') };
 const MIDI = { title: 'test midi', file: path.join(SAMPLES, 'src_test.midi') };
-// Note: the MIDI import runs MuseScore + automatic fingering inside the upload request. On production's small
-// backend (2 instances, 1 vCPU) it saturated every instance on 2026-11-10 (site answered 429 for ~10 minutes).
+// Note: the MIDI import runs MuseScore (+ automatic fingering when asked) inside the upload request. On production's
+// small backend (2 instances, 1 vCPU) it saturated every instance on 2026-11-10 (site answered 429 for ~10
+// minutes): the scenario imports its MIDI file without automatic fingering.
 
 /** Fills and submits the login form of the current login page; waits until it is left or refused. */
 function submitLogin(I) {
@@ -77,6 +78,14 @@ async function closeTourIfShown(I, seconds = 5) {
   }
 }
 
+/** Unticks "Enable automatic fingering" through its label, as a user would, and checks it is unticked. */
+async function untickFingering(I) {
+  if (await I.grabCheckedElementStatus('#makefingering')) {
+    I.click(locate('label').withAttr({ for: 'makefingering' }));
+  }
+  I.dontSeeCheckboxIsChecked('#makefingering');
+}
+
 /**
  * From My Scores: Import -> work search -> manual creation (first artist matching ARTIST_QUERY, given title) ->
  * upload. MusicXML uploads as soon as the file is chosen; MIDI shows its tracks first and needs "load".
@@ -103,6 +112,10 @@ async function importScore(I, { title, file }) {
   // The upload page opens with skipLocationChange: the URL stays /import/link
   I.waitForText('Please select a file to import', 10);
   I.see('Enable automatic fingering');
+  // Without automatic fingering: it runs inside the upload request and took production's small backend past
+  // the wait below (and saturated it on 2026-11-10). The import itself (MuseScore, packing) is still covered.
+  // A MusicXML file uploads as soon as it is chosen: untick first.
+  await untickFingering(I);
 
   // The file input is hidden behind the drop zone: set it through Playwright (I.attachFile wants it visible)
   await I.usePlaywrightTo(`choose ${path.basename(file)}`, async ({ page }) => {
@@ -112,6 +125,8 @@ async function importScore(I, { title, file }) {
     // MIDI: the tracks are listed (study tracks pre-selected), then "load" creates the score
     I.waitForElement(locate('th').withText('Track Name'), 15);
     I.seeElement(locate('table tbody tr').withDescendant('input[type="checkbox"]'));
+    // Reading the MIDI file resets the form (fingering ticked again): untick before loading
+    await untickFingering(I);
     I.click(locate('button').withText('load'));
   }
   I.waitInUrl('/score/', 90); // score created, file packed on the backend
