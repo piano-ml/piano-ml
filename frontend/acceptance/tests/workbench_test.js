@@ -37,6 +37,13 @@ const cursorMovesFrom = (I, from, seconds = 25) => I.waitForFunction(
 // Visitor opens the workbench directly and puts the player through its paces: tempo limits, play, pause,
 // resume, play to the end, rapid toggling, score-area clicks, keyboard, toggles, reset. No uncaught
 // JavaScript error may happen along the way.
+/** Same position within a pixel: the rendering can place the cursor half a pixel apart (76 vs 76.5). */
+function assertNearPosition(actual, expected, message) {
+  const near = (a, b) => typeof a === 'number' && Math.abs(a - b) <= 1;
+  assert.ok(actual && near(actual.left, expected.left) && near(actual.top, expected.top),
+    `${message}: ${JSON.stringify(actual)}, expected ${JSON.stringify(expected)} (±1px)`);
+}
+
 Scenario('torture the workbench player', async ({ I }) => {
   const pageErrors = [];
   await I.usePlaywrightTo('collect uncaught page errors', async ({ page }) => {
@@ -58,7 +65,7 @@ Scenario('torture the workbench player', async ({ I }) => {
   const start = { left: 50, top: 76 }; // cursor position on the first note (first system)
   let s = await state(I);
   assert.equal(s.cursorVisible, true, 'cursor shown once the score is ready');
-  assert.deepEqual(s.cursor, start, 'cursor on the first note before playing');
+  assertNearPosition(s.cursor, start, 'cursor on the first note before playing');
   assert.deepEqual(s.handles, [0, 0, 17], 'measure range covers the 17 measures, current measure 0');
 
   // --- Tempo: limits and controls -----------------------------------------------------------------------
@@ -110,7 +117,7 @@ Scenario('torture the workbench player', async ({ I }) => {
   await cursorMovesFrom(I, paused);
   await isStopped(I, 45); // the score ends by itself
   s = await state(I);
-  assert.deepEqual(s.cursor, start, 'cursor back on the first note after the end');
+  assertNearPosition(s.cursor, start, 'cursor back on the first note after the end');
   assert.equal(s.sliderDisabled, false, 'measure range unlocked after the score ends');
   for (const tool of TOOLS) I.seeElement(tool);
 

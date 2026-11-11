@@ -23,6 +23,25 @@ From `frontend/`: `npm run acceptance`.
 
 On failure, a screenshot and a Playwright trace (`npx playwright show-trace <file>`) are written to `output/`.
 
+## In CI (develop)
+
+`.github/workflows/acceptance.yaml` runs on every push to `develop` (or by hand: Actions → "Acceptance (develop)" →
+Run workflow). It reports a status and gates nothing: the build and deploy (`build.yaml`) never wait for it.
+
+- **Acceptance**: the frontend image built from the commit is served as `https://pianoml.org` on the runner, with a
+  self-signed certificate (`ci/serve.sh`, `ci/nginx.conf`). With `SITE_ADDRESS=127.0.0.1`, Chromium resolves only
+  `pianoml.org` to it (`codecept.conf.js`), so the page has the production origin and the **production API**
+  (`api.pianoml.org`) accepts it. Every scenario runs, including `account`, which writes to production.
+- **Pack scripts**: `backend/scripts/test_midi.sh` and `test.sh`, inside the backend image built from the commit.
+
+Same thing locally, with any frontend image (port 443 must be free):
+
+```bash
+frontend/acceptance/ci/serve.sh start ghcr.io/piano-ml/pianoml-fe:develop
+cd frontend/acceptance && SITE_ADDRESS=127.0.0.1 npx codeceptjs run --steps
+frontend/acceptance/ci/serve.sh stop
+```
+
 ## Running against localhost
 
 The suite targets any URL through `BASE_URL`. Locally, the frontend is always served by the Angular dev server
