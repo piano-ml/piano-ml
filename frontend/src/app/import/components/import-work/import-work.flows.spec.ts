@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NEVER, of, throwError } from 'rxjs';
 import { ScoreService } from '../../../core/api';
 import { provideTesting } from '../../../testing/test-providers';
+import { Midi } from '@tonejs/midi';
 import { SIMPLE_SCORE, scoreMidi } from '../../../testing/score-fixture';
 import { ImportWorkComponent } from './import-work.component';
 
@@ -19,6 +20,36 @@ function midiFile(name = 'song.mid') {
   midi.addTrack(); // no notes
   return new File([new Uint8Array(midi.toArray())], name, { type: 'audio/midi' });
 }
+
+/**
+ * A band arrangement like a typical downloaded MIDI file (pianoman.mid): empty tracks interleaved with the
+ * real ones, a bass first, the piano's two hands as tracks 3 (left) and 4 (right) of the file, an organ, drums.
+ * `instruments` lists [program, lowest pitch, notes] per track; null is an empty track.
+ */
+function bandFile(instruments: ([number, number, number] | null)[], name = 'band.mid') {
+  const midi = new Midi();
+  midi.header.setTempo(120);
+  instruments.forEach((spec, i) => {
+    const track = midi.addTrack();
+    track.channel = i;
+    if (!spec) return;
+    const [program, low, count] = spec;
+    if (program < 0) track.channel = 9; // drums
+    else track.instrument.number = program;
+    for (let n = 0; n < count; n++) track.addNote({ midi: low + (n % 12), ticks: n * 240, durationTicks: 240 });
+  });
+  return new File([new Uint8Array(midi.toArray())], name, { type: 'audio/midi' });
+}
+const PIANOMAN: ([number, number, number] | null)[] = [
+  null, // 0: empty (reports "acoustic grand piano": no program change)
+  [35, 28, 40], // 1: fretless bass
+  null, // 2: empty
+  [0, 40, 30], // 3: piano, left hand
+  [0, 64, 90], // 4: piano, right hand
+  null, // 5: empty
+  [18, 60, 70], // 6: rock organ
+  [-1, 36, 50], // 7: drums
+];
 
 /** Upload step of an import: choose the file, the study tracks and options, then create the score. */
 describe('ImportWorkComponent flows', () => {
@@ -103,11 +134,56 @@ describe('ImportWorkComponent flows', () => {
       expect(studyBoxes()[2].disabled).toBe(true);
     });
 
-    it('preselects the first two non-drum tracks as the two hands', async () => {
+    it('preselects the piano tracks as the two hands, right hand first', async () => {
       render();
       await pick(midiFile());
       expect(studyBoxes().map((b) => b.checked)).toEqual([true, true, false]);
       expect(component.studies).toEqual([0, 1]);
+    });
+
+    it('finds the piano among the band, and sends its tracks as indexes in the uploaded file', async () => {
+      render();
+      await pick(bandFile(PIANOMAN));
+      // listed (tracks with notes): bass, piano left, piano right, organ, drums
+      expect(trackRows().map((r) => r.cells[2].textContent?.trim())).toEqual(['fretless bass', 'acoustic grand piano', 'acoustic grand piano', 'rock organ', 'standard kit']);
+      expect(studyBoxes().map((b) => b.checked)).toEqual([false, true, true, false, false]);
+      // file indexes, right hand (higher) first: not the listed positions [2, 1], which would be bass + left hand
+      expect(component.studies).toEqual([4, 3]);
+      expect(studyBoxes().map((b) => b.disabled)).toEqual([true, false, false, true, true]); // two chosen: locked
+
+      const create = vi.spyOn(scores, 'scorePost').mockReturnValue(of({ id: 's1', version: 1, immutableSlug: 'band' }) as never);
+      const upload = vi.spyOn(scores, 'scoreIdTypeVersionRevisionPost').mockReturnValue(of({}) as never);
+      button('load').click();
+      expect(create.mock.calls[0][0]).toMatchObject({ study_tracks: [4, 3] });
+      expect(upload.mock.calls[0].slice(5, 7)).toEqual([4, 3]);
+    });
+
+    it('keeps file indexes when tracks are changed by hand', async () => {
+      render();
+      await pick(bandFile(PIANOMAN));
+      studyBoxes()[1].click(); // drop the left hand
+      fixture.detectChanges();
+      expect(component.studies).toEqual([4]);
+      studyBoxes()[3].click(); // the organ instead
+      fixture.detectChanges();
+      expect(component.studies).toEqual([4, 6]); // piano right (higher) first, the organ (file track 6) second
+    });
+
+    it('takes the piano alone when it has a single track, and the two busiest of more', async () => {
+      render();
+      await pick(bandFile([[35, 28, 40], [1, 48, 60], [24, 60, 30]], 'one-piano.mid'));
+      expect(component.studies).toEqual([1]);
+
+      fixture.destroy();
+      render();
+      await pick(bandFile([[0, 40, 10], [0, 70, 50], [2, 36, 80], [4, 60, 5]], 'many-pianos.mid'));
+      expect(component.studies).toEqual([1, 2]); // the 50- and 80-note tracks, higher first
+    });
+
+    it('without a piano, preselects the first two tracks with notes that are not drums', async () => {
+      render();
+      await pick(bandFile([null, [-1, 36, 20], [35, 28, 40], [24, 60, 30], [40, 70, 30]], 'no-piano.mid'));
+      expect(component.studies).toEqual([3, 2]); // guitar (higher) then bass, as file indexes
     });
 
     it('allows at most two study tracks', async () => {
@@ -116,14 +192,14 @@ describe('ImportWorkComponent flows', () => {
       render();
       await pick(new File([new Uint8Array(midi.toArray())], 'three.mid'));
       const boxes = studyBoxes();
-      expect(boxes.map((b) => [b.checked, b.disabled])).toEqual([[true, false], [true, false], [false, false]]);
+      expect(boxes.map((b) => [b.checked, b.disabled])).toEqual([[true, false], [true, false], [false, true]]);
 
       boxes[1].click(); // uncheck the left hand
       fixture.detectChanges();
       expect(component.studies).toEqual([0]);
       boxes[2].click(); // pick the third track instead
       fixture.detectChanges();
-      expect(component.studies).toEqual([2, 0]); // reversed: the higher track first
+      expect(component.studies).toEqual([2, 0]); // hand order: the higher track first
       expect(studyBoxes()[1].disabled).toBe(true); // two are chosen: the others are locked
     });
 
@@ -315,11 +391,5 @@ describe('ImportWorkComponent flows', () => {
       await waitFor(() => component.hasFile);
       expect(component.fileName).toBe('input.mid');
     });
-  });
-
-  it('reverseInPlace reverses an array', () => {
-    render();
-    expect(component.reverseInPlace([1, 2, 3])).toEqual([3, 2, 1]);
-    expect(component.reverseInPlace([])).toEqual([]);
   });
 });

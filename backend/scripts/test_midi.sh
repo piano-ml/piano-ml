@@ -8,7 +8,7 @@
 # Each case copies a generated MIDI file (tests/make_test_midis.py) to a temp dir as upload_<case>.midi, like
 # PackService, runs midi2pack.sh with the track numbers the import page would send (@tonejs/midi's numbering),
 # then checks the zip (tests/check_pack.py):
-#   - the score (musicxml) holds exactly the chosen tracks, in the file's order;
+#   - the score (musicxml) holds exactly the chosen tracks, the highest-pitched on top (right hand first);
 #   - the MIDI is the uploaded file, byte for byte: the player plays every track of it.
 # Expected exit: 0, or "fail" when the script must refuse the arguments.
 set -uo pipefail
@@ -61,8 +61,10 @@ run_case one_track                       one_track.mid                  0     RH
 run_case one_track_two_hands_in_one      piano_one_track_two_hands.mid  0     RH+LH        0
 run_case two_tracks                      two_tracks.mid                 0     RH,LH        0  1
 run_case two_tracks_without_conductor    two_tracks_no_tempo.mid        0     RH,LH        0  1
-# parts keep the file's order whatever the argument order (the import page may send the hands reversed)
+# the right hand (higher) is on top whatever the order of the arguments or of the tracks in the file
 run_case two_tracks_right_hand_second    two_tracks.mid                 0     RH,LH        1  0
+run_case left_hand_stored_first          left_hand_first.mid            0     RH,LH        1  0
+run_case left_hand_stored_first_reversed left_hand_first.mid            0     RH,LH        0  1
 run_case two_tracks_only_one_chosen      two_tracks.mid                 0     RH           0
 run_case two_tracks_only_the_second      two_tracks.mid                 0     LH           1
 # MuseScore joins two piano tracks on the same channel into one part: a grand staff, RH above, LH below
