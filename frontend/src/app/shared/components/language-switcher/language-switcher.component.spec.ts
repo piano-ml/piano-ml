@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { setCurrentLocale } from '../../i18n';
+import { langCookie } from '../../i18n/locale-negotiation';
 import { LanguageSwitcherComponent, nativeLanguageName } from './language-switcher.component';
 
 @Component({ template: '<app-language-switcher />', imports: [LanguageSwitcherComponent] })
@@ -25,10 +26,7 @@ describe('LanguageSwitcherComponent', () => {
     harness = await RouterTestingHarness.create(url);
   }
 
-  afterEach(() => {
-    setCurrentLocale(undefined);
-    TestBed.inject(DOCUMENT).cookie = 'lang=; Path=/; Max-Age=0';
-  });
+  afterEach(() => setCurrentLocale(undefined));
 
   it('links an English page to the same path in Spanish, named in Spanish', async () => {
     await open('/library/artists?page=2');
@@ -49,10 +47,13 @@ describe('LanguageSwitcherComponent', () => {
 
   it('stores the chosen language in the lang cookie', async () => {
     await open('/');
+    // Spied rather than read back: spec files run side by side on one origin, sharing the real cookie jar.
+    const setCookie = vi.spyOn(TestBed.inject(DOCUMENT), 'cookie', 'set').mockImplementation(() => undefined);
     const link = harness.routeNativeElement!.querySelector<HTMLAnchorElement>('a.language-link')!;
     link.addEventListener('click', (event) => event.preventDefault()); // stay on the test page
     link.click();
-    expect(TestBed.inject(DOCUMENT).cookie).toContain('lang=es');
+    expect(setCookie).toHaveBeenCalledWith(langCookie('es'));
+    setCookie.mockRestore();
   });
 
   it('names each language in itself', () => {

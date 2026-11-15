@@ -1,4 +1,5 @@
 import type { Routes } from '@angular/router';
+import { ROUTE_LABELS } from './shared/i18n/route-labels';
 
 /**
  * Routes spécifiques au navigateur (client-only)
@@ -9,16 +10,16 @@ export const browserOnlyRoutes: Routes = [
     {
         path: 'work',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Practice' }
+        data: { breadcrumb: ROUTE_LABELS.practice }
     },
     {
         path: 'desktop',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Desktop' }
+        data: { breadcrumb: ROUTE_LABELS.desktop }
     },
     {
         path: 'workbench',
         loadChildren: () => import('./desktop/desktop.module').then(m => m.DesktopModule),
-        data: { breadcrumb: 'Workbench' }
+        data: { breadcrumb: ROUTE_LABELS.workbench }
     }
 ];

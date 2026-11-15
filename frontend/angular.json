@@ -34,6 +34,7 @@
               ]
             },
             "outputMode": "server",
+            "i18nMissingTranslation": "error",
             "loader": {
               ".glsl": "text"
             },

@@ -8,6 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const { readLocales, localizedPath } = require('./lib/i18n-config');
+const { readTranslations } = require('./lib/xliff');
 
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'src');
@@ -29,27 +30,8 @@ function readSourceMessages(source) {
   return messages;
 }
 
-const decodeXml = (text) =>
-  text
-    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
-    .replace(/&amp;/g, '&');
-
 /** `{ id: target }` for every translated unit of an XLIFF 1.2 or 2.0 file. */
-function readXlfTranslations(xml) {
-  const translations = {};
-  const units = /<(trans-unit|unit)\b[^>]*?\bid="([^"]+)"[^>]*>([\s\S]*?)<\/\1>/g;
-  for (const [, , id, body] of xml.matchAll(units)) {
-    const target = body.match(/<target\b[^>]*>([\s\S]*?)<\/target>/);
-    const text = target && decodeXml(target[1]).trim();
-    if (text) translations[id] = text;
-  }
-  return translations;
-}
+const readXlfTranslations = readTranslations;
 
 /** The manifest of one language. `text(id)` returns the message in that language. */
 function buildManifest(locale, text, theme) {

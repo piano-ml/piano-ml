@@ -4,6 +4,7 @@ import { RouterModule, Routes } from "@angular/router";
 import { HomeComponent } from "./components/home/home.component";
 import { SummaryComponent } from "./components/summary/summary.component";
 import { homeSeo, summarySeo } from "./home.seo";
+import { ROUTE_LABELS } from '../shared/i18n/route-labels';
 
 export const desktopRouteList: Routes = [
     {
@@ -14,7 +15,7 @@ export const desktopRouteList: Routes = [
     {
         path: 'summary',
         component: SummaryComponent,
-        data: { breadcrumb: 'Summary', seo: summarySeo }
+        data: { breadcrumb: ROUTE_LABELS.summary, seo: summarySeo }
     }
 ];
 

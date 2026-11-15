@@ -5,7 +5,7 @@
   <meta itemprop="operatingSystem" content="Web Browser">
 
       <header class="page-title text-center">
-        <h1 id="main-heading" itemprop="headline">A Machine to Learn Piano</h1>
+        <h1 id="main-heading" itemprop="headline" i18n="@@home.headline">A Machine to Learn Piano</h1>
 
       </header>
   
@@ -25,8 +25,9 @@
       <a 
         class="btn-hero mt-4"
         (click)="summary()"
-        title="Start learning piano with PianoML"
-        aria-label="Start your piano learning journey">Take a seat</a>
+        i18n-title="@@home.cta.title" title="Start learning piano with PianoML"
+        i18n-aria-label="@@home.cta.label" aria-label="Start your piano learning journey"
+        i18n="@@home.cta">Take a seat</a>
     </div>
 
   </section>

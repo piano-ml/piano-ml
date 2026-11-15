@@ -10,9 +10,9 @@ export const SITE = {
   name: 'PianoML',
   titleSuffix: ' | PianoML',
   ogImage: '/assets/images/pianoml-og-image.png',
-  defaultTitle: 'PianoML: Learn Piano with Smart Sheet Music & Practice Tools',
-  defaultDescription:
-    'Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.'
+  // $localize: each language's build carries its own text.
+  defaultTitle: $localize`:@@seo.defaultTitle:PianoML: Learn Piano with Smart Sheet Music & Practice Tools`,
+  defaultDescription: $localize`:@@seo.defaultDescription:Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.`
 } as const;
 
 /**
