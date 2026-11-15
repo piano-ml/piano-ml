@@ -122,8 +122,8 @@
     <div class="flex flex-col items-center justify-center w-full h-dvh gap-4 px-4 load-error">
       <div class="alert-error max-w-lg text-center" role="alert">{{ loadError }}</div>
       <div class="flex gap-3">
-        <button type="button" class="btn-primary" (click)="retryLoad()">Try again</button>
-        <button type="button" class="btn-secondary" (click)="leaveFailedLoad()">{{ scoreData ? 'Back to the score' : 'Back to the library' }}</button>
+        <button type="button" class="btn-primary" (click)="retryLoad()" i18n="@@workbench.retry">Try again</button>
+        <button type="button" class="btn-secondary" (click)="leaveFailedLoad()">@if (scoreData) { <ng-container i18n="@@workbench.backToScore">Back to the score</ng-container> } @else { <ng-container i18n="@@workbench.backToLibrary">Back to the library</ng-container> }</button>
       </div>
     </div>
     }
@@ -133,12 +133,12 @@
       @let fb = loadingFeedBack$ | async;
       <div class="loading-feedback" role="status">
         <div class="loading-feedback-label">
-          <span>{{ fb?.message ?? 'Downloading data…' }}</span>
+          <span>@if (fb?.message) { {{ fb!.message }} } @else { <ng-container i18n="@@workbench.downloadingData">Downloading data…</ng-container> }</span>
           @if (fb) {
           <span class="tabular-nums">{{ fb.percentage }}%</span>
           }
         </div>
-        <div class="loading-feedback-track" role="progressbar" aria-label="Loading progress"
+        <div class="loading-feedback-track" role="progressbar" i18n-aria-label="@@workbench.loadingProgress" aria-label="Loading progress"
           aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="fb?.percentage ?? null">
           <div class="loading-feedback-bar" [style.width.%]="fb?.percentage ?? 0"></div>
         </div>
@@ -149,7 +149,7 @@
 
     <!--*ngIf="isSmallScreen()"  Handle: centered icon at bottom to toggle toolbar -->
     <div class="p-2 absolute left-1/2 transform -translate-x-1/2 z-50 ml-2 mr-2 w-full">
-      <button (click)="fnToggleToolBar()" [attr.aria-pressed]="!toggleToolbar" title="Basculer la barre supérieure"
+      <button (click)="fnToggleToolBar()" [attr.aria-pressed]="!toggleToolbar" i18n-title="@@workbench.toggleToolbar" title="Toggle the top bar"
         class="text-black p-1 w-100 rounded w-full flex items-center justify-center">
         <ng-icon name="bootstrapGripHorizontal" class="" />
       </button>
@@ -169,7 +169,7 @@
 
 
   <div>
-    <button (click)="fnToggleKeyboard()" [attr.aria-pressed]="!toggleToolbar" title="Toggle Keyboard"
+    <button (click)="fnToggleKeyboard()" [attr.aria-pressed]="!toggleToolbar" i18n-title="@@workbench.toggleKeyboard" title="Toggle the keyboard"
       id="toggle-keyboard" class="text-black p-2 w-100 rounded w-full flex items-center justify-center">
       <ng-icon name="bootstrapGripHorizontal" class="" />
     </button>
