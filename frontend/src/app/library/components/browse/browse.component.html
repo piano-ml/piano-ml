@@ -1,17 +1,18 @@
 <article class="p-4 pb-1">
   <!-- Search Section -->
-  <section aria-label="Search piano scores" class="">
+  <section i18n-aria-label="@@browse.search.label" aria-label="Search piano scores" class="">
     <div class="flex gap-2">
       <input id="browse-search-keyword" #searchKeywordInput [(ngModel)]="searchKeyword" (keyup.enter)="onSearch()"
-        placeholder="Search scores by title, artist, or genre..." class="input-field flex-1">
+        i18n-placeholder="@@browse.search.placeholder" placeholder="Search scores by title, artist, or genre..." class="input-field flex-1">
       <button (click)="onSearch()" class="btn-primary" [disabled]="loading">
-        {{ loading ? 'Searching...' : 'Search' }}
+        @if (loading) { <ng-container i18n="@@browse.searching">Searching...</ng-container> } @else { <ng-container i18n="@@browse.search">Search</ng-container> }
       </button>
-      <button (click)="startTour()" class="btn-secondary" aria-label="Restart library tour" title="Show help tour">
+      <button (click)="startTour()" class="btn-secondary" i18n-aria-label="@@browse.help.label" aria-label="Restart library tour"
+        i18n-title="@@browse.help.title" title="Show help tour" i18n="@@browse.help">
         Help
       </button>
       @if (activeSearchKeyword) {
-      <button (click)="clearSearchFilter()" class="btn-secondary">
+      <button (click)="clearSearchFilter()" class="btn-secondary" i18n="@@browse.clear">
         Clear
       </button>
       }
@@ -31,16 +32,16 @@
       <div id="browse-handedness" class="flex items-center gap-3">
         <label class="flex items-center gap-1 cursor-pointer">
           <input type="checkbox" [(ngModel)]="filterOneHand" (change)="applyFilters()" class="cursor-pointer">
-          <span>One hand</span>
+          <span i18n="@@browse.oneHand">One hand</span>
         </label>
         <label class="flex items-center gap-1 cursor-pointer">
           <input type="checkbox" [(ngModel)]="filterTwoHands" (change)="applyFilters()" class="cursor-pointer">
-          <span>Two hands</span>
+          <span i18n="@@browse.twoHands">Two hands</span>
         </label>
       </div>
       <label class="flex items-center gap-2">
-        <select id="browse-tonality" [(ngModel)]="selectedFullKey" (change)="applyFilters()" [disabled]="loadingFullKeys" class="px-2 py-1" aria-label="Key signature">
-          <option value="">All keys</option>
+        <select id="browse-tonality" [(ngModel)]="selectedFullKey" (change)="applyFilters()" [disabled]="loadingFullKeys" class="px-2 py-1" i18n-aria-label="@@browse.key.label" aria-label="Key signature">
+          <option value="" i18n="@@browse.allKeys">All keys</option>
           @for (key of fullKeyOptions; track key) {
           <option [value]="key">{{ key }}</option>
           }
@@ -52,10 +53,9 @@
       <span>
         <div class="inline-flex link-primary rounded-md px-1 py-1 m-2 items-center gap-3">
           <span class="font-medium">{{ selectedAuthor.author.name }}</span>
-          <span class="text-xs">({{ selectedAuthor.count }} {{ selectedAuthor.count === 1 ? 'score' : 'scores'
-            }})</span>
+          <span class="text-xs">(<span i18n="@@browse.capsuleCount">{selectedAuthor.count, plural, =1 {1 score} other {{{ selectedAuthor.count }} scores}}</span>)</span>
           <button (click)="clearAuthorFilter()"
-            class="transition-colors duration-200 p-1 hover:bg-blue-700 rounded-md ml-1" title="Clear filter">
+            class="transition-colors duration-200 p-1 hover:bg-blue-700 rounded-md ml-1" i18n-title="@@browse.clearFilter" title="Clear filter">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -68,10 +68,9 @@
       @if (selectedGenre) {
       <span>
         <div class="inline-flex p-2 m-2 items-center gap-3 btn-primary">
-          <span class="font-medium">{{ (selectedGenre.genre!.name ? selectedGenre.genre!.name!.charAt(0).toUpperCase() +
-            selectedGenre.genre!.name!.slice(1) : "genre not specified") }}</span>
-          <span class="text-xs ">({{ selectedGenre.count }} {{ selectedGenre.count === 1 ? 'score' : 'scores' }})</span>
-          <button (click)="clearGenreFilter()" class="transition-colors duration-200 rounded-md" title="Clear filter">
+          <span class="font-medium">{{ genreLabel(selectedGenre.genre?.name) }}</span>
+          <span class="text-xs">(<span i18n="@@browse.capsuleCount">{selectedGenre.count, plural, =1 {1 score} other {{{ selectedGenre.count }} scores}}</span>)</span>
+          <button (click)="clearGenreFilter()" class="transition-colors duration-200 rounded-md" i18n-title="@@browse.clearFilter" title="Clear filter">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -84,13 +83,7 @@
     <div class="mt-4 mb-4 text-sm text-gray-300 flex flex-wrap items-center justify-center gap-4">
       <!-- stats + import -->
       <div class="flex items-center gap-2">
-        <span class="mr-4"><span >{{ stats['public-domain'] + stats.copyrighted | number }}</span> scores in database
-          <!--
-      (<span class="font-semibold text-emerald-400">{{ stats['public-domain'] }}</span> public domain, 
-      <span class="font-semibold">{{ stats.copyrighted }}        
-      </span> copyrighted)
-        -->
-        </span>
+        <span class="mr-4" i18n="@@browse.stats"><span>{{ stats['public-domain'] + stats.copyrighted | number }}</span> scores in database</span>
         <app-quick-actions class=""></app-quick-actions>
       </div>
     </div>
@@ -102,28 +95,28 @@
 
   <!-- Tabs Section -->
   @if ( !(selectedAuthor || selectedGenre || activeSearchKeyword)) {
-  <nav class="" aria-label="Browse options">
+  <nav class="" i18n-aria-label="@@browse.tabs.label" aria-label="Browse options">
     <!-- Tab Headers: tighter and shorter on phones; scrolls on its own rather than widening the page -->
     <div class="flex overflow-x-auto">
       <button (click)="setActiveTab('new')" [class.border-emerald-500]="activeTab === 'new'"
         [class.text-white]="activeTab === 'new'" [class.text-gray-300]="activeTab !== 'new'"
         class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200  focus:outline-none">
-        New
+        <ng-container i18n="@@browse.tab.new">New</ng-container>
       </button>
       <button (click)="setActiveTab('popular')" [class.border-emerald-500]="activeTab === 'popular'"
         [class.text-white]="activeTab === 'popular'" [class.text-gray-300]="activeTab !== 'popular'"
         class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200 focus:outline-none">
-        Popular
+        <ng-container i18n="@@browse.tab.popular">Popular</ng-container>
       </button>
       <button (click)="setActiveTab('genres')" [class.border-emerald-500]="activeTab === 'genres'"
         [class.text-white]="activeTab === 'genres'" [class.text-gray-300]="activeTab !== 'genres'"
         class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
-        <span class="hidden sm:inline">Browse by </span>Genres
+        <span class="hidden sm:inline" i18n="@@browse.tab.genres.long">Browse by Genres</span><span class="sm:hidden" i18n="@@browse.tab.genres.short">Genres</span>
       </button>
       <button (click)="setActiveTab('artists')" [class.border-emerald-500]="activeTab === 'artists'"
         [class.text-white]="activeTab === 'artists'" [class.text-gray-300]="activeTab !== 'artists'"
         class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
-        <span class="hidden sm:inline">Browse by </span>Artist
+        <span class="hidden sm:inline" i18n="@@browse.tab.artists.long">Browse by Artist</span><span class="sm:hidden" i18n="@@browse.tab.artists.short">Artist</span>
       </button>
     </div>
     <!-- Tab Content -->
@@ -147,33 +140,34 @@
   }
 
   <!-- Results Section -->
-  <section aria-label="Piano score results" class="">
+  <section i18n-aria-label="@@browse.results.label" aria-label="Piano score results" class="">
     <h2 class="sr-only">
       @if (selectedGenre) {
-      <span>{{ selectedGenre.genre!.name }} Piano Scores Collection</span>
+      <span i18n="@@browse.heading.genre">{{ selectedGenre.genre!.name }} Piano Scores Collection</span>
       }
       @if (selectedAuthor) {
-      <span>{{ selectedAuthor.author.name }} Piano Works Collection</span>
+      <span i18n="@@browse.heading.artist">{{ selectedAuthor.author.name }} Piano Works Collection</span>
       }
       @if (activeSearchKeyword) {
-      <span>Piano Score Search Results</span>
+      <span i18n="@@browse.heading.search">Piano Score Search Results</span>
       }
       @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'new') {
-      <span>Latest Piano Scores</span>
+      <span i18n="@@browse.heading.new">Latest Piano Scores</span>
       }
       @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'genres') {
-      <span>Available Music Genres</span>
+      <span i18n="@@browse.heading.genres">Available Music Genres</span>
       }
       @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'artists') {
-      <span>Featured Composers and Artists</span>
+      <span i18n="@@browse.heading.artists">Featured Composers and Artists</span>
       }
       @if (!selectedGenre && !selectedAuthor && !activeSearchKeyword && activeTab === 'popular') {
-      <span>Most Popular Piano Scores</span>
+      <span i18n="@@browse.heading.popular">Most Popular Piano Scores</span>
       }
     </h2>
 
     <app-score-table [scores]="scores" [loading]="loading" [columns]="tableColumns" [actions]="tableActions"
-      emptyMessage="No scores found. Try a different search term." loadingMessage="Loading..."
+      i18n-emptyMessage="@@browse.empty" emptyMessage="No scores found. Try a different search term."
+      i18n-loadingMessage="@@common.loading" loadingMessage="Loading..."
       (scoreClick)="onScoreClick($event)">
     </app-score-table>
 
@@ -181,16 +175,14 @@
     @if ((selectedGenre || selectedAuthor || activeTab === 'popular' || activeTab === 'new') && scores.length > 0) {
     <div class="mt-4 text-center">
       <button (click)="loadMore()" class="btn-success" [disabled]="loading">
-        {{ loading ? 'Loading...' : 'Load More' }}
+        @if (loading) { <ng-container i18n="@@common.loading">Loading...</ng-container> } @else { <ng-container i18n="@@browse.loadMore">Load More</ng-container> }
       </button>
     </div>
     }
 
     <!-- Results Count -->
     @if (scores.length > 0) {
-    <div class="m-2 text-sm">
-      Showing {{ scores.length }} scores
-    </div>
+    <div class="m-2 text-sm" i18n="@@browse.showing">{scores.length, plural, =1 {Showing 1 score} other {Showing {{ scores.length }} scores}}</div>
     }
 
 

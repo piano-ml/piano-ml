@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapExclamationTriangleFill, bootstrapLockFill, bootstrapUnlockFill } from '@ng-icons/bootstrap-icons';
 import { ScoreApiInfo } from '../../../core/api';
+import { currentLocale } from '../../i18n';
+
+/** Shown for a value the score does not have. */
+const NOT_AVAILABLE = $localize`:@@scoreTable.notAvailable:N/A`;
 
 export interface ScoreTableAction {
   label: string;
@@ -50,21 +54,22 @@ export class ScoreTableComponent implements OnInit {
   @Input() loading = false;
   @Input() actions: ScoreTableAction[] = [];
   @Input() columns: ScoreTableColumn[] = [];
-  @Input() emptyMessage = 'No scores found';
-  @Input() loadingMessage = 'Loading...';
+  @Input() emptyMessage = $localize`:@@scoreTable.empty:No scores found`;
+  @Input() loadingMessage = $localize`:@@common.loading:Loading...`;
   @Input() showRowClick = true;
 
   @Output() scoreClick = new EventEmitter<ScoreTableEvent>();
 
   defaultColumns: ScoreTableColumn[] = [
-    { key: 'title', label: 'Title', visible: true },
-    { key: 'author', label: 'Author', visible: true },
-    { key: 'genre', label: 'Genre', visible: true, formatter: (value) => value || 'N/A' },
-    { key: 'grade', label: 'Difficulty', visible: true },
-    { key: 'duration', label: 'Duration', visible: true, formatter: (value) => this.formatDuration(value) },
-    { key: 'tracks_count', label: 'Tracks', visible: true, formatter: (value) => value || 'N/A' },
-    { key: 'version', label: 'Version', visible: false, formatter: (value) => `v${value || 1}` },
-    { key: 'uploaded_at', label: 'Uploaded', visible: false, formatter: (value) => value ? new Date(value).toLocaleDateString() : 'N/A' }
+    { key: 'title', label: $localize`:@@scoreTable.title:Title`, visible: true },
+    { key: 'author', label: $localize`:@@scoreTable.author:Author`, visible: true },
+    { key: 'genre', label: $localize`:@@scoreTable.genre:Genre`, visible: true, formatter: (value) => value || NOT_AVAILABLE },
+    { key: 'grade', label: $localize`:@@scoreTable.difficulty:Difficulty`, visible: true },
+    { key: 'duration', label: $localize`:@@scoreTable.duration:Duration`, visible: true, formatter: (value) => this.formatDuration(value) },
+    { key: 'tracks_count', label: $localize`:@@scoreTable.tracks:Tracks`, visible: true, formatter: (value) => value || NOT_AVAILABLE },
+    { key: 'version', label: $localize`:@@scoreTable.version:Version`, visible: false, formatter: (value) => `v${value || 1}` },
+    // The page's language, not the device's: the server and the browser render the same date.
+    { key: 'uploaded_at', label: $localize`:@@scoreTable.uploaded:Uploaded`, visible: false, formatter: (value) => value ? new Date(value).toLocaleDateString(currentLocale()) : NOT_AVAILABLE }
   ];
 
   ngOnInit() {
@@ -126,7 +131,7 @@ export class ScoreTableComponent implements OnInit {
 
 
   formatDuration(seconds: number | null | undefined): string {
-    if (!seconds) return 'N/A';
+    if (!seconds) return NOT_AVAILABLE;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;

@@ -158,6 +158,642 @@
         <source>Machine Learning</source>
         <target state="translated">แมชชีนเลิร์นนิง</target>
       </trans-unit>
+      <trans-unit id="browse.letters.all" datatype="html">
+        <source> All </source>
+        <target state="translated"> ทั้งหมด </target>
+      </trans-unit>
+      <trans-unit id="browse.capsuleCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {1 เพลง} other {<x id="INTERPOLATION"/> เพลง}}</target>
+      </trans-unit>
+      <trans-unit id="browse.noArtistsForLetter" datatype="html">
+        <source> No artists found for letter <x id="INTERPOLATION" equiv-text="{{ selectedLetter }}"/>. </source>
+        <target state="translated"> ไม่พบศิลปินที่ขึ้นต้นด้วย <x id="INTERPOLATION" equiv-text="{{ selectedLetter }}"/> </target>
+      </trans-unit>
+      <trans-unit id="browse.genreNotSpecified" datatype="html">
+        <source>genre not specified</source>
+        <target state="translated">ไม่ระบุแนวเพลง</target>
+      </trans-unit>
+      <trans-unit id="browse.search.label" datatype="html">
+        <source>Search piano scores</source>
+        <target state="translated">ค้นหาโน้ตเพลงเปียโน</target>
+      </trans-unit>
+      <trans-unit id="browse.search.placeholder" datatype="html">
+        <source>Search scores by title, artist, or genre...</source>
+        <target state="translated">ค้นหาตามชื่อเพลง ศิลปิน หรือแนวเพลง...</target>
+      </trans-unit>
+      <trans-unit id="browse.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">กำลังค้นหา...</target>
+      </trans-unit>
+      <trans-unit id="browse.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">ค้นหา</target>
+      </trans-unit>
+      <trans-unit id="browse.help.label" datatype="html">
+        <source>Restart library tour</source>
+        <target state="translated">เริ่มแนะนำการใช้งานคลังเพลงอีกครั้ง</target>
+      </trans-unit>
+      <trans-unit id="browse.help.title" datatype="html">
+        <source>Show help tour</source>
+        <target state="translated">แสดงคำแนะนำ</target>
+      </trans-unit>
+      <trans-unit id="browse.help" datatype="html">
+        <source> Help </source>
+        <target state="translated"> ช่วยเหลือ </target>
+      </trans-unit>
+      <trans-unit id="browse.clear" datatype="html">
+        <source> Clear </source>
+        <target state="translated"> ล้าง </target>
+      </trans-unit>
+      <trans-unit id="browse.oneHand" datatype="html">
+        <source>One hand</source>
+        <target state="translated">มือเดียว</target>
+      </trans-unit>
+      <trans-unit id="browse.twoHands" datatype="html">
+        <source>Two hands</source>
+        <target state="translated">สองมือ</target>
+      </trans-unit>
+      <trans-unit id="browse.key.label" datatype="html">
+        <source>Key signature</source>
+        <target state="translated">บันไดเสียง</target>
+      </trans-unit>
+      <trans-unit id="browse.allKeys" datatype="html">
+        <source>All keys</source>
+        <target state="translated">ทุกบันไดเสียง</target>
+      </trans-unit>
+      <trans-unit id="browse.clearFilter" datatype="html">
+        <source>Clear filter</source>
+        <target state="translated">ล้างตัวกรอง</target>
+      </trans-unit>
+      <trans-unit id="browse.stats" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/><x id="INTERPOLATION" equiv-text="{{ stats[&apos;public-domain&apos;] + stats.copyrighted | number }}"/><x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> scores in database</source>
+        <target state="translated">มีโน้ตเพลง <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/><x id="INTERPOLATION" equiv-text="{{ stats[&apos;public-domain&apos;] + stats.copyrighted | number }}"/><x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> เพลงในฐานข้อมูล</target>
+      </trans-unit>
+      <trans-unit id="browse.tabs.label" datatype="html">
+        <source>Browse options</source>
+        <target state="translated">ตัวเลือกการเลือกดู</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.new" datatype="html">
+        <source>New</source>
+        <target state="translated">ใหม่</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.popular" datatype="html">
+        <source>Popular</source>
+        <target state="translated">ยอดนิยม</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.genres.long" datatype="html">
+        <source>Browse by Genres</source>
+        <target state="translated">เลือกดูตามแนวเพลง</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.genres.short" datatype="html">
+        <source>Genres</source>
+        <target state="translated">แนวเพลง</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.artists.long" datatype="html">
+        <source>Browse by Artist</source>
+        <target state="translated">เลือกดูตามศิลปิน</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.artists.short" datatype="html">
+        <source>Artist</source>
+        <target state="translated">ศิลปิน</target>
+      </trans-unit>
+      <trans-unit id="browse.results.label" datatype="html">
+        <source>Piano score results</source>
+        <target state="translated">ผลการค้นหาโน้ตเพลง</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.genre" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedGenre.genre!.name }}"/> Piano Scores Collection</source>
+        <target state="translated">คอลเลกชันโน้ตเพลงเปียโนแนว <x id="INTERPOLATION" equiv-text="{{ selectedGenre.genre!.name }}"/></target>
+      </trans-unit>
+      <trans-unit id="browse.heading.artist" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedAuthor.author.name }}"/> Piano Works Collection</source>
+        <target state="translated">ผลงานเปียโนของ <x id="INTERPOLATION" equiv-text="{{ selectedAuthor.author.name }}"/></target>
+      </trans-unit>
+      <trans-unit id="browse.heading.search" datatype="html">
+        <source>Piano Score Search Results</source>
+        <target state="translated">ผลการค้นหาโน้ตเพลงเปียโน</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.new" datatype="html">
+        <source>Latest Piano Scores</source>
+        <target state="translated">โน้ตเพลงเปียโนล่าสุด</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.genres" datatype="html">
+        <source>Available Music Genres</source>
+        <target state="translated">แนวเพลงที่มี</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.artists" datatype="html">
+        <source>Featured Composers and Artists</source>
+        <target state="translated">นักประพันธ์และศิลปินแนะนำ</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.popular" datatype="html">
+        <source>Most Popular Piano Scores</source>
+        <target state="translated">โน้ตเพลงเปียโนยอดนิยม</target>
+      </trans-unit>
+      <trans-unit id="browse.empty" datatype="html">
+        <source>No scores found. Try a different search term.</source>
+        <target state="translated">ไม่พบโน้ตเพลง ลองใช้คำค้นหาอื่น</target>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Loading...</source>
+        <target state="translated">กำลังโหลด...</target>
+      </trans-unit>
+      <trans-unit id="browse.loadMore" datatype="html">
+        <source>Load More</source>
+        <target state="translated">โหลดเพิ่ม</target>
+      </trans-unit>
+      <trans-unit id="browse.showing" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {แสดง 1 เพลง} other {แสดง <x id="INTERPOLATION"/> เพลง}}</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">แนวเพลง</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.artist" datatype="html">
+        <source>Artist</source>
+        <target state="translated">ศิลปิน</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">ชื่อเพลง</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">ความยาว</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">ระดับ</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">แทร็ก</target>
+      </trans-unit>
+      <trans-unit id="browse.grade.min" datatype="html">
+        <source>Minimum grade</source>
+        <target state="translated">ระดับต่ำสุด</target>
+      </trans-unit>
+      <trans-unit id="browse.grade.max" datatype="html">
+        <source>Maximum grade</source>
+        <target state="translated">ระดับสูงสุด</target>
+      </trans-unit>
+      <trans-unit id="browse.notFound" datatype="html">
+        <source>Not Found</source>
+        <target state="translated">ไม่พบ</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.descriptionWithArtists" datatype="html">
+        <source>Browse and practice <x id="genre" equiv-text="name"/> piano scores by <x id="artists" equiv-text="artists"/>. Interactive sheet music with hands-separated practice and MIDI support.</source>
+        <target state="translated">เลือกดูและฝึกโน้ตเพลงเปียโนแนว <x id="genre" equiv-text="name"/> ของ <x id="artists" equiv-text="artists"/> โน้ตเพลงแบบโต้ตอบ ฝึกแยกมือได้ และรองรับ MIDI</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.description" datatype="html">
+        <source>Browse and practice <x id="genre" equiv-text="name"/> piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and MIDI support.</source>
+        <target state="translated">เลือกดูและฝึกโน้ตเพลงเปียโนแนว <x id="genre" equiv-text="name"/> บน PianoML โน้ตเพลงแบบโต้ตอบ ฝึกแยกมือได้ ปรับความเร็วได้ และรองรับ MIDI</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.title" datatype="html">
+        <source><x id="genre" equiv-text="name"/> Piano Scores</source>
+        <target state="translated">โน้ตเพลงเปียโนแนว <x id="genre" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="seo.artist.descriptionWithTitles" datatype="html">
+        <source>Play <x id="artist" equiv-text="name"/> piano scores: <x id="titles" equiv-text="titles"/>. Interactive sheet music with adjustable tempo and real-time feedback.</source>
+        <target state="translated">เล่นโน้ตเพลงเปียโนของ <x id="artist" equiv-text="name"/>: <x id="titles" equiv-text="titles"/> โน้ตเพลงแบบโต้ตอบ ปรับความเร็วได้ และให้ผลตอบรับแบบเรียลไทม์</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.description" datatype="html">
+        <source>Play <x id="artist" equiv-text="name"/> piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and real-time feedback.</source>
+        <target state="translated">เล่นโน้ตเพลงเปียโนของ <x id="artist" equiv-text="name"/> บน PianoML โน้ตเพลงแบบโต้ตอบ ฝึกแยกมือได้ ปรับความเร็วได้ และให้ผลตอบรับแบบเรียลไทม์</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.title" datatype="html">
+        <source><x id="artist" equiv-text="name"/> Piano Scores</source>
+        <target state="translated">โน้ตเพลงเปียโนของ <x id="artist" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="seo.artist.collection" datatype="html">
+        <source><x id="artist" equiv-text="name"/> Piano Works</source>
+        <target state="translated">ผลงานเปียโนของ <x id="artist" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="seo.search.title" datatype="html">
+        <source>Search: &quot;<x id="keyword" equiv-text="state.searchKeyword"/>&quot;</source>
+        <target state="translated">ค้นหา: "<x id="keyword" equiv-text="state.searchKeyword"/>"</target>
+      </trans-unit>
+      <trans-unit id="seo.search.description" datatype="html">
+        <source>Piano scores matching &quot;<x id="keyword" equiv-text="state.searchKeyword"/>&quot; in the PianoML library.</source>
+        <target state="translated">โน้ตเพลงเปียโนที่ตรงกับ "<x id="keyword" equiv-text="state.searchKeyword"/>" ในคลังเพลงของ PianoML</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.title" datatype="html">
+        <source>Browse Piano Scores by Genre</source>
+        <target state="translated">เลือกดูโน้ตเพลงเปียโนตามแนวเพลง</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.descriptionWithNames" datatype="html">
+        <source>Explore <x id="count" equiv-text="state.totalScores"/>+ piano scores by genre and style — <x id="genres" equiv-text="names"/> — with interactive practice features.</source>
+        <target state="translated">สำรวจโน้ตเพลงเปียโนกว่า <x id="count" equiv-text="state.totalScores"/> เพลงตามแนวเพลงและสไตล์ — <x id="genres" equiv-text="names"/> — พร้อมฟีเจอร์ฝึกซ้อมแบบโต้ตอบ</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.description" datatype="html">
+        <source>Explore <x id="count" equiv-text="state.totalScores"/>+ piano scores by genre and style, with hands-separated practice, adjustable tempo and MIDI support.</source>
+        <target state="translated">สำรวจโน้ตเพลงเปียโนกว่า <x id="count" equiv-text="state.totalScores"/> เพลงตามแนวเพลงและสไตล์ ฝึกแยกมือได้ ปรับความเร็วได้ และรองรับ MIDI</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.about.name" datatype="html">
+        <source>Piano Music Genres</source>
+        <target state="translated">แนวเพลงเปียโน</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.about.description" datatype="html">
+        <source>Collection of piano music organized by musical genre and style</source>
+        <target state="translated">คอลเลกชันเพลงเปียโนที่จัดตามแนวเพลงและสไตล์</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.title" datatype="html">
+        <source>Browse Piano Scores by Composer &amp; Artist</source>
+        <target state="translated">เลือกดูโน้ตเพลงเปียโนตามนักประพันธ์และศิลปิน</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.descriptionWithNames" datatype="html">
+        <source>Discover <x id="count" equiv-text="state.totalScores"/>+ piano scores and learn works by <x id="artists" equiv-text="names"/>.</source>
+        <target state="translated">ค้นพบโน้ตเพลงเปียโนกว่า <x id="count" equiv-text="state.totalScores"/> เพลง และเรียนผลงานของ <x id="artists" equiv-text="names"/></target>
+      </trans-unit>
+      <trans-unit id="seo.artists.description" datatype="html">
+        <source>Discover <x id="count" equiv-text="state.totalScores"/>+ piano scores by composer, from classical to contemporary, with interactive practice features.</source>
+        <target state="translated">ค้นพบโน้ตเพลงเปียโนกว่า <x id="count" equiv-text="state.totalScores"/> เพลงตามนักประพันธ์ ตั้งแต่คลาสสิกจนถึงร่วมสมัย พร้อมฟีเจอร์ฝึกซ้อมแบบโต้ตอบ</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.collection" datatype="html">
+        <source>Browse Piano Scores by Composer</source>
+        <target state="translated">เลือกดูโน้ตเพลงเปียโนตามนักประพันธ์</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.about.name" datatype="html">
+        <source>Piano Composers and Artists</source>
+        <target state="translated">นักประพันธ์และศิลปินเปียโน</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.about.description" datatype="html">
+        <source>Collection of piano works organized by composer and artist</source>
+        <target state="translated">คอลเลกชันผลงานเปียโนที่จัดตามนักประพันธ์และศิลปิน</target>
+      </trans-unit>
+      <trans-unit id="seo.new.title" datatype="html">
+        <source>New Piano Scores: Latest Uploaded Sheet Music</source>
+        <target state="translated">โน้ตเพลงเปียโนใหม่: เพลงที่อัปโหลดล่าสุด</target>
+      </trans-unit>
+      <trans-unit id="seo.new.description" datatype="html">
+        <source>Browse the latest piano scores added to PianoML, with hands-separated practice, adjustable tempo and MIDI keyboard support.</source>
+        <target state="translated">เลือกดูโน้ตเพลงเปียโนที่เพิ่มล่าสุดใน PianoML ฝึกแยกมือได้ ปรับความเร็วได้ และรองรับคีย์บอร์ด MIDI</target>
+      </trans-unit>
+      <trans-unit id="seo.new.collection" datatype="html">
+        <source>New Piano Scores</source>
+        <target state="translated">โน้ตเพลงเปียโนใหม่</target>
+      </trans-unit>
+      <trans-unit id="seo.new.about.name" datatype="html">
+        <source>Latest piano scores</source>
+        <target state="translated">โน้ตเพลงเปียโนล่าสุด</target>
+      </trans-unit>
+      <trans-unit id="seo.new.about.description" datatype="html">
+        <source>Collection of recently uploaded piano sheet music</source>
+        <target state="translated">คอลเลกชันโน้ตเพลงเปียโนที่อัปโหลดล่าสุด</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.title" datatype="html">
+        <source>Piano Scores Library: MusicXML, MIDI &amp; PDF Sheet Music</source>
+        <target state="translated">คลังโน้ตเพลงเปียโน: MusicXML, MIDI และ PDF</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.description" datatype="html">
+        <source>Browse popular piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable speed, loopable sections and MIDI keyboard support.</source>
+        <target state="translated">เลือกดูโน้ตเพลงเปียโนยอดนิยมบน PianoML โน้ตเพลงแบบโต้ตอบ ฝึกแยกมือได้ ปรับความเร็วได้ เล่นวนซ้ำเป็นช่วงได้ และรองรับคีย์บอร์ด MIDI</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.collection" datatype="html">
+        <source>Piano Score Library</source>
+        <target state="translated">คลังโน้ตเพลงเปียโน</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.about.description" datatype="html">
+        <source>Piano learning platform with features for interactive practice</source>
+        <target state="translated">แพลตฟอร์มเรียนเปียโนพร้อมฟีเจอร์ฝึกซ้อมแบบโต้ตอบ</target>
+      </trans-unit>
+      <trans-unit id="seo.namesAndMore" datatype="html">
+        <source><x id="names" equiv-text="shown"/> and more</source>
+        <target state="translated"><x id="names" equiv-text="shown"/> และอื่น ๆ</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.welcome.title" datatype="html">
+        <source>Welcome to the library</source>
+        <target state="translated">ยินดีต้อนรับสู่คลังเพลง</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.welcome.content" datatype="html">
+        <source>On this search page you can filter scores in several ways.</source>
+        <target state="translated">ในหน้าค้นหานี้ คุณกรองโน้ตเพลงได้หลายวิธี</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.grade.title" datatype="html">
+        <source>Grade range</source>
+        <target state="translated">ช่วงระดับ</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.grade.content" datatype="html">
+        <source>Select a grade range to filter the scores displayed in the library. You can adjust the sliders to set the minimum and maximum grade levels you want to include in your search results.</source>
+        <target state="translated">เลือกช่วงระดับเพื่อกรองโน้ตเพลงในคลัง ปรับแถบเลื่อนเพื่อกำหนดระดับต่ำสุดและสูงสุดที่ต้องการในผลการค้นหา</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.handedness.title" datatype="html">
+        <source>Handedness</source>
+        <target state="translated">จำนวนมือ</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.handedness.content" datatype="html">
+        <source>Use the checkboxes to filter scores based on handedness. Check &quot;One hand&quot; to include scores that can be played with one hand. Check &quot;Two hands&quot; to include scores that require two hands. You can select either or both options to refine your search results according to your preferences.</source>
+        <target state="translated">ใช้ช่องทำเครื่องหมายเพื่อกรองโน้ตเพลงตามจำนวนมือ เลือก "มือเดียว" สำหรับเพลงที่เล่นได้ด้วยมือเดียว และ "สองมือ" สำหรับเพลงที่ต้องใช้ทั้งสองมือ เลือกได้อย่างใดอย่างหนึ่งหรือทั้งสองอย่างเพื่อปรับผลการค้นหา</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.tonality.title" datatype="html">
+        <source>Tonality</source>
+        <target state="translated">บันไดเสียง</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.tonality.content" datatype="html">
+        <source>Use the dropdown to filter scores based on their tonality. Select a specific key to include only scores in that key, or choose &quot;All keys&quot; to include scores in any key.</source>
+        <target state="translated">ใช้เมนูแบบเลื่อนลงเพื่อกรองโน้ตเพลงตามบันไดเสียง เลือกบันไดเสียงเพื่อดูเฉพาะเพลงในบันไดเสียงนั้น หรือเลือก "ทุกบันไดเสียง" เพื่อดูทั้งหมด</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.search.title" datatype="html">
+        <source>Search by keyword</source>
+        <target state="translated">ค้นหาด้วยคำสำคัญ</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.search.content" datatype="html">
+        <source>Use the search bar to find scores by entering specific keywords. Type in the name of a composer, a piece, or any relevant term and press Enter to see the search results that match your query. This feature allows you to quickly locate scores based on specific criteria or interests.</source>
+        <target state="translated">ใช้แถบค้นหาเพื่อหาโน้ตเพลงด้วยคำสำคัญ พิมพ์ชื่อนักประพันธ์ ชื่อเพลง หรือคำที่เกี่ยวข้อง แล้วกด Enter เพื่อดูผลลัพธ์ วิธีนี้ช่วยให้คุณหาเพลงที่สนใจได้อย่างรวดเร็ว</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.heading" datatype="html">
+        <source>Score information</source>
+        <target state="translated">ข้อมูลโน้ตเพลง</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">แนวเพลง</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">ผู้แต่ง</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.key" datatype="html">
+        <source>Key</source>
+        <target state="translated">บันไดเสียง</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">ระดับ</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">ความยาว</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tempo" datatype="html">
+        <source>Tempo</source>
+        <target state="translated">จังหวะ</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">แทร็ก</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.measures" datatype="html">
+        <source>Measures</source>
+        <target state="translated">ห้องเพลง</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.publicDomain" datatype="html">
+        <source>Public Domain</source>
+        <target state="translated">สาธารณสมบัติ</target>
+      </trans-unit>
+      <trans-unit id="common.yes" datatype="html">
+        <source>Yes</source>
+        <target state="translated">ใช่</target>
+      </trans-unit>
+      <trans-unit id="common.no" datatype="html">
+        <source>No</source>
+        <target state="translated">ไม่</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.lyrics" datatype="html">
+        <source>Lyrics</source>
+        <target state="translated">เนื้อร้อง</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target state="translated">อัปโหลดเมื่อ</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.musicbrainz" datatype="html">
+        <source>MusicBrainz</source>
+        <target state="translated">MusicBrainz</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.work" datatype="html">
+        <source>Work</source>
+        <target state="translated">ผลงาน</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.owner" datatype="html">
+        <source>Owner</source>
+        <target state="translated">เจ้าของ</target>
+      </trans-unit>
+      <trans-unit id="videos.untitled" datatype="html">
+        <source>Untitled video</source>
+        <target state="translated">วิดีโอไม่มีชื่อ</target>
+      </trans-unit>
+      <trans-unit id="videos.thumbnail" datatype="html">
+        <source>Video thumbnail</source>
+        <target state="translated">ภาพตัวอย่างวิดีโอ</target>
+      </trans-unit>
+      <trans-unit id="videos.play" datatype="html">
+        <source>Play video <x id="title" equiv-text="this.video.title || &apos;&apos;"/></source>
+        <target state="translated">เล่นวิดีโอ <x id="title" equiv-text="this.video.title || &apos;&apos;"/></target>
+      </trans-unit>
+      <trans-unit id="videos.heading" datatype="html">
+        <source>Video lessons</source>
+        <target state="translated">บทเรียนวิดีโอ</target>
+      </trans-unit>
+      <trans-unit id="videos.scrollLeft" datatype="html">
+        <source>Scroll left</source>
+        <target state="translated">เลื่อนไปทางซ้าย</target>
+      </trans-unit>
+      <trans-unit id="videos.scrollRight" datatype="html">
+        <source>Scroll right</source>
+        <target state="translated">เลื่อนไปทางขวา</target>
+      </trans-unit>
+      <trans-unit id="videos.upvote.label" datatype="html">
+        <source>Upvote video</source>
+        <target state="translated">ให้คะแนนวิดีโอนี้ว่าดี</target>
+      </trans-unit>
+      <trans-unit id="videos.upvote" datatype="html">
+        <source>Upvote</source>
+        <target state="translated">ชอบ</target>
+      </trans-unit>
+      <trans-unit id="videos.downvote.label" datatype="html">
+        <source>Downvote video</source>
+        <target state="translated">ให้คะแนนวิดีโอนี้ว่าไม่ดี</target>
+      </trans-unit>
+      <trans-unit id="videos.downvote" datatype="html">
+        <source>Downvote</source>
+        <target state="translated">ไม่ชอบ</target>
+      </trans-unit>
+      <trans-unit id="videos.report.label" datatype="html">
+        <source>Report video</source>
+        <target state="translated">รายงานวิดีโอ</target>
+      </trans-unit>
+      <trans-unit id="videos.report" datatype="html">
+        <source>Report</source>
+        <target state="translated">รายงาน</target>
+      </trans-unit>
+      <trans-unit id="videos.close" datatype="html">
+        <source>Close video</source>
+        <target state="translated">ปิดวิดีโอ</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.offline" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>: the server cannot be reached. Check your connection and try again.</source>
+        <target state="translated">ดาวน์โหลด <x id="file" equiv-text="label"/> ไม่สำเร็จ: เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ โปรดตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.login" datatype="html">
+        <source>Please log in to download the <x id="file" equiv-text="label"/>.</source>
+        <target state="translated">โปรดเข้าสู่ระบบเพื่อดาวน์โหลด <x id="file" equiv-text="label"/></target>
+      </trans-unit>
+      <trans-unit id="score.download.error.forbidden" datatype="html">
+        <source>You are not allowed to download the <x id="file" equiv-text="label"/> of this score.</source>
+        <target state="translated">คุณไม่มีสิทธิ์ดาวน์โหลด <x id="file" equiv-text="label"/> ของโน้ตเพลงนี้</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.notFound" datatype="html">
+        <source>The <x id="file" equiv-text="label"/> is not available for this score.</source>
+        <target state="translated">ไม่มี <x id="file" equiv-text="label"/> สำหรับโน้ตเพลงนี้</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.other" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>. Please try again later.</source>
+        <target state="translated">ดาวน์โหลด <x id="file" equiv-text="label"/> ไม่สำเร็จ โปรดลองอีกครั้งภายหลัง</target>
+      </trans-unit>
+      <trans-unit id="score.srHeading" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - Piano Score</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> โดย <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - โน้ตเพลงเปียโน</target>
+      </trans-unit>
+      <trans-unit id="score.copyLink" datatype="html">
+        <source>Copy link</source>
+        <target state="translated">คัดลอกลิงก์</target>
+      </trans-unit>
+      <trans-unit id="score.back" datatype="html">
+        <source>← Browse</source>
+        <target state="translated">← เลือกดู</target>
+      </trans-unit>
+      <trans-unit id="score.edit" datatype="html">
+        <source>Edit</source>
+        <target state="translated">แก้ไข</target>
+      </trans-unit>
+      <trans-unit id="score.reimport.title" datatype="html">
+        <source>Choose the study tracks again from the original MIDI file (owner and admins only)</source>
+        <target state="translated">เลือกแทร็กสำหรับฝึกอีกครั้งจากไฟล์ MIDI ต้นฉบับ (เฉพาะเจ้าของและผู้ดูแล)</target>
+      </trans-unit>
+      <trans-unit id="score.reimport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">นำเข้าอีกครั้ง</target>
+      </trans-unit>
+      <trans-unit id="score.download.original.title" datatype="html">
+        <source>Download the file uploaded at import (owner and admins only)</source>
+        <target state="translated">ดาวน์โหลดไฟล์ที่อัปโหลดตอนนำเข้า (เฉพาะเจ้าของและผู้ดูแล)</target>
+      </trans-unit>
+      <trans-unit id="score.download.original" datatype="html">
+        <source>Original</source>
+        <target state="translated">ต้นฉบับ</target>
+      </trans-unit>
+      <trans-unit id="score.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">ฝึกซ้อม</target>
+      </trans-unit>
+      <trans-unit id="score.download.dismiss" datatype="html">
+        <source>Dismiss download error</source>
+        <target state="translated">ปิดข้อผิดพลาดการดาวน์โหลด</target>
+      </trans-unit>
+      <trans-unit id="score.loading" datatype="html">
+        <source>Loading score…</source>
+        <target state="translated">กำลังโหลดโน้ตเพลง…</target>
+      </trans-unit>
+      <trans-unit id="score.errorLabel" datatype="html">
+        <source>Error:</source>
+        <target state="translated">ข้อผิดพลาด:</target>
+      </trans-unit>
+      <trans-unit id="score.processing.heading" datatype="html">
+        <source>Processing status</source>
+        <target state="translated">สถานะการประมวลผล</target>
+      </trans-unit>
+      <trans-unit id="score.processing.loading" datatype="html">
+        <source>Loading status…</source>
+        <target state="translated">กำลังโหลดสถานะ…</target>
+      </trans-unit>
+      <trans-unit id="score.processing.status" datatype="html">
+        <source>Status</source>
+        <target state="translated">สถานะ</target>
+      </trans-unit>
+      <trans-unit id="score.processing.type" datatype="html">
+        <source>Type</source>
+        <target state="translated">ประเภท</target>
+      </trans-unit>
+      <trans-unit id="score.processing.created" datatype="html">
+        <source>Created</source>
+        <target state="translated">สร้างเมื่อ</target>
+      </trans-unit>
+      <trans-unit id="score.processing.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">ระยะเวลา</target>
+      </trans-unit>
+      <trans-unit id="score.processing.none" datatype="html">
+        <source>No processing information available. Files may not have been submitted yet.</source>
+        <target state="translated">ไม่มีข้อมูลการประมวลผล ไฟล์อาจยังไม่ได้ส่ง</target>
+      </trans-unit>
+      <trans-unit id="score.videos.loading" datatype="html">
+        <source>Loading related videos…</source>
+        <target state="translated">กำลังโหลดวิดีโอที่เกี่ยวข้อง…</target>
+      </trans-unit>
+      <trans-unit id="score.videos.errorLabel" datatype="html">
+        <source>Video API error:</source>
+        <target state="translated">ข้อผิดพลาดของ API วิดีโอ:</target>
+      </trans-unit>
+      <trans-unit id="score.download.originalFile" datatype="html">
+        <source>original file</source>
+        <target state="translated">ไฟล์ต้นฉบับ</target>
+      </trans-unit>
+      <trans-unit id="score.download.title" datatype="html">
+        <source>Download <x id="format" equiv-text="&apos;MIDI&apos;"/></source>
+        <target state="translated">ดาวน์โหลด <x id="format" equiv-text="&apos;MIDI&apos;"/></target>
+      </trans-unit>
+      <trans-unit id="score.download.restricted" datatype="html">
+        <source>Downloads restricted — copyrighted work</source>
+        <target state="translated">จำกัดการดาวน์โหลด — ผลงานมีลิขสิทธิ์</target>
+      </trans-unit>
+      <trans-unit id="score.processing.pending" datatype="html">
+        <source>Pending</source>
+        <target state="translated">รอดำเนินการ</target>
+      </trans-unit>
+      <trans-unit id="score.processing.running" datatype="html">
+        <source>Running</source>
+        <target state="translated">กำลังดำเนินการ</target>
+      </trans-unit>
+      <trans-unit id="score.processing.completed" datatype="html">
+        <source>Completed</source>
+        <target state="translated">เสร็จสิ้น</target>
+      </trans-unit>
+      <trans-unit id="score.processing.failed" datatype="html">
+        <source>Failed</source>
+        <target state="translated">ล้มเหลว</target>
+      </trans-unit>
+      <trans-unit id="score.error.noSlug" datatype="html">
+        <source>No score slug provided</source>
+        <target state="translated">ไม่ได้ระบุโน้ตเพลง</target>
+      </trans-unit>
+      <trans-unit id="score.error.load" datatype="html">
+        <source>Failed to load score</source>
+        <target state="translated">โหลดโน้ตเพลงไม่สำเร็จ</target>
+      </trans-unit>
+      <trans-unit id="score.videos.error" datatype="html">
+        <source>Failed to load videos</source>
+        <target state="translated">โหลดวิดีโอไม่สำเร็จ</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.missingInfo" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>: this score is missing information.</source>
+        <target state="translated">ดาวน์โหลด <x id="file" equiv-text="label"/> ไม่สำเร็จ: โน้ตเพลงนี้มีข้อมูลไม่ครบ</target>
+      </trans-unit>
+      <trans-unit id="seo.score.unknownArtist" datatype="html">
+        <source>Unknown Artist</source>
+        <target state="translated">ศิลปินไม่ทราบชื่อ</target>
+      </trans-unit>
+      <trans-unit id="seo.score.untitled" datatype="html">
+        <source>Untitled</source>
+        <target state="translated">ไม่มีชื่อ</target>
+      </trans-unit>
+      <trans-unit id="seo.score.title" datatype="html">
+        <source>Score</source>
+        <target state="translated">โน้ตเพลง</target>
+      </trans-unit>
+      <trans-unit id="seo.score.descriptionWithGenre" datatype="html">
+        <source>Practice <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/> on PianoML: an interactive <x id="genre" equiv-text="genre"/> piano score with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">ฝึก <x id="title" equiv-text="title"/> ของ <x id="artist" equiv-text="author"/> บน PianoML: โน้ตเพลงเปียโนแนว <x id="genre" equiv-text="genre"/> แบบโต้ตอบ ฝึกแยกมือได้ ปรับความเร็วได้ และมีผลตอบรับผ่าน MIDI</target>
+      </trans-unit>
+      <trans-unit id="seo.score.description" datatype="html">
+        <source>Practice <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/> on PianoML: an interactive piano score with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">ฝึก <x id="title" equiv-text="title"/> ของ <x id="artist" equiv-text="author"/> บน PianoML: โน้ตเพลงเปียโนแบบโต้ตอบ ฝึกแยกมือได้ ปรับความเร็วได้ และมีผลตอบรับผ่าน MIDI</target>
+      </trans-unit>
+      <trans-unit id="seo.score.publicDomain" datatype="html">
+        <source>Free to download and public domain.</source>
+        <target state="translated">ดาวน์โหลดฟรี เป็นสาธารณสมบัติ</target>
+      </trans-unit>
       <trans-unit id="error.heading" datatype="html">
         <source>Oops! An error occurred</source>
         <target state="translated">อุ๊ย! เกิดข้อผิดพลาด</target>
@@ -169,6 +805,18 @@
       <trans-unit id="error.backHome" datatype="html">
         <source>Back to homepage</source>
         <target state="translated">กลับไปหน้าแรก</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.heading" datatype="html">
+        <source>Practice Exercises in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></source>
+        <target state="translated">แบบฝึกหัดในบันไดเสียง <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.agility" datatype="html">
+        <source>Agility</source>
+        <target state="translated">ความคล่องแคล่ว</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.scales" datatype="html">
+        <source>Scales</source>
+        <target state="translated">บันไดเสียง</target>
       </trans-unit>
       <trans-unit id="languageSwitcher.label" datatype="html">
         <source>Language</source>
@@ -237,6 +885,54 @@
       <trans-unit id="layout.breadcrumb.navigateTo" datatype="html">
         <source>Navigate to <x id="label" equiv-text="label"/></source>
         <target state="translated">ไปที่ <x id="label" equiv-text="label"/></target>
+      </trans-unit>
+      <trans-unit id="popularInKey.heading" datatype="html">
+        <source>Popular works in this key</source>
+        <target state="translated">ผลงานยอดนิยมในบันไดเสียงนี้</target>
+      </trans-unit>
+      <trans-unit id="popularInKey.viewAll" datatype="html">
+        <source>View all →</source>
+        <target state="translated">ดูทั้งหมด →</target>
+      </trans-unit>
+      <trans-unit id="quickActions.import" datatype="html">
+        <source>Import</source>
+        <target state="translated">นำเข้า</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.actions" datatype="html">
+        <source> Actions </source>
+        <target state="translated"> การดำเนินการ </target>
+      </trans-unit>
+      <trans-unit id="scoreTable.sources.midi" datatype="html">
+        <source>Free MIDI</source>
+        <target state="translated">MIDI ฟรี</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.sources.pdf" datatype="html">
+        <source>Free sheet music (PDF)</source>
+        <target state="translated">โน้ตเพลงฟรี (PDF)</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.notAvailable" datatype="html">
+        <source>N/A</source>
+        <target state="translated">ไม่มี</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.empty" datatype="html">
+        <source>No scores found</source>
+        <target state="translated">ไม่พบโน้ตเพลง</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">ผู้แต่ง</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.difficulty" datatype="html">
+        <source>Difficulty</source>
+        <target state="translated">ความยาก</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.version" datatype="html">
+        <source>Version</source>
+        <target state="translated">เวอร์ชัน</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target state="translated">อัปโหลดเมื่อ</target>
       </trans-unit>
       <trans-unit id="nav.home" datatype="html">
         <source>Home</source>

@@ -158,6 +158,642 @@
         <source>Machine Learning</source>
         <target state="translated">Машинне навчання</target>
       </trans-unit>
+      <trans-unit id="browse.letters.all" datatype="html">
+        <source> All </source>
+        <target state="translated"> Усі </target>
+      </trans-unit>
+      <trans-unit id="browse.capsuleCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {1 твір} one {<x id="INTERPOLATION"/> твір} few {<x id="INTERPOLATION"/> твори} many {<x id="INTERPOLATION"/> творів} other {<x id="INTERPOLATION"/> твору}}</target>
+      </trans-unit>
+      <trans-unit id="browse.noArtistsForLetter" datatype="html">
+        <source> No artists found for letter <x id="INTERPOLATION" equiv-text="{{ selectedLetter }}"/>. </source>
+        <target state="translated"> Немає виконавців на літеру <x id="INTERPOLATION" equiv-text="{{ selectedLetter }}"/>. </target>
+      </trans-unit>
+      <trans-unit id="browse.genreNotSpecified" datatype="html">
+        <source>genre not specified</source>
+        <target state="translated">жанр не вказано</target>
+      </trans-unit>
+      <trans-unit id="browse.search.label" datatype="html">
+        <source>Search piano scores</source>
+        <target state="translated">Пошук фортепіанних нот</target>
+      </trans-unit>
+      <trans-unit id="browse.search.placeholder" datatype="html">
+        <source>Search scores by title, artist, or genre...</source>
+        <target state="translated">Шукайте за назвою, виконавцем або жанром...</target>
+      </trans-unit>
+      <trans-unit id="browse.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">Пошук...</target>
+      </trans-unit>
+      <trans-unit id="browse.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">Шукати</target>
+      </trans-unit>
+      <trans-unit id="browse.help.label" datatype="html">
+        <source>Restart library tour</source>
+        <target state="translated">Перезапустити огляд бібліотеки</target>
+      </trans-unit>
+      <trans-unit id="browse.help.title" datatype="html">
+        <source>Show help tour</source>
+        <target state="translated">Показати огляд</target>
+      </trans-unit>
+      <trans-unit id="browse.help" datatype="html">
+        <source> Help </source>
+        <target state="translated"> Довідка </target>
+      </trans-unit>
+      <trans-unit id="browse.clear" datatype="html">
+        <source> Clear </source>
+        <target state="translated"> Очистити </target>
+      </trans-unit>
+      <trans-unit id="browse.oneHand" datatype="html">
+        <source>One hand</source>
+        <target state="translated">Одна рука</target>
+      </trans-unit>
+      <trans-unit id="browse.twoHands" datatype="html">
+        <source>Two hands</source>
+        <target state="translated">Дві руки</target>
+      </trans-unit>
+      <trans-unit id="browse.key.label" datatype="html">
+        <source>Key signature</source>
+        <target state="translated">Тональність</target>
+      </trans-unit>
+      <trans-unit id="browse.allKeys" datatype="html">
+        <source>All keys</source>
+        <target state="translated">Усі тональності</target>
+      </trans-unit>
+      <trans-unit id="browse.clearFilter" datatype="html">
+        <source>Clear filter</source>
+        <target state="translated">Прибрати фільтр</target>
+      </trans-unit>
+      <trans-unit id="browse.stats" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/><x id="INTERPOLATION" equiv-text="{{ stats[&apos;public-domain&apos;] + stats.copyrighted | number }}"/><x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> scores in database</source>
+        <target state="translated">Творів у базі: <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/><x id="INTERPOLATION" equiv-text="{{ stats[&apos;public-domain&apos;] + stats.copyrighted | number }}"/><x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="browse.tabs.label" datatype="html">
+        <source>Browse options</source>
+        <target state="translated">Варіанти перегляду</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.new" datatype="html">
+        <source>New</source>
+        <target state="translated">Нові</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.popular" datatype="html">
+        <source>Popular</source>
+        <target state="translated">Популярні</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.genres.long" datatype="html">
+        <source>Browse by Genres</source>
+        <target state="translated">Перегляд за жанрами</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.genres.short" datatype="html">
+        <source>Genres</source>
+        <target state="translated">Жанри</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.artists.long" datatype="html">
+        <source>Browse by Artist</source>
+        <target state="translated">Перегляд за виконавцями</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.artists.short" datatype="html">
+        <source>Artist</source>
+        <target state="translated">Виконавці</target>
+      </trans-unit>
+      <trans-unit id="browse.results.label" datatype="html">
+        <source>Piano score results</source>
+        <target state="translated">Результати пошуку нот</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.genre" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedGenre.genre!.name }}"/> Piano Scores Collection</source>
+        <target state="translated">Збірка фортепіанних нот: <x id="INTERPOLATION" equiv-text="{{ selectedGenre.genre!.name }}"/></target>
+      </trans-unit>
+      <trans-unit id="browse.heading.artist" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedAuthor.author.name }}"/> Piano Works Collection</source>
+        <target state="translated">Фортепіанні твори: <x id="INTERPOLATION" equiv-text="{{ selectedAuthor.author.name }}"/></target>
+      </trans-unit>
+      <trans-unit id="browse.heading.search" datatype="html">
+        <source>Piano Score Search Results</source>
+        <target state="translated">Результати пошуку нот</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.new" datatype="html">
+        <source>Latest Piano Scores</source>
+        <target state="translated">Найновіші фортепіанні ноти</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.genres" datatype="html">
+        <source>Available Music Genres</source>
+        <target state="translated">Доступні музичні жанри</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.artists" datatype="html">
+        <source>Featured Composers and Artists</source>
+        <target state="translated">Рекомендовані композитори та виконавці</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.popular" datatype="html">
+        <source>Most Popular Piano Scores</source>
+        <target state="translated">Найпопулярніші фортепіанні ноти</target>
+      </trans-unit>
+      <trans-unit id="browse.empty" datatype="html">
+        <source>No scores found. Try a different search term.</source>
+        <target state="translated">Творів не знайдено. Спробуйте інший запит.</target>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Loading...</source>
+        <target state="translated">Завантаження...</target>
+      </trans-unit>
+      <trans-unit id="browse.loadMore" datatype="html">
+        <source>Load More</source>
+        <target state="translated">Завантажити ще</target>
+      </trans-unit>
+      <trans-unit id="browse.showing" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {Показано 1 твір} one {Показано <x id="INTERPOLATION"/> твір} few {Показано <x id="INTERPOLATION"/> твори} many {Показано <x id="INTERPOLATION"/> творів} other {Показано <x id="INTERPOLATION"/> твору}}</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">Жанр</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.artist" datatype="html">
+        <source>Artist</source>
+        <target state="translated">Виконавець</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Назва</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">Тривалість</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">Рівень</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">Доріжки</target>
+      </trans-unit>
+      <trans-unit id="browse.grade.min" datatype="html">
+        <source>Minimum grade</source>
+        <target state="translated">Мінімальний рівень</target>
+      </trans-unit>
+      <trans-unit id="browse.grade.max" datatype="html">
+        <source>Maximum grade</source>
+        <target state="translated">Максимальний рівень</target>
+      </trans-unit>
+      <trans-unit id="browse.notFound" datatype="html">
+        <source>Not Found</source>
+        <target state="translated">Не знайдено</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.descriptionWithArtists" datatype="html">
+        <source>Browse and practice <x id="genre" equiv-text="name"/> piano scores by <x id="artists" equiv-text="artists"/>. Interactive sheet music with hands-separated practice and MIDI support.</source>
+        <target state="translated">Переглядайте та розучуйте фортепіанні ноти в жанрі <x id="genre" equiv-text="name"/>, зокрема <x id="artists" equiv-text="artists"/>. Інтерактивні ноти з грою окремими руками та підтримкою MIDI.</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.description" datatype="html">
+        <source>Browse and practice <x id="genre" equiv-text="name"/> piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and MIDI support.</source>
+        <target state="translated">Переглядайте та розучуйте фортепіанні ноти в жанрі <x id="genre" equiv-text="name"/> на PianoML. Інтерактивні ноти з грою окремими руками, регулюванням темпу та підтримкою MIDI.</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.title" datatype="html">
+        <source><x id="genre" equiv-text="name"/> Piano Scores</source>
+        <target state="translated">Фортепіанні ноти: <x id="genre" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="seo.artist.descriptionWithTitles" datatype="html">
+        <source>Play <x id="artist" equiv-text="name"/> piano scores: <x id="titles" equiv-text="titles"/>. Interactive sheet music with adjustable tempo and real-time feedback.</source>
+        <target state="translated">Грайте фортепіанні ноти — <x id="artist" equiv-text="name"/>: <x id="titles" equiv-text="titles"/>. Інтерактивні ноти з регулюванням темпу та відгуком у реальному часі.</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.description" datatype="html">
+        <source>Play <x id="artist" equiv-text="name"/> piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and real-time feedback.</source>
+        <target state="translated">Грайте фортепіанні ноти — <x id="artist" equiv-text="name"/> — на PianoML. Інтерактивні ноти з грою окремими руками, регулюванням темпу та відгуком у реальному часі.</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.title" datatype="html">
+        <source><x id="artist" equiv-text="name"/> Piano Scores</source>
+        <target state="translated">Фортепіанні ноти — <x id="artist" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="seo.artist.collection" datatype="html">
+        <source><x id="artist" equiv-text="name"/> Piano Works</source>
+        <target state="translated">Фортепіанні твори — <x id="artist" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="seo.search.title" datatype="html">
+        <source>Search: &quot;<x id="keyword" equiv-text="state.searchKeyword"/>&quot;</source>
+        <target state="translated">Пошук: «<x id="keyword" equiv-text="state.searchKeyword"/>»</target>
+      </trans-unit>
+      <trans-unit id="seo.search.description" datatype="html">
+        <source>Piano scores matching &quot;<x id="keyword" equiv-text="state.searchKeyword"/>&quot; in the PianoML library.</source>
+        <target state="translated">Фортепіанні ноти за запитом «<x id="keyword" equiv-text="state.searchKeyword"/>» у бібліотеці PianoML.</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.title" datatype="html">
+        <source>Browse Piano Scores by Genre</source>
+        <target state="translated">Перегляд фортепіанних нот за жанрами</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.descriptionWithNames" datatype="html">
+        <source>Explore <x id="count" equiv-text="state.totalScores"/>+ piano scores by genre and style — <x id="genres" equiv-text="names"/> — with interactive practice features.</source>
+        <target state="translated">Відкрийте понад <x id="count" equiv-text="state.totalScores"/> фортепіанних творів за жанром і стилем — <x id="genres" equiv-text="names"/> — з інтерактивними функціями для практики.</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.description" datatype="html">
+        <source>Explore <x id="count" equiv-text="state.totalScores"/>+ piano scores by genre and style, with hands-separated practice, adjustable tempo and MIDI support.</source>
+        <target state="translated">Відкрийте понад <x id="count" equiv-text="state.totalScores"/> фортепіанних творів за жанром і стилем, з грою окремими руками, регулюванням темпу та підтримкою MIDI.</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.about.name" datatype="html">
+        <source>Piano Music Genres</source>
+        <target state="translated">Жанри фортепіанної музики</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.about.description" datatype="html">
+        <source>Collection of piano music organized by musical genre and style</source>
+        <target state="translated">Збірка фортепіанної музики, упорядкована за жанром і стилем</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.title" datatype="html">
+        <source>Browse Piano Scores by Composer &amp; Artist</source>
+        <target state="translated">Перегляд фортепіанних нот за композиторами та виконавцями</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.descriptionWithNames" datatype="html">
+        <source>Discover <x id="count" equiv-text="state.totalScores"/>+ piano scores and learn works by <x id="artists" equiv-text="names"/>.</source>
+        <target state="translated">Відкрийте понад <x id="count" equiv-text="state.totalScores"/> фортепіанних творів і розучуйте твори таких авторів, як <x id="artists" equiv-text="names"/>.</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.description" datatype="html">
+        <source>Discover <x id="count" equiv-text="state.totalScores"/>+ piano scores by composer, from classical to contemporary, with interactive practice features.</source>
+        <target state="translated">Відкрийте понад <x id="count" equiv-text="state.totalScores"/> фортепіанних творів за композиторами — від класики до сучасності — з інтерактивними функціями для практики.</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.collection" datatype="html">
+        <source>Browse Piano Scores by Composer</source>
+        <target state="translated">Перегляд фортепіанних нот за композиторами</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.about.name" datatype="html">
+        <source>Piano Composers and Artists</source>
+        <target state="translated">Композитори та виконавці фортепіанної музики</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.about.description" datatype="html">
+        <source>Collection of piano works organized by composer and artist</source>
+        <target state="translated">Збірка фортепіанних творів, упорядкована за композитором і виконавцем</target>
+      </trans-unit>
+      <trans-unit id="seo.new.title" datatype="html">
+        <source>New Piano Scores: Latest Uploaded Sheet Music</source>
+        <target state="translated">Нові фортепіанні ноти: нещодавно завантажені</target>
+      </trans-unit>
+      <trans-unit id="seo.new.description" datatype="html">
+        <source>Browse the latest piano scores added to PianoML, with hands-separated practice, adjustable tempo and MIDI keyboard support.</source>
+        <target state="translated">Переглядайте найновіші фортепіанні ноти на PianoML, з грою окремими руками, регулюванням темпу та підтримкою MIDI-клавіатур.</target>
+      </trans-unit>
+      <trans-unit id="seo.new.collection" datatype="html">
+        <source>New Piano Scores</source>
+        <target state="translated">Нові фортепіанні ноти</target>
+      </trans-unit>
+      <trans-unit id="seo.new.about.name" datatype="html">
+        <source>Latest piano scores</source>
+        <target state="translated">Найновіші фортепіанні ноти</target>
+      </trans-unit>
+      <trans-unit id="seo.new.about.description" datatype="html">
+        <source>Collection of recently uploaded piano sheet music</source>
+        <target state="translated">Збірка нещодавно завантажених фортепіанних нот</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.title" datatype="html">
+        <source>Piano Scores Library: MusicXML, MIDI &amp; PDF Sheet Music</source>
+        <target state="translated">Бібліотека фортепіанних нот: MusicXML, MIDI та PDF</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.description" datatype="html">
+        <source>Browse popular piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable speed, loopable sections and MIDI keyboard support.</source>
+        <target state="translated">Переглядайте популярні фортепіанні ноти на PianoML. Інтерактивні ноти з грою окремими руками, регулюванням швидкості, повторенням фрагментів і підтримкою MIDI-клавіатур.</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.collection" datatype="html">
+        <source>Piano Score Library</source>
+        <target state="translated">Бібліотека фортепіанних нот</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.about.description" datatype="html">
+        <source>Piano learning platform with features for interactive practice</source>
+        <target state="translated">Платформа для навчання гри на фортепіано з інтерактивними функціями для практики</target>
+      </trans-unit>
+      <trans-unit id="seo.namesAndMore" datatype="html">
+        <source><x id="names" equiv-text="shown"/> and more</source>
+        <target state="translated"><x id="names" equiv-text="shown"/> та інші</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.welcome.title" datatype="html">
+        <source>Welcome to the library</source>
+        <target state="translated">Ласкаво просимо до бібліотеки</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.welcome.content" datatype="html">
+        <source>On this search page you can filter scores in several ways.</source>
+        <target state="translated">На цій сторінці пошуку ви можете фільтрувати твори кількома способами.</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.grade.title" datatype="html">
+        <source>Grade range</source>
+        <target state="translated">Діапазон рівнів</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.grade.content" datatype="html">
+        <source>Select a grade range to filter the scores displayed in the library. You can adjust the sliders to set the minimum and maximum grade levels you want to include in your search results.</source>
+        <target state="translated">Виберіть діапазон рівнів, щоб відфільтрувати твори в бібліотеці. Повзунками встановіть мінімальний і максимальний рівень для результатів пошуку.</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.handedness.title" datatype="html">
+        <source>Handedness</source>
+        <target state="translated">Руки</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.handedness.content" datatype="html">
+        <source>Use the checkboxes to filter scores based on handedness. Check &quot;One hand&quot; to include scores that can be played with one hand. Check &quot;Two hands&quot; to include scores that require two hands. You can select either or both options to refine your search results according to your preferences.</source>
+        <target state="translated">Скористайтеся прапорцями, щоб фільтрувати твори за кількістю рук. Позначте «Одна рука» для творів, які можна зіграти однією рукою, і «Дві руки» для творів, що потребують обох. Можна вибрати один або обидва варіанти, щоб уточнити результати.</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.tonality.title" datatype="html">
+        <source>Tonality</source>
+        <target state="translated">Тональність</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.tonality.content" datatype="html">
+        <source>Use the dropdown to filter scores based on their tonality. Select a specific key to include only scores in that key, or choose &quot;All keys&quot; to include scores in any key.</source>
+        <target state="translated">Скористайтеся випадним списком, щоб фільтрувати твори за тональністю. Виберіть тональність, щоб бачити лише твори в ній, або «Усі тональності», щоб бачити всі.</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.search.title" datatype="html">
+        <source>Search by keyword</source>
+        <target state="translated">Пошук за ключовим словом</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.search.content" datatype="html">
+        <source>Use the search bar to find scores by entering specific keywords. Type in the name of a composer, a piece, or any relevant term and press Enter to see the search results that match your query. This feature allows you to quickly locate scores based on specific criteria or interests.</source>
+        <target state="translated">Скористайтеся рядком пошуку, щоб знаходити твори за ключовими словами. Введіть ім'я композитора, назву твору чи інше слово й натисніть Enter, щоб побачити результати. Так ви швидко знайдете потрібні твори.</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.heading" datatype="html">
+        <source>Score information</source>
+        <target state="translated">Інформація про твір</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">Жанр</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">Автор</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.key" datatype="html">
+        <source>Key</source>
+        <target state="translated">Тональність</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">Рівень</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">Тривалість</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tempo" datatype="html">
+        <source>Tempo</source>
+        <target state="translated">Темп</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">Доріжки</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.measures" datatype="html">
+        <source>Measures</source>
+        <target state="translated">Такти</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.publicDomain" datatype="html">
+        <source>Public Domain</source>
+        <target state="translated">Суспільне надбання</target>
+      </trans-unit>
+      <trans-unit id="common.yes" datatype="html">
+        <source>Yes</source>
+        <target state="translated">Так</target>
+      </trans-unit>
+      <trans-unit id="common.no" datatype="html">
+        <source>No</source>
+        <target state="translated">Ні</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.lyrics" datatype="html">
+        <source>Lyrics</source>
+        <target state="translated">Текст пісні</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target state="translated">Завантажено</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.musicbrainz" datatype="html">
+        <source>MusicBrainz</source>
+        <target state="translated">MusicBrainz</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.work" datatype="html">
+        <source>Work</source>
+        <target state="translated">Твір</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.owner" datatype="html">
+        <source>Owner</source>
+        <target state="translated">Власник</target>
+      </trans-unit>
+      <trans-unit id="videos.untitled" datatype="html">
+        <source>Untitled video</source>
+        <target state="translated">Відео без назви</target>
+      </trans-unit>
+      <trans-unit id="videos.thumbnail" datatype="html">
+        <source>Video thumbnail</source>
+        <target state="translated">Мініатюра відео</target>
+      </trans-unit>
+      <trans-unit id="videos.play" datatype="html">
+        <source>Play video <x id="title" equiv-text="this.video.title || &apos;&apos;"/></source>
+        <target state="translated">Відтворити відео <x id="title" equiv-text="this.video.title || &apos;&apos;"/></target>
+      </trans-unit>
+      <trans-unit id="videos.heading" datatype="html">
+        <source>Video lessons</source>
+        <target state="translated">Відеоуроки</target>
+      </trans-unit>
+      <trans-unit id="videos.scrollLeft" datatype="html">
+        <source>Scroll left</source>
+        <target state="translated">Прокрутити вліво</target>
+      </trans-unit>
+      <trans-unit id="videos.scrollRight" datatype="html">
+        <source>Scroll right</source>
+        <target state="translated">Прокрутити вправо</target>
+      </trans-unit>
+      <trans-unit id="videos.upvote.label" datatype="html">
+        <source>Upvote video</source>
+        <target state="translated">Оцінити відео позитивно</target>
+      </trans-unit>
+      <trans-unit id="videos.upvote" datatype="html">
+        <source>Upvote</source>
+        <target state="translated">Подобається</target>
+      </trans-unit>
+      <trans-unit id="videos.downvote.label" datatype="html">
+        <source>Downvote video</source>
+        <target state="translated">Оцінити відео негативно</target>
+      </trans-unit>
+      <trans-unit id="videos.downvote" datatype="html">
+        <source>Downvote</source>
+        <target state="translated">Не подобається</target>
+      </trans-unit>
+      <trans-unit id="videos.report.label" datatype="html">
+        <source>Report video</source>
+        <target state="translated">Поскаржитися на відео</target>
+      </trans-unit>
+      <trans-unit id="videos.report" datatype="html">
+        <source>Report</source>
+        <target state="translated">Поскаржитися</target>
+      </trans-unit>
+      <trans-unit id="videos.close" datatype="html">
+        <source>Close video</source>
+        <target state="translated">Закрити відео</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.offline" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>: the server cannot be reached. Check your connection and try again.</source>
+        <target state="translated">Не вдалося завантажити (<x id="file" equiv-text="label"/>): сервер недоступний. Перевірте з'єднання та спробуйте ще раз.</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.login" datatype="html">
+        <source>Please log in to download the <x id="file" equiv-text="label"/>.</source>
+        <target state="translated">Увійдіть, щоб завантажити: <x id="file" equiv-text="label"/>.</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.forbidden" datatype="html">
+        <source>You are not allowed to download the <x id="file" equiv-text="label"/> of this score.</source>
+        <target state="translated">Ви не маєте права завантажувати це для цього твору: <x id="file" equiv-text="label"/>.</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.notFound" datatype="html">
+        <source>The <x id="file" equiv-text="label"/> is not available for this score.</source>
+        <target state="translated">Недоступно для цього твору: <x id="file" equiv-text="label"/>.</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.other" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>. Please try again later.</source>
+        <target state="translated">Не вдалося завантажити (<x id="file" equiv-text="label"/>). Спробуйте пізніше.</target>
+      </trans-unit>
+      <trans-unit id="score.srHeading" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - Piano Score</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> — <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> — фортепіанні ноти</target>
+      </trans-unit>
+      <trans-unit id="score.copyLink" datatype="html">
+        <source>Copy link</source>
+        <target state="translated">Копіювати посилання</target>
+      </trans-unit>
+      <trans-unit id="score.back" datatype="html">
+        <source>← Browse</source>
+        <target state="translated">← Перегляд</target>
+      </trans-unit>
+      <trans-unit id="score.edit" datatype="html">
+        <source>Edit</source>
+        <target state="translated">Редагувати</target>
+      </trans-unit>
+      <trans-unit id="score.reimport.title" datatype="html">
+        <source>Choose the study tracks again from the original MIDI file (owner and admins only)</source>
+        <target state="translated">Повторно вибрати доріжки для навчання з оригінального MIDI-файлу (лише власник і адміністратори)</target>
+      </trans-unit>
+      <trans-unit id="score.reimport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">Повторний імпорт</target>
+      </trans-unit>
+      <trans-unit id="score.download.original.title" datatype="html">
+        <source>Download the file uploaded at import (owner and admins only)</source>
+        <target state="translated">Завантажити файл, доданий під час імпорту (лише власник і адміністратори)</target>
+      </trans-unit>
+      <trans-unit id="score.download.original" datatype="html">
+        <source>Original</source>
+        <target state="translated">Оригінал</target>
+      </trans-unit>
+      <trans-unit id="score.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Практика</target>
+      </trans-unit>
+      <trans-unit id="score.download.dismiss" datatype="html">
+        <source>Dismiss download error</source>
+        <target state="translated">Закрити помилку завантаження</target>
+      </trans-unit>
+      <trans-unit id="score.loading" datatype="html">
+        <source>Loading score…</source>
+        <target state="translated">Завантаження твору…</target>
+      </trans-unit>
+      <trans-unit id="score.errorLabel" datatype="html">
+        <source>Error:</source>
+        <target state="translated">Помилка:</target>
+      </trans-unit>
+      <trans-unit id="score.processing.heading" datatype="html">
+        <source>Processing status</source>
+        <target state="translated">Стан обробки</target>
+      </trans-unit>
+      <trans-unit id="score.processing.loading" datatype="html">
+        <source>Loading status…</source>
+        <target state="translated">Завантаження стану…</target>
+      </trans-unit>
+      <trans-unit id="score.processing.status" datatype="html">
+        <source>Status</source>
+        <target state="translated">Стан</target>
+      </trans-unit>
+      <trans-unit id="score.processing.type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Тип</target>
+      </trans-unit>
+      <trans-unit id="score.processing.created" datatype="html">
+        <source>Created</source>
+        <target state="translated">Створено</target>
+      </trans-unit>
+      <trans-unit id="score.processing.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">Тривалість</target>
+      </trans-unit>
+      <trans-unit id="score.processing.none" datatype="html">
+        <source>No processing information available. Files may not have been submitted yet.</source>
+        <target state="translated">Немає інформації про обробку. Можливо, файли ще не надіслано.</target>
+      </trans-unit>
+      <trans-unit id="score.videos.loading" datatype="html">
+        <source>Loading related videos…</source>
+        <target state="translated">Завантаження пов'язаних відео…</target>
+      </trans-unit>
+      <trans-unit id="score.videos.errorLabel" datatype="html">
+        <source>Video API error:</source>
+        <target state="translated">Помилка відео-API:</target>
+      </trans-unit>
+      <trans-unit id="score.download.originalFile" datatype="html">
+        <source>original file</source>
+        <target state="translated">оригінальний файл</target>
+      </trans-unit>
+      <trans-unit id="score.download.title" datatype="html">
+        <source>Download <x id="format" equiv-text="&apos;MIDI&apos;"/></source>
+        <target state="translated">Завантажити <x id="format" equiv-text="&apos;MIDI&apos;"/></target>
+      </trans-unit>
+      <trans-unit id="score.download.restricted" datatype="html">
+        <source>Downloads restricted — copyrighted work</source>
+        <target state="translated">Завантаження обмежено — твір захищено авторським правом</target>
+      </trans-unit>
+      <trans-unit id="score.processing.pending" datatype="html">
+        <source>Pending</source>
+        <target state="translated">Очікує</target>
+      </trans-unit>
+      <trans-unit id="score.processing.running" datatype="html">
+        <source>Running</source>
+        <target state="translated">Виконується</target>
+      </trans-unit>
+      <trans-unit id="score.processing.completed" datatype="html">
+        <source>Completed</source>
+        <target state="translated">Завершено</target>
+      </trans-unit>
+      <trans-unit id="score.processing.failed" datatype="html">
+        <source>Failed</source>
+        <target state="translated">Помилка</target>
+      </trans-unit>
+      <trans-unit id="score.error.noSlug" datatype="html">
+        <source>No score slug provided</source>
+        <target state="translated">Твір не вказано</target>
+      </trans-unit>
+      <trans-unit id="score.error.load" datatype="html">
+        <source>Failed to load score</source>
+        <target state="translated">Не вдалося завантажити твір</target>
+      </trans-unit>
+      <trans-unit id="score.videos.error" datatype="html">
+        <source>Failed to load videos</source>
+        <target state="translated">Не вдалося завантажити відео</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.missingInfo" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>: this score is missing information.</source>
+        <target state="translated">Не вдалося завантажити (<x id="file" equiv-text="label"/>): для цього твору бракує інформації.</target>
+      </trans-unit>
+      <trans-unit id="seo.score.unknownArtist" datatype="html">
+        <source>Unknown Artist</source>
+        <target state="translated">Невідомий виконавець</target>
+      </trans-unit>
+      <trans-unit id="seo.score.untitled" datatype="html">
+        <source>Untitled</source>
+        <target state="translated">Без назви</target>
+      </trans-unit>
+      <trans-unit id="seo.score.title" datatype="html">
+        <source>Score</source>
+        <target state="translated">Ноти</target>
+      </trans-unit>
+      <trans-unit id="seo.score.descriptionWithGenre" datatype="html">
+        <source>Practice <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/> on PianoML: an interactive <x id="genre" equiv-text="genre"/> piano score with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">Розучуйте «<x id="title" equiv-text="title"/>» (<x id="artist" equiv-text="author"/>) на PianoML: інтерактивні фортепіанні ноти в жанрі <x id="genre" equiv-text="genre"/> з грою окремими руками, регулюванням темпу та MIDI-відгуком.</target>
+      </trans-unit>
+      <trans-unit id="seo.score.description" datatype="html">
+        <source>Practice <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/> on PianoML: an interactive piano score with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">Розучуйте «<x id="title" equiv-text="title"/>» (<x id="artist" equiv-text="author"/>) на PianoML: інтерактивні фортепіанні ноти з грою окремими руками, регулюванням темпу та MIDI-відгуком.</target>
+      </trans-unit>
+      <trans-unit id="seo.score.publicDomain" datatype="html">
+        <source>Free to download and public domain.</source>
+        <target state="translated">Безкоштовне завантаження, суспільне надбання.</target>
+      </trans-unit>
       <trans-unit id="error.heading" datatype="html">
         <source>Oops! An error occurred</source>
         <target state="translated">Ой! Сталася помилка</target>
@@ -169,6 +805,18 @@
       <trans-unit id="error.backHome" datatype="html">
         <source>Back to homepage</source>
         <target state="translated">На головну</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.heading" datatype="html">
+        <source>Practice Exercises in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></source>
+        <target state="translated">Вправи в тональності <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.agility" datatype="html">
+        <source>Agility</source>
+        <target state="translated">Біглість</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.scales" datatype="html">
+        <source>Scales</source>
+        <target state="translated">Гами</target>
       </trans-unit>
       <trans-unit id="languageSwitcher.label" datatype="html">
         <source>Language</source>
@@ -237,6 +885,54 @@
       <trans-unit id="layout.breadcrumb.navigateTo" datatype="html">
         <source>Navigate to <x id="label" equiv-text="label"/></source>
         <target state="translated">Перейти: <x id="label" equiv-text="label"/></target>
+      </trans-unit>
+      <trans-unit id="popularInKey.heading" datatype="html">
+        <source>Popular works in this key</source>
+        <target state="translated">Популярні твори в цій тональності</target>
+      </trans-unit>
+      <trans-unit id="popularInKey.viewAll" datatype="html">
+        <source>View all →</source>
+        <target state="translated">Переглянути всі →</target>
+      </trans-unit>
+      <trans-unit id="quickActions.import" datatype="html">
+        <source>Import</source>
+        <target state="translated">Імпорт</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.actions" datatype="html">
+        <source> Actions </source>
+        <target state="translated"> Дії </target>
+      </trans-unit>
+      <trans-unit id="scoreTable.sources.midi" datatype="html">
+        <source>Free MIDI</source>
+        <target state="translated">Безкоштовні MIDI</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.sources.pdf" datatype="html">
+        <source>Free sheet music (PDF)</source>
+        <target state="translated">Безкоштовні ноти (PDF)</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.notAvailable" datatype="html">
+        <source>N/A</source>
+        <target state="translated">н/д</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.empty" datatype="html">
+        <source>No scores found</source>
+        <target state="translated">Творів не знайдено</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">Автор</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.difficulty" datatype="html">
+        <source>Difficulty</source>
+        <target state="translated">Складність</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.version" datatype="html">
+        <source>Version</source>
+        <target state="translated">Версія</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target state="translated">Завантажено</target>
       </trans-unit>
       <trans-unit id="nav.home" datatype="html">
         <source>Home</source>
