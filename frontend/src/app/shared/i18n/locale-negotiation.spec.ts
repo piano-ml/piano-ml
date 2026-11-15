@@ -10,12 +10,19 @@ describe('locale negotiation', () => {
 
     it('then the best Accept-Language match', () => {
       expect(homeRedirect(undefined, 'es-ES,es;q=0.9,en;q=0.8')).toBe('/es/');
-      expect(homeRedirect('', 'fr-FR,fr;q=0.9,es;q=0.5,en;q=0.4')).toBe('/es/');
+      expect(homeRedirect('', 'ja-JP,ja;q=0.9,es;q=0.5,en;q=0.4')).toBe('/es/');
+      expect(homeRedirect('', 'fr-CA,fr;q=0.9,en;q=0.8')).toBe('/fr/');
+      expect(homeRedirect('lang=fr', 'es')).toBe('/fr/');
+      expect(homeRedirect('', 'it-IT,it;q=0.9,en;q=0.8')).toBe('/it/');
+      // Chinese is built as Simplified Chinese (zh-Hans) under /zh/: zh-CN and plain zh land there.
+      expect(homeRedirect('', 'zh-CN,zh;q=0.9')).toBe('/zh/');
+      expect(homeRedirect('', 'zh')).toBe('/zh/');
+      expect(homeRedirect('lang=zh-Hans', undefined)).toBe('/zh/');
       expect(homeRedirect('', 'en-GB,es;q=0.8')).toBeNull();
     });
 
     it('serves English when nothing matches, or when the client says nothing (crawlers)', () => {
-      expect(homeRedirect(undefined, 'de-DE,fr;q=0.8')).toBeNull();
+      expect(homeRedirect(undefined, 'ja-JP,ko;q=0.8')).toBeNull();
       expect(homeRedirect(undefined, undefined)).toBeNull();
       expect(homeRedirect(undefined, '*')).toBeNull();
     });
