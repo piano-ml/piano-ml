@@ -1,4 +1,4 @@
-import { loginQueryParams, safeReturnUrl } from './return-url';
+import { loginQueryParams, requiresLogin, safeReturnUrl } from './return-url';
 
 describe('return-url', () => {
   describe('safeReturnUrl', () => {
@@ -39,6 +39,31 @@ describe('return-url', () => {
     it('adds nothing for the homepage or the login page itself', () => {
       expect(loginQueryParams('/')).toEqual({});
       expect(loginQueryParams('/account/login')).toEqual({});
+    });
+  });
+
+  describe('requiresLogin', () => {
+    it.each([
+      '/account/home',
+      '/account/scores',
+      '/account/scores?page=2',
+      '/account/score/edit/42',
+      '/import/import-work/abc#top',
+    ])('is true for protected page %s', url => {
+      expect(requiresLogin(url)).toBe(true);
+    });
+
+    it.each([
+      '/',
+      '/library',
+      '/score/hanon-no-19',
+      '/import/link',
+      '/account/login',
+      '/account/create',
+      '/account/homes',
+      '/account/scoresheet',
+    ])('is false for public page %s', url => {
+      expect(requiresLogin(url)).toBe(false);
     });
   });
 });

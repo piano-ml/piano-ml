@@ -7,7 +7,7 @@ Feature('Score page');
 const field = label => ({
   xpath: `//p[contains(@class, "field-label")][normalize-space() = "${label}"]/following-sibling::*[1]`,
 });
-const practiceExercises = '//h3[normalize-space() = "Practice Exercises in this Scale"]/..';
+const practiceExercises = '//h3[normalize-space() = "Practice Exercises in C major"]/..';
 // Explicit descendant XPaths: locate().inside() mis-combines containers that use a following-sibling step.
 const linkIn = (containerXpath, text) => ({ xpath: `${containerXpath}//a[normalize-space() = "${text}"]` });
 
@@ -36,7 +36,7 @@ Scenario('open happy birthday score page directly', async ({ I }) => {
   I.seeElement(linkIn(field('MusicBrainz').xpath, 'Artist'));
   I.seeElement(linkIn(field('MusicBrainz').xpath, 'Work'));
 
-  // Practice Exercises in this Scale
+  // Practice Exercises in C major (the key of the score)
   const exercises = [
     'Arpeggio in root position, two octaves',
     'Two-octave Arpeggios, root, 1st and 2nd inversions',

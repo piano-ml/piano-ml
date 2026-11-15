@@ -7,7 +7,7 @@ import { lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 // biome-ignore lint/style/useImportType: <explanation>
 import { SeoService } from '../../../shared/seo';
-import { HttpEventType, type HttpEvent } from '@angular/common/http';
+import { HttpErrorResponse, HttpEventType, type HttpEvent } from '@angular/common/http';
 import { firstValueFrom, BehaviorSubject, filter, map, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { OsmdComponent } from '../osmd/osmd.component';
@@ -28,6 +28,23 @@ import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
 import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
 
+
+/** What to tell the user when a score cannot be loaded for practice. */
+export function scoreLoadErrorMessage(error: unknown): string {
+  const status = error instanceof HttpErrorResponse ? error.status : undefined;
+  switch (status) {
+    case 0:
+      return 'The score could not be downloaded: the server cannot be reached. Check your connection and try again.';
+    case 401:
+      return 'Please log in to practice this score.';
+    case 403:
+      return 'You are not allowed to practice this score.';
+    case 404:
+      return 'This score or its files are not available.';
+    default:
+      return 'The score could not be loaded. Please try again later.';
+  }
+}
 
 @Component({
   selector: 'app-workbench',
@@ -158,6 +175,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   @ViewChild('titleText', { static: false }) titleText!: ElementRef<HTMLDivElement>;
   slider: any;
   error: string | null = null;
+  /** Why the score could not be loaded for practice; replaces the loader with a message and a retry. */
+  loadError: string | null = null;
   shouldScroll = false;
 
 
@@ -325,6 +344,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.showOsmd = false;
     this.isPlaying = false;
     this.error = null;
+    this.loadError = null;
     this.playerService.releaseScoreSession();
     this.clearData();
     this.changeDetector.markForCheck();
@@ -369,16 +389,26 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   async setupWorkMode(loadId: number) {
     const slug = this.route.snapshot.paramMap.get('slug');
-    this.scoreData = await firstValueFrom(this.scoreService.scoreGetBySlug(slug!));
-    if (loadId !== this.currentLoadId) {
+    let midiResult: Midi.Midi;
+    let musicXmlResult: string;
+    try {
+      this.scoreData = await firstValueFrom(this.scoreService.scoreGetBySlug(slug!));
+      if (loadId !== this.currentLoadId) {
+        return;
+      }
+      this.downloadProgress = { midi: { loaded: 0, total: 0 }, musicxml: { loaded: 0, total: 0 } };
+      this.loadingFeedBack$.next({ message: 'Downloading score', percentage: 0 });
+      [midiResult, musicXmlResult] = await Promise.all([
+        this.downloadMidi(this.scoreData!),
+        this.downloadMusicXML(this.scoreData!)
+      ]);
+    } catch (error) {
+      // A failed download used to be swallowed: the loader stayed up, then the page crashed on the missing MIDI
+      if (loadId === this.currentLoadId) {
+        this.failLoad(error);
+      }
       return;
     }
-    this.downloadProgress = { midi: { loaded: 0, total: 0 }, musicxml: { loaded: 0, total: 0 } };
-    this.loadingFeedBack$.next({ message: 'Downloading score', percentage: 0 });
-    const [midiResult, musicXmlResult] = await Promise.all([
-      this.downloadMidi(this.scoreData!),
-      this.downloadMusicXML(this.scoreData!)
-    ]);
     if (loadId !== this.currentLoadId) {
       return;
     }
@@ -644,27 +674,27 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
 
+  /** Downloads one score file and hands it to {@code processor}. Failures propagate: setupWorkMode reports them. */
   private async loadScoreData(
     scoreData: ScoreApiInfo,
     type: 'midi' | 'musicxml',
     processor: (data: any) => Promise<void>
   ): Promise<void> {
-    try {
-      const data = await firstValueFrom(
-        this.scoreService.scoreOwnerIdTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.id!, type, scoreData.version || 1, 1, 'events', true).pipe(
-          tap((event: HttpEvent<Blob>) => {
-            if (event.type === HttpEventType.DownloadProgress) {
-              this.reportDownloadProgress(type, event.loaded, event.total);
-            }
-          }),
-          filter((event: HttpEvent<Blob>) => event.type === HttpEventType.Response),
-          map((event) => event.body)
-        )
-      );
-      await processor(data);
-    } catch (error) {
-      this.handleLoadError(error);
+    const data = await firstValueFrom(
+      this.scoreService.scoreOwnerIdTypeVersionRevisionGet(scoreData!.owner_id!, scoreData!.id!, type, scoreData.version || 1, 1, 'events', true).pipe(
+        tap((event: HttpEvent<Blob>) => {
+          if (event.type === HttpEventType.DownloadProgress) {
+            this.reportDownloadProgress(type, event.loaded, event.total);
+          }
+        }),
+        filter((event: HttpEvent<Blob>) => event.type === HttpEventType.Response),
+        map((event) => event.body)
+      )
+    );
+    if (!data) {
+      throw new Error(`Empty ${type} file`);
     }
+    await processor(data);
   }
 
   /**
@@ -682,8 +712,25 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.loadingFeedBack$.next({ message: 'Downloading score', percentage: Math.min(100, Math.round((received / expected) * 100)) });
   }
 
-  private handleLoadError(error: any): void {
-    console.error(`Error `, error);
+  /** Stops the loader and tells why the score cannot be practiced, with a retry (see the template). */
+  private failLoad(error: unknown): void {
+    console.error('Could not load the score', error);
+    this.loadError = scoreLoadErrorMessage(error);
+    this.loading$.next(false);
+    this.osmdLoading$.next(false);
+    this.changeDetector.markForCheck();
+  }
+
+  /** Loads the score again after a failure. */
+  retryLoad(): void {
+    this.lastRouteKey = null;
+    void this.loadRouteContent();
+  }
+
+  /** Back to the score page, or the library when the score itself could not be loaded. */
+  leaveFailedLoad(): void {
+    const slug = this.scoreData?.immutableSlug ?? this.route.snapshot.paramMap.get('slug');
+    this.router.navigate(slug && this.scoreData ? ['/score', slug] : ['/library']);
   }
 
 

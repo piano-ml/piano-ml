@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +43,13 @@ import java.util.UUID;
 public class ScoreController implements ScoreApi {
 
   private static final Logger log = LoggerFactory.getLogger(ScoreController.class);
+  /**
+   * Files of a copyrighted score (not public domain) only its owner and admins may download. The printable PDF only:
+   * MIDI and MusicXML feed the practice page, which stays open to everyone.
+   */
+  static final java.util.Set<String> OWNER_ONLY_WHEN_COPYRIGHTED = java.util.Set.of("pdf");
+  /** Download type of the file uploaded at import, restricted to the score owner and admins. */
+  static final String ORIGINAL_TYPE = "original";
   private static final java.util.Set<String> YOUTUBE_ACTIONS = java.util.Set.of("upvote", "downvote", "view", "report");
 
   private final ScoreService scoreService;
@@ -243,40 +252,98 @@ public class ScoreController implements ScoreApi {
     }
   }
 
+  /** Content type and file extension of each generated file the download API serves. */
+  private record DownloadFormat(MediaType mediaType, String extension) {
+  }
+
+  private static final java.util.Map<String, DownloadFormat> DOWNLOAD_FORMATS = java.util.Map.of(
+    "pdf", new DownloadFormat(MediaType.APPLICATION_PDF, ".pdf"),
+    "musicxml", new DownloadFormat(MediaType.parseMediaType("application/vnd.recordare.musicxml+xml"), ".musicxml"),
+    "midi", new DownloadFormat(MediaType.parseMediaType("audio/midi"), ".mid"));
+
+  /**
+   * Downloads a file of a score. Always an attachment named after the score slug ({@code <slug>.<ext>},
+   * {@code <slug>-original.<ext>} for the upload), so a browser saves it instead of opening it inline.
+   * 400 on an unknown type, 404 when the score or the file does not exist.
+   */
   @Override
   public ResponseEntity<org.springframework.core.io.Resource> scoreOwnerIdTypeVersionRevisionGet(String strOwner, String id, String type, Integer version, Integer revision) {
+    if (!ORIGINAL_TYPE.equals(type) && !DOWNLOAD_FORMATS.containsKey(type)) {
+      return ResponseEntity.badRequest().build();
+    }
     try {
       User owner = userRepository.findById(UUID.fromString(strOwner)).orElseThrow(EntityNotFoundException::new);
       Optional<Score> optScore = scoreRepository.findScoreByIdAndOwnerAndVersion(UUID.fromString(id), owner, version);
       if (optScore.isEmpty()) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
       }
-      MediaType mediaType;
-      switch (type) {
-        case "musicxml":
-          mediaType = MediaType.APPLICATION_XML;
-          break;
-        case "midi":
-          mediaType = MediaType.parseMediaType("audio/midi");
-          break;
-        case "pdf":
-          mediaType = MediaType.APPLICATION_PDF;
-          break;
-        case "metadata":
-          mediaType = MediaType.APPLICATION_JSON;
-          break;
-        default:
-          mediaType = MediaType.APPLICATION_OCTET_STREAM;
+      Score score = optScore.get();
+      if (ORIGINAL_TYPE.equals(type)) {
+        return downloadOriginal(score);
       }
-      return scoreService.getAttachmentFromScore(optScore.get(), type)
-        .map(bytes -> ResponseEntity.ok()
-          .contentType(mediaType)
-          .body((org.springframework.core.io.Resource) new ByteArrayResource(bytes)))
-        .orElse(ResponseEntity.notFound().build()); // TODO throw a specific exception
+      if (OWNER_ONLY_WHEN_COPYRIGHTED.contains(type) && !Boolean.TRUE.equals(score.getPublicDomain())) {
+        Optional<HttpStatus> refused = refuseUnlessOwnerOrAdmin(score);
+        if (refused.isPresent()) {
+          return ResponseEntity.status(refused.get()).build();
+        }
+      }
+      DownloadFormat format = DOWNLOAD_FORMATS.get(type);
+      return scoreService.getAttachmentFromScore(score, type)
+        .map(bytes -> attachment(bytes, format.mediaType(), downloadBaseName(score) + format.extension()))
+        .orElse(ResponseEntity.notFound().build());
     } catch (IOException e) {
       log.error("IOException while getting attachment from score", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+  }
+
+  /** Download file names start with the score slug (the /score/{slug} page), or its id for a score without one. */
+  static String downloadBaseName(Score score) {
+    String slug = score.getImmutableSlug();
+    return slug != null && !slug.isBlank() ? slug : String.valueOf(score.getId());
+  }
+
+  private static ResponseEntity<org.springframework.core.io.Resource> attachment(byte[] bytes, MediaType mediaType, String filename) {
+    return ResponseEntity.ok()
+      .contentType(mediaType)
+      .contentLength(bytes.length)
+      .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+        .filename(filename, java.nio.charset.StandardCharsets.UTF_8).build().toString())
+      .body(new ByteArrayResource(bytes));
+  }
+
+  /** Why the current user may not get an owner-only file: 401 when not logged in, 403 when neither owner nor admin. */
+  private Optional<HttpStatus> refuseUnlessOwnerOrAdmin(Score score) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user;
+    try {
+      user = authentication == null ? null : userService.getUserFromAuthentication(authentication);
+    } catch (UserNotLoggedInException e) {
+      user = null;
+    }
+    if (user == null) {
+      return Optional.of(HttpStatus.UNAUTHORIZED);
+    }
+    return ScoreService.isOwnerOrAdmin(score, user) ? Optional.empty() : Optional.of(HttpStatus.FORBIDDEN);
+  }
+
+  /**
+   * The file uploaded at import ({@code ori.<ext>} in the score zip): only its owner and admins may fetch it.
+   * 401 when not logged in, 403 for anyone else.
+   */
+  private ResponseEntity<org.springframework.core.io.Resource> downloadOriginal(Score score) throws IOException {
+    Optional<HttpStatus> refused = refuseUnlessOwnerOrAdmin(score);
+    if (refused.isPresent()) {
+      return ResponseEntity.status(refused.get()).build();
+    }
+    return scoreService.getOriginalFromScore(score)
+      .map(file -> {
+        String name = file.filename();
+        String ext = name.contains(".") ? name.substring(name.lastIndexOf('.')) : "";
+        return attachment(file.content(), MediaType.parseMediaType(ScoreService.originalContentType(name)),
+          downloadBaseName(score) + "-original" + ext);
+      })
+      .orElse(ResponseEntity.notFound().build());
   }
 
   @Override
