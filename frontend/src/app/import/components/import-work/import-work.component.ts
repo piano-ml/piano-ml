@@ -132,7 +132,7 @@ export class ImportWorkComponent implements OnInit {
                     console.error('Error loading MIDI file:', error);
                     this.error = error;
                     this.modalContent = error.message;
-                    this.modalTitle = 'Error';
+                    this.modalTitle = $localize`:@@route.error:Error`;
                     this.isModalOpen = true;
                     this.changeDetector.detectChanges();
                 });
@@ -226,7 +226,7 @@ export class ImportWorkComponent implements OnInit {
         } as unknown as ScoreApiInfo
         this.scoreService.scorePost(scoreApiInfo).subscribe({
             error: (error) => {
-                this.openErrorModal(error, 'Creation Error', 'An error occurred while creating the score.');
+                this.openErrorModal(error, $localize`:@@importWork.error.creationTitle:Creation Error`, $localize`:@@importWork.error.creation:An error occurred while creating the score.`);
             }, next: (data) => {
                 this.scoreService.scoreIdTypeVersionRevisionPost(data.id!, type, data.version!, 0, blob,undefined,undefined, this.makeFingering).subscribe({
                     next: (data2) => {
@@ -255,7 +255,7 @@ export class ImportWorkComponent implements OnInit {
                     error: (error) => {
                         console.error("Error uploading MIDI file:", error);
                         console.error("Error uploading MIDI file:", error.error?.error);
-                        this.openErrorModal(error, 'Upload Error', 'An error occurred while uploading the MIDI file.');
+                        this.openErrorModal(error, $localize`:@@importWork.error.uploadTitle:Upload Error`, $localize`:@@importWork.error.upload:An error occurred while uploading the MIDI file.`);
                     }
                 });
             }
@@ -289,9 +289,9 @@ export class ImportWorkComponent implements OnInit {
         }
         if (this.file) {
             if (!this.work) {
-                this.error = new Error("No work information available.");
-                this.modalContent = 'No work information available.';
-                this.modalTitle = 'Creation Error';
+                this.error = new Error($localize`:@@importWork.error.noWork:No work information available.`);
+                this.modalContent = $localize`:@@importWork.error.noWork:No work information available.`;
+                this.modalTitle = $localize`:@@importWork.error.creationTitle:Creation Error`;
                 this.isModalOpen = true;
                 this.changeDetector.detectChanges();
                 return;
@@ -311,7 +311,7 @@ export class ImportWorkComponent implements OnInit {
             this.scoreService.scorePost(scoreApiInfo).subscribe({
                 error: (error) => {
                     console.error("Error creating score:", error);
-                    this.openErrorModal(error, 'Creation Error', 'An error occurred while creating the score.');
+                    this.openErrorModal(error, $localize`:@@importWork.error.creationTitle:Creation Error`, $localize`:@@importWork.error.creation:An error occurred while creating the score.`);
                 },
                 next: (data) => {
                     if (data.version === null) {
@@ -347,7 +347,7 @@ export class ImportWorkComponent implements OnInit {
                         error: (error) => {
                             console.error("Error uploading MIDI file:", error);
                             console.error("Error uploading MIDI file:", error.error?.error);
-                            this.openErrorModal(error, 'Upload Error', 'An error occurred while uploading the MIDI file.');
+                            this.openErrorModal(error, $localize`:@@importWork.error.uploadTitle:Upload Error`, $localize`:@@importWork.error.upload:An error occurred while uploading the MIDI file.`);
                         }
                     });
                 }

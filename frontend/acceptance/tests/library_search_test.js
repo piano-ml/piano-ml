@@ -14,7 +14,7 @@ Scenario('search the library for happy birthday and open the first result', asyn
   I.click('Take a seat');
   I.waitInUrl('/summary');
   I.waitForText('Browse library');
-  I.seeElement(locate('a').withAttr({ href: '/exercises' }).withText('Start scales exercices'));
+  I.seeElement(locate('a').withAttr({ href: '/exercises' }).withText('Start scale exercises'));
   for (const [href, title, cta] of [
     ['/library', 'Library', 'Open library'],
     ['/exercises', 'Exercises', 'Scales & exercises'],

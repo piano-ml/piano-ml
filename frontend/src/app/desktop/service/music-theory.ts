@@ -158,6 +158,8 @@ export interface Scale {
 
 export interface Chord {
   kind: 'Chord',
+  /** Stable identifier, also the URL segment (/exercises/agility/:key/:chord/…): names are translated. */
+  key: 'major' | 'minor' | 'dominant 7',
   name: string,
   alt: string,
   pattern: number[]
@@ -166,19 +168,22 @@ export interface Chord {
 export const chords: Chord[] = [
   {
     kind: "Chord",
-    name: "Major",
+    key: "major",
+    name: $localize`:@@chord.major.name:Major`,
     alt: "",
     pattern: [0, 4, 7]
   },
   {
     kind: "Chord",
-    name: "Minor",
+    key: "minor",
+    name: $localize`:@@chord.minor.name:Minor`,
     alt: "",
     pattern: [0, 3, 7]
   },
   {
     kind: "Chord",
-    name: "Dominant 7",
+    key: "dominant 7",
+    name: $localize`:@@chord.dominant7.name:Dominant 7`,
     alt: "",
     pattern: [0, 4, 7, 10]
   }
@@ -215,9 +220,9 @@ export const scales: Scale[] = [
   {
     kind: "Scale",
     key: 'major',
-    name: 'Major',
-    alt: 'Ionian',
-    description: `The major (Ionian) scale is the default “bright / stable” sound in Western music. It’s the backbone of diatonic harmony: I, ii, iii, IV, V, vi and vii° all come straight from it.
+    name: $localize`:@@scale.major.name:Major`,
+    alt: $localize`:@@scale.major.alt:Ionian`,
+    description: $localize`:@@scale.major.description:The major (Ionian) scale is the default “bright / stable” sound in Western music. It’s the backbone of diatonic harmony: I, ii, iii, IV, V, vi and vii° all come straight from it.
 Common genres: classical, pop, folk, film music, worship, EDM melodies.
 Usage: build singable melodies, outline major triads/7ths, and write progressions like I–V–vi–IV. For improvisation, target chord tones on strong beats and use the remaining scale tones as passing/neighbor tones.`,
     pattern: majorScalePattern
@@ -225,9 +230,9 @@ Usage: build singable melodies, outline major triads/7ths, and write progression
   {
     kind: "Scale",
     key: 'minor',
-    name: 'Minor',
-    alt: 'Aeolian',
-    description: `Natural minor (Aeolian) is the “darker / melancholic” counterpart to major. It’s the relative minor of a major key (same notes, different tonic), which is why modulating between relative major/minor feels so natural.
+    name: $localize`:@@scale.minor.name:Minor`,
+    alt: $localize`:@@scale.minor.alt:Aeolian`,
+    description: $localize`:@@scale.minor.description:Natural minor (Aeolian) is the “darker / melancholic” counterpart to major. It’s the relative minor of a major key (same notes, different tonic), which is why modulating between relative major/minor feels so natural.
 
 Common genres: rock, pop ballads, classical, cinematic, indie.
 
@@ -237,9 +242,9 @@ Usage: great for i–bVII–bVI progressions (a classic minor-key sound), and fo
   {
     kind: "Scale",
     key: 'harmonic_minor',
-    name: 'Harmonic Minor',
-    alt: 'Aeolian ♮7',
-    description: `Harmonic minor is natural minor with a raised 7th degree, restoring the leading tone and enabling a strong V(7)→i cadence in minor keys. This is why it’s central to classical “functional” minor harmony.
+    name: $localize`:@@scale.harmonic_minor.name:Harmonic Minor`,
+    alt: $localize`:@@scale.harmonic_minor.alt:Aeolian ♮7`,
+    description: $localize`:@@scale.harmonic_minor.description:Harmonic minor is natural minor with a raised 7th degree, restoring the leading tone and enabling a strong V(7)→i cadence in minor keys. This is why it’s central to classical “functional” minor harmony.
 
 Signature color: the augmented 2nd between b6 and 7, which can sound “exotic” if emphasized melodically.
 
@@ -251,9 +256,9 @@ Usage: use it over the dominant in minor (V7 in minor), in cadences, and when yo
   {
     kind: "Scale",
     key: 'melodic_minor',
-    name: 'Melodic Minor',
-    alt: 'Jazz minor',
-    description: `Melodic minor (as used in jazz) is a minor scale with raised 6th and 7th degrees. In classical theory it’s often taught as “ascending melodic minor”, but in jazz it’s generally used the same way up and down.
+    name: $localize`:@@scale.melodic_minor.name:Melodic Minor`,
+    alt: $localize`:@@scale.melodic_minor.alt:Jazz minor`,
+    description: $localize`:@@scale.melodic_minor.description:Melodic minor (as used in jazz) is a minor scale with raised 6th and 7th degrees. In classical theory it’s often taught as “ascending melodic minor”, but in jazz it’s generally used the same way up and down.
 
 Common genres: jazz, fusion, modern film/TV harmony.
 
@@ -263,9 +268,9 @@ Usage: it’s a powerhouse “parent scale” because its modes are used everywh
   {
     kind: "Scale",
     key: 'dorian',
-    name: 'Dorian',
+    name: $localize`:@@scale.dorian.name:Dorian`,
     alt: '',
-    description: `Dorian is a minor mode with a natural 6 (compared to Aeolian). That single note change makes it feel less “sad” and more “groovy / open”, perfect for modal vamps.
+    description: $localize`:@@scale.dorian.description:Dorian is a minor mode with a natural 6 (compared to Aeolian). That single note change makes it feel less “sad” and more “groovy / open”, perfect for modal vamps.
 
 Common genres: modal jazz (e.g., “So What”), funk, rock jams, Celtic/folk flavors.
 
@@ -275,9 +280,9 @@ Usage: typically played over a minor7 chord (i7) when the harmony stays put for 
   {
     kind: "Scale",
     key: 'phrygian_dominant',
-    name: 'Phrygian Dominant',
-    alt: 'Metal riffs, Spanish/flamenco feeling',
-    description: `Phrygian dominant is the 5th mode of harmonic minor. It sounds “Spanish / flamenco / Middle Eastern” because of the b2 combined with a major 3rd.
+    name: $localize`:@@scale.phrygian_dominant.name:Phrygian Dominant`,
+    alt: $localize`:@@scale.phrygian_dominant.alt:Metal riffs, Spanish/flamenco feeling`,
+    description: $localize`:@@scale.phrygian_dominant.description:Phrygian dominant is the 5th mode of harmonic minor. It sounds “Spanish / flamenco / Middle Eastern” because of the b2 combined with a major 3rd.
 
 Common genres: flamenco, metal riffs, cinematic “exotic” cues.
 
@@ -287,9 +292,9 @@ Usage: great over dominant chords that want to resolve to a minor tonic (V7→i)
   {
     kind: "Scale",
     key: 'phrygian',
-    name: 'Phrygian',
+    name: $localize`:@@scale.phrygian.name:Phrygian`,
     alt: '',
-    description: `Phrygian is a minor mode with a flat 2, giving it a tense, “dark / ancient” character. It’s less functional-harmony-driven and more about sustained modal color.
+    description: $localize`:@@scale.phrygian.description:Phrygian is a minor mode with a flat 2, giving it a tense, “dark / ancient” character. It’s less functional-harmony-driven and more about sustained modal color.
 
 Common genres: metal, prog, film/game scoring, some Spanish-influenced lines.
 
@@ -299,9 +304,9 @@ Usage: works well over minor chords (i or i7) when the harmony is static. The b2
   {
     kind: "Scale",
     key: 'lydian',
-    name: 'Lydian',
+    name: $localize`:@@scale.lydian.name:Lydian`,
     alt: '',
-    description: `Lydian is a major mode with a raised 4 (#11). Compared to Ionian, it feels more “floating / dreamy / cinematic” because the #4 avoids the strong IV pull and adds a bright tension.
+    description: $localize`:@@scale.lydian.description:Lydian is a major mode with a raised 4 (#11). Compared to Ionian, it feels more “floating / dreamy / cinematic” because the #4 avoids the strong IV pull and adds a bright tension.
 
 Common genres: film scoring, ambient, fusion, modern pop harmony.
 
@@ -311,9 +316,9 @@ Usage: ideal over maj7(#11) chords and long tonic major vamps. To highlight the 
   {
     kind: "Scale",
     key: 'mixolydian',
-    name: 'Mixolydian',
+    name: $localize`:@@scale.mixolydian.name:Mixolydian`,
     alt: '',
-    description: `Mixolydian is major with a flat 7. It’s the classic “dominant / bluesy major” sound: bright like major, but with a relaxed, rootsy edge.
+    description: $localize`:@@scale.mixolydian.description:Mixolydian is major with a flat 7. It’s the classic “dominant / bluesy major” sound: bright like major, but with a relaxed, rootsy edge.
 
 Common genres: blues, rock, funk, country, folk, jam music.
 
@@ -323,9 +328,9 @@ Usage: use it over dominant 7 chords (especially a I7 in blues/rock contexts) an
   {
     kind: "Scale",
     key: 'locrian',
-    name: 'Locrian',
+    name: $localize`:@@scale.locrian.name:Locrian`,
     alt: '',
-    description: `Locrian is the most unstable diatonic mode: it has a flat 2 and a diminished 5 (b5), which makes the tonic triad diminished. Because of that, it’s rarely used as a “home base” in tonal music.
+    description: $localize`:@@scale.locrian.description:Locrian is the most unstable diatonic mode: it has a flat 2 and a diminished 5 (b5), which makes the tonic triad diminished. Because of that, it’s rarely used as a “home base” in tonal music.
 
 Common genres: jazz harmony (as a function), some metal/experimental contexts.
 
@@ -335,9 +340,9 @@ Usage: most often used over half-diminished chords (m7b5), typically as iiø in 
   {
     kind: "Scale",
     key: 'minor_blues_hexatonic',
-    name: 'Minor blues (Hexatonic)',
+    name: $localize`:@@scale.minor_blues_hexatonic.name:Minor blues (Hexatonic)`,
     alt: '',
-    description: `Minor blues (hexatonic) is essentially minor pentatonic with the added “blue note” (b5). It’s one of the most practical, high-hit-rate scales for expressive phrasing.
+    description: $localize`:@@scale.minor_blues_hexatonic.description:Minor blues (hexatonic) is essentially minor pentatonic with the added “blue note” (b5). It’s one of the most practical, high-hit-rate scales for expressive phrasing.
 
 Common genres: blues, rock, soul, funk, guitar-centric leads.
 
@@ -347,9 +352,9 @@ Usage: play it over minor tonal centers (i, i7) and even over dominant blues con
   {
     kind: "Scale",
     key: 'major_blues_hexatonic',
-    name: 'Major blues (Hexatonic)',
+    name: $localize`:@@scale.major_blues_hexatonic.name:Major blues (Hexatonic)`,
     alt: '',
-    description: `Major blues (hexatonic) is major pentatonic with an added b3 “blues” color. This gives that classic major/minor mixture that defines so much blues and country phrasing.
+    description: $localize`:@@scale.major_blues_hexatonic.description:Major blues (hexatonic) is major pentatonic with an added b3 “blues” color. This gives that classic major/minor mixture that defines so much blues and country phrasing.
 
 Common genres: blues, country, swing, classic rock.
 
@@ -359,9 +364,9 @@ Usage: great over I7 in blues, or any major-key groove where you want sweetness 
   {
     kind: "Scale",
     key: 'altered_super_locrian',
-    name: 'Altered / Super Locrian',
-    alt: 'Modern jazz - tense dominant V7alt chords',
-    description: `The altered (super Locrian) scale is the 7th mode of melodic minor. It contains the strongest set of dominant alterations: b9, #9, b5/#11, and #5/b13.
+    name: $localize`:@@scale.altered_super_locrian.name:Altered / Super Locrian`,
+    alt: $localize`:@@scale.altered_super_locrian.alt:Modern jazz - tense dominant V7alt chords`,
+    description: $localize`:@@scale.altered_super_locrian.description:The altered (super Locrian) scale is the 7th mode of melodic minor. It contains the strongest set of dominant alterations: b9, #9, b5/#11, and #5/b13.
 
 Common genres: bebop/post-bop jazz, modern jazz, fusion.
 
@@ -371,9 +376,9 @@ Usage: apply it over V7alt chords resolving by fifth (e.g., G7alt → Cmin/Cmaj)
   {
     kind: "Scale",
     key: 'blues_heptatonic',
-    name: 'Blues (Heptatonic)',
+    name: $localize`:@@scale.blues_heptatonic.name:Blues (Heptatonic)`,
     alt: '',
-    description: `This heptatonic blues flavor expands beyond the common 6-note blues scale. With 7 notes, it can bridge “pentatonic safety” and more diatonic motion, while still keeping blues DNA.
+    description: $localize`:@@scale.blues_heptatonic.description:This heptatonic blues flavor expands beyond the common 6-note blues scale. With 7 notes, it can bridge “pentatonic safety” and more diatonic motion, while still keeping blues DNA.
 
 Common genres: blues, rock, funk, jam improvisation.
 
@@ -383,9 +388,9 @@ Usage: useful when you want blues phrasing but also want a smoother melodic line
   {
     kind: "Scale",
     key: 'minor_pentatonic',
-    name: 'Minor (pentatonic)',
-    alt: '90% of rock/blues solos',
-    description: `Minor pentatonic is the workhorse scale for melodic improvisation: five notes, no “bad” avoid notes against many common chords, and extremely easy to phrase.
+    name: $localize`:@@scale.minor_pentatonic.name:Minor (pentatonic)`,
+    alt: $localize`:@@scale.minor_pentatonic.alt:90% of rock/blues solos`,
+    description: $localize`:@@scale.minor_pentatonic.description:Minor pentatonic is the workhorse scale for melodic improvisation: five notes, no “bad” avoid notes against many common chords, and extremely easy to phrase.
 
 Common genres: rock, blues, pop, funk, metal (as a base vocabulary).
 
@@ -395,9 +400,9 @@ Usage: play it over minor tonal centers (i, i7) and many dominant blues contexts
   {
     kind: "Scale",
     key: 'major_pentatonic',
-    name: 'Major (pentatonic)',
-    alt: 'Sweet major blues/country',
-    description: `Major pentatonic is a 5-note subset of the major scale (1–2–3–5–6). Because it avoids the 4 and 7, it tends to sound “clean” and consonant over many major-key progressions.
+    name: $localize`:@@scale.major_pentatonic.name:Major (pentatonic)`,
+    alt: $localize`:@@scale.major_pentatonic.alt:Sweet major blues/country`,
+    description: $localize`:@@scale.major_pentatonic.description:Major pentatonic is a 5-note subset of the major scale (1–2–3–5–6). Because it avoids the 4 and 7, it tends to sound “clean” and consonant over many major-key progressions.
 
 Common genres: country, pop, folk, classic rock, gospel, melodic EDM leads.
 
@@ -407,9 +412,9 @@ Usage: use it over major chords and major-key vamps when you want a smooth, sing
   {
     kind: "Scale",
     key: 'bebop_blues',
-    name: 'Bebop blues (dominant)',
-    alt: '8-note dominant bebop blues',
-    description: `Dominant bebop blues is an 8-note scale designed for swing/bebop phrasing over dominant harmony. The extra chromatic passing tone makes it easier to land chord tones on strong beats when playing continuous eighth-notes.
+    name: $localize`:@@scale.bebop_blues.name:Bebop blues (dominant)`,
+    alt: $localize`:@@scale.bebop_blues.alt:8-note dominant bebop blues`,
+    description: $localize`:@@scale.bebop_blues.description:Dominant bebop blues is an 8-note scale designed for swing/bebop phrasing over dominant harmony. The extra chromatic passing tone makes it easier to land chord tones on strong beats when playing continuous eighth-notes.
 
 Common genres: bebop, swing, blues-jazz, organ trio, big band lines.
 
@@ -419,9 +424,9 @@ Usage: use it over dominant 7 chords (often I7 in blues, or V7 in a progression)
   {
     kind: "Scale",
     key: 'minor_blues_bebop',
-    name: 'Minor blues bebop',
-    alt: '8-note minor bebop blues',
-    description: `Minor blues bebop is an 8-note minor/blues-oriented scale that supports bebop-style eighth-note lines while keeping a minor-blues color. Like other bebop scales, the added chromaticism helps align chord tones with strong beats.
+    name: $localize`:@@scale.minor_blues_bebop.name:Minor blues bebop`,
+    alt: $localize`:@@scale.minor_blues_bebop.alt:8-note minor bebop blues`,
+    description: $localize`:@@scale.minor_blues_bebop.description:Minor blues bebop is an 8-note minor/blues-oriented scale that supports bebop-style eighth-note lines while keeping a minor-blues color. Like other bebop scales, the added chromaticism helps align chord tones with strong beats.
 
 Common genres: bebop over minor blues, jazz blues, fusion, modern blues improvisation.
 

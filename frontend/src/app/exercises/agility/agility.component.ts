@@ -75,7 +75,7 @@ export class AgilityComponent implements OnInit {
       this.filterAvailableChords();
 
       const foundChord = this.availableChords.find(
-        (c) => c.name.toLowerCase() === chordKey.toLowerCase()
+        (c) => c.key === chordKey.toLowerCase()
       );
       if (foundChord) {
         this.selectedChord = foundChord;
@@ -127,7 +127,7 @@ export class AgilityComponent implements OnInit {
     }
 
     const exerciseKey = this.selectedExcercice.key;
-    const chordKey = this.selectedChord.name.toLowerCase();
+    const chordKey = this.selectedChord.key;
 
     if (!exerciseKey || !this.selectedKey || !chordKey) {
       return;
@@ -141,7 +141,7 @@ export class AgilityComponent implements OnInit {
   private updatePageTitle() {
     this.seo.update(buildAgilitySeo({
       chordName: this.selectedChord?.name,
-      chordKey: this.selectedChord?.name?.toLowerCase(),
+      chordKey: this.selectedChord?.key,
       exerciseName: this.selectedExcercice?.title,
       exerciseKey: this.selectedExcercice?.key,
       selectedKey: this.selectedKey
@@ -155,7 +155,7 @@ export class AgilityComponent implements OnInit {
     note = note.replace(/b/g, '-');
     
     // Determine if the chord is minor based on the chord name property
-    const isMinor = this.selectedChord.name === 'Minor';
+    const isMinor = this.selectedChord.key === 'minor';
     
     // Format: note is uppercase for Major, lowercase for Minor
     const formattedNote = isMinor

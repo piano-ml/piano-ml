@@ -155,7 +155,7 @@ describe('AccountScoresComponent', () => {
 
     it('formats the upload date, and leaves it empty when unknown', () => {
       const el = render([score({ uploaded_at: '2026-11-10T12:00:00Z' }), score({ id: 's2', uploaded_at: undefined })]);
-      expect(cell(el, rows(el)[0], 'Uploaded').textContent?.trim()).toBe(new Date('2026-11-10T12:00:00Z').toLocaleString());
+      expect(cell(el, rows(el)[0], 'Uploaded').textContent?.trim()).toBe(new Date('2026-11-10T12:00:00Z').toLocaleString('en')); // the page's language, not the device's
       expect(cell(el, rows(el)[1], 'Uploaded').textContent?.trim()).toBe('');
     });
 
