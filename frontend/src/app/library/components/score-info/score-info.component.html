@@ -1,5 +1,5 @@
 <article class="main-article">
-  <h1 class="sr-only">{{ score?.title }} by {{ score?.author }} - Piano Score</h1>
+  <h1 class="sr-only" i18n="@@score.srHeading">{{ score?.title }} by {{ score?.author }} - Piano Score</h1>
 
   <div class="px-4 sm:px-6 pt-4 min-h-[130px] md:min-h-[160px]">
 
@@ -14,38 +14,38 @@
   <!-- ── Toolbar ────────────────────────────────────────── -->
   <div class="flex flex-wrap items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:justify-end">
     @if (score) {
-    <button (click)="copyUrlToClipboard()" class="btn-primary inline-flex items-center gap-1.5" title="Copy link">
+    <button (click)="copyUrlToClipboard()" class="btn-primary inline-flex items-center gap-1.5" i18n-title="@@score.copyLink" title="Copy link">
       <ng-icon name="bootstrapClipboard" size="13"></ng-icon>
-      <span>Copy link</span>
+      <span i18n="@@score.copyLink">Copy link</span>
     </button>
     }
-    <button (click)="onBack()" class="btn-secondary">← Browse</button>
+    <button (click)="onBack()" class="btn-secondary" i18n="@@score.back">← Browse</button>
     @if (isOwner()) {
     <button (click)="editScore()" class="btn-primary inline-flex items-center gap-1.5">
       <ng-icon name="bootstrapPencil" size="13"></ng-icon>
-      <span>Edit</span>
+      <span i18n="@@score.edit">Edit</span>
     </button>
     }
     @if (score?.has_files && isOwner()) {
     <button (click)="reimportScore()"
-      title="Choose the study tracks again from the original MIDI file (owner and admins only)"
+      i18n-title="@@score.reimport.title" title="Choose the study tracks again from the original MIDI file (owner and admins only)"
       class="btn-primary inline-flex items-center gap-1.5">
       <ng-icon name="bootstrapArrowRepeat" size="13"></ng-icon>
-      <span>Re-import</span>
+      <span i18n="@@score.reimport">Re-import</span>
     </button>
     }
     @if (score && canDownload('original')) {
     <button (click)="download('original')"
       [disabled]="!!downloading"
       [attr.aria-busy]="downloading === 'original'"
-      title="Download the file uploaded at import (owner and admins only)"
+      i18n-title="@@score.download.original.title" title="Download the file uploaded at import (owner and admins only)"
       class="btn-primary download-btn">
       @if (downloading === 'original') {
       <span class="spinner w-3 h-3" aria-hidden="true"></span>
       } @else {
       <ng-icon name="bootstrapDownload" size="13"></ng-icon>
       }
-      <span>Original</span>
+      <span i18n="@@score.download.original">Original</span>
     </button>
     }
     @if (score?.has_files) {
@@ -54,7 +54,7 @@
       (click)="download(file.type)"
       [disabled]="!canDownload(file.type) || !!downloading"
       [attr.aria-busy]="downloading === file.type"
-      [title]="!canDownload(file.type) ? 'Downloads restricted — copyrighted work' : file.title"
+      [title]="!canDownload(file.type) ? downloadsRestricted : file.title"
       class="btn-primary download-btn"
       [class.opacity-40]="!canDownload(file.type)"
       [class.cursor-not-allowed]="!canDownload(file.type)">
@@ -68,7 +68,7 @@
     }
     <button (click)="playScore()" class="btn-hero w-full sm:w-auto justify-center inline-flex items-center gap-1.5">
       <span aria-hidden="true">🎹</span>
-      <span>Practice</span>
+      <span i18n="@@score.practice">Practice</span>
     </button>
     }
   </div>
@@ -76,7 +76,7 @@
   @if (downloadError) {
   <div class="alert-error mx-4 sm:mx-6 mt-2 flex items-start justify-between gap-3" role="alert">
     <span>{{ downloadError }}</span>
-    <button type="button" (click)="dismissDownloadError()" class="shrink-0" aria-label="Dismiss download error">✕</button>
+    <button type="button" (click)="dismissDownloadError()" class="shrink-0" i18n-aria-label="@@score.download.dismiss" aria-label="Dismiss download error">✕</button>
   </div>
   }
 
@@ -86,14 +86,14 @@
     @if (loading) {
     <div class="flex items-center justify-center gap-3 py-10" role="status">
       <div class="spinner w-4 h-4 text-neutral-500"></div>
-      <p class="text-sm text-neutral-400">Loading score…</p>
+      <p class="text-sm text-neutral-400" i18n="@@score.loading">Loading score…</p>
     </div>
     }
 
     <!-- ── Error ──────────────────────────────────────────── -->
     @if (error && !loading) {
     <div class="alert-error">
-      <strong>Error:</strong> {{ error }}
+      <strong i18n="@@score.errorLabel">Error:</strong> {{ error }}
     </div>
     }
 
@@ -103,41 +103,41 @@
     @if (!score.has_files) {
     <div class="exercise-desc-card">
       <div class="exercise-desc-section">
-        <p class="exercise-desc-label">Processing status</p>
+        <p class="exercise-desc-label" i18n="@@score.processing.heading">Processing status</p>
 
         @if (loadingWorkload) {
         <div class="flex items-center gap-2 mt-3" role="status">
           <div class="spinner w-3 h-3 text-neutral-500"></div>
-          <span class="text-sm text-neutral-400">Loading status…</span>
+          <span class="text-sm text-neutral-400" i18n="@@score.processing.loading">Loading status…</span>
         </div>
         }
 
         @if (!loadingWorkload && workload) {
         <div class="flex flex-col gap-2.5 mt-3">
           <div class="flex items-center justify-between">
-            <span class="field-label">Status</span>
+            <span class="field-label" i18n="@@score.processing.status">Status</span>
             <span class="text-xs font-semibold uppercase tracking-widest" [ngClass]="{
                     'text-yellow-400':  workload.status === 'PENDING',
                     'text-blue-400':    workload.status === 'RUNNING',
                     'text-emerald-400': workload.status === 'COMPLETED',
                     'text-red-400':     workload.status === 'FAILED'
-                  }">{{ workload.status }}</span>
+                  }">{{ statusLabel(workload.status) }}</span>
           </div>
           @if (workload.kind) {
           <div class="flex items-center justify-between">
-            <span class="field-label">Type</span>
+            <span class="field-label" i18n="@@score.processing.type">Type</span>
             <span class="text-sm text-neutral-300">{{ workload.kind }}</span>
           </div>
           }
           @if (workload.createdAt) {
           <div class="flex items-center justify-between">
-            <span class="field-label">Created</span>
+            <span class="field-label" i18n="@@score.processing.created">Created</span>
             <span class="text-sm text-neutral-300">{{ workload.createdAt | date:'medium' }}</span>
           </div>
           }
           @if (workload.duration) {
           <div class="flex items-center justify-between">
-            <span class="field-label">Duration</span>
+            <span class="field-label" i18n="@@score.processing.duration">Duration</span>
             <span class="text-sm text-neutral-300">{{ workload.duration }}ms</span>
           </div>
           }
@@ -148,8 +148,7 @@
         }
 
         @if (!loadingWorkload && !workload) {
-        <p class="text-sm text-neutral-400 mt-3">No processing information available. Files may not have been submitted
-          yet.</p>
+        <p class="text-sm text-neutral-400 mt-3" i18n="@@score.processing.none">No processing information available. Files may not have been submitted yet.</p>
         }
       </div>
     </div>
@@ -168,13 +167,13 @@
       @if (loadingVideos) {
       <div class="flex items-center justify-center gap-3 py-2" role="status">
         <div class="spinner w-4 h-4 text-neutral-500"></div>
-        <p class="text-sm text-neutral-400">Loading related videos…</p>
+        <p class="text-sm text-neutral-400" i18n="@@score.videos.loading">Loading related videos…</p>
       </div>
       }
 
       @if (videosError) {
       <div class="alert-error">
-        <strong>Video API error:</strong> {{ videosError }}
+        <strong i18n="@@score.videos.errorLabel">Video API error:</strong> {{ videosError }}
       </div>
       }
 

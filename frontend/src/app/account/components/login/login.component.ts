@@ -47,9 +47,9 @@ export class LoginComponent {
           this.isLoading = false;
           
           if (err.status === 403) {
-            this.errorMessage = 'Access denied - Please check your credentials';
+            this.errorMessage = $localize`:@@login.error.denied:Access denied - Please check your credentials`;
           } else {
-            this.errorMessage = err.error?.message || 'An error occurred during login';
+            this.errorMessage = err.error?.message || $localize`:@@login.error.other:An error occurred during login`;
           }
           
           this.cdr.detectChanges();

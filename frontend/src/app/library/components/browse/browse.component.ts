@@ -95,15 +95,20 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Table configuration
   tableColumns: ScoreTableColumn[] = [
-    { key: 'genre', label: 'Genre', visible: true },
-    { key: 'author', label: 'Artist', visible: true },
-    { key: 'title', label: 'Title', visible: true },
-    { key: 'duration', label: 'Duration', visible: true },    
-    { key: 'grade', label: 'Grade', visible: true },    
-    { key: 'tracks_count', label: 'Tracks', visible: true }
+    { key: 'genre', label: $localize`:@@scoreTable.genre:Genre`, visible: true },
+    { key: 'author', label: $localize`:@@scoreTable.artist:Artist`, visible: true },
+    { key: 'title', label: $localize`:@@scoreTable.title:Title`, visible: true },
+    { key: 'duration', label: $localize`:@@scoreTable.duration:Duration`, visible: true },
+    { key: 'grade', label: $localize`:@@scoreTable.grade:Grade`, visible: true },
+    { key: 'tracks_count', label: $localize`:@@scoreTable.tracks:Tracks`, visible: true }
   ];
 
   tableActions: ScoreTableAction[] = []
+
+  /** A genre's name as shown in the filter capsule, capitalised; a placeholder when the score has none. */
+  genreLabel(name: string | undefined): string {
+    return name ? name.charAt(0).toUpperCase() + name.slice(1) : $localize`:@@browse.genreNotSpecified:genre not specified`;
+  }
 
   constructor(
     private scoreService: ScoreService,
@@ -763,8 +768,8 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     const handles = this.gradeSliderHost.nativeElement.querySelectorAll('.noUi-handle');
-    if (handles[0]) handles[0].setAttribute('aria-label', 'Minimum grade');
-    if (handles[1]) handles[1].setAttribute('aria-label', 'Maximum grade');
+    if (handles[0]) handles[0].setAttribute('aria-label', $localize`:@@browse.grade.min:Minimum grade`);
+    if (handles[1]) handles[1].setAttribute('aria-label', $localize`:@@browse.grade.max:Maximum grade`);
 
     this.gradeSlider.on('update', (values: (number | string)[]) => {
       const [start, end] = values.map((value) => this.clampGrade(Number(value)));
@@ -879,7 +884,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
 
   updatePageTitle() {
     if (this.slugNotFound) {
-      this.seo.update({ title: 'Not Found', noindex: true, structuredData: null });
+      this.seo.update({ title: $localize`:@@browse.notFound:Not Found`, noindex: true, structuredData: null });
       return;
     }
 

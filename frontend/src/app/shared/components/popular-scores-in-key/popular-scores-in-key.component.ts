@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef, ChangeDe
 
 import { ScoreService } from '../../../core/api/api/score.service';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
+import { localizedPath } from '../../i18n';
 
 @Component({
   selector: 'app-popular-scores-in-key',
@@ -67,10 +68,11 @@ export class PopularScoresInKeyComponent implements OnChanges {
 
   getScoreUrl(score: ScoreApiInfo): string {
     const slug = score.immutableSlug || score.mutableSlug;
-    return slug ? `/score/${slug}` : '#';
+    // Plain links: localizedPath keeps them in the page's language (/es/score/...).
+    return slug ? localizedPath(`/score/${slug}`) : '#';
   }
 
   getLibraryUrl(): string {
-    return `/library/popular?fullKey=${encodeURIComponent(this.fullKey)}`;
+    return localizedPath(`/library/popular?fullKey=${encodeURIComponent(this.fullKey)}`);
   }
 }

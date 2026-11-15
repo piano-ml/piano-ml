@@ -1,13 +1,13 @@
 <div class="carousel-wrap">
   <div class="carousel-head">
-    <p class="section-label">Video lessons</p>
+    <p class="section-label" i18n="@@videos.heading">Video lessons</p>
     <div class="carousel-controls">
       <button
         class="btn-secondary carousel-btn"
         type="button"
         (click)="scrollLeft()"
         [disabled]="!canScrollLeft"
-        aria-label="Scroll left">
+        i18n-aria-label="@@videos.scrollLeft" aria-label="Scroll left">
         ←
       </button>
       <button
@@ -15,7 +15,7 @@
         type="button"
         (click)="scrollRight()"
         [disabled]="!canScrollRight"
-        aria-label="Scroll right">
+        i18n-aria-label="@@videos.scrollRight" aria-label="Scroll right">
         →
       </button>
     </div>
