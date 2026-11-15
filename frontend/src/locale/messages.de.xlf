@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="route.error.title" datatype="html">
+        <source>Page Error</source>
+        <target state="translated">Seitenfehler</target>
+      </trans-unit>
+      <trans-unit id="route.notFound.title" datatype="html">
+        <source>Page Not Found</source>
+        <target state="translated">Seite nicht gefunden</target>
+      </trans-unit>
+      <trans-unit id="home.headline" datatype="html">
+        <source>A Machine to Learn Piano</source>
+        <target state="translated">Eine Maschine zum Klavierlernen</target>
+      </trans-unit>
+      <trans-unit id="home.cta.title" datatype="html">
+        <source>Start learning piano with PianoML</source>
+        <target state="translated">Mit PianoML Klavier lernen</target>
+      </trans-unit>
+      <trans-unit id="home.cta.label" datatype="html">
+        <source>Start your piano learning journey</source>
+        <target state="translated">Beginne deinen Weg am Klavier</target>
+      </trans-unit>
+      <trans-unit id="home.cta" datatype="html">
+        <source>Take a seat</source>
+        <target state="translated">Nimm Platz</target>
+      </trans-unit>
+      <trans-unit id="summary.tagline" datatype="html">
+        <source>Piano · Practice · Progress</source>
+        <target state="translated">Klavier · Üben · Fortschritt</target>
+      </trans-unit>
+      <trans-unit id="summary.headline" datatype="html">
+        <source> Foster piano practice.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/>Build muscle memory. </source>
+        <target state="translated"> Klavierüben fördern.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/>Muskelgedächtnis aufbauen. </target>
+      </trans-unit>
+      <trans-unit id="summary.intro" datatype="html">
+        <source> Practice piano and sight-read from an ever-growing library of thousands of études and piano works, Train with a scale generator, smart sheet music that gives real-time feedback, loop and adjustable tempo. No ads, no tracker, free and open source. </source>
+        <target state="translated"> Übe Klavier und Vom-Blatt-Spiel mit einer ständig wachsenden Bibliothek aus Tausenden von Etüden und Klavierwerken. Trainiere mit einem Tonleiter-Generator und intelligenten Noten, die dir in Echtzeit Rückmeldung geben, mit Schleife und einstellbarem Tempo. Keine Werbung, kein Tracking, kostenlos und Open Source. </target>
+      </trans-unit>
+      <trans-unit id="summary.startExercises" datatype="html">
+        <source>Start scale exercises</source>
+        <target state="translated">Tonleiterübungen starten</target>
+      </trans-unit>
+      <trans-unit id="summary.browseLibrary" datatype="html">
+        <source>Browse library</source>
+        <target state="translated">Bibliothek durchsuchen</target>
+      </trans-unit>
+      <trans-unit id="summary.features.label" datatype="html">
+        <source>Features</source>
+        <target state="translated">Funktionen</target>
+      </trans-unit>
+      <trans-unit id="summary.whatsInside" datatype="html">
+        <source>What&apos;s inside</source>
+        <target state="translated">Das erwartet dich</target>
+      </trans-unit>
+      <trans-unit id="summary.library.title" datatype="html">
+        <source>Library</source>
+        <target state="translated">Bibliothek</target>
+      </trans-unit>
+      <trans-unit id="summary.library.description" datatype="html">
+        <source>Practice scores from the library — upload PDF, MIDI or MusicXML files — search for specific pieces, genre, grade, tonic.</source>
+        <target state="translated">Übe Stücke aus der Bibliothek — lade PDF-, MIDI- oder MusicXML-Dateien hoch — und suche nach Werken, Genre, Schwierigkeitsgrad oder Grundton.</target>
+      </trans-unit>
+      <trans-unit id="summary.library.cta" datatype="html">
+        <source>Open library</source>
+        <target state="translated">Bibliothek öffnen</target>
+      </trans-unit>
+      <trans-unit id="summary.exercises.title" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">Übungen</target>
+      </trans-unit>
+      <trans-unit id="summary.exercises.description" datatype="html">
+        <source>Scales generator, arpeggios, and practice exercises around the circle of fifths.</source>
+        <target state="translated">Tonleiter-Generator, Arpeggien und Übungen rund um den Quintenzirkel.</target>
+      </trans-unit>
+      <trans-unit id="summary.exercises.cta" datatype="html">
+        <source>Scales &amp; exercises</source>
+        <target state="translated">Tonleitern &amp; Übungen</target>
+      </trans-unit>
+      <trans-unit id="summary.etudes.title" datatype="html">
+        <source>Études for Pianists</source>
+        <target state="translated">Etüden für Pianisten</target>
+      </trans-unit>
+      <trans-unit id="summary.etudes.description" datatype="html">
+        <source>Collection of digitized musical courses for classical piano study.</source>
+        <target state="translated">Sammlung digitalisierter Lehrwerke für das klassische Klavierstudium.</target>
+      </trans-unit>
+      <trans-unit id="summary.etudes.cta" datatype="html">
+        <source>Browse collection</source>
+        <target state="translated">Sammlung ansehen</target>
+      </trans-unit>
+      <trans-unit id="summary.thanks.title" datatype="html">
+        <source>Acknowledgments</source>
+        <target state="translated">Danksagungen</target>
+      </trans-unit>
+      <trans-unit id="summary.thanks.description" datatype="html">
+        <source>The people and open-source projects that made PianoML possible.</source>
+        <target state="translated">Die Menschen und Open-Source-Projekte, die PianoML möglich gemacht haben.</target>
+      </trans-unit>
+      <trans-unit id="summary.thanks.cta" datatype="html">
+        <source>Read more</source>
+        <target state="translated">Mehr lesen</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.description" datatype="html">
+        <source>Learn piano with interactive exercises, scales, arpeggios and sheet music practice: hands-separated practice, adjustable speed, MIDI support and real-time feedback.</source>
+        <target state="translated">Klavier lernen mit interaktiven Übungen, Tonleitern, Arpeggien und Notenspiel: getrennte Hände, einstellbares Tempo, MIDI-Unterstützung und Echtzeit-Feedback.</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.title" datatype="html">
+        <source>Features &amp; Practice Tools</source>
+        <target state="translated">Funktionen &amp; Übungswerkzeuge</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.scales" datatype="html">
+        <source>Interactive piano scales generator</source>
+        <target state="translated">Interaktiver Tonleiter-Generator für Klavier</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.arpeggios" datatype="html">
+        <source>Arpeggios exercises</source>
+        <target state="translated">Arpeggio-Übungen</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.generation" datatype="html">
+        <source>Sheet music generation from audio and MIDI</source>
+        <target state="translated">Notenerstellung aus Audio und MIDI</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.handsSeparate" datatype="html">
+        <source>Hands-separated practice mode</source>
+        <target state="translated">Üben mit getrennten Händen</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.speed" datatype="html">
+        <source>Adjustable playback speed</source>
+        <target state="translated">Einstellbare Wiedergabegeschwindigkeit</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.midi" datatype="html">
+        <source>MIDI keyboard support with real-time feedback</source>
+        <target state="translated">MIDI-Keyboard-Unterstützung mit Echtzeit-Feedback</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.upload" datatype="html">
+        <source>PDF, MIDI, and MusicXML file upload</source>
+        <target state="translated">Hochladen von PDF-, MIDI- und MusicXML-Dateien</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.etudes" datatype="html">
+        <source>Collection of digitized piano études</source>
+        <target state="translated">Sammlung digitalisierter Klavieretüden</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.ml" datatype="html">
+        <source>Machine Learning-powered feedback</source>
+        <target state="translated">Feedback durch maschinelles Lernen</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.about.education" datatype="html">
+        <source>Piano Education</source>
+        <target state="translated">Klavierunterricht</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.about.theory" datatype="html">
+        <source>Music Theory</source>
+        <target state="translated">Musiktheorie</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.about.ml" datatype="html">
+        <source>Machine Learning</source>
+        <target state="translated">Maschinelles Lernen</target>
+      </trans-unit>
+      <trans-unit id="error.heading" datatype="html">
+        <source>Oops! An error occurred</source>
+        <target state="translated">Hoppla! Ein Fehler ist aufgetreten</target>
+      </trans-unit>
+      <trans-unit id="error.message" datatype="html">
+        <source>We&apos;re sorry, an unexpected error has happened.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Please try again later or return to the homepage.</source>
+        <target state="translated">Es tut uns leid, ein unerwarteter Fehler ist aufgetreten.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Bitte versuche es später erneut oder kehre zur Startseite zurück.</target>
+      </trans-unit>
+      <trans-unit id="error.backHome" datatype="html">
+        <source>Back to homepage</source>
+        <target state="translated">Zurück zur Startseite</target>
+      </trans-unit>
+      <trans-unit id="languageSwitcher.label" datatype="html">
+        <source>Language</source>
+        <target state="translated">Sprache</target>
+      </trans-unit>
+      <trans-unit id="layout.breadcrumb.label" datatype="html">
+        <source>Breadcrumb navigation</source>
+        <target state="translated">Brotkrümelnavigation</target>
+      </trans-unit>
+      <trans-unit id="layout.brand.title" datatype="html">
+        <source>Go to the PianoML summary page</source>
+        <target state="translated">Zur PianoML-Übersicht</target>
+      </trans-unit>
+      <trans-unit id="layout.support.title" datatype="html">
+        <source>Support PianoML</source>
+        <target state="translated">PianoML unterstützen</target>
+      </trans-unit>
+      <trans-unit id="layout.support.buyMeA" datatype="html">
+        <source>Buy me a</source>
+        <target state="translated">Spendier mir</target>
+      </trans-unit>
+      <trans-unit id="layout.account.title" datatype="html">
+        <source>Go to your account page</source>
+        <target state="translated">Zu deinem Konto</target>
+      </trans-unit>
+      <trans-unit id="layout.login.title" datatype="html">
+        <source>Log in to your PianoML account</source>
+        <target state="translated">Bei deinem PianoML-Konto anmelden</target>
+      </trans-unit>
+      <trans-unit id="layout.login" datatype="html">
+        <source> Login </source>
+        <target state="translated"> Anmelden </target>
+      </trans-unit>
+      <trans-unit id="layout.source.label" datatype="html">
+        <source>View source on GitHub</source>
+        <target state="translated">Quellcode auf GitHub ansehen</target>
+      </trans-unit>
+      <trans-unit id="layout.source.title" datatype="html">
+        <source>View PianoML source code on GitHub</source>
+        <target state="translated">PianoML-Quellcode auf GitHub ansehen</target>
+      </trans-unit>
+      <trans-unit id="layout.source" datatype="html">
+        <source>source</source>
+        <target state="translated">Quellcode</target>
+      </trans-unit>
+      <trans-unit id="layout.footer.label" datatype="html">
+        <source>Footer navigation</source>
+        <target state="translated">Fußzeilennavigation</target>
+      </trans-unit>
+      <trans-unit id="layout.legal.title" datatype="html">
+        <source>Legal notice and terms of use</source>
+        <target state="translated">Impressum und Nutzungsbedingungen</target>
+      </trans-unit>
+      <trans-unit id="layout.legal" datatype="html">
+        <source> Legal Notice </source>
+        <target state="translated"> Impressum </target>
+      </trans-unit>
+      <trans-unit id="layout.issue.title" datatype="html">
+        <source>Report a bug or request a feature</source>
+        <target state="translated">Einen Fehler melden oder eine Funktion vorschlagen</target>
+      </trans-unit>
+      <trans-unit id="layout.issue" datatype="html">
+        <source> Report an Issue </source>
+        <target state="translated"> Problem melden </target>
+      </trans-unit>
+      <trans-unit id="layout.breadcrumb.navigateTo" datatype="html">
+        <source>Navigate to <x id="label" equiv-text="label"/></source>
+        <target state="translated">Zu <x id="label" equiv-text="label"/></target>
+      </trans-unit>
+      <trans-unit id="nav.home" datatype="html">
+        <source>Home</source>
+        <target state="translated">Startseite</target>
+      </trans-unit>
+      <trans-unit id="nav.browse" datatype="html">
+        <source>Browse</source>
+        <target state="translated">Durchsuchen</target>
+      </trans-unit>
+      <trans-unit id="nav.exercises" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">Übungen</target>
+      </trans-unit>
+      <trans-unit id="manifest.name" datatype="html">
+        <source>PianoML: Learn Piano</source>
+        <target state="translated">PianoML: Klavier lernen</target>
+      </trans-unit>
+      <trans-unit id="manifest.shortName" datatype="html">
+        <source>PianoML</source>
+        <target state="translated">PianoML</target>
+      </trans-unit>
+      <trans-unit id="manifest.description" datatype="html">
+        <source>Learn piano with smart sheet music, scales and real-time feedback.</source>
+        <target state="translated">Klavier lernen mit intelligenten Noten, Tonleitern und Echtzeit-Feedback.</target>
+      </trans-unit>
+      <trans-unit id="shader.1.description" datatype="html">
+        <source>Wave-based animated shader</source>
+        <target state="translated">Animierter Shader auf Wellenbasis</target>
+      </trans-unit>
+      <trans-unit id="shader.2.description" datatype="html">
+        <source>Space-themed shader with stars and cosmic effects</source>
+        <target state="translated">Weltraum-Shader mit Sternen und kosmischen Effekten</target>
+      </trans-unit>
+      <trans-unit id="shader.3.description" datatype="html">
+        <source>Wave-based animated shader</source>
+        <target state="translated">Animierter Shader auf Wellenbasis</target>
+      </trans-unit>
+      <trans-unit id="shader.4.description" datatype="html">
+        <source>Space-themed shader with stars and cosmic effects</source>
+        <target state="translated">Weltraum-Shader mit Sternen und kosmischen Effekten</target>
+      </trans-unit>
+      <trans-unit id="shader.5.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">Farbenfroher animierter Shader mit dynamischen Verläufen</target>
+      </trans-unit>
+      <trans-unit id="shader.6.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">Farbenfroher animierter Shader mit dynamischen Verläufen</target>
+      </trans-unit>
+      <trans-unit id="shader.7.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">Farbenfroher animierter Shader mit dynamischen Verläufen</target>
+      </trans-unit>
+      <trans-unit id="song.noWomanNoCry.description" datatype="html">
+        <source>Choose a track to play with accompaniment</source>
+        <target state="translated">Wähle eine Spur und spiele mit Begleitung</target>
+      </trans-unit>
+      <trans-unit id="song.plicPloc.description" datatype="html">
+        <source>Exercise in rythm recognition and note reading</source>
+        <target state="translated">Übung zum Erkennen von Rhythmen und Notenlesen</target>
+      </trans-unit>
+      <trans-unit id="song.happyBirthday.description" datatype="html">
+        <source>The most recognized song in the English language</source>
+        <target state="translated">Das bekannteste Lied der englischen Sprache</target>
+      </trans-unit>
+      <trans-unit id="song.belleIleEnMer.description" datatype="html">
+        <source>Exercise in chord progression</source>
+        <target state="translated">Übung zu Akkordfolgen</target>
+      </trans-unit>
+      <trans-unit id="song.brahmsLullaby.description" datatype="html">
+        <source>Exercise in chord progression based on Brahms&apos; Lullaby.</source>
+        <target state="translated">Übung zu Akkordfolgen nach dem Wiegenlied von Brahms.</target>
+      </trans-unit>
+      <trans-unit id="song.zeldaLullaby.description" datatype="html">
+        <source>Melody of the Royal Family.</source>
+        <target state="translated">Melodie der Königsfamilie.</target>
+      </trans-unit>
+      <trans-unit id="song.forElise.description" datatype="html">
+        <source>Try split voice option</source>
+        <target state="translated">Probiere die Option zum Trennen der Stimmen</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.beginner" datatype="html">
+        <source>beginner</source>
+        <target state="translated">Anfänger</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.intermediate" datatype="html">
+        <source>intermediate</source>
+        <target state="translated">Mittelstufe</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.advanced" datatype="html">
+        <source>advanced</source>
+        <target state="translated">Fortgeschritten</target>
+      </trans-unit>
+      <trans-unit id="shader.noDescription" datatype="html">
+        <source>No description available</source>
+        <target state="translated">Keine Beschreibung verfügbar</target>
+      </trans-unit>
+      <trans-unit id="route.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Üben</target>
+      </trans-unit>
+      <trans-unit id="route.desktop" datatype="html">
+        <source>Desktop</source>
+        <target state="translated">Arbeitsfläche</target>
+      </trans-unit>
+      <trans-unit id="route.workbench" datatype="html">
+        <source>Workbench</source>
+        <target state="translated">Werkstatt</target>
+      </trans-unit>
+      <trans-unit id="route.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">Noten</target>
+      </trans-unit>
+      <trans-unit id="route.reimport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">Erneut importieren</target>
+      </trans-unit>
+      <trans-unit id="route.account" datatype="html">
+        <source>Account</source>
+        <target state="translated">Konto</target>
+      </trans-unit>
+      <trans-unit id="route.blog" datatype="html">
+        <source>Blog</source>
+        <target state="translated">Blog</target>
+      </trans-unit>
+      <trans-unit id="route.import" datatype="html">
+        <source>Import</source>
+        <target state="translated">Importieren</target>
+      </trans-unit>
+      <trans-unit id="route.library" datatype="html">
+        <source>Library</source>
+        <target state="translated">Bibliothek</target>
+      </trans-unit>
+      <trans-unit id="route.summary" datatype="html">
+        <source>Summary</source>
+        <target state="translated">Übersicht</target>
+      </trans-unit>
+      <trans-unit id="route.error" datatype="html">
+        <source>Error</source>
+        <target state="translated">Fehler</target>
+      </trans-unit>
+      <trans-unit id="route.notFound" datatype="html">
+        <source>Not found</source>
+        <target state="translated">Nicht gefunden</target>
+      </trans-unit>
+      <trans-unit id="seo.defaultTitle" datatype="html">
+        <source>PianoML: Learn Piano with Smart Sheet Music &amp; Practice Tools</source>
+        <target state="translated">PianoML: Klavier lernen mit intelligenten Noten &amp; Übungswerkzeugen</target>
+      </trans-unit>
+      <trans-unit id="seo.defaultDescription" datatype="html">
+        <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
+        <target state="translated">Lerne Klavier mit PianoML, einer kostenlosen Open-Source-Web-App für MusicXML-, MIDI- und PDF-Noten. Übe Tonleitern, erhalte Echtzeit-Feedback und baue deine eigene Notenbibliothek auf.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
