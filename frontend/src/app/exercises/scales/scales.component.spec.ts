@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { MIDI_STORAGE_KEY } from '../../desktop/model/model';
-import { majorKeys, minorKeys } from '../../desktop/service/music-theory';
+import { majorKeys, minorKeys, scales } from '../../desktop/service/music-theory';
 import { SeoService } from '../../shared/seo';
 import { provideTesting } from '../../testing/test-providers';
 import { getWeekOfYear } from '../exercices';
@@ -75,6 +75,19 @@ describe('ScalesComponent', () => {
     expect(component.selectedKey).toBe(weekKey(majorKeys));
   });
 
+  it('derives the key and its popular works from the stable scale key, whatever its translated name', () => {
+    const minor = scales.find((s) => s.key === 'minor')!;
+    const english = minor.name;
+    minor.name = 'Moll'; // as in the German build
+    try {
+      render({ selectedKey: 'Am', scaleKey: 'minor', exerciseKey: 'contrary_motion' });
+      expect(component.keys).toBe(minorKeys);
+      expect(component.fullKey).toBe('a minor');
+    } finally {
+      minor.name = english;
+    }
+  });
+
   it('switching to the minor scale lists the minor keys and picks the minor key of the week', async () => {
     render({ selectedKey: 'G', scaleKey: 'major', exerciseKey: 'contrary_motion' });
     await choose('select-scale', 'Minor');
@@ -101,7 +114,7 @@ describe('ScalesComponent', () => {
 
   it('links to the library scores in the same key', () => {
     render({ selectedKey: 'F#', scaleKey: 'major', exerciseKey: 'contrary_motion' });
-    expect(component.getLibraryUrl()).toBe('/library/popular?fullKey=F%23%20Major');
+    expect(component.getLibraryUrl()).toBe('/library/popular?fullKey=F%23%20major');
   });
 
   describe('SEO', () => {

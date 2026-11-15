@@ -71,6 +71,14 @@ The frontend always reaches the API through the dev-server proxy (`frontend/prox
 
 For the browser every call is same-origin, which is what the API's security model requires: the auth cookie is `HttpOnly; Secure; SameSite=Strict`, CORS does not allow `localhost`, and CSRF protection needs the frontend to read the `XSRF-TOKEN` cookie. The proxy strips the `Origin` header and adapts cookies to plain http (drops `Secure` and production-only `Domain` cookies). Pointing `environment.api` at an absolute API URL from localhost is not supported: login and every write request would fail.
 
+#### Languages
+
+The site is built once per language (Angular i18n): English at `/`, every other language under its own prefix (`/es/`, `/fr/`, `/zh/`…) with the same paths. The list lives only in the `i18n` section of `frontend/angular.json`; the language menu, `hreflang` links, web app manifests, sitemap, `robots.txt` and the `/` redirect are all derived from it. `npm run start` serves English only.
+
+- Mark new text with `i18n="@@area.key"` in templates or `` $localize`:@@area.key:Text` `` in TypeScript.
+- `npm run i18n:check` fails when a message is missing, untranslated or stale in a `messages.<code>.xlf` (CI runs it); `npm run i18n:check -- --fix` adds the new units to every file, then translate their `<target>`.
+- To add a language: add `"<code>": { "translation": "src/locale/messages.<code>.xlf", "subPath": "<prefix>" }` under `i18n.locales`, run `npm run i18n:check -- --fix`, translate the new file, and rebuild.
+
 ### backend
 
 development require local Postgres, see `backend/src/main/resources/db/initdb.sql` for intial schema creation.

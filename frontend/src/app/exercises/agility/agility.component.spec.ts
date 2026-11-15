@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { MIDI_STORAGE_KEY } from '../../desktop/model/model';
-import { majorKeys } from '../../desktop/service/music-theory';
+import { chords, majorKeys } from '../../desktop/service/music-theory';
 import { SeoService } from '../../shared/seo';
 import { provideTesting } from '../../testing/test-providers';
 import { getWeekOfYear } from '../exercices';
@@ -48,6 +48,23 @@ describe('AgilityComponent', () => {
   afterEach(() => {
     fixture?.destroy();
     localStorage.removeItem(MIDI_STORAGE_KEY);
+  });
+
+  it('reads and writes the chord by its stable key, whatever its translated name (the URL never changes language)', () => {
+    const minor = chords.find((c) => c.key === 'minor')!;
+    const english = minor.name;
+    minor.name = 'Moll'; // as in the German build
+    try {
+      render({ selectedKey: 'E', chordKey: 'minor', exerciseKey: exercises[0].key! });
+      expect(component.selectedChord.key).toBe('minor');
+      expect(component.fullKey).toBe('e minor');
+      navigate.mockClear();
+      component.selectedKey = 'A';
+      component.onKeyChange(); // keeps the chord, rewrites the URL
+      expect(navigate).toHaveBeenLastCalledWith(['/', 'exercises', 'agility', 'A', 'minor', component.selectedExcercice.key], { replaceUrl: true });
+    } finally {
+      minor.name = english;
+    }
   });
 
   it('without a URL, starts on the first exercise, a major chord, in the key of the week, and writes the URL', () => {

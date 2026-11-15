@@ -10,9 +10,9 @@ export const SITE = {
   name: 'PianoML',
   titleSuffix: ' | PianoML',
   ogImage: '/assets/images/pianoml-og-image.png',
-  defaultTitle: 'PianoML: Learn Piano with Smart Sheet Music & Practice Tools',
-  defaultDescription:
-    'Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.'
+  // $localize: each language's build carries its own text.
+  defaultTitle: $localize`:@@seo.defaultTitle:PianoML: Learn Piano with Smart Sheet Music & Practice Tools`,
+  defaultDescription: $localize`:@@seo.defaultDescription:Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.`
 } as const;
 
 /**
@@ -37,6 +37,11 @@ export interface SeoData {
   structuredData?: any | any[];
   /** Keeps the page out of the index — mirror of robots.txt for in-app routes. */
   noindex?: boolean;
+  /**
+   * `false` for a page that exists in one language only (blog posts): no hreflang alternates, since the
+   * other languages' versions are noindex. Defaults to one alternate per language.
+   */
+  alternates?: boolean;
 }
 
 /** The maximum length Google renders before truncating a description. */

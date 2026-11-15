@@ -9,11 +9,9 @@
           (click)="onGenreClick(genre)"
           class="capsule">
           <div class="font-medium text-sm truncate group-hover:text-emerald-100">
-            {{ genre.genre.name || "genre not specified" }}
+            @if (genre.genre.name) { {{ genre.genre.name }} } @else { <ng-container i18n="@@browse.genreNotSpecified">genre not specified</ng-container> }
           </div>
-          <div class="text-xs text-gray-300 mt-1">
-            {{ genre.count }} {{ genre.count === 1 ? 'score' : 'scores' }}
-          </div>
+          <div class="text-xs text-gray-300 mt-1" i18n="@@browse.capsuleCount">{genre.count, plural, =1 {1 score} other {{{ genre.count }} scores}}</div>
         </button>
       }
     </div>

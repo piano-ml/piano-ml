@@ -11,6 +11,7 @@ import { provideTesting } from '../../../testing/test-providers';
 import { VideoCarouselComponent } from './components/video-carousel/video-carousel.component';
 import { VideoPlayerModalComponent } from './components/video-player-modal/video-player-modal.component';
 import { ScoreInfoComponent } from './score-info.component';
+import { setCurrentLocale } from '../../../shared/i18n';
 
 /** Stands in for <youtube-player>, which would load YouTube's iframe API from the network. */
 @Component({ selector: 'youtube-player', template: '' })
@@ -147,7 +148,7 @@ describe('ScoreInfoComponent', () => {
       await render({ has_files: false });
       expect(workloads.workloadIdGet).toHaveBeenCalledWith('sc1');
       expect(el.textContent).toContain('Processing status');
-      expect(el.textContent).toContain('FAILED');
+      expect(el.textContent).toContain('Failed'); // the API's FAILED, as a label (upper-cased by CSS)
       expect(el.textContent).toContain('OMR_PDF');
       expect(el.textContent).toContain('1234ms');
       expect(el.textContent).toContain('homr crashed');
@@ -372,6 +373,18 @@ describe('ScoreInfoComponent', () => {
       const write = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
       button('Copy link').click();
       expect(write).toHaveBeenCalledWith(`${location.protocol}//${location.host}/score/satie-gymnopedie-1`);
+    });
+
+    it("shares the score in the page's language", async () => {
+      setCurrentLocale('es');
+      try {
+        await render();
+        const write = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
+        button('Copy link').click();
+        expect(write).toHaveBeenCalledWith(`${location.protocol}//${location.host}/es/score/satie-gymnopedie-1`);
+      } finally {
+        setCurrentLocale(undefined);
+      }
     });
 
     it('falls back to a hidden text area when the clipboard API refuses or is missing', async () => {

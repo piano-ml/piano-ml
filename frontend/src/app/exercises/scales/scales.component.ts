@@ -116,7 +116,7 @@ export class ScalesComponent implements OnInit {
   }
 
   private syncKeysForScale(resetSelectedKey = false) {
-    const isMinor = this.selectedScale.name === 'Minor';
+    const isMinor = this.selectedScale.key === 'minor';
     this.keys = isMinor ? minorKeys : majorKeys;
 
     if (resetSelectedKey) {
@@ -143,15 +143,14 @@ export class ScalesComponent implements OnInit {
   }
 
   getLibraryUrl(): string {
-    const fullKey = `${this.selectedKey} ${this.selectedScale.name}`;
-    return `/library/popular?fullKey=${encodeURIComponent(fullKey)}`;
+    return `/library/popular?fullKey=${encodeURIComponent(this.fullKey)}`;
   }
 
   private updateFullKey(): void {
-    const scaleName = this.selectedScale.name.toLowerCase();
-    // Determine if it's major or minor scale (ignoring variations like "harmonic minor", "melodic minor", etc.)
-    const isMinor = scaleName.includes('minor');
-    const isMajor = scaleName === 'major';
+    // From the stable key, not the translated name: "harmonic_minor", "minor_pentatonic"… are minor.
+    const scaleKey = this.selectedScale.key ?? '';
+    const isMinor = scaleKey.includes('minor');
+    const isMajor = scaleKey === 'major';
     
     let note = this.selectedKey;
     

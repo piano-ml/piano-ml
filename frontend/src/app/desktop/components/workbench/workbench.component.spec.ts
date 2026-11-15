@@ -152,7 +152,7 @@ describe('WorkbenchComponent', () => {
       downloads.midi.next({ type: HttpEventType.DownloadProgress, loaded: 0, total: 1000 });
       downloads.musicxml.next({ type: HttpEventType.DownloadProgress, loaded: 500, total: 3000 });
       render();
-      expect(component.loadingFeedBack).toEqual({ message: 'Downloading score', percentage: 13 }); // 500 / 4000
+      expect(component.loadingFeedBack).toEqual({ message: 'Downloading the score', percentage: 13 }); // 500 / 4000
       expect(el().querySelector('.loading-feedback')?.textContent).toContain('13%');
       downloads.midi.next({ type: HttpEventType.DownloadProgress, loaded: 1000, total: 1000 });
       expect(component.loadingFeedBack?.percentage).toBe(38); // 1500 / 4000
@@ -163,7 +163,7 @@ describe('WorkbenchComponent', () => {
     it('waits until both file sizes are known before showing a percentage', async () => {
       component = await harness.navigateByUrl('/work/hill-happy-birthday', WorkbenchComponent);
       downloads.midi.next({ type: HttpEventType.DownloadProgress, loaded: 1000, total: 1000 });
-      expect(component.loadingFeedBack).toEqual({ message: 'Downloading score', percentage: 0 });
+      expect(component.loadingFeedBack).toEqual({ message: 'Downloading the score', percentage: 0 });
       serveFiles();
       await waitFor(() => component.osmdLoading === false);
     });

@@ -1,10 +1,10 @@
 <article class="main-article">
   @if (score) {
-    <h1 class="sr-only">Edit {{ score.title }} by {{ score.author }} - Piano Score</h1>
+    <h1 class="sr-only" i18n="@@editScore.editByPianoScore">Edit {{ score.title }} by {{ score.author }} - Piano Score</h1>
   }
 
   <div class="px-4 sm:px-6 pt-4">
-    <div class="page-title">Edit score</div>
+    <div class="page-title" i18n="@@editScore.editScore">Edit score</div>
     @if (score?.title) {
       <div class="page-sub-title">{{ score!.title }}</div>
     }
@@ -16,8 +16,8 @@
   <div class="flex items-center justify-between px-4 sm:px-6">
     <p class="text-xs text-neutral-400">{{ score?.author }}</p>
     <div class="flex items-center gap-3">
-      <button type="button" (click)="onDelete()" class="btn-danger" [disabled]="loading">Delete</button>
-      <button type="button" (click)="onCancel()" class="btn-secondary" [disabled]="loading">← Cancel</button>
+      <button type="button" (click)="onDelete()" class="btn-danger" [disabled]="loading" i18n="@@editScore.delete">Delete</button>
+      <button type="button" (click)="onCancel()" class="btn-secondary" [disabled]="loading" i18n="@@editScore.cancel">← Cancel</button>
       <button type="submit" form="score-edit-form" class="btn-hero" [disabled]="loading || scoreForm.invalid">
         {{ loading ? 'Saving…' : 'Save' }}
       </button>
@@ -30,14 +30,14 @@
     @if (loading && !score) {
       <div class="flex items-center gap-3 py-10">
         <div class="spinner w-4 h-4 text-neutral-500"></div>
-        <p class="text-sm text-neutral-400">Loading score…</p>
+        <p class="text-sm text-neutral-400" i18n="@@editScore.loadingScore">Loading score…</p>
       </div>
     }
 
     <!-- ── Error ───────────────────────────────────────────── -->
     @if (error) {
       <div class="alert-error">
-        <strong>Error:</strong> {{ error }}
+        <strong i18n="@@editScore.error">Error:</strong> {{ error }}
       </div>
     }
 
@@ -52,15 +52,15 @@
       <!-- ── Edit form ────────────────────────────────────────── -->
       <div class="exercise-desc-card">
         <div class="exercise-desc-section">
-          <p class="exercise-desc-label">Score details</p>
+          <p class="exercise-desc-label" i18n="@@editScore.scoreDetails">Score details</p>
           <form id="score-edit-form" [formGroup]="scoreForm" (ngSubmit)="onSubmit()">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 mt-3">
 
               <!-- Title -->
               <div>
-                <label for="title" class="field-label">Title</label>
+                <label for="title" class="field-label" i18n="@@editScore.title">Title</label>
                 <input type="text" id="title" formControlName="title" class="input-field w-full mt-1"
-                  [class.border-red-500]="isFieldInvalid('title')" placeholder="Enter score title">
+                  [class.border-red-500]="isFieldInvalid('title')" i18n-placeholder="@@editScore.enterScoreTitle.placeholder" placeholder="Enter score title">
                 @if (isFieldInvalid('title')) {
                   <p class="text-red-400 text-xs mt-1">{{ getFieldError('title') }}</p>
                 }
@@ -68,7 +68,7 @@
 
               <!-- Author -->
               <div>
-                <label class="field-label">Author</label>
+                <label class="field-label" i18n="@@editScore.author">Author</label>
                 <div class="input-field w-full mt-1 cursor-pointer" (click)="openAuthorModal()">
                   {{ selectedAuthor || '—' }}
                 </div>
@@ -76,16 +76,16 @@
 
               <!-- Genre -->
               <div>
-                <label for="genre_id" class="field-label">Genre</label>
+                <label for="genre_id" class="field-label" i18n="@@editScore.genre">Genre</label>
                 <select id="genre_id" formControlName="genre_id" class="input-field w-full mt-1"
                   [class.border-red-500]="isFieldInvalid('genre_id')">
-                  <option value="">— Select genre —</option>
+                  <option value="" i18n="@@editScore.selectGenre">— Select genre —</option>
                   @for (genre of genres; track genre) {
                     <option [value]="genre.id">{{ genre.name }}</option>
                   }
                 </select>
                 @if (loadingGenres) {
-                  <p class="text-neutral-400 text-xs mt-1">Loading genres…</p>
+                  <p class="text-neutral-400 text-xs mt-1" i18n="@@editScore.loadingGenres">Loading genres…</p>
                 }
                 @if (isFieldInvalid('genre_id')) {
                   <p class="text-red-400 text-xs mt-1">{{ getFieldError('genre_id') }}</p>
@@ -96,9 +96,9 @@
 
               <!-- Tempo -->
               <div>
-                <label for="tempo" class="field-label">Tempo (BPM)</label>
+                <label for="tempo" class="field-label" i18n="@@editScore.tempoBpm">Tempo (BPM)</label>
                 <input type="number" id="tempo" formControlName="tempo" min="30" max="300" step="1"
-                  placeholder="e.g. 120" class="input-field w-full mt-1"
+                  i18n-placeholder="@@editScore.tempo.placeholder" placeholder="e.g. 120" class="input-field w-full mt-1"
                   [class.border-red-500]="isFieldInvalid('tempo')">
                 @if (isFieldInvalid('tempo')) {
                   <p class="text-red-400 text-xs mt-1">{{ getFieldError('tempo') }}</p>
@@ -129,10 +129,10 @@
   @if (showDeleteConfirmation) {
     <div class="modal">
       <div class="modal-content">
-        <h3 class="page-sub-title mb-4">Confirm delete</h3>
-        <p class="text-sm text-neutral-400 mb-6">This action cannot be undone. Are you sure?</p>
+        <h3 class="page-sub-title mb-4" i18n="@@editScore.confirmDelete">Confirm delete</h3>
+        <p class="text-sm text-neutral-400 mb-6" i18n="@@editScore.thisActionCannotBeUndone">This action cannot be undone. Are you sure?</p>
         <div class="flex justify-end gap-3">
-          <button type="button" (click)="showDeleteConfirmation = false" class="btn-secondary" [disabled]="deleting">
+          <button type="button" (click)="showDeleteConfirmation = false" class="btn-secondary" [disabled]="deleting" i18n="@@editScore.cancel2">
             Cancel
           </button>
           <button type="button" (click)="confirmDelete()" class="btn-danger" [disabled]="deleting">
