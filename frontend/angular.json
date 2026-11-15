@@ -9,6 +9,58 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": {
+          "code": "en",
+          "subPath": ""
+        },
+        "locales": {
+          "es": {
+            "translation": "src/locale/messages.es.xlf",
+            "subPath": "es"
+          },
+          "fr": {
+            "translation": "src/locale/messages.fr.xlf",
+            "subPath": "fr"
+          },
+          "it": {
+            "translation": "src/locale/messages.it.xlf",
+            "subPath": "it"
+          },
+          "zh-Hans": {
+            "translation": "src/locale/messages.zh-Hans.xlf",
+            "subPath": "zh"
+          },
+          "de": {
+            "translation": "src/locale/messages.de.xlf",
+            "subPath": "de"
+          },
+          "nl": {
+            "translation": "src/locale/messages.nl.xlf",
+            "subPath": "nl"
+          },
+          "pl": {
+            "translation": "src/locale/messages.pl.xlf",
+            "subPath": "pl"
+          },
+          "sv": {
+            "translation": "src/locale/messages.sv.xlf",
+            "subPath": "sv"
+          },
+          "th": {
+            "translation": "src/locale/messages.th.xlf",
+            "subPath": "th"
+          },
+          "uk": {
+            "translation": "src/locale/messages.uk.xlf",
+            "subPath": "uk"
+          },
+          "ko": {
+            "translation": "src/locale/messages.ko.xlf",
+            "subPath": "ko"
+          }
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -22,6 +74,7 @@
               ]
             },
             "outputMode": "server",
+            "i18nMissingTranslation": "error",
             "loader": {
               ".glsl": "text"
             },
@@ -29,7 +82,8 @@
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
-              "zone.js"
+              "zone.js",
+              "@angular/localize/init"
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
@@ -38,7 +92,16 @@
                 "input": "src/assets/",
                 "output": "/assets/"
               },
-              "src/sitemap.xml",
+              {
+                "glob": "sitemap*.{xml,xml.gz}",
+                "input": "src",
+                "output": "/"
+              },
+              {
+                "glob": "manifest.*.webmanifest",
+                "input": "src",
+                "output": "/"
+              },
               "src/robots.txt"
             ],
             "styles": [
@@ -53,6 +116,7 @@
           },
           "configurations": {
             "production": {
+              "localize": true,
               "optimization": {
                 "scripts": true,
                 "styles": {
@@ -111,8 +175,75 @@
               "scripts": [],
               "polyfills": [
                 "zone.js",
-                "zone.js/testing"
+                "zone.js/testing",
+                "@angular/localize/init"
               ]
+            },
+            "es": {
+              "localize": [
+                "es"
+              ],
+              "baseHref": "/es/"
+            },
+            "fr": {
+              "localize": [
+                "fr"
+              ],
+              "baseHref": "/fr/"
+            },
+            "it": {
+              "localize": [
+                "it"
+              ],
+              "baseHref": "/it/"
+            },
+            "zh-Hans": {
+              "localize": [
+                "zh-Hans"
+              ],
+              "baseHref": "/zh/"
+            },
+            "de": {
+              "localize": [
+                "de"
+              ],
+              "baseHref": "/de/"
+            },
+            "nl": {
+              "localize": [
+                "nl"
+              ],
+              "baseHref": "/nl/"
+            },
+            "pl": {
+              "localize": [
+                "pl"
+              ],
+              "baseHref": "/pl/"
+            },
+            "sv": {
+              "localize": [
+                "sv"
+              ],
+              "baseHref": "/sv/"
+            },
+            "th": {
+              "localize": [
+                "th"
+              ],
+              "baseHref": "/th/"
+            },
+            "uk": {
+              "localize": [
+                "uk"
+              ],
+              "baseHref": "/uk/"
+            },
+            "ko": {
+              "localize": [
+                "ko"
+              ],
+              "baseHref": "/ko/"
             }
           },
           "defaultConfiguration": "production"
@@ -126,6 +257,61 @@
             "development": {
               "buildTarget": "piano-ml:build:development",
               "proxyConfig": "proxy.conf.mjs"
+            },
+            "es": {
+              "buildTarget": "piano-ml:build:development,es",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/es/"
+            },
+            "fr": {
+              "buildTarget": "piano-ml:build:development,fr",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/fr/"
+            },
+            "it": {
+              "buildTarget": "piano-ml:build:development,it",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/it/"
+            },
+            "zh-Hans": {
+              "buildTarget": "piano-ml:build:development,zh-Hans",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/zh/"
+            },
+            "de": {
+              "buildTarget": "piano-ml:build:development,de",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/de/"
+            },
+            "nl": {
+              "buildTarget": "piano-ml:build:development,nl",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/nl/"
+            },
+            "pl": {
+              "buildTarget": "piano-ml:build:development,pl",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/pl/"
+            },
+            "sv": {
+              "buildTarget": "piano-ml:build:development,sv",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/sv/"
+            },
+            "th": {
+              "buildTarget": "piano-ml:build:development,th",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/th/"
+            },
+            "uk": {
+              "buildTarget": "piano-ml:build:development,uk",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/uk/"
+            },
+            "ko": {
+              "buildTarget": "piano-ml:build:development,ko",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/ko/"
             }
           },
           "defaultConfiguration": "development"

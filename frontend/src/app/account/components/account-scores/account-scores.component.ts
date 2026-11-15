@@ -5,6 +5,7 @@ import { ScoreService, ScoreApiInfo } from '../../../core/api';
 import { AuthService } from '../../services/auth.service';
 import { ScoreTableComponent, ScoreTableAction, ScoreTableColumn, ScoreTableEvent } from '../../../shared/components/score-table/score-table.component';
 import { QuickActionsComponent } from '../../../shared/components/quick-actions/quick-actions.component';
+import { currentLocale } from '../../../shared/i18n';
 
 @Component({
   selector: 'app-account-scores',
@@ -22,35 +23,35 @@ export class AccountScoresComponent implements OnInit {
   tableColumns: ScoreTableColumn[] = [
     {
       key: 'playCount',
-      label: '#played',
+      label: $localize`:@@accountScores.col.played:#played`,
       visible: true,
       align: 'center',
       // A score whose import failed midway has no files: it can't be played, flag it instead of a count
       icon: (value, score) => score.has_files === false
-        ? { name: 'bootstrapExclamationTriangleFill', label: 'Files missing: the import did not finish', tone: 'danger' }
+        ? { name: 'bootstrapExclamationTriangleFill', label: $localize`:@@accountScores.filesMissing:Files missing: the import did not finish`, tone: 'danger' }
         : null
     },
-    { key: 'version', label: 'Version', visible: true },
+    { key: 'version', label: $localize`:@@scoreTable.version:Version`, visible: true },
     {
       key: 'publicDomain',
-      label: 'Public domain',
+      label: $localize`:@@accountScores.col.publicDomain:Public domain`,
       visible: true,
       narrow: true,
       align: 'center',
       // A score without the flag is treated as copyrighted, like the score page does for downloads
       icon: (value) => value === true
-        ? { name: 'bootstrapUnlockFill', label: 'Public domain', tone: 'positive' }
-        : { name: 'bootstrapLockFill', label: 'Copyrighted, downloads restricted', tone: 'caution' }
+        ? { name: 'bootstrapUnlockFill', label: $localize`:@@accountScores.col.publicDomain:Public domain`, tone: 'positive' }
+        : { name: 'bootstrapLockFill', label: $localize`:@@accountScores.copyrighted:Copyrighted, downloads restricted`, tone: 'caution' }
     },
-    { key: 'title', label: 'Title', visible: true },
-    { key: 'author', label: 'Author', visible: true },
-    { key: 'genre', label: 'Genre', visible: true },
+    { key: 'title', label: $localize`:@@scoreTable.title:Title`, visible: true },
+    { key: 'author', label: $localize`:@@scoreTable.author:Author`, visible: true },
+    { key: 'genre', label: $localize`:@@scoreTable.genre:Genre`, visible: true },
 
     {
       key: 'uploaded_at',
-      label: 'Uploaded',
+      label: $localize`:@@scoreTable.uploaded:Uploaded`,
       visible: true,
-      formatter: (value) => value ? new Date(value).toLocaleString() : ''
+      formatter: (value) => value ? new Date(value).toLocaleString(currentLocale()) : ''
     }
   ];
 
@@ -72,7 +73,7 @@ export class AccountScoresComponent implements OnInit {
   loadUserScores() {
     const userId = this.authService.getUserId();
     if (!userId) {
-      this.error = 'User not authenticated';
+      this.error = $localize`:@@accountScores.error.auth:User not authenticated`;
       return;
     }
 
@@ -86,7 +87,7 @@ export class AccountScoresComponent implements OnInit {
         this.changeDetector.detectChanges();
       },
       error: (error) => {
-        this.error = error.message || 'An error occurred while loading scores';
+        this.error = error.message || $localize`:@@accountScores.error.load:An error occurred while loading scores`;
         this.loading = false;
         console.error('Error loading scores:', error);
         this.changeDetector.detectChanges();

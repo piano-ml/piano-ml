@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router } from '@angular/router';
+import { difficultyLabel, songDescription } from '../../../shared/i18n/content-messages';
 
 
 interface ProvidedSong {
@@ -25,6 +26,8 @@ interface ProvidedSong {
 })
 export class BuiltinComponent {
 
+  protected readonly songDescription = songDescription;
+  protected readonly difficultyLabel = difficultyLabel;
   manifest: ProvidedSong[] = [];
   rootPath = '/assets/midi';
 

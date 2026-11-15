@@ -4,10 +4,10 @@
       <tr>
 
 
-        <th class="border border-gray-300 px-4 py-2">Name</th>
-        <th class="border border-gray-300 px-4 py-2">Artist</th>
-        <th class="border border-gray-300 px-4 py-2">Description</th>
-        <th class="border border-gray-300 px-4 py-2">Difficulty</th>
+        <th class="border border-gray-300 px-4 py-2" i18n="@@builtin.name">Name</th>
+        <th class="border border-gray-300 px-4 py-2" i18n="@@scoreTable.artist">Artist</th>
+        <th class="border border-gray-300 px-4 py-2" i18n="@@builtin.description">Description</th>
+        <th class="border border-gray-300 px-4 py-2" i18n="@@scoreTable.difficulty">Difficulty</th>
       </tr>
     </thead>
     <tbody>
@@ -15,8 +15,8 @@
         <tr (click)="onSongClick(song)">
           <td class="border border-gray-300 px-4 py-2">{{ song.name }}</td>
           <td class="border border-gray-300 px-4 py-2">{{ song.artist }}</td>
-          <td class="border border-gray-300 px-4 py-2">{{ song.description }}</td>
-          <td class="border border-gray-300 px-4 py-2">{{ song.difficulty }}</td>
+          <td class="border border-gray-300 px-4 py-2">{{ songDescription(song.filename, song.description) }}</td>
+          <td class="border border-gray-300 px-4 py-2">{{ difficultyLabel(song.difficulty) }}</td>
         </tr>
       }
     </tbody>

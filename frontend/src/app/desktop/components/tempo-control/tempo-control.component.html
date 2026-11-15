@@ -4,7 +4,7 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
 
 
-      <h2 class="card-secondary-title">Tempo</h2>
+      <h2 class="card-secondary-title" i18n="@@scoreInfo.tempo">Tempo</h2>
 
 
       <div class="flex items-center justify-center gap-2  p-2">
@@ -26,11 +26,11 @@
 
       <div class="flex items-center gap-2 p-3">
         <input type="checkbox" id="metronome" [checked]="metronome" (change)="onMetronomeStatus($event.target.checked)" />
-        <label for="metronome">Metronome</label>
+        <label for="metronome" i18n="@@tempo.metronome">Metronome</label>
       </div>
 
     <div class="flex justify-end mt-4">
-      <button (click)="close()" class="btn-secondary">Close</button>
+      <button (click)="close()" class="btn-secondary" i18n="@@common.close">Close</button>
     </div>
   </div>
 </div>

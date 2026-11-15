@@ -73,14 +73,14 @@ export function downloadErrorMessage(error: unknown, label: string): string {
   const status = error instanceof HttpErrorResponse ? error.status : undefined;
   switch (status) {
     case 0:
-      return `Could not download the ${label}: the server cannot be reached. Check your connection and try again.`;
+      return $localize`:@@score.download.error.offline:Could not download the ${label}:file:: the server cannot be reached. Check your connection and try again.`;
     case 401:
-      return `Please log in to download the ${label}.`;
+      return $localize`:@@score.download.error.login:Please log in to download the ${label}:file:.`;
     case 403:
-      return `You are not allowed to download the ${label} of this score.`;
+      return $localize`:@@score.download.error.forbidden:You are not allowed to download the ${label}:file: of this score.`;
     case 404:
-      return `The ${label} is not available for this score.`;
+      return $localize`:@@score.download.error.notFound:The ${label}:file: is not available for this score.`;
     default:
-      return `Could not download the ${label}. Please try again later.`;
+      return $localize`:@@score.download.error.other:Could not download the ${label}:file:. Please try again later.`;
   }
 }

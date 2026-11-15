@@ -2,13 +2,13 @@
 <div class="modal" (click)="onBackdropClick($event)">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="grid grid-cols-3">
-      <div class="card-secondary-title ml-4">
+      <div class="card-secondary-title ml-4" i18n="@@midiSetup.heading">
         Workbench Setup
       </div>
     </div>
     @if (error) {
     <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-      <strong>Error:</strong> {{ error }}
+      <strong i18n="@@score.errorLabel">Error:</strong> {{ error }}
     </div>
     }
     <!-- MIDI Inputs Section  -->
@@ -19,17 +19,17 @@
           @if (!loading) {
 
           @if (!loading && midiInputs.length === 0) {
-          <div class="text-neutral-400 text-sm">
+          <div class="text-neutral-400 text-sm" i18n="@@midiSetup.noInputs">
             No MIDI IN devices detected.
           </div>
           }
           @if (!loading && midiInputs.length > 0) {
 
           <select class="w-full input-field" (change)="selectInputById($any($event.target).value)">
-            <option value="" [selected]="!getSelectedInput()">-- Select a MIDI Input --</option>
+            <option value="" [selected]="!getSelectedInput()" i18n="@@midiSetup.selectInput">-- Select a MIDI Input --</option>
             @for (input of midiInputs; track input) {
             <option [value]="input.id" [selected]="isInputEnabled(input)">
-              {{ input.name || 'MIDI Input' }} ({{ input.manufacturer || 'Unknown' }})
+              {{ input.name || midiInputLabel }} ({{ input.manufacturer || unknownLabel }})
             </option>
             }
           </select>
@@ -46,16 +46,16 @@
         <div>Midi&nbsp;Out</div>
         <div class="col-span-2 flex justify-end">
           @if (!loading && midiOutputs.length === 0) {
-          <div class="text-neutral-400 text-sm">No MIDI OUT devices detected.</div>
+          <div class="text-neutral-400 text-sm" i18n="@@midiSetup.noOutputs">No MIDI OUT devices detected.</div>
           }
           @if (!loading && midiOutputs.length > 0) {
           <select class="w-full input-field" (change)="selectOutputById($any($event.target).value)">
-            <option value="__pianoml__" [selected]="isOutputEnabled(null)">
+            <option value="__pianoml__" [selected]="isOutputEnabled(null)" i18n="@@midiSetup.appOutput">
               PianoML — The app might play piano (not the keyboard)
             </option>
             @for (output of midiOutputs; track output) {
             <option [value]="output.id" [selected]="isOutputEnabled(output)">
-              {{ output.name || 'MIDI Output' }} ({{ output.manufacturer || 'Unknown' }})
+              {{ output.name || midiOutputLabel }} ({{ output.manufacturer || unknownLabel }})
             </option>
             }
           </select>
@@ -66,14 +66,14 @@
     <section class="mb-2">
       <div class="card-secondary grid grid-cols-3">
         <div>
-          <div class="font-medium">Hide Keyboard</div>
-          <div class="text-xs text-neutral-300">Disable keyboard visibility to improve sight-reading.</div>
+          <div class="font-medium" i18n="@@midiSetup.hideKeyboard">Hide Keyboard</div>
+          <div class="text-xs text-neutral-300" i18n="@@midiSetup.hideKeyboard.hint">Disable keyboard visibility to improve sight-reading.</div>
         </div>
         <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
             <input type="checkbox" class="peer"
               style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" [checked]="hideKeyboard"
-              (change)="setKeyboardVisibility(!$any($event.target).checked)" aria-label="Toggle keyboard visibility" />
+              (change)="setKeyboardVisibility(!$any($event.target).checked)" i18n-aria-label="@@midiSetup.hideKeyboard.label" aria-label="Toggle keyboard visibility" />
             <span
               class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           </label>
@@ -82,13 +82,13 @@
     </section>
     <section class="mb-2">
       <div class="card-secondary grid grid-cols-3">
-        <div class="font-medium">Hide Fingering</div>
+        <div class="font-medium" i18n="@@midiSetup.hideFingering">Hide Fingering</div>
         <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
             <input type="checkbox" class="peer"
               style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" [checked]="hideFingering"
               (change)="setFingeringVisibility(!$any($event.target).checked)"
-              aria-label="Toggle fingering visibility" />
+              i18n-aria-label="@@midiSetup.hideFingering.label" aria-label="Toggle fingering visibility" />
             <span
               class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           </label>
@@ -97,12 +97,12 @@
     </section>
     <section class="mb-2">
       <div class="card-secondary grid grid-cols-3">
-        <div class="font-medium">Hide Lyrics</div>
+        <div class="font-medium" i18n="@@midiSetup.hideLyrics">Hide Lyrics</div>
         <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
             <input type="checkbox" class="peer"
               style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" [checked]="hideLyrics"
-              (change)="setHideLyricsVisibility(!$any($event.target).checked)" aria-label="Toggle lyrics visibility" />
+              (change)="setHideLyricsVisibility(!$any($event.target).checked)" i18n-aria-label="@@midiSetup.hideLyrics.label" aria-label="Toggle lyrics visibility" />
             <span
               class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           </label>
@@ -111,14 +111,14 @@
     </section>
     <section class="mb-2">
       <div class="card-secondary grid grid-cols-3">
-        <div class="font-medium">Hide Fingering &amp; Harmony</div>
+        <div class="font-medium" i18n="@@midiSetup.hideHarmony">Hide Fingering &amp; Harmony</div>
         <div class="col-span-2 flex items-center justify-end">
           <label class="relative inline-flex items-center cursor-pointer select-none">
             <input type="checkbox" class="peer"
               style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;"
               [checked]="hideFingeringAndHarmony"
               (change)="setFingeringAndHarmonyVisibility(!$any($event.target).checked)"
-              aria-label="Toggle fingering and harmony visibility" />
+              i18n-aria-label="@@midiSetup.hideHarmony.label" aria-label="Toggle fingering and harmony visibility" />
             <span
               class="relative inline-flex h-6 w-11 items-center rounded-full bg-neutral-400/80 transition peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400/70 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-6"></span>
           </label>
@@ -126,7 +126,7 @@
       </div>
     </section>
     <div class="col-span-2 flex justify-end">
-      <button (click)="close()" class="btn-secondary">Close</button>
+      <button (click)="close()" class="btn-secondary" i18n="@@common.close">Close</button>
     </div>
   </div>
 </div>

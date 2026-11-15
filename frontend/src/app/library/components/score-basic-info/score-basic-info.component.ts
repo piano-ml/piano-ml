@@ -2,11 +2,12 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ScoreApiInfo } from '../../../core/api';
+import { KeyNamePipe } from '../../../shared/i18n';
 
 @Component({
   selector: 'app-score-basic-info',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, KeyNamePipe],
   templateUrl: './score-basic-info.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './score-basic-info.component.css'

@@ -25,14 +25,15 @@ export function buildBrowseSeo(state: BrowseSeoState): SeoData {
     const name = capitalize(genre.name);
     const artists = sample(state.scores, s => s.author);
     const description = artists
-      ? `Browse and practice ${name} piano scores by ${artists}. Interactive sheet music with hands-separated practice and MIDI support.`
-      : `Browse and practice ${name} piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and MIDI support.`;
+      ? $localize`:@@seo.genre.descriptionWithArtists:Browse and practice ${name}:genre: piano scores by ${artists}:artists:. Interactive sheet music with hands-separated practice and MIDI support.`
+      : $localize`:@@seo.genre.description:Browse and practice ${name}:genre: piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and MIDI support.`;
+    const title = $localize`:@@seo.genre.title:${name}:genre: Piano Scores`;
 
     return {
-      title: `${name} Piano Scores`,
+      title,
       description,
       canonical: `${LIBRARY_PATH}/genres/${genre.slug}`,
-      structuredData: musicCollectionStructuredData(state.scores, `${name} Piano Scores`, clampDescription(description))
+      structuredData: musicCollectionStructuredData(state.scores, title, clampDescription(description))
     };
   }
 
@@ -40,21 +41,21 @@ export function buildBrowseSeo(state: BrowseSeoState): SeoData {
     const name = capitalize(author.name);
     const titles = sample(state.scores, s => s.title);
     const description = titles
-      ? `Play ${name} piano scores: ${titles}. Interactive sheet music with adjustable tempo and real-time feedback.`
-      : `Play ${name} piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and real-time feedback.`;
+      ? $localize`:@@seo.artist.descriptionWithTitles:Play ${name}:artist: piano scores: ${titles}:titles:. Interactive sheet music with adjustable tempo and real-time feedback.`
+      : $localize`:@@seo.artist.description:Play ${name}:artist: piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and real-time feedback.`;
 
     return {
-      title: `${name} Piano Scores`,
+      title: $localize`:@@seo.artist.title:${name}:artist: Piano Scores`,
       description,
       canonical: `${LIBRARY_PATH}/artists/${author.slug}`,
-      structuredData: musicCollectionStructuredData(state.scores, `${name} Piano Works`, clampDescription(description))
+      structuredData: musicCollectionStructuredData(state.scores, $localize`:@@seo.artist.collection:${name}:artist: Piano Works`, clampDescription(description))
     };
   }
 
   if (state.searchKeyword) {
     return {
-      title: `Search: "${state.searchKeyword}"`,
-      description: `Piano scores matching "${state.searchKeyword}" in the PianoML library.`,
+      title: $localize`:@@seo.search.title:Search: "${state.searchKeyword}:keyword:"`,
+      description: $localize`:@@seo.search.description:Piano scores matching "${state.searchKeyword}:keyword:" in the PianoML library.`,
       // Query-string result pages are not worth indexing; the library pages are.
       noindex: true
     };
@@ -63,63 +64,61 @@ export function buildBrowseSeo(state: BrowseSeoState): SeoData {
   switch (state.activeTab) {
     case 'genres':
       return {
-        title: 'Browse Piano Scores by Genre',
+        title: $localize`:@@seo.genres.title:Browse Piano Scores by Genre`,
         description: withNames(
           state.scores,
           s => s.genre,
-          names => `Explore ${state.totalScores}+ piano scores by genre and style — ${names} — with interactive practice features.`,
-          `Explore ${state.totalScores}+ piano scores by genre and style, with hands-separated practice, adjustable tempo and MIDI support.`
+          names => $localize`:@@seo.genres.descriptionWithNames:Explore ${state.totalScores}:count:+ piano scores by genre and style — ${names}:genres: — with interactive practice features.`,
+          $localize`:@@seo.genres.description:Explore ${state.totalScores}:count:+ piano scores by genre and style, with hands-separated practice, adjustable tempo and MIDI support.`
         ),
         // A bare `/library` shows this same tab, and it is the URL in the sitemap.
         canonical: LIBRARY_PATH,
-        structuredData: collectionPage('Browse Piano Scores by Genre', state.totalScores, {
+        structuredData: collectionPage($localize`:@@seo.genres.title:Browse Piano Scores by Genre`, state.totalScores, {
           '@type': 'Thing',
-          name: 'Piano Music Genres',
-          description: 'Collection of piano music organized by musical genre and style'
+          name: $localize`:@@seo.genres.about.name:Piano Music Genres`,
+          description: $localize`:@@seo.genres.about.description:Collection of piano music organized by musical genre and style`
         })
       };
 
     case 'artists':
       return {
-        title: 'Browse Piano Scores by Composer & Artist',
+        title: $localize`:@@seo.artists.title:Browse Piano Scores by Composer & Artist`,
         description: withNames(
           state.scores,
           s => s.author,
-          names => `Discover ${state.totalScores}+ piano scores and learn works by ${names}.`,
-          `Discover ${state.totalScores}+ piano scores by composer, from classical to contemporary, with interactive practice features.`
+          names => $localize`:@@seo.artists.descriptionWithNames:Discover ${state.totalScores}:count:+ piano scores and learn works by ${names}:artists:.`,
+          $localize`:@@seo.artists.description:Discover ${state.totalScores}:count:+ piano scores by composer, from classical to contemporary, with interactive practice features.`
         ),
         canonical: `${LIBRARY_PATH}/artists`,
-        structuredData: collectionPage('Browse Piano Scores by Composer', state.totalScores, {
+        structuredData: collectionPage($localize`:@@seo.artists.collection:Browse Piano Scores by Composer`, state.totalScores, {
           '@type': 'Thing',
-          name: 'Piano Composers and Artists',
-          description: 'Collection of piano works organized by composer and artist'
+          name: $localize`:@@seo.artists.about.name:Piano Composers and Artists`,
+          description: $localize`:@@seo.artists.about.description:Collection of piano works organized by composer and artist`
         })
       };
 
     case 'new':
       return {
-        title: 'New Piano Scores: Latest Uploaded Sheet Music',
-        description:
-          'Browse the latest piano scores added to PianoML, with hands-separated practice, adjustable tempo and MIDI keyboard support.',
+        title: $localize`:@@seo.new.title:New Piano Scores: Latest Uploaded Sheet Music`,
+        description: $localize`:@@seo.new.description:Browse the latest piano scores added to PianoML, with hands-separated practice, adjustable tempo and MIDI keyboard support.`,
         canonical: `${LIBRARY_PATH}/new`,
-        structuredData: collectionPage('New Piano Scores', state.totalScores, {
+        structuredData: collectionPage($localize`:@@seo.new.collection:New Piano Scores`, state.totalScores, {
           '@type': 'CreativeWork',
-          name: 'Latest piano scores',
-          description: 'Collection of recently uploaded piano sheet music'
+          name: $localize`:@@seo.new.about.name:Latest piano scores`,
+          description: $localize`:@@seo.new.about.description:Collection of recently uploaded piano sheet music`
         })
       };
 
     default:
       return {
-        title: 'Piano Scores Library: MusicXML, MIDI & PDF Sheet Music',
-        description:
-          'Browse popular piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable speed, loopable sections and MIDI keyboard support.',
+        title: $localize`:@@seo.popular.title:Piano Scores Library: MusicXML, MIDI & PDF Sheet Music`,
+        description: $localize`:@@seo.popular.description:Browse popular piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable speed, loopable sections and MIDI keyboard support.`,
         canonical: `${LIBRARY_PATH}/popular`,
-        structuredData: collectionPage('Piano Score Library', state.totalScores, {
+        structuredData: collectionPage($localize`:@@seo.popular.collection:Piano Score Library`, state.totalScores, {
           '@type': 'SoftwareApplication',
           name: 'PianoML - Piano Learning Machine',
           applicationCategory: 'Music Education',
-          description: 'Piano learning platform with features for interactive practice'
+          description: $localize`:@@seo.popular.about.description:Piano learning platform with features for interactive practice`
         })
       };
   }
@@ -147,7 +146,7 @@ function sample(scores: ScoreApiInfo[], pick: (score: ScoreApiInfo) => string | 
   const shown = names.slice(0, limit).join(', ');
 
   if (!shown) return null;
-  return names.length > limit ? `${shown} and more` : shown;
+  return names.length > limit ? $localize`:@@seo.namesAndMore:${shown}:names: and more` : shown;
 }
 
 /** Picks the phrasing that fits whether or not any names are available. */

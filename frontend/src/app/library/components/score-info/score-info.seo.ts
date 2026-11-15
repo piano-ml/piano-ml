@@ -1,8 +1,9 @@
 import type { ScoreApiInfo, YoutubeVideoApiInfo } from '../../../core/api';
-import { SITE, type SeoData } from '../../../shared/seo';
+import { currentLocale, localizedUrl } from '../../../shared/i18n';
+import type { SeoData } from '../../../shared/seo';
 
-const UNKNOWN_AUTHOR = 'Unknown Artist';
-const UNTITLED = 'Untitled';
+const UNKNOWN_AUTHOR = $localize`:@@seo.score.unknownArtist:Unknown Artist`;
+const UNTITLED = $localize`:@@seo.score.untitled:Untitled`;
 
 export interface ScoreSeoInput {
   score: ScoreApiInfo | null;
@@ -14,7 +15,7 @@ export interface ScoreSeoInput {
 /** Builds the metadata for a single score page. */
 export function buildScoreSeo({ score, slug, genreName, videos }: ScoreSeoInput): SeoData {
   if (!score) {
-    return { title: 'Score', noindex: true };
+    return { title: $localize`:@@seo.score.title:Score`, noindex: true };
   }
 
   const author = (score.author || '').trim() || UNKNOWN_AUTHOR;
@@ -31,8 +32,8 @@ export function buildScoreSeo({ score, slug, genreName, videos }: ScoreSeoInput)
     ...(score.fullKey ? { musicalKey: score.fullKey } : {}),
     ...(score.duration ? { duration: isoDuration(score.duration) } : {}),
     ...(score.publicDomain ? { isAccessibleForFree: true } : {}),
-    inLanguage: 'en',
-    url: `${SITE.url}${canonical}`
+    inLanguage: currentLocale(),
+    url: localizedUrl(canonical)
   };
 
   return {
@@ -52,10 +53,13 @@ function describe(score: ScoreApiInfo, author: string, title: string, genre: str
   const own = (score.description || '').trim();
   if (own) return own;
 
-  const kind = genre ? `${genre} piano score` : 'piano score';
-  const licence = score.publicDomain ? ' Free to download and public domain.' : '';
+  // Whole sentences, so each language words them its own way; never assembled from fragments.
+  const practice = genre
+    ? $localize`:@@seo.score.descriptionWithGenre:Practice ${title}:title: by ${author}:artist: on PianoML: an interactive ${genre}:genre: piano score with hands-separated practice, adjustable tempo and MIDI feedback.`
+    : $localize`:@@seo.score.description:Practice ${title}:title: by ${author}:artist: on PianoML: an interactive piano score with hands-separated practice, adjustable tempo and MIDI feedback.`;
+  const licence = score.publicDomain ? $localize`:@@seo.score.publicDomain:Free to download and public domain.` : '';
 
-  return `Practice ${title} by ${author} on PianoML: an interactive ${kind} with hands-separated practice, adjustable tempo and MIDI feedback.${licence}`;
+  return licence ? `${practice} ${licence}` : practice;
 }
 
 /** The performance videos shown on the page, so they can surface in search. */

@@ -9,12 +9,13 @@ import { FormsModule } from '@angular/forms';
 import { getWeekOfYear, loadExercice } from '../exercices';
 import { SeoService } from '../../shared/seo';
 import { buildAgilitySeo } from './agility.seo';
+import { NoteNamePipe } from '../../shared/i18n';
 import { PopularScoresInKeyComponent } from '../../shared/components/popular-scores-in-key/popular-scores-in-key.component';
 
 
 @Component({
   selector: 'app-agility',
-  imports: [FormsModule, PopularScoresInKeyComponent],
+  imports: [FormsModule, PopularScoresInKeyComponent, NoteNamePipe],
   templateUrl: './agility.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './agility.component.css'
@@ -68,20 +69,27 @@ export class AgilityComponent implements OnInit {
         this.selectedExcercice = foundExercise;
       }
 
-      if (this.keys.includes(selectedKey)) {
+      const keyFound = this.keys.includes(selectedKey);
+      if (keyFound) {
         this.selectedKey = selectedKey;
       }
 
       this.filterAvailableChords();
 
       const foundChord = this.availableChords.find(
-        (c) => c.name.toLowerCase() === chordKey.toLowerCase()
+        (c) => c.key === chordKey.toLowerCase()
       );
       if (foundChord) {
         this.selectedChord = foundChord;
       }
 
       this.isHydratingFromUrl = false;
+
+      // A URL naming an exercise, key or chord the page doesn't offer (e.g. an unpublished exercise, or a
+      // chord the exercise can't play) shows the fallback: say so in the URL instead of keeping a wrong one.
+      if (!foundExercise || !keyFound || !foundChord) {
+        this.updateUrlFromState();
+      }
 
       this.updateFullKey();
       this.updatePageTitle();
@@ -127,7 +135,7 @@ export class AgilityComponent implements OnInit {
     }
 
     const exerciseKey = this.selectedExcercice.key;
-    const chordKey = this.selectedChord.name.toLowerCase();
+    const chordKey = this.selectedChord.key;
 
     if (!exerciseKey || !this.selectedKey || !chordKey) {
       return;
@@ -141,7 +149,7 @@ export class AgilityComponent implements OnInit {
   private updatePageTitle() {
     this.seo.update(buildAgilitySeo({
       chordName: this.selectedChord?.name,
-      chordKey: this.selectedChord?.name?.toLowerCase(),
+      chordKey: this.selectedChord?.key,
       exerciseName: this.selectedExcercice?.title,
       exerciseKey: this.selectedExcercice?.key,
       selectedKey: this.selectedKey
@@ -155,7 +163,7 @@ export class AgilityComponent implements OnInit {
     note = note.replace(/b/g, '-');
     
     // Determine if the chord is minor based on the chord name property
-    const isMinor = this.selectedChord.name === 'Minor';
+    const isMinor = this.selectedChord.key === 'minor';
     
     // Format: note is uppercase for Major, lowercase for Minor
     const formattedNote = isMinor
