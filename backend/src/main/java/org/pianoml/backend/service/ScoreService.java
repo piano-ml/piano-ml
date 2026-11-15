@@ -75,8 +75,12 @@ public class ScoreService {
   private PackService packService;
 
   public static String makeBucketKeyFromScore(Score score) {
-    String secondId = score.getMbid() != null ? score.getMbid().toString() : score.getId().toString();
-    return "scores/" + score.getOwner().getId() + "/" + secondId + "/" + score.getVersion() + ".zip";
+    return makeBucketKey(score.getOwner().getId(), score.getMbid(), score.getId(), score.getVersion());
+  }
+
+  /** S3 key of a score archive: {@code scores/<owner>/<mbid, else id>/<version>.zip}. */
+  static String makeBucketKey(UUID ownerId, UUID mbid, UUID id, Integer version) {
+    return "scores/" + ownerId + "/" + (mbid != null ? mbid : id) + "/" + version + ".zip";
   }
 
   @Transactional
@@ -441,6 +445,34 @@ public class ScoreService {
     return true;
   }
 
+
+  /**
+   * Deletes every score of {@code owner} for good (play counts, rows, S3 archives), instead of the usual hand-over
+   * to the junk user on account deletion. Works on file references and SQL deletes, not entities: rows written
+   * outside JPA (e.g. a null duration) cannot make it fail.
+   *
+   * @return number of scores deleted
+   */
+  @Transactional
+  public int deleteAllScoresOf(User owner) {
+    List<ScoreRepository.StoredFilesRef> scores = scoreRepository.findStoredFilesByOwnerId(owner.getId());
+    for (ScoreRepository.StoredFilesRef score : scores) {
+      userPlayCountRepository.deleteByScoreId(score.getId());
+    }
+    int deleted = scoreRepository.deleteAllByOwnerId(owner.getId());
+    for (ScoreRepository.StoredFilesRef score : scores) {
+      if (Boolean.TRUE.equals(score.getHasFiles())) {
+        String key = makeBucketKey(owner.getId(), score.getMbid(), score.getId(), score.getVersion());
+        try {
+          s3Client.deleteObject(software.amazon.awssdk.services.s3.model.DeleteObjectRequest.builder()
+            .bucket(bucketName).key(key).build());
+        } catch (S3Exception e) {
+          log.warn("Failed to delete S3 object {}: {}", key, e.getMessage());
+        }
+      }
+    }
+    return deleted;
+  }
 
   public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks) {
     return getAuthorsWithScoreCounts(user, offset, limit, tracks, null, null, null, null);
