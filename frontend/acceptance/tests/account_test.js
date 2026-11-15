@@ -5,6 +5,9 @@ Feature('Account');
 
 // Dedicated acceptance account. Each run starts fresh: a leftover account (from a run that failed midway) is
 // deleted first, then the account is created, used and deleted at the end. Override with env vars if needed.
+// Deleting an account normally keeps its scores under the "junk" user; the backend deletes them instead for this
+// account (account.delete-scores-with-account.emails), so a failed run leaves no score behind. An ACCEPTANCE_EMAIL
+// override must be added to that backend setting too, or its leftover scores go to junk.
 const USER = {
   name: process.env.ACCEPTANCE_NAME || 'acceptance-test',
   email: process.env.ACCEPTANCE_EMAIL || 'acceptance-test@example.com',

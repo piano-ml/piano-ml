@@ -33,7 +33,7 @@ Scenario('open happy birthday score page directly', async ({ I }) => {
   ]) {
     I.see(value, field(label));
   }
-  I.seeElement(linkIn(field('MusicBrainz').xpath, 'Artist'));
+  I.seeElement(linkIn(field('MusicBrainz').xpath, 'Mildred J. Hill')); // the artist link shows the author name (#383)
   I.seeElement(linkIn(field('MusicBrainz').xpath, 'Work'));
 
   // Practice Exercises in C major (the key of the score)

@@ -31,6 +31,12 @@ export const routes: Routes = [
                 path: ':slug',
                 loadComponent: () => import('./library/components/score-info/score-info.component').then(m => m.ScoreInfoComponent),
                 data: { breadcrumb: 'Score' }
+            },
+            {
+                // Owners and admins pick the study tracks of a MIDI score again (the page says so to anyone else)
+                path: ':slug/reimport',
+                loadComponent: () => import('./library/components/score-reimport/score-reimport.component').then(m => m.ScoreReimportComponent),
+                data: { breadcrumb: 'Re-import', seo: NOINDEX_SEO }
             }
         ]
     },

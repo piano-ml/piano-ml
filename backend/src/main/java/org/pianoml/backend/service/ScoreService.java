@@ -75,8 +75,12 @@ public class ScoreService {
   private PackService packService;
 
   public static String makeBucketKeyFromScore(Score score) {
-    String secondId = score.getMbid() != null ? score.getMbid().toString() : score.getId().toString();
-    return "scores/" + score.getOwner().getId() + "/" + secondId + "/" + score.getVersion() + ".zip";
+    return makeBucketKey(score.getOwner().getId(), score.getMbid(), score.getId(), score.getVersion());
+  }
+
+  /** S3 key of a score archive: {@code scores/<owner>/<mbid, else id>/<version>.zip}. */
+  static String makeBucketKey(UUID ownerId, UUID mbid, UUID id, Integer version) {
+    return "scores/" + ownerId + "/" + (mbid != null ? mbid : id) + "/" + version + ".zip";
   }
 
   @Transactional
@@ -245,6 +249,60 @@ public class ScoreService {
         }
       }
     }
+  }
+
+  /** True for an original upload that is a MIDI file ({@code ori.midi}, or {@code ori.mid}): the only ones a re-import accepts. */
+  static boolean isMidiFilename(String filename) {
+    String lower = filename.toLowerCase(java.util.Locale.ROOT);
+    return lower.endsWith(".mid") || lower.endsWith(".midi");
+  }
+
+  /**
+   * Study tracks of a re-import, checked: one or two distinct indexes, none negative.
+   *
+   * @throws IllegalArgumentException otherwise
+   */
+  static String checkedStudyTracks(List<Integer> studyTracks) {
+    if (studyTracks == null || studyTracks.isEmpty() || studyTracks.size() > 2) {
+      throw new IllegalArgumentException("Choose one or two study tracks");
+    }
+    if (studyTracks.stream().anyMatch(track -> track == null || track < 0)) {
+      throw new IllegalArgumentException("Study tracks are indexes in the MIDI file (0 or more)");
+    }
+    if (studyTracks.size() == 2 && studyTracks.get(0).equals(studyTracks.get(1))) {
+      throw new IllegalArgumentException("The two study tracks must differ");
+    }
+    return ScoreMapper.integerListToString(studyTracks);
+  }
+
+  /**
+   * Re-imports a score from the MIDI file uploaded at import ({@code ori.midi} in its zip) with new study tracks.
+   * The score record stays the same (id, slugs, owner, version, so the same S3 key): only its zip and the
+   * information read from the generated metadata (key, tempo, grade, ...) are replaced. On failure the study
+   * tracks are left as they were.
+   *
+   * @return the score once re-imported, empty when it has no original upload
+   * @throws IllegalArgumentException when the study tracks are invalid or the original upload is not a MIDI file
+   */
+  public Optional<Score> reimportMidi(Score score, List<Integer> studyTracks, Boolean makeFingering) throws IOException {
+    String tracks = checkedStudyTracks(studyTracks);
+    Optional<ScoreFile> original = getOriginalFromScore(score);
+    if (original.isEmpty()) {
+      return Optional.empty();
+    }
+    if (!isMidiFilename(original.get().filename())) {
+      throw new IllegalArgumentException("Only scores imported from a MIDI file can be re-imported");
+    }
+    String previousTracks = score.getStudyTracks();
+    score.setStudyTracks(tracks);
+    try {
+      packAttachmentToScore(score, "midi", new ByteArrayInputStream(original.get().content()), makeFingering);
+    } catch (IOException | RuntimeException e) {
+      score.setStudyTracks(previousTracks);
+      throw e;
+    }
+    log.info("Re-imported score {} from {} with study tracks {}", score.getId(), original.get().filename(), tracks);
+    return Optional.of(score);
   }
 
   Score infosFromMetadata(Score score) {
@@ -441,6 +499,34 @@ public class ScoreService {
     return true;
   }
 
+
+  /**
+   * Deletes every score of {@code owner} for good (play counts, rows, S3 archives), instead of the usual hand-over
+   * to the junk user on account deletion. Works on file references and SQL deletes, not entities: rows written
+   * outside JPA (e.g. a null duration) cannot make it fail.
+   *
+   * @return number of scores deleted
+   */
+  @Transactional
+  public int deleteAllScoresOf(User owner) {
+    List<ScoreRepository.StoredFilesRef> scores = scoreRepository.findStoredFilesByOwnerId(owner.getId());
+    for (ScoreRepository.StoredFilesRef score : scores) {
+      userPlayCountRepository.deleteByScoreId(score.getId());
+    }
+    int deleted = scoreRepository.deleteAllByOwnerId(owner.getId());
+    for (ScoreRepository.StoredFilesRef score : scores) {
+      if (Boolean.TRUE.equals(score.getHasFiles())) {
+        String key = makeBucketKey(owner.getId(), score.getMbid(), score.getId(), score.getVersion());
+        try {
+          s3Client.deleteObject(software.amazon.awssdk.services.s3.model.DeleteObjectRequest.builder()
+            .bucket(bucketName).key(key).build());
+        } catch (S3Exception e) {
+          log.warn("Failed to delete S3 object {}: {}", key, e.getMessage());
+        }
+      }
+    }
+    return deleted;
+  }
 
   public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks) {
     return getAuthorsWithScoreCounts(user, offset, limit, tracks, null, null, null, null);

@@ -192,6 +192,28 @@ class AccountDeletionTest {
   }
 
   @Test
+  void delete_ofTheAcceptanceAccount_deletesItsScoresInsteadOfKeepingThemUnderJunk() throws Exception {
+    User acceptance = newUser();
+    acceptance.setEmail("Acceptance-Test@example.com"); // the default listed account, any case
+    userRepository.save(acceptance);
+    User other = newUser();
+    UUID leftover = newScore(acceptance.getId(), false);
+    UUID softDeleted = newScore(acceptance.getId(), true);
+    UUID othersScore = newScore(other.getId(), false);
+    playCount(other.getId(), leftover);
+    int junkScoresBefore = count("SELECT COUNT(*) FROM pianoml.score WHERE owner_id = ?", SystemUsers.JUNK_ID);
+
+    mockMvc.perform(post("/account/delete").header("Authorization", bearer(acceptance)))
+      .andExpect(status().isNoContent());
+
+    assertThat(count("SELECT COUNT(*) FROM pianoml.score WHERE id IN (?, ?)", leftover, softDeleted)).isZero();
+    assertThat(count("SELECT COUNT(*) FROM pianoml.score WHERE owner_id = ?", SystemUsers.JUNK_ID)).isEqualTo(junkScoresBefore);
+    assertThat(count("SELECT COUNT(*) FROM pianoml.user_play_count WHERE score_id = ?", leftover)).isZero();
+    assertThat(count("SELECT COUNT(*) FROM pianoml.\"user\" WHERE id = ?", acceptance.getId())).isZero();
+    assertThat(ownerOf(othersScore)).isEqualTo(other.getId());
+  }
+
+  @Test
   void delete_fromTheBrowser_cookieAuthPlusCsrfToken_succeeds() throws Exception {
     User user = newUser();
     UUID score = newScore(user.getId(), false);
