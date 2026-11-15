@@ -198,7 +198,7 @@ function createMusicXMLWithAPI(exercice: Exercise, scaleOrChord: Scale | Chord, 
             contents: [
               null, // elements.Identification
               new Array<elements.PartLink>(),
-              new elements.PartName({ contents: ['Right Hand'] }),
+              new elements.PartName({ contents: [$localize`:@@exercise.part.rightHand:Right Hand`] }),
               null, // elements.PartNameDisplay
               null, // elements.PartAbbreviation
               null, // elements.PartAbbreviationDisplay
@@ -213,7 +213,7 @@ function createMusicXMLWithAPI(exercice: Exercise, scaleOrChord: Scale | Chord, 
             contents: [
               null, // elements.Identification
               new Array<elements.PartLink>(),
-              new elements.PartName({ contents: ['Left Hand'] }),
+              new elements.PartName({ contents: [$localize`:@@exercise.part.leftHand:Left Hand`] }),
               null, // elements.PartNameDisplay
               null, // elements.PartAbbreviation
               null, // elements.PartAbbreviationDisplay

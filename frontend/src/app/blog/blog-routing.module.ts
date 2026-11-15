@@ -10,9 +10,8 @@ const routes: Routes = [
     component: BlogComponent,
     data: {
       seo: {
-        title: 'Piano Methods, Études & Articles',
-        description:
-          'Digitized piano methods and études — Burgmüller, Czerny and more — plus articles on practice, sight reading and music theory.'
+        title: $localize`:@@seo.blog.title:Piano Methods, Études & Articles`,
+        description: $localize`:@@seo.blog.description:Digitized piano methods and études — Burgmüller, Czerny and more — plus articles on practice, sight reading and music theory.`
       }
     }
   },

@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BlogComponent } from './blog.component';
+import { provideRouter } from '@angular/router';
 
 describe('BlogComponent', () => {
   let fixture: ComponentFixture<BlogComponent>;
   let el: HTMLElement;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [BlogComponent] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [BlogComponent], providers: [provideRouter([])] }).compileComponents();
     fixture = TestBed.createComponent(BlogComponent);
     el = fixture.nativeElement;
     fixture.detectChanges();
@@ -15,7 +16,7 @@ describe('BlogComponent', () => {
   const links = () => [...el.querySelectorAll('li.post a')] as HTMLAnchorElement[];
 
   it('titles the page', () => {
-    expect(el.querySelector('h1')?.textContent).toBe('blog posts');
+    expect(el.querySelector('h1')?.textContent).toBe('Blog posts');
   });
 
   it('lists the posts with links to their pages', () => {

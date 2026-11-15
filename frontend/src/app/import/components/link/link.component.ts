@@ -98,7 +98,7 @@ export class LinkComponent implements OnInit, AfterViewInit {
           this.changeDetector.detectChanges();
         },
         error: (error) => {
-          this.error = error.message || 'An error occurred while searching';
+          this.error = error.message || $localize`:@@importLink.error.search:An error occurred while searching`;
           this.loading = false;
           this.changeDetector.detectChanges();
         }
@@ -209,7 +209,7 @@ export class LinkComponent implements OnInit, AfterViewInit {
           this.changeDetector.detectChanges();
         },
         error: (error) => {
-          this.error = error.message || 'An error occurred while searching artists';
+          this.error = error.message || $localize`:@@importLink.error.artists:An error occurred while searching artists`;
           this.loading = false;
           this.changeDetector.detectChanges();
         }

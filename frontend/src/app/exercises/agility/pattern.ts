@@ -5,11 +5,11 @@ import type { Exercise } from "../model";
 
 const exercice1 = {
     key: "two_octave_arpeggios",
-    title: "Two-octave Arpeggios, root, 1st and 2nd inversions",
+    title: $localize`:@@exercise.two_octave_arpeggios.title:Two-octave Arpeggios, root, 1st and 2nd inversions`,
     measure: 4,
     type: "chord",
     patternSize: 3,
-    advice: "Pratice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple time.",
+    advice: $localize`:@@exercise.two_octave_arpeggios.advice:Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.`,
     beat: reducedFraction(7, 4),
     tempo: 60,
     octaveShift: 0,
@@ -137,11 +137,11 @@ const exercice1 = {
 
 const exercice2 = {
     key: "dominant_seventh",
-    title: "Dominant Seventh Arpeggios (root position)",
+    title: $localize`:@@exercise.dominant_seventh.title:Dominant Seventh Arpeggios (root position)`,
     measure: 4,
     type: "chord",
     patternSize: 4,
-    advice: "Always use a metronome when practicing exercises",
+    advice: $localize`:@@exercise.dominant_seventh.advice:Always use a metronome when practicing exercises`,
     beat: reducedFraction(3, 4),
     tempo: 60,
     octaveShift: 0,    
@@ -227,11 +227,11 @@ const exercice2 = {
 
 const exercice3 = {
     key: "arpeggio_root_position",
-    title: "Arpeggio in root position, two octaves",
+    title: $localize`:@@exercise.arpeggio_root_position.title:Arpeggio in root position, two octaves`,
     measure: 4,
     type: "chord",
     patternSize: 3,
-    advice: "Pratice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple time.",
+    advice: $localize`:@@exercise.arpeggio_root_position.advice:Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.`,
     beat: reducedFraction(4, 4),
     tempo: 60,
     repeat: 1,
@@ -318,11 +318,11 @@ const exercice3 = {
 
 const exercice4 = {
     key: "chord_inversions",
-    title: "Chord inversions ",
+    title: $localize`:@@exercise.chord_inversions.title:Chord inversions`,
     measure: 4,
     type: "chord",
     patternSize: 3,
-    advice: "Pratice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple time.",
+    advice: $localize`:@@exercise.chord_inversions.advice:Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.`,
     beat: reducedFraction(4, 4),
     tempo: 60,
     repeat: 1,

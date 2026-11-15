@@ -1,8 +1,8 @@
 <article class="main-article">
 
   <div class="px-4 sm:px-6 pt-4">
-    <div class="page-title">Profile</div>
-    <div class="page-sub-title">Account settings & workbench preferences</div>
+    <div class="page-title" i18n="@@accountHome.profile">Profile</div>
+    <div class="page-sub-title" i18n="@@accountHome.accountSettingsWorkbenchPreferences">Account settings & workbench preferences</div>
   </div>
 
   <hr class="mx-4 sm:mx-6">
@@ -11,9 +11,9 @@
   <div class="flex items-center justify-between px-4 sm:px-6">
     <p class="text-xs text-neutral-400">{{ userInfo.email }}</p>
     <div class="flex items-center gap-3">
-      <a routerLink="/account/scores" class="btn-primary">My Scores</a>
-      <button type="button" (click)="openDeleteConfirmation()" class="btn-danger" data-testid="delete-account">Delete account</button>
-      <button (click)="logout()" class="btn-danger">Logout</button>
+      <a routerLink="/account/scores" class="btn-primary" i18n="@@accountHome.myScores">My Scores</a>
+      <button type="button" (click)="openDeleteConfirmation()" class="btn-danger" data-testid="delete-account" i18n="@@accountHome.deleteAccount">Delete account</button>
+      <button (click)="logout()" class="btn-danger" i18n="@@accountHome.logout">Logout</button>
     </div>
   </div>
 
@@ -21,7 +21,7 @@
 
     <!-- ── Identity ──────────────────────────────────────── -->
     <section>
-      <p class="section-label mb-3">Identity</p>
+      <p class="section-label mb-3" i18n="@@accountHome.identity">Identity</p>
 
       <div class="exercise-desc-card">
         <div class="exercise-desc-section">
@@ -29,24 +29,24 @@
           @if (!editMode) {
             <div class="flex items-start justify-between gap-4">
               <div class="flex flex-col gap-1">
-                <p class="field-label">Name</p>
+                <p class="field-label" i18n="@@accountHome.name">Name</p>
                 <p class="text-sm text-neutral-200 mt-0.5">{{ userInfo.name || 'No name set' }}</p>
                 <p class="text-xs text-neutral-400 mt-1">{{ userInfo.email }}</p>
               </div>
-              <button type="button" (click)="enableEdit()" class="btn-primary shrink-0">Edit</button>
+              <button type="button" (click)="enableEdit()" class="btn-primary shrink-0" i18n="@@accountHome.edit">Edit</button>
             </div>
           }
 
           @if (editMode) {
             <form [formGroup]="nameForm" (ngSubmit)="savename()" class="flex flex-col gap-4">
               <div class="flex flex-col gap-1.5">
-                <label class="field-label" for="name">Name</label>
-                <input type="text" id="name" formControlName="name" class="input-field" placeholder="Your name">
+                <label class="field-label" for="name" i18n="@@accountHome.name">Name</label>
+                <input type="text" id="name" formControlName="name" class="input-field" i18n-placeholder="@@accountHome.yourName.placeholder" placeholder="Your name">
               </div>
               <p class="text-xs text-neutral-400">{{ userInfo.email }}</p>
               <div class="flex gap-3">
-                <button type="submit" class="btn-success">Save</button>
-                <button type="button" (click)="cancelEdit()" class="btn-secondary">Cancel</button>
+                <button type="submit" class="btn-success" i18n="@@accountHome.save">Save</button>
+                <button type="button" (click)="cancelEdit()" class="btn-secondary" i18n="@@accountHome.cancel">Cancel</button>
               </div>
             </form>
           }
@@ -58,8 +58,8 @@
     <!-- ── Workbench ──────────────────────────────────────── -->
     <section>
       <div class="flex items-center justify-between mb-3">
-        <p class="section-label">Workbench</p>
-        <button type="button" (click)="openMidiSetup()" class="link-primary text-xs">MIDI Setup →</button>
+        <p class="section-label" i18n="@@accountHome.workbench">Workbench</p>
+        <button type="button" (click)="openMidiSetup()" class="link-primary text-xs" i18n="@@accountHome.midiSetup">MIDI Setup →</button>
       </div>
 
       <div class="exercise-desc-card">
@@ -70,28 +70,28 @@
 
               <div class="grid grid-cols-2 gap-x-8 gap-y-4 flex-1">
                 <div>
-                  <p class="field-label">MIDI lowest key</p>
+                  <p class="field-label" i18n="@@accountHome.midiLowestKey">MIDI lowest key</p>
                   <p class="text-sm text-neutral-200 mt-0.5">{{ leftmostKeyValue }}</p>
                 </div>
                 <div>
-                  <p class="field-label">MIDI highest key</p>
+                  <p class="field-label" i18n="@@accountHome.midiHighestKey">MIDI highest key</p>
                   <p class="text-sm text-neutral-200 mt-0.5">{{ rightmostKeyValue }}</p>
                 </div>
                 <div>
-                  <p class="field-label">Draw fingering</p>
+                  <p class="field-label" i18n="@@accountHome.drawFingering">Draw fingering</p>
                   <p class="text-sm text-neutral-200 mt-0.5">{{ drawFingeringControl?.value ? 'Yes' : 'No' }}</p>
                 </div>
                 <div>
-                  <p class="field-label">Draw lyrics</p>
+                  <p class="field-label" i18n="@@accountHome.drawLyrics">Draw lyrics</p>
                   <p class="text-sm text-neutral-200 mt-0.5">{{ drawLyricsControl?.value ? 'Yes' : 'No' }}</p>
                 </div>
                 <div>
-                  <p class="field-label">Show keyboard</p>
+                  <p class="field-label" i18n="@@accountHome.showKeyboard">Show keyboard</p>
                   <p class="text-sm text-neutral-200 mt-0.5">{{ showKeyboardControl?.value ? 'Yes' : 'No' }}</p>
                 </div>
               </div>
 
-              <button type="button" (click)="enableKeyboardEdit()" class="btn-primary shrink-0">Edit</button>
+              <button type="button" (click)="enableKeyboardEdit()" class="btn-primary shrink-0" i18n="@@accountHome.edit">Edit</button>
             </div>
           </div>
         }
@@ -103,9 +103,7 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <div class="flex flex-col gap-1.5">
-                  <label class="field-label" for="leftmostKey">
-                    MIDI lowest key
-                    <span class="normal-case font-normal tracking-normal text-neutral-500 ml-1">(play a note)</span>
+                  <label class="field-label" for="leftmostKey" i18n="@@accountHome.lowestKeyLabel">MIDI lowest key <span class="normal-case font-normal tracking-normal text-neutral-500 ml-1">(play a note)</span>
                   </label>
                   <input
                     type="number"
@@ -118,17 +116,15 @@
                     placeholder="21">
                   @if (leftmostKeyControl?.invalid && leftmostKeyControl?.touched) {
                     <p class="text-error text-xs mt-0.5">
-                      @if (leftmostKeyControl?.errors?.['required']) { Required. }
-                      @if (leftmostKeyControl?.errors?.['min']) { Min 21. }
-                      @if (leftmostKeyControl?.errors?.['max']) { Max 108. }
+                      @if (leftmostKeyControl?.errors?.['required']) { <ng-container i18n="@@accountHome.key.required">Required.</ng-container> }
+                      @if (leftmostKeyControl?.errors?.['min']) { <ng-container i18n="@@accountHome.key.min">Min {{ 21 }}.</ng-container> }
+                      @if (leftmostKeyControl?.errors?.['max']) { <ng-container i18n="@@accountHome.key.max">Max {{ 108 }}.</ng-container> }
                     </p>
                   }
                 </div>
 
                 <div class="flex flex-col gap-1.5">
-                  <label class="field-label" for="rightmostKey">
-                    MIDI highest key
-                    <span class="normal-case font-normal tracking-normal text-neutral-500 ml-1">(play a note)</span>
+                  <label class="field-label" for="rightmostKey" i18n="@@accountHome.highestKeyLabel">MIDI highest key <span class="normal-case font-normal tracking-normal text-neutral-500 ml-1">(play a note)</span>
                   </label>
                   <input
                     type="number"
@@ -141,9 +137,9 @@
                     placeholder="108">
                   @if (rightmostKeyControl?.invalid && rightmostKeyControl?.touched) {
                     <p class="text-error text-xs mt-0.5">
-                      @if (rightmostKeyControl?.errors?.['required']) { Required. }
-                      @if (rightmostKeyControl?.errors?.['min']) { Min 21. }
-                      @if (rightmostKeyControl?.errors?.['max']) { Max 108. }
+                      @if (rightmostKeyControl?.errors?.['required']) { <ng-container i18n="@@accountHome.key.required">Required.</ng-container> }
+                      @if (rightmostKeyControl?.errors?.['min']) { <ng-container i18n="@@accountHome.key.min">Min {{ 21 }}.</ng-container> }
+                      @if (rightmostKeyControl?.errors?.['max']) { <ng-container i18n="@@accountHome.key.max">Max {{ 108 }}.</ng-container> }
                     </p>
                   }
                 </div>
@@ -155,33 +151,33 @@
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" id="drawFingering" formControlName="drawFingering"
                     class="w-4 h-4 rounded cursor-pointer">
-                  <span class="text-sm text-neutral-300">Draw fingering</span>
+                  <span class="text-sm text-neutral-300" i18n="@@accountHome.drawFingering">Draw fingering</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" id="drawLyrics" formControlName="drawLyrics"
                     class="w-4 h-4 rounded cursor-pointer">
-                  <span class="text-sm text-neutral-300">Draw lyrics</span>
+                  <span class="text-sm text-neutral-300" i18n="@@accountHome.drawLyrics">Draw lyrics</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" id="showKeyboard" formControlName="showKeyboard"
                     class="w-4 h-4 rounded cursor-pointer">
-                  <span class="text-sm text-neutral-300">Show keyboard</span>
+                  <span class="text-sm text-neutral-300" i18n="@@accountHome.showKeyboard">Show keyboard</span>
                 </label>
               </div>
 
               @if (focusedField) {
                 <p class="text-success text-xs">
-                  Listening for MIDI — {{ focusedField === 'leftmostKey' ? 'lowest' : 'highest' }} key…
+                  @if (focusedField === 'leftmostKey') { <ng-container i18n="@@accountHome.listening.lowest">Listening for MIDI — lowest key…</ng-container> } @else { <ng-container i18n="@@accountHome.listening.highest">Listening for MIDI — highest key…</ng-container> }
                 </p>
               }
 
               @if (keyboardPreferencesForm.errors?.['invalidRange'] && (leftmostKeyControl?.touched || rightmostKeyControl?.touched)) {
-                <p class="text-error text-xs">Lowest key must be less than highest key.</p>
+                <p class="text-error text-xs" i18n="@@accountHome.lowestKeyMustBeLess">Lowest key must be less than highest key.</p>
               }
 
               <div class="flex gap-3">
-                <button type="submit" [disabled]="keyboardPreferencesForm.invalid" class="btn-success">Save</button>
-                <button type="button" (click)="cancelKeyboardEdit()" class="btn-secondary">Cancel</button>
+                <button type="submit" [disabled]="keyboardPreferencesForm.invalid" class="btn-success" i18n="@@accountHome.save">Save</button>
+                <button type="button" (click)="cancelKeyboardEdit()" class="btn-secondary" i18n="@@accountHome.cancel">Cancel</button>
               </div>
 
             </form>
@@ -197,11 +193,11 @@
   @if (showDeleteConfirmation) {
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-account-title">
       <div class="modal-content">
-        <h3 id="delete-account-title" class="page-sub-title mb-4">Delete account</h3>
-        <p class="text-sm text-neutral-400 mb-2">
+        <h3 id="delete-account-title" class="page-sub-title mb-4" i18n="@@accountHome.deleteAccount">Delete account</h3>
+        <p class="text-sm text-neutral-400 mb-2" i18n="@@accountHome.yourAccountWillBePermanently">
           Your account will be permanently deleted. This action cannot be undone.
         </p>
-        <p class="text-sm text-neutral-400 mb-4">
+        <p class="text-sm text-neutral-400 mb-4" i18n="@@accountHome.yourScoresAreKeptOn">
           Your scores are kept on PianoML but will no longer be linked to you.
         </p>
         @if (deleteError) {
@@ -209,7 +205,7 @@
         }
         <div class="flex justify-end gap-3">
           <button type="button" (click)="cancelDeleteAccount()" class="btn-secondary" [disabled]="deleting"
-            data-testid="delete-cancel">
+            data-testid="delete-cancel" i18n="@@accountHome.cancel">
             Cancel
           </button>
           <button type="button" (click)="confirmDeleteAccount()" class="btn-danger" [disabled]="deleting"

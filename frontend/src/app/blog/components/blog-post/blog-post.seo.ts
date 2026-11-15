@@ -1,3 +1,4 @@
+import { currentLocale, localizedUrl, sourceLocale } from '../../../shared/i18n';
 import { type SeoData, clampDescription } from '../../../shared/seo';
 
 /**
@@ -6,11 +7,17 @@ import { type SeoData, clampDescription } from '../../../shared/seo';
  * paragraph describes it.
  */
 export function postSeo(html: string, slug: string): SeoData {
-  return {
+  const seo: SeoData = {
     title: extractHeading(html) || humanize(slug),
     description: extractFirstParagraph(html),
     type: 'article'
   };
+  const source = sourceLocale().code;
+
+  // Posts are written in English only. The English page is the one to index, without hreflang
+  // alternates; the other languages show the same post, noindex, pointing to it as canonical.
+  if (currentLocale() === source) return { ...seo, alternates: false };
+  return { ...seo, noindex: true, canonical: localizedUrl(`/blog/${slug}`, source) };
 }
 
 function extractHeading(html: string): string | null {

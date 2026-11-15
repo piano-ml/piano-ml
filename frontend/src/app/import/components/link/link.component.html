@@ -1,18 +1,18 @@
 <article class="main-article">
 
   <div class="px-4 sm:px-6 pt-4">
-    <h3 class="page-title">Import Music Work</h3>
-    <div class="page-sub-title">Please select a title or artist & title to import</div>
+    <h3 class="page-title" i18n="@@importLink.importMusicWork">Import Music Work</h3>
+    <div class="page-sub-title" i18n="@@importLink.pleaseSelectATitleOr">Please select a title or artist & title to import</div>
   </div>
 
 
-  <section class="main-section" aria-label="Score details and actions">
+  <section class="main-section" i18n-aria-label="@@importLink.scoreDetailsAndActions.label" aria-label="Score details and actions">
     @if (!isLoggedIn) {
     <div class="card-secondary">
       <div class="text-4xl mb-4">🔒</div>
-      <h4 class="text-lg font-medium mb-2">Authentication Required</h4>
-      <p class="text-sm mb-4">You must be logged in to link musical works.</p>
-      <a routerLink="/account/login" [queryParams]="loginQueryParams(router.url)" class="btn-primary inline-block">
+      <h4 class="text-lg font-medium mb-2" i18n="@@importLink.authenticationRequired">Authentication Required</h4>
+      <p class="text-sm mb-4" i18n="@@importLink.youMustBeLoggedIn">You must be logged in to link musical works.</p>
+      <a routerLink="/account/login" [queryParams]="loginQueryParams(router.url)" class="btn-primary inline-block" i18n="@@importLink.login">
         Login
       </a>
     </div>
@@ -25,14 +25,14 @@
       <div class="card-secondary">
         <!-- Quick Search -->
 
-        <label class="card-title">Quick Search: select a work to define a title and author</label>
+        <label class="card-title" i18n="@@importLink.quickSearchSelectAWork">Quick Search: select a work to define a title and author</label>
         <div class="flex gap-2">
           <input #searchInput [(ngModel)]="searchQuery" (keyup.enter)="searchWorks()"
-            placeholder="Search for works (e.g., 'redemption song')" class="input-field flex-1">
+            i18n-placeholder="@@importLink.searchForWorksEG.placeholder" placeholder="Search for works (e.g., 'redemption song')" class="input-field flex-1">
           <button (click)="searchWorks()" class="btn-primary" [disabled]="loading">
             {{ loading ? 'Searching...' : 'Search' }}
           </button>
-          <button (click)="clearSearch()" class="btn-secondary">
+          <button (click)="clearSearch()" class="btn-secondary" i18n="@@importLink.clear">
             Clear
           </button>
         </div>
@@ -45,9 +45,7 @@
       @if (response && !showManualCreation) {
       <div class="card-secondary">
         <div class="flex justify-between items-center mb-2">
-          <p class="card-title">
-            {{ displayedWorks.length }} works found
-          </p>
+          <p class="card-title" i18n="@@importLink.worksFound">{displayedWorks.length, plural, =1 {1 work found} other {{{ displayedWorks.length }} works found}}</p>
         </div>
 
         <!-- Results Table -->
@@ -56,9 +54,9 @@
           <table class="table-auto border-collapse border border-gray-400 w-full">
             <thead>
               <tr class="bg-neutral-600">
-                <th class="border border-gray-300 px-4 py-2 text-left">Score</th>
-                <th class="border border-gray-300 px-4 py-2 text-left">Title</th>
-                <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
+                <th class="border border-gray-300 px-4 py-2 text-left" i18n="@@importLink.score">Score</th>
+                <th class="border border-gray-300 px-4 py-2 text-left" i18n="@@importLink.title">Title</th>
+                <th class="border border-gray-300 px-4 py-2 text-center" i18n="@@importLink.actions">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -72,7 +70,7 @@
                   <div class="font-medium">{{ work.artistName }}</div>
                 </td>
                 <td class="border border-gray-300 px-4 py-2 text-center">
-                  <button (click)="onWorkClick(work); $event.stopPropagation()" class="btn-primary">
+                  <button (click)="onWorkClick(work); $event.stopPropagation()" class="btn-primary" i18n="@@importLink.select">
                     Select
                   </button>
                 </td>
@@ -87,12 +85,12 @@
         !showManualCreation) {
         <div class="text-center text-gray-400 py-8 bg-neutral-600 rounded-lg">
           @if (response.count === 0) {
-          <p>No works found matching your criteria.</p>
+          <p i18n="@@importLink.noWorksFoundMatchingYour">No works found matching your criteria.</p>
           }
           @if (response.count > 0 && displayedWorks.length === 0) {
-          <p>No works found after filtering (found {{ response.count }} but none matched the current filters).</p>
+          <p i18n="@@importLink.noWorksFoundAfterFiltering">No works found after filtering (found {{ response.count }} but none matched the current filters).</p>
           }
-          <p class="text-sm mt-1">Try adjusting your search terms or filters.</p>
+          <p class="text-sm mt-1" i18n="@@importLink.tryAdjustingYourSearchTerms">Try adjusting your search terms or filters.</p>
         </div>
         }
 
@@ -103,7 +101,7 @@
       @if (!showManualCreation && hasSearched) {
       <div class="card-secondary">
         <div class="mb-4 text-center">
-          <button (click)="startManualCreation()" class="btn-primary">
+          <button (click)="startManualCreation()" class="btn-primary" i18n="@@importLink.canTFindTheWork">
             Can't find the work you're looking for in the database? Create it manually
           </button>
         </div>
@@ -116,18 +114,18 @@
         <!-- Header -->
         <div class="card-secondary">
           <div class="flex justify-between items-center mb-2">
-            <h4 class="text-lg font-semibold">Create Work Manually</h4>
-            <button (click)="cancelManualCreation()" class="btn-secondary btn-small">
+            <h4 class="text-lg font-semibold" i18n="@@importLink.createWorkManually">Create Work Manually</h4>
+            <button (click)="cancelManualCreation()" class="btn-secondary btn-small" i18n="@@importLink.cancel">
               Cancel
             </button>
           </div>
           <!-- Step Indicator -->
           <div class="flex items-center gap-2 text-sm">
-            <span [class]="manualCreationStep === 'artist' ? 'text-blue-400 font-semibold' : 'text-gray-400'">
+            <span [class]="manualCreationStep === 'artist' ? 'text-blue-400 font-semibold' : 'text-gray-400'" i18n="@@importLink.1SelectArtist">
               1. Select Artist
             </span>
             <span class="text-gray-500">→</span>
-            <span [class]="manualCreationStep === 'title' ? 'text-blue-400 font-semibold' : 'text-gray-400'">
+            <span [class]="manualCreationStep === 'title' ? 'text-blue-400 font-semibold' : 'text-gray-400'" i18n="@@importLink.2EnterTitle">
               2. Enter Title
             </span>
           </div>
@@ -135,10 +133,10 @@
         <!-- Step 1: Artist Search -->
         @if (manualCreationStep === 'artist') {
         <div class="card-secondary">
-          <label class="card-title">Search for an artist</label>
+          <label class="card-title" i18n="@@importLink.searchForAnArtist">Search for an artist</label>
           <div class="flex gap-2 mb-4">
             <input [(ngModel)]="artistSearchQuery" (keyup.enter)="searchArtists()"
-              placeholder="Enter artist name (e.g., 'Bob Marley')" class="input-field flex-1">
+              i18n-placeholder="@@importLink.enterArtistNameEG.placeholder" placeholder="Enter artist name (e.g., 'Bob Marley')" class="input-field flex-1">
             <button (click)="searchArtists()" class="btn-primary" [disabled]="loading">
               {{ loading ? 'Searching...' : 'Search' }}
             </button>
@@ -147,20 +145,20 @@
           @if (loading && manualCreationStep === 'artist') {
           <div class="text-center text-gray-400 py-8">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-            <p>Searching for artists...</p>
+            <p i18n="@@importLink.searchingForArtists">Searching for artists...</p>
           </div>
           }
           <!-- Artist Results -->
           @if (artistResponse && artistResponse.artists.length > 0 && !loading) {
           <div class="overflow-x-auto">
-            <p class="text-sm text-gray-400 mb-2">Found {{ artistResponse.count }} artists</p>
+            <p class="text-sm text-gray-400 mb-2" i18n="@@importLink.foundArtists">{artistResponse.count, plural, =1 {Found 1 artist} other {Found {{ artistResponse.count }} artists}}</p>
             <table class="table-auto border-collapse border border-gray-400 w-full">
               <thead>
                 <tr class="bg-neutral-700">
-                  <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
-                  <th class="border border-gray-300 px-4 py-2 text-left">Type</th>
-                  <th class="border border-gray-300 px-4 py-2 text-left">Country</th>
-                  <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left" i18n="@@importLink.name">Name</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left" i18n="@@importLink.type">Type</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left" i18n="@@importLink.country">Country</th>
+                  <th class="border border-gray-300 px-4 py-2 text-center" i18n="@@importLink.actions">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -179,7 +177,7 @@
                     {{ artist.country || 'N/A' }}
                   </td>
                   <td class="border border-gray-300 px-4 py-2 text-center">
-                    <button (click)="onArtistSelect(artist); $event.stopPropagation()" class="btn-primary">
+                    <button (click)="onArtistSelect(artist); $event.stopPropagation()" class="btn-primary" i18n="@@importLink.select">
                       Select
                     </button>
                   </td>
@@ -193,8 +191,8 @@
           @if (artistResponse && artistResponse.count === 0 && !loading) {
           <div class="text-center text-gray-400 py-8 bg-neutral-700 rounded-lg">
             <div class="text-2xl mb-2">🎤</div>
-            <p>No artists found matching your search.</p>
-            <p class="text-sm mt-1">Try different search terms.</p>
+            <p i18n="@@importLink.noArtistsFoundMatchingYour">No artists found matching your search.</p>
+            <p class="text-sm mt-1" i18n="@@importLink.tryDifferentSearchTerms">Try different search terms.</p>
           </div>
           }
         </div>
@@ -203,7 +201,7 @@
         @if (manualCreationStep === 'title') {
         <div class="card-secondary">
 
-          <h4 class="text-lg font-semibold">Selected Artist: {{ selectedArtist?.name }}</h4>
+          <h4 class="text-lg font-semibold" i18n="@@importLink.selectedArtist">Selected Artist: {{ selectedArtist?.name }}</h4>
           @if (selectedArtist?.disambiguation) {
           <h4 class="text-lg font-semibold">({{ selectedArtist?.disambiguation }})</h4>
 
@@ -211,20 +209,20 @@
         }
 
           <div class="flex justify-end">
-            <button (click)="backToArtistSearch()" class="btn-secondary btn-small">
+            <button (click)="backToArtistSearch()" class="btn-secondary btn-small" i18n="@@importLink.changeArtist">
               Change artist
             </button>
           </div>
         </div>
         <div class="card-secondary">
-          <label class="card-title">Enter the work title</label>
-          <input [(ngModel)]="workTitle" (keyup.enter)="submitManualWork()" placeholder="Enter work/song title"
+          <label class="card-title" i18n="@@importLink.enterTheWorkTitle">Enter the work title</label>
+          <input [(ngModel)]="workTitle" (keyup.enter)="submitManualWork()" i18n-placeholder="@@importLink.enterWorkSongTitle.placeholder" placeholder="Enter work/song title"
             class="input-field w-full mb-4">
           <div class="flex gap-2 justify-end">
-            <button (click)="backToArtistSearch()" class="btn-secondary">
+            <button (click)="backToArtistSearch()" class="btn-secondary" i18n="@@importLink.back">
               Back
             </button>
-            <button (click)="submitManualWork()" [disabled]="!workTitle.trim()" class="btn-success">
+            <button (click)="submitManualWork()" [disabled]="!workTitle.trim()" class="btn-success" i18n="@@importLink.createWork">
               Create Work
             </button>
           </div>
@@ -238,16 +236,16 @@
       @if (loading && !showManualCreation) {
       <div class="text-center text-gray-400 py-8">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-        <p>Searching MusicBrainz database...</p>
+        <p i18n="@@importLink.searchingMusicbrainzDatabase">Searching MusicBrainz database...</p>
       </div>
       }
       <!-- Error -->
       @if (error) {
       <div class="text-center text-red-400 py-8 bg-red-900 bg-opacity-20 rounded-lg">
         <div class="text-2xl mb-2">⚠️</div>
-        <p class="font-medium">Error occurred</p>
+        <p class="font-medium" i18n="@@importLink.errorOccurred">Error occurred</p>
         <p class="text-sm mt-1">{{ error }}</p>
-        <button (click)="error = null" class="btn-danger btn-small mt-2">
+        <button (click)="error = null" class="btn-danger btn-small mt-2" i18n="@@importLink.dismiss">
           Dismiss
         </button>
       </div>
