@@ -3,18 +3,18 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { HomeComponent } from "./components/home/home.component";
 import { SummaryComponent } from "./components/summary/summary.component";
-import { HOME_SEO, SUMMARY_SEO } from "./home.seo";
+import { homeSeo, summarySeo } from "./home.seo";
 
 export const desktopRouteList: Routes = [
     {
         path: '',
         component: HomeComponent,
-        data: { seo: HOME_SEO }
+        data: { seo: homeSeo }
     },
     {
         path: 'summary',
         component: SummaryComponent,
-        data: { breadcrumb: 'Summary', seo: SUMMARY_SEO }
+        data: { breadcrumb: 'Summary', seo: summarySeo }
     }
 ];
 

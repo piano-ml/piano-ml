@@ -1,5 +1,6 @@
 import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
+import { availableLocales, currentLocaleInfo, localizedUrl, sourceLocale, splitLocalePath } from '../i18n';
 import { SITE, type SeoData, absoluteUrl, canonicalPath, clampDescription, pageTitle } from './seo.model';
 
 type MetaKind = 'name' | 'property';
@@ -31,6 +32,17 @@ const MANAGED_TAGS: ReadonlyArray<readonly [MetaKind, string]> = [
 const LEGACY_TAGS: ReadonlyArray<readonly [MetaKind, string]> = [['name', 'keywords']];
 
 const JSONLD_MARKER = 'data-seo-jsonld';
+
+/** Tags written once per other language, removed and rewritten as a set. */
+const OG_LOCALE_ALTERNATE = 'og:locale:alternate';
+
+/** schema.org types that describe a page or the site, and so say which language they are in. */
+const PAGE_TYPES = new Set(['WebSite', 'WebPage', 'CollectionPage', 'AboutPage', 'ItemPage', 'FAQPage', 'ProfilePage', 'SearchResultsPage']);
+
+interface Alternate {
+  hreflang: string;
+  href: string;
+}
 
 /**
  * Single writer for the document's title, meta tags, canonical link and JSON-LD.
@@ -91,7 +103,8 @@ export class SeoService {
     const title = pageTitle(data.title);
     const description = clampDescription(data.description || SITE.defaultDescription);
     const image = absoluteUrl(data.image || SITE.ogImage);
-    const canonical = absoluteUrl(data.canonical || canonicalPath(this.url));
+    const canonical = localizedUrl(data.canonical || canonicalPath(this.url));
+    const locale = currentLocaleInfo();
 
     const values: Partial<Record<string, string>> = {
       description,
@@ -108,7 +121,7 @@ export class SeoService {
       'og:url': canonical,
       'og:image': image,
       'og:site_name': SITE.name,
-      'og:locale': SITE.locale
+      'og:locale': locale.ogLocale
     };
 
     this.title.setTitle(title);
@@ -126,8 +139,10 @@ export class SeoService {
       this.removeTags(kind, key);
     }
 
+    this.setOgLocaleAlternates(availableLocales().filter(other => other.code !== locale.code).map(other => other.ogLocale));
     this.setCanonical(canonical);
-    this.setStructuredData([...this.graph, ...toArray(data.structuredData)]);
+    this.setAlternates(data.noindex ? [] : alternatesOf(canonical));
+    this.setStructuredData([...this.graph, ...toArray(data.structuredData)].map(entry => withLanguage(entry, locale.code)));
   }
 
   /**
@@ -144,6 +159,28 @@ export class SeoService {
     const tags = this.meta.getTags(`${kind}="${key}"`);
     for (const tag of tags.slice(keep)) {
       this.meta.removeTagElement(tag);
+    }
+  }
+
+  private setOgLocaleAlternates(ogLocales: string[]): void {
+    this.removeTags('property', OG_LOCALE_ALTERNATE);
+    for (const content of ogLocales) {
+      this.meta.addTag({ property: OG_LOCALE_ALTERNATE, content });
+    }
+  }
+
+  /** One `<link rel="alternate" hreflang>` per language plus `x-default`, none on a noindex page. */
+  private setAlternates(alternates: Alternate[]): void {
+    for (const link of Array.from(this.document.head.querySelectorAll('link[rel="alternate"][hreflang]'))) {
+      link.remove();
+    }
+
+    for (const { hreflang, href } of alternates) {
+      const link = this.document.createElement('link');
+      link.setAttribute('rel', 'alternate');
+      link.setAttribute('hreflang', hreflang);
+      link.setAttribute('href', href);
+      this.document.head.appendChild(link);
     }
   }
 
@@ -173,6 +210,27 @@ export class SeoService {
       this.document.head.appendChild(script);
     }
   }
+}
+
+/**
+ * The same page in every language, read from its canonical: the language prefix is swapped, the path
+ * and slugs stay. A canonical on another site has no alternates.
+ */
+function alternatesOf(canonical: string): Alternate[] {
+  if (!canonical.startsWith(`${SITE.url}/`)) return [];
+  const { path } = splitLocalePath(canonical.slice(SITE.url.length));
+
+  return [
+    ...availableLocales().map(locale => ({ hreflang: locale.code, href: localizedUrl(path, locale.code) })),
+    { hreflang: 'x-default', href: localizedUrl(path, sourceLocale().code) }
+  ];
+}
+
+/** Adds the page language to a WebSite / WebPage entry that does not state one. */
+// biome-ignore lint/suspicious/noExplicitAny: JSON-LD is free-form by nature
+function withLanguage(entry: any, language: string): any {
+  if (!entry || typeof entry !== 'object' || entry.inLanguage || !PAGE_TYPES.has(entry['@type'])) return entry;
+  return { ...entry, inLanguage: language };
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: JSON-LD is free-form by nature

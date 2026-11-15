@@ -1,10 +1,13 @@
+import { SITE_ORIGIN, localizedUrl } from '../i18n';
+
 /**
- * Site-wide constants used to build every page's metadata.
+ * Site-wide constants used to build every page's metadata. `url` is the bare origin: a page URL goes
+ * through `localizedUrl()` so it carries the current language's prefix. The Open Graph locale comes
+ * from the current locale (`currentLocaleInfo().ogLocale`).
  */
 export const SITE = {
-  url: 'https://pianoml.org',
+  url: SITE_ORIGIN,
   name: 'PianoML',
-  locale: 'en_US',
   titleSuffix: ' | PianoML',
   ogImage: '/assets/images/pianoml-og-image.png',
   defaultTitle: 'PianoML: Learn Piano with Smart Sheet Music & Practice Tools',
@@ -24,7 +27,10 @@ export interface SeoData {
   image?: string;
   /** `og:type` — defaults to `website`. */
   type?: string;
-  /** Absolute URL, or a path. Defaults to the current route without its query. */
+  /**
+   * Absolute URL, or an app path (without language prefix) resolved in the current language.
+   * Defaults to the current route without its query.
+   */
   canonical?: string;
   /** A single JSON-LD object or several of them. */
   // biome-ignore lint/suspicious/noExplicitAny: JSON-LD is free-form by nature
@@ -73,6 +79,15 @@ export function clampDescription(description?: string, max: number = DESCRIPTION
 export function absoluteUrl(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
   return `${SITE.url}/${pathOrUrl.replace(/^\/+/, '')}`;
+}
+
+/**
+ * {@link localizedUrl} for JSON-LD: the English site root stays `https://pianoml.org` without a
+ * trailing slash, as it always was; every other URL, `/es/` included, is the page's own URL.
+ */
+export function siteUrl(path: string, locale?: string): string {
+  const url = localizedUrl(path, locale);
+  return url === `${SITE.url}/` ? SITE.url : url;
 }
 
 /** Drops the query string and fragment — those never belong in a canonical. */

@@ -1,5 +1,6 @@
 import type { ScoreApiInfo, YoutubeVideoApiInfo } from '../../../core/api';
-import { SITE, type SeoData } from '../../../shared/seo';
+import { currentLocale, localizedUrl } from '../../../shared/i18n';
+import type { SeoData } from '../../../shared/seo';
 
 const UNKNOWN_AUTHOR = 'Unknown Artist';
 const UNTITLED = 'Untitled';
@@ -31,8 +32,8 @@ export function buildScoreSeo({ score, slug, genreName, videos }: ScoreSeoInput)
     ...(score.fullKey ? { musicalKey: score.fullKey } : {}),
     ...(score.duration ? { duration: isoDuration(score.duration) } : {}),
     ...(score.publicDomain ? { isAccessibleForFree: true } : {}),
-    inLanguage: 'en',
-    url: `${SITE.url}${canonical}`
+    inLanguage: currentLocale(),
+    url: localizedUrl(canonical)
   };
 
   return {

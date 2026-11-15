@@ -1,3 +1,4 @@
+import { localizedUrl } from '../../shared/i18n';
 import { SITE, type SeoData } from '../../shared/seo';
 
 export interface AgilitySeoState {
@@ -47,7 +48,7 @@ export function buildAgilitySeo(state: AgilitySeoState): SeoData {
       provider: {
         '@type': 'Organization',
         name: SITE.name,
-        url: SITE.url
+        url: localizedUrl('/')
       }
     }
   };
