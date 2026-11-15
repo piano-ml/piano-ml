@@ -65,4 +65,42 @@ function localizedPath(pathname, locale) {
   return locale.subPath ? `/${locale.subPath}${clean}` : clean;
 }
 
-module.exports = { ANGULAR_JSON, localesFromAngularJson, readLocales, localizedPath, ogLocaleOf };
+/**
+ * `ng serve` builds one language. For each language other than the source one, angular.json needs a build
+ * configuration (that language only, under its prefix) and a serve configuration, so that
+ * `npm start -- -c fr` serves the French site at http://localhost:4200/fr/ with the paths production uses.
+ *
+ * Returns a copy of angular.json with exactly those configurations (added, updated, or removed for a
+ * language no longer listed), and whether anything changed. The language list still lives only in the
+ * `i18n` section: `npm run i18n:check` fails when these configurations don't match it, `--fix` writes them.
+ */
+function syncDevServerConfigs(angularJson, project = PROJECT) {
+  const json = structuredClone(angularJson);
+  const architect = json.projects[project].architect;
+  const build = (architect.build.configurations ??= {});
+  const serve = (architect.serve.configurations ??= {});
+  const proxyConfig = serve.development?.proxyConfig;
+  const [, ...locales] = localesFromAngularJson(json, project);
+  const expected = new Set(locales.map((locale) => locale.code));
+
+  // Configurations a previous sync wrote for a language that is gone.
+  for (const [name, config] of Object.entries(build)) {
+    if (Array.isArray(config.localize) && config.localize.length === 1 && config.localize[0] === name && !expected.has(name)) delete build[name];
+  }
+  for (const [name, config] of Object.entries(serve)) {
+    if (config.buildTarget === `${project}:build:development,${name}` && !expected.has(name)) delete serve[name];
+  }
+
+  for (const { code, subPath } of locales) {
+    build[code] = { localize: [code], baseHref: `/${subPath}/` };
+    serve[code] = {
+      buildTarget: `${project}:build:development,${code}`,
+      ...(proxyConfig ? { proxyConfig } : {}),
+      servePath: `/${subPath}/`
+    };
+  }
+
+  return { json, changed: JSON.stringify(json) !== JSON.stringify(angularJson) };
+}
+
+module.exports = { ANGULAR_JSON, PROJECT, localesFromAngularJson, readLocales, localizedPath, ogLocaleOf, syncDevServerConfigs };

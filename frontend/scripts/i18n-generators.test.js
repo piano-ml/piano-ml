@@ -284,3 +284,27 @@ test('prunes every prefixed language folder and leaves the root build alone', ()
   assert.ok(fs.existsSync(path.join(dir, 'es/index.csr.html')));
   fs.rmSync(dir, { recursive: true });
 });
+
+test('dev-server configurations: one per non-source language, under its prefix, stale ones removed', () => {
+  const { syncDevServerConfigs } = require('./lib/i18n-config');
+  const angularJson = {
+    projects: {
+      'piano-ml': {
+        i18n: { sourceLocale: { code: 'en', subPath: '' }, locales: { es: 'src/locale/messages.es.xlf', 'zh-Hans': { translation: 'src/locale/messages.zh-Hans.xlf', subPath: 'zh' } } },
+        architect: {
+          build: { configurations: { development: { optimization: false }, gone: { localize: ['gone'], baseHref: '/gone/' } } },
+          serve: { configurations: { development: { buildTarget: 'piano-ml:build:development', proxyConfig: 'proxy.conf.mjs' }, gone: { buildTarget: 'piano-ml:build:development,gone' } } }
+        }
+      }
+    }
+  };
+  const { json, changed } = syncDevServerConfigs(angularJson);
+  assert.equal(changed, true);
+  const { build, serve } = json.projects['piano-ml'].architect;
+  assert.deepEqual(Object.keys(build.configurations), ['development', 'es', 'zh-Hans']);
+  assert.deepEqual(build.configurations['zh-Hans'], { localize: ['zh-Hans'], baseHref: '/zh/' });
+  assert.deepEqual(serve.configurations.es, { buildTarget: 'piano-ml:build:development,es', proxyConfig: 'proxy.conf.mjs', servePath: '/es/' });
+  assert.equal(serve.configurations.gone, undefined);
+  assert.equal(angularJson.projects['piano-ml'].architect.build.configurations.gone.baseHref, '/gone/', 'input untouched');
+  assert.equal(syncDevServerConfigs(json).changed, false, 'idempotent');
+});

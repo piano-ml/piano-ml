@@ -2,17 +2,19 @@
 /**
  * Checks every messages.<code>.xlf of angular.json against the messages in the code (ng extract-i18n):
  * fails when a message is missing, untranslated, or translated from an older English text (stale).
- * Messages no longer in the code are reported and can be dropped.
+ * Messages no longer in the code are reported and can be dropped. Also checks that angular.json has one
+ * dev-server configuration per language (`npm start -- -c fr`).
  *
  *   npm run i18n:check          extracts, then checks (CI)
  *   npm run i18n:check -- --fix  also rewrites each xlf: adds missing units (empty target), drops obsolete
- *                                ones, keeps every translation; stale units keep their target until updated
+ *                                ones, keeps every translation; stale units keep their target until updated;
+ *                                writes the dev-server configurations
  */
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const { readLocales } = require('./lib/i18n-config');
+const { ANGULAR_JSON, readLocales, syncDevServerConfigs } = require('./lib/i18n-config');
 const { readUnits, normalizeSource, writeXlf } = require('./lib/xliff');
 
 const ROOT = path.join(__dirname, '..');
@@ -86,8 +88,21 @@ function main() {
     if (!lines.length) console.log(`✓ ${file}: ${sourceUnits.length} messages translated`);
   }
 
+  // One `ng serve` configuration per language (`npm start -- -c fr`), derived from the i18n section.
+  const angularJson = JSON.parse(fs.readFileSync(ANGULAR_JSON, 'utf8'));
+  const devServer = syncDevServerConfigs(angularJson);
+  if (!devServer.changed) {
+    console.log('✓ angular.json: one dev-server configuration per language');
+  } else if (fix) {
+    fs.writeFileSync(ANGULAR_JSON, `${JSON.stringify(devServer.json, null, 2)}\n`, 'utf8');
+    console.log('✎ angular.json: dev-server configurations updated');
+  } else {
+    console.log('angular.json: the per-language dev-server configurations do not match the i18n section');
+    failed = true;
+  }
+
   if (failed) {
-    console.error('✗ Translations are incomplete: run `npm run i18n:check -- --fix`, then translate the new units.');
+    console.error('✗ i18n check failed: run `npm run i18n:check -- --fix`, then translate any new units.');
     process.exit(1);
   }
 }

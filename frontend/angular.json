@@ -178,6 +178,72 @@
                 "zone.js/testing",
                 "@angular/localize/init"
               ]
+            },
+            "es": {
+              "localize": [
+                "es"
+              ],
+              "baseHref": "/es/"
+            },
+            "fr": {
+              "localize": [
+                "fr"
+              ],
+              "baseHref": "/fr/"
+            },
+            "it": {
+              "localize": [
+                "it"
+              ],
+              "baseHref": "/it/"
+            },
+            "zh-Hans": {
+              "localize": [
+                "zh-Hans"
+              ],
+              "baseHref": "/zh/"
+            },
+            "de": {
+              "localize": [
+                "de"
+              ],
+              "baseHref": "/de/"
+            },
+            "nl": {
+              "localize": [
+                "nl"
+              ],
+              "baseHref": "/nl/"
+            },
+            "pl": {
+              "localize": [
+                "pl"
+              ],
+              "baseHref": "/pl/"
+            },
+            "sv": {
+              "localize": [
+                "sv"
+              ],
+              "baseHref": "/sv/"
+            },
+            "th": {
+              "localize": [
+                "th"
+              ],
+              "baseHref": "/th/"
+            },
+            "uk": {
+              "localize": [
+                "uk"
+              ],
+              "baseHref": "/uk/"
+            },
+            "ko": {
+              "localize": [
+                "ko"
+              ],
+              "baseHref": "/ko/"
             }
           },
           "defaultConfiguration": "production"
@@ -191,6 +257,61 @@
             "development": {
               "buildTarget": "piano-ml:build:development",
               "proxyConfig": "proxy.conf.mjs"
+            },
+            "es": {
+              "buildTarget": "piano-ml:build:development,es",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/es/"
+            },
+            "fr": {
+              "buildTarget": "piano-ml:build:development,fr",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/fr/"
+            },
+            "it": {
+              "buildTarget": "piano-ml:build:development,it",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/it/"
+            },
+            "zh-Hans": {
+              "buildTarget": "piano-ml:build:development,zh-Hans",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/zh/"
+            },
+            "de": {
+              "buildTarget": "piano-ml:build:development,de",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/de/"
+            },
+            "nl": {
+              "buildTarget": "piano-ml:build:development,nl",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/nl/"
+            },
+            "pl": {
+              "buildTarget": "piano-ml:build:development,pl",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/pl/"
+            },
+            "sv": {
+              "buildTarget": "piano-ml:build:development,sv",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/sv/"
+            },
+            "th": {
+              "buildTarget": "piano-ml:build:development,th",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/th/"
+            },
+            "uk": {
+              "buildTarget": "piano-ml:build:development,uk",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/uk/"
+            },
+            "ko": {
+              "buildTarget": "piano-ml:build:development,ko",
+              "proxyConfig": "proxy.conf.mjs",
+              "servePath": "/ko/"
             }
           },
           "defaultConfiguration": "development"
