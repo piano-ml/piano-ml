@@ -16,7 +16,7 @@
     "acceptance": "npm --prefix acceptance test",
     "generate:api": "openapi-generator-cli generate -i ../openapi/api.yaml -g typescript-angular -o src/app/core/api --additional-properties=ngVersion=17.0.0",
     "prestart": "npm run generate:api && npm run i18n:generate",
-    "i18n:generate": "node scripts/generate-locales.js && node scripts/generate-robots.js",
+    "i18n:generate": "node scripts/generate-locales.js && node scripts/generate-robots.js && node scripts/generate-webmanifest.js",
     "shaders:manifest": "node scripts/generate-shader-manifest.js",
     "generate:sitemap": "node scripts/generate-sitemap.js",
     "shaders:watch": "nodemon --watch src/assets/shader --ext glsl --exec \"npm run shaders:manifest\"",

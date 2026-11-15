@@ -10,3 +10,6 @@ deno.lock
 # Generated from the i18n section of angular.json (npm run i18n:generate)
 /src/robots.txt
 /src/app/shared/i18n/locales.generated.ts
+/src/manifest.*.webmanifest
+# Per-language sitemaps, only written when sitemap.xml becomes an index (generate-sitemap.js)
+/src/sitemap-*.xml

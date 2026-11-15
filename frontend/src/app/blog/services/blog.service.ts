@@ -12,7 +12,7 @@ export class BlogService {
   constructor(private http: HttpClient) { }
 
   getPost(slug: string): Observable<string> {
-    return this.http.get(`assets/blog/${slug}.md`, { responseType: 'text' })
+    return this.http.get(`/assets/blog/${slug}.md`, { responseType: 'text' })
       .pipe(map(markdown => marked.parse(markdown))) as Observable<string>;
   }
 }

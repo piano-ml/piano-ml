@@ -1,5 +1,6 @@
 import type { Routes } from '@angular/router';
 import { LayoutComponent } from './shared/components/layout/layout.component';
+import { NAV } from './shared/i18n/app-messages';
 import type { SeoData } from './shared/seo';
 
 /** Mirrors the Disallow rules in robots.txt for routes rendered in-app. */
@@ -69,14 +70,14 @@ export const routes: Routes = [
         component: LayoutComponent,
         path: 'exercises',
         loadChildren: () => import('./exercises/exercises.module').then(m => m.ExercisesModule),
-        data: { breadcrumb: 'Exercises' }
+        data: { breadcrumb: NAV.exercises }
 
     },
     {
         component: LayoutComponent,
         path: '',
         loadChildren: () => import('./home/home.module').then(m => m.HomeModule),
-        data: { breadcrumb: 'Home' }
+        data: { breadcrumb: NAV.home }
     },
     {
         path: 'error',

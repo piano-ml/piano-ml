@@ -51,7 +51,16 @@
                 "input": "src/assets/",
                 "output": "/assets/"
               },
-              "src/sitemap.xml",
+              {
+                "glob": "sitemap*.xml",
+                "input": "src",
+                "output": "/"
+              },
+              {
+                "glob": "manifest.*.webmanifest",
+                "input": "src",
+                "output": "/"
+              },
               "src/robots.txt"
             ],
             "styles": [

@@ -234,6 +234,9 @@ jobs:
             || fail "Spanish deep link failed"
           grep -q '<html lang="es"' /tmp/smoke-es.html || fail "/es/ is not served in Spanish"
           grep -q 'ng-server-context="ssr"' /tmp/smoke-es.html || fail "/es/ is not server-rendered"
+          grep -q 'href="/manifest.es.webmanifest"' /tmp/smoke-es.html || fail "/es/ does not link its web app manifest"
+          curl -fsS http://localhost:8080/manifest.es.webmanifest | grep -q '"lang": "es"' \
+            || fail "manifest.es.webmanifest is missing"
           echo "Spanish build verified"
           docker logs fe-smoke
           docker stop fe-smoke

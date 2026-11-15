@@ -10,5 +10,7 @@ export {
   provideI18n,
   setCurrentLocale,
   sourceLocale,
-  splitLocalePath
+  splitLocalePath,
+  webManifestUrl
 } from './i18n';
+export { APP_MANIFEST, NAV } from './app-messages';

@@ -10,7 +10,9 @@ import {
   provideI18n,
   setCurrentLocale,
   sourceLocale,
-  splitLocalePath
+  splitLocalePath,
+  webManifestUrl,
+  writeAppHead
 } from './i18n';
 
 /** The languages come from angular.json (generated), English at the root and Spanish under /es/. */
@@ -64,6 +66,16 @@ describe('i18n helpers', () => {
   it('passes absolute URLs through', () => {
     setCurrentLocale('es');
     expect(localizedUrl('https://example.org/x')).toBe('https://example.org/x');
+  });
+
+  it("points the document to the language's web app manifest, with the theme color", () => {
+    const doc = document.implementation.createHTMLDocument('test');
+    writeAppHead(doc, 'es');
+    writeAppHead(doc, 'es'); // updates in place, never duplicates
+    expect([...doc.head.querySelectorAll('link[rel="manifest"]')].map(l => l.getAttribute('href'))).toEqual(['/manifest.es.webmanifest']);
+    expect(doc.head.querySelector('meta[name="theme-color"]')?.getAttribute('content')).toBe('#000000');
+    expect(doc.head.querySelector('meta[name="apple-mobile-web-app-title"]')?.getAttribute('content')).toBe('PianoML');
+    expect(webManifestUrl()).toBe('/manifest.en.webmanifest');
   });
 
   it('splits a site path into its language and the path the app routes on', () => {

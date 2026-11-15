@@ -2,6 +2,106 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="es" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="languageSwitcher.label" datatype="html">
+        <source>Language</source>
+        <target state="translated">Idioma</target>
+      </trans-unit>
+      <trans-unit id="nav.home" datatype="html">
+        <source>Home</source>
+        <target state="translated">Inicio</target>
+      </trans-unit>
+      <trans-unit id="nav.browse" datatype="html">
+        <source>Browse</source>
+        <target state="translated">Explorar</target>
+      </trans-unit>
+      <trans-unit id="nav.exercises" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">Ejercicios</target>
+      </trans-unit>
+      <trans-unit id="manifest.name" datatype="html">
+        <source>PianoML: Learn Piano</source>
+        <target state="translated">PianoML: aprende piano</target>
+      </trans-unit>
+      <trans-unit id="manifest.shortName" datatype="html">
+        <source>PianoML</source>
+        <target state="translated">PianoML</target>
+      </trans-unit>
+      <trans-unit id="manifest.description" datatype="html">
+        <source>Learn piano with smart sheet music, scales and real-time feedback.</source>
+        <target state="translated">Aprende piano con partituras inteligentes, escalas y respuesta en tiempo real.</target>
+      </trans-unit>
+      <trans-unit id="shader.1.description" datatype="html">
+        <source>Wave-based animated shader</source>
+        <target state="translated">Shader animado basado en ondas</target>
+      </trans-unit>
+      <trans-unit id="shader.2.description" datatype="html">
+        <source>Space-themed shader with stars and cosmic effects</source>
+        <target state="translated">Shader espacial con estrellas y efectos cósmicos</target>
+      </trans-unit>
+      <trans-unit id="shader.3.description" datatype="html">
+        <source>Wave-based animated shader</source>
+        <target state="translated">Shader animado basado en ondas</target>
+      </trans-unit>
+      <trans-unit id="shader.4.description" datatype="html">
+        <source>Space-themed shader with stars and cosmic effects</source>
+        <target state="translated">Shader espacial con estrellas y efectos cósmicos</target>
+      </trans-unit>
+      <trans-unit id="shader.5.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">Shader animado y colorido con degradados dinámicos</target>
+      </trans-unit>
+      <trans-unit id="shader.6.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">Shader animado y colorido con degradados dinámicos</target>
+      </trans-unit>
+      <trans-unit id="shader.7.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">Shader animado y colorido con degradados dinámicos</target>
+      </trans-unit>
+      <trans-unit id="song.noWomanNoCry.description" datatype="html">
+        <source>Choose a track to play with accompaniment</source>
+        <target state="translated">Elige una pista para tocar con acompañamiento</target>
+      </trans-unit>
+      <trans-unit id="song.plicPloc.description" datatype="html">
+        <source>Exercise in rythm recognition and note reading</source>
+        <target state="translated">Ejercicio de reconocimiento del ritmo y lectura de notas</target>
+      </trans-unit>
+      <trans-unit id="song.happyBirthday.description" datatype="html">
+        <source>The most recognized song in the English language</source>
+        <target state="translated">La canción más conocida en lengua inglesa</target>
+      </trans-unit>
+      <trans-unit id="song.belleIleEnMer.description" datatype="html">
+        <source>Exercise in chord progression</source>
+        <target state="translated">Ejercicio de progresión de acordes</target>
+      </trans-unit>
+      <trans-unit id="song.brahmsLullaby.description" datatype="html">
+        <source>Exercise in chord progression based on Brahms&apos; Lullaby.</source>
+        <target state="translated">Ejercicio de progresión de acordes basado en la Canción de cuna de Brahms.</target>
+      </trans-unit>
+      <trans-unit id="song.zeldaLullaby.description" datatype="html">
+        <source>Melody of the Royal Family.</source>
+        <target state="translated">Melodía de la familia real.</target>
+      </trans-unit>
+      <trans-unit id="song.forElise.description" datatype="html">
+        <source>Try split voice option</source>
+        <target state="translated">Prueba la opción de separar voces</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.beginner" datatype="html">
+        <source>beginner</source>
+        <target state="translated">principiante</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.intermediate" datatype="html">
+        <source>intermediate</source>
+        <target state="translated">intermedio</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.advanced" datatype="html">
+        <source>advanced</source>
+        <target state="translated">avanzado</target>
+      </trans-unit>
+      <trans-unit id="shader.noDescription" datatype="html">
+        <source>No description available</source>
+        <target state="translated">Sin descripción disponible</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
