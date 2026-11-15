@@ -93,14 +93,16 @@ backend, since a fresh database does not know it yet.
 Credentials default to a dedicated account (`acceptance-test@example.com`); override with `ACCEPTANCE_NAME`,
 `ACCEPTANCE_EMAIL`, `ACCEPTANCE_PASSWORD` and `ACCEPTANCE_ARTIST`. Every run creates the account and deletes it at
 the end (a leftover from a failed run is deleted first), so it always owns exactly the score it uploads. Deleted
-accounts' scores go to the "junk" system user.
+accounts' scores normally go to the "junk" system user; this account is the exception: the backend deletes its
+scores with it (`account.delete-scores-with-account.emails`, default `acceptance-test@example.com`), so failed runs
+leave nothing under junk. An `ACCEPTANCE_EMAIL` override must be added to that backend setting.
 
 ## Notes
 
 - A score whose import failed midway (created, but its files never produced) never finishes loading
   ("Loading score…"), so it can neither be opened nor deleted from the UI. The account scenario's start-of-run
-  cleanup deletes a leftover account directly (its scores go to the "junk" user), so such a score does not block
-  later runs.
+  cleanup deletes a leftover account directly (its scores are deleted with it, see above), so such a score does not
+  block later runs.
 
 - The account scenario's MIDI import runs MuseScore + automatic fingering inside the upload request. On
   production's backend (max 2 instances, 1 vCPU) one such import saturated every instance on 2026-11-10 and the

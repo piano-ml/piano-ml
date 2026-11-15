@@ -12,6 +12,7 @@ import org.pianoml.backend.repository.ScoreRepository;
 import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -45,6 +47,16 @@ public class AccountService {
   @Autowired
   private ScoreRepository scoreRepository;
 
+  @Autowired
+  private ScoreService scoreService;
+
+  /**
+   * Accounts whose scores are deleted with them instead of being kept under the junk user: the acceptance test
+   * account, so its leftovers (a run that failed midway) never pile up under junk. Comma-separated emails.
+   */
+  @Value("${account.delete-scores-with-account.emails:acceptance-test@example.com}")
+  private List<String> deleteScoresWithAccountEmails = List.of();
+
   /**
    * Deletes the authenticated user's own account.
    *
@@ -52,13 +64,22 @@ public class AccountService {
    * deleted and the database removes dependent rows (user_play_count, ON DELETE CASCADE). The score owner
    * foreign key is ON DELETE RESTRICT, so a delete that skipped the move would fail instead of losing scores.
    *
-   * @return number of scores moved to the junk user
+   * <p>Exception: the scores of the accounts listed in {@code account.delete-scores-with-account.emails} (the
+   * acceptance test account) are deleted with the account.
+   *
+   * @return number of scores moved to the junk user (0 when they were deleted)
    */
   @Transactional
   public int deleteCurrentUser(Authentication authentication) {
     User user = getUserFromAuthentication(authentication);
     if (SystemUsers.JUNK_ID.equals(user.getId())) {
       throw new IllegalStateException("System users cannot be deleted");
+    }
+    if (deletesScoresWithAccount(user)) {
+      int deleted = scoreService.deleteAllScoresOf(user);
+      userRepository.delete(user);
+      log.info("Deleted account {}; {} score(s) deleted with it", user.getId(), deleted);
+      return 0;
     }
     if (!userRepository.existsById(SystemUsers.JUNK_ID)) {
       throw new IllegalStateException("Junk system user is missing (Liquibase changelog 021)");
@@ -68,6 +89,14 @@ public class AccountService {
     userRepository.delete(user);
     log.info("Deleted account {}; {} score(s) moved to the junk user", user.getId(), moved);
     return moved;
+  }
+
+  /** True for the accounts whose scores are deleted with them (email match, case-insensitive). */
+  boolean deletesScoresWithAccount(User user) {
+    String email = user.getEmail();
+    return email != null && deleteScoresWithAccountEmails.stream()
+      .map(String::trim)
+      .anyMatch(listed -> !listed.isEmpty() && listed.equalsIgnoreCase(email.trim()));
   }
 
   public User createUser(AccountCreatePostRequest accountCreatePostRequest) {

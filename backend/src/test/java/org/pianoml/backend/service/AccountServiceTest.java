@@ -43,6 +43,9 @@ public class AccountServiceTest {
   @Mock
   private PasswordEncoder passwordEncoder;
 
+  @Mock
+  private ScoreService scoreService;
+
   @Spy
   private UserMapper userMapper = realUserMapper();
 
@@ -173,6 +176,50 @@ public class AccountServiceTest {
     var order = inOrder(scoreRepository, userRepository);
     order.verify(scoreRepository).reassignOwner(id, org.pianoml.backend.entity.SystemUsers.JUNK_ID);
     order.verify(userRepository).delete(user);
+  }
+
+  @Test
+  public void deleteCurrentUser_ofAListedAccount_deletesItsScoresWithIt_withoutTheJunkUser() {
+    ReflectionTestUtils.setField(accountService, "deleteScoresWithAccountEmails", List.of("acceptance-test@example.com"));
+    UUID id = UUID.randomUUID();
+    User user = storedUser(id);
+    user.setEmail("Acceptance-Test@Example.com ");
+    when(scoreService.deleteAllScoresOf(user)).thenReturn(2);
+
+    int moved = accountService.deleteCurrentUser(authenticated(id));
+
+    assertEquals(0, moved);
+    var order = inOrder(scoreService, userRepository);
+    order.verify(scoreService).deleteAllScoresOf(user);
+    order.verify(userRepository).delete(user);
+    verify(scoreRepository, never()).reassignOwner(any(), any());
+    verify(userRepository, never()).existsById(any());
+  }
+
+  @Test
+  public void deleteCurrentUser_ofAnyOtherAccount_keepsItsScoresUnderJunk() {
+    ReflectionTestUtils.setField(accountService, "deleteScoresWithAccountEmails", List.of("acceptance-test@example.com"));
+    UUID id = UUID.randomUUID();
+    User user = storedUser(id);
+    user.setEmail("someone@example.com");
+    when(userRepository.existsById(org.pianoml.backend.entity.SystemUsers.JUNK_ID)).thenReturn(true);
+    when(scoreRepository.reassignOwner(id, org.pianoml.backend.entity.SystemUsers.JUNK_ID)).thenReturn(1);
+
+    assertEquals(1, accountService.deleteCurrentUser(authenticated(id)));
+    verifyNoInteractions(scoreService);
+  }
+
+  @Test
+  public void deletesScoresWithAccount_onlyForListedEmails() {
+    ReflectionTestUtils.setField(accountService, "deleteScoresWithAccountEmails", List.of(" acceptance-test@example.com", ""));
+    User user = new User();
+    assertFalse(accountService.deletesScoresWithAccount(user)); // no email
+    user.setEmail("ACCEPTANCE-TEST@example.com");
+    assertTrue(accountService.deletesScoresWithAccount(user));
+    user.setEmail("acceptance-test@example.org");
+    assertFalse(accountService.deletesScoresWithAccount(user));
+    user.setEmail("");
+    assertFalse(accountService.deletesScoresWithAccount(user)); // an empty entry matches nobody
   }
 
   @Test
