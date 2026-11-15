@@ -141,7 +141,7 @@ export class SeoService {
 
     this.setOgLocaleAlternates(availableLocales().filter(other => other.code !== locale.code).map(other => other.ogLocale));
     this.setCanonical(canonical);
-    this.setAlternates(data.noindex ? [] : alternatesOf(canonical));
+    this.setAlternates(data.noindex || data.alternates === false ? [] : alternatesOf(canonical));
     this.setStructuredData([...this.graph, ...toArray(data.structuredData)].map(entry => withLanguage(entry, locale.code)));
   }
 

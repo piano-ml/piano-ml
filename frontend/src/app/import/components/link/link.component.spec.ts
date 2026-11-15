@@ -77,7 +77,7 @@ describe('LinkComponent', () => {
       await render();
       await typeAndEnter('Search for works', 'redemption song');
       expect(search).toHaveBeenCalledWith({ query: 'redemption song', limit: 50 });
-      expect(el.textContent).toContain('1 works found');
+      expect(el.textContent).toContain('1 work found');
       const row = el.querySelector('tbody tr')!;
       expect(row.textContent).toContain('Redemption Song');
       expect(row.textContent).toContain('Bob Marley');
@@ -177,7 +177,7 @@ describe('LinkComponent', () => {
       await startManual();
       await typeAndEnter('Enter artist name', 'marley');
       expect(search).toHaveBeenCalledWith('marley', 50);
-      expect(el.textContent).toContain('Found 1 artists');
+      expect(el.textContent).toContain('Found 1 artist');
       expect(el.textContent).toContain('reggae singer');
       expect(el.textContent).toContain('JM');
 

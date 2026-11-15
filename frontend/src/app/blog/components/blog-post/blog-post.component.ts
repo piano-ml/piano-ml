@@ -8,6 +8,7 @@ import { tap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { SeoService } from '../../../shared/seo';
 import { postSeo } from './blog-post.seo';
+import { currentLocale, sourceLocale } from '../../../shared/i18n';
 
 @Component({
   selector: 'app-blog-post',
@@ -19,6 +20,8 @@ import { postSeo } from './blog-post.seo';
 })
 export class BlogPostComponent implements OnInit {
   post$!: Observable<string>;
+  /** Posts are written in English only: other languages show them with a note (spec #381). */
+  protected readonly inSourceLanguage = currentLocale() === sourceLocale().code;
 
   private route = inject(ActivatedRoute);
   private blogService = inject(BlogService);

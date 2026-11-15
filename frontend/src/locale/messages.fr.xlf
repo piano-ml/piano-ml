@@ -2,6 +2,470 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="account.route.home" datatype="html">
+        <source>Home</source>
+        <target state="translated">Accueil</target>
+      </trans-unit>
+      <trans-unit id="account.route.login" datatype="html">
+        <source>Login</source>
+        <target state="translated">Connexion</target>
+      </trans-unit>
+      <trans-unit id="account.route.create" datatype="html">
+        <source>Create</source>
+        <target state="translated">Créer</target>
+      </trans-unit>
+      <trans-unit id="account.route.scores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">Mes partitions</target>
+      </trans-unit>
+      <trans-unit id="account.route.editScore" datatype="html">
+        <source>Edit Score</source>
+        <target state="translated">Modifier la partition</target>
+      </trans-unit>
+      <trans-unit id="accountScores.myScores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">Mes partitions</target>
+      </trans-unit>
+      <trans-unit id="accountScores.yourUploadedAndCuratedCollection" datatype="html">
+        <source>Your uploaded and curated collection</source>
+        <target state="translated">Votre collection de partitions importées et choisies</target>
+      </trans-unit>
+      <trans-unit id="browse.capsuleCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {1 partition} other {<x id="INTERPOLATION"/> partitions}}</target>
+      </trans-unit>
+      <trans-unit id="accountScores.browseLibrary" datatype="html">
+        <source> Browse library </source>
+        <target state="translated">Parcourir la bibliothèque</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error" datatype="html">
+        <source>Error:</source>
+        <target state="translated">Erreur :</target>
+      </trans-unit>
+      <trans-unit id="accountScores.empty" datatype="html">
+        <source>No scores yet — upload your first MIDI file to get started.</source>
+        <target state="translated">Aucune partition pour l'instant : importez votre premier fichier MIDI pour commencer.</target>
+      </trans-unit>
+      <trans-unit id="accountScores.loading" datatype="html">
+        <source>Loading your scores…</source>
+        <target state="translated">Chargement de vos partitions…</target>
+      </trans-unit>
+      <trans-unit id="accountScores.col.played" datatype="html">
+        <source>#played</source>
+        <target state="translated">#jouées</target>
+      </trans-unit>
+      <trans-unit id="accountScores.filesMissing" datatype="html">
+        <source>Files missing: the import did not finish</source>
+        <target state="translated">Fichiers manquants : l'import n'est pas allé au bout</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.version" datatype="html">
+        <source>Version</source>
+        <target state="translated">Version</target>
+      </trans-unit>
+      <trans-unit id="accountScores.col.publicDomain" datatype="html">
+        <source>Public domain</source>
+        <target state="translated">Domaine public</target>
+      </trans-unit>
+      <trans-unit id="accountScores.copyrighted" datatype="html">
+        <source>Copyrighted, downloads restricted</source>
+        <target state="translated">Protégée par le droit d'auteur, téléchargements restreints</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Titre</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">Auteur</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">Genre</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target state="translated">Ajoutée le</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error.auth" datatype="html">
+        <source>User not authenticated</source>
+        <target state="translated">Utilisateur non authentifié</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error.load" datatype="html">
+        <source>An error occurred while loading scores</source>
+        <target state="translated">Une erreur s'est produite lors du chargement des partitions</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.searchComposer.placeholder" datatype="html">
+        <source>Search composer…</source>
+        <target state="translated">Rechercher un compositeur…</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.select" datatype="html">
+        <source>Select ↵</source>
+        <target state="translated">Choisir ↵</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.noResultsFor" datatype="html">
+        <source>No results for &quot;<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>&quot;</source>
+        <target state="translated">Aucun résultat pour « <x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/> »</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.tryADifferentSpellingOr" datatype="html">
+        <source>Try a different spelling or use the name directly below</source>
+        <target state="translated">Essayez une autre orthographe ou utilisez directement le nom ci-dessous</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.typeANameAndPress" datatype="html">
+        <source>Type a name and press ↵ to search MusicBrainz</source>
+        <target state="translated">Saisissez un nom et appuyez sur ↵ pour chercher dans MusicBrainz</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.useAsAuthor" datatype="html">
+        <source>Use <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;text-neutral-200&quot;&gt;"/>&quot;<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>&quot;<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> as author</source>
+        <target state="translated">Utiliser <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;text-neutral-200&quot;&gt;"/>« <x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/> »<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> comme auteur</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.withoutMusicbrainzLink" datatype="html">
+        <source>Without MusicBrainz link</source>
+        <target state="translated">Sans lien MusicBrainz</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.escToClose" datatype="html">
+        <source>esc to close</source>
+        <target state="translated">Échap pour fermer</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.error" datatype="html">
+        <source>Failed to search authors</source>
+        <target state="translated">La recherche d'auteurs a échoué</target>
+      </trans-unit>
+      <trans-unit id="createAccount.createAccount" datatype="html">
+        <source>Create Account</source>
+        <target state="translated">Créer un compte</target>
+      </trans-unit>
+      <trans-unit id="createAccount.accountDetails" datatype="html">
+        <source>Account Details</source>
+        <target state="translated">Informations du compte</target>
+      </trans-unit>
+      <trans-unit id="createAccount.name" datatype="html">
+        <source>name</source>
+        <target state="translated">nom</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourName.placeholder" datatype="html">
+        <source>Enter your name</source>
+        <target state="translated">Saisissez votre nom</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsRequired" datatype="html">
+        <source> name is required. </source>
+        <target state="translated">Le nom est obligatoire.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">E-mail</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourEmail.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">Saisissez votre e-mail</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsRequired" datatype="html">
+        <source>Email is required.</source>
+        <target state="translated">L'e-mail est obligatoire.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
+        <source>Invalid email format.</source>
+        <target state="translated">Format d'e-mail invalide.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.password" datatype="html">
+        <source>Password</source>
+        <target state="translated">Mot de passe</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourPassword.placeholder" datatype="html">
+        <source>Enter your password</source>
+        <target state="translated">Saisissez votre mot de passe</target>
+      </trans-unit>
+      <trans-unit id="createAccount.passwordMustBeAtLeast" datatype="html">
+        <source> Password must be at least 8 characters long. </source>
+        <target state="translated">Le mot de passe doit contenir au moins 8 caractères.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.confirmPassword" datatype="html">
+        <source>Confirm Password</source>
+        <target state="translated">Confirmer le mot de passe</target>
+      </trans-unit>
+      <trans-unit id="createAccount.confirmYourPassword.placeholder" datatype="html">
+        <source>Confirm your password</source>
+        <target state="translated">Confirmez votre mot de passe</target>
+      </trans-unit>
+      <trans-unit id="createAccount.passwordsDoNotMatch" datatype="html">
+        <source> Passwords do not match. </source>
+        <target state="translated">Les mots de passe ne correspondent pas.</target>
+      </trans-unit>
+      <trans-unit id="editScore.editByPianoScore" datatype="html">
+        <source>Edit <x id="INTERPOLATION" equiv-text="{{ score.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score.author }}"/> - Piano Score</source>
+        <target state="translated">Modifier <x id="INTERPOLATION" equiv-text="{{ score.title }}"/> de <x id="INTERPOLATION_1" equiv-text="{{ score.author }}"/> - Partition de piano</target>
+      </trans-unit>
+      <trans-unit id="editScore.editScore" datatype="html">
+        <source>Edit score</source>
+        <target state="translated">Modifier la partition</target>
+      </trans-unit>
+      <trans-unit id="editScore.delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">Supprimer</target>
+      </trans-unit>
+      <trans-unit id="editScore.cancel" datatype="html">
+        <source>← Cancel</source>
+        <target state="translated">← Annuler</target>
+      </trans-unit>
+      <trans-unit id="editScore.loadingScore" datatype="html">
+        <source>Loading score…</source>
+        <target state="translated">Chargement de la partition…</target>
+      </trans-unit>
+      <trans-unit id="editScore.error" datatype="html">
+        <source>Error:</source>
+        <target state="translated">Erreur :</target>
+      </trans-unit>
+      <trans-unit id="editScore.scoreDetails" datatype="html">
+        <source>Score details</source>
+        <target state="translated">Informations de la partition</target>
+      </trans-unit>
+      <trans-unit id="editScore.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Titre</target>
+      </trans-unit>
+      <trans-unit id="editScore.enterScoreTitle.placeholder" datatype="html">
+        <source>Enter score title</source>
+        <target state="translated">Saisissez le titre de la partition</target>
+      </trans-unit>
+      <trans-unit id="editScore.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">Auteur</target>
+      </trans-unit>
+      <trans-unit id="editScore.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">Genre</target>
+      </trans-unit>
+      <trans-unit id="editScore.selectGenre" datatype="html">
+        <source>— Select genre —</source>
+        <target state="translated">— Choisir un genre —</target>
+      </trans-unit>
+      <trans-unit id="editScore.loadingGenres" datatype="html">
+        <source>Loading genres…</source>
+        <target state="translated">Chargement des genres…</target>
+      </trans-unit>
+      <trans-unit id="editScore.tempoBpm" datatype="html">
+        <source>Tempo (BPM)</source>
+        <target state="translated">Tempo (BPM)</target>
+      </trans-unit>
+      <trans-unit id="editScore.tempo.placeholder" datatype="html">
+        <source>e.g. 120</source>
+        <target state="translated">ex. 120</target>
+      </trans-unit>
+      <trans-unit id="editScore.confirmDelete" datatype="html">
+        <source>Confirm delete</source>
+        <target state="translated">Confirmer la suppression</target>
+      </trans-unit>
+      <trans-unit id="editScore.thisActionCannotBeUndone" datatype="html">
+        <source>This action cannot be undone. Are you sure?</source>
+        <target state="translated">Cette action est irréversible. Voulez-vous continuer ?</target>
+      </trans-unit>
+      <trans-unit id="editScore.cancel2" datatype="html">
+        <source> Cancel </source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.noId" datatype="html">
+        <source>No score ID provided</source>
+        <target state="translated">Aucune partition indiquée</target>
+      </trans-unit>
+      <trans-unit id="score.error.load" datatype="html">
+        <source>Failed to load score</source>
+        <target state="translated">Impossible de charger la partition</target>
+      </trans-unit>
+      <trans-unit id="editScore.saved" datatype="html">
+        <source>Score updated successfully!</source>
+        <target state="translated">Partition mise à jour !</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.save" datatype="html">
+        <source>Failed to update score</source>
+        <target state="translated">Impossible de mettre à jour la partition</target>
+      </trans-unit>
+      <trans-unit id="editScore.leftDefault" datatype="html">
+        <source>default to midi track 1</source>
+        <target state="translated">par défaut, piste MIDI 1</target>
+      </trans-unit>
+      <trans-unit id="editScore.track" datatype="html">
+        <source>Track <x id="track" equiv-text="value"/></source>
+        <target state="translated">Piste <x id="track" equiv-text="value"/></target>
+      </trans-unit>
+      <trans-unit id="editScore.rightDefault" datatype="html">
+        <source>default to midi track 0</source>
+        <target state="translated">par défaut, piste MIDI 0</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.delete" datatype="html">
+        <source>Failed to delete score</source>
+        <target state="translated">Impossible de supprimer la partition</target>
+      </trans-unit>
+      <trans-unit id="accountHome.profile" datatype="html">
+        <source>Profile</source>
+        <target state="translated">Profil</target>
+      </trans-unit>
+      <trans-unit id="accountHome.accountSettingsWorkbenchPreferences" datatype="html">
+        <source>Account settings &amp; workbench preferences</source>
+        <target state="translated">Paramètres du compte et préférences de l'atelier</target>
+      </trans-unit>
+      <trans-unit id="accountHome.myScores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">Mes partitions</target>
+      </trans-unit>
+      <trans-unit id="accountHome.deleteAccount" datatype="html">
+        <source>Delete account</source>
+        <target state="translated">Supprimer le compte</target>
+      </trans-unit>
+      <trans-unit id="accountHome.logout" datatype="html">
+        <source>Logout</source>
+        <target state="translated">Déconnexion</target>
+      </trans-unit>
+      <trans-unit id="accountHome.identity" datatype="html">
+        <source>Identity</source>
+        <target state="translated">Identité</target>
+      </trans-unit>
+      <trans-unit id="accountHome.name" datatype="html">
+        <source>Name</source>
+        <target state="translated">Nom</target>
+      </trans-unit>
+      <trans-unit id="accountHome.edit" datatype="html">
+        <source>Edit</source>
+        <target state="translated">Modifier</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourName.placeholder" datatype="html">
+        <source>Your name</source>
+        <target state="translated">Votre nom</target>
+      </trans-unit>
+      <trans-unit id="accountHome.save" datatype="html">
+        <source>Save</source>
+        <target state="translated">Enregistrer</target>
+      </trans-unit>
+      <trans-unit id="accountHome.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="accountHome.workbench" datatype="html">
+        <source>Workbench</source>
+        <target state="translated">Atelier</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiSetup" datatype="html">
+        <source>MIDI Setup →</source>
+        <target state="translated">Réglages MIDI →</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiLowestKey" datatype="html">
+        <source>MIDI lowest key</source>
+        <target state="translated">Touche MIDI la plus grave</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiHighestKey" datatype="html">
+        <source>MIDI highest key</source>
+        <target state="translated">Touche MIDI la plus aiguë</target>
+      </trans-unit>
+      <trans-unit id="accountHome.drawFingering" datatype="html">
+        <source>Draw fingering</source>
+        <target state="translated">Afficher le doigté</target>
+      </trans-unit>
+      <trans-unit id="accountHome.drawLyrics" datatype="html">
+        <source>Draw lyrics</source>
+        <target state="translated">Afficher les paroles</target>
+      </trans-unit>
+      <trans-unit id="accountHome.showKeyboard" datatype="html">
+        <source>Show keyboard</source>
+        <target state="translated">Afficher le clavier</target>
+      </trans-unit>
+      <trans-unit id="accountHome.lowestKeyLabel" datatype="html">
+        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Touche MIDI la plus grave <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(jouez une note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.required" datatype="html">
+        <source>Required.</source>
+        <target state="translated">Obligatoire.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.min" datatype="html">
+        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
+        <target state="translated">Min. <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.max" datatype="html">
+        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
+        <target state="translated">Max. <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.highestKeyLabel" datatype="html">
+        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Touche MIDI la plus aiguë <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(jouez une note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="accountHome.listening.lowest" datatype="html">
+        <source>Listening for MIDI — lowest key…</source>
+        <target state="translated">Écoute MIDI : touche la plus grave…</target>
+      </trans-unit>
+      <trans-unit id="accountHome.listening.highest" datatype="html">
+        <source>Listening for MIDI — highest key…</source>
+        <target state="translated">Écoute MIDI : touche la plus aiguë…</target>
+      </trans-unit>
+      <trans-unit id="accountHome.lowestKeyMustBeLess" datatype="html">
+        <source>Lowest key must be less than highest key.</source>
+        <target state="translated">La touche la plus grave doit être inférieure à la plus aiguë.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourAccountWillBePermanently" datatype="html">
+        <source> Your account will be permanently deleted. This action cannot be undone. </source>
+        <target state="translated">Votre compte sera définitivement supprimé. Cette action est irréversible.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourScoresAreKeptOn" datatype="html">
+        <source> Your scores are kept on PianoML but will no longer be linked to you. </source>
+        <target state="translated">Vos partitions restent sur PianoML mais ne seront plus liées à vous.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.error.session" datatype="html">
+        <source>Your session needs a refresh. Please reload the page and try again.</source>
+        <target state="translated">Votre session doit être actualisée. Rechargez la page et réessayez.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.error.delete" datatype="html">
+        <source>Account deletion failed. Please try again.</source>
+        <target state="translated">La suppression du compte a échoué. Réessayez.</target>
+      </trans-unit>
+      <trans-unit id="login.login" datatype="html">
+        <source>Login</source>
+        <target state="translated">Connexion</target>
+      </trans-unit>
+      <trans-unit id="login.welcomeBack" datatype="html">
+        <source>Welcome Back</source>
+        <target state="translated">Bon retour</target>
+      </trans-unit>
+      <trans-unit id="login.email" datatype="html">
+        <source>email</source>
+        <target state="translated">e-mail</target>
+      </trans-unit>
+      <trans-unit id="login.enterYourEmail.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">Saisissez votre e-mail</target>
+      </trans-unit>
+      <trans-unit id="login.emailIsRequired" datatype="html">
+        <source> email is required. </source>
+        <target state="translated">L'e-mail est obligatoire.</target>
+      </trans-unit>
+      <trans-unit id="login.password" datatype="html">
+        <source>Password</source>
+        <target state="translated">Mot de passe</target>
+      </trans-unit>
+      <trans-unit id="login.enterYourPassword.placeholder" datatype="html">
+        <source>Enter your password</source>
+        <target state="translated">Saisissez votre mot de passe</target>
+      </trans-unit>
+      <trans-unit id="login.passwordIsRequired" datatype="html">
+        <source> Password is required. </source>
+        <target state="translated">Le mot de passe est obligatoire.</target>
+      </trans-unit>
+      <trans-unit id="login.loggingIn" datatype="html">
+        <source>Logging in...</source>
+        <target state="translated">Connexion...</target>
+      </trans-unit>
+      <trans-unit id="login.donTHaveAnAccount" datatype="html">
+        <source>Don&apos;t have an account? Create one</source>
+        <target state="translated">Pas encore de compte ? Créez-en un</target>
+      </trans-unit>
+      <trans-unit id="login.error.denied" datatype="html">
+        <source>Access denied - Please check your credentials</source>
+        <target state="translated">Accès refusé : vérifiez vos identifiants</target>
+      </trans-unit>
+      <trans-unit id="login.error.other" datatype="html">
+        <source>An error occurred during login</source>
+        <target state="translated">Une erreur s'est produite lors de la connexion</target>
+      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Erreur de la page</target>
@@ -9,6 +473,22 @@
       <trans-unit id="route.notFound.title" datatype="html">
         <source>Page Not Found</source>
         <target state="translated">Page introuvable</target>
+      </trans-unit>
+      <trans-unit id="seo.blog.title" datatype="html">
+        <source>Piano Methods, Études &amp; Articles</source>
+        <target state="translated">Méthodes de piano, études et articles</target>
+      </trans-unit>
+      <trans-unit id="seo.blog.description" datatype="html">
+        <source>Digitized piano methods and études — Burgmüller, Czerny and more — plus articles on practice, sight reading and music theory.</source>
+        <target state="translated">Méthodes et études de piano numérisées — Burgmüller, Czerny et d'autres — et articles sur la pratique, le déchiffrage et la théorie musicale.</target>
+      </trans-unit>
+      <trans-unit id="blog.englishOnly" datatype="html">
+        <source>This article is only available in English.</source>
+        <target state="translated">Cet article n'est disponible qu'en anglais.</target>
+      </trans-unit>
+      <trans-unit id="blog.heading" datatype="html">
+        <source>Blog posts</source>
+        <target state="translated">Articles du blog</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -1118,13 +1598,269 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
         <source>Machine Learning</source>
         <target state="translated">Apprentissage automatique</target>
       </trans-unit>
+      <trans-unit id="importWork.importMusicWork" datatype="html">
+        <source>Import Music Work</source>
+        <target state="translated">Importer une œuvre musicale</target>
+      </trans-unit>
+      <trans-unit id="importWork.pleaseSelectAFileTo" datatype="html">
+        <source>Please select a file to import</source>
+        <target state="translated">Choisissez un fichier à importer</target>
+      </trans-unit>
+      <trans-unit id="importWork.scoreDetailsAndActions.label" datatype="html">
+        <source>Score details and actions</source>
+        <target state="translated">Informations et actions de la partition</target>
+      </trans-unit>
+      <trans-unit id="importWork.notes" datatype="html">
+        <source>Notes</source>
+        <target state="translated">Notes</target>
+      </trans-unit>
+      <trans-unit id="importWork.instrument" datatype="html">
+        <source>Instrument</source>
+        <target state="translated">Instrument</target>
+      </trans-unit>
+      <trans-unit id="importWork.trackName" datatype="html">
+        <source>Track Name</source>
+        <target state="translated">Nom de la piste</target>
+      </trans-unit>
+      <trans-unit id="importWork.study" datatype="html">
+        <source>Study</source>
+        <target state="translated">Étudier</target>
+      </trans-unit>
+      <trans-unit id="importWork.splitVoices" datatype="html">
+        <source>split voices</source>
+        <target state="translated">séparer les voix</target>
+      </trans-unit>
+      <trans-unit id="importWork.dropzone" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;font-semibold&quot;&gt;"/>Click to upload<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> or drag and drop</source>
+        <target state="translated"><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;font-semibold&quot;&gt;"/>Cliquez pour importer<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> ou glissez-déposez</target>
+      </trans-unit>
+      <trans-unit id="importWork.enableAutomaticFingering" datatype="html">
+        <source>Enable automatic fingering</source>
+        <target state="translated">Activer le doigté automatique</target>
+      </trans-unit>
+      <trans-unit id="importWork.load" datatype="html">
+        <source>load</source>
+        <target state="translated">charger</target>
+      </trans-unit>
+      <trans-unit id="importWork.reset" datatype="html">
+        <source>reset</source>
+        <target state="translated">réinitialiser</target>
+      </trans-unit>
+      <trans-unit id="importWork.importing" datatype="html">
+        <source>Importing …</source>
+        <target state="translated">Import en cours…</target>
+      </trans-unit>
+      <trans-unit id="importWork.uploadingWithFingering" datatype="html">
+        <source>Uploading and converting your score, with automatic fingering. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">Envoi et conversion de votre partition, avec doigté automatique. Cela peut prendre jusqu'à une minute : gardez cette page ouverte.</target>
+      </trans-unit>
+      <trans-unit id="importWork.uploading" datatype="html">
+        <source>Uploading and converting your score. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">Envoi et conversion de votre partition. Cela peut prendre jusqu'à une minute : gardez cette page ouverte.</target>
+      </trans-unit>
+      <trans-unit id="importWork.anErrorHasOccurredThe" datatype="html">
+        <source>An error has occurred, the file cannot be read</source>
+        <target state="translated">Une erreur s'est produite : le fichier ne peut pas être lu</target>
+      </trans-unit>
+      <trans-unit id="importWork.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">Fermer</target>
+      </trans-unit>
+      <trans-unit id="route.error" datatype="html">
+        <source>Error</source>
+        <target state="translated">Erreur</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.creationTitle" datatype="html">
+        <source>Creation Error</source>
+        <target state="translated">Erreur de création</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.creation" datatype="html">
+        <source>An error occurred while creating the score.</source>
+        <target state="translated">Une erreur s'est produite lors de la création de la partition.</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.uploadTitle" datatype="html">
+        <source>Upload Error</source>
+        <target state="translated">Erreur d'envoi</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.upload" datatype="html">
+        <source>An error occurred while uploading the MIDI file.</source>
+        <target state="translated">Une erreur s'est produite lors de l'envoi du fichier MIDI.</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.noWork" datatype="html">
+        <source>No work information available.</source>
+        <target state="translated">Aucune information sur l'œuvre.</target>
+      </trans-unit>
+      <trans-unit id="importLink.importMusicWork" datatype="html">
+        <source>Import Music Work</source>
+        <target state="translated">Importer une œuvre musicale</target>
+      </trans-unit>
+      <trans-unit id="importLink.pleaseSelectATitleOr" datatype="html">
+        <source>Please select a title or artist &amp; title to import</source>
+        <target state="translated">Choisissez un titre, ou un artiste et un titre, à importer</target>
+      </trans-unit>
+      <trans-unit id="importLink.scoreDetailsAndActions.label" datatype="html">
+        <source>Score details and actions</source>
+        <target state="translated">Informations et actions de la partition</target>
+      </trans-unit>
+      <trans-unit id="importLink.authenticationRequired" datatype="html">
+        <source>Authentication Required</source>
+        <target state="translated">Connexion requise</target>
+      </trans-unit>
+      <trans-unit id="importLink.youMustBeLoggedIn" datatype="html">
+        <source>You must be logged in to link musical works.</source>
+        <target state="translated">Vous devez être connecté pour lier des œuvres musicales.</target>
+      </trans-unit>
+      <trans-unit id="importLink.login" datatype="html">
+        <source> Login </source>
+        <target state="translated">Connexion</target>
+      </trans-unit>
+      <trans-unit id="importLink.quickSearchSelectAWork" datatype="html">
+        <source>Quick Search: select a work to define a title and author</source>
+        <target state="translated">Recherche rapide : choisissez une œuvre pour définir le titre et l'auteur</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchForWorksEG.placeholder" datatype="html">
+        <source>Search for works (e.g., &apos;redemption song&apos;)</source>
+        <target state="translated">Rechercher des œuvres (ex. « redemption song »)</target>
+      </trans-unit>
+      <trans-unit id="importLink.clear" datatype="html">
+        <source> Clear </source>
+        <target state="translated">Effacer</target>
+      </trans-unit>
+      <trans-unit id="importLink.worksFound" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {1 work found} other {<x id="INTERPOLATION"/> works found}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {1 œuvre trouvée} other {<x id="INTERPOLATION"/> œuvres trouvées}}</target>
+      </trans-unit>
+      <trans-unit id="importLink.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">Partition</target>
+      </trans-unit>
+      <trans-unit id="importLink.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Titre</target>
+      </trans-unit>
+      <trans-unit id="importLink.actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Actions</target>
+      </trans-unit>
+      <trans-unit id="importLink.select" datatype="html">
+        <source> Select </source>
+        <target state="translated">Choisir</target>
+      </trans-unit>
+      <trans-unit id="importLink.noWorksFoundMatchingYour" datatype="html">
+        <source>No works found matching your criteria.</source>
+        <target state="translated">Aucune œuvre ne correspond à vos critères.</target>
+      </trans-unit>
+      <trans-unit id="importLink.noWorksFoundAfterFiltering" datatype="html">
+        <source>No works found after filtering (found <x id="INTERPOLATION" equiv-text="{{ response.count }}"/> but none matched the current filters).</source>
+        <target state="translated">Aucune œuvre après filtrage (<x id="INTERPOLATION" equiv-text="{{ response.count }}"/> trouvées, mais aucune ne correspond aux filtres actuels).</target>
+      </trans-unit>
+      <trans-unit id="importLink.tryAdjustingYourSearchTerms" datatype="html">
+        <source>Try adjusting your search terms or filters.</source>
+        <target state="translated">Essayez de modifier vos termes de recherche ou vos filtres.</target>
+      </trans-unit>
+      <trans-unit id="importLink.canTFindTheWork" datatype="html">
+        <source> Can&apos;t find the work you&apos;re looking for in the database? Create it manually </source>
+        <target state="translated">Vous ne trouvez pas l'œuvre dans la base de données ? Créez-la manuellement</target>
+      </trans-unit>
+      <trans-unit id="importLink.createWorkManually" datatype="html">
+        <source>Create Work Manually</source>
+        <target state="translated">Créer l'œuvre manuellement</target>
+      </trans-unit>
+      <trans-unit id="importLink.cancel" datatype="html">
+        <source> Cancel </source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="importLink.1SelectArtist" datatype="html">
+        <source> 1. Select Artist </source>
+        <target state="translated">1. Choisir l'artiste</target>
+      </trans-unit>
+      <trans-unit id="importLink.2EnterTitle" datatype="html">
+        <source> 2. Enter Title </source>
+        <target state="translated">2. Saisir le titre</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchForAnArtist" datatype="html">
+        <source>Search for an artist</source>
+        <target state="translated">Rechercher un artiste</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterArtistNameEG.placeholder" datatype="html">
+        <source>Enter artist name (e.g., &apos;Bob Marley&apos;)</source>
+        <target state="translated">Nom de l'artiste (ex. « Bob Marley »)</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchingForArtists" datatype="html">
+        <source>Searching for artists...</source>
+        <target state="translated">Recherche des artistes...</target>
+      </trans-unit>
+      <trans-unit id="importLink.foundArtists" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {Found 1 artist} other {Found <x id="INTERPOLATION"/> artists}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {1 artiste trouvé} other {<x id="INTERPOLATION"/> artistes trouvés}}</target>
+      </trans-unit>
+      <trans-unit id="importLink.name" datatype="html">
+        <source>Name</source>
+        <target state="translated">Nom</target>
+      </trans-unit>
+      <trans-unit id="importLink.type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Type</target>
+      </trans-unit>
+      <trans-unit id="importLink.country" datatype="html">
+        <source>Country</source>
+        <target state="translated">Pays</target>
+      </trans-unit>
+      <trans-unit id="importLink.noArtistsFoundMatchingYour" datatype="html">
+        <source>No artists found matching your search.</source>
+        <target state="translated">Aucun artiste ne correspond à votre recherche.</target>
+      </trans-unit>
+      <trans-unit id="importLink.tryDifferentSearchTerms" datatype="html">
+        <source>Try different search terms.</source>
+        <target state="translated">Essayez d'autres termes.</target>
+      </trans-unit>
+      <trans-unit id="importLink.selectedArtist" datatype="html">
+        <source>Selected Artist: <x id="INTERPOLATION" equiv-text="{{ selectedArtist?.name }}"/></source>
+        <target state="translated">Artiste choisi : <x id="INTERPOLATION" equiv-text="{{ selectedArtist?.name }}"/></target>
+      </trans-unit>
+      <trans-unit id="importLink.changeArtist" datatype="html">
+        <source> Change artist </source>
+        <target state="translated">Changer d'artiste</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterTheWorkTitle" datatype="html">
+        <source>Enter the work title</source>
+        <target state="translated">Saisissez le titre de l'œuvre</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterWorkSongTitle.placeholder" datatype="html">
+        <source>Enter work/song title</source>
+        <target state="translated">Titre de l'œuvre ou de la chanson</target>
+      </trans-unit>
+      <trans-unit id="importLink.back" datatype="html">
+        <source> Back </source>
+        <target state="translated">Retour</target>
+      </trans-unit>
+      <trans-unit id="importLink.createWork" datatype="html">
+        <source> Create Work </source>
+        <target state="translated">Créer l'œuvre</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchingMusicbrainzDatabase" datatype="html">
+        <source>Searching MusicBrainz database...</source>
+        <target state="translated">Recherche dans la base de données MusicBrainz...</target>
+      </trans-unit>
+      <trans-unit id="importLink.errorOccurred" datatype="html">
+        <source>Error occurred</source>
+        <target state="translated">Une erreur s'est produite</target>
+      </trans-unit>
+      <trans-unit id="importLink.dismiss" datatype="html">
+        <source> Dismiss </source>
+        <target state="translated">Fermer</target>
+      </trans-unit>
+      <trans-unit id="importLink.error.search" datatype="html">
+        <source>An error occurred while searching</source>
+        <target state="translated">Une erreur s'est produite lors de la recherche</target>
+      </trans-unit>
+      <trans-unit id="importLink.error.artists" datatype="html">
+        <source>An error occurred while searching artists</source>
+        <target state="translated">Une erreur s'est produite lors de la recherche d'artistes</target>
+      </trans-unit>
       <trans-unit id="browse.letters.all" datatype="html">
         <source> All </source>
         <target state="translated"> Tous </target>
-      </trans-unit>
-      <trans-unit id="browse.capsuleCount" datatype="html">
-        <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
-        <target state="translated">{VAR_PLURAL, plural, =1 {1 partition} other {<x id="INTERPOLATION"/> partitions}}</target>
       </trans-unit>
       <trans-unit id="browse.noArtistsForLetter" datatype="html">
         <source> No artists found for letter <x id="INTERPOLATION" equiv-text="{{ selectedLetter }}"/>. </source>
@@ -1262,17 +1998,9 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
         <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
         <target state="translated">{VAR_PLURAL, plural, =1 {1 partition affichée} other {<x id="INTERPOLATION"/> partitions affichées}}</target>
       </trans-unit>
-      <trans-unit id="scoreTable.genre" datatype="html">
-        <source>Genre</source>
-        <target state="translated">Genre</target>
-      </trans-unit>
       <trans-unit id="scoreTable.artist" datatype="html">
         <source>Artist</source>
         <target state="translated">Artiste</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.title" datatype="html">
-        <source>Title</source>
-        <target state="translated">Titre</target>
       </trans-unit>
       <trans-unit id="scoreTable.duration" datatype="html">
         <source>Duration</source>
@@ -1702,10 +2430,6 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
         <source>No score slug provided</source>
         <target state="translated">Aucune partition indiquée</target>
       </trans-unit>
-      <trans-unit id="score.error.load" datatype="html">
-        <source>Failed to load score</source>
-        <target state="translated">Impossible de charger la partition</target>
-      </trans-unit>
       <trans-unit id="score.videos.error" datatype="html">
         <source>Failed to load videos</source>
         <target state="translated">Impossible de charger les vidéos</target>
@@ -1737,6 +2461,122 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
       <trans-unit id="seo.score.publicDomain" datatype="html">
         <source>Free to download and public domain.</source>
         <target state="translated">Téléchargement gratuit, domaine public.</target>
+      </trans-unit>
+      <trans-unit id="reimport.titleNamed" datatype="html">
+        <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
+        <target state="translated">Réimporter <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></target>
+      </trans-unit>
+      <trans-unit id="reimport.title" datatype="html">
+        <source>Re-import the score</source>
+        <target state="translated">Réimporter la partition</target>
+      </trans-unit>
+      <trans-unit id="reimport.chooseTheStudyTracksAgain" datatype="html">
+        <source>Choose the study tracks again from the original MIDI file</source>
+        <target state="translated">Choisissez à nouveau les pistes d'étude à partir du fichier MIDI d'origine</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImportTheScore.label" datatype="html">
+        <source>Re-import the score</source>
+        <target state="translated">Réimporter la partition</target>
+      </trans-unit>
+      <trans-unit id="reimport.readingTheOriginalFile" datatype="html">
+        <source>Reading the original file …</source>
+        <target state="translated">Lecture du fichier d'origine…</target>
+      </trans-unit>
+      <trans-unit id="reimport.backToTheScore" datatype="html">
+        <source>← Back to the score</source>
+        <target state="translated">← Retour à la partition</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImporting" datatype="html">
+        <source>Re-importing …</source>
+        <target state="translated">Réimport en cours…</target>
+      </trans-unit>
+      <trans-unit id="reimport.convertingWithFingering" datatype="html">
+        <source>Converting the score again, with automatic fingering. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">Nouvelle conversion de la partition, avec doigté automatique. Cela peut prendre jusqu'à une minute : gardez cette page ouverte.</target>
+      </trans-unit>
+      <trans-unit id="reimport.converting" datatype="html">
+        <source>Converting the score again. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">Nouvelle conversion de la partition. Cela peut prendre jusqu'à une minute : gardez cette page ouverte.</target>
+      </trans-unit>
+      <trans-unit id="reimport.theScoreKeepsItsPage" datatype="html">
+        <source> The score keeps its page, link and owner: only its notes, fingering and the details read from them (key, tempo, grade, …) are generated again. </source>
+        <target state="translated">La partition garde sa page, son lien et son propriétaire : seuls ses notes, son doigté et les informations qui en découlent (tonalité, tempo, niveau, …) sont générés à nouveau.</target>
+      </trans-unit>
+      <trans-unit id="reimport.notes" datatype="html">
+        <source>Notes</source>
+        <target state="translated">Notes</target>
+      </trans-unit>
+      <trans-unit id="reimport.instrument" datatype="html">
+        <source>Instrument</source>
+        <target state="translated">Instrument</target>
+      </trans-unit>
+      <trans-unit id="reimport.trackName" datatype="html">
+        <source>Track Name</source>
+        <target state="translated">Nom de la piste</target>
+      </trans-unit>
+      <trans-unit id="reimport.study" datatype="html">
+        <source>Study</source>
+        <target state="translated">Étudier</target>
+      </trans-unit>
+      <trans-unit id="reimport.enableAutomaticFingering" datatype="html">
+        <source>Enable automatic fingering</source>
+        <target state="translated">Activer le doigté automatique</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">Réimporter</target>
+      </trans-unit>
+      <trans-unit id="reimport.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.noSlug" datatype="html">
+        <source>No score slug provided.</source>
+        <target state="translated">Aucune partition indiquée.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.notFound" datatype="html">
+        <source>This score does not exist.</source>
+        <target state="translated">Cette partition n'existe pas.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.load" datatype="html">
+        <source>Could not load the score.</source>
+        <target state="translated">Impossible de charger la partition.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.missingInfo" datatype="html">
+        <source>This score is missing information.</source>
+        <target state="translated">Il manque des informations à cette partition.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.noOriginal" datatype="html">
+        <source>The original file of this score is not available: it cannot be re-imported.</source>
+        <target state="translated">Le fichier d'origine de cette partition n'est pas disponible : elle ne peut pas être réimportée.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.download" datatype="html">
+        <source>Could not download the original file of this score.</source>
+        <target state="translated">Impossible de télécharger le fichier d'origine de cette partition.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.notMidi" datatype="html">
+        <source>Only scores imported from a MIDI file can be re-imported.</source>
+        <target state="translated">Seules les partitions importées depuis un fichier MIDI peuvent être réimportées.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.read" datatype="html">
+        <source>The original MIDI file cannot be read.</source>
+        <target state="translated">Le fichier MIDI d'origine ne peut pas être lu.</target>
+      </trans-unit>
+      <trans-unit id="reimport.bothHands" datatype="html">
+        <source>Both hands</source>
+        <target state="translated">Deux mains</target>
+      </trans-unit>
+      <trans-unit id="reimport.rightHand" datatype="html">
+        <source>Right hand</source>
+        <target state="translated">Main droite</target>
+      </trans-unit>
+      <trans-unit id="reimport.leftHand" datatype="html">
+        <source>Left hand</source>
+        <target state="translated">Main gauche</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.refused" datatype="html">
+        <source>The server refused these tracks, or the original file is not a MIDI file.</source>
+        <target state="translated">Le serveur a refusé ces pistes, ou le fichier d'origine n'est pas un fichier MIDI.</target>
       </trans-unit>
       <trans-unit id="error.heading" datatype="html">
         <source>Oops! An error occurred</source>
@@ -1854,21 +2694,9 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
         <source>No scores found</source>
         <target state="translated">Aucune partition trouvée</target>
       </trans-unit>
-      <trans-unit id="scoreTable.author" datatype="html">
-        <source>Author</source>
-        <target state="translated">Auteur</target>
-      </trans-unit>
       <trans-unit id="scoreTable.difficulty" datatype="html">
         <source>Difficulty</source>
         <target state="translated">Difficulté</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.version" datatype="html">
-        <source>Version</source>
-        <target state="translated">Version</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.uploaded" datatype="html">
-        <source>Uploaded</source>
-        <target state="translated">Ajoutée le</target>
       </trans-unit>
       <trans-unit id="nav.home" datatype="html">
         <source>Home</source>
@@ -2001,10 +2829,6 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
       <trans-unit id="route.summary" datatype="html">
         <source>Summary</source>
         <target state="translated">Présentation</target>
-      </trans-unit>
-      <trans-unit id="route.error" datatype="html">
-        <source>Error</source>
-        <target state="translated">Erreur</target>
       </trans-unit>
       <trans-unit id="route.notFound" datatype="html">
         <source>Not found</source>

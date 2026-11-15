@@ -27,7 +27,7 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
               [(ngModel)]="searchQuery"
               (keyup.enter)="searchAuthors()"
               class="flex-1 bg-transparent text-sm text-neutral-100 placeholder-neutral-500 outline-none"
-              placeholder="Search composer…"
+              i18n-placeholder="@@authorSearch.searchComposer.placeholder" placeholder="Search composer…"
               autofocus>
             @if (searching) {
               <div class="spinner w-3.5 h-3.5 text-neutral-500 shrink-0"></div>
@@ -63,7 +63,7 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
                         <p class="text-xs text-neutral-500 truncate">{{ author.disambiguation }}</p>
                       }
                     </div>
-                    <span class="text-xs text-neutral-600 group-hover:text-neutral-400 transition-colors shrink-0">Select ↵</span>
+                    <span class="text-xs text-neutral-600 group-hover:text-neutral-400 transition-colors shrink-0" i18n="@@authorSearch.select">Select ↵</span>
                   </button>
                 }
               </div>
@@ -72,15 +72,15 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
             <!-- No results -->
             @if (hasSearched && !searching && searchResults.length === 0) {
               <div class="px-4 py-10 text-center">
-                <p class="text-sm text-neutral-500">No results for "{{ searchQuery }}"</p>
-                <p class="text-xs text-neutral-600 mt-1">Try a different spelling or use the name directly below</p>
+                <p class="text-sm text-neutral-500" i18n="@@authorSearch.noResultsFor">No results for "{{ searchQuery }}"</p>
+                <p class="text-xs text-neutral-600 mt-1" i18n="@@authorSearch.tryADifferentSpellingOr">Try a different spelling or use the name directly below</p>
               </div>
             }
 
             <!-- Initial prompt -->
             @if (!hasSearched && !searching && !error) {
               <div class="px-4 py-10 text-center">
-                <p class="text-xs text-neutral-600">Type a name and press ↵ to search MusicBrainz</p>
+                <p class="text-xs text-neutral-600" i18n="@@authorSearch.typeANameAndPress">Type a name and press ↵ to search MusicBrainz</p>
               </div>
             }
 
@@ -95,8 +95,8 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
                 class="w-full flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors text-left group">
                 <div class="w-7 h-7 rounded-full border border-dashed border-neutral-700 group-hover:border-neutral-500 flex items-center justify-center text-neutral-600 group-hover:text-neutral-400 text-base shrink-0 transition-colors">+</div>
                 <div>
-                  <p class="text-sm text-neutral-400">Use <span class="text-neutral-200">"{{ searchQuery }}"</span> as author</p>
-                  <p class="text-xs text-neutral-600">Without MusicBrainz link</p>
+                  <p class="text-sm text-neutral-400" i18n="@@authorSearch.useAsAuthor">Use <span class="text-neutral-200">"{{ searchQuery }}"</span> as author</p>
+                  <p class="text-xs text-neutral-600" i18n="@@authorSearch.withoutMusicbrainzLink">Without MusicBrainz link</p>
                 </div>
               </button>
             </div>
@@ -104,8 +104,8 @@ import { MbAuthorApiInfo } from '../../../core/api/model/mbAuthorApiInfo';
 
           <!-- Dismiss bar -->
           <div class="border-t border-neutral-800 px-4 py-2.5 flex justify-between items-center">
-            <span class="text-xs text-neutral-600">esc to close</span>
-            <button type="button" (click)="close()" class="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">Cancel</button>
+            <span class="text-xs text-neutral-600" i18n="@@authorSearch.escToClose">esc to close</span>
+            <button type="button" (click)="close()" class="text-xs text-neutral-500 hover:text-neutral-300 transition-colors" i18n="@@authorSearch.cancel">Cancel</button>
           </div>
 
         </div>
@@ -179,7 +179,7 @@ export class AuthorSearchModalComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error searching authors:', error);
-        this.error = error.message || 'Failed to search authors';
+        this.error = error.message || $localize`:@@authorSearch.error:Failed to search authors`;
         this.searching = false;
         this.hasSearched = true;
         this.searchResults = [];

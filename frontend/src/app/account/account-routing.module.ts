@@ -7,11 +7,11 @@ import { AccountScoresComponent } from './components/account-scores/account-scor
 import { EditScoreComponent } from './components/edit-score/edit-score.component';
 
 const routes: Routes = [
-    { path: 'home', component: AccountHomeComponent,     data: { breadcrumb: 'Home' } },
-  { path: 'login', component: LoginComponent,     data: { breadcrumb: 'Login' } },
-  { path: 'create', component: CreateAccountComponent,     data: { breadcrumb: 'Create' } },
-  { path: 'scores', component: AccountScoresComponent,     data: { breadcrumb: 'My Scores' } },
-  { path: 'score/edit/:id', component: EditScoreComponent,     data: { breadcrumb: 'Edit Score' } },
+    { path: 'home', component: AccountHomeComponent,     data: { breadcrumb: $localize`:@@account.route.home:Home` } },
+  { path: 'login', component: LoginComponent,     data: { breadcrumb: $localize`:@@account.route.login:Login` } },
+  { path: 'create', component: CreateAccountComponent,     data: { breadcrumb: $localize`:@@account.route.create:Create` } },
+  { path: 'scores', component: AccountScoresComponent,     data: { breadcrumb: $localize`:@@account.route.scores:My Scores` } },
+  { path: 'score/edit/:id', component: EditScoreComponent,     data: { breadcrumb: $localize`:@@account.route.editScore:Edit Score` } },
   { path: '', redirectTo: 'home', pathMatch: 'full' }
 ];
 
