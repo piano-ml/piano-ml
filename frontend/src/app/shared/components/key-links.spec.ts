@@ -5,7 +5,7 @@ import type { ScoreApiInfo } from '../../core/api';
 import { exercises as agilityExercises } from '../../exercises/agility/pattern';
 import { exercises as scaleExercises } from '../../exercises/scales/pattern';
 import { provideTesting } from '../../testing/test-providers';
-import { ExercisesInKeyComponent } from './exercises-in-key/exercises-in-key.component';
+import { ExercisesInKeyComponent, formatKeyLabel } from './exercises-in-key/exercises-in-key.component';
 import { PopularScoresInKeyComponent } from './popular-scores-in-key/popular-scores-in-key.component';
 
 /** Score page boxes linking to exercises and popular scores in the score's key ("C# major", "B- minor"...). */
@@ -28,7 +28,29 @@ describe('ExercisesInKeyComponent', () => {
     const el = render('C major');
     expect(component.exercises).toHaveLength(agilityExercises.length + scaleExercises.length);
     expect(el.querySelectorAll('a')).toHaveLength(component.exercises.length);
-    expect(el.textContent).toContain('Practice Exercises in this Scale');
+    expect(el.querySelector('h3')?.textContent?.trim()).toBe('Practice Exercises in C major');
+  });
+
+  it('names the key of the score in its heading', () => {
+    expect(render('c minor').querySelector('h3')?.textContent?.trim()).toBe('Practice Exercises in C minor');
+    fixture.componentRef.setInput('fullKey', 'b- Minor');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('h3')?.textContent?.trim()).toBe('Practice Exercises in B♭ minor');
+  });
+
+  it.each([
+    ['C major', 'C major'],
+    ['f# minor', 'F♯ minor'],
+    ['B- major', 'B♭ major'],
+    ['  e   minor ', 'E minor'],
+    ['C', 'this key'],
+    ['H major', 'this key'],
+    ['C dorian', 'this key'],
+    ['C major extra', 'this key'],
+    ['', 'this key'],
+    [undefined, 'this key'],
+  ])('writes %s as "%s"', (fullKey, label) => {
+    expect(formatKeyLabel(fullKey)).toBe(label);
   });
 
   it('shows nothing without a key', () => {

@@ -1,7 +1,7 @@
 
 @if (exercises.length > 0) {
   <div  class="card-secondary">
-    <h3 class="card-secondary-title">Practice Exercises in this Scale</h3>
+    <h3 class="card-secondary-title">Practice Exercises in {{ keyLabel }}</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       
       @for (exercise of exercises; track exercise; let last = $last) {
