@@ -1722,6 +1722,14 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">Szukaj utworów (np. „redemption song”)</target>
       </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">Wyszukiwanie...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">Szukaj</target>
+      </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
         <target state="translated">Wyczyść</target>

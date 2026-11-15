@@ -1722,6 +1722,14 @@ Uso: sobre acordes menores y contextos de blues menor (centros i7 / i) cuando qu
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">Buscar obras (p. ej., 'redemption song')</target>
       </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">Buscando...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">Buscar</target>
+      </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
         <target state="translated">Borrar</target>

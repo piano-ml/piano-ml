@@ -1722,6 +1722,14 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">Werken zoeken (bijv. 'redemption song')</target>
       </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">Zoeken...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">Zoeken</target>
+      </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
         <target state="translated">Wissen</target>

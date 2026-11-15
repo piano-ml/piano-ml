@@ -1722,6 +1722,14 @@ Användning: över mollackord och mollbluessammanhang (i7- / i-centrum) när du 
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">Sök verk (t.ex. 'redemption song')</target>
       </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">Söker...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">Sök</target>
+      </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
         <target state="translated">Rensa</target>
