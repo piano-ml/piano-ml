@@ -606,10 +606,6 @@
         <source>Unknown</source>
         <target state="translated">알 수 없음</target>
       </trans-unit>
-      <trans-unit id="midiSetup.error.blocked" datatype="html">
-        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
-        <target state="translated">브라우저가 MIDI 접근을 차단했습니다. 브라우저 설정에서 MIDI 사이트 권한을 찾아 이 사이트의 접근을 허용한 다음 페이지를 새로 고치세요.</target>
-      </trans-unit>
       <trans-unit id="midiSetup.error.failed" datatype="html">
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">MIDI 접근에 실패했습니다. 권한을 거부했다면 브라우저 설정에서 이 사이트의 권한을 초기화하고 MIDI를 허용한 다음 페이지를 새로 고치세요.</target>
@@ -673,6 +669,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">메트로놈</target>
+      </trans-unit>
+      <trans-unit id="workbench.midiBlocked.heading" datatype="html">
+        <source>MIDI access blocked</source>
+        <target state="translated">MIDI 접근 차단됨</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>
@@ -2893,6 +2893,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="seo.defaultDescription" datatype="html">
         <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
         <target state="translated">MusicXML, MIDI, PDF 악보를 위한 무료 오픈 소스 웹 앱 PianoML로 피아노를 배우세요. 음계를 연습하고 실시간 피드백을 받으며 나만의 악보 라이브러리를 만드세요.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">브라우저가 MIDI 접근을 차단했습니다. 브라우저 설정에서 MIDI 사이트 권한을 찾아 이 사이트의 접근을 허용한 다음 페이지를 새로 고치세요.</target>
       </trans-unit>
     </body>
   </file>

@@ -2,6 +2,22 @@ import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import type { MidiEvent, MidiStateEvent } from '../model/webmidi';
 
+/** Shown when the browser denies MIDI access to the site: by the workbench setup panel and the /work popup. */
+export const MIDI_BLOCKED_MESSAGE = $localize`:@@midiSetup.error.blocked:MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.`;
+
+/**
+ * The browser's MIDI permission status, or null where it cannot be queried
+ * (server rendering, no Permissions API, or a browser that does not know the "midi" permission).
+ */
+export async function queryMidiPermission(): Promise<PermissionStatus | null> {
+  if (typeof navigator === 'undefined' || !('permissions' in navigator)) return null;
+  try {
+    return await navigator.permissions.query({ name: 'midi' as PermissionName });
+  } catch {
+    return null;
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })

@@ -28,6 +28,7 @@ import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
 import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
+import { MIDI_BLOCKED_MESSAGE, queryMidiPermission } from '../../../shared/services/midi-service.service';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
@@ -80,6 +81,11 @@ export function scoreLoadErrorMessage(error: unknown): string {
 
 export class WorkbenchComponent implements OnInit, OnDestroy {
   showSlopDialog = false;
+  /** The browser denies MIDI to the site: /work/:slug says so in a popup, as the setup panel does. */
+  showMidiBlockedDialog = false;
+  protected readonly midiBlockedMessage = MIDI_BLOCKED_MESSAGE;
+  private midiPermission: PermissionStatus | null = null;
+  private midiBlockedChecked = false;
 
 
 
@@ -330,6 +336,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     const loadId = ++this.currentLoadId;
 
     if (this.router.url.startsWith('/work/')) {
+      void this.checkMidiBlocked();
       await this.prepareScoreLoad(loadId);
       await this.setupWorkMode(loadId);
     } else if (
@@ -341,6 +348,28 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     } else if (this.router.url.startsWith('/workbench/sightreadng')) {
       this.setupSightReadingMode();
     }
+  }
+
+  /** Opens the MIDI-blocked popup once per visit when the browser denies MIDI; closes it if access is granted meanwhile. */
+  private async checkMidiBlocked(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId) || this.midiBlockedChecked) return;
+    this.midiBlockedChecked = true;
+    this.midiPermission = await queryMidiPermission();
+    if (!this.midiPermission) return;
+    this.midiPermission.onchange = () => {
+      if (this.midiPermission?.state !== 'denied') {
+        this.closeMidiBlockedDialog();
+      }
+    };
+    if (this.midiPermission.state === 'denied') {
+      this.showMidiBlockedDialog = true;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  closeMidiBlockedDialog() {
+    this.showMidiBlockedDialog = false;
+    this.changeDetector.markForCheck();
   }
 
   private async prepareScoreLoad(loadId: number): Promise<void> {
@@ -1070,6 +1099,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
     this.routeParamSubscription?.unsubscribe();
     this.routeParamSubscription = undefined;
+    if (this.midiPermission) {
+      this.midiPermission.onchange = null;
+    }
     // Clean up slider
     if (this.slider) {
       try {

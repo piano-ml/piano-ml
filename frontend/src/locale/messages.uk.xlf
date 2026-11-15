@@ -606,10 +606,6 @@
         <source>Unknown</source>
         <target state="translated">Невідомо</target>
       </trans-unit>
-      <trans-unit id="midiSetup.error.blocked" datatype="html">
-        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
-        <target state="translated">Браузер блокує доступ до MIDI. Відкрийте налаштування браузера, знайдіть дозволи сайту для MIDI, дозвольте доступ цьому сайту та перезавантажте сторінку.</target>
-      </trans-unit>
       <trans-unit id="midiSetup.error.failed" datatype="html">
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">Не вдалося отримати доступ до MIDI. Якщо ви відхилили дозвіл, відкрийте налаштування браузера, скиньте дозволи цього сайту, дозвольте MIDI та перезавантажте сторінку.</target>
@@ -673,6 +669,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">Метроном</target>
+      </trans-unit>
+      <trans-unit id="workbench.midiBlocked.heading" datatype="html">
+        <source>MIDI access blocked</source>
+        <target state="translated">Доступ до MIDI заблоковано</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>
@@ -2893,6 +2893,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="seo.defaultDescription" datatype="html">
         <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
         <target state="translated">Вчіться грати на фортепіано з PianoML — безкоштовним вебзастосунком з відкритим кодом для нот MusicXML, MIDI і PDF. Грайте гами, отримуйте відгук у реальному часі та створюйте власну нотну бібліотеку.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">Браузер блокує доступ до MIDI. Відкрийте налаштування браузера, знайдіть дозволи сайту для MIDI, дозвольте доступ цьому сайту та перезавантажте сторінку.</target>
       </trans-unit>
     </body>
   </file>
