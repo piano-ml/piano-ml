@@ -672,6 +672,44 @@ paths:
           description: Invalid input
         '404':
           description: ScoreApiInfo not found
+  /score/{id}/reimport:
+    post:
+      operationId: scoreIdReimportPost
+      tags:
+        - score
+      summary: Re-import a MIDI score from its original upload with new study tracks
+      description: >
+        Packs the score again from the file uploaded at import (ori.midi in the score zip), with the study
+        tracks given, under the same score record (same id, slug, owner, version). Owner or admin only, and
+        only for scores imported from a MIDI file.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the score
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoreReimportRequest'
+      responses:
+        '200':
+          description: Score re-imported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreApiInfo'
+        '400':
+          description: Invalid study tracks, or the original upload is not a MIDI file
+        '401':
+          description: Not logged in
+        '403':
+          description: Neither the owner of the score nor an admin
+        '404':
+          description: Score or original upload not found
   /score/{owner}/{id}/{type}/{version}/{revision}:
     get:
       operationId: scoreOwnerIdTypeVersionRevisionGet
@@ -1272,6 +1310,23 @@ components:
       required:
         - author
         - count
+    ScoreReimportRequest:
+      type: object
+      required:
+        - study_tracks
+      properties:
+        study_tracks:
+          type: array
+          description: Study tracks as indexes in the original MIDI file, right hand first (one or two).
+          minItems: 1
+          maxItems: 2
+          items:
+            type: integer
+            minimum: 0
+        make_fingering:
+          type: boolean
+          default: true
+          description: Run automatic fingering detection when packing.
     ScoreApiInfo:
       type: object
       properties:

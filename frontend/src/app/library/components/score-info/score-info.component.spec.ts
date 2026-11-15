@@ -182,6 +182,22 @@ describe('ScoreInfoComponent', () => {
       fixture.detectChanges();
       expect(button('Edit')).toBeTruthy();
     });
+
+    it('Re-import shows for the owner and for admins of a converted score, and opens its re-import page', async () => {
+      await render();
+      expect(button('Re-import')).toBeUndefined();
+      user = { id: 'owner-1', admin: false };
+      fixture.detectChanges();
+      button('Re-import').click();
+      expect(navigate).toHaveBeenCalledWith(['/score', 'satie-gymnopedie-1', 'reimport']);
+      user = { id: 'someone-else', admin: true };
+      fixture.detectChanges();
+      expect(button('Re-import')).toBeTruthy();
+
+      fixture.destroy();
+      await render({ has_files: false }); // nothing converted yet: nothing to re-import
+      expect(button('Re-import')).toBeUndefined();
+    });
   });
 
   describe('downloads', () => {

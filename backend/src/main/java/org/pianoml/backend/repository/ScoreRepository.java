@@ -22,6 +22,26 @@ public interface ScoreRepository extends CrudRepository<Score, UUID>, IScoreRepo
 
   List<Score> findByImmutableSlugStartingWith(String slugPrefix);
 
+  /** Where the files of a score are stored: enough to delete them without loading the whole entity. */
+  interface StoredFilesRef {
+    UUID getId();
+
+    UUID getMbid();
+
+    Integer getVersion();
+
+    Boolean getHasFiles();
+  }
+
+  /** Every score of an owner (deleted ones included), as file references only. */
+  @Query("SELECT s.id AS id, s.mbid AS mbid, s.version AS version, s.hasFiles AS hasFiles FROM Score s WHERE s.owner.id = :ownerId")
+  List<StoredFilesRef> findStoredFilesByOwnerId(@Param("ownerId") UUID ownerId);
+
+  /** Deletes every score row of an owner; their play counts must be deleted first. */
+  @Modifying
+  @Query(value = "DELETE FROM pianoml.score WHERE owner_id = :ownerId", nativeQuery = true)
+  int deleteAllByOwnerId(@Param("ownerId") UUID ownerId);
+
   Optional<Score> findByImmutableSlug(String immutableSlug);
 
   Optional<Score> findScoreByIdAndOwnerAndVersion(UUID uuid, User user, Integer version);
