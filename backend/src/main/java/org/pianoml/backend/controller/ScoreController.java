@@ -10,6 +10,7 @@ import org.pianoml.backend.exception.EntityAlreadyExistsException;
 import org.pianoml.backend.exception.UserNotLoggedInException;
 import org.pianoml.backend.model.ScoreApiInfo;
 import org.pianoml.backend.model.ScorePlayStatsPostRequest;
+import org.pianoml.backend.model.ScoreReimportRequest;
 import org.pianoml.backend.model.ScoreStatsGet200Response;
 import org.pianoml.backend.model.YoutubeVideoApiInfo;
 import org.pianoml.backend.repository.ScoreRepository;
@@ -248,6 +249,41 @@ public class ScoreController implements ScoreApi {
       return ResponseEntity.ok().build();
     } catch (java.io.IOException e) {
       log.error("IOException while packing attachment to score", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  /**
+   * Re-imports a MIDI score from its original upload with new study tracks, under the same score record.
+   * 401 when not logged in, 403 for anyone but the owner and admins, 404 when the score or its original upload
+   * does not exist, 400 for invalid study tracks or an original upload that is not a MIDI file.
+   */
+  @Override
+  public ResponseEntity<ScoreApiInfo> scoreIdReimportPost(String id, ScoreReimportRequest request) {
+    UUID scoreId;
+    try {
+      scoreId = UUID.fromString(id);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.notFound().build();
+    }
+    Optional<Score> optScore = scoreRepository.findById(scoreId).filter(score -> !Boolean.TRUE.equals(score.getDeleted()));
+    if (optScore.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+    Optional<HttpStatus> refused = refuseUnlessOwnerOrAdmin(optScore.get());
+    if (refused.isPresent()) {
+      return ResponseEntity.status(refused.get()).build();
+    }
+    try {
+      return scoreService.reimportMidi(optScore.get(), request.getStudyTracks(), request.getMakeFingering())
+        .flatMap(score -> scoreService.getScore(score.getId()))
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+    } catch (IllegalArgumentException e) {
+      log.warn("re-import of score {} refused: {}", id, e.getMessage());
+      return ResponseEntity.badRequest().build();
+    } catch (IOException e) {
+      log.error("IOException while re-importing score {}", id, e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
