@@ -742,15 +742,76 @@ class ScoreIntegrationTest extends IntegrationTestBase {
     @Test
     void sendsEachFileOfTheArchiveWithItsMediaType() throws Exception {
       mockMvc.perform(get(url("musicxml"))).andExpect(status().isOk())
-        .andExpect(header().string("Content-Type", "application/xml")).andExpect(content().string("<score-partwise/>"));
+        .andExpect(header().string("Content-Type", "application/vnd.recordare.musicxml+xml")).andExpect(content().string("<score-partwise/>"));
       mockMvc.perform(get(url("midi"))).andExpect(header().string("Content-Type", "audio/midi")).andExpect(content().string("MThd"));
-      mockMvc.perform(get(url("pdf"))).andExpect(header().string("Content-Type", "application/pdf"));
-      mockMvc.perform(get(url("metadata.json"))).andExpect(header().string("Content-Type", "application/octet-stream"));
+      mockMvc.perform(get(url("pdf"))).andExpect(header().string("Content-Type", "application/pdf")).andExpect(content().string("%PDF"));
+    }
+
+    @Test
+    void sendsEachFileAsAnAttachmentNamedAfterTheSlug() throws Exception {
+      mockMvc.perform(get(url("pdf")))
+        .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.startsWith("attachment;")))
+        .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("filename=\"satie-erik-gymnopedie-no-1.pdf\"")))
+        .andExpect(header().longValue("Content-Length", 4));
+      mockMvc.perform(get(url("musicxml")))
+        .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("filename=\"satie-erik-gymnopedie-no-1.musicxml\"")));
+      mockMvc.perform(get(url("midi")))
+        .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("filename=\"satie-erik-gymnopedie-no-1.mid\"")));
+    }
+
+    @Test
+    void namesTheFileAfterTheIdForAScoreWithoutSlug() throws Exception {
+      score.setImmutableSlug(null);
+      mockMvc.perform(get(url("pdf")))
+        .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("filename=\"" + score.getId() + ".pdf\"")));
+    }
+
+    @Test
+    void exposesTheFileNameToTheCrossOriginSpa() throws Exception {
+      mockMvc.perform(get(url("pdf")).header("Origin", "https://pianoml.org"))
+        .andExpect(status().isOk())
+        .andExpect(header().string("Access-Control-Expose-Headers", org.hamcrest.Matchers.containsString("Content-Disposition")));
+    }
+
+    @Test
+    void refusesTypesOutsideTheApiWithoutReadingTheArchive() throws Exception {
+      // the type used to be matched against any entry name: metadata.json or fingering files leaked out this way
+      mockMvc.perform(get(url("metadata.json"))).andExpect(status().isBadRequest());
+      mockMvc.perform(get(url("mxl"))).andExpect(status().isBadRequest());
+      verify(s3Client, never()).getObject(any(GetObjectRequest.class));
     }
 
     @Test
     void answers404WhenTheArchiveHasNoSuchFile() throws Exception {
-      mockMvc.perform(get(url("mxl"))).andExpect(status().isNotFound());
+      s3Has(keyOf(score), zip(Map.of("score.musicxml", "<score-partwise/>")));
+      mockMvc.perform(get(url("pdf"))).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void lockTheCopyrightedPdfToItsOwnerAndAdmins() throws Exception {
+      score.setPublicDomain(false);
+      mockMvc.perform(get(url("pdf"))).andExpect(status().isUnauthorized());
+      mockMvc.perform(get(url("pdf")).header("Authorization", bearer(other))).andExpect(status().isForbidden());
+      mockMvc.perform(get(url("pdf")).header("Authorization", bearer(owner))).andExpect(status().isOk()).andExpect(content().string("%PDF"));
+      mockMvc.perform(get(url("pdf")).header("Authorization", bearer(admin))).andExpect(status().isOk());
+    }
+
+    @Test
+    void keepTheCopyrightedMidiAndMusicXmlOpenForPractice() throws Exception {
+      score.setPublicDomain(false);
+      mockMvc.perform(get(url("midi"))).andExpect(status().isOk()).andExpect(content().string("MThd"));
+      mockMvc.perform(get(url("musicxml"))).andExpect(status().isOk());
+    }
+
+    @Test
+    void treatAScoreWithoutCopyrightStatusAsCopyrighted() throws Exception {
+      score.setPublicDomain(null);
+      mockMvc.perform(get(url("pdf"))).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void answers400ForMalformedIds() throws Exception {
+      mockMvc.perform(get("/score/not-a-uuid/" + score.getId() + "/midi/1/0")).andExpect(status().isBadRequest());
     }
 
     @Test

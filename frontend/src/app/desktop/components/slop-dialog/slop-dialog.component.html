@@ -5,14 +5,17 @@
             Encoding issue detected
         </div>
         <section class="mb-2">
-            @if (!loading) {
+            @if (!loading && !repaired) {
             <p>
                 Exact conversion from sheet music to sound has not been possible.<br>
                 Ex: A 4/4 bar with 5 quarter notes.
             </p>
             }
+            @if (repaired) {
+            <p class="text-emerald-400" role="status">The score has been rebuilt. Reload the page to practice the repaired version.</p>
+            }
             @if (error) {
-            <p class="text-red-500">ERROR{{ errorText }}</p>
+            <p class="text-red-500" role="alert">{{ errorText }}</p>
             }
         </section>
         @if (loading) {
@@ -23,8 +26,10 @@
         }
         <div class="flex flex-row justify-between items-center mt-4">
             <button class="btn btn-secondary" (click)="close()" [disabled]="loading">Close</button>
-            @if (isOwner() && !loading) {
-            <button class="btn btn-primary" (click)="repair()" [disabled]="loading">Repair</button>
+            @if (repaired) {
+            <button class="btn btn-primary" (click)="reload()">Reload</button>
+            } @else if (isOwner() && !loading) {
+            <button class="btn btn-primary" (click)="repair()" [disabled]="loading">{{ error ? 'Try again' : 'Repair' }}</button>
             }
         </div>
     </div>

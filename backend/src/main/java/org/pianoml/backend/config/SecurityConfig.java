@@ -98,6 +98,8 @@ public class SecurityConfig {
     configuration.setAllowCredentials(true); // necessary for httpOnly cookies
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
+    // Lets the SPA (another origin in production) read the server-chosen download file name.
+    configuration.setExposedHeaders(List.of("Content-Disposition"));
     configuration.setMaxAge(3600L);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

@@ -11,6 +11,15 @@ import { buildScoreSeo } from './score-info.seo';
 import { ExercisesInKeyComponent } from '../../../shared/components/exercises-in-key/exercises-in-key.component';
 import { VideoCarouselComponent } from './components/video-carousel/video-carousel.component';
 import { VideoPlayerModalComponent } from './components/video-player-modal/video-player-modal.component';
+import { ScoreDownloadType, downloadErrorMessage, downloadFilename } from './score-download';
+import { finalize } from 'rxjs';
+
+const DOWNLOAD_LABELS: Record<ScoreDownloadType, string> = {
+  pdf: 'PDF',
+  musicxml: 'MusicXML',
+  midi: 'MIDI',
+  original: 'original file',
+};
 
 @Component({
   selector: 'app-score-info',
@@ -38,6 +47,16 @@ export class ScoreInfoComponent implements OnInit {
   siteUrl = '';
   shareLinks = ['facebook', 'x', 'reddit', 'xing']
   slug: string | null = null;
+  /** The file being downloaded: its button shows a spinner and every download button waits for it. */
+  downloading: ScoreDownloadType | null = null;
+  /** Why the last download failed, shown next to the download buttons (not the page error, which hides the score). */
+  downloadError: string | null = null;
+  /** Generated files, in toolbar order; the original upload has its own owner-only button. */
+  readonly downloadButtons: { type: Exclude<ScoreDownloadType, 'original'>; label: string; title: string }[] = [
+    { type: 'midi', label: 'MIDI', title: 'Download MIDI' },
+    { type: 'musicxml', label: 'MusicXML', title: 'Download MusicXML' },
+    { type: 'pdf', label: 'PDF', title: 'Download PDF' },
+  ];
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
 
@@ -206,65 +225,68 @@ export class ScoreInfoComponent implements OnInit {
     }
   }
 
-  downloadFile(type: 'pdf' | 'musicxml' | 'midi') {
-    if (!this.isOwnerOrPublic()) {
-      return;
-    }
-
-    if (!this.score?.owner_id || !this.score?.id || !this.score?.version) {
-      this.error = 'Missing required information for download';
-      return;
-    }
-
-    const revision = 1; // Default revision, adjust if needed
-
-    this.scoreService.scoreOwnerIdTypeVersionRevisionGet(
-      this.score.owner_id,
-      this.score.id!,
-      type,
-      this.score.version,
-      revision
-    ).subscribe({
-      next: (blob: Blob) => {
-        this.downloadBlob(blob, type);
-      },
-      error: (error) => {
-        console.error(`Error downloading ${type}:`, error);
-        this.error = `Failed to download ${type} file`;
-        this.cdr.detectChanges();
-      }
-    });
+  /** Whether the current user may download this file: the original for owners and admins, the rest also when public domain. */
+  canDownload(type: ScoreDownloadType): boolean {
+    return type === 'original' ? this.isOwner() : this.isOwnerOrPublic();
   }
 
-  private downloadBlob(blob: Blob, type: string) {
+  /**
+   * Downloads a file of the score as an attachment named after the slug (never opened inline, the page stays).
+   * One download at a time; a failure is explained next to the buttons.
+   */
+  download(type: ScoreDownloadType) {
+    if (!this.canDownload(type) || this.downloading) {
+      return;
+    }
+    const label = DOWNLOAD_LABELS[type];
+    if (!this.score?.owner_id || !this.score?.id || !this.score?.version) {
+      this.downloadError = `Could not download the ${label}: this score is missing information.`;
+      return;
+    }
+    const score = this.score;
+    this.downloading = type;
+    this.downloadError = null;
+    this.scoreService.scoreOwnerIdTypeVersionRevisionGet(score.owner_id!, score.id!, type, score.version!, 1, 'response')
+      .pipe(finalize(() => {
+        this.downloading = null;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (response) => {
+          if (!response.body) {
+            this.downloadError = downloadErrorMessage(undefined, label);
+            return;
+          }
+          const filename = downloadFilename(score, type, response.body.type || response.headers.get('Content-Type'),
+            response.headers.get('Content-Disposition'));
+          this.saveBlob(response.body, filename);
+        },
+        error: (error) => {
+          console.error(`Error downloading the ${label}:`, error);
+          this.downloadError = downloadErrorMessage(error, label);
+        }
+      });
+  }
+
+  dismissDownloadError() {
+    this.downloadError = null;
+  }
+
+  /** Saves a blob through a temporary link: the browser downloads it under {@code filename}. */
+  private saveBlob(blob: Blob, filename: string) {
     if (!this.isBrowser) {
       return;
     }
-
-    if (type === 'pdf') {
-      // For PDF, create a new blob with correct MIME type and open inline
-      const pdfBlob = new Blob([blob], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(pdfBlob);
-      window.location.href = url;
-      // Clean up the URL after a delay to allow the browser to load it
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-      }, 1000);
-    } else {
-      // For other file types, download as before
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-
-      // Generate filename
-      const filename = `${this.score?.title || 'score'}_${this.score?.id || 'unknown'}.${type === 'musicxml' ? 'xml' : type}`;
-      link.download = filename;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    }
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    // Revoking right after click() can cancel the download in Firefox and Safari
+    setTimeout(() => window.URL.revokeObjectURL(url), 1000);
   }
 
   onBack() {
