@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "types": [
+      "@angular/localize",
       "vitest/globals"
     ],
     "module": "esnext",

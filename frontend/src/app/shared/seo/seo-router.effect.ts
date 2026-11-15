@@ -44,7 +44,7 @@ function walkRoute(route: ActivatedRoute): { seo: SeoData | undefined; trail: Br
     const config = current.snapshot.routeConfig;
     const data = config?.data;
 
-    const routeSeo = data?.['seo'] as SeoData | undefined;
+    const routeSeo = resolveRouteSeo(data?.['seo']);
     if (routeSeo) seo = { ...seo, ...routeSeo };
 
     const path = current.snapshot.url.map(segment => segment.path).join('/');
@@ -61,6 +61,14 @@ function walkRoute(route: ActivatedRoute): { seo: SeoData | undefined; trail: Br
   }
 
   return { seo, trail };
+}
+
+/**
+ * A route's `data.seo` is the data itself, or a function returning it — for data holding URLs, which
+ * must be built in the current language at render time rather than when the module loads.
+ */
+function resolveRouteSeo(seo: unknown): SeoData | undefined {
+  return (typeof seo === 'function' ? seo() : seo) as SeoData | undefined;
 }
 
 /** Wires the title / meta / canonical / JSON-LD handling for the whole app. */

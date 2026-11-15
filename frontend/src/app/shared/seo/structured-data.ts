@@ -1,4 +1,4 @@
-import { SITE } from './seo.model';
+import { localizedUrl } from '../i18n';
 
 /** Narrow view of a score, covering what the schema.org mapping needs. */
 interface ScoreLike {
@@ -26,7 +26,7 @@ export function musicCollectionStructuredData(scores: ScoreLike[], collectionNam
         name: score.title,
         composer: { '@type': 'Person', name: nameOf(score.author) },
         genre: nameOf(score.genre),
-        url: `${SITE.url}/score/${score.slug}`
+        url: localizedUrl(`/score/${score.slug}`)
       }
     }))
   };

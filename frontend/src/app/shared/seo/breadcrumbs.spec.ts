@@ -1,4 +1,5 @@
 import { breadcrumbStructuredData, resolveBreadcrumbLabel } from './breadcrumbs';
+import { setCurrentLocale } from '../i18n';
 import { SITE } from './seo.model';
 
 describe('breadcrumbStructuredData', () => {
@@ -15,6 +16,16 @@ describe('breadcrumbStructuredData', () => {
       `${SITE.url}/library/genres`
     ]);
     expect(data?.itemListElement.map(item => item.position)).toEqual([1, 2, 3]);
+  });
+
+  it('links each step in the current language', () => {
+    setCurrentLocale('es');
+    try {
+      const data = breadcrumbStructuredData([{ name: 'Library', url: '/library' }]);
+      expect(data?.itemListElement.map(item => item.item)).toEqual([`${SITE.url}/es/`, `${SITE.url}/es/library`]);
+    } finally {
+      setCurrentLocale(undefined);
+    }
   });
 
   it('emits nothing for a page with no trail', () => {

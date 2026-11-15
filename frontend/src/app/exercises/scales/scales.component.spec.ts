@@ -1,8 +1,9 @@
+import { noteName } from '../../shared/i18n';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { MIDI_STORAGE_KEY } from '../../desktop/model/model';
-import { majorKeys, minorKeys } from '../../desktop/service/music-theory';
+import { majorKeys, minorKeys, scales } from '../../desktop/service/music-theory';
 import { SeoService } from '../../shared/seo';
 import { provideTesting } from '../../testing/test-providers';
 import { getWeekOfYear } from '../exercices';
@@ -55,7 +56,7 @@ describe('ScalesComponent', () => {
     render();
     const key = weekKey(majorKeys);
     expect(navigate).toHaveBeenCalledWith(['/', 'exercises', 'scale', key, 'major', exercises[2].key], { replaceUrl: true });
-    expect(seo.mock.calls.at(-1)?.[0].title).toBe(`${key} Major Scale: ${exercises[2].title}`);
+    expect(seo.mock.calls.at(-1)?.[0].title).toBe(`${noteName(key)} Major Scale: ${exercises[2].title}`);
   });
 
   it('opens the scale, key and exercise of the URL (minor keys case-insensitively), without rewriting it', () => {
@@ -68,11 +69,42 @@ describe('ScalesComponent', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
+  it('offers minor keys for every minor-family scale, and keeps the key when switching between them', async () => {
+    render({ selectedKey: 'C#m', scaleKey: 'harmonic_minor', exerciseKey: 'contrary_motion' });
+    expect(component.keys).toBe(minorKeys);
+    expect(component.selectedKey).toBe('C#m');
+    expect(component.fullKey).toBe('c# minor');
+    expect(navigate).not.toHaveBeenCalled();
+    await choose('select-scale', 'Melodic');
+    expect(component.keys).toBe(minorKeys);
+    expect(component.selectedKey).toBe('C#m');
+  });
+
+  it('rewrites a URL whose key the scale does not offer, so the URL matches the page', () => {
+    render({ selectedKey: 'C#m', scaleKey: 'major', exerciseKey: 'contrary_motion' });
+    expect(component.keys).toBe(majorKeys);
+    expect(component.selectedKey).toBe(weekKey(majorKeys));
+    expect(navigate).toHaveBeenCalledWith(['/', 'exercises', 'scale', weekKey(majorKeys), 'major', 'contrary_motion'], { replaceUrl: true });
+  });
+
   it('keeps the defaults for parts of the URL it does not know', () => {
     render({ selectedKey: 'H', scaleKey: 'bebop', exerciseKey: 'nothing' });
     expect(component.selectedScale.name).toBe('Major');
     expect(component.selectedExcercice).toBe(exercises[2]);
     expect(component.selectedKey).toBe(weekKey(majorKeys));
+  });
+
+  it('derives the key and its popular works from the stable scale key, whatever its translated name', () => {
+    const minor = scales.find((s) => s.key === 'minor')!;
+    const english = minor.name;
+    minor.name = 'Moll'; // as in the German build
+    try {
+      render({ selectedKey: 'Am', scaleKey: 'minor', exerciseKey: 'contrary_motion' });
+      expect(component.keys).toBe(minorKeys);
+      expect(component.fullKey).toBe('a minor');
+    } finally {
+      minor.name = english;
+    }
   });
 
   it('switching to the minor scale lists the minor keys and picks the minor key of the week', async () => {
@@ -85,7 +117,7 @@ describe('ScalesComponent', () => {
 
   it('follows the key and exercise selectors, writing flats the music21 way', async () => {
     render({ selectedKey: 'G', scaleKey: 'major', exerciseKey: 'contrary_motion' });
-    await choose('select-key', 'Bb');
+    await choose('select-key', 'B♭');
     expect(component.fullKey).toBe('B- major');
     expect(navigate).toHaveBeenLastCalledWith(['/', 'exercises', 'scale', 'Bb', 'major', 'contrary_motion'], { replaceUrl: true });
     await choose('select-exercise', exercises[0].title);
@@ -101,16 +133,16 @@ describe('ScalesComponent', () => {
 
   it('links to the library scores in the same key', () => {
     render({ selectedKey: 'F#', scaleKey: 'major', exerciseKey: 'contrary_motion' });
-    expect(component.getLibraryUrl()).toBe('/library/popular?fullKey=F%23%20Major');
+    expect(component.getLibraryUrl()).toBe('/library/popular?fullKey=F%23%20major');
   });
 
   describe('SEO', () => {
     it('describes an exercise, a scale, or the exercises page', () => {
       const full = buildScalesSeo({ scaleName: 'Minor', scaleKey: 'minor', exerciseName: 'Contrary motion', exerciseKey: 'contrary_motion', selectedKey: 'Am' });
-      expect(full.title).toBe('Am Minor Scale: Contrary motion');
+      expect(full.title).toBe('A Minor Scale: Contrary motion');
       expect(full.canonical).toBe('/exercises/scale/Am/minor/contrary_motion');
       const scale = buildScalesSeo({ scaleName: 'Minor', scaleKey: 'minor', selectedKey: 'Am' });
-      expect(scale.title).toBe('Am Minor Scale: Piano Exercises');
+      expect(scale.title).toBe('A Minor Scale: Piano Exercises');
       expect(scale.canonical).toBe('/exercises/scale/Am/minor');
       const page = buildScalesSeo({});
       expect(page.title).toBe('Piano Scale Exercises: Major & Minor Scales');

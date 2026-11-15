@@ -11,12 +11,13 @@ import {  bootstrapGithub } from '@ng-icons/bootstrap-icons';
 import { map, Observable, tap } from 'rxjs';
 import { AuthService } from '../../../account/services/auth.service';
 import { loginQueryParams } from '../../../account/services/return-url';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 
 import versionInfo from '../../../../assets/version.json';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterModule, CommonModule,   NgIcon],
+  imports: [RouterModule, CommonModule, NgIcon, LanguageSwitcherComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -24,6 +25,9 @@ import versionInfo from '../../../../assets/version.json';
 })
 export class LayoutComponent implements OnDestroy {
   protected readonly loginQueryParams = loginQueryParams;
+  protected navigateTo(label: string): string {
+    return $localize`:@@layout.breadcrumb.navigateTo:Navigate to ${label}:label:`;
+  }
     version = versionInfo;
   private platformId = inject(PLATFORM_ID);
   private changeDetector = inject(ChangeDetectorRef);

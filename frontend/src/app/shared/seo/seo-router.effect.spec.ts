@@ -33,6 +33,7 @@ describe('SeoRouterEffect (provideSeo)', () => {
             resolve: { score: () => of({ title: 'Happy Birthday' }) },
             data: { breadcrumb: '@score.title' },
           },
+          { path: 'lazy', component: PageComponent, data: { seo: () => ({ title: 'Built at render time' }) } },
           { path: '**', component: PageComponent, data: { breadcrumb: 'Not found', seo: { noindex: true } } },
         ]),
       ],
@@ -52,6 +53,11 @@ describe('SeoRouterEffect (provideSeo)', () => {
   it("merges a parent route's SEO data with its child's", async () => {
     await harness.navigateByUrl('/library/genres');
     expect(seo.setRouteSeo).toHaveBeenLastCalledWith({ title: 'Genres', description: 'Browse scores' }, '/library/genres');
+  });
+
+  it('calls route SEO data given as a function', async () => {
+    await harness.navigateByUrl('/lazy');
+    expect(seo.setRouteSeo).toHaveBeenLastCalledWith({ title: 'Built at render time' }, '/lazy');
   });
 
   it('publishes the breadcrumb trail as structured data', async () => {

@@ -1,16 +1,16 @@
 <div class="exercise-page">
 
   <header>
-    <div class="page-title">Agility</div>
-    <div class="page-sub-title">Select a key, chord, and exercise to begin</div>
+    <div class="page-title" i18n="@@exercisesInKey.agility">Agility</div>
+    <div class="page-sub-title" i18n="@@agility.subtitle">Select a key, chord, and exercise to begin</div>
   </header>
 
   <hr>
 
   <!-- ── Toolbar ─────────────────────────────────────── -->
   <div class="flex items-center justify-between">
-    <p class="page-sub-title">{{ selectedKey }} · {{ selectedChord.name }} · {{ selectedExcercice.title }}</p>
-    <button (click)="load()" class="btn-hero">Start</button>
+    <p class="page-sub-title">{{ selectedKey | noteName }} · {{ selectedChord.name }} · {{ selectedExcercice.title }}</p>
+    <button (click)="load()" class="btn-hero" i18n="@@exercises.start">Start</button>
   </div>
 
   <div class="exercise-body">
@@ -19,25 +19,25 @@
     <div class="exercise-controls">
 
       <div class="flex flex-col gap-1.5">
-        <label class="field-label" for="agility-key">Key</label>
+        <label class="field-label" for="agility-key" i18n="@@scoreInfo.key">Key</label>
         <select id="agility-key" [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()" class="input-field">
           @for (key of keys; track key) {
-            <option [ngValue]="key">{{ key }}</option>
+            <option [ngValue]="key">{{ key | noteName }}</option>
           }
         </select>
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="field-label" for="agility-chord">Chord</label>
+        <label class="field-label" for="agility-chord" i18n="@@agility.chord">Chord</label>
         <select id="agility-chord" [(ngModel)]="selectedChord" (ngModelChange)="onChordChange()" class="input-field">
           @for (chord of availableChords; track chord) {
-            <option [ngValue]="chord">{{ selectedKey }} {{ chord.name }}</option>
+            <option [ngValue]="chord">{{ selectedKey | noteName }} {{ chord.name }}</option>
           }
         </select>
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="field-label" for="agility-exercise">Exercise</label>
+        <label class="field-label" for="agility-exercise" i18n="@@exercises.exercise">Exercise</label>
         <select id="agility-exercise" [(ngModel)]="selectedExcercice" (ngModelChange)="onSelectedExerciceChange()" class="input-field">
           @for (exercise of myexcerices; track exercise) {
             <option [ngValue]="exercise">{{ exercise.title }}</option>
@@ -52,8 +52,8 @@
       <div class="exercise-desc-card">
 
         <div class="exercise-desc-section">
-          <p class="exercise-desc-label">Exercise — <span class="text-neutral-300">{{ selectedKey }} {{ selectedChord.name }} — {{ selectedExcercice.title }}</span></p>
-          <p class="exercise-desc-text">{{ selectedExcercice.advice || 'No description available.' }}</p>
+          <p class="exercise-desc-label"><ng-container i18n="@@exercises.exercise">Exercise</ng-container> — <span class="text-neutral-300">{{ selectedKey | noteName }} {{ selectedChord.name }} — {{ selectedExcercice.title }}</span></p>
+          <p class="exercise-desc-text">@if (selectedExcercice.advice) { {{ selectedExcercice.advice }} } @else { <ng-container i18n="@@exercises.noDescription">No description available.</ng-container> }</p>
         </div>
 
       </div>

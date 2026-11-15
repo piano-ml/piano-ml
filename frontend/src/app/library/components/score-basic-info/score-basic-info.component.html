@@ -1,10 +1,10 @@
 <div class="exercise-desc-card">
   <div class="exercise-desc-section">
-    <p class="exercise-desc-label">Score information</p>
+    <p class="exercise-desc-label" i18n="@@scoreInfo.heading">Score information</p>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 mt-3">
 
       <div>
-        <p class="field-label">Genre</p>
+        <p class="field-label" i18n="@@scoreInfo.genre">Genre</p>
         @if (score.genre && score.genre_slug) {
           <a [routerLink]="['/library/genres', score.genre_slug]" class="link-primary text-sm mt-0.5 block">{{ score.genre }}</a>
         } @else {
@@ -13,7 +13,7 @@
       </div>
 
       <div>
-        <p class="field-label">Author</p>
+        <p class="field-label" i18n="@@scoreInfo.author">Author</p>
         @if (score.author_slug) {
           <a [routerLink]="['/library/artists', score.author_slug]" class="link-primary text-sm mt-0.5 block">{{ score.author }}</a>
         } @else {
@@ -22,75 +22,75 @@
       </div>
 
       <div>
-        <p class="field-label">Key</p>
+        <p class="field-label" i18n="@@scoreInfo.key">Key</p>
         @if (score.fullKey && score.genre_slug) {
-          <a [routerLink]="['/library/genres', score.genre_slug]" [queryParams]="{fullKey: score.fullKey}" class="link-primary text-sm mt-0.5 block">{{ score.fullKey }}</a>
+          <a [routerLink]="['/library/genres', score.genre_slug]" [queryParams]="{fullKey: score.fullKey}" class="link-primary text-sm mt-0.5 block">{{ score.fullKey | keyName }}</a>
         } @else {
-          <p class="text-sm text-neutral-300 mt-0.5">{{ score.fullKey || '—' }}</p>
+          <p class="text-sm text-neutral-300 mt-0.5">{{ (score.fullKey | keyName) || '—' }}</p>
         }
       </div>
 
       <div>
-        <p class="field-label">Grade</p>
-        <p class="text-sm text-neutral-300 mt-0.5">{{ score.grade || '—' }}</p>
+        <p class="field-label" i18n="@@scoreInfo.grade">Grade</p>
+        <p class="text-sm text-neutral-300 mt-0.5">{{ score.grade ? (score.grade | number) : '—' }}</p>
       </div>
 
       <div>
-        <p class="field-label">Duration</p>
+        <p class="field-label" i18n="@@scoreInfo.duration">Duration</p>
         <p class="text-sm text-neutral-300 mt-0.5">{{ formatDuration(score.duration) }}</p>
       </div>
 
       <div>
-        <p class="field-label">Tempo</p>
+        <p class="field-label" i18n="@@scoreInfo.tempo">Tempo</p>
         <p class="text-sm text-neutral-300 mt-0.5">{{ score.tempo || '—' }}</p>
       </div>
 
       <div>
-        <p class="field-label">Tracks</p>
+        <p class="field-label" i18n="@@scoreInfo.tracks">Tracks</p>
         <p class="text-sm text-neutral-300 mt-0.5">{{ score.tracks_count || '—' }}</p>
       </div>
 
       <div>
-        <p class="field-label">Measures</p>
+        <p class="field-label" i18n="@@scoreInfo.measures">Measures</p>
         <p class="text-sm text-neutral-300 mt-0.5">{{ score.measures || '—' }}</p>
       </div>
 
       <div>
-        <p class="field-label">Public Domain</p>
+        <p class="field-label" i18n="@@scoreInfo.publicDomain">Public Domain</p>
         @if (score.publicDomain) {
-          <span class="text-xs font-semibold uppercase tracking-widest text-emerald-400 mt-0.5 block">Yes</span>
+          <span class="text-xs font-semibold uppercase tracking-widest text-emerald-400 mt-0.5 block" i18n="@@common.yes">Yes</span>
         } @else {
-          <span class="text-xs font-semibold uppercase tracking-widest text-red-400 mt-0.5 block">No</span>
+          <span class="text-xs font-semibold uppercase tracking-widest text-red-400 mt-0.5 block" i18n="@@common.no">No</span>
         }
       </div>
 
       @if (score.has_lyrics) {
         <div>
-          <p class="field-label">Lyrics</p>
-          <p class="text-sm text-neutral-300 mt-0.5">Yes</p>
+          <p class="field-label" i18n="@@scoreInfo.lyrics">Lyrics</p>
+          <p class="text-sm text-neutral-300 mt-0.5" i18n="@@common.yes">Yes</p>
         </div>
       }
 
       <div>
-        <p class="field-label">Uploaded</p>
+        <p class="field-label" i18n="@@scoreInfo.uploaded">Uploaded</p>
         <p class="text-sm text-neutral-300 mt-0.5">{{ score.uploaded_at | date:'mediumDate' }}</p>
       </div>
 
       @if (score.author_mbid || score.mbid) {
         <div>
-          <p class="field-label">MusicBrainz</p>
+          <p class="field-label" i18n="@@scoreInfo.musicbrainz">MusicBrainz</p>
           <div class="flex gap-3 mt-0.5">
             @if (score.author_mbid) {
-              <a class="link-primary text-sm" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank" rel="noopener noreferrer">{{ score.author || 'Artist' }}</a>
+              <a class="link-primary text-sm" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank" rel="noopener noreferrer">@if (score.author) { {{ score.author }} } @else { <ng-container i18n="@@scoreTable.artist">Artist</ng-container> }</a>
             }
             @if (score.mbid) {
-              <a class="link-primary text-sm" href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank" rel="noopener noreferrer">Work</a>
+              <a class="link-primary text-sm" href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank" rel="noopener noreferrer" i18n="@@scoreInfo.work">Work</a>
             }
           </div>
         </div>
       }
       <div>
-        <p class="field-label">Owner</p>
+        <p class="field-label" i18n="@@scoreInfo.owner">Owner</p>
         <p class="text-sm text-neutral-300 mt-0.5">{{ score.owner || '—' }}</p>
       </div>
     </div>

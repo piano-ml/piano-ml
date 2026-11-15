@@ -1,9 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const zlib = require('zlib');
+const { readLocales, localizedPath } = require('./lib/i18n-config');
 
-const SITEMAP_PATH = path.join(__dirname, '../src/sitemap.xml');
+const SRC_DIR = path.join(__dirname, '../src');
 const BASE_URL = 'https://pianoml.org';
+// Search engines read at most 50,000 URLs or 50 MB per sitemap file: past either, one file per language.
+const MAX_URLS_PER_FILE = 50000;
+const MAX_BYTES_PER_FILE = 50 * 1024 * 1024;
 const GENRE_API_URL = 'https://api.pianoml.org/score/genre/browse';
 const AUTHOR_API_URL = 'https://api.pianoml.org/score/author/browse';
 const SCORE_SEARCH_API_URL = 'https://api.pianoml.org/score/search';
@@ -12,24 +17,24 @@ const BLOG_DIR = path.join(__dirname, '../src/assets/blog');
 // Kept out of the index by robots.txt, so they do not belong in the sitemap.
 const BLOG_EXCLUDED = ['help', 'legal'];
 
-// Static URLs to include in the sitemap (app router compatible - no hash routes)
-// Every loc here must match a real route, and the canonical the page emits.
+// Static pages to include in the sitemap, as app paths: each one is listed in every language.
+// Every path here must match a real route, and the canonical the page emits.
 const staticUrls = [
-  { loc: `${BASE_URL}/`, priority: '1.0' },
-  { loc: `${BASE_URL}/library`, priority: '1' },
-  { loc: `${BASE_URL}/library/artists`, priority: '0.9' },
-  { loc: `${BASE_URL}/library/new`, priority: '0.9' },
-  { loc: `${BASE_URL}/library/popular`, priority: '0.9' },
-  { loc: `${BASE_URL}/summary`, priority: '0.8' },
-  { loc: `${BASE_URL}/exercises`, priority: '0.8' },
-  { loc: `${BASE_URL}/blog`, priority: '0.8' },
+  { path: '/', priority: '1.0' },
+  { path: '/library', priority: '1' },
+  { path: '/library/artists', priority: '0.9' },
+  { path: '/library/new', priority: '0.9' },
+  { path: '/library/popular', priority: '0.9' },
+  { path: '/summary', priority: '0.8' },
+  { path: '/exercises', priority: '0.8' },
+  { path: '/blog', priority: '0.8' },
 
-  { loc: `${BASE_URL}/exercises/scale/C/major/left_than_right`, priority: '1' },
-  { loc: `${BASE_URL}/exercises/scale/G/major/intervals`, priority: '1' },
-  { loc: `${BASE_URL}/exercises/scale/D/major/contrary_motion`, priority: '1' },
-  { loc: `${BASE_URL}/exercises/scale/A/major/parallel_motion_in_octaves`, priority: '1' },
-  { loc: `${BASE_URL}/exercises/agility/E/major/two_octave_arpeggios`, priority: '1' },
-  { loc: `${BASE_URL}/exercises/agility/B/major/arpeggio_root_position`, priority: '1' },
+  { path: '/exercises/scale/C/major/left_than_right', priority: '1' },
+  { path: '/exercises/scale/G/major/intervals', priority: '1' },
+  { path: '/exercises/scale/D/major/contrary_motion', priority: '1' },
+  { path: '/exercises/scale/A/major/parallel_motion_in_octaves', priority: '1' },
+  { path: '/exercises/agility/E/major/two_octave_arpeggios', priority: '1' },
+  { path: '/exercises/agility/B/major/arpeggio_root_position', priority: '1' },
 ];
 
 /**
@@ -46,7 +51,8 @@ function blogUrls() {
     .filter(file => file.endsWith('.md'))
     .map(file => path.basename(file, '.md'))
     .filter(slug => !BLOG_EXCLUDED.includes(slug))
-    .map(slug => ({ loc: `${BASE_URL}/blog/${slug}`, priority: '0.5' }));
+    // Posts are written in English only: the other languages show them noindex, so only English is listed.
+    .map(slug => ({ path: `/blog/${slug}`, priority: '0.5', englishOnly: true }));
 }
 
 /**
@@ -127,7 +133,7 @@ function calculatePriority(count, maxCount) {
 /**
  * Generate sitemap XML
  */
-function generateSitemap(genres, authors, scores) {
+function generateSitemap(genres, authors, scores, locales = readLocales(), pages = [...staticUrls, ...blogUrls()]) {
   const currentDate = new Date().toISOString();
   
   // Genres to exclude from max calculation
@@ -153,8 +159,8 @@ function generateSitemap(genres, authors, scores) {
   const allUrls = [];
 
   // Add static URLs
-  [...staticUrls, ...blogUrls()].forEach(({ loc, priority }) => {
-    allUrls.push({ loc, priority: parseFloat(priority), lastmod: currentDate });
+  pages.forEach(({ path: pagePath, priority, englishOnly }) => {
+    allUrls.push({ path: pagePath, priority: parseFloat(priority), lastmod: currentDate, ...(englishOnly && { englishOnly }) });
   });
 
 
@@ -167,7 +173,7 @@ function generateSitemap(genres, authors, scores) {
       // Use uploaded_at from API if available, otherwise fall back to currentDate
       const scoreLastMod = score.uploaded_at ? new Date(score.uploaded_at).toISOString() : currentDate;
       allUrls.push({
-        loc: `${BASE_URL}/score/${immutableSlug}`,
+        path: `/score/${immutableSlug}`,
         priority: 1,
         lastmod: scoreLastMod
       });
@@ -185,7 +191,7 @@ function generateSitemap(genres, authors, scores) {
       // Use updatedAt from API if available, otherwise fall back to currentDate
       const authorLastMod = item.updatedAt ? new Date(item.updatedAt).toISOString() : currentDate;
       allUrls.push({
-        loc: `${BASE_URL}/library/artists/${encodeURIComponent(authorSlug)}`,
+        path: `/library/artists/${encodeURIComponent(authorSlug)}`,
         priority,
         lastmod: authorLastMod
       });
@@ -203,7 +209,7 @@ function generateSitemap(genres, authors, scores) {
       // Use updatedAt from API if available, otherwise fall back to currentDate
       const genreLastMod = item.updatedAt ? new Date(item.updatedAt).toISOString() : currentDate;
       allUrls.push({
-        loc: `${BASE_URL}/library/genres/${encodeURIComponent(genreSlug)}`,
+        path: `/library/genres/${encodeURIComponent(genreSlug)}`,
         priority,
         lastmod: genreLastMod
       });
@@ -213,26 +219,77 @@ function generateSitemap(genres, authors, scores) {
   // // Sort by priority (descending)
   allUrls.sort((a, b) => b.priority - a.priority);
 
-  // Generate XML
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  return { files: renderSitemaps(allUrls, locales), urls: allUrls };
+}
+
+const escapeXml = (text) =>
+  String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+const URLSET_OPEN = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 `;
 
-  allUrls.forEach(({ loc, priority, lastmod }) => {
-    xml += `  <url>
-    <loc>${loc}</loc>
+/**
+ * One `<url>` per page and language. Every language version lists all of them as alternates, plus
+ * `x-default` (the source language), mirroring the hreflang links the pages emit. English-only pages
+ * (blog posts) are listed once, without alternates.
+ */
+function urlEntries(urls, locales) {
+  const source = locales[0];
+  const absolute = (pagePath, locale) => `${BASE_URL}${localizedPath(pagePath, locale)}`;
+
+  return locales.map((locale) => {
+    const entries = [];
+    for (const { path: pagePath, priority, lastmod, englishOnly } of urls) {
+      if (englishOnly && locale !== source) continue;
+
+      const alternates = englishOnly
+        ? ''
+        : [...locales.map((other) => [other.code, absolute(pagePath, other)]), ['x-default', absolute(pagePath, source)]]
+            .map(([hreflang, href]) => `\n    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${escapeXml(href)}"/>`)
+            .join('');
+
+      entries.push(`  <url>
+    <loc>${escapeXml(absolute(pagePath, locale))}</loc>${alternates}
     <lastmod>${lastmod}</lastmod>
     <priority>${priority}</priority>
   </url>
-`;
+`);
+    }
+    return { locale, entries };
   });
+}
 
-  xml += `</urlset>`;
-  
-  return { xml, urls: allUrls };
+/**
+ * The sitemap file(s), keyed by file name: a single sitemap.xml while it fits the limits, otherwise
+ * sitemap.xml as an index of one sitemap-<code>.xml.gz per language. Those are written gzipped (the
+ * limits apply to the uncompressed size): every URL carries every language as an alternate, so with many
+ * languages the plain files would weigh hundreds of MB in the image.
+ */
+function renderSitemaps(urls, locales, limits = { urls: MAX_URLS_PER_FILE, bytes: MAX_BYTES_PER_FILE }) {
+  const perLocale = urlEntries(urls, locales);
+  const all = perLocale.flatMap(({ entries }) => entries);
+  const single = `${URLSET_OPEN}${all.join('')}</urlset>\n`;
+
+  if (all.length <= limits.urls && Buffer.byteLength(single) <= limits.bytes) {
+    return { 'sitemap.xml': single };
+  }
+
+  const files = {};
+  const lastmod = new Date().toISOString();
+  for (const { locale, entries } of perLocale) {
+    files[`sitemap-${locale.code}.xml.gz`] = `${URLSET_OPEN}${entries.join('')}</urlset>\n`;
+  }
+  files['sitemap.xml'] = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${locales.map((locale) => `  <sitemap>
+    <loc>${BASE_URL}/sitemap-${locale.code}.xml.gz</loc>
+    <lastmod>${lastmod}</lastmod>
+  </sitemap>
+`).join('')}</sitemapindex>
+`;
+  return files;
 }
 
 /**
@@ -255,10 +312,16 @@ async function main() {
     console.log(`✓ Found ${scores.length} scores`);
     
     console.log('Generating sitemap...');
-    const { xml: sitemapXml, urls } = generateSitemap(genres, authors, scores);
-    
-    fs.writeFileSync(SITEMAP_PATH, sitemapXml, 'utf8');
-    console.log(`✓ Sitemap generated successfully at ${SITEMAP_PATH}`);
+    const { files, urls } = generateSitemap(genres, authors, scores);
+
+    // Per-language files left over from a previous, bigger run would otherwise still be served.
+    for (const file of fs.readdirSync(SRC_DIR)) {
+      if (/^sitemap-.+\.xml(\.gz)?$/.test(file) && !files[file]) fs.unlinkSync(path.join(SRC_DIR, file));
+    }
+    for (const [file, xml] of Object.entries(files)) {
+      fs.writeFileSync(path.join(SRC_DIR, file), file.endsWith('.gz') ? zlib.gzipSync(xml, { level: 9 }) : xml);
+      console.log(`✓ Sitemap generated successfully at src/${file}`);
+    }
     console.log(`✓ Total URLs: ${urls.length}`);
     console.log('\n📊 URLs by priority (sorted):');
     console.log('─'.repeat(80));
@@ -272,4 +335,6 @@ async function main() {
 }
 
 
-main();
+if (require.main === module) main();
+
+module.exports = { generateSitemap, renderSitemaps, staticUrls };

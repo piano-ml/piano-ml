@@ -18,7 +18,7 @@ describe('BlogService', () => {
 
   it('fetches the post markdown as text from assets/blog/<slug>.md', () => {
     service.getPost('just-play-along').subscribe();
-    const req = http.expectOne('assets/blog/just-play-along.md');
+    const req = http.expectOne('/assets/blog/just-play-along.md');
     expect(req.request.method).toBe('GET');
     expect(req.request.responseType).toBe('text');
     req.flush('');
@@ -26,7 +26,7 @@ describe('BlogService', () => {
 
   it('renders the markdown to HTML', async () => {
     const post = firstValueFrom(service.getPost('demo'));
-    http.expectOne('assets/blog/demo.md').flush(
+    http.expectOne('/assets/blog/demo.md').flush(
       '# Play along\n\nPractice **both hands** with [the library](/library).\n\n- scales\n- arpeggios\n',
     );
     const html = await post;
@@ -38,7 +38,7 @@ describe('BlogService', () => {
 
   it('passes a missing post (404) on as an error', async () => {
     const post = firstValueFrom(service.getPost('nope'));
-    http.expectOne('assets/blog/nope.md').flush('Not found', { status: 404, statusText: 'Not Found' });
+    http.expectOne('/assets/blog/nope.md').flush('Not found', { status: 404, statusText: 'Not Found' });
     await expect(post).rejects.toMatchObject({ status: 404 });
   });
 });

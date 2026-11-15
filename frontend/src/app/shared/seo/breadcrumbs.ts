@@ -1,4 +1,4 @@
-import { SITE } from './seo.model';
+import { SITE, siteUrl } from './seo.model';
 
 /**
  * Reads a route's `breadcrumb` data. A plain string is the label itself; a
@@ -40,7 +40,7 @@ export function breadcrumbStructuredData(trail: BreadcrumbEntry[]) {
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: `${SITE.url}${item.url === '/' ? '' : item.url}`
+      item: siteUrl(item.url)
     }))
   };
 }

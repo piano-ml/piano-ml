@@ -8,6 +8,7 @@ import express from 'express';
 import compression from 'compression';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { HOME_VARY, homeRedirect } from './app/shared/i18n/locale-negotiation';
 
 export function app(): express.Express {
   const server = express();
@@ -24,6 +25,17 @@ export function app(): express.Express {
   });
 
   server.use('/api/**', (req, res) => res.json({ hello: 'foo' }));
+
+  // The only language redirect: `/` goes to the language in the `lang` cookie (set by the switcher), else
+  // the best Accept-Language match. English is served at `/` itself. Deep links are never redirected.
+  server.get('/', (req, res, next) => {
+    res.setHeader('Vary', HOME_VARY);
+    const query = req.originalUrl.indexOf('?');
+    const target = homeRedirect(req.headers.cookie, req.headers['accept-language'], query < 0 ? '' : req.originalUrl.slice(query));
+    if (!target) return next();
+    res.setHeader('Cache-Control', 'private, no-cache');
+    res.redirect(302, target);
+  });
 
   server.get(
     '**',
