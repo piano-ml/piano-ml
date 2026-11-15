@@ -1,3 +1,14 @@
+/* Shown above a post on the non-English sites: posts are written in English only. */
+.blog-language-note {
+  margin: 1rem auto 0;
+  max-width: 48rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-neutral-700);
+  border-radius: 0.25rem;
+  color: var(--color-neutral-300);
+  font-size: 0.875rem;
+}
+
 
 
 .blog-post {

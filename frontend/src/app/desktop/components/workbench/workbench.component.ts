@@ -28,21 +28,23 @@ import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
 import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
 
+const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
+
 
 /** What to tell the user when a score cannot be loaded for practice. */
 export function scoreLoadErrorMessage(error: unknown): string {
   const status = error instanceof HttpErrorResponse ? error.status : undefined;
   switch (status) {
     case 0:
-      return 'The score could not be downloaded: the server cannot be reached. Check your connection and try again.';
+      return $localize`:@@workbench.error.offline:The score could not be downloaded: the server cannot be reached. Check your connection and try again.`;
     case 401:
-      return 'Please log in to practice this score.';
+      return $localize`:@@workbench.error.login:Please log in to practice this score.`;
     case 403:
-      return 'You are not allowed to practice this score.';
+      return $localize`:@@workbench.error.forbidden:You are not allowed to practice this score.`;
     case 404:
-      return 'This score or its files are not available.';
+      return $localize`:@@workbench.error.notFound:This score or its files are not available.`;
     default:
-      return 'The score could not be loaded. Please try again later.';
+      return $localize`:@@workbench.error.other:The score could not be loaded. Please try again later.`;
   }
 }
 
@@ -340,7 +342,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private async prepareScoreLoad(loadId: number): Promise<void> {
     this.loading$.next(true);
     this.osmdLoading$.next(true);
-    this.loadingFeedBack$.next({ message: 'resetting previous score', percentage: 0 });
+    this.loadingFeedBack$.next({ message: $localize`:@@workbench.progress.reset:Resetting the previous score`, percentage: 0 });
     this.showOsmd = false;
     this.isPlaying = false;
     this.error = null;
@@ -397,7 +399,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
         return;
       }
       this.downloadProgress = { midi: { loaded: 0, total: 0 }, musicxml: { loaded: 0, total: 0 } };
-      this.loadingFeedBack$.next({ message: 'Downloading score', percentage: 0 });
+      this.loadingFeedBack$.next({ message: DOWNLOADING_SCORE, percentage: 0 });
       [midiResult, musicXmlResult] = await Promise.all([
         this.downloadMidi(this.scoreData!),
         this.downloadMusicXML(this.scoreData!)
@@ -418,7 +420,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     // Compute keyboard bounds from MIDI notes (if available)
     const smallScreen = window.innerWidth <= 1024;
     if (smallScreen) {
-      this.loadingFeedBack$.next({ message: 'computing midi bounds', percentage: 15 });
+      this.loadingFeedBack$.next({ message: $localize`:@@workbench.progress.midiBounds:Computing the MIDI range`, percentage: 15 });
       this.changeDetector.detectChanges()
       const allNotes: Note[] = this.midi.tracks.flatMap(track => track.notes).filter(note => note.midi !== undefined);
       const minNote = allNotes.reduce((acc: Note, n: Note) => {
@@ -450,7 +452,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   onLoaded() {
     this.tempo = Math.round(this.scoreData?.tempo || this.midi?.header.tempos[0]?.bpm || 120);
     this.midiOriginalTempo = this.tempo;
-    this.loadingFeedBack$.next({ message: 'build configuration', percentage: 30 });
+    this.loadingFeedBack$.next({ message: $localize`:@@workbench.progress.configuration:Building the configuration`, percentage: 30 });
     this.loading$.next(false);
     this.changeDetector.markForCheck();
 
@@ -709,7 +711,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
     const expected = files.reduce((sum, f) => sum + f.total, 0);
     const received = files.reduce((sum, f) => sum + Math.min(f.loaded, f.total), 0);
-    this.loadingFeedBack$.next({ message: 'Downloading score', percentage: Math.min(100, Math.round((received / expected) * 100)) });
+    this.loadingFeedBack$.next({ message: DOWNLOADING_SCORE, percentage: Math.min(100, Math.round((received / expected) * 100)) });
   }
 
   /** Stops the loader and tells why the score cannot be practiced, with a retry (see the template). */

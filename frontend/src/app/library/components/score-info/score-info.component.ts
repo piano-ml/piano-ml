@@ -13,12 +13,13 @@ import { VideoCarouselComponent } from './components/video-carousel/video-carous
 import { VideoPlayerModalComponent } from './components/video-player-modal/video-player-modal.component';
 import { ScoreDownloadType, downloadErrorMessage, downloadFilename } from './score-download';
 import { finalize } from 'rxjs';
+import { localizedPath } from '../../../shared/i18n';
 
 const DOWNLOAD_LABELS: Record<ScoreDownloadType, string> = {
   pdf: 'PDF',
   musicxml: 'MusicXML',
   midi: 'MIDI',
-  original: 'original file',
+  original: $localize`:@@score.download.originalFile:original file`,
 };
 
 @Component({
@@ -53,10 +54,23 @@ export class ScoreInfoComponent implements OnInit {
   downloadError: string | null = null;
   /** Generated files, in toolbar order; the original upload has its own owner-only button. */
   readonly downloadButtons: { type: Exclude<ScoreDownloadType, 'original'>; label: string; title: string }[] = [
-    { type: 'midi', label: 'MIDI', title: 'Download MIDI' },
-    { type: 'musicxml', label: 'MusicXML', title: 'Download MusicXML' },
-    { type: 'pdf', label: 'PDF', title: 'Download PDF' },
+    { type: 'midi', label: 'MIDI', title: $localize`:@@score.download.title:Download ${'MIDI'}:format:` },
+    { type: 'musicxml', label: 'MusicXML', title: $localize`:@@score.download.title:Download ${'MusicXML'}:format:` },
+    { type: 'pdf', label: 'PDF', title: $localize`:@@score.download.title:Download ${'PDF'}:format:` },
   ];
+  /** Tooltip of a download button disabled for a copyrighted work. */
+  readonly downloadsRestricted = $localize`:@@score.download.restricted:Downloads restricted — copyrighted work`;
+
+  /** A processing status (an API enum) in the page's language. */
+  statusLabel(status: string | undefined): string {
+    switch (status) {
+      case 'PENDING': return $localize`:@@score.processing.pending:Pending`;
+      case 'RUNNING': return $localize`:@@score.processing.running:Running`;
+      case 'COMPLETED': return $localize`:@@score.processing.completed:Completed`;
+      case 'FAILED': return $localize`:@@score.processing.failed:Failed`;
+      default: return status ?? '';
+    }
+  }
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
 
@@ -83,7 +97,7 @@ export class ScoreInfoComponent implements OnInit {
     this.slug = this.route.snapshot.paramMap.get('slug');
     this.loadGenres();
     if (!this.slug) {
-      this.error = 'No score slug provided';
+      this.error = $localize`:@@score.error.noSlug:No score slug provided`;
       this.responseStatus.set(404);
       this.updatePageTitle(null);
       return;
@@ -129,7 +143,7 @@ export class ScoreInfoComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.error = error.message || 'Failed to load score';
+        this.error = error.message || $localize`:@@score.error.load:Failed to load score`;
         this.loading = false;
         // No score behind this slug: noindex either way, and a real 404 when
         // that is what the API said, so the unbounded slug space stays out of
@@ -165,7 +179,7 @@ export class ScoreInfoComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.videosError = error?.message || 'Failed to load videos';
+        this.videosError = error?.message || $localize`:@@score.videos.error:Failed to load videos`;
         this.videos = [];
         this.loadingVideos = false;
         console.error('Error loading videos:', error);
@@ -240,7 +254,7 @@ export class ScoreInfoComponent implements OnInit {
     }
     const label = DOWNLOAD_LABELS[type];
     if (!this.score?.owner_id || !this.score?.id || !this.score?.version) {
-      this.downloadError = `Could not download the ${label}: this score is missing information.`;
+      this.downloadError = $localize`:@@score.download.error.missingInfo:Could not download the ${label}:file:: this score is missing information.`;
       return;
     }
     const score = this.score;
@@ -327,7 +341,8 @@ export class ScoreInfoComponent implements OnInit {
     if (!this.score?.immutableSlug) {
       return null;
     }
-    return `${this.siteUrl}/score/${this.score.immutableSlug}`;
+    // In the page's language (/es/score/...), on the current host.
+    return `${this.siteUrl}${localizedPath(`/score/${this.score.immutableSlug}`)}`;
   }
 
   copyUrlToClipboard(): void {

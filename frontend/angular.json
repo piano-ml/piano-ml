@@ -30,6 +30,34 @@
           "zh-Hans": {
             "translation": "src/locale/messages.zh-Hans.xlf",
             "subPath": "zh"
+          },
+          "de": {
+            "translation": "src/locale/messages.de.xlf",
+            "subPath": "de"
+          },
+          "nl": {
+            "translation": "src/locale/messages.nl.xlf",
+            "subPath": "nl"
+          },
+          "pl": {
+            "translation": "src/locale/messages.pl.xlf",
+            "subPath": "pl"
+          },
+          "sv": {
+            "translation": "src/locale/messages.sv.xlf",
+            "subPath": "sv"
+          },
+          "th": {
+            "translation": "src/locale/messages.th.xlf",
+            "subPath": "th"
+          },
+          "uk": {
+            "translation": "src/locale/messages.uk.xlf",
+            "subPath": "uk"
+          },
+          "ko": {
+            "translation": "src/locale/messages.ko.xlf",
+            "subPath": "ko"
           }
         }
       },
@@ -65,7 +93,7 @@
                 "output": "/assets/"
               },
               {
-                "glob": "sitemap*.xml",
+                "glob": "sitemap*.{xml,xml.gz}",
                 "input": "src",
                 "output": "/"
               },

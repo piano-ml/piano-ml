@@ -37,6 +37,11 @@ export interface SeoData {
   structuredData?: any | any[];
   /** Keeps the page out of the index — mirror of robots.txt for in-app routes. */
   noindex?: boolean;
+  /**
+   * `false` for a page that exists in one language only (blog posts): no hreflang alternates, since the
+   * other languages' versions are noindex. Defaults to one alternate per language.
+   */
+  alternates?: boolean;
 }
 
 /** The maximum length Google renders before truncating a description. */

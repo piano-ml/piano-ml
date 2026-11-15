@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } f
 import { exercises as agilityExercises } from '../../../exercises/agility/pattern';
 import { exercises as scalesExercises } from '../../../exercises/scales/pattern';
 import { Exercise } from '../../../exercises/model';
+import { localizedPath } from '../../i18n';
 
 interface ExerciseWithType extends Exercise {
   exerciseType: 'agility' | 'scale';
@@ -80,7 +81,8 @@ export class ExercisesInKeyComponent implements OnChanges {
       // For agility, always use uppercase first letter and remove 'm' suffix (e.g., Bb, C#, A)
       const selectedKey = this.convertNoteForRoute(note, true, true);
       
-      return `/exercises/agility/${selectedKey}/${chordKey}/${exercise.key}`;
+      // Plain links: localizedPath keeps them in the page's language (/es/exercises/...).
+      return localizedPath(`/exercises/agility/${selectedKey}/${chordKey}/${exercise.key}`);
     } else {
       // For scales: /exercises/scale/:selectedKey/:scaleKey/:exerciseKey
       // scaleKey is just "major" or "minor"
@@ -94,7 +96,7 @@ export class ExercisesInKeyComponent implements OnChanges {
         selectedKey += 'm';
       }
       
-      return `/exercises/scale/${selectedKey}/${scaleKey}/${exercise.key}`;
+      return localizedPath(`/exercises/scale/${selectedKey}/${scaleKey}/${exercise.key}`);
     }
   }
 
@@ -120,6 +122,6 @@ export class ExercisesInKeyComponent implements OnChanges {
   }
 
   getExerciseTypeLabel(type: 'agility' | 'scale'): string {
-    return type === 'agility' ? 'Agility' : 'Scales';
+    return type === 'agility' ? $localize`:@@exercisesInKey.agility:Agility` : $localize`:@@exercisesInKey.scales:Scales`;
   }
 }

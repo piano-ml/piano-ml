@@ -18,6 +18,8 @@ async function seoLinks(I) {
 Scenario('the Spanish site, its language links and its web app manifest', async ({ I }) => {
   I.amOnPage('/es/');
   I.seeAttributesOnElements('html', { lang: 'es' });
+  // The language menu: closed at first, it lists the other languages once opened.
+  I.click('summary.language-current');
   I.seeElement({ xpath: '//a[contains(@class, "language-link")][@hreflang="en"][@href="/"]' });
 
   // A score page in Spanish points to itself, with the English version and x-default as alternates.
@@ -25,11 +27,14 @@ Scenario('the Spanish site, its language links and its web app manifest', async 
   I.waitForText('Happy Birthday to You', 15, 'h1');
   const { canonical, alternates } = await seoLinks(I);
   assert.equal(canonical, `https://pianoml.org/es${SCORE}`);
-  assert.deepEqual(alternates, [
-    `en https://pianoml.org${SCORE}`,
-    `es https://pianoml.org/es${SCORE}`,
-    `x-default https://pianoml.org${SCORE}`,
-  ]);
+  // One alternate per language (however many are built) plus x-default, each the same path under its prefix.
+  for (const expected of [`en https://pianoml.org${SCORE}`, `es https://pianoml.org/es${SCORE}`, `x-default https://pianoml.org${SCORE}`]) {
+    assert.ok(alternates.includes(expected), `missing alternate: ${expected}`);
+  }
+  for (const alternate of alternates) {
+    assert.match(alternate, new RegExp(`^[\\w-]+ https://pianoml\\.org(/[\\w-]+)?${SCORE}$`));
+  }
+  assert.equal(new Set(alternates.map((a) => a.split(' ')[0])).size, alternates.length, 'one alternate per language');
 
   // The switcher goes back to the same path in English. A plain link (each language is its own build):
   // dispatched directly, since the first-visit guided tour may cover the header.

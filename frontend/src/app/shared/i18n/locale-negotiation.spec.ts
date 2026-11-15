@@ -18,11 +18,15 @@ describe('locale negotiation', () => {
       expect(homeRedirect('', 'zh-CN,zh;q=0.9')).toBe('/zh/');
       expect(homeRedirect('', 'zh')).toBe('/zh/');
       expect(homeRedirect('lang=zh-Hans', undefined)).toBe('/zh/');
+      expect(homeRedirect('', 'de-AT,de;q=0.9')).toBe('/de/');
+      expect(homeRedirect('', 'ko-KR')).toBe('/ko/');
+      expect(homeRedirect('', 'uk-UA,ru;q=0.8')).toBe('/uk/');
+      expect(homeRedirect('', 'nl-BE,fr;q=0.8')).toBe('/nl/');
       expect(homeRedirect('', 'en-GB,es;q=0.8')).toBeNull();
     });
 
     it('serves English when nothing matches, or when the client says nothing (crawlers)', () => {
-      expect(homeRedirect(undefined, 'ja-JP,ko;q=0.8')).toBeNull();
+      expect(homeRedirect(undefined, 'ja-JP,hi;q=0.8')).toBeNull();
       expect(homeRedirect(undefined, undefined)).toBeNull();
       expect(homeRedirect(undefined, '*')).toBeNull();
     });

@@ -7,7 +7,7 @@
     "start-remote": "BASE_PATH='https://api.pianoml.org' ng serve --host 0.0.0.0",
     "prebuild-common": "npm run generate:api && node scripts/generate-version.js && npm run shaders:manifest && npm run i18n:generate",
     "build": "ng build --no-prerender",
-    "build:prod": "npm run prebuild-common  && ng build --configuration=production --no-prerender",
+    "build:prod": "npm run prebuild-common  && ng build --configuration=production --no-prerender && node scripts/prune-locale-copies.js",
     "watch": "ng build --watch --configuration development",
     "pretest": "npm run i18n:generate",
     "test": "ng test",

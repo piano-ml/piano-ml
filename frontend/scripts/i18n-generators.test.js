@@ -224,15 +224,15 @@ test('lists every page in every language, each with all alternates plus x-defaul
 test('becomes an index of one sitemap per language past the limits', () => {
   const locales = localesFromAngularJson(SAMPLE);
   const files = renderSitemaps(PAGES, locales, { urls: 3, bytes: Infinity });
-  assert.deepEqual(Object.keys(files).sort(), ['sitemap-en.xml', 'sitemap-es.xml', 'sitemap-pt-BR.xml', 'sitemap.xml']);
+  assert.deepEqual(Object.keys(files).sort(), ['sitemap-en.xml.gz', 'sitemap-es.xml.gz', 'sitemap-pt-BR.xml.gz', 'sitemap.xml']);
   assert.match(files['sitemap.xml'], /<sitemapindex/);
   assert.deepEqual([...files['sitemap.xml'].matchAll(/<loc>(.*)<\/loc>/g)].map(([, loc]) => loc), [
-    'https://pianoml.org/sitemap-en.xml',
-    'https://pianoml.org/sitemap-es.xml',
-    'https://pianoml.org/sitemap-pt-BR.xml'
+    'https://pianoml.org/sitemap-en.xml.gz',
+    'https://pianoml.org/sitemap-es.xml.gz',
+    'https://pianoml.org/sitemap-pt-BR.xml.gz'
   ]);
-  assert.match(files['sitemap-es.xml'], /<loc>https:\/\/pianoml.org\/es\/library<\/loc>/);
-  assert.ok(!files['sitemap-es.xml'].includes('blog'));
+  assert.match(files['sitemap-es.xml.gz'], /<loc>https:\/\/pianoml.org\/es\/library<\/loc>/);
+  assert.ok(!files['sitemap-es.xml.gz'].includes('blog'));
 });
 
 test('builds score, artist and genre pages from the API data, in every language', () => {
@@ -253,4 +253,34 @@ test('builds score, artist and genre pages from the API data, in every language'
   } finally {
     console.log = log;
   }
+});
+
+// --- Pruning the per-language copies ---------------------------------------------------------------------
+const { prune, rootOnlyEntries } = require('./prune-locale-copies');
+
+test('only root files are pruned: assets, sitemaps, robots.txt and web manifests', () => {
+  assert.deepEqual(
+    rootOnlyEntries(['assets', 'index.csr.html', 'main-ABC.js', 'sitemap.xml', 'sitemap-es.xml.gz', 'robots.txt', 'manifest.es.webmanifest', 'styles-X.css']),
+    ['assets', 'sitemap.xml', 'sitemap-es.xml.gz', 'robots.txt', 'manifest.es.webmanifest']
+  );
+});
+
+test('prunes every prefixed language folder and leaves the root build alone', () => {
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'prune-'));
+  const touch = (file) => {
+    fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    fs.writeFileSync(path.join(dir, file), '');
+  };
+  for (const file of ['assets/a.png', 'robots.txt', 'es/assets/a.png', 'es/robots.txt', 'es/main.js', 'es/index.csr.html', 'pt-BR/sitemap.xml']) touch(file);
+
+  const removed = prune(dir, localesFromAngularJson(SAMPLE));
+  assert.deepEqual(removed.sort(), ['es/assets', 'es/robots.txt', 'pt-BR/sitemap.xml']);
+  assert.ok(fs.existsSync(path.join(dir, 'assets/a.png')));
+  assert.ok(fs.existsSync(path.join(dir, 'robots.txt')));
+  assert.ok(fs.existsSync(path.join(dir, 'es/main.js')));
+  assert.ok(fs.existsSync(path.join(dir, 'es/index.csr.html')));
+  fs.rmSync(dir, { recursive: true });
 });

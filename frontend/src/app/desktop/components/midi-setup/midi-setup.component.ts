@@ -11,6 +11,9 @@ import { MidiServiceService } from '../../../shared/services/midi-service.servic
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MidiSetupComponent implements OnChanges, OnDestroy {
+  protected readonly midiInputLabel = $localize`:@@midiSetup.inputFallback:MIDI Input`;
+  protected readonly midiOutputLabel = $localize`:@@midiSetup.outputFallback:MIDI Output`;
+  protected readonly unknownLabel = $localize`:@@midiSetup.unknownManufacturer:Unknown`;
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
   private midiAccess?: MIDIAccess;
@@ -132,7 +135,7 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
       if ('permissions' in navigator) {
         const status = await navigator.permissions.query({ name: 'midi' as PermissionName });
         if (status.state === 'denied') {
-          this.error = 'MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.';
+          this.error = $localize`:@@midiSetup.error.blocked:MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.`;
           this.loading = false;
           this.cdr.markForCheck();
           return;
@@ -143,7 +146,7 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
       this.midiAccess?.addEventListener('statechange', this.onStateChange);
     } catch (error) {
       console.error('Error accessing MIDI devices:', error);
-      this.error = 'MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.';
+      this.error = $localize`:@@midiSetup.error.failed:MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.`;
     } finally {
       this.loading = false;
       this.cdr.markForCheck();
