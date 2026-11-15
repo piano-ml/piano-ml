@@ -8,7 +8,19 @@ export const LOGIN_PATH = '/account/login';
 /** Pages it makes no sense to come back to after logging in. */
 const NO_RETURN_PATHS = [LOGIN_PATH, '/account/create'];
 
+/**
+ * Pages that need a session: when it has expired there, the user is sent to login.
+ * Everywhere else they stay on the page, logged out.
+ */
+const PROTECTED_PATHS = ['/account/home', '/account/scores', '/account/score/edit', '/import/import-work'];
+
 const pathOf = (url: string) => url.split(/[?#]/)[0];
+
+/** Whether `url` is (under) a protected page; matches whole path segments only. */
+export function requiresLogin(url: string): boolean {
+  const path = pathOf(url);
+  return PROTECTED_PATHS.some(p => path === p || path.startsWith(`${p}/`));
+}
 
 /**
  * Query params for a link or redirect to the login page that remembers `currentUrl`
