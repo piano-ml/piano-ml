@@ -155,4 +155,88 @@ describe('PlayerAssessService', () => {
     expect(assess.liveStatus.expectations.size).toBe(0);
     expect(assess.liveStatus.early.size).toBe(0);
   });
+
+  describe('counters of a take (snapshot)', () => {
+    let clock: number;
+    /** A score note in the 1-based `measure` (480 ticks per measure in this fixture). */
+    const inMeasure = (midi: number, measure: number, ticks = 0) => ({ midi, ticks, bars: measure - 1 + 0.25 }) as Note;
+
+    beforeEach(() => {
+      clock = 1_000_000;
+      vi.spyOn(assess as unknown as { now(): number }, 'now').mockImplementation(() => clock);
+    });
+
+    it('starts empty', () => {
+      expect(assess.snapshot()).toEqual({ expected: 0, hit: 0, wrong: 0, onsets: 0, waits: 0, measures: [] });
+    });
+
+    it('a perfect take: every expected note hit, no wrong note, no wait', () => {
+      assess.learnExpectation(1, 2, inMeasure(60, 1), 'rh');
+      assess.learnExpectation(1, 2, inMeasure(64, 1), 'rh'); // same onset: a chord
+      assess.getNewActual(1, played(60));
+      assess.getNewActual(1, played(64));
+      assess.learnExpectation(2, 3, inMeasure(62, 2, 480), 'rh');
+      assess.getNewActual(2, played(62));
+
+      expect(assess.snapshot()).toEqual({
+        expected: 3, hit: 3, wrong: 0, onsets: 2, waits: 0,
+        measures: [
+          { measure: 1, expected: 2, hit: 2, wrong: 0, onsets: 1, waits: 0 },
+          { measure: 2, expected: 1, hit: 1, wrong: 0, onsets: 1, waits: 0 },
+        ],
+      });
+      expect(assess.liveStatus.total).toBe(3);
+    });
+
+    it('a wrong note is counted in the measure being waited for', () => {
+      assess.learnExpectation(1, 2, inMeasure(60, 3), 'rh');
+      assess.getNewActual(1, played(61, 1));
+      assess.getNewActual(1, played(60, 1.1));
+
+      expect(assess.snapshot()).toMatchObject({ expected: 1, hit: 1, wrong: 1 });
+      expect(assess.snapshot().measures).toEqual([{ measure: 3, expected: 1, hit: 1, wrong: 1, onsets: 1, waits: 0 }]);
+    });
+
+    it('a note played ahead of the score is not wrong once it is matched', () => {
+      assess.getNewActual(0.9, played(60, 0.9)); // nothing expected yet: counted wrong for now
+      expect(assess.snapshot().wrong).toBe(1);
+
+      assess.learnExpectation(1, 2, inMeasure(60, 1), 'rh');
+
+      expect(assess.snapshot()).toMatchObject({ expected: 1, hit: 1, wrong: 0, onsets: 1, waits: 0 });
+    });
+
+    it('an onset completed after GOOD_RANGE is a wait; a quick one is not', () => {
+      assess.learnExpectation(1, 2, inMeasure(60, 1), 'rh');
+      clock += GOOD_RANGE * 1000 - 1;
+      assess.getNewActual(1, played(60));
+      assess.learnExpectation(2, 3, inMeasure(62, 2, 480), 'rh');
+      clock += GOOD_RANGE * 1000 + 1;
+      assess.getNewActual(2, played(62));
+
+      expect(assess.snapshot()).toMatchObject({ onsets: 2, waits: 1 });
+      expect(assess.snapshot().measures.map((m) => m.waits)).toEqual([0, 1]);
+    });
+
+    it('a note still awaited is expected but not hit', () => {
+      assess.learnExpectation(1, 2, inMeasure(60, 1), 'rh');
+      expect(assess.snapshot()).toMatchObject({ expected: 1, hit: 0, onsets: 1, waits: 0 });
+    });
+
+    it('one hand only: the other hand is never expected', () => {
+      assess.learnExpectation(1, 2, inMeasure(48, 1), 'lh');
+      assess.getNewActual(1, played(48));
+      expect(assess.snapshot()).toMatchObject({ expected: 1, hit: 1 });
+    });
+
+    it('is a copy, and reset() starts a new take', () => {
+      assess.learnExpectation(1, 2, inMeasure(60, 1), 'rh');
+      const before = assess.snapshot();
+      assess.getNewActual(1, played(60));
+      expect(before.hit).toBe(0);
+
+      assess.reset();
+      expect(assess.snapshot()).toEqual({ expected: 0, hit: 0, wrong: 0, onsets: 0, waits: 0, measures: [] });
+    });
+  });
 });

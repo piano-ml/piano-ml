@@ -10,11 +10,12 @@ import { MidiServiceService } from '../../../shared/services/midi-service.servic
 import { MidiStateEvent } from '../../../shared/model/webmidi';
 import { Subject, takeUntil } from 'rxjs';
 import { MidiSetupComponent } from '../../../desktop/components/midi-setup/midi-setup.component';
+import { PracticeSummaryComponent } from '../practice-summary/practice-summary.component';
 
 @Component({
   selector: 'app-account-home',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterModule, MidiSetupComponent],
+  imports: [ReactiveFormsModule, RouterModule, MidiSetupComponent, PracticeSummaryComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

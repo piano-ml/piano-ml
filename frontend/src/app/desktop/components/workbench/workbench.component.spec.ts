@@ -18,6 +18,7 @@ import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../.
 import { CursorService } from '../../service/cursor.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { PlayerService } from '../../service/player.service';
+import { PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
 
 const SCORE: ScoreApiInfo = {
@@ -286,16 +287,20 @@ describe('WorkbenchComponent', () => {
       expect(resetLight).toHaveBeenCalled();
     });
 
-    it('at the end, records the assessment and returns to the stopped state', async () => {
+    it('at the end, returns to the stopped state without counting the play a second time', async () => {
       await openScore();
       await component.start();
       vi.mocked(scores.scorePlayStatsPost).mockClear();
       player.message.set('END');
       render();
-      expect(scores.scorePlayStatsPost).toHaveBeenCalledWith(expect.objectContaining({
-        id: 's1', title: 'Happy Birthday', assessment: expect.objectContaining({ bad: 0, late: 0 }),
-      }));
+      expect(scores.scorePlayStatsPost).not.toHaveBeenCalled();
       expect(component.isPlaying).toBe(false);
+    });
+
+    it('tells the practice recorder which score is on the stand', async () => {
+      const setItem = vi.spyOn(TestBed.inject(PracticeSessionRecorder), 'setItem');
+      await openScore();
+      expect(setItem).toHaveBeenLastCalledWith({ kind: 'score', scoreId: 's1', title: 'Happy Birthday' }, expect.any(Number));
     });
 
     it('flashes the score on a wrong note and shows the keyboard for a while', async () => {
