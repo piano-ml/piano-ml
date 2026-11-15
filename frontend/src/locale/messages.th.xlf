@@ -466,6 +466,46 @@
         <source>An error occurred during login</source>
         <target state="translated">เกิดข้อผิดพลาดขณะเข้าสู่ระบบ</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">การฝึกซ้อม</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.empty" datatype="html">
+        <source>Nothing recorded yet. Play a score or an exercise to see your progress here.</source>
+        <target state="translated">ยังไม่มีการบันทึก เล่นโน้ตเพลงหรือแบบฝึกหัดเพื่อดูความก้าวหน้าของคุณที่นี่</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.daysInARow" datatype="html">
+        <source>Days in a row</source>
+        <target state="translated">จำนวนวันติดต่อกัน</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.last7Days" datatype="html">
+        <source>Last 7 days</source>
+        <target state="translated">7 วันที่ผ่านมา</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.totalTime" datatype="html">
+        <source>Total time</source>
+        <target state="translated">เวลารวม</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.accuracy" datatype="html">
+        <source>Accuracy (last 10 scores)</source>
+        <target state="translated">ความแม่นยำ (โน้ตเพลง 10 รายการล่าสุด)</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.recent" datatype="html">
+        <source>Recent sessions</source>
+        <target state="translated">การฝึกล่าสุด</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">แบบฝึกหัด</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.deleteHistory" datatype="html">
+        <source>Delete practice history</source>
+        <target state="translated">ลบประวัติการฝึกซ้อม</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.confirmDelete" datatype="html">
+        <source>Delete all sessions</source>
+        <target state="translated">ลบการฝึกทั้งหมด</target>
+      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">หน้าเกิดข้อผิดพลาด</target>
@@ -566,10 +606,6 @@
         <source>Unknown</source>
         <target state="translated">ไม่ทราบ</target>
       </trans-unit>
-      <trans-unit id="midiSetup.error.blocked" datatype="html">
-        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
-        <target state="translated">เบราว์เซอร์บล็อกการเข้าถึง MIDI โปรดเปิดการตั้งค่าเบราว์เซอร์ หาสิทธิ์ของเว็บไซต์สำหรับ MIDI อนุญาตให้เว็บไซต์นี้เข้าถึง แล้วโหลดหน้าใหม่</target>
-      </trans-unit>
       <trans-unit id="midiSetup.error.failed" datatype="html">
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">การเข้าถึง MIDI ล้มเหลว หากคุณปฏิเสธสิทธิ์ไว้ โปรดเปิดการตั้งค่าเบราว์เซอร์ รีเซ็ตสิทธิ์ของเว็บไซต์นี้ อนุญาต MIDI แล้วโหลดหน้าใหม่</target>
@@ -633,6 +669,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">เครื่องเคาะจังหวะ</target>
+      </trans-unit>
+      <trans-unit id="workbench.midiBlocked.heading" datatype="html">
+        <source>MIDI access blocked</source>
+        <target state="translated">การเข้าถึง MIDI ถูกบล็อก</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>
@@ -1721,6 +1761,14 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="importLink.searchForWorksEG.placeholder" datatype="html">
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">ค้นหาผลงาน (เช่น 'redemption song')</target>
+      </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">กำลังค้นหา...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">ค้นหา</target>
       </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
@@ -2845,6 +2893,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="seo.defaultDescription" datatype="html">
         <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
         <target state="translated">เรียนเปียโนกับ PianoML เว็บแอปฟรีแบบโอเพนซอร์สสำหรับโน้ตเพลง MusicXML, MIDI และ PDF ฝึกบันไดเสียง รับผลตอบรับแบบเรียลไทม์ และสร้างคลังโน้ตเพลงของคุณเอง</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">เบราว์เซอร์บล็อกการเข้าถึง MIDI โปรดเปิดการตั้งค่าเบราว์เซอร์ หาสิทธิ์ของเว็บไซต์สำหรับ MIDI อนุญาตให้เว็บไซต์นี้เข้าถึง แล้วโหลดหน้าใหม่</target>
       </trans-unit>
     </body>
   </file>

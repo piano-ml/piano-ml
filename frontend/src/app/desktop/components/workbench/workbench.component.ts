@@ -27,6 +27,8 @@ import { midiToPitch } from '../../service/midi-maths';
 import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
 import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
+import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
+import { MIDI_BLOCKED_MESSAGE, queryMidiPermission } from '../../../shared/services/midi-service.service';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
@@ -79,6 +81,11 @@ export function scoreLoadErrorMessage(error: unknown): string {
 
 export class WorkbenchComponent implements OnInit, OnDestroy {
   showSlopDialog = false;
+  /** The browser denies MIDI to the site: /work/:slug says so in a popup, as the setup panel does. */
+  showMidiBlockedDialog = false;
+  protected readonly midiBlockedMessage = MIDI_BLOCKED_MESSAGE;
+  private midiPermission: PermissionStatus | null = null;
+  private midiBlockedChecked = false;
 
 
 
@@ -183,6 +190,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
 
   private readonly beaconService = inject(BeaconService);
+  private readonly practiceRecorder = inject(PracticeSessionRecorder);
+  /** Stable identity of the exercise on the stand, for the practice history (null for a score). */
+  private exerciseItem: PracticeItem | null = null;
   private routeParamSubscription?: Subscription;
   private currentLoadId = 0;
   private lastRouteKey: string | null = null;
@@ -326,6 +336,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     const loadId = ++this.currentLoadId;
 
     if (this.router.url.startsWith('/work/')) {
+      void this.checkMidiBlocked();
       await this.prepareScoreLoad(loadId);
       await this.setupWorkMode(loadId);
     } else if (
@@ -337,6 +348,28 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     } else if (this.router.url.startsWith('/workbench/sightreadng')) {
       this.setupSightReadingMode();
     }
+  }
+
+  /** Opens the MIDI-blocked popup once per visit when the browser denies MIDI; closes it if access is granted meanwhile. */
+  private async checkMidiBlocked(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId) || this.midiBlockedChecked) return;
+    this.midiBlockedChecked = true;
+    this.midiPermission = await queryMidiPermission();
+    if (!this.midiPermission) return;
+    this.midiPermission.onchange = () => {
+      if (this.midiPermission?.state !== 'denied') {
+        this.closeMidiBlockedDialog();
+      }
+    };
+    if (this.midiPermission.state === 'denied') {
+      this.showMidiBlockedDialog = true;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  closeMidiBlockedDialog() {
+    this.showMidiBlockedDialog = false;
+    this.changeDetector.markForCheck();
   }
 
   private async prepareScoreLoad(loadId: number): Promise<void> {
@@ -417,6 +450,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.midi = midiResult;
     this.musicXml = musicXmlResult;
     this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData!, this.playConfiguration, this.midi!);
+    this.practiceRecorder.setItem(
+      { kind: 'score', scoreId: this.scoreData!.id!, title: this.scoreData!.title },
+      this.playConfiguration.maxStaveCount
+    );
     // Compute keyboard bounds from MIDI notes (if available)
     const smallScreen = window.innerWidth <= 1024;
     if (smallScreen) {
@@ -472,6 +509,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.loadExcerciceFromLocalStorage();
     if (this.midi && this.scoreData) {
       this.playConfiguration = this.playerService.preconfigurePlayConfiguration(this.scoreData, this.playConfiguration, this.midi);
+      this.practiceRecorder.setItem(this.exerciseItem, this.playConfiguration.maxStaveCount);
     }
     setTimeout(async () => {
       if (loadId !== this.currentLoadId) {
@@ -649,6 +687,18 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       mode: exerciceInfo?.mode,
       genre: exerciceInfo?.kind
     } as ScoreApiInfo;
+    // Exercises stored before these keys existed are simply not recorded
+    this.exerciseItem = exerciceInfo?.exerciseType && exerciceInfo?.patternKey && exerciceInfo?.exerciseKey && exerciceInfo?.tonic
+      ? {
+        kind: 'exercise',
+        exerciseType: exerciceInfo.exerciseType,
+        patternKey: exerciceInfo.patternKey,
+        exerciseKey: exerciceInfo.exerciseKey,
+        tonic: exerciceInfo.tonic,
+        mode: exerciceInfo.mode,
+        title: exerciceInfo.title,
+      }
+      : null;
 
   }
 
@@ -735,37 +785,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.router.navigate(slug && this.scoreData ? ['/score', slug] : ['/library']);
   }
 
-
-  recordAssessment() {
-    // POST user stats when ending play and playing both hands
-    if (this.scoreData) {
-      //if (this.scoreData && this.playConfiguration.waitForLeftHand && this.playConfiguration.waitForRightHand) {
-      const request: ScorePlayStatsPostRequest = {
-        id: this.scoreData.id!,
-        title: this.scoreData.title,
-        author: this.scoreData.author,
-        tonic: this.scoreData.tonic,
-        mode: this.scoreData.mode,
-        played_at: new Date().toISOString(),
-        genre: this.scoreData.genre,
-        genre_id: this.scoreData.genre_id,
-        assessment: {
-          start: this.playConfiguration.scoreRange[0],
-          end: this.playConfiguration.scoreRange[1],
-          bad: this.playerService.getAssess().liveStatus.badCount,
-          late: this.playerService.getAssess().liveStatus.late,
-          total: this.playerService.getAssess().liveStatus.total,
-
-        }
-      };
-      this.scoreService.scorePlayStatsPost(request).subscribe({
-        next: (response) => { console.log(response) },
-        error: (error) => console.warn('Failed to register play stats:', error)
-      });
-    } else {
-      console.warn('No score data available to record assessment');
-    }
-  }
 
   summary() {
     if (this.isPlaying) {
@@ -869,11 +888,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * The score played to its end. Same UI state as stop() (toolbar back, measure range unlocked), except in loop
+   * The score played to its end (the take is recorded by the player, see PracticeSessionRecorder). Same UI state as stop() (toolbar back, measure range unlocked), except in loop
    * mode where the player restarts right away and stays "playing".
    */
   onPlaybackEnded() {
-    this.recordAssessment();
     if (!this.playConfiguration.isLoop) {
       this.isPlaying = false;
       this.toggleToolbar = true;
@@ -1081,6 +1099,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
     this.routeParamSubscription?.unsubscribe();
     this.routeParamSubscription = undefined;
+    if (this.midiPermission) {
+      this.midiPermission.onchange = null;
+    }
     // Clean up slider
     if (this.slider) {
       try {

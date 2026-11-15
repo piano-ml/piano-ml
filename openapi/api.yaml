@@ -440,6 +440,7 @@ paths:
       tags:
         - score
       summary: Register that a score has been played
+      description: Popularity counter, open to anonymous users. Practice sessions are recorded with PUT /practice/session/{id}.
       requestBody:
         required: true
         content:
@@ -449,35 +450,6 @@ paths:
               properties:
                 id:
                   type: string
-                title:
-                  type: string
-                author:
-                  type: string
-                played_at:
-                  type: string
-                tonic:
-                  type: string
-                mode:
-                  type: string
-                genre:
-                  type: string
-                genre_id:
-                  type: string
-                assessment:
-                  type: object
-                  properties:
-                    accuracy:
-                      type: number
-                    bad:
-                      type: integer
-                    late:
-                      type: integer
-                    start:
-                      type: integer
-                    end:
-                      type: integer
-                    total:
-                      type: integer
               required:
                 - id
       responses:
@@ -1245,6 +1217,118 @@ paths:
         '404':
           description: Work not found
 
+  /practice/session/{id}:
+    put:
+      operationId: practiceSessionPut
+      tags:
+        - practice
+      summary: Create or update one of the user's practice sessions
+      description: >
+        Idempotent: the client generates the id and sends the whole session again each time it changes
+        (end of a take, checkpoint while playing, leaving the page). Requires authentication.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PracticeSessionApiInfo'
+      responses:
+        '200':
+          description: The session as stored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PracticeSessionApiInfo'
+        '400':
+          description: Invalid or implausible session
+        '401':
+          description: Not logged in
+        '403':
+          description: The session belongs to another user
+
+  /practice/sessions:
+    get:
+      operationId: practiceSessionsGet
+      tags:
+        - practice
+      summary: The user's most recent practice sessions, newest first
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: kind
+          in: query
+          required: false
+          description: score or exercise
+          schema:
+            type: string
+        - name: scoreId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Practice sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PracticeSessionApiInfo'
+        '401':
+          description: Not logged in
+    delete:
+      operationId: practiceSessionsDelete
+      tags:
+        - practice
+      summary: Delete the user's whole practice history
+      responses:
+        '204':
+          description: History deleted
+        '401':
+          description: Not logged in
+
+  /practice/summary:
+    get:
+      operationId: practiceSummaryGet
+      tags:
+        - practice
+      summary: The user's practice progress, computed from the recorded sessions
+      description: >
+        Regularity (streak, practice days), volume, accuracy trend over the last 10 scores and exercises,
+        statistics per key and per item (score or exercise) with weak measures, and level.
+        Durations are in seconds; accuracy, flow and coverage are ratios between 0 and 1.
+      parameters:
+        - name: timeZone
+          in: query
+          required: false
+          description: IANA time zone used for "today" (streak). Defaults to the zone of the latest session.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Practice summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PracticeSummary'
+        '401':
+          description: Not logged in
+
 
 components:
   schemas:
@@ -1696,3 +1780,402 @@ components:
               type: array
               items:
                 type: string
+    PracticeCounters:
+      type: object
+      description: Assessment counters. Notes are those of the hand(s) being practiced.
+      properties:
+        notesExpected:
+          type: integer
+          minimum: 0
+          description: Notes the user was expected to play
+        notesHit:
+          type: integer
+          minimum: 0
+          description: Expected notes that were played
+        notesWrong:
+          type: integer
+          minimum: 0
+          description: Notes played that were not expected
+        onsets:
+          type: integer
+          minimum: 0
+          description: Expected note or chord onsets
+        waits:
+          type: integer
+          minimum: 0
+          description: Onsets completed late - playback had to wait for the user
+    PracticeMeasure:
+      allOf:
+        - $ref: '#/components/schemas/PracticeCounters'
+        - type: object
+          properties:
+            measure:
+              type: integer
+              minimum: 1
+              description: Measure number (1-based, repeats unrolled)
+          required:
+            - measure
+    PracticeTake:
+      allOf:
+        - $ref: '#/components/schemas/PracticeCounters'
+        - type: object
+          description: One Play to Stop (or end of the range). Each pass of a loop is a take.
+          properties:
+            startedAt:
+              type: string
+              format: date-time
+            activeSeconds:
+              type: integer
+              minimum: 0
+            measureStart:
+              type: integer
+            measureEnd:
+              type: integer
+            hands:
+              type: string
+              description: both, left, right or listen
+            tempoFactor:
+              type: number
+              format: double
+            completed:
+              type: boolean
+              description: The take reached the end of its range
+    PracticeSessionApiInfo:
+      allOf:
+        - $ref: '#/components/schemas/PracticeCounters'
+        - type: object
+          description: All the takes on one score or exercise during one visit of the workbench.
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+            kind:
+              type: string
+              enum: [score, exercise]
+            scoreId:
+              type: string
+              format: uuid
+              description: Required when kind is score
+            slug:
+              type: string
+              readOnly: true
+            title:
+              type: string
+              maxLength: 255
+            author:
+              type: string
+              readOnly: true
+            exerciseType:
+              type: string
+              description: scale or agility. Required when kind is exercise
+            patternKey:
+              type: string
+              maxLength: 64
+              description: Stable key of the scale or chord of an exercise
+            exerciseKey:
+              type: string
+              maxLength: 64
+              description: Stable key of the exercise pattern
+            tonic:
+              type: string
+              maxLength: 10
+            mode:
+              type: string
+              maxLength: 32
+            grade:
+              type: number
+              format: float
+              readOnly: true
+            startedAt:
+              type: string
+              format: date-time
+            endedAt:
+              type: string
+              format: date-time
+            timeZone:
+              type: string
+              maxLength: 64
+              description: IANA time zone of the user, to tell which calendar day was practiced
+            localDate:
+              type: string
+              format: date
+              readOnly: true
+            activeSeconds:
+              type: integer
+              minimum: 0
+              description: Time actually spent playing
+            takeCount:
+              type: integer
+              minimum: 0
+            completedCount:
+              type: integer
+              minimum: 0
+              description: Takes that reached the end of their range
+            measureStart:
+              type: integer
+            measureEnd:
+              type: integer
+            measureTotal:
+              type: integer
+            hands:
+              type: string
+              enum: [both, left, right, listen]
+            tempoFactor:
+              type: number
+              format: double
+            metronome:
+              type: boolean
+            loop:
+              type: boolean
+            input:
+              type: string
+              enum: [midi, none]
+            accuracy:
+              type: number
+              format: double
+              readOnly: true
+              description: notesHit / (notesExpected + notesWrong); absent when nothing was assessed
+            flow:
+              type: number
+              format: double
+              readOnly: true
+              description: 1 - waits / onsets; absent when nothing was assessed
+            endReason:
+              type: string
+              enum: [ended, stopped, left, unloaded, idle]
+            measures:
+              type: array
+              maxItems: 3000
+              items:
+                $ref: '#/components/schemas/PracticeMeasure'
+            takes:
+              type: array
+              maxItems: 500
+              items:
+                $ref: '#/components/schemas/PracticeTake'
+          required:
+            - kind
+            - startedAt
+            - endedAt
+            - activeSeconds
+    PracticeDay:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        activeSeconds:
+          type: integer
+        sessions:
+          type: integer
+    PracticeRegularity:
+      type: object
+      properties:
+        currentStreakDays:
+          type: integer
+          description: Consecutive practice days up to today (or yesterday if today is not practiced yet)
+        longestStreakDays:
+          type: integer
+        practiceDays7:
+          type: integer
+        practiceDays30:
+          type: integer
+        practiceDays90:
+          type: integer
+        lastPracticeDate:
+          type: string
+          format: date
+        averageSessionSeconds:
+          type: integer
+        daily:
+          type: array
+          description: The days with practice among the last 90
+          items:
+            $ref: '#/components/schemas/PracticeDay'
+    PracticeVolume:
+      type: object
+      properties:
+        activeSeconds:
+          type: integer
+          format: int64
+        activeSeconds7:
+          type: integer
+          format: int64
+        activeSeconds30:
+          type: integer
+          format: int64
+        sessions:
+          type: integer
+        scores:
+          type: integer
+          description: Distinct scores played
+        exercises:
+          type: integer
+          description: Distinct exercises played
+    PracticeAccuracyWindow:
+      type: object
+      properties:
+        sessions:
+          type: integer
+        accuracy:
+          type: number
+          format: double
+        flow:
+          type: number
+          format: double
+    PracticeAccuracyTrend:
+      type: object
+      properties:
+        last10:
+          $ref: '#/components/schemas/PracticeAccuracyWindow'
+        previous10:
+          $ref: '#/components/schemas/PracticeAccuracyWindow'
+    PracticeKeyStats:
+      type: object
+      properties:
+        tonic:
+          type: string
+        mode:
+          type: string
+        activeSeconds:
+          type: integer
+          format: int64
+        sessions:
+          type: integer
+        accuracy:
+          type: number
+          format: double
+        lastPlayedAt:
+          type: string
+          format: date-time
+    PracticeWeakMeasure:
+      type: object
+      properties:
+        measure:
+          type: integer
+        accuracy:
+          type: number
+          format: double
+        notesExpected:
+          type: integer
+        waits:
+          type: integer
+    PracticeItemStats:
+      type: object
+      description: Progress on one score or one exercise
+      properties:
+        kind:
+          type: string
+        scoreId:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        exerciseType:
+          type: string
+        patternKey:
+          type: string
+        exerciseKey:
+          type: string
+        tonic:
+          type: string
+        mode:
+          type: string
+        grade:
+          type: number
+          format: float
+        sessions:
+          type: integer
+        activeSeconds:
+          type: integer
+          format: int64
+        firstPlayedAt:
+          type: string
+          format: date-time
+        lastPlayedAt:
+          type: string
+          format: date-time
+        bestAccuracy:
+          type: number
+          format: double
+        lastAccuracy:
+          type: number
+          format: double
+        bestTempoFactor:
+          type: number
+          format: double
+          description: Fastest tempo factor of a complete take played with at least 90 % accuracy
+        hands:
+          type: array
+          items:
+            type: string
+        playedHandsTogether:
+          type: boolean
+        completedCount:
+          type: integer
+          description: Takes that reached the end of their range
+        measureTotal:
+          type: integer
+        measuresCovered:
+          type: integer
+        coverage:
+          type: number
+          format: double
+        weakMeasures:
+          type: array
+          description: Measures with the lowest accuracy over the 5 latest sessions
+          items:
+            $ref: '#/components/schemas/PracticeWeakMeasure'
+        stale:
+          type: boolean
+          description: Not played for 14 days while not mastered (never completed, or below 90 % accuracy)
+    PracticeGradeCount:
+      type: object
+      properties:
+        grade:
+          type: integer
+        scores:
+          type: integer
+    PracticeLevel:
+      type: object
+      properties:
+        grades:
+          type: array
+          items:
+            $ref: '#/components/schemas/PracticeGradeCount'
+        highestGradeMastered:
+          type: number
+          format: float
+          description: Highest grade completed hands together with at least 90 % accuracy
+    PracticeSummary:
+      type: object
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        timeZone:
+          type: string
+        regularity:
+          $ref: '#/components/schemas/PracticeRegularity'
+        volume:
+          $ref: '#/components/schemas/PracticeVolume'
+        scoreAccuracy:
+          $ref: '#/components/schemas/PracticeAccuracyTrend'
+        exerciseAccuracy:
+          $ref: '#/components/schemas/PracticeAccuracyTrend'
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/PracticeKeyStats'
+        items:
+          type: array
+          description: The 200 most recently played scores and exercises
+          items:
+            $ref: '#/components/schemas/PracticeItemStats'
+        level:
+          $ref: '#/components/schemas/PracticeLevel'

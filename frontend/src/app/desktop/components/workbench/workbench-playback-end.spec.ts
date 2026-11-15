@@ -15,7 +15,6 @@ describe('WorkbenchComponent.onPlaybackEnded', () => {
       slider,
       playConfiguration: { isLoop },
       changeDetector: { markForCheck: vi.fn() },
-      recordAssessment: vi.fn(),
     });
     return { component, slider };
   }
@@ -28,7 +27,6 @@ describe('WorkbenchComponent.onPlaybackEnded', () => {
     expect(component.isPlaying).toBe(false);
     expect(component.toggleToolbar).toBe(true);
     expect(slider.enable).toHaveBeenCalledOnce();
-    expect(component.recordAssessment).toHaveBeenCalledOnce();
   });
 
   it('in loop mode the player restarts: stays playing, range stays locked', () => {
@@ -38,7 +36,6 @@ describe('WorkbenchComponent.onPlaybackEnded', () => {
 
     expect(component.isPlaying).toBe(true);
     expect(slider.enable).not.toHaveBeenCalled();
-    expect(component.recordAssessment).toHaveBeenCalledOnce();
   });
 
   it('works before the slider exists', () => {

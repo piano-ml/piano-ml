@@ -1,0 +1,68 @@
+@if (loaded() && summary(); as s) {
+  <section data-testid="practice-summary">
+    <p class="section-label mb-3" i18n="@@accountHome.practice">Practice</p>
+
+    <div class="exercise-desc-card">
+      @if (!s.volume?.sessions) {
+        <div class="exercise-desc-section">
+          <p class="text-sm text-neutral-400" data-testid="practice-empty" i18n="@@accountHome.practice.empty">Nothing recorded yet. Play a score or an exercise to see your progress here.</p>
+        </div>
+      } @else {
+        <div class="exercise-desc-section">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4">
+            <div>
+              <p class="field-label" i18n="@@accountHome.practice.daysInARow">Days in a row</p>
+              <p class="text-sm text-neutral-200 mt-0.5" data-testid="practice-streak">{{ s.regularity?.currentStreakDays ?? 0 }}</p>
+            </div>
+            <div>
+              <p class="field-label" i18n="@@accountHome.practice.last7Days">Last 7 days</p>
+              <p class="text-sm text-neutral-200 mt-0.5" data-testid="practice-week">{{ duration(s.volume?.activeSeconds7) }}</p>
+            </div>
+            <div>
+              <p class="field-label" i18n="@@accountHome.practice.totalTime">Total time</p>
+              <p class="text-sm text-neutral-200 mt-0.5">{{ duration(s.volume?.activeSeconds) }}</p>
+            </div>
+            <div>
+              <p class="field-label" i18n="@@accountHome.practice.accuracy">Accuracy (last 10 scores)</p>
+              <p class="text-sm text-neutral-200 mt-0.5" data-testid="practice-accuracy">{{ percent(s.scoreAccuracy?.last10?.accuracy) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="exercise-desc-section">
+          <p class="field-label mb-2" i18n="@@accountHome.practice.recent">Recent sessions</p>
+          <ul class="flex flex-col gap-1.5">
+            @for (session of sessions(); track session.id) {
+              <li class="flex items-baseline justify-between gap-4 text-sm" data-testid="practice-session">
+                <span class="min-w-0 truncate text-neutral-200">
+                  @if (session.slug) {
+                    <a [routerLink]="['/score', session.slug]" class="link-primary">{{ session.title }}</a>
+                  } @else if (session.title) {
+                    {{ session.title }}
+                  } @else {
+                    <ng-container i18n="@@accountHome.practice.exercise">Exercise</ng-container>
+                  }
+                  @if (session.kind === 'exercise' && session.tonic) {
+                    <span class="text-neutral-400"> · {{ session.tonic }}</span>
+                  }
+                </span>
+                <span class="shrink-0 text-xs text-neutral-400">
+                  {{ date(session.startedAt) }} · {{ duration(session.activeSeconds) }} · {{ percent(session.accuracy) }}
+                </span>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="exercise-desc-section flex items-center justify-end gap-3">
+          @if (!confirmingDelete()) {
+            <button type="button" class="link-primary text-xs" data-testid="practice-delete" (click)="confirmingDelete.set(true)" i18n="@@accountHome.practice.deleteHistory">Delete practice history</button>
+          } @else {
+            <button type="button" class="btn-secondary" [disabled]="deleting()" (click)="confirmingDelete.set(false)" i18n="@@accountHome.cancel">Cancel</button>
+            <button type="button" class="btn-danger" [disabled]="deleting()" data-testid="practice-delete-confirm" (click)="deleteHistory()" i18n="@@accountHome.practice.confirmDelete">Delete all sessions</button>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}

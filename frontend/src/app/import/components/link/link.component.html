@@ -30,7 +30,11 @@
           <input #searchInput [(ngModel)]="searchQuery" (keyup.enter)="searchWorks()"
             i18n-placeholder="@@importLink.searchForWorksEG.placeholder" placeholder="Search for works (e.g., 'redemption song')" class="input-field flex-1">
           <button (click)="searchWorks()" class="btn-primary" [disabled]="loading">
-            {{ loading ? 'Searching...' : 'Search' }}
+            @if (loading) {
+              <ng-container i18n="@@importLink.searching">Searching...</ng-container>
+            } @else {
+              <ng-container i18n="@@importLink.search">Search</ng-container>
+            }
           </button>
           <button (click)="clearSearch()" class="btn-secondary" i18n="@@importLink.clear">
             Clear
@@ -138,7 +142,11 @@
             <input [(ngModel)]="artistSearchQuery" (keyup.enter)="searchArtists()"
               i18n-placeholder="@@importLink.enterArtistNameEG.placeholder" placeholder="Enter artist name (e.g., 'Bob Marley')" class="input-field flex-1">
             <button (click)="searchArtists()" class="btn-primary" [disabled]="loading">
-              {{ loading ? 'Searching...' : 'Search' }}
+              @if (loading) {
+                <ng-container i18n="@@importLink.searching">Searching...</ng-container>
+              } @else {
+                <ng-container i18n="@@importLink.search">Search</ng-container>
+              }
             </button>
           </div>
           <!-- Loading for Artists -->
