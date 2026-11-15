@@ -251,6 +251,60 @@ public class ScoreService {
     }
   }
 
+  /** True for an original upload that is a MIDI file ({@code ori.midi}, or {@code ori.mid}): the only ones a re-import accepts. */
+  static boolean isMidiFilename(String filename) {
+    String lower = filename.toLowerCase(java.util.Locale.ROOT);
+    return lower.endsWith(".mid") || lower.endsWith(".midi");
+  }
+
+  /**
+   * Study tracks of a re-import, checked: one or two distinct indexes, none negative.
+   *
+   * @throws IllegalArgumentException otherwise
+   */
+  static String checkedStudyTracks(List<Integer> studyTracks) {
+    if (studyTracks == null || studyTracks.isEmpty() || studyTracks.size() > 2) {
+      throw new IllegalArgumentException("Choose one or two study tracks");
+    }
+    if (studyTracks.stream().anyMatch(track -> track == null || track < 0)) {
+      throw new IllegalArgumentException("Study tracks are indexes in the MIDI file (0 or more)");
+    }
+    if (studyTracks.size() == 2 && studyTracks.get(0).equals(studyTracks.get(1))) {
+      throw new IllegalArgumentException("The two study tracks must differ");
+    }
+    return ScoreMapper.integerListToString(studyTracks);
+  }
+
+  /**
+   * Re-imports a score from the MIDI file uploaded at import ({@code ori.midi} in its zip) with new study tracks.
+   * The score record stays the same (id, slugs, owner, version, so the same S3 key): only its zip and the
+   * information read from the generated metadata (key, tempo, grade, ...) are replaced. On failure the study
+   * tracks are left as they were.
+   *
+   * @return the score once re-imported, empty when it has no original upload
+   * @throws IllegalArgumentException when the study tracks are invalid or the original upload is not a MIDI file
+   */
+  public Optional<Score> reimportMidi(Score score, List<Integer> studyTracks, Boolean makeFingering) throws IOException {
+    String tracks = checkedStudyTracks(studyTracks);
+    Optional<ScoreFile> original = getOriginalFromScore(score);
+    if (original.isEmpty()) {
+      return Optional.empty();
+    }
+    if (!isMidiFilename(original.get().filename())) {
+      throw new IllegalArgumentException("Only scores imported from a MIDI file can be re-imported");
+    }
+    String previousTracks = score.getStudyTracks();
+    score.setStudyTracks(tracks);
+    try {
+      packAttachmentToScore(score, "midi", new ByteArrayInputStream(original.get().content()), makeFingering);
+    } catch (IOException | RuntimeException e) {
+      score.setStudyTracks(previousTracks);
+      throw e;
+    }
+    log.info("Re-imported score {} from {} with study tracks {}", score.getId(), original.get().filename(), tracks);
+    return Optional.of(score);
+  }
+
   Score infosFromMetadata(Score score) {
     try {
       Optional<byte[]> optMetadata = getAttachmentFromScore(score, "metadata.json");

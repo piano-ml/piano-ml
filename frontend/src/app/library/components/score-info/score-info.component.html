@@ -26,6 +26,14 @@
       <span>Edit</span>
     </button>
     }
+    @if (score?.has_files && isOwner()) {
+    <button (click)="reimportScore()"
+      title="Choose the study tracks again from the original MIDI file (owner and admins only)"
+      class="btn-primary inline-flex items-center gap-1.5">
+      <ng-icon name="bootstrapArrowRepeat" size="13"></ng-icon>
+      <span>Re-import</span>
+    </button>
+    }
     @if (score && canDownload('original')) {
     <button (click)="download('original')"
       [disabled]="!!downloading"

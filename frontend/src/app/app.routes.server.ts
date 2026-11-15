@@ -47,6 +47,11 @@ export const serverRoutes: ServerRoute[] = [
     path: 'import',
     renderMode: RenderMode.Client
   },
+  // Re-importing a score is for its owner and admins only: same reason as the account pages
+  {
+    path: 'score/*/reimport',
+    renderMode: RenderMode.Client
+  },
 
   // Toutes les autres routes utilisent le SSR
   {

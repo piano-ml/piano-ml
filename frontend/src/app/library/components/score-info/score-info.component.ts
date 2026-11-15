@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo, YoutubeVideoApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapClipboard, bootstrapDownload, bootstrapPencil } from '@ng-icons/bootstrap-icons';
+import { bootstrapArrowRepeat, bootstrapClipboard, bootstrapDownload, bootstrapPencil } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
 import { ResponseStatusService, SeoService } from '../../../shared/seo';
 import { buildScoreSeo } from './score-info.seo';
@@ -28,7 +28,7 @@ const DOWNLOAD_LABELS: Record<ScoreDownloadType, string> = {
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
-  viewProviders: [provideIcons({ bootstrapClipboard, bootstrapDownload, bootstrapPencil })]
+  viewProviders: [provideIcons({ bootstrapArrowRepeat, bootstrapClipboard, bootstrapDownload, bootstrapPencil })]
 })
 export class ScoreInfoComponent implements OnInit {
   loading = false;
@@ -296,6 +296,13 @@ export class ScoreInfoComponent implements OnInit {
   editScore() {
     if (this.score?.id) {
       this.router.navigate(['/account/score/edit', this.score.id]);
+    }
+  }
+
+  /** Opens the re-import page: pick the study tracks again from the original MIDI file (owners and admins). */
+  reimportScore() {
+    if (this.score?.immutableSlug) {
+      this.router.navigate(['/score', this.score.immutableSlug, 'reimport']);
     }
   }
 

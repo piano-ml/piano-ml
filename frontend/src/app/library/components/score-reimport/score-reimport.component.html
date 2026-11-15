@@ -1,0 +1,84 @@
+<article class="main-article">
+  <div class="px-4 sm:px-6 pt-4">
+    <h1 class="page-title">Re-import {{ score()?.title || 'score' }}</h1>
+    <div class="page-sub-title">Choose the study tracks again from the original MIDI file</div>
+  </div>
+
+  <hr class="mx-4 sm:mx-6">
+
+  <section class="main-section" aria-label="Re-import the score">
+    <div class="card-secondary">
+      @if (loading()) {
+      <div class="flex items-center gap-3 py-8 justify-center" role="status" aria-live="polite" data-testid="reimport-loading">
+        <div class="spinner w-5 h-5 text-neutral-500"></div>
+        <p class="text-neutral-300">Reading the original file …</p>
+      </div>
+      } @else if (error()) {
+      <div class="alert-error m-2" role="alert" data-testid="reimport-error">{{ error() }}</div>
+      @if (slug()) {
+      <a class="btn-secondary m-2 inline-block" [routerLink]="['/score', slug()]">← Back to the score</a>
+      }
+      } @else if (importing()) {
+      <div class="flex flex-col items-center justify-center gap-3 py-12 text-center" role="status" aria-live="polite" data-testid="reimport-progress">
+        <div class="flex items-center gap-3">
+          <div class="spinner w-5 h-5 text-neutral-500"></div>
+          <p class="text-neutral-300">Re-importing …</p>
+        </div>
+        <p class="text-sm text-neutral-400">
+          Converting the score again{{ makeFingering() ? ', with automatic fingering' : '' }}.
+          This can take up to a minute: please keep this page open.
+        </p>
+      </div>
+      } @else {
+      <div class="m-2">
+        <div class="text-2xl">{{ midi()?.name || score()?.title }}</div>
+        <p class="text-sm text-neutral-400 my-2">
+          The score keeps its page, link and owner: only its notes, fingering and the details read from them
+          (key, tempo, grade, …) are generated again.
+        </p>
+        <div class="overflow-x-auto">
+          <table class="table-auto border-collapse border border-gray-400 w-full">
+            <thead>
+              <tr>
+                <th class="border border-gray-300 px-4 py-2"></th>
+                <th class="border border-gray-300 px-4 py-2">Notes</th>
+                <th class="border border-gray-300 px-4 py-2">Instrument</th>
+                <th class="border border-gray-300 px-4 py-2">Track Name</th>
+                <th class="border border-gray-300 px-4 py-2">Study</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of tracks(); track row.index) {
+              <tr [attr.data-track]="row.index">
+                <td class="border border-gray-300 px-4 py-2">{{ row.track.instrument.percussion ? '🥁' : '♩' }}</td>
+                <td class="border border-gray-300 px-4 py-2">{{ row.track.notes.length }}</td>
+                <td class="border border-gray-300 px-4 py-2">{{ row.track.instrument.name }}</td>
+                <td class="border border-gray-300 px-4 py-2">{{ row.track.name || ' ----------------- ' }}</td>
+                <td class="border border-gray-300 px-4 py-2 whitespace-nowrap">
+                  <label class="inline-flex items-center gap-2">
+                    <input type="checkbox" [checked]="isSelected(row.index)" [disabled]="isLocked(row)" (change)="toggle(row)"
+                      [attr.aria-label]="'Study track ' + (row.track.name || row.index)" />
+                    <span class="text-sm italic">{{ handOf(row.index) }}</span>
+                  </label>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <input class="m-4" type="checkbox" id="reimport-fingering" (change)="toggleFingering()" [checked]="makeFingering()" />
+          <label for="reimport-fingering" class="italic p-2">Enable automatic fingering</label>
+        </div>
+        @if (importError()) {
+        <div class="alert-error my-2" role="alert" data-testid="reimport-failed">{{ importError() }}</div>
+        }
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn-primary" (click)="reimport()" [disabled]="studies().length === 0">Re-import</button>
+          <a class="btn-secondary" [routerLink]="['/score', slug()]">Cancel</a>
+        </div>
+      </div>
+      }
+    </div>
+  </section>
+</article>
