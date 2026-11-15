@@ -45,3 +45,5 @@ databaseChangeLog:
       file: db/changelog/changes/021-junk-user-and-user-delete-cascade.yaml
   - include:
       file: db/changelog/changes/022-create-practice-session.yaml
+  - include:
+      file: db/changelog/changes/023-create-playlists.yaml

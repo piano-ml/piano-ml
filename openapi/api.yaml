@@ -11,6 +11,8 @@ servers:
 tags:
   - name: genre_tree
     description: Operations to read and modify the genre tree (parent/child relationships)
+  - name: playlist
+    description: Favorites and user playlists (ordered lists of scores)
 
 paths:
   /account/login:
@@ -1330,6 +1332,280 @@ paths:
           description: Not logged in
 
 
+  /playlists:
+    get:
+      operationId: playlistsGet
+      tags:
+        - playlist
+      summary: Playlists of every user (non-empty ones only), paginated
+      description: Public, no authentication needed. Filter with owner to list one user's playlists.
+      parameters:
+        - $ref: '#/components/parameters/PlaylistOffset'
+        - $ref: '#/components/parameters/PlaylistLimit'
+        - $ref: '#/components/parameters/PlaylistOrderBy'
+        - name: owner
+          in: query
+          required: false
+          description: User name of the owner
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A page of playlists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistPage'
+        '400':
+          description: Invalid paging parameters
+
+  /account/playlists:
+    get:
+      operationId: accountPlaylistsGet
+      tags:
+        - playlist
+      summary: The logged-in user's playlists, empty ones included, paginated
+      description: Favorites always comes first on the first page, whatever the order.
+      parameters:
+        - $ref: '#/components/parameters/PlaylistOffset'
+        - $ref: '#/components/parameters/PlaylistLimit'
+        - $ref: '#/components/parameters/PlaylistOrderBy'
+      responses:
+        '200':
+          description: A page of playlists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistPage'
+        '400':
+          description: Invalid paging parameters
+        '401':
+          description: Not logged in
+
+  /playlist/{slug}:
+    get:
+      operationId: playlistSlugGet
+      tags:
+        - playlist
+      summary: One of the logged-in user's playlists, with its items in order
+      parameters:
+        - $ref: '#/components/parameters/PlaylistSlug'
+      responses:
+        '200':
+          description: The playlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistDetail'
+        '401':
+          description: Not logged in
+        '404':
+          description: The user has no playlist with this slug
+
+  /account/playlist:
+    post:
+      operationId: accountPlaylistPost
+      tags:
+        - playlist
+      summary: Create a playlist
+      description: The slug is made from the title here, once, and never changes afterwards.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistCreate'
+      responses:
+        '201':
+          description: The playlist created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistSummary'
+        '400':
+          description: Invalid title or description
+        '401':
+          description: Not logged in
+        '422':
+          description: Too many playlists
+
+  /account/playlist/{slug}:
+    patch:
+      operationId: accountPlaylistSlugPatch
+      tags:
+        - playlist
+      summary: Rename a playlist or change its description (the slug never changes)
+      parameters:
+        - $ref: '#/components/parameters/PlaylistSlug'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistUpdate'
+      responses:
+        '200':
+          description: The playlist updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistSummary'
+        '400':
+          description: Invalid title or description
+        '401':
+          description: Not logged in
+        '404':
+          description: The user has no playlist with this slug
+    delete:
+      operationId: accountPlaylistSlugDelete
+      tags:
+        - playlist
+      summary: Delete a playlist (the scores themselves are kept)
+      parameters:
+        - $ref: '#/components/parameters/PlaylistSlug'
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          description: Not logged in
+        '404':
+          description: The user has no playlist with this slug
+        '409':
+          description: Favorites cannot be deleted
+
+  /account/playlist/{slug}/items:
+    post:
+      operationId: accountPlaylistItemsPost
+      tags:
+        - playlist
+      summary: Append a score at the end of a playlist
+      description: >
+        Idempotent: adding a score already in the playlist answers 200 and changes nothing. With the slug
+        "favorites", the Favorites playlist is created on the first call.
+      parameters:
+        - $ref: '#/components/parameters/PlaylistSlug'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistItemAdd'
+      responses:
+        '200':
+          description: The score was already in the playlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistItem'
+        '201':
+          description: The score was added at the end
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistItem'
+        '401':
+          description: Not logged in
+        '404':
+          description: Unknown playlist or score
+        '422':
+          description: The playlist is full
+
+  /account/playlist/{slug}/items/{scoreId}:
+    delete:
+      operationId: accountPlaylistItemDelete
+      tags:
+        - playlist
+      summary: Remove a score from a playlist (also 204 when it was not there)
+      parameters:
+        - $ref: '#/components/parameters/PlaylistSlug'
+        - name: scoreId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Removed
+        '401':
+          description: Not logged in
+        '404':
+          description: The user has no playlist with this slug
+
+  /account/playlist/{slug}/items/order:
+    put:
+      operationId: accountPlaylistItemsOrderPut
+      tags:
+        - playlist
+      summary: Reorder a playlist
+      description: The body lists every score of the playlist, in the new order; otherwise 409 (stale list).
+      parameters:
+        - $ref: '#/components/parameters/PlaylistSlug'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistOrder'
+      responses:
+        '200':
+          description: The playlist reordered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistDetail'
+        '401':
+          description: Not logged in
+        '404':
+          description: The user has no playlist with this slug
+        '409':
+          description: The list does not match the playlist's items
+
+  /account/playlist/favorites/ids:
+    get:
+      operationId: accountFavoriteIdsGet
+      tags:
+        - playlist
+      summary: Ids of every score in the logged-in user's Favorites
+      responses:
+        '200':
+          description: Score ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+        '401':
+          description: Not logged in
+
+  /account/playlist/containing/{scoreId}:
+    get:
+      operationId: accountPlaylistsContainingGet
+      tags:
+        - playlist
+      summary: The logged-in user's playlists, telling which ones contain a score (for "Save to…")
+      description: Favorites comes first, even before it exists (then contains is false).
+      parameters:
+        - name: scoreId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Playlists and membership
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlaylistMembership'
+        '401':
+          description: Not logged in
+
 components:
   schemas:
     AuthorApiInfo:
@@ -2179,3 +2455,168 @@ components:
             $ref: '#/components/schemas/PracticeItemStats'
         level:
           $ref: '#/components/schemas/PracticeLevel'
+    PlaylistOwner:
+      type: object
+      properties:
+        name:
+          type: string
+    PlaylistSummary:
+      type: object
+      required: [id, slug, title, isDefault, owner, itemCount, createdAt, lastModified, coverImages]
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+          description: Made from the title at creation; never changes. "favorites" for the Favorites playlist.
+        title:
+          type: string
+        description:
+          type: string
+        isDefault:
+          type: boolean
+          description: True for the Favorites playlist
+        owner:
+          $ref: '#/components/schemas/PlaylistOwner'
+        itemCount:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        lastModified:
+          type: string
+          format: date-time
+        coverImages:
+          type: array
+          description: Images of the first (up to 4) scores, for the cover mosaic
+          items:
+            type: string
+    PlaylistPage:
+      type: object
+      required: [items, total, offset, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaylistSummary'
+        total:
+          type: integer
+          format: int64
+        offset:
+          type: integer
+          format: int32
+        limit:
+          type: integer
+          format: int32
+    PlaylistItem:
+      type: object
+      required: [position, addedAt, score]
+      properties:
+        position:
+          type: integer
+          format: int32
+          description: 0-based
+        addedAt:
+          type: string
+          format: date-time
+        score:
+          $ref: '#/components/schemas/ScoreApiInfo'
+    PlaylistDetail:
+      allOf:
+        - $ref: '#/components/schemas/PlaylistSummary'
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/PlaylistItem'
+    PlaylistCreate:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 1000
+    PlaylistUpdate:
+      type: object
+      description: Fields left out are unchanged; an empty description removes it. There is no slug.
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 1000
+    PlaylistItemAdd:
+      type: object
+      required: [scoreId]
+      properties:
+        scoreId:
+          type: string
+          format: uuid
+    PlaylistOrder:
+      type: object
+      required: [scoreIds]
+      properties:
+        scoreIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+    PlaylistMembership:
+      type: object
+      required: [slug, title, isDefault, contains]
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+        isDefault:
+          type: boolean
+        itemCount:
+          type: integer
+          format: int32
+        contains:
+          type: boolean
+  parameters:
+    PlaylistSlug:
+      name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+    PlaylistOffset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        default: 0
+    PlaylistLimit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 24
+    PlaylistOrderBy:
+      name: orderBy
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [lastModified_desc, createdAt_desc, title_asc, itemCount_desc]
+        default: lastModified_desc

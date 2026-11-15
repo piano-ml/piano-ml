@@ -1,0 +1,17 @@
+meta {
+  name: playlist favorite ids
+  type: http
+  seq: 34
+}
+
+get {
+  url: http://localhost:8080/account/playlist/favorites/ids
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
