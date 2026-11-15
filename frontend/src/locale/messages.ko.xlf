@@ -1,0 +1,2847 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="ko" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="account.route.home" datatype="html">
+        <source>Home</source>
+        <target state="translated">홈</target>
+      </trans-unit>
+      <trans-unit id="account.route.login" datatype="html">
+        <source>Login</source>
+        <target state="translated">로그인</target>
+      </trans-unit>
+      <trans-unit id="account.route.create" datatype="html">
+        <source>Create</source>
+        <target state="translated">만들기</target>
+      </trans-unit>
+      <trans-unit id="account.route.scores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">내 악보</target>
+      </trans-unit>
+      <trans-unit id="account.route.editScore" datatype="html">
+        <source>Edit Score</source>
+        <target state="translated">악보 편집</target>
+      </trans-unit>
+      <trans-unit id="accountScores.myScores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">내 악보</target>
+      </trans-unit>
+      <trans-unit id="accountScores.yourUploadedAndCuratedCollection" datatype="html">
+        <source>Your uploaded and curated collection</source>
+        <target state="translated">내가 업로드하고 고른 악보 모음</target>
+      </trans-unit>
+      <trans-unit id="browse.capsuleCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {악보 1개} other {악보 <x id="INTERPOLATION"/>개}}</target>
+      </trans-unit>
+      <trans-unit id="accountScores.browseLibrary" datatype="html">
+        <source> Browse library </source>
+        <target state="translated">라이브러리 둘러보기</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error" datatype="html">
+        <source>Error:</source>
+        <target state="translated">오류:</target>
+      </trans-unit>
+      <trans-unit id="accountScores.empty" datatype="html">
+        <source>No scores yet — upload your first MIDI file to get started.</source>
+        <target state="translated">아직 악보가 없습니다. 첫 MIDI 파일을 업로드해 시작하세요.</target>
+      </trans-unit>
+      <trans-unit id="accountScores.loading" datatype="html">
+        <source>Loading your scores…</source>
+        <target state="translated">악보를 불러오는 중…</target>
+      </trans-unit>
+      <trans-unit id="accountScores.col.played" datatype="html">
+        <source>#played</source>
+        <target state="translated">#연주 횟수</target>
+      </trans-unit>
+      <trans-unit id="accountScores.filesMissing" datatype="html">
+        <source>Files missing: the import did not finish</source>
+        <target state="translated">파일 누락: 가져오기가 완료되지 않았습니다</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.version" datatype="html">
+        <source>Version</source>
+        <target state="translated">버전</target>
+      </trans-unit>
+      <trans-unit id="accountScores.col.publicDomain" datatype="html">
+        <source>Public domain</source>
+        <target state="translated">퍼블릭 도메인</target>
+      </trans-unit>
+      <trans-unit id="accountScores.copyrighted" datatype="html">
+        <source>Copyrighted, downloads restricted</source>
+        <target state="translated">저작권 보호, 다운로드 제한</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">제목</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">작곡가</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">장르</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target state="translated">업로드 날짜</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error.auth" datatype="html">
+        <source>User not authenticated</source>
+        <target state="translated">로그인하지 않은 사용자</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error.load" datatype="html">
+        <source>An error occurred while loading scores</source>
+        <target state="translated">악보를 불러오는 중 오류가 발생했습니다</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.searchComposer.placeholder" datatype="html">
+        <source>Search composer…</source>
+        <target state="translated">작곡가 검색…</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.select" datatype="html">
+        <source>Select ↵</source>
+        <target state="translated">선택 ↵</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.noResultsFor" datatype="html">
+        <source>No results for &quot;<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>&quot;</source>
+        <target state="translated">"<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>"에 대한 결과가 없습니다</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.tryADifferentSpellingOr" datatype="html">
+        <source>Try a different spelling or use the name directly below</source>
+        <target state="translated">다른 철자를 시도하거나 아래에서 이름을 바로 사용하세요</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.typeANameAndPress" datatype="html">
+        <source>Type a name and press ↵ to search MusicBrainz</source>
+        <target state="translated">이름을 입력하고 ↵를 눌러 MusicBrainz에서 검색하세요</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.useAsAuthor" datatype="html">
+        <source>Use <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;text-neutral-200&quot;&gt;"/>&quot;<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>&quot;<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> as author</source>
+        <target state="translated"><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;text-neutral-200&quot;&gt;"/>"<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>"<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/>을(를) 작곡가로 사용</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.withoutMusicbrainzLink" datatype="html">
+        <source>Without MusicBrainz link</source>
+        <target state="translated">MusicBrainz 연결 없음</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.escToClose" datatype="html">
+        <source>esc to close</source>
+        <target state="translated">esc로 닫기</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">취소</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.error" datatype="html">
+        <source>Failed to search authors</source>
+        <target state="translated">작곡가를 검색하지 못했습니다</target>
+      </trans-unit>
+      <trans-unit id="createAccount.createAccount" datatype="html">
+        <source>Create Account</source>
+        <target state="translated">계정 만들기</target>
+      </trans-unit>
+      <trans-unit id="createAccount.accountDetails" datatype="html">
+        <source>Account Details</source>
+        <target state="translated">계정 정보</target>
+      </trans-unit>
+      <trans-unit id="createAccount.name" datatype="html">
+        <source>name</source>
+        <target state="translated">이름</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourName.placeholder" datatype="html">
+        <source>Enter your name</source>
+        <target state="translated">이름을 입력하세요</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsRequired" datatype="html">
+        <source> name is required. </source>
+        <target state="translated">이름은 필수입니다.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">이메일</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourEmail.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">이메일을 입력하세요</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsRequired" datatype="html">
+        <source>Email is required.</source>
+        <target state="translated">이메일은 필수입니다.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
+        <source>Invalid email format.</source>
+        <target state="translated">이메일 형식이 올바르지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.password" datatype="html">
+        <source>Password</source>
+        <target state="translated">비밀번호</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourPassword.placeholder" datatype="html">
+        <source>Enter your password</source>
+        <target state="translated">비밀번호를 입력하세요</target>
+      </trans-unit>
+      <trans-unit id="createAccount.passwordMustBeAtLeast" datatype="html">
+        <source> Password must be at least 8 characters long. </source>
+        <target state="translated">비밀번호는 8자 이상이어야 합니다.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.confirmPassword" datatype="html">
+        <source>Confirm Password</source>
+        <target state="translated">비밀번호 확인</target>
+      </trans-unit>
+      <trans-unit id="createAccount.confirmYourPassword.placeholder" datatype="html">
+        <source>Confirm your password</source>
+        <target state="translated">비밀번호를 다시 입력하세요</target>
+      </trans-unit>
+      <trans-unit id="createAccount.passwordsDoNotMatch" datatype="html">
+        <source> Passwords do not match. </source>
+        <target state="translated">비밀번호가 일치하지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="editScore.editByPianoScore" datatype="html">
+        <source>Edit <x id="INTERPOLATION" equiv-text="{{ score.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score.author }}"/> - Piano Score</source>
+        <target state="translated"><x id="INTERPOLATION_1" equiv-text="{{ score.author }}"/>의 <x id="INTERPOLATION" equiv-text="{{ score.title }}"/> 편집 - 피아노 악보</target>
+      </trans-unit>
+      <trans-unit id="editScore.editScore" datatype="html">
+        <source>Edit score</source>
+        <target state="translated">악보 편집</target>
+      </trans-unit>
+      <trans-unit id="editScore.delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">삭제</target>
+      </trans-unit>
+      <trans-unit id="editScore.cancel" datatype="html">
+        <source>← Cancel</source>
+        <target state="translated">← 취소</target>
+      </trans-unit>
+      <trans-unit id="editScore.loadingScore" datatype="html">
+        <source>Loading score…</source>
+        <target state="translated">악보를 불러오는 중…</target>
+      </trans-unit>
+      <trans-unit id="editScore.error" datatype="html">
+        <source>Error:</source>
+        <target state="translated">오류:</target>
+      </trans-unit>
+      <trans-unit id="editScore.scoreDetails" datatype="html">
+        <source>Score details</source>
+        <target state="translated">악보 정보</target>
+      </trans-unit>
+      <trans-unit id="editScore.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">제목</target>
+      </trans-unit>
+      <trans-unit id="editScore.enterScoreTitle.placeholder" datatype="html">
+        <source>Enter score title</source>
+        <target state="translated">악보 제목을 입력하세요</target>
+      </trans-unit>
+      <trans-unit id="editScore.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">작곡가</target>
+      </trans-unit>
+      <trans-unit id="editScore.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">장르</target>
+      </trans-unit>
+      <trans-unit id="editScore.selectGenre" datatype="html">
+        <source>— Select genre —</source>
+        <target state="translated">— 장르 선택 —</target>
+      </trans-unit>
+      <trans-unit id="editScore.loadingGenres" datatype="html">
+        <source>Loading genres…</source>
+        <target state="translated">장르를 불러오는 중…</target>
+      </trans-unit>
+      <trans-unit id="editScore.tempoBpm" datatype="html">
+        <source>Tempo (BPM)</source>
+        <target state="translated">템포 (BPM)</target>
+      </trans-unit>
+      <trans-unit id="editScore.tempo.placeholder" datatype="html">
+        <source>e.g. 120</source>
+        <target state="translated">예: 120</target>
+      </trans-unit>
+      <trans-unit id="editScore.confirmDelete" datatype="html">
+        <source>Confirm delete</source>
+        <target state="translated">삭제 확인</target>
+      </trans-unit>
+      <trans-unit id="editScore.thisActionCannotBeUndone" datatype="html">
+        <source>This action cannot be undone. Are you sure?</source>
+        <target state="translated">이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?</target>
+      </trans-unit>
+      <trans-unit id="editScore.cancel2" datatype="html">
+        <source> Cancel </source>
+        <target state="translated">취소</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.noId" datatype="html">
+        <source>No score ID provided</source>
+        <target state="translated">악보가 지정되지 않았습니다</target>
+      </trans-unit>
+      <trans-unit id="score.error.load" datatype="html">
+        <source>Failed to load score</source>
+        <target state="translated">악보를 불러올 수 없습니다</target>
+      </trans-unit>
+      <trans-unit id="editScore.saved" datatype="html">
+        <source>Score updated successfully!</source>
+        <target state="translated">악보가 업데이트되었습니다!</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.save" datatype="html">
+        <source>Failed to update score</source>
+        <target state="translated">악보를 업데이트하지 못했습니다</target>
+      </trans-unit>
+      <trans-unit id="editScore.leftDefault" datatype="html">
+        <source>default to midi track 1</source>
+        <target state="translated">기본값: MIDI 트랙 1</target>
+      </trans-unit>
+      <trans-unit id="editScore.track" datatype="html">
+        <source>Track <x id="track" equiv-text="value"/></source>
+        <target state="translated">트랙 <x id="track" equiv-text="value"/></target>
+      </trans-unit>
+      <trans-unit id="editScore.rightDefault" datatype="html">
+        <source>default to midi track 0</source>
+        <target state="translated">기본값: MIDI 트랙 0</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.delete" datatype="html">
+        <source>Failed to delete score</source>
+        <target state="translated">악보를 삭제하지 못했습니다</target>
+      </trans-unit>
+      <trans-unit id="accountHome.profile" datatype="html">
+        <source>Profile</source>
+        <target state="translated">프로필</target>
+      </trans-unit>
+      <trans-unit id="accountHome.accountSettingsWorkbenchPreferences" datatype="html">
+        <source>Account settings &amp; workbench preferences</source>
+        <target state="translated">계정 설정 및 작업대 환경설정</target>
+      </trans-unit>
+      <trans-unit id="accountHome.myScores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">내 악보</target>
+      </trans-unit>
+      <trans-unit id="accountHome.deleteAccount" datatype="html">
+        <source>Delete account</source>
+        <target state="translated">계정 삭제</target>
+      </trans-unit>
+      <trans-unit id="accountHome.logout" datatype="html">
+        <source>Logout</source>
+        <target state="translated">로그아웃</target>
+      </trans-unit>
+      <trans-unit id="accountHome.identity" datatype="html">
+        <source>Identity</source>
+        <target state="translated">신원 정보</target>
+      </trans-unit>
+      <trans-unit id="accountHome.name" datatype="html">
+        <source>Name</source>
+        <target state="translated">이름</target>
+      </trans-unit>
+      <trans-unit id="accountHome.edit" datatype="html">
+        <source>Edit</source>
+        <target state="translated">편집</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourName.placeholder" datatype="html">
+        <source>Your name</source>
+        <target state="translated">이름</target>
+      </trans-unit>
+      <trans-unit id="accountHome.save" datatype="html">
+        <source>Save</source>
+        <target state="translated">저장</target>
+      </trans-unit>
+      <trans-unit id="accountHome.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">취소</target>
+      </trans-unit>
+      <trans-unit id="accountHome.workbench" datatype="html">
+        <source>Workbench</source>
+        <target state="translated">작업대</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiSetup" datatype="html">
+        <source>MIDI Setup →</source>
+        <target state="translated">MIDI 설정 →</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiLowestKey" datatype="html">
+        <source>MIDI lowest key</source>
+        <target state="translated">MIDI 최저 건반</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiHighestKey" datatype="html">
+        <source>MIDI highest key</source>
+        <target state="translated">MIDI 최고 건반</target>
+      </trans-unit>
+      <trans-unit id="accountHome.drawFingering" datatype="html">
+        <source>Draw fingering</source>
+        <target state="translated">운지 표시</target>
+      </trans-unit>
+      <trans-unit id="accountHome.drawLyrics" datatype="html">
+        <source>Draw lyrics</source>
+        <target state="translated">가사 표시</target>
+      </trans-unit>
+      <trans-unit id="accountHome.showKeyboard" datatype="html">
+        <source>Show keyboard</source>
+        <target state="translated">키보드 표시</target>
+      </trans-unit>
+      <trans-unit id="accountHome.lowestKeyLabel" datatype="html">
+        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">MIDI 최저 건반 <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(음을 하나 쳐 보세요)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.required" datatype="html">
+        <source>Required.</source>
+        <target state="translated">필수 항목입니다.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.min" datatype="html">
+        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
+        <target state="translated">최소 <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.max" datatype="html">
+        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
+        <target state="translated">최대 <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.highestKeyLabel" datatype="html">
+        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">MIDI 최고 건반 <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(음을 하나 쳐 보세요)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="accountHome.listening.lowest" datatype="html">
+        <source>Listening for MIDI — lowest key…</source>
+        <target state="translated">MIDI 입력 대기 중 — 최저 건반…</target>
+      </trans-unit>
+      <trans-unit id="accountHome.listening.highest" datatype="html">
+        <source>Listening for MIDI — highest key…</source>
+        <target state="translated">MIDI 입력 대기 중 — 최고 건반…</target>
+      </trans-unit>
+      <trans-unit id="accountHome.lowestKeyMustBeLess" datatype="html">
+        <source>Lowest key must be less than highest key.</source>
+        <target state="translated">최저 건반은 최고 건반보다 낮아야 합니다.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourAccountWillBePermanently" datatype="html">
+        <source> Your account will be permanently deleted. This action cannot be undone. </source>
+        <target state="translated">계정이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourScoresAreKeptOn" datatype="html">
+        <source> Your scores are kept on PianoML but will no longer be linked to you. </source>
+        <target state="translated">악보는 PianoML에 남지만 더 이상 내 계정과 연결되지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.error.session" datatype="html">
+        <source>Your session needs a refresh. Please reload the page and try again.</source>
+        <target state="translated">세션을 새로 고쳐야 합니다. 페이지를 새로 고친 후 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.error.delete" datatype="html">
+        <source>Account deletion failed. Please try again.</source>
+        <target state="translated">계정을 삭제하지 못했습니다. 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="login.login" datatype="html">
+        <source>Login</source>
+        <target state="translated">로그인</target>
+      </trans-unit>
+      <trans-unit id="login.welcomeBack" datatype="html">
+        <source>Welcome Back</source>
+        <target state="translated">다시 오신 것을 환영합니다</target>
+      </trans-unit>
+      <trans-unit id="login.email" datatype="html">
+        <source>email</source>
+        <target state="translated">이메일</target>
+      </trans-unit>
+      <trans-unit id="login.enterYourEmail.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">이메일을 입력하세요</target>
+      </trans-unit>
+      <trans-unit id="login.emailIsRequired" datatype="html">
+        <source> email is required. </source>
+        <target state="translated">이메일은 필수입니다.</target>
+      </trans-unit>
+      <trans-unit id="login.password" datatype="html">
+        <source>Password</source>
+        <target state="translated">비밀번호</target>
+      </trans-unit>
+      <trans-unit id="login.enterYourPassword.placeholder" datatype="html">
+        <source>Enter your password</source>
+        <target state="translated">비밀번호를 입력하세요</target>
+      </trans-unit>
+      <trans-unit id="login.passwordIsRequired" datatype="html">
+        <source> Password is required. </source>
+        <target state="translated">비밀번호는 필수입니다.</target>
+      </trans-unit>
+      <trans-unit id="login.loggingIn" datatype="html">
+        <source>Logging in...</source>
+        <target state="translated">로그인하는 중...</target>
+      </trans-unit>
+      <trans-unit id="login.donTHaveAnAccount" datatype="html">
+        <source>Don&apos;t have an account? Create one</source>
+        <target state="translated">계정이 없으신가요? 새로 만드세요</target>
+      </trans-unit>
+      <trans-unit id="login.error.denied" datatype="html">
+        <source>Access denied - Please check your credentials</source>
+        <target state="translated">접근이 거부되었습니다. 로그인 정보를 확인하세요</target>
+      </trans-unit>
+      <trans-unit id="login.error.other" datatype="html">
+        <source>An error occurred during login</source>
+        <target state="translated">로그인 중 오류가 발생했습니다</target>
+      </trans-unit>
+      <trans-unit id="route.error.title" datatype="html">
+        <source>Page Error</source>
+        <target state="translated">페이지 오류</target>
+      </trans-unit>
+      <trans-unit id="route.notFound.title" datatype="html">
+        <source>Page Not Found</source>
+        <target state="translated">페이지를 찾을 수 없음</target>
+      </trans-unit>
+      <trans-unit id="seo.blog.title" datatype="html">
+        <source>Piano Methods, Études &amp; Articles</source>
+        <target state="translated">피아노 교본, 연습곡 및 아티클</target>
+      </trans-unit>
+      <trans-unit id="seo.blog.description" datatype="html">
+        <source>Digitized piano methods and études — Burgmüller, Czerny and more — plus articles on practice, sight reading and music theory.</source>
+        <target state="translated">디지털화된 피아노 교본과 연습곡(부르크뮐러, 체르니 등)과 연습, 초견, 음악 이론에 관한 글.</target>
+      </trans-unit>
+      <trans-unit id="blog.englishOnly" datatype="html">
+        <source>This article is only available in English.</source>
+        <target state="translated">이 글은 영어로만 제공됩니다.</target>
+      </trans-unit>
+      <trans-unit id="blog.heading" datatype="html">
+        <source>Blog posts</source>
+        <target state="translated">블로그 글</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.heading" datatype="html">
+        <source> Workbench Setup </source>
+        <target state="translated">작업대 설정</target>
+      </trans-unit>
+      <trans-unit id="score.errorLabel" datatype="html">
+        <source>Error:</source>
+        <target state="translated">오류:</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.noInputs" datatype="html">
+        <source> No MIDI IN devices detected. </source>
+        <target state="translated">MIDI 입력 장치가 감지되지 않았습니다.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.selectInput" datatype="html">
+        <source>-- Select a MIDI Input --</source>
+        <target state="translated">-- MIDI 입력 선택 --</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.noOutputs" datatype="html">
+        <source>No MIDI OUT devices detected.</source>
+        <target state="translated">MIDI 출력 장치가 감지되지 않았습니다.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.appOutput" datatype="html">
+        <source> PianoML — The app might play piano (not the keyboard) </source>
+        <target state="translated">PianoML — 앱이 피아노 소리를 냅니다 (키보드가 아님)</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideKeyboard" datatype="html">
+        <source>Hide Keyboard</source>
+        <target state="translated">키보드 숨기기</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideKeyboard.hint" datatype="html">
+        <source>Disable keyboard visibility to improve sight-reading.</source>
+        <target state="translated">초견 실력을 키우려면 키보드를 숨기세요.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideKeyboard.label" datatype="html">
+        <source>Toggle keyboard visibility</source>
+        <target state="translated">키보드 표시/숨기기</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideFingering" datatype="html">
+        <source>Hide Fingering</source>
+        <target state="translated">운지 숨기기</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideFingering.label" datatype="html">
+        <source>Toggle fingering visibility</source>
+        <target state="translated">운지 표시/숨기기</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideLyrics" datatype="html">
+        <source>Hide Lyrics</source>
+        <target state="translated">가사 숨기기</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideLyrics.label" datatype="html">
+        <source>Toggle lyrics visibility</source>
+        <target state="translated">가사 표시/숨기기</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideHarmony" datatype="html">
+        <source>Hide Fingering &amp; Harmony</source>
+        <target state="translated">운지 및 화성 숨기기</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideHarmony.label" datatype="html">
+        <source>Toggle fingering and harmony visibility</source>
+        <target state="translated">운지 및 화성 표시/숨기기</target>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">닫기</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.inputFallback" datatype="html">
+        <source>MIDI Input</source>
+        <target state="translated">MIDI 입력</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.outputFallback" datatype="html">
+        <source>MIDI Output</source>
+        <target state="translated">MIDI 출력</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.unknownManufacturer" datatype="html">
+        <source>Unknown</source>
+        <target state="translated">알 수 없음</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">브라우저가 MIDI 접근을 차단했습니다. 브라우저 설정에서 MIDI 사이트 권한을 찾아 이 사이트의 접근을 허용한 다음 페이지를 새로 고치세요.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.failed" datatype="html">
+        <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
+        <target state="translated">MIDI 접근에 실패했습니다. 권한을 거부했다면 브라우저 설정에서 이 사이트의 권한을 초기화하고 MIDI를 허용한 다음 페이지를 새로 고치세요.</target>
+      </trans-unit>
+      <trans-unit id="osmd.error" datatype="html">
+        <source>Error Loading Score</source>
+        <target state="translated">악보를 불러오는 중 오류 발생</target>
+      </trans-unit>
+      <trans-unit id="slop.heading" datatype="html">
+        <source> Encoding issue detected </source>
+        <target state="translated">인코딩 문제 감지</target>
+      </trans-unit>
+      <trans-unit id="slop.explanation" datatype="html">
+        <source> Exact conversion from sheet music to sound has not been possible.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Ex: A 4/4 bar with 5 quarter notes. </source>
+        <target state="translated">악보를 소리로 정확하게 변환할 수 없습니다.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> 예: 4/4 마디에 4분음표가 5개 있는 경우.</target>
+      </trans-unit>
+      <trans-unit id="slop.repaired" datatype="html">
+        <source>The score has been rebuilt. Reload the page to practice the repaired version.</source>
+        <target state="translated">악보를 다시 만들었습니다. 페이지를 새로 고쳐 수정된 버전으로 연습하세요.</target>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Loading...</source>
+        <target state="translated">불러오는 중...</target>
+      </trans-unit>
+      <trans-unit id="slop.reload" datatype="html">
+        <source>Reload</source>
+        <target state="translated">새로 고침</target>
+      </trans-unit>
+      <trans-unit id="workbench.retry" datatype="html">
+        <source>Try again</source>
+        <target state="translated">다시 시도</target>
+      </trans-unit>
+      <trans-unit id="slop.repair" datatype="html">
+        <source>Repair</source>
+        <target state="translated">수정</target>
+      </trans-unit>
+      <trans-unit id="slop.downloading" datatype="html">
+        <source>Downloading...</source>
+        <target state="translated">다운로드 중...</target>
+      </trans-unit>
+      <trans-unit id="slop.computing" datatype="html">
+        <source>Computing...</source>
+        <target state="translated">계산 중...</target>
+      </trans-unit>
+      <trans-unit id="slop.error.download" datatype="html">
+        <source>The MIDI file of this score could not be downloaded.</source>
+        <target state="translated">이 악보의 MIDI 파일을 다운로드할 수 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="slop.error.read" datatype="html">
+        <source>The MIDI file of this score could not be read.</source>
+        <target state="translated">이 악보의 MIDI 파일을 읽을 수 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="slop.error.upload" datatype="html">
+        <source>The server could not rebuild this score.</source>
+        <target state="translated">서버가 이 악보를 다시 만들 수 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tempo" datatype="html">
+        <source>Tempo</source>
+        <target state="translated">템포</target>
+      </trans-unit>
+      <trans-unit id="tempo.metronome" datatype="html">
+        <source>Metronome</source>
+        <target state="translated">메트로놈</target>
+      </trans-unit>
+      <trans-unit id="workbench.backToScore" datatype="html">
+        <source>Back to the score</source>
+        <target state="translated">악보로 돌아가기</target>
+      </trans-unit>
+      <trans-unit id="workbench.backToLibrary" datatype="html">
+        <source>Back to the library</source>
+        <target state="translated">라이브러리로 돌아가기</target>
+      </trans-unit>
+      <trans-unit id="workbench.downloadingData" datatype="html">
+        <source>Downloading data…</source>
+        <target state="translated">데이터를 다운로드하는 중…</target>
+      </trans-unit>
+      <trans-unit id="workbench.loadingProgress" datatype="html">
+        <source>Loading progress</source>
+        <target state="translated">불러오기 진행률</target>
+      </trans-unit>
+      <trans-unit id="workbench.toggleToolbar" datatype="html">
+        <source>Toggle the top bar</source>
+        <target state="translated">상단 바 표시/숨기기</target>
+      </trans-unit>
+      <trans-unit id="workbench.toggleKeyboard" datatype="html">
+        <source>Toggle the keyboard</source>
+        <target state="translated">키보드 표시/숨기기</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.download" datatype="html">
+        <source>Downloading the score</source>
+        <target state="translated">악보를 다운로드하는 중</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.offline" datatype="html">
+        <source>The score could not be downloaded: the server cannot be reached. Check your connection and try again.</source>
+        <target state="translated">악보를 다운로드할 수 없습니다: 서버에 연결할 수 없습니다. 연결을 확인하고 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.login" datatype="html">
+        <source>Please log in to practice this score.</source>
+        <target state="translated">이 악보를 연습하려면 로그인하세요.</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.forbidden" datatype="html">
+        <source>You are not allowed to practice this score.</source>
+        <target state="translated">이 악보를 연습할 권한이 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.notFound" datatype="html">
+        <source>This score or its files are not available.</source>
+        <target state="translated">이 악보 또는 파일을 사용할 수 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.other" datatype="html">
+        <source>The score could not be loaded. Please try again later.</source>
+        <target state="translated">악보를 불러올 수 없습니다. 잠시 후 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.reset" datatype="html">
+        <source>Resetting the previous score</source>
+        <target state="translated">이전 악보를 초기화하는 중</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.midiBounds" datatype="html">
+        <source>Computing the MIDI range</source>
+        <target state="translated">MIDI 음역을 계산하는 중</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.configuration" datatype="html">
+        <source>Building the configuration</source>
+        <target state="translated">구성을 준비하는 중</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.welcome.title" datatype="html">
+        <source>Welcome to the Workbench!</source>
+        <target state="translated">작업대에 오신 것을 환영합니다!</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.welcome.content" datatype="html">
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls.</source>
+        <target state="translated">좋아하는 피아노 곡을 연습하고 배우는 곳입니다. 컨트롤을 안내해 드릴게요.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.playPause.title" datatype="html">
+        <source>Play / Pause</source>
+        <target state="translated">재생 / 일시정지</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.playPause.content" datatype="html">
+        <source>Start or pause the playback and MIDI monitoring. You can also click on the score itself to toggle playback.</source>
+        <target state="translated">재생과 MIDI 감지를 시작하거나 일시정지합니다. 악보를 클릭해도 재생을 전환할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.rightHand.title" datatype="html">
+        <source>Right Hand Practice</source>
+        <target state="translated">오른손 연습</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.rightHand.content" datatype="html">
+        <source>Toggle this to wait for you to play the right-hand notes before the score advances. Great for learning the melody at your own pace.</source>
+        <target state="translated">켜면 오른손 음을 연주할 때까지 악보가 기다립니다. 내 속도로 멜로디를 익히기에 좋습니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.leftHand.title" datatype="html">
+        <source>Left Hand Practice</source>
+        <target state="translated">왼손 연습</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.leftHand.content" datatype="html">
+        <source>Similarly, toggle this to wait for the left-hand notes. You can enable both for full hands-together practice.</source>
+        <target state="translated">마찬가지로 왼손 음을 기다립니다. 둘 다 켜면 양손 연습을 할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.loop.title" datatype="html">
+        <source>Loop Mode</source>
+        <target state="translated">반복 모드</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.loop.content" datatype="html">
+        <source>When enabled, the selected range (or the entire piece) will repeat automatically, allowing for continuous practice.</source>
+        <target state="translated">켜면 선택한 구간(또는 곡 전체)이 자동으로 반복되어 계속 연습할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.showTempo.title" datatype="html">
+        <source>Tempo &amp; Metronome</source>
+        <target state="translated">템포 및 메트로놈</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.showTempo.content" datatype="html">
+        <source>Adjust the playback speed to match your current skill level. You can also toggle the metronome on or off from here.</source>
+        <target state="translated">현재 실력에 맞게 재생 속도를 조절하세요. 여기에서 메트로놈을 켜고 끌 수도 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.midiSetup.title" datatype="html">
+        <source>MIDI &amp; Display Setup</source>
+        <target state="translated">MIDI 및 화면 설정</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.midiSetup.content" datatype="html">
+        <source>Configure your MIDI input and output devices here. You can also toggle display options like the virtual keyboard, fingering, lyrics, and harmony indicators.</source>
+        <target state="translated">MIDI 입력 및 출력 장치를 설정합니다. 가상 키보드, 운지, 가사, 화성 표시를 켜고 끌 수도 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.resetScore.title" datatype="html">
+        <source>Reset Playback</source>
+        <target state="translated">처음부터 재생</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.resetScore.content" datatype="html">
+        <source>One click returns you to the beginning of your selected range. A second click resets the score back to the very beginning.</source>
+        <target state="translated">한 번 클릭하면 선택한 구간의 처음으로, 두 번 클릭하면 악보의 맨 처음으로 돌아갑니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.scoreInfo.title" datatype="html">
+        <source>Score Information</source>
+        <target state="translated">악보 정보</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.scoreInfo.content" datatype="html">
+        <source>Need to check the details of this piece? Click here to go back to the score information page.</source>
+        <target state="translated">이 곡의 자세한 정보가 궁금하신가요? 여기를 클릭해 악보 정보 페이지로 돌아가세요.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.fullscreen.title" datatype="html">
+        <source>Fullscreen Toggle</source>
+        <target state="translated">전체 화면 전환</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.fullscreen.content" datatype="html">
+        <source>Maximize your workspace by entering fullscreen mode. Perfect for focusing entirely on the music.</source>
+        <target state="translated">전체 화면 모드로 작업 공간을 넓히세요. 음악에만 집중하기에 좋습니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.measureRange.title" datatype="html">
+        <source>Measure Selection</source>
+        <target state="translated">마디 선택</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.measureRange.content" datatype="html">
+        <source>Use this slider to focus on specific measures. Drag the handles to set your practice range.</source>
+        <target state="translated">이 슬라이더로 특정 마디에 집중하세요. 양끝 핸들을 끌어 연습 구간을 정할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.toggleKeyboard.title" datatype="html">
+        <source>Show/Hide Keyboard</source>
+        <target state="translated">키보드 표시/숨기기</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.toggleKeyboard.content" datatype="html">
+        <source>Toggle the virtual piano keyboard at the bottom of the screen. It highlights notes as they are played.</source>
+        <target state="translated">화면 하단의 가상 피아노 키보드를 표시하거나 숨깁니다. 연주되는 음을 강조 표시합니다.</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.initializing" datatype="html">
+        <source>Initializing...</source>
+        <target state="translated">초기화하는 중...</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.steps" datatype="html">
+        <source>Building the step sequence</source>
+        <target state="translated">단계 시퀀스를 만드는 중</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.cursor" datatype="html">
+        <source>Initializing the sheet cursor</source>
+        <target state="translated">악보 커서를 초기화하는 중</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.hydrating" datatype="html">
+        <source>Preparing the cursor</source>
+        <target state="translated">커서를 준비하는 중</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.measureSequence" datatype="html">
+        <source>Building the measure sequence</source>
+        <target state="translated">마디 시퀀스를 만드는 중</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.voltas" datatype="html">
+        <source>Building the repeat endings</source>
+        <target state="translated">반복 끝부분을 만드는 중</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.measures" datatype="html">
+        <source>Building the measures</source>
+        <target state="translated">마디를 만드는 중</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.midiMap" datatype="html">
+        <source>Building the MIDI map</source>
+        <target state="translated">MIDI 맵을 만드는 중</target>
+      </trans-unit>
+      <trans-unit id="chord.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">메이저</target>
+      </trans-unit>
+      <trans-unit id="chord.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">마이너</target>
+      </trans-unit>
+      <trans-unit id="chord.dominant7.name" datatype="html">
+        <source>Dominant 7</source>
+        <target state="translated">도미넌트 7</target>
+      </trans-unit>
+      <trans-unit id="scale.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">메이저</target>
+      </trans-unit>
+      <trans-unit id="scale.major.alt" datatype="html">
+        <source>Ionian</source>
+        <target state="translated">이오니안</target>
+      </trans-unit>
+      <trans-unit id="scale.major.description" datatype="html">
+        <source>The major (Ionian) scale is the default “bright / stable” sound in Western music. It’s the backbone of diatonic harmony: I, ii, iii, IV, V, vi and vii° all come straight from it.
+Common genres: classical, pop, folk, film music, worship, EDM melodies.
+Usage: build singable melodies, outline major triads/7ths, and write progressions like I–V–vi–IV. For improvisation, target chord tones on strong beats and use the remaining scale tones as passing/neighbor tones.</source>
+        <target state="translated">장음계(이오니안)는 서양 음악의 기본적인 "밝고 / 안정된" 소리이자 온음계 화성의 뼈대입니다. I, ii, iii, IV, V, vi, vii°가 모두 여기에서 나옵니다.
+주요 장르: 클래식, 팝, 포크, 영화 음악, 워십, EDM 멜로디.
+활용: 부르기 쉬운 멜로디를 만들고, 장3화음과 장7화음을 그리며, I–V–vi–IV 같은 진행을 써 보세요. 즉흥 연주에서는 강박에 코드 톤을 두고 나머지 음은 경과음이나 보조음으로 쓰세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">마이너</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.alt" datatype="html">
+        <source>Aeolian</source>
+        <target state="translated">에올리안</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.description" datatype="html">
+        <source>Natural minor (Aeolian) is the “darker / melancholic” counterpart to major. It’s the relative minor of a major key (same notes, different tonic), which is why modulating between relative major/minor feels so natural.
+
+Common genres: rock, pop ballads, classical, cinematic, indie.
+
+Usage: great for i–bVII–bVI progressions (a classic minor-key sound), and for melodies that lean on the b3, b6, and b7. Harmonically it lacks a strong leading tone (7→1), so cadences can feel modal unless you introduce harmonic/melodic minor.</source>
+        <target state="translated">자연 단음계(에올리안)는 장음계의 "더 어둡고 / 우울한" 짝입니다. 장조의 나란한조(같은 음, 다른 으뜸음)이므로 나란한조 사이의 전조가 아주 자연스럽게 들립니다.
+
+주요 장르: 록, 팝 발라드, 클래식, 영화 음악, 인디.
+
+활용: i–bVII–bVI 같은 진행(전형적인 단조 사운드)과 b3, b6, b7에 기대는 멜로디에 잘 어울립니다. 화성적으로 강한 이끎음(7→1)이 없어서 화성 단음계나 가락 단음계를 쓰지 않으면 종지가 선법적으로 들릴 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.name" datatype="html">
+        <source>Harmonic Minor</source>
+        <target state="translated">화성 단음계</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.alt" datatype="html">
+        <source>Aeolian ♮7</source>
+        <target state="translated">에올리안 ♮7</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.description" datatype="html">
+        <source>Harmonic minor is natural minor with a raised 7th degree, restoring the leading tone and enabling a strong V(7)→i cadence in minor keys. This is why it’s central to classical “functional” minor harmony.
+
+Signature color: the augmented 2nd between b6 and 7, which can sound “exotic” if emphasized melodically.
+
+Common genres: classical, neo-classical metal, film scoring, some Middle Eastern/Spanish-influenced lines.
+
+Usage: use it over the dominant in minor (V7 in minor), in cadences, and when you want that strong pull back to the tonic. Be mindful: sustained melodies may sound stylized; many writers mix it with natural minor.</source>
+        <target state="translated">화성 단음계는 자연 단음계의 7음을 올린 음계로, 이끎음을 되살려 단조에서 강한 V(7)→i 종지를 만듭니다. 그래서 고전적인 "기능" 단조 화성의 중심입니다.
+
+특징적인 색채: b6과 7 사이의 증2도로, 멜로디에서 강조하면 "이국적으로" 들릴 수 있습니다.
+
+주요 장르: 클래식, 네오클래시컬 메탈, 영화 음악, 일부 중동·스페인풍 선율.
+
+활용: 단조의 딸림화음(단조의 V7), 종지, 그리고 으뜸음으로 강하게 돌아가고 싶을 때 쓰세요. 주의: 긴 음으로 된 멜로디는 양식적으로 들릴 수 있어 많은 작곡가가 자연 단음계와 섞어 씁니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.name" datatype="html">
+        <source>Melodic Minor</source>
+        <target state="translated">가락 단음계</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.alt" datatype="html">
+        <source>Jazz minor</source>
+        <target state="translated">재즈 마이너</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.description" datatype="html">
+        <source>Melodic minor (as used in jazz) is a minor scale with raised 6th and 7th degrees. In classical theory it’s often taught as “ascending melodic minor”, but in jazz it’s generally used the same way up and down.
+
+Common genres: jazz, fusion, modern film/TV harmony.
+
+Usage: it’s a powerhouse “parent scale” because its modes are used everywhere (e.g., Lydian dominant, altered scale). Use melodic minor on minor-major7 chords, on tonic minor colors, and to derive dominant options in ii–V–i contexts.</source>
+        <target state="translated">가락 단음계(재즈 용법)는 6음과 7음을 올린 단음계입니다. 클래식 이론에서는 흔히 "상행 가락 단음계"로 배우지만, 재즈에서는 오르내릴 때 똑같이 씁니다.
+
+주요 장르: 재즈, 퓨전, 현대 영화·TV 화성.
+
+활용: 그 선법들이 곳곳에 쓰이는 강력한 "모음계"입니다(예: 리디안 도미넌트, 얼터드 스케일). 마이너메이저7 코드, 단조 으뜸화음의 색채, 그리고 ii–V–i에서 도미넌트 선택지를 끌어낼 때 쓰세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.name" datatype="html">
+        <source>Dorian</source>
+        <target state="translated">도리안</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.description" datatype="html">
+        <source>Dorian is a minor mode with a natural 6 (compared to Aeolian). That single note change makes it feel less “sad” and more “groovy / open”, perfect for modal vamps.
+
+Common genres: modal jazz (e.g., “So What”), funk, rock jams, Celtic/folk flavors.
+
+Usage: typically played over a minor7 chord (i7) when the harmony stays put for a long time. Emphasize the natural 6 to clearly distinguish it from natural minor; a classic vamp is i7–IV7 (or i7–IV) which highlights that color.</source>
+        <target state="translated">도리안은 (에올리안에 비해) 6음이 제자리인 단조 선법입니다. 그 한 음의 차이로 덜 "슬프고" 더 "그루비하고 / 열린" 느낌이 나서 선법적 반복 진행에 딱 맞습니다.
+
+주요 장르: 모달 재즈(예: "So What"), 펑크, 록 잼, 켈틱·포크 색채.
+
+활용: 화성이 오래 머무를 때 마이너 7 코드(i7) 위에서 주로 씁니다. 자연 단음계와 확실히 구분되도록 제자리 6음을 강조하세요. 대표적인 반복 진행 i7–IV7(또는 i7–IV)이 이 색채를 잘 살립니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.name" datatype="html">
+        <source>Phrygian Dominant</source>
+        <target state="translated">프리지안 도미넌트</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.alt" datatype="html">
+        <source>Metal riffs, Spanish/flamenco feeling</source>
+        <target state="translated">메탈 리프, 스페인/플라멩코 느낌</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.description" datatype="html">
+        <source>Phrygian dominant is the 5th mode of harmonic minor. It sounds “Spanish / flamenco / Middle Eastern” because of the b2 combined with a major 3rd.
+
+Common genres: flamenco, metal riffs, cinematic “exotic” cues.
+
+Usage: great over dominant chords that want to resolve to a minor tonic (V7→i). It naturally implies dominant tension (b9, b13 colors) while staying strongly directional. Riff writing tip: lean on the b2–1 motion and the b6–5 movement for that instantly recognizable flavor.</source>
+        <target state="translated">프리지안 도미넌트는 화성 단음계의 다섯 번째 선법입니다. b2와 장3도가 결합해 "스페인 / 플라멩코 / 중동" 느낌이 납니다.
+
+주요 장르: 플라멩코, 메탈 리프, 영화 음악의 "이국적인" 장면.
+
+활용: 단조 으뜸화음으로 해결하려는 도미넌트 코드(V7→i) 위에서 훌륭합니다. 방향성을 강하게 유지하면서 도미넌트 긴장(b9, b13 색채)을 자연스럽게 드러냅니다. 리프 팁: b2–1과 b6–5 움직임에 기대면 단번에 알아볼 수 있는 맛이 납니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.name" datatype="html">
+        <source>Phrygian</source>
+        <target state="translated">프리지안</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.description" datatype="html">
+        <source>Phrygian is a minor mode with a flat 2, giving it a tense, “dark / ancient” character. It’s less functional-harmony-driven and more about sustained modal color.
+
+Common genres: metal, prog, film/game scoring, some Spanish-influenced lines.
+
+Usage: works well over minor chords (i or i7) when the harmony is static. The b2 is the identity note—use it carefully: sustained b2 can sound very tense, while quick b2→1 resolves nicely and feels idiomatic.</source>
+        <target state="translated">프리지안은 b2를 가진 단조 선법으로 긴장감 있고 "어둡고 / 고풍스러운" 성격입니다. 기능 화성보다는 지속되는 선법적 색채가 중심입니다.
+
+주요 장르: 메탈, 프로그레시브, 영화·게임 음악, 일부 스페인풍 선율.
+
+활용: 화성이 정적일 때 단조 코드(i 또는 i7) 위에서 잘 어울립니다. b2가 정체성을 드러내는 음이니 신중히 쓰세요. 길게 끄는 b2는 매우 긴장되게 들리고, 빠른 b2→1은 깔끔하게 해결되어 자연스럽습니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.name" datatype="html">
+        <source>Lydian</source>
+        <target state="translated">리디안</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.description" datatype="html">
+        <source>Lydian is a major mode with a raised 4 (#11). Compared to Ionian, it feels more “floating / dreamy / cinematic” because the #4 avoids the strong IV pull and adds a bright tension.
+
+Common genres: film scoring, ambient, fusion, modern pop harmony.
+
+Usage: ideal over maj7(#11) chords and long tonic major vamps. To highlight the mode, feature the #4 against the major chord (e.g., play 1–2–3–#4–5). Great for melodies that should feel uplifting but not overly “resolved”.</source>
+        <target state="translated">리디안은 증4도(#11)를 가진 장조 선법입니다. 이오니안보다 더 "떠다니고 / 몽환적이고 / 영화적인" 느낌인데, #4가 IV로 끌리는 힘을 피하고 밝은 긴장을 더하기 때문입니다.
+
+주요 장르: 영화 음악, 앰비언트, 퓨전, 현대 팝 화성.
+
+활용: maj7(#11) 코드와 긴 장조 으뜸화음 반복 진행에 이상적입니다. 선법을 드러내려면 장화음 위에서 #4를 부각하세요(예: 1–2–3–#4–5). 고양되지만 지나치게 "해결"되지 않아야 하는 멜로디에 좋습니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.name" datatype="html">
+        <source>Mixolydian</source>
+        <target state="translated">믹솔리디안</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.description" datatype="html">
+        <source>Mixolydian is major with a flat 7. It’s the classic “dominant / bluesy major” sound: bright like major, but with a relaxed, rootsy edge.
+
+Common genres: blues, rock, funk, country, folk, jam music.
+
+Usage: use it over dominant 7 chords (especially a I7 in blues/rock contexts) and in progressions like I–bVII–IV. Emphasize the b7 to separate it from Ionian; it pairs naturally with pentatonics and blues vocabulary.</source>
+        <target state="translated">믹솔리디안은 b7을 가진 장음계입니다. 장조처럼 밝지만 여유롭고 소박한 맛이 있는, 전형적인 "도미넌트 / 블루지한 장조" 사운드입니다.
+
+주요 장르: 블루스, 록, 펑크, 컨트리, 포크, 잼 음악.
+
+활용: 도미넌트 7 코드(특히 블루스·록의 I7) 위와 I–bVII–IV 같은 진행에서 쓰세요. 이오니안과 구분되도록 b7을 강조하고, 펜타토닉 및 블루스 어휘와 자연스럽게 어울립니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.name" datatype="html">
+        <source>Locrian</source>
+        <target state="translated">로크리안</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.description" datatype="html">
+        <source>Locrian is the most unstable diatonic mode: it has a flat 2 and a diminished 5 (b5), which makes the tonic triad diminished. Because of that, it’s rarely used as a “home base” in tonal music.
+
+Common genres: jazz harmony (as a function), some metal/experimental contexts.
+
+Usage: most often used over half-diminished chords (m7b5), typically as iiø in minor ii–V–i progressions. Treat it as a color for a chord-function moment rather than a long tonic. Target chord tones (1, b3, b5, b7) for clarity.</source>
+        <target state="translated">로크리안은 가장 불안정한 온음계 선법입니다. b2와 감5도(b5)가 있어 으뜸 3화음이 감3화음이 됩니다. 그래서 조성 음악에서 "기본 바탕"으로는 거의 쓰이지 않습니다.
+
+주요 장르: 재즈 화성(기능으로서), 일부 메탈·실험 음악.
+
+활용: 주로 하프 디미니시드 코드(m7b5) 위에서, 보통 단조 ii–V–i의 iiø로 씁니다. 긴 으뜸음이 아니라 기능적 순간을 위한 색채로 다루세요. 명확하게 들리도록 코드 톤(1, b3, b5, b7)을 노리세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.name" datatype="html">
+        <source>Minor blues (Hexatonic)</source>
+        <target state="translated">마이너 블루스 (6음)</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.description" datatype="html">
+        <source>Minor blues (hexatonic) is essentially minor pentatonic with the added “blue note” (b5). It’s one of the most practical, high-hit-rate scales for expressive phrasing.
+
+Common genres: blues, rock, soul, funk, guitar-centric leads.
+
+Usage: play it over minor tonal centers (i, i7) and even over dominant blues contexts for a more “minor” bite. The b5 is a tension note—use it as a passing tone or bend/slide target rather than a long sustain for the most idiomatic blues feel.</source>
+        <target state="translated">마이너 블루스(6음)는 본질적으로 마이너 펜타토닉에 "블루 노트"(b5)를 더한 음계입니다. 표현력 있는 프레이징에 가장 실용적이고 효과적인 음계 중 하나입니다.
+
+주요 장르: 블루스, 록, 소울, 펑크, 기타 중심의 솔로.
+
+활용: 단조 중심(i, i7) 위에서, 그리고 도미넌트 블루스에서도 더 "마이너"한 날카로움을 위해 쓰세요. b5는 긴장음이니 긴 음보다 경과음이나 벤딩·슬라이드의 목표음으로 쓰면 가장 블루스답게 들립니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.name" datatype="html">
+        <source>Major blues (Hexatonic)</source>
+        <target state="translated">메이저 블루스 (6음)</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.description" datatype="html">
+        <source>Major blues (hexatonic) is major pentatonic with an added b3 “blues” color. This gives that classic major/minor mixture that defines so much blues and country phrasing.
+
+Common genres: blues, country, swing, classic rock.
+
+Usage: great over I7 in blues, or any major-key groove where you want sweetness (major pentatonic) plus grit (b3). A common approach is to alternate major blues and minor blues around the same chord for call-and-response phrasing.</source>
+        <target state="translated">메이저 블루스(6음)는 메이저 펜타토닉에 "블루스" 색채인 b3를 더한 음계입니다. 수많은 블루스·컨트리 프레이징을 규정하는 고전적인 장조/단조 혼합을 만들어 냅니다.
+
+주요 장르: 블루스, 컨트리, 스윙, 클래식 록.
+
+활용: 블루스의 I7이나, 달콤함(메이저 펜타토닉)과 거친 맛(b3)을 함께 원하는 장조 그루브에 잘 맞습니다. 같은 코드 위에서 메이저 블루스와 마이너 블루스를 번갈아 문답식 프레이즈를 만드는 방법이 흔합니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.name" datatype="html">
+        <source>Altered / Super Locrian</source>
+        <target state="translated">얼터드 / 슈퍼 로크리안</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.alt" datatype="html">
+        <source>Modern jazz - tense dominant V7alt chords</source>
+        <target state="translated">모던 재즈 – 긴장감 있는 V7alt 도미넌트 코드</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.description" datatype="html">
+        <source>The altered (super Locrian) scale is the 7th mode of melodic minor. It contains the strongest set of dominant alterations: b9, #9, b5/#11, and #5/b13.
+
+Common genres: bebop/post-bop jazz, modern jazz, fusion.
+
+Usage: apply it over V7alt chords resolving by fifth (e.g., G7alt → Cmin/Cmaj). It’s a “maximum tension” choice: aim the altered tones to resolve by half-step into target chord tones of the resolution chord. In lines, treat it as a tension palette rather than a scale to run straight up and down.</source>
+        <target state="translated">얼터드 스케일(슈퍼 로크리안)은 가락 단음계의 일곱 번째 선법입니다. 가장 강한 도미넌트 변화음 조합인 b9, #9, b5/#11, #5/b13을 담고 있습니다.
+
+주요 장르: 비밥·포스트밥 재즈, 모던 재즈, 퓨전.
+
+활용: 5도로 해결하는 V7alt 코드(예: G7alt → Cmin/Cmaj) 위에서 쓰세요. "최대 긴장"의 선택이므로 변화음이 해결 코드의 코드 톤으로 반음 해결되도록 하세요. 프레이즈에서는 그냥 오르내리는 음계가 아니라 긴장의 팔레트로 다루세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.name" datatype="html">
+        <source>Blues (Heptatonic)</source>
+        <target state="translated">블루스 (7음)</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.description" datatype="html">
+        <source>This heptatonic blues flavor expands beyond the common 6-note blues scale. With 7 notes, it can bridge “pentatonic safety” and more diatonic motion, while still keeping blues DNA.
+
+Common genres: blues, rock, funk, jam improvisation.
+
+Usage: useful when you want blues phrasing but also want a smoother melodic line that can outline more chord movement. Start with classic blues licks (1, b3, 4, b5, 5, b7) and use the extra scale degree as a connector between strong targets.</source>
+        <target state="translated">이 7음 블루스는 흔한 6음 블루스 음계를 넘어섭니다. 7개의 음으로 블루스 DNA를 유지하면서 "펜타토닉의 안전함"과 더 온음계적인 움직임을 잇습니다.
+
+주요 장르: 블루스, 록, 펑크, 잼 즉흥 연주.
+
+활용: 블루스 프레이징을 원하면서도 코드 움직임을 더 그려 내는 매끄러운 선율선이 필요할 때 유용합니다. 클래식 블루스 릭(1, b3, 4, b5, 5, b7)으로 시작해, 추가된 음을 강한 목표음 사이의 연결음으로 쓰세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.name" datatype="html">
+        <source>Minor (pentatonic)</source>
+        <target state="translated">마이너 펜타토닉</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.alt" datatype="html">
+        <source>90% of rock/blues solos</source>
+        <target state="translated">록/블루스 솔로의 90%</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.description" datatype="html">
+        <source>Minor pentatonic is the workhorse scale for melodic improvisation: five notes, no “bad” avoid notes against many common chords, and extremely easy to phrase.
+
+Common genres: rock, blues, pop, funk, metal (as a base vocabulary).
+
+Usage: play it over minor tonal centers (i, i7) and many dominant blues contexts. For stronger storytelling, don’t just run the pattern—target chord tones, use bends/ornaments (where applicable), and vary rhythm. Add the b5 to turn it into the classic minor blues scale when you want more bite.</source>
+        <target state="translated">마이너 펜타토닉은 선율 즉흥 연주의 일꾼 같은 음계입니다. 다섯 음뿐이고, 흔한 코드 위에서 피해야 할 "나쁜" 음이 없으며, 프레이징이 아주 쉽습니다.
+
+주요 장르: 록, 블루스, 팝, 펑크, 메탈(기본 어휘로서).
+
+활용: 단조 중심(i, i7)과 여러 도미넌트 블루스 상황에서 쓰세요. 더 이야기하듯 연주하려면 패턴만 훑지 말고 코드 톤을 노리고, (가능하면) 벤딩과 꾸밈음을 쓰고, 리듬을 바꿔 보세요. 더 날카로운 맛을 원하면 b5를 더해 고전적인 마이너 블루스 음계로 만드세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.name" datatype="html">
+        <source>Major (pentatonic)</source>
+        <target state="translated">메이저 펜타토닉</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.alt" datatype="html">
+        <source>Sweet major blues/country</source>
+        <target state="translated">달콤한 메이저 블루스/컨트리</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.description" datatype="html">
+        <source>Major pentatonic is a 5-note subset of the major scale (1–2–3–5–6). Because it avoids the 4 and 7, it tends to sound “clean” and consonant over many major-key progressions.
+
+Common genres: country, pop, folk, classic rock, gospel, melodic EDM leads.
+
+Usage: use it over major chords and major-key vamps when you want a smooth, singable melody. It’s also a great “safe” starting point for improvisation: you can focus on rhythm, phrasing, and target notes (especially 1/3/5) without worrying about harsh clashes. To add blues flavor, mix in the b3 occasionally (major blues sound) or switch to minor pentatonic for contrast.</source>
+        <target state="translated">메이저 펜타토닉은 장음계의 5음 부분 집합(1–2–3–5–6)입니다. 4음과 7음을 피하기 때문에 많은 장조 진행 위에서 "깨끗하고" 협화적으로 들립니다.
+
+주요 장르: 컨트리, 팝, 포크, 클래식 록, 가스펠, EDM 멜로디.
+
+활용: 매끄럽고 부르기 쉬운 멜로디가 필요할 때 장화음과 장조 반복 진행 위에서 쓰세요. 즉흥 연주의 "안전한" 출발점이기도 합니다. 거친 충돌을 걱정하지 않고 리듬, 프레이징, 목표음(특히 1/3/5)에 집중할 수 있습니다. 블루스 맛을 더하려면 가끔 b3를 섞거나(메이저 블루스 사운드) 대비를 위해 마이너 펜타토닉으로 바꿔 보세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.name" datatype="html">
+        <source>Bebop blues (dominant)</source>
+        <target state="translated">비밥 블루스 (도미넌트)</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.alt" datatype="html">
+        <source>8-note dominant bebop blues</source>
+        <target state="translated">8음 도미넌트 비밥 블루스</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.description" datatype="html">
+        <source>Dominant bebop blues is an 8-note scale designed for swing/bebop phrasing over dominant harmony. The extra chromatic passing tone makes it easier to land chord tones on strong beats when playing continuous eighth-notes.
+
+Common genres: bebop, swing, blues-jazz, organ trio, big band lines.
+
+Usage: use it over dominant 7 chords (often I7 in blues, or V7 in a progression) when you want that “inside” bebop flow. A practical approach is to treat it as a rhythmic tool: run eighth-notes and aim for 1–3–5–b7 on downbeats, letting the chromatic note act as a connector. Combine with classic blues vocabulary (b3, b5 bends/approaches) for authentic language.</source>
+        <target state="translated">도미넌트 비밥 블루스는 도미넌트 화성 위에서 스윙·비밥 프레이징을 위해 만든 8음 음계입니다. 추가된 반음 경과음 덕분에 8분음표를 이어 칠 때 강박에 코드 톤이 오기 쉽습니다.
+
+주요 장르: 비밥, 스윙, 블루스 재즈, 오르간 트리오, 빅밴드 라인.
+
+활용: "인사이드" 비밥의 흐름을 원할 때 도미넌트 7 코드(흔히 블루스의 I7이나 진행 속의 V7) 위에서 쓰세요. 실용적인 방법은 리듬 도구로 다루는 것입니다. 8분음표를 치며 정박에 1–3–5–b7을 노리고, 반음은 연결음으로 쓰세요. 정통적인 어법을 위해 고전적인 블루스 어휘(b3, b5로의 벤딩과 접근)와 함께 쓰세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.name" datatype="html">
+        <source>Minor blues bebop</source>
+        <target state="translated">마이너 블루스 비밥</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.alt" datatype="html">
+        <source>8-note minor bebop blues</source>
+        <target state="translated">8음 마이너 비밥 블루스</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.description" datatype="html">
+        <source>Minor blues bebop is an 8-note minor/blues-oriented scale that supports bebop-style eighth-note lines while keeping a minor-blues color. Like other bebop scales, the added chromaticism helps align chord tones with strong beats.
+
+Common genres: bebop over minor blues, jazz blues, fusion, modern blues improvisation.
+
+Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) when you want to keep the blues sound but phrase with bebop-style momentum. Target the minor chord tones (1, b3, 5, b7) on downbeats and use the chromatic notes as approach tones into those targets. It pairs well with minor pentatonic/blues licks—think of it as a “bebop-friendly” extension rather than a replacement.</source>
+        <target state="translated">마이너 블루스 비밥은 마이너 블루스 색채를 유지하면서 비밥식 8분음표 라인을 가능하게 하는 8음 단조·블루스 음계입니다. 다른 비밥 음계처럼 추가된 반음계가 코드 톤을 강박에 맞추도록 돕습니다.
+
+주요 장르: 마이너 블루스 위의 비밥, 재즈 블루스, 퓨전, 모던 블루스 즉흥 연주.
+
+활용: 블루스 사운드를 유지하면서 비밥의 추진력으로 프레이징하고 싶을 때 단조 코드와 마이너 블루스(i7 / i 중심) 위에서 쓰세요. 정박에 단조 코드 톤(1, b3, 5, b7)을 노리고 반음은 접근음으로 쓰세요. 마이너 펜타토닉·블루스 릭과 잘 어울리니, 대체물이 아니라 "비밥 친화적인" 확장으로 생각하세요.</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.agility" datatype="html">
+        <source>Agility</source>
+        <target state="translated">민첩성</target>
+      </trans-unit>
+      <trans-unit id="agility.subtitle" datatype="html">
+        <source>Select a key, chord, and exercise to begin</source>
+        <target state="translated">조, 코드, 연습을 선택해 시작하세요</target>
+      </trans-unit>
+      <trans-unit id="exercises.start" datatype="html">
+        <source>Start</source>
+        <target state="translated">시작</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.key" datatype="html">
+        <source>Key</source>
+        <target state="translated">조성</target>
+      </trans-unit>
+      <trans-unit id="agility.chord" datatype="html">
+        <source>Chord</source>
+        <target state="translated">코드</target>
+      </trans-unit>
+      <trans-unit id="exercises.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">연습</target>
+      </trans-unit>
+      <trans-unit id="exercises.noDescription" datatype="html">
+        <source>No description available.</source>
+        <target state="translated">설명이 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.title" datatype="html">
+        <source><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></source>
+        <target state="translated"><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.description" datatype="html">
+        <source>Practice piano agility with the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern. Build technique with interactive exercises and real-time feedback.</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> 코드로 <x id="exercise" equiv-text="exerciseName"/> 패턴을 연습해 피아노 민첩성을 키우세요. 인터랙티브 연습과 실시간 피드백으로 테크닉을 다집니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.teaches" datatype="html">
+        <source>Piano agility using the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> 코드와 <x id="exercise" equiv-text="exerciseName"/> 패턴으로 익히는 피아노 민첩성</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> Chord: Piano Agility Exercises</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> 코드: 피아노 민첩성 연습</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.description" datatype="html">
+        <source>Practice <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.</source>
+        <target state="translated">인터랙티브 민첩성 연습으로 <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> 코드 진행을 연습하세요. 손가락 민첩성과 코드 전환을 향상시킵니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.title" datatype="html">
+        <source>Piano Agility Exercises: Technique &amp; Finger Dexterity</source>
+        <target state="translated">피아노 민첩성 연습: 테크닉과 손가락 민첩성</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.description" datatype="html">
+        <source>Practice piano agility with interactive exercises — arpeggios in root position and inversions, across two octaves and around the circle of fifths.</source>
+        <target state="translated">인터랙티브 연습으로 피아노 민첩성을 키우세요 — 기본 위치와 전위 아르페지오, 두 옥타브, 5도권을 따라.</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.level" datatype="html">
+        <source>Beginner to Advanced</source>
+        <target state="translated">초급부터 고급까지</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.title" datatype="html">
+        <source>Two-octave Arpeggios, root, 1st and 2nd inversions</source>
+        <target state="translated">두 옥타브 아르페지오: 기본 위치, 제1·제2 전위</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">천천히 연습하고 속도를 점차 높이세요. 연습할 때는 항상 메트로놈을 사용하세요. 올바른 운지를 지키세요. 각 전위를 여러 번 반복하세요.</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.title" datatype="html">
+        <source>Dominant Seventh Arpeggios (root position)</source>
+        <target state="translated">도미넌트 7 아르페지오 (기본 위치)</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.advice" datatype="html">
+        <source>Always use a metronome when practicing exercises</source>
+        <target state="translated">연습할 때는 항상 메트로놈을 사용하세요</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.title" datatype="html">
+        <source>Arpeggio in root position, two octaves</source>
+        <target state="translated">기본 위치 아르페지오, 두 옥타브</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">천천히 연습하고 속도를 점차 높이세요. 연습할 때는 항상 메트로놈을 사용하세요. 올바른 운지를 지키세요. 각 전위를 여러 번 반복하세요.</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.title" datatype="html">
+        <source>Chord inversions</source>
+        <target state="translated">코드 전위</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">천천히 연습하고 속도를 점차 높이세요. 연습할 때는 항상 메트로놈을 사용하세요. 올바른 운지를 지키세요. 각 전위를 여러 번 반복하세요.</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.rightHand" datatype="html">
+        <source>Right Hand</source>
+        <target state="translated">오른손</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.leftHand" datatype="html">
+        <source>Left Hand</source>
+        <target state="translated">왼손</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.title" datatype="html">
+        <source>Piano Exercises: Scales, Arpeggios &amp; Agility</source>
+        <target state="translated">피아노 연습: 음계, 아르페지오, 민첩성</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.description" datatype="html">
+        <source>Practice piano scales, arpeggios and agility exercises around the circle of fifths, with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">5도권을 따라 피아노 음계, 아르페지오, 민첩성을 연습하세요. 양손 분리 연습, 템포 조절, MIDI 피드백을 지원합니다.</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.scales" datatype="html">
+        <source>Scales</source>
+        <target state="translated">음계</target>
+      </trans-unit>
+      <trans-unit id="nav.exercises" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">연습</target>
+      </trans-unit>
+      <trans-unit id="exercises.home.subtitle" datatype="html">
+        <source>Practice cycles and technique programs</source>
+        <target state="translated">연습 주기와 테크닉 프로그램</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.title" datatype="html">
+        <source>Level 1 Cycle</source>
+        <target state="translated">1단계 주기</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.intro" datatype="html">
+        <source> Start with 2 keys per day. Each day work on a different key pair. The following sequence takes 12 days to complete a full cycle of all 24 major + minor keys. </source>
+        <target state="translated">하루에 2개 조로 시작해 매일 다른 쌍을 연습하세요. 아래 순서로 12일 동안 24개 장조와 단조를 한 바퀴 돕니다.</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorSharp" datatype="html">
+        <source>Major Keys (Sharp):</source>
+        <target state="translated">장조 (샵):</target>
+      </trans-unit>
+      <trans-unit id="exercises.day" datatype="html">
+        <source>Day <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ 1 }}"/>일차:</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorFlat" datatype="html">
+        <source>Major Keys (Flat):</source>
+        <target state="translated">장조 (플랫):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorSharp" datatype="html">
+        <source>Minor Keys (Sharp):</source>
+        <target state="translated">단조 (샵):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorFlat" datatype="html">
+        <source>Minor Keys (Flat):</source>
+        <target state="translated">단조 (플랫):</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.chromatic" datatype="html">
+        <source>You can add the Chromatic Scale to any of these keys, starting on the key note.</source>
+        <target state="translated">이 조들 중 어느 조에든 으뜸음부터 반음계를 추가할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.enharmonic" datatype="html">
+        <source>Note that enharmonic keys like C# and Cb major are skipped. These are identical to Db and B, respectively.</source>
+        <target state="translated">C#장조와 Cb장조 같은 이명동음 조는 생략합니다. 각각 Db장조, B장조와 같습니다.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.title" datatype="html">
+        <source>Level 2 Cycle</source>
+        <target state="translated">2단계 주기</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.intro" datatype="html">
+        <source> We can increase the difficulty with a sequence that includes more keys in one day, combining relative major + minor keys, reducing total cycle time to 6 days. </source>
+        <target state="translated">하루에 더 많은 조를 다루고 나란한조의 장조와 단조를 함께 묶으면 난이도가 높아지고 주기가 6일로 줄어듭니다.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.title" datatype="html">
+        <source>Level 3 Cycle</source>
+        <target state="translated">3단계 주기</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.intro" datatype="html">
+        <source> A more advanced sequence will go through all keys in 2 days, using parallel major + minor keys. It should only be done after the previous patterns can be played automatically from memory. </source>
+        <target state="translated">더 고급 순서로 같은으뜸음조의 장조와 단조를 사용해 2일 만에 모든 조를 돕니다. 앞의 패턴을 외워서 자동으로 칠 수 있을 때만 시작하세요.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.title" datatype="html">
+        <source>Level 4a Cycle: Ascending 5ths</source>
+        <target state="translated">4a단계 주기: 상행 5도</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.intro" datatype="html">
+        <source>The most difficult cycle, playing all keys around the full Circle of 5ths in 1 day.</source>
+        <target state="translated">가장 어려운 주기: 하루 만에 5도권 전체를 따라 모든 조를 연주합니다.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.title" datatype="html">
+        <source>Level 4b Cycle: Descending 5ths</source>
+        <target state="translated">4b단계 주기: 하행 5도</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.intro" datatype="html">
+        <source>An alternative sequence goes the opposite direction around the Circle of 5ths.</source>
+        <target state="translated">5도권을 반대 방향으로 도는 다른 순서입니다.</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.title" datatype="html">
+        <source>Contrary motion starting on the same note.</source>
+        <target state="translated">같은 음에서 시작하는 반진행.</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.advice" datatype="html">
+        <source>Both thumbs play the same note. Up then down.</source>
+        <target state="translated">두 엄지가 같은 음을 칩니다. 올라갔다가 내려옵니다.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.title" datatype="html">
+        <source>Parallel motion in octaves</source>
+        <target state="translated">옥타브 평행 진행</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">왼손: 4번 손가락을 음계 2음에, 오른손: 4번 손가락을 음계 7음에.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.title" datatype="html">
+        <source>Parallel motion in thirds</source>
+        <target state="translated">3도 평행 진행</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.advice" datatype="html">
+        <source>Hands a third apart: LH on the tonic, RH on the 3rd degree of the scale. Hands stay close, keep the thirds even. Two hands. Scales in parallel thirds are a common enough thing for intermediate to advanced technical exercise. Fingers crowding each other is what makes it challenging, but it is do-able. Each hand plays the scale as it ordinarily would, just separated by a third. The fingering is on the notation, just take it slowly until you’re able to do it, then gradually increase speed. There’s really no trick to it beyond that.</source>
+        <target state="translated">양손을 3도 간격으로: 왼손은 으뜸음, 오른손은 음계의 3음. 양손을 가깝게 두고 3도를 고르게 유지하세요. 양손 연습. 3도 평행 음계는 중급에서 고급까지 흔한 테크닉 연습입니다. 손가락이 서로 붐비는 것이 어렵지만 충분히 할 수 있습니다. 각 손은 평소처럼 음계를 치되 3도 떨어져 있을 뿐입니다. 운지는 악보에 있으니 될 때까지 천천히 연습한 뒤 점차 속도를 높이세요. 그 밖의 요령은 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.title" datatype="html">
+        <source>Parallel motion in sixths</source>
+        <target state="translated">6도 평행 진행</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.advice" datatype="html">
+        <source>Hands a sixth apart: RH on the tonic with the thumb, LH a sixth below on the 3rd degree of the scale (finger 3).</source>
+        <target state="translated">양손을 6도 간격으로: 오른손 엄지는 으뜸음, 왼손은 6도 아래 음계의 3음(3번 손가락).</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.title" datatype="html">
+        <source>Parallel motion in tenths</source>
+        <target state="translated">10도 평행 진행</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.advice" datatype="html">
+        <source>Hands a tenth apart (octave + third): LH on the tonic, RH on the 3rd degree an octave higher. Open the arms and keep both hands together.</source>
+        <target state="translated">양손을 10도(옥타브 + 3도) 간격으로: 왼손은 으뜸음, 오른손은 한 옥타브 위 3음. 팔을 벌리고 양손을 함께 움직이세요.</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.title" datatype="html">
+        <source>Left than Right</source>
+        <target state="translated">왼손 다음 오른손</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.advice" datatype="html">
+        <source>Thumb (1) cross under 3. Both thumbs play the same note. Up then down.</source>
+        <target state="translated">엄지(1)를 3번 손가락 아래로 넘깁니다. 두 엄지가 같은 음을 칩니다. 올라갔다가 내려옵니다.</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.title" datatype="html">
+        <source>Intervals</source>
+        <target state="translated">음정</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">왼손: 4번 손가락을 음계 2음에, 오른손: 4번 손가락을 음계 7음에.</target>
+      </trans-unit>
+      <trans-unit id="scales.subtitle" datatype="html">
+        <source>Select a scale, key, and exercise to begin</source>
+        <target state="translated">음계, 조, 연습을 선택해 시작하세요</target>
+      </trans-unit>
+      <trans-unit id="scales.type" datatype="html">
+        <source>Scale type</source>
+        <target state="translated">음계 유형</target>
+      </trans-unit>
+      <trans-unit id="scales.scale" datatype="html">
+        <source>Scale</source>
+        <target state="translated">음계</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: <x id="exercise" equiv-text="exerciseName"/></source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> 음계: <x id="exercise" equiv-text="exerciseName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.description" datatype="html">
+        <source>Practice the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale with the <x id="exercise" equiv-text="exerciseName"/> exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.</source>
+        <target state="translated"><x id="exercise" equiv-text="exerciseName"/> 연습으로 <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> 음계를 연습하세요. 양손 분리 연습, 템포 조절, 실시간 MIDI 피드백을 지원합니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: Piano Exercises</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> 음계: 피아노 연습</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.description" datatype="html">
+        <source>Learn the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.</source>
+        <target state="translated">PianoML에서 인터랙티브 연습, 양손 분리 연습, 템포 조절로 <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> 음계를 배우세요.</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.title" datatype="html">
+        <source>Piano Scale Exercises: Major &amp; Minor Scales</source>
+        <target state="translated">피아노 음계 연습: 장음계와 단음계</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.description" datatype="html">
+        <source>Practice major and minor piano scales with interactive exercises — contrary motion, parallel motion in octaves, thirds, sixths and tenths — at your own tempo.</source>
+        <target state="translated">인터랙티브 연습으로 장음계와 단음계를 내 속도로 연습하세요 — 반진행, 옥타브·3도·6도·10도 평행 진행.</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.name" datatype="html">
+        <source>Piano Scales</source>
+        <target state="translated">피아노 음계</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.description" datatype="html">
+        <source>Musical scales for piano practice and technique development</source>
+        <target state="translated">피아노 연습과 테크닉 향상을 위한 음계</target>
+      </trans-unit>
+      <trans-unit id="home.headline" datatype="html">
+        <source>A Machine to Learn Piano</source>
+        <target state="translated">피아노를 배우는 기계</target>
+      </trans-unit>
+      <trans-unit id="home.cta.title" datatype="html">
+        <source>Start learning piano with PianoML</source>
+        <target state="translated">PianoML로 피아노 배우기 시작하기</target>
+      </trans-unit>
+      <trans-unit id="home.cta.label" datatype="html">
+        <source>Start your piano learning journey</source>
+        <target state="translated">피아노 학습 여정을 시작하세요</target>
+      </trans-unit>
+      <trans-unit id="home.cta" datatype="html">
+        <source>Take a seat</source>
+        <target state="translated">자리에 앉으세요</target>
+      </trans-unit>
+      <trans-unit id="summary.tagline" datatype="html">
+        <source>Piano · Practice · Progress</source>
+        <target state="translated">피아노 · 연습 · 성장</target>
+      </trans-unit>
+      <trans-unit id="summary.headline" datatype="html">
+        <source> Foster piano practice.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/>Build muscle memory. </source>
+        <target state="translated"> 피아노 연습을 꾸준히.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/>근육 기억을 키우세요. </target>
+      </trans-unit>
+      <trans-unit id="summary.intro" datatype="html">
+        <source> Practice piano and sight-read from an ever-growing library of thousands of études and piano works, Train with a scale generator, smart sheet music that gives real-time feedback, loop and adjustable tempo. No ads, no tracker, free and open source. </source>
+        <target state="translated"> 수천 곡의 연습곡과 피아노 작품이 계속 늘어나는 라이브러리로 피아노와 초견을 연습하세요. 실시간 피드백을 주는 스마트 악보와 음계 생성기로 훈련하고, 구간 반복과 템포 조절도 할 수 있습니다. 광고도 추적도 없는 무료 오픈 소스입니다. </target>
+      </trans-unit>
+      <trans-unit id="summary.startExercises" datatype="html">
+        <source>Start scale exercises</source>
+        <target state="translated">음계 연습 시작하기</target>
+      </trans-unit>
+      <trans-unit id="summary.browseLibrary" datatype="html">
+        <source>Browse library</source>
+        <target state="translated">라이브러리 둘러보기</target>
+      </trans-unit>
+      <trans-unit id="summary.features.label" datatype="html">
+        <source>Features</source>
+        <target state="translated">기능</target>
+      </trans-unit>
+      <trans-unit id="summary.whatsInside" datatype="html">
+        <source>What&apos;s inside</source>
+        <target state="translated">주요 내용</target>
+      </trans-unit>
+      <trans-unit id="summary.library.title" datatype="html">
+        <source>Library</source>
+        <target state="translated">라이브러리</target>
+      </trans-unit>
+      <trans-unit id="summary.library.description" datatype="html">
+        <source>Practice scores from the library — upload PDF, MIDI or MusicXML files — search for specific pieces, genre, grade, tonic.</source>
+        <target state="translated">라이브러리의 악보로 연습하세요 — PDF, MIDI 또는 MusicXML 파일을 업로드하고 — 곡, 장르, 난이도, 으뜸음으로 검색할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="summary.library.cta" datatype="html">
+        <source>Open library</source>
+        <target state="translated">라이브러리 열기</target>
+      </trans-unit>
+      <trans-unit id="summary.exercises.title" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">연습</target>
+      </trans-unit>
+      <trans-unit id="summary.exercises.description" datatype="html">
+        <source>Scales generator, arpeggios, and practice exercises around the circle of fifths.</source>
+        <target state="translated">음계 생성기, 아르페지오, 5도권을 따라가는 연습.</target>
+      </trans-unit>
+      <trans-unit id="summary.exercises.cta" datatype="html">
+        <source>Scales &amp; exercises</source>
+        <target state="translated">음계 및 연습</target>
+      </trans-unit>
+      <trans-unit id="summary.etudes.title" datatype="html">
+        <source>Études for Pianists</source>
+        <target state="translated">피아니스트를 위한 연습곡</target>
+      </trans-unit>
+      <trans-unit id="summary.etudes.description" datatype="html">
+        <source>Collection of digitized musical courses for classical piano study.</source>
+        <target state="translated">클래식 피아노 학습을 위한 디지털 교재 모음입니다.</target>
+      </trans-unit>
+      <trans-unit id="summary.etudes.cta" datatype="html">
+        <source>Browse collection</source>
+        <target state="translated">모음 보기</target>
+      </trans-unit>
+      <trans-unit id="summary.thanks.title" datatype="html">
+        <source>Acknowledgments</source>
+        <target state="translated">감사의 말</target>
+      </trans-unit>
+      <trans-unit id="summary.thanks.description" datatype="html">
+        <source>The people and open-source projects that made PianoML possible.</source>
+        <target state="translated">PianoML을 가능하게 한 사람들과 오픈 소스 프로젝트.</target>
+      </trans-unit>
+      <trans-unit id="summary.thanks.cta" datatype="html">
+        <source>Read more</source>
+        <target state="translated">더 읽기</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.description" datatype="html">
+        <source>Learn piano with interactive exercises, scales, arpeggios and sheet music practice: hands-separated practice, adjustable speed, MIDI support and real-time feedback.</source>
+        <target state="translated">인터랙티브 연습, 음계, 아르페지오, 악보 연습으로 피아노를 배우세요: 양손 분리 연습, 속도 조절, MIDI 지원, 실시간 피드백.</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.title" datatype="html">
+        <source>Features &amp; Practice Tools</source>
+        <target state="translated">기능 및 연습 도구</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.scales" datatype="html">
+        <source>Interactive piano scales generator</source>
+        <target state="translated">인터랙티브 피아노 음계 생성기</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.arpeggios" datatype="html">
+        <source>Arpeggios exercises</source>
+        <target state="translated">아르페지오 연습</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.generation" datatype="html">
+        <source>Sheet music generation from audio and MIDI</source>
+        <target state="translated">오디오와 MIDI로 악보 생성</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.handsSeparate" datatype="html">
+        <source>Hands-separated practice mode</source>
+        <target state="translated">양손 분리 연습 모드</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.speed" datatype="html">
+        <source>Adjustable playback speed</source>
+        <target state="translated">재생 속도 조절</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.midi" datatype="html">
+        <source>MIDI keyboard support with real-time feedback</source>
+        <target state="translated">실시간 피드백을 제공하는 MIDI 키보드 지원</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.upload" datatype="html">
+        <source>PDF, MIDI, and MusicXML file upload</source>
+        <target state="translated">PDF, MIDI, MusicXML 파일 업로드</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.etudes" datatype="html">
+        <source>Collection of digitized piano études</source>
+        <target state="translated">디지털화된 피아노 연습곡 모음</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.ml" datatype="html">
+        <source>Machine Learning-powered feedback</source>
+        <target state="translated">머신러닝 기반 피드백</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.about.education" datatype="html">
+        <source>Piano Education</source>
+        <target state="translated">피아노 교육</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.about.theory" datatype="html">
+        <source>Music Theory</source>
+        <target state="translated">음악 이론</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.about.ml" datatype="html">
+        <source>Machine Learning</source>
+        <target state="translated">머신러닝</target>
+      </trans-unit>
+      <trans-unit id="importWork.importMusicWork" datatype="html">
+        <source>Import Music Work</source>
+        <target state="translated">음악 작품 가져오기</target>
+      </trans-unit>
+      <trans-unit id="importWork.pleaseSelectAFileTo" datatype="html">
+        <source>Please select a file to import</source>
+        <target state="translated">가져올 파일을 선택하세요</target>
+      </trans-unit>
+      <trans-unit id="importWork.scoreDetailsAndActions.label" datatype="html">
+        <source>Score details and actions</source>
+        <target state="translated">악보 정보 및 작업</target>
+      </trans-unit>
+      <trans-unit id="importWork.notes" datatype="html">
+        <source>Notes</source>
+        <target state="translated">음표 수</target>
+      </trans-unit>
+      <trans-unit id="importWork.instrument" datatype="html">
+        <source>Instrument</source>
+        <target state="translated">악기</target>
+      </trans-unit>
+      <trans-unit id="importWork.trackName" datatype="html">
+        <source>Track Name</source>
+        <target state="translated">트랙 이름</target>
+      </trans-unit>
+      <trans-unit id="importWork.study" datatype="html">
+        <source>Study</source>
+        <target state="translated">연습</target>
+      </trans-unit>
+      <trans-unit id="importWork.splitVoices" datatype="html">
+        <source>split voices</source>
+        <target state="translated">성부 분리</target>
+      </trans-unit>
+      <trans-unit id="importWork.dropzone" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;font-semibold&quot;&gt;"/>Click to upload<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> or drag and drop</source>
+        <target state="translated"><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;font-semibold&quot;&gt;"/>클릭해서 업로드<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/>하거나 파일을 끌어다 놓으세요</target>
+      </trans-unit>
+      <trans-unit id="importWork.enableAutomaticFingering" datatype="html">
+        <source>Enable automatic fingering</source>
+        <target state="translated">자동 운지 사용</target>
+      </trans-unit>
+      <trans-unit id="importWork.load" datatype="html">
+        <source>load</source>
+        <target state="translated">불러오기</target>
+      </trans-unit>
+      <trans-unit id="importWork.reset" datatype="html">
+        <source>reset</source>
+        <target state="translated">초기화</target>
+      </trans-unit>
+      <trans-unit id="importWork.importing" datatype="html">
+        <source>Importing …</source>
+        <target state="translated">가져오는 중…</target>
+      </trans-unit>
+      <trans-unit id="importWork.uploadingWithFingering" datatype="html">
+        <source>Uploading and converting your score, with automatic fingering. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">악보를 업로드하고 자동 운지와 함께 변환하는 중입니다. 최대 1분 정도 걸릴 수 있으니 이 페이지를 열어 두세요.</target>
+      </trans-unit>
+      <trans-unit id="importWork.uploading" datatype="html">
+        <source>Uploading and converting your score. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">악보를 업로드하고 변환하는 중입니다. 최대 1분 정도 걸릴 수 있으니 이 페이지를 열어 두세요.</target>
+      </trans-unit>
+      <trans-unit id="importWork.anErrorHasOccurredThe" datatype="html">
+        <source>An error has occurred, the file cannot be read</source>
+        <target state="translated">오류가 발생했습니다. 파일을 읽을 수 없습니다</target>
+      </trans-unit>
+      <trans-unit id="importWork.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">닫기</target>
+      </trans-unit>
+      <trans-unit id="route.error" datatype="html">
+        <source>Error</source>
+        <target state="translated">오류</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.creationTitle" datatype="html">
+        <source>Creation Error</source>
+        <target state="translated">생성 오류</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.creation" datatype="html">
+        <source>An error occurred while creating the score.</source>
+        <target state="translated">악보를 만드는 중 오류가 발생했습니다.</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.uploadTitle" datatype="html">
+        <source>Upload Error</source>
+        <target state="translated">업로드 오류</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.upload" datatype="html">
+        <source>An error occurred while uploading the MIDI file.</source>
+        <target state="translated">MIDI 파일을 업로드하는 중 오류가 발생했습니다.</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.noWork" datatype="html">
+        <source>No work information available.</source>
+        <target state="translated">작품 정보가 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="importLink.importMusicWork" datatype="html">
+        <source>Import Music Work</source>
+        <target state="translated">음악 작품 가져오기</target>
+      </trans-unit>
+      <trans-unit id="importLink.pleaseSelectATitleOr" datatype="html">
+        <source>Please select a title or artist &amp; title to import</source>
+        <target state="translated">가져올 제목 또는 아티스트와 제목을 선택하세요</target>
+      </trans-unit>
+      <trans-unit id="importLink.scoreDetailsAndActions.label" datatype="html">
+        <source>Score details and actions</source>
+        <target state="translated">악보 정보 및 작업</target>
+      </trans-unit>
+      <trans-unit id="importLink.authenticationRequired" datatype="html">
+        <source>Authentication Required</source>
+        <target state="translated">로그인 필요</target>
+      </trans-unit>
+      <trans-unit id="importLink.youMustBeLoggedIn" datatype="html">
+        <source>You must be logged in to link musical works.</source>
+        <target state="translated">음악 작품을 연결하려면 로그인해야 합니다.</target>
+      </trans-unit>
+      <trans-unit id="importLink.login" datatype="html">
+        <source> Login </source>
+        <target state="translated">로그인</target>
+      </trans-unit>
+      <trans-unit id="importLink.quickSearchSelectAWork" datatype="html">
+        <source>Quick Search: select a work to define a title and author</source>
+        <target state="translated">빠른 검색: 작품을 선택해 제목과 작곡가를 정하세요</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchForWorksEG.placeholder" datatype="html">
+        <source>Search for works (e.g., &apos;redemption song&apos;)</source>
+        <target state="translated">작품 검색 (예: 'redemption song')</target>
+      </trans-unit>
+      <trans-unit id="importLink.clear" datatype="html">
+        <source> Clear </source>
+        <target state="translated">지우기</target>
+      </trans-unit>
+      <trans-unit id="importLink.worksFound" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {1 work found} other {<x id="INTERPOLATION"/> works found}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {작품 1개를 찾았습니다} other {작품 <x id="INTERPOLATION"/>개를 찾았습니다}}</target>
+      </trans-unit>
+      <trans-unit id="importLink.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">악보</target>
+      </trans-unit>
+      <trans-unit id="importLink.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">제목</target>
+      </trans-unit>
+      <trans-unit id="importLink.actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">작업</target>
+      </trans-unit>
+      <trans-unit id="importLink.select" datatype="html">
+        <source> Select </source>
+        <target state="translated">선택</target>
+      </trans-unit>
+      <trans-unit id="importLink.noWorksFoundMatchingYour" datatype="html">
+        <source>No works found matching your criteria.</source>
+        <target state="translated">조건에 맞는 작품이 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="importLink.noWorksFoundAfterFiltering" datatype="html">
+        <source>No works found after filtering (found <x id="INTERPOLATION" equiv-text="{{ response.count }}"/> but none matched the current filters).</source>
+        <target state="translated">필터링 후 남은 작품이 없습니다(<x id="INTERPOLATION" equiv-text="{{ response.count }}"/>개를 찾았지만 현재 필터에 맞는 것이 없습니다).</target>
+      </trans-unit>
+      <trans-unit id="importLink.tryAdjustingYourSearchTerms" datatype="html">
+        <source>Try adjusting your search terms or filters.</source>
+        <target state="translated">검색어나 필터를 바꿔 보세요.</target>
+      </trans-unit>
+      <trans-unit id="importLink.canTFindTheWork" datatype="html">
+        <source> Can&apos;t find the work you&apos;re looking for in the database? Create it manually </source>
+        <target state="translated">찾는 작품이 데이터베이스에 없나요? 직접 만드세요</target>
+      </trans-unit>
+      <trans-unit id="importLink.createWorkManually" datatype="html">
+        <source>Create Work Manually</source>
+        <target state="translated">작품 직접 만들기</target>
+      </trans-unit>
+      <trans-unit id="importLink.cancel" datatype="html">
+        <source> Cancel </source>
+        <target state="translated">취소</target>
+      </trans-unit>
+      <trans-unit id="importLink.1SelectArtist" datatype="html">
+        <source> 1. Select Artist </source>
+        <target state="translated">1. 아티스트 선택</target>
+      </trans-unit>
+      <trans-unit id="importLink.2EnterTitle" datatype="html">
+        <source> 2. Enter Title </source>
+        <target state="translated">2. 제목 입력</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchForAnArtist" datatype="html">
+        <source>Search for an artist</source>
+        <target state="translated">아티스트 검색</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterArtistNameEG.placeholder" datatype="html">
+        <source>Enter artist name (e.g., &apos;Bob Marley&apos;)</source>
+        <target state="translated">아티스트 이름 입력 (예: 'Bob Marley')</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchingForArtists" datatype="html">
+        <source>Searching for artists...</source>
+        <target state="translated">아티스트를 검색하는 중...</target>
+      </trans-unit>
+      <trans-unit id="importLink.foundArtists" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {Found 1 artist} other {Found <x id="INTERPOLATION"/> artists}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {아티스트 1명을 찾았습니다} other {아티스트 <x id="INTERPOLATION"/>명을 찾았습니다}}</target>
+      </trans-unit>
+      <trans-unit id="importLink.name" datatype="html">
+        <source>Name</source>
+        <target state="translated">이름</target>
+      </trans-unit>
+      <trans-unit id="importLink.type" datatype="html">
+        <source>Type</source>
+        <target state="translated">유형</target>
+      </trans-unit>
+      <trans-unit id="importLink.country" datatype="html">
+        <source>Country</source>
+        <target state="translated">국가</target>
+      </trans-unit>
+      <trans-unit id="importLink.noArtistsFoundMatchingYour" datatype="html">
+        <source>No artists found matching your search.</source>
+        <target state="translated">검색과 일치하는 아티스트가 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="importLink.tryDifferentSearchTerms" datatype="html">
+        <source>Try different search terms.</source>
+        <target state="translated">다른 검색어를 시도해 보세요.</target>
+      </trans-unit>
+      <trans-unit id="importLink.selectedArtist" datatype="html">
+        <source>Selected Artist: <x id="INTERPOLATION" equiv-text="{{ selectedArtist?.name }}"/></source>
+        <target state="translated">선택한 아티스트: <x id="INTERPOLATION" equiv-text="{{ selectedArtist?.name }}"/></target>
+      </trans-unit>
+      <trans-unit id="importLink.changeArtist" datatype="html">
+        <source> Change artist </source>
+        <target state="translated">아티스트 변경</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterTheWorkTitle" datatype="html">
+        <source>Enter the work title</source>
+        <target state="translated">작품 제목을 입력하세요</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterWorkSongTitle.placeholder" datatype="html">
+        <source>Enter work/song title</source>
+        <target state="translated">작품/노래 제목</target>
+      </trans-unit>
+      <trans-unit id="importLink.back" datatype="html">
+        <source> Back </source>
+        <target state="translated">뒤로</target>
+      </trans-unit>
+      <trans-unit id="importLink.createWork" datatype="html">
+        <source> Create Work </source>
+        <target state="translated">작품 만들기</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchingMusicbrainzDatabase" datatype="html">
+        <source>Searching MusicBrainz database...</source>
+        <target state="translated">MusicBrainz 데이터베이스를 검색하는 중...</target>
+      </trans-unit>
+      <trans-unit id="importLink.errorOccurred" datatype="html">
+        <source>Error occurred</source>
+        <target state="translated">오류가 발생했습니다</target>
+      </trans-unit>
+      <trans-unit id="importLink.dismiss" datatype="html">
+        <source> Dismiss </source>
+        <target state="translated">닫기</target>
+      </trans-unit>
+      <trans-unit id="importLink.error.search" datatype="html">
+        <source>An error occurred while searching</source>
+        <target state="translated">검색 중 오류가 발생했습니다</target>
+      </trans-unit>
+      <trans-unit id="importLink.error.artists" datatype="html">
+        <source>An error occurred while searching artists</source>
+        <target state="translated">아티스트 검색 중 오류가 발생했습니다</target>
+      </trans-unit>
+      <trans-unit id="browse.letters.all" datatype="html">
+        <source> All </source>
+        <target state="translated"> 전체 </target>
+      </trans-unit>
+      <trans-unit id="browse.noArtistsForLetter" datatype="html">
+        <source> No artists found for letter <x id="INTERPOLATION" equiv-text="{{ selectedLetter }}"/>. </source>
+        <target state="translated"> <x id="INTERPOLATION" equiv-text="{{ selectedLetter }}"/>(으)로 시작하는 아티스트가 없습니다. </target>
+      </trans-unit>
+      <trans-unit id="browse.genreNotSpecified" datatype="html">
+        <source>genre not specified</source>
+        <target state="translated">장르 미지정</target>
+      </trans-unit>
+      <trans-unit id="browse.search.label" datatype="html">
+        <source>Search piano scores</source>
+        <target state="translated">피아노 악보 검색</target>
+      </trans-unit>
+      <trans-unit id="browse.search.placeholder" datatype="html">
+        <source>Search scores by title, artist, or genre...</source>
+        <target state="translated">제목, 아티스트 또는 장르로 악보 검색...</target>
+      </trans-unit>
+      <trans-unit id="browse.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">검색 중...</target>
+      </trans-unit>
+      <trans-unit id="browse.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">검색</target>
+      </trans-unit>
+      <trans-unit id="browse.help.label" datatype="html">
+        <source>Restart library tour</source>
+        <target state="translated">라이브러리 안내 다시 시작</target>
+      </trans-unit>
+      <trans-unit id="browse.help.title" datatype="html">
+        <source>Show help tour</source>
+        <target state="translated">안내 보기</target>
+      </trans-unit>
+      <trans-unit id="browse.help" datatype="html">
+        <source> Help </source>
+        <target state="translated"> 도움말 </target>
+      </trans-unit>
+      <trans-unit id="browse.clear" datatype="html">
+        <source> Clear </source>
+        <target state="translated"> 지우기 </target>
+      </trans-unit>
+      <trans-unit id="browse.oneHand" datatype="html">
+        <source>One hand</source>
+        <target state="translated">한 손</target>
+      </trans-unit>
+      <trans-unit id="browse.twoHands" datatype="html">
+        <source>Two hands</source>
+        <target state="translated">양손</target>
+      </trans-unit>
+      <trans-unit id="browse.key.label" datatype="html">
+        <source>Key signature</source>
+        <target state="translated">조성</target>
+      </trans-unit>
+      <trans-unit id="browse.allKeys" datatype="html">
+        <source>All keys</source>
+        <target state="translated">모든 조성</target>
+      </trans-unit>
+      <trans-unit id="browse.clearFilter" datatype="html">
+        <source>Clear filter</source>
+        <target state="translated">필터 지우기</target>
+      </trans-unit>
+      <trans-unit id="browse.stats" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/><x id="INTERPOLATION" equiv-text="{{ stats[&apos;public-domain&apos;] + stats.copyrighted | number }}"/><x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> scores in database</source>
+        <target state="translated">데이터베이스에 악보 <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/><x id="INTERPOLATION" equiv-text="{{ stats[&apos;public-domain&apos;] + stats.copyrighted | number }}"/><x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/>개</target>
+      </trans-unit>
+      <trans-unit id="browse.tabs.label" datatype="html">
+        <source>Browse options</source>
+        <target state="translated">둘러보기 옵션</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.new" datatype="html">
+        <source>New</source>
+        <target state="translated">최신</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.popular" datatype="html">
+        <source>Popular</source>
+        <target state="translated">인기</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.genres.long" datatype="html">
+        <source>Browse by Genres</source>
+        <target state="translated">장르별 둘러보기</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.genres.short" datatype="html">
+        <source>Genres</source>
+        <target state="translated">장르</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.artists.long" datatype="html">
+        <source>Browse by Artist</source>
+        <target state="translated">아티스트별 둘러보기</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.artists.short" datatype="html">
+        <source>Artist</source>
+        <target state="translated">아티스트</target>
+      </trans-unit>
+      <trans-unit id="browse.results.label" datatype="html">
+        <source>Piano score results</source>
+        <target state="translated">악보 검색 결과</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.genre" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedGenre.genre!.name }}"/> Piano Scores Collection</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ selectedGenre.genre!.name }}"/> 피아노 악보 모음</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.artist" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedAuthor.author.name }}"/> Piano Works Collection</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ selectedAuthor.author.name }}"/> 피아노 작품 모음</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.search" datatype="html">
+        <source>Piano Score Search Results</source>
+        <target state="translated">피아노 악보 검색 결과</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.new" datatype="html">
+        <source>Latest Piano Scores</source>
+        <target state="translated">최신 피아노 악보</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.genres" datatype="html">
+        <source>Available Music Genres</source>
+        <target state="translated">음악 장르</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.artists" datatype="html">
+        <source>Featured Composers and Artists</source>
+        <target state="translated">추천 작곡가 및 아티스트</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.popular" datatype="html">
+        <source>Most Popular Piano Scores</source>
+        <target state="translated">인기 피아노 악보</target>
+      </trans-unit>
+      <trans-unit id="browse.empty" datatype="html">
+        <source>No scores found. Try a different search term.</source>
+        <target state="translated">악보를 찾을 수 없습니다. 다른 검색어를 입력해 보세요.</target>
+      </trans-unit>
+      <trans-unit id="browse.loadMore" datatype="html">
+        <source>Load More</source>
+        <target state="translated">더 보기</target>
+      </trans-unit>
+      <trans-unit id="browse.showing" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {악보 1개 표시 중} other {악보 <x id="INTERPOLATION"/>개 표시 중}}</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.artist" datatype="html">
+        <source>Artist</source>
+        <target state="translated">아티스트</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">길이</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">난이도</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">트랙</target>
+      </trans-unit>
+      <trans-unit id="browse.grade.min" datatype="html">
+        <source>Minimum grade</source>
+        <target state="translated">최소 난이도</target>
+      </trans-unit>
+      <trans-unit id="browse.grade.max" datatype="html">
+        <source>Maximum grade</source>
+        <target state="translated">최대 난이도</target>
+      </trans-unit>
+      <trans-unit id="browse.notFound" datatype="html">
+        <source>Not Found</source>
+        <target state="translated">찾을 수 없음</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.descriptionWithArtists" datatype="html">
+        <source>Browse and practice <x id="genre" equiv-text="name"/> piano scores by <x id="artists" equiv-text="artists"/>. Interactive sheet music with hands-separated practice and MIDI support.</source>
+        <target state="translated"><x id="artists" equiv-text="artists"/>의 <x id="genre" equiv-text="name"/> 피아노 악보를 둘러보고 연습하세요. 양손 분리 연습과 MIDI를 지원하는 인터랙티브 악보입니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.description" datatype="html">
+        <source>Browse and practice <x id="genre" equiv-text="name"/> piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and MIDI support.</source>
+        <target state="translated">PianoML에서 <x id="genre" equiv-text="name"/> 피아노 악보를 둘러보고 연습하세요. 양손 분리 연습, 템포 조절, MIDI를 지원하는 인터랙티브 악보입니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.title" datatype="html">
+        <source><x id="genre" equiv-text="name"/> Piano Scores</source>
+        <target state="translated"><x id="genre" equiv-text="name"/> 피아노 악보</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.descriptionWithTitles" datatype="html">
+        <source>Play <x id="artist" equiv-text="name"/> piano scores: <x id="titles" equiv-text="titles"/>. Interactive sheet music with adjustable tempo and real-time feedback.</source>
+        <target state="translated"><x id="artist" equiv-text="name"/>의 피아노 악보를 연주하세요: <x id="titles" equiv-text="titles"/>. 템포 조절과 실시간 피드백을 제공하는 인터랙티브 악보입니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.description" datatype="html">
+        <source>Play <x id="artist" equiv-text="name"/> piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and real-time feedback.</source>
+        <target state="translated">PianoML에서 <x id="artist" equiv-text="name"/>의 피아노 악보를 연주하세요. 양손 분리 연습, 템포 조절, 실시간 피드백을 제공하는 인터랙티브 악보입니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.title" datatype="html">
+        <source><x id="artist" equiv-text="name"/> Piano Scores</source>
+        <target state="translated"><x id="artist" equiv-text="name"/> 피아노 악보</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.collection" datatype="html">
+        <source><x id="artist" equiv-text="name"/> Piano Works</source>
+        <target state="translated"><x id="artist" equiv-text="name"/> 피아노 작품</target>
+      </trans-unit>
+      <trans-unit id="seo.search.title" datatype="html">
+        <source>Search: &quot;<x id="keyword" equiv-text="state.searchKeyword"/>&quot;</source>
+        <target state="translated">검색: "<x id="keyword" equiv-text="state.searchKeyword"/>"</target>
+      </trans-unit>
+      <trans-unit id="seo.search.description" datatype="html">
+        <source>Piano scores matching &quot;<x id="keyword" equiv-text="state.searchKeyword"/>&quot; in the PianoML library.</source>
+        <target state="translated">PianoML 라이브러리에서 "<x id="keyword" equiv-text="state.searchKeyword"/>"와(과) 일치하는 피아노 악보.</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.title" datatype="html">
+        <source>Browse Piano Scores by Genre</source>
+        <target state="translated">장르별 피아노 악보 둘러보기</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.descriptionWithNames" datatype="html">
+        <source>Explore <x id="count" equiv-text="state.totalScores"/>+ piano scores by genre and style — <x id="genres" equiv-text="names"/> — with interactive practice features.</source>
+        <target state="translated">장르와 스타일별로 <x id="count" equiv-text="state.totalScores"/>개 이상의 피아노 악보를 살펴보세요 — <x id="genres" equiv-text="names"/> — 인터랙티브 연습 기능과 함께.</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.description" datatype="html">
+        <source>Explore <x id="count" equiv-text="state.totalScores"/>+ piano scores by genre and style, with hands-separated practice, adjustable tempo and MIDI support.</source>
+        <target state="translated">장르와 스타일별로 <x id="count" equiv-text="state.totalScores"/>개 이상의 피아노 악보를 살펴보세요. 양손 분리 연습, 템포 조절, MIDI를 지원합니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.about.name" datatype="html">
+        <source>Piano Music Genres</source>
+        <target state="translated">피아노 음악 장르</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.about.description" datatype="html">
+        <source>Collection of piano music organized by musical genre and style</source>
+        <target state="translated">음악 장르와 스타일별로 정리한 피아노 음악 모음</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.title" datatype="html">
+        <source>Browse Piano Scores by Composer &amp; Artist</source>
+        <target state="translated">작곡가 및 아티스트별 피아노 악보 둘러보기</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.descriptionWithNames" datatype="html">
+        <source>Discover <x id="count" equiv-text="state.totalScores"/>+ piano scores and learn works by <x id="artists" equiv-text="names"/>.</source>
+        <target state="translated"><x id="count" equiv-text="state.totalScores"/>개 이상의 피아노 악보를 발견하고 <x id="artists" equiv-text="names"/>의 작품을 배워 보세요.</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.description" datatype="html">
+        <source>Discover <x id="count" equiv-text="state.totalScores"/>+ piano scores by composer, from classical to contemporary, with interactive practice features.</source>
+        <target state="translated">클래식부터 현대 음악까지 작곡가별로 <x id="count" equiv-text="state.totalScores"/>개 이상의 피아노 악보를 인터랙티브 연습 기능과 함께 만나 보세요.</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.collection" datatype="html">
+        <source>Browse Piano Scores by Composer</source>
+        <target state="translated">작곡가별 피아노 악보 둘러보기</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.about.name" datatype="html">
+        <source>Piano Composers and Artists</source>
+        <target state="translated">피아노 작곡가 및 아티스트</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.about.description" datatype="html">
+        <source>Collection of piano works organized by composer and artist</source>
+        <target state="translated">작곡가와 아티스트별로 정리한 피아노 작품 모음</target>
+      </trans-unit>
+      <trans-unit id="seo.new.title" datatype="html">
+        <source>New Piano Scores: Latest Uploaded Sheet Music</source>
+        <target state="translated">새 피아노 악보: 최근 업로드된 악보</target>
+      </trans-unit>
+      <trans-unit id="seo.new.description" datatype="html">
+        <source>Browse the latest piano scores added to PianoML, with hands-separated practice, adjustable tempo and MIDI keyboard support.</source>
+        <target state="translated">PianoML에 새로 추가된 피아노 악보를 둘러보세요. 양손 분리 연습, 템포 조절, MIDI 키보드를 지원합니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.new.collection" datatype="html">
+        <source>New Piano Scores</source>
+        <target state="translated">새 피아노 악보</target>
+      </trans-unit>
+      <trans-unit id="seo.new.about.name" datatype="html">
+        <source>Latest piano scores</source>
+        <target state="translated">최신 피아노 악보</target>
+      </trans-unit>
+      <trans-unit id="seo.new.about.description" datatype="html">
+        <source>Collection of recently uploaded piano sheet music</source>
+        <target state="translated">최근 업로드된 피아노 악보 모음</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.title" datatype="html">
+        <source>Piano Scores Library: MusicXML, MIDI &amp; PDF Sheet Music</source>
+        <target state="translated">피아노 악보 라이브러리: MusicXML, MIDI, PDF 악보</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.description" datatype="html">
+        <source>Browse popular piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable speed, loopable sections and MIDI keyboard support.</source>
+        <target state="translated">PianoML의 인기 피아노 악보를 둘러보세요. 양손 분리 연습, 속도 조절, 구간 반복, MIDI 키보드를 지원하는 인터랙티브 악보입니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.collection" datatype="html">
+        <source>Piano Score Library</source>
+        <target state="translated">피아노 악보 라이브러리</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.about.description" datatype="html">
+        <source>Piano learning platform with features for interactive practice</source>
+        <target state="translated">인터랙티브 연습 기능을 갖춘 피아노 학습 플랫폼</target>
+      </trans-unit>
+      <trans-unit id="seo.namesAndMore" datatype="html">
+        <source><x id="names" equiv-text="shown"/> and more</source>
+        <target state="translated"><x id="names" equiv-text="shown"/> 외</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.welcome.title" datatype="html">
+        <source>Welcome to the library</source>
+        <target state="translated">라이브러리에 오신 것을 환영합니다</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.welcome.content" datatype="html">
+        <source>On this search page you can filter scores in several ways.</source>
+        <target state="translated">이 검색 페이지에서 여러 방법으로 악보를 필터링할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.grade.title" datatype="html">
+        <source>Grade range</source>
+        <target state="translated">난이도 범위</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.grade.content" datatype="html">
+        <source>Select a grade range to filter the scores displayed in the library. You can adjust the sliders to set the minimum and maximum grade levels you want to include in your search results.</source>
+        <target state="translated">난이도 범위를 선택해 라이브러리의 악보를 필터링하세요. 슬라이더로 검색 결과에 포함할 최소 및 최대 난이도를 설정할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.handedness.title" datatype="html">
+        <source>Handedness</source>
+        <target state="translated">한 손/양손</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.handedness.content" datatype="html">
+        <source>Use the checkboxes to filter scores based on handedness. Check &quot;One hand&quot; to include scores that can be played with one hand. Check &quot;Two hands&quot; to include scores that require two hands. You can select either or both options to refine your search results according to your preferences.</source>
+        <target state="translated">체크박스로 악보를 손 사용에 따라 필터링하세요. 한 손으로 연주할 수 있는 악보는 "한 손", 양손이 필요한 악보는 "양손"을 선택하세요. 하나 또는 둘 다 선택해 결과를 좁힐 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.tonality.title" datatype="html">
+        <source>Tonality</source>
+        <target state="translated">조성</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.tonality.content" datatype="html">
+        <source>Use the dropdown to filter scores based on their tonality. Select a specific key to include only scores in that key, or choose &quot;All keys&quot; to include scores in any key.</source>
+        <target state="translated">드롭다운으로 조성에 따라 악보를 필터링하세요. 특정 조를 선택하면 그 조의 악보만, "모든 조성"을 선택하면 모든 악보가 표시됩니다.</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.search.title" datatype="html">
+        <source>Search by keyword</source>
+        <target state="translated">키워드로 검색</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.search.content" datatype="html">
+        <source>Use the search bar to find scores by entering specific keywords. Type in the name of a composer, a piece, or any relevant term and press Enter to see the search results that match your query. This feature allows you to quickly locate scores based on specific criteria or interests.</source>
+        <target state="translated">검색창에 키워드를 입력해 악보를 찾으세요. 작곡가 이름, 곡명 또는 관련 단어를 입력하고 Enter 키를 누르면 일치하는 결과가 표시됩니다. 관심 있는 악보를 빠르게 찾을 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.heading" datatype="html">
+        <source>Score information</source>
+        <target state="translated">악보 정보</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">장르</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">작곡가</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">난이도</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">길이</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">트랙</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.measures" datatype="html">
+        <source>Measures</source>
+        <target state="translated">마디</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.publicDomain" datatype="html">
+        <source>Public Domain</source>
+        <target state="translated">퍼블릭 도메인</target>
+      </trans-unit>
+      <trans-unit id="common.yes" datatype="html">
+        <source>Yes</source>
+        <target state="translated">예</target>
+      </trans-unit>
+      <trans-unit id="common.no" datatype="html">
+        <source>No</source>
+        <target state="translated">아니요</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.lyrics" datatype="html">
+        <source>Lyrics</source>
+        <target state="translated">가사</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target state="translated">업로드 날짜</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.musicbrainz" datatype="html">
+        <source>MusicBrainz</source>
+        <target state="translated">MusicBrainz</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.work" datatype="html">
+        <source>Work</source>
+        <target state="translated">작품</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.owner" datatype="html">
+        <source>Owner</source>
+        <target state="translated">소유자</target>
+      </trans-unit>
+      <trans-unit id="videos.untitled" datatype="html">
+        <source>Untitled video</source>
+        <target state="translated">제목 없는 동영상</target>
+      </trans-unit>
+      <trans-unit id="videos.thumbnail" datatype="html">
+        <source>Video thumbnail</source>
+        <target state="translated">동영상 썸네일</target>
+      </trans-unit>
+      <trans-unit id="videos.play" datatype="html">
+        <source>Play video <x id="title" equiv-text="this.video.title || &apos;&apos;"/></source>
+        <target state="translated">동영상 재생: <x id="title" equiv-text="this.video.title || &apos;&apos;"/></target>
+      </trans-unit>
+      <trans-unit id="videos.heading" datatype="html">
+        <source>Video lessons</source>
+        <target state="translated">동영상 레슨</target>
+      </trans-unit>
+      <trans-unit id="videos.scrollLeft" datatype="html">
+        <source>Scroll left</source>
+        <target state="translated">왼쪽으로 스크롤</target>
+      </trans-unit>
+      <trans-unit id="videos.scrollRight" datatype="html">
+        <source>Scroll right</source>
+        <target state="translated">오른쪽으로 스크롤</target>
+      </trans-unit>
+      <trans-unit id="videos.upvote.label" datatype="html">
+        <source>Upvote video</source>
+        <target state="translated">동영상 추천</target>
+      </trans-unit>
+      <trans-unit id="videos.upvote" datatype="html">
+        <source>Upvote</source>
+        <target state="translated">추천</target>
+      </trans-unit>
+      <trans-unit id="videos.downvote.label" datatype="html">
+        <source>Downvote video</source>
+        <target state="translated">동영상 비추천</target>
+      </trans-unit>
+      <trans-unit id="videos.downvote" datatype="html">
+        <source>Downvote</source>
+        <target state="translated">비추천</target>
+      </trans-unit>
+      <trans-unit id="videos.report.label" datatype="html">
+        <source>Report video</source>
+        <target state="translated">동영상 신고</target>
+      </trans-unit>
+      <trans-unit id="videos.report" datatype="html">
+        <source>Report</source>
+        <target state="translated">신고</target>
+      </trans-unit>
+      <trans-unit id="videos.close" datatype="html">
+        <source>Close video</source>
+        <target state="translated">동영상 닫기</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.offline" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>: the server cannot be reached. Check your connection and try again.</source>
+        <target state="translated"><x id="file" equiv-text="label"/>을(를) 다운로드할 수 없습니다: 서버에 연결할 수 없습니다. 연결을 확인하고 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.login" datatype="html">
+        <source>Please log in to download the <x id="file" equiv-text="label"/>.</source>
+        <target state="translated"><x id="file" equiv-text="label"/>을(를) 다운로드하려면 로그인하세요.</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.forbidden" datatype="html">
+        <source>You are not allowed to download the <x id="file" equiv-text="label"/> of this score.</source>
+        <target state="translated">이 악보의 <x id="file" equiv-text="label"/>을(를) 다운로드할 권한이 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.notFound" datatype="html">
+        <source>The <x id="file" equiv-text="label"/> is not available for this score.</source>
+        <target state="translated">이 악보에는 <x id="file" equiv-text="label"/>이(가) 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.other" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>. Please try again later.</source>
+        <target state="translated"><x id="file" equiv-text="label"/>을(를) 다운로드할 수 없습니다. 잠시 후 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="score.srHeading" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - Piano Score</source>
+        <target state="translated"><x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/>의 <x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> - 피아노 악보</target>
+      </trans-unit>
+      <trans-unit id="score.copyLink" datatype="html">
+        <source>Copy link</source>
+        <target state="translated">링크 복사</target>
+      </trans-unit>
+      <trans-unit id="score.back" datatype="html">
+        <source>← Browse</source>
+        <target state="translated">← 둘러보기</target>
+      </trans-unit>
+      <trans-unit id="score.edit" datatype="html">
+        <source>Edit</source>
+        <target state="translated">편집</target>
+      </trans-unit>
+      <trans-unit id="score.reimport.title" datatype="html">
+        <source>Choose the study tracks again from the original MIDI file (owner and admins only)</source>
+        <target state="translated">원본 MIDI 파일에서 연습 트랙을 다시 선택합니다 (소유자 및 관리자 전용)</target>
+      </trans-unit>
+      <trans-unit id="score.reimport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">다시 가져오기</target>
+      </trans-unit>
+      <trans-unit id="score.download.original.title" datatype="html">
+        <source>Download the file uploaded at import (owner and admins only)</source>
+        <target state="translated">가져올 때 업로드한 파일을 다운로드합니다 (소유자 및 관리자 전용)</target>
+      </trans-unit>
+      <trans-unit id="score.download.original" datatype="html">
+        <source>Original</source>
+        <target state="translated">원본</target>
+      </trans-unit>
+      <trans-unit id="score.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">연습하기</target>
+      </trans-unit>
+      <trans-unit id="score.download.dismiss" datatype="html">
+        <source>Dismiss download error</source>
+        <target state="translated">다운로드 오류 닫기</target>
+      </trans-unit>
+      <trans-unit id="score.loading" datatype="html">
+        <source>Loading score…</source>
+        <target state="translated">악보를 불러오는 중…</target>
+      </trans-unit>
+      <trans-unit id="score.processing.heading" datatype="html">
+        <source>Processing status</source>
+        <target state="translated">처리 상태</target>
+      </trans-unit>
+      <trans-unit id="score.processing.loading" datatype="html">
+        <source>Loading status…</source>
+        <target state="translated">상태를 불러오는 중…</target>
+      </trans-unit>
+      <trans-unit id="score.processing.status" datatype="html">
+        <source>Status</source>
+        <target state="translated">상태</target>
+      </trans-unit>
+      <trans-unit id="score.processing.type" datatype="html">
+        <source>Type</source>
+        <target state="translated">유형</target>
+      </trans-unit>
+      <trans-unit id="score.processing.created" datatype="html">
+        <source>Created</source>
+        <target state="translated">생성</target>
+      </trans-unit>
+      <trans-unit id="score.processing.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">소요 시간</target>
+      </trans-unit>
+      <trans-unit id="score.processing.none" datatype="html">
+        <source>No processing information available. Files may not have been submitted yet.</source>
+        <target state="translated">처리 정보가 없습니다. 파일이 아직 제출되지 않았을 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="score.videos.loading" datatype="html">
+        <source>Loading related videos…</source>
+        <target state="translated">관련 동영상을 불러오는 중…</target>
+      </trans-unit>
+      <trans-unit id="score.videos.errorLabel" datatype="html">
+        <source>Video API error:</source>
+        <target state="translated">동영상 API 오류:</target>
+      </trans-unit>
+      <trans-unit id="score.download.originalFile" datatype="html">
+        <source>original file</source>
+        <target state="translated">원본 파일</target>
+      </trans-unit>
+      <trans-unit id="score.download.title" datatype="html">
+        <source>Download <x id="format" equiv-text="&apos;MIDI&apos;"/></source>
+        <target state="translated"><x id="format" equiv-text="&apos;MIDI&apos;"/> 다운로드</target>
+      </trans-unit>
+      <trans-unit id="score.download.restricted" datatype="html">
+        <source>Downloads restricted — copyrighted work</source>
+        <target state="translated">다운로드 제한 — 저작권이 있는 작품</target>
+      </trans-unit>
+      <trans-unit id="score.processing.pending" datatype="html">
+        <source>Pending</source>
+        <target state="translated">대기 중</target>
+      </trans-unit>
+      <trans-unit id="score.processing.running" datatype="html">
+        <source>Running</source>
+        <target state="translated">처리 중</target>
+      </trans-unit>
+      <trans-unit id="score.processing.completed" datatype="html">
+        <source>Completed</source>
+        <target state="translated">완료</target>
+      </trans-unit>
+      <trans-unit id="score.processing.failed" datatype="html">
+        <source>Failed</source>
+        <target state="translated">실패</target>
+      </trans-unit>
+      <trans-unit id="score.error.noSlug" datatype="html">
+        <source>No score slug provided</source>
+        <target state="translated">악보가 지정되지 않았습니다</target>
+      </trans-unit>
+      <trans-unit id="score.videos.error" datatype="html">
+        <source>Failed to load videos</source>
+        <target state="translated">동영상을 불러올 수 없습니다</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.missingInfo" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>: this score is missing information.</source>
+        <target state="translated"><x id="file" equiv-text="label"/>을(를) 다운로드할 수 없습니다: 이 악보에 정보가 부족합니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.score.unknownArtist" datatype="html">
+        <source>Unknown Artist</source>
+        <target state="translated">알 수 없는 아티스트</target>
+      </trans-unit>
+      <trans-unit id="seo.score.untitled" datatype="html">
+        <source>Untitled</source>
+        <target state="translated">제목 없음</target>
+      </trans-unit>
+      <trans-unit id="seo.score.title" datatype="html">
+        <source>Score</source>
+        <target state="translated">악보</target>
+      </trans-unit>
+      <trans-unit id="seo.score.descriptionWithGenre" datatype="html">
+        <source>Practice <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/> on PianoML: an interactive <x id="genre" equiv-text="genre"/> piano score with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">PianoML에서 <x id="artist" equiv-text="author"/>의 <x id="title" equiv-text="title"/>을(를) 연습하세요: 양손 분리 연습, 템포 조절, MIDI 피드백을 지원하는 인터랙티브 <x id="genre" equiv-text="genre"/> 피아노 악보입니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.score.description" datatype="html">
+        <source>Practice <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/> on PianoML: an interactive piano score with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">PianoML에서 <x id="artist" equiv-text="author"/>의 <x id="title" equiv-text="title"/>을(를) 연습하세요: 양손 분리 연습, 템포 조절, MIDI 피드백을 지원하는 인터랙티브 피아노 악보입니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.score.publicDomain" datatype="html">
+        <source>Free to download and public domain.</source>
+        <target state="translated">무료로 다운로드할 수 있는 퍼블릭 도메인 작품입니다.</target>
+      </trans-unit>
+      <trans-unit id="reimport.titleNamed" datatype="html">
+        <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/> 다시 가져오기</target>
+      </trans-unit>
+      <trans-unit id="reimport.title" datatype="html">
+        <source>Re-import the score</source>
+        <target state="translated">악보 다시 가져오기</target>
+      </trans-unit>
+      <trans-unit id="reimport.chooseTheStudyTracksAgain" datatype="html">
+        <source>Choose the study tracks again from the original MIDI file</source>
+        <target state="translated">원본 MIDI 파일에서 연습 트랙을 다시 선택하세요</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImportTheScore.label" datatype="html">
+        <source>Re-import the score</source>
+        <target state="translated">악보 다시 가져오기</target>
+      </trans-unit>
+      <trans-unit id="reimport.readingTheOriginalFile" datatype="html">
+        <source>Reading the original file …</source>
+        <target state="translated">원본 파일을 읽는 중…</target>
+      </trans-unit>
+      <trans-unit id="reimport.backToTheScore" datatype="html">
+        <source>← Back to the score</source>
+        <target state="translated">← 악보로 돌아가기</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImporting" datatype="html">
+        <source>Re-importing …</source>
+        <target state="translated">다시 가져오는 중…</target>
+      </trans-unit>
+      <trans-unit id="reimport.convertingWithFingering" datatype="html">
+        <source>Converting the score again, with automatic fingering. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">자동 운지와 함께 악보를 다시 변환하는 중입니다. 최대 1분 정도 걸릴 수 있으니 이 페이지를 열어 두세요.</target>
+      </trans-unit>
+      <trans-unit id="reimport.converting" datatype="html">
+        <source>Converting the score again. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">악보를 다시 변환하는 중입니다. 최대 1분 정도 걸릴 수 있으니 이 페이지를 열어 두세요.</target>
+      </trans-unit>
+      <trans-unit id="reimport.theScoreKeepsItsPage" datatype="html">
+        <source> The score keeps its page, link and owner: only its notes, fingering and the details read from them (key, tempo, grade, …) are generated again. </source>
+        <target state="translated">악보의 페이지, 링크, 소유자는 그대로 유지되며 음표, 운지, 그리고 여기서 읽어 낸 정보(조성, 템포, 난이도 등)만 다시 생성됩니다.</target>
+      </trans-unit>
+      <trans-unit id="reimport.notes" datatype="html">
+        <source>Notes</source>
+        <target state="translated">음표 수</target>
+      </trans-unit>
+      <trans-unit id="reimport.instrument" datatype="html">
+        <source>Instrument</source>
+        <target state="translated">악기</target>
+      </trans-unit>
+      <trans-unit id="reimport.trackName" datatype="html">
+        <source>Track Name</source>
+        <target state="translated">트랙 이름</target>
+      </trans-unit>
+      <trans-unit id="reimport.study" datatype="html">
+        <source>Study</source>
+        <target state="translated">연습</target>
+      </trans-unit>
+      <trans-unit id="reimport.enableAutomaticFingering" datatype="html">
+        <source>Enable automatic fingering</source>
+        <target state="translated">자동 운지 사용</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">다시 가져오기</target>
+      </trans-unit>
+      <trans-unit id="reimport.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">취소</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.noSlug" datatype="html">
+        <source>No score slug provided.</source>
+        <target state="translated">악보가 지정되지 않았습니다.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.notFound" datatype="html">
+        <source>This score does not exist.</source>
+        <target state="translated">이 악보는 존재하지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.load" datatype="html">
+        <source>Could not load the score.</source>
+        <target state="translated">악보를 불러올 수 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.missingInfo" datatype="html">
+        <source>This score is missing information.</source>
+        <target state="translated">이 악보에 정보가 부족합니다.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.noOriginal" datatype="html">
+        <source>The original file of this score is not available: it cannot be re-imported.</source>
+        <target state="translated">이 악보의 원본 파일을 사용할 수 없어 다시 가져올 수 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.download" datatype="html">
+        <source>Could not download the original file of this score.</source>
+        <target state="translated">이 악보의 원본 파일을 다운로드할 수 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.notMidi" datatype="html">
+        <source>Only scores imported from a MIDI file can be re-imported.</source>
+        <target state="translated">MIDI 파일에서 가져온 악보만 다시 가져올 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.read" datatype="html">
+        <source>The original MIDI file cannot be read.</source>
+        <target state="translated">원본 MIDI 파일을 읽을 수 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="reimport.bothHands" datatype="html">
+        <source>Both hands</source>
+        <target state="translated">양손</target>
+      </trans-unit>
+      <trans-unit id="reimport.rightHand" datatype="html">
+        <source>Right hand</source>
+        <target state="translated">오른손</target>
+      </trans-unit>
+      <trans-unit id="reimport.leftHand" datatype="html">
+        <source>Left hand</source>
+        <target state="translated">왼손</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.refused" datatype="html">
+        <source>The server refused these tracks, or the original file is not a MIDI file.</source>
+        <target state="translated">서버가 이 트랙들을 거부했거나 원본 파일이 MIDI 파일이 아닙니다.</target>
+      </trans-unit>
+      <trans-unit id="error.heading" datatype="html">
+        <source>Oops! An error occurred</source>
+        <target state="translated">이런! 오류가 발생했습니다</target>
+      </trans-unit>
+      <trans-unit id="error.message" datatype="html">
+        <source>We&apos;re sorry, an unexpected error has happened.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Please try again later or return to the homepage.</source>
+        <target state="translated">죄송합니다. 예기치 않은 오류가 발생했습니다.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> 잠시 후 다시 시도하거나 홈페이지로 돌아가세요.</target>
+      </trans-unit>
+      <trans-unit id="error.backHome" datatype="html">
+        <source>Back to homepage</source>
+        <target state="translated">홈페이지로 돌아가기</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.heading" datatype="html">
+        <source>Practice Exercises in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/> 연습</target>
+      </trans-unit>
+      <trans-unit id="languageSwitcher.label" datatype="html">
+        <source>Language</source>
+        <target state="translated">언어</target>
+      </trans-unit>
+      <trans-unit id="layout.breadcrumb.label" datatype="html">
+        <source>Breadcrumb navigation</source>
+        <target state="translated">탐색 경로</target>
+      </trans-unit>
+      <trans-unit id="layout.brand.title" datatype="html">
+        <source>Go to the PianoML summary page</source>
+        <target state="translated">PianoML 소개 페이지로 이동</target>
+      </trans-unit>
+      <trans-unit id="layout.support.title" datatype="html">
+        <source>Support PianoML</source>
+        <target state="translated">PianoML 후원하기</target>
+      </trans-unit>
+      <trans-unit id="layout.support.buyMeA" datatype="html">
+        <source>Buy me a</source>
+        <target state="translated">후원하기</target>
+      </trans-unit>
+      <trans-unit id="layout.account.title" datatype="html">
+        <source>Go to your account page</source>
+        <target state="translated">내 계정으로 이동</target>
+      </trans-unit>
+      <trans-unit id="layout.login.title" datatype="html">
+        <source>Log in to your PianoML account</source>
+        <target state="translated">PianoML 계정에 로그인</target>
+      </trans-unit>
+      <trans-unit id="layout.login" datatype="html">
+        <source> Login </source>
+        <target state="translated"> 로그인 </target>
+      </trans-unit>
+      <trans-unit id="layout.source.label" datatype="html">
+        <source>View source on GitHub</source>
+        <target state="translated">GitHub에서 소스 코드 보기</target>
+      </trans-unit>
+      <trans-unit id="layout.source.title" datatype="html">
+        <source>View PianoML source code on GitHub</source>
+        <target state="translated">GitHub에서 PianoML 소스 코드 보기</target>
+      </trans-unit>
+      <trans-unit id="layout.source" datatype="html">
+        <source>source</source>
+        <target state="translated">소스 코드</target>
+      </trans-unit>
+      <trans-unit id="layout.footer.label" datatype="html">
+        <source>Footer navigation</source>
+        <target state="translated">바닥글 탐색</target>
+      </trans-unit>
+      <trans-unit id="layout.legal.title" datatype="html">
+        <source>Legal notice and terms of use</source>
+        <target state="translated">법적 고지 및 이용 약관</target>
+      </trans-unit>
+      <trans-unit id="layout.legal" datatype="html">
+        <source> Legal Notice </source>
+        <target state="translated"> 법적 고지 </target>
+      </trans-unit>
+      <trans-unit id="layout.issue.title" datatype="html">
+        <source>Report a bug or request a feature</source>
+        <target state="translated">버그 신고 또는 기능 제안</target>
+      </trans-unit>
+      <trans-unit id="layout.issue" datatype="html">
+        <source> Report an Issue </source>
+        <target state="translated"> 문제 신고 </target>
+      </trans-unit>
+      <trans-unit id="layout.breadcrumb.navigateTo" datatype="html">
+        <source>Navigate to <x id="label" equiv-text="label"/></source>
+        <target state="translated"><x id="label" equiv-text="label"/>(으)로 이동</target>
+      </trans-unit>
+      <trans-unit id="popularInKey.heading" datatype="html">
+        <source>Popular works in this key</source>
+        <target state="translated">이 조성의 인기 작품</target>
+      </trans-unit>
+      <trans-unit id="popularInKey.viewAll" datatype="html">
+        <source>View all →</source>
+        <target state="translated">모두 보기 →</target>
+      </trans-unit>
+      <trans-unit id="quickActions.import" datatype="html">
+        <source>Import</source>
+        <target state="translated">가져오기</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.actions" datatype="html">
+        <source> Actions </source>
+        <target state="translated"> 작업 </target>
+      </trans-unit>
+      <trans-unit id="scoreTable.sources.midi" datatype="html">
+        <source>Free MIDI</source>
+        <target state="translated">무료 MIDI</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.sources.pdf" datatype="html">
+        <source>Free sheet music (PDF)</source>
+        <target state="translated">무료 악보 (PDF)</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.notAvailable" datatype="html">
+        <source>N/A</source>
+        <target state="translated">없음</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.empty" datatype="html">
+        <source>No scores found</source>
+        <target state="translated">악보를 찾을 수 없습니다</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.difficulty" datatype="html">
+        <source>Difficulty</source>
+        <target state="translated">난이도</target>
+      </trans-unit>
+      <trans-unit id="nav.home" datatype="html">
+        <source>Home</source>
+        <target state="translated">홈</target>
+      </trans-unit>
+      <trans-unit id="nav.browse" datatype="html">
+        <source>Browse</source>
+        <target state="translated">둘러보기</target>
+      </trans-unit>
+      <trans-unit id="manifest.name" datatype="html">
+        <source>PianoML: Learn Piano</source>
+        <target state="translated">PianoML: 피아노 배우기</target>
+      </trans-unit>
+      <trans-unit id="manifest.shortName" datatype="html">
+        <source>PianoML</source>
+        <target state="translated">PianoML</target>
+      </trans-unit>
+      <trans-unit id="manifest.description" datatype="html">
+        <source>Learn piano with smart sheet music, scales and real-time feedback.</source>
+        <target state="translated">스마트 악보, 음계, 실시간 피드백으로 피아노를 배우세요.</target>
+      </trans-unit>
+      <trans-unit id="shader.1.description" datatype="html">
+        <source>Wave-based animated shader</source>
+        <target state="translated">파동 기반 애니메이션 셰이더</target>
+      </trans-unit>
+      <trans-unit id="shader.2.description" datatype="html">
+        <source>Space-themed shader with stars and cosmic effects</source>
+        <target state="translated">별과 우주 효과가 있는 우주 테마 셰이더</target>
+      </trans-unit>
+      <trans-unit id="shader.3.description" datatype="html">
+        <source>Wave-based animated shader</source>
+        <target state="translated">파동 기반 애니메이션 셰이더</target>
+      </trans-unit>
+      <trans-unit id="shader.4.description" datatype="html">
+        <source>Space-themed shader with stars and cosmic effects</source>
+        <target state="translated">별과 우주 효과가 있는 우주 테마 셰이더</target>
+      </trans-unit>
+      <trans-unit id="shader.5.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">역동적인 그라데이션의 화려한 애니메이션 셰이더</target>
+      </trans-unit>
+      <trans-unit id="shader.6.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">역동적인 그라데이션의 화려한 애니메이션 셰이더</target>
+      </trans-unit>
+      <trans-unit id="shader.7.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">역동적인 그라데이션의 화려한 애니메이션 셰이더</target>
+      </trans-unit>
+      <trans-unit id="song.noWomanNoCry.description" datatype="html">
+        <source>Choose a track to play with accompaniment</source>
+        <target state="translated">트랙을 골라 반주와 함께 연주하세요</target>
+      </trans-unit>
+      <trans-unit id="song.plicPloc.description" datatype="html">
+        <source>Exercise in rythm recognition and note reading</source>
+        <target state="translated">리듬 인식과 악보 읽기 연습</target>
+      </trans-unit>
+      <trans-unit id="song.happyBirthday.description" datatype="html">
+        <source>The most recognized song in the English language</source>
+        <target state="translated">영어권에서 가장 잘 알려진 노래</target>
+      </trans-unit>
+      <trans-unit id="song.belleIleEnMer.description" datatype="html">
+        <source>Exercise in chord progression</source>
+        <target state="translated">코드 진행 연습</target>
+      </trans-unit>
+      <trans-unit id="song.brahmsLullaby.description" datatype="html">
+        <source>Exercise in chord progression based on Brahms&apos; Lullaby.</source>
+        <target state="translated">브람스의 자장가를 바탕으로 한 코드 진행 연습.</target>
+      </trans-unit>
+      <trans-unit id="song.zeldaLullaby.description" datatype="html">
+        <source>Melody of the Royal Family.</source>
+        <target state="translated">왕가의 선율.</target>
+      </trans-unit>
+      <trans-unit id="song.forElise.description" datatype="html">
+        <source>Try split voice option</source>
+        <target state="translated">성부 분리 옵션을 사용해 보세요</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.beginner" datatype="html">
+        <source>beginner</source>
+        <target state="translated">초급</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.intermediate" datatype="html">
+        <source>intermediate</source>
+        <target state="translated">중급</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.advanced" datatype="html">
+        <source>advanced</source>
+        <target state="translated">고급</target>
+      </trans-unit>
+      <trans-unit id="shader.noDescription" datatype="html">
+        <source>No description available</source>
+        <target state="translated">설명 없음</target>
+      </trans-unit>
+      <trans-unit id="route.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">연습</target>
+      </trans-unit>
+      <trans-unit id="route.desktop" datatype="html">
+        <source>Desktop</source>
+        <target state="translated">데스크톱</target>
+      </trans-unit>
+      <trans-unit id="route.workbench" datatype="html">
+        <source>Workbench</source>
+        <target state="translated">작업대</target>
+      </trans-unit>
+      <trans-unit id="route.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">악보</target>
+      </trans-unit>
+      <trans-unit id="route.reimport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">다시 가져오기</target>
+      </trans-unit>
+      <trans-unit id="route.account" datatype="html">
+        <source>Account</source>
+        <target state="translated">계정</target>
+      </trans-unit>
+      <trans-unit id="route.blog" datatype="html">
+        <source>Blog</source>
+        <target state="translated">블로그</target>
+      </trans-unit>
+      <trans-unit id="route.import" datatype="html">
+        <source>Import</source>
+        <target state="translated">가져오기</target>
+      </trans-unit>
+      <trans-unit id="route.library" datatype="html">
+        <source>Library</source>
+        <target state="translated">라이브러리</target>
+      </trans-unit>
+      <trans-unit id="route.summary" datatype="html">
+        <source>Summary</source>
+        <target state="translated">소개</target>
+      </trans-unit>
+      <trans-unit id="route.notFound" datatype="html">
+        <source>Not found</source>
+        <target state="translated">찾을 수 없음</target>
+      </trans-unit>
+      <trans-unit id="seo.defaultTitle" datatype="html">
+        <source>PianoML: Learn Piano with Smart Sheet Music &amp; Practice Tools</source>
+        <target state="translated">PianoML: 스마트 악보와 연습 도구로 피아노 배우기</target>
+      </trans-unit>
+      <trans-unit id="seo.defaultDescription" datatype="html">
+        <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
+        <target state="translated">MusicXML, MIDI, PDF 악보를 위한 무료 오픈 소스 웹 앱 PianoML로 피아노를 배우세요. 음계를 연습하고 실시간 피드백을 받으며 나만의 악보 라이브러리를 만드세요.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

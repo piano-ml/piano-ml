@@ -25,6 +25,9 @@ import versionInfo from '../../../../assets/version.json';
 })
 export class LayoutComponent implements OnDestroy {
   protected readonly loginQueryParams = loginQueryParams;
+  protected navigateTo(label: string): string {
+    return $localize`:@@layout.breadcrumb.navigateTo:Navigate to ${label}:label:`;
+  }
     version = versionInfo;
   private platformId = inject(PLATFORM_ID);
   private changeDetector = inject(ChangeDetectorRef);

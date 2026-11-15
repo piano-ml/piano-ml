@@ -87,6 +87,11 @@ jobs:
     - name: Build frontend
       working-directory: ./frontend
       run: npm run build:prod
+    # Every message in the code must be translated in each messages.<locale>.xlf (angular.json i18n); the
+    # build also fails on a missing translation (i18nMissingTranslation: error).
+    - name: Check translations
+      working-directory: ./frontend
+      run: npm run i18n:check
     # Vitest runs the specs in headless Chromium through Playwright. The browser comes from Playwright's CDN
     # (cached per Playwright version); the runner image already has the system libraries it needs, so apt
     # (--with-deps: fonts we don't use, and a run failed when the Ubuntu mirrors were unreachable) only

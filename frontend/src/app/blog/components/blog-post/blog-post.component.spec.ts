@@ -5,6 +5,7 @@ import { SeoService } from '../../../shared/seo';
 import { provideTesting } from '../../../testing/test-providers';
 import { BlogService } from '../../services/blog.service';
 import { BlogPostComponent } from './blog-post.component';
+import { setCurrentLocale } from '../../../shared/i18n';
 
 const POST_HTML =
   '<h1>New feature: Play with Accompaniment</h1>' +
@@ -58,7 +59,25 @@ describe('BlogPostComponent', () => {
       title: 'New feature: Play with Accompaniment',
       description: 'You can now practice one hand while PianoML plays the other one for you, at your own tempo.',
       type: 'article',
+      alternates: false, // written in English only: no hreflang to the noindex versions
     });
+    expect(fixture.nativeElement.querySelector('.blog-language-note')).toBeNull();
+  });
+
+  it('outside English, shows the English post with a note, noindex, canonical to the English post', () => {
+    setCurrentLocale('es');
+    try {
+      render();
+      post.next(POST_HTML);
+      fixture.detectChanges();
+      expect(seoUpdate).toHaveBeenCalledWith(expect.objectContaining({
+        noindex: true,
+        canonical: 'https://pianoml.org/blog/just-play-along',
+      }));
+      expect(fixture.nativeElement.querySelector('.blog-language-note')?.textContent).toContain('only available in English');
+    } finally {
+      setCurrentLocale(undefined);
+    }
   });
 
   it('never runs scripts or inline handlers from the markdown', () => {

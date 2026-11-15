@@ -1,0 +1,2847 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="zh-Hans" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="account.route.home" datatype="html">
+        <source>Home</source>
+        <target state="translated">首页</target>
+      </trans-unit>
+      <trans-unit id="account.route.login" datatype="html">
+        <source>Login</source>
+        <target state="translated">登录</target>
+      </trans-unit>
+      <trans-unit id="account.route.create" datatype="html">
+        <source>Create</source>
+        <target state="translated">创建</target>
+      </trans-unit>
+      <trans-unit id="account.route.scores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">我的乐谱</target>
+      </trans-unit>
+      <trans-unit id="account.route.editScore" datatype="html">
+        <source>Edit Score</source>
+        <target state="translated">编辑乐谱</target>
+      </trans-unit>
+      <trans-unit id="accountScores.myScores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">我的乐谱</target>
+      </trans-unit>
+      <trans-unit id="accountScores.yourUploadedAndCuratedCollection" datatype="html">
+        <source>Your uploaded and curated collection</source>
+        <target state="translated">你上传和整理的乐谱合集</target>
+      </trans-unit>
+      <trans-unit id="browse.capsuleCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {1 份乐谱} other {<x id="INTERPOLATION"/> 份乐谱}}</target>
+      </trans-unit>
+      <trans-unit id="accountScores.browseLibrary" datatype="html">
+        <source> Browse library </source>
+        <target state="translated">浏览曲库</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error" datatype="html">
+        <source>Error:</source>
+        <target state="translated">错误：</target>
+      </trans-unit>
+      <trans-unit id="accountScores.empty" datatype="html">
+        <source>No scores yet — upload your first MIDI file to get started.</source>
+        <target state="translated">还没有乐谱——上传你的第一个 MIDI 文件开始吧。</target>
+      </trans-unit>
+      <trans-unit id="accountScores.loading" datatype="html">
+        <source>Loading your scores…</source>
+        <target state="translated">正在加载你的乐谱……</target>
+      </trans-unit>
+      <trans-unit id="accountScores.col.played" datatype="html">
+        <source>#played</source>
+        <target state="translated">#弹奏次数</target>
+      </trans-unit>
+      <trans-unit id="accountScores.filesMissing" datatype="html">
+        <source>Files missing: the import did not finish</source>
+        <target state="translated">文件缺失：导入未完成</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.version" datatype="html">
+        <source>Version</source>
+        <target state="translated">版本</target>
+      </trans-unit>
+      <trans-unit id="accountScores.col.publicDomain" datatype="html">
+        <source>Public domain</source>
+        <target state="translated">公有领域</target>
+      </trans-unit>
+      <trans-unit id="accountScores.copyrighted" datatype="html">
+        <source>Copyrighted, downloads restricted</source>
+        <target state="translated">受版权保护，下载受限</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">曲名</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">作者</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">风格</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target state="translated">上传时间</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error.auth" datatype="html">
+        <source>User not authenticated</source>
+        <target state="translated">用户未登录</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error.load" datatype="html">
+        <source>An error occurred while loading scores</source>
+        <target state="translated">加载乐谱时出错</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.searchComposer.placeholder" datatype="html">
+        <source>Search composer…</source>
+        <target state="translated">搜索作曲家……</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.select" datatype="html">
+        <source>Select ↵</source>
+        <target state="translated">选择 ↵</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.noResultsFor" datatype="html">
+        <source>No results for &quot;<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>&quot;</source>
+        <target state="translated">没有“<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>”的结果</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.tryADifferentSpellingOr" datatype="html">
+        <source>Try a different spelling or use the name directly below</source>
+        <target state="translated">换个拼写试试，或直接使用下方的名字</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.typeANameAndPress" datatype="html">
+        <source>Type a name and press ↵ to search MusicBrainz</source>
+        <target state="translated">输入名字并按 ↵ 在 MusicBrainz 中搜索</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.useAsAuthor" datatype="html">
+        <source>Use <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;text-neutral-200&quot;&gt;"/>&quot;<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>&quot;<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> as author</source>
+        <target state="translated">将<x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;text-neutral-200&quot;&gt;"/>“<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>”<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/>用作作者</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.withoutMusicbrainzLink" datatype="html">
+        <source>Without MusicBrainz link</source>
+        <target state="translated">不关联 MusicBrainz</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.escToClose" datatype="html">
+        <source>esc to close</source>
+        <target state="translated">按 esc 关闭</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">取消</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.error" datatype="html">
+        <source>Failed to search authors</source>
+        <target state="translated">搜索作者失败</target>
+      </trans-unit>
+      <trans-unit id="createAccount.createAccount" datatype="html">
+        <source>Create Account</source>
+        <target state="translated">创建账户</target>
+      </trans-unit>
+      <trans-unit id="createAccount.accountDetails" datatype="html">
+        <source>Account Details</source>
+        <target state="translated">账户信息</target>
+      </trans-unit>
+      <trans-unit id="createAccount.name" datatype="html">
+        <source>name</source>
+        <target state="translated">名字</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourName.placeholder" datatype="html">
+        <source>Enter your name</source>
+        <target state="translated">输入你的名字</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsRequired" datatype="html">
+        <source> name is required. </source>
+        <target state="translated">请填写名字。</target>
+      </trans-unit>
+      <trans-unit id="createAccount.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">电子邮箱</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourEmail.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">输入你的电子邮箱</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsRequired" datatype="html">
+        <source>Email is required.</source>
+        <target state="translated">请填写电子邮箱。</target>
+      </trans-unit>
+      <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
+        <source>Invalid email format.</source>
+        <target state="translated">电子邮箱格式无效。</target>
+      </trans-unit>
+      <trans-unit id="createAccount.password" datatype="html">
+        <source>Password</source>
+        <target state="translated">密码</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourPassword.placeholder" datatype="html">
+        <source>Enter your password</source>
+        <target state="translated">输入你的密码</target>
+      </trans-unit>
+      <trans-unit id="createAccount.passwordMustBeAtLeast" datatype="html">
+        <source> Password must be at least 8 characters long. </source>
+        <target state="translated">密码至少需要 8 个字符。</target>
+      </trans-unit>
+      <trans-unit id="createAccount.confirmPassword" datatype="html">
+        <source>Confirm Password</source>
+        <target state="translated">确认密码</target>
+      </trans-unit>
+      <trans-unit id="createAccount.confirmYourPassword.placeholder" datatype="html">
+        <source>Confirm your password</source>
+        <target state="translated">再次输入密码</target>
+      </trans-unit>
+      <trans-unit id="createAccount.passwordsDoNotMatch" datatype="html">
+        <source> Passwords do not match. </source>
+        <target state="translated">两次输入的密码不一致。</target>
+      </trans-unit>
+      <trans-unit id="editScore.editByPianoScore" datatype="html">
+        <source>Edit <x id="INTERPOLATION" equiv-text="{{ score.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score.author }}"/> - Piano Score</source>
+        <target state="translated">编辑 <x id="INTERPOLATION_1" equiv-text="{{ score.author }}"/> 的《<x id="INTERPOLATION" equiv-text="{{ score.title }}"/>》- 钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="editScore.editScore" datatype="html">
+        <source>Edit score</source>
+        <target state="translated">编辑乐谱</target>
+      </trans-unit>
+      <trans-unit id="editScore.delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">删除</target>
+      </trans-unit>
+      <trans-unit id="editScore.cancel" datatype="html">
+        <source>← Cancel</source>
+        <target state="translated">← 取消</target>
+      </trans-unit>
+      <trans-unit id="editScore.loadingScore" datatype="html">
+        <source>Loading score…</source>
+        <target state="translated">正在加载乐谱……</target>
+      </trans-unit>
+      <trans-unit id="editScore.error" datatype="html">
+        <source>Error:</source>
+        <target state="translated">错误：</target>
+      </trans-unit>
+      <trans-unit id="editScore.scoreDetails" datatype="html">
+        <source>Score details</source>
+        <target state="translated">乐谱信息</target>
+      </trans-unit>
+      <trans-unit id="editScore.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">曲名</target>
+      </trans-unit>
+      <trans-unit id="editScore.enterScoreTitle.placeholder" datatype="html">
+        <source>Enter score title</source>
+        <target state="translated">输入乐谱曲名</target>
+      </trans-unit>
+      <trans-unit id="editScore.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">作者</target>
+      </trans-unit>
+      <trans-unit id="editScore.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">风格</target>
+      </trans-unit>
+      <trans-unit id="editScore.selectGenre" datatype="html">
+        <source>— Select genre —</source>
+        <target state="translated">— 选择风格 —</target>
+      </trans-unit>
+      <trans-unit id="editScore.loadingGenres" datatype="html">
+        <source>Loading genres…</source>
+        <target state="translated">正在加载风格……</target>
+      </trans-unit>
+      <trans-unit id="editScore.tempoBpm" datatype="html">
+        <source>Tempo (BPM)</source>
+        <target state="translated">速度（BPM）</target>
+      </trans-unit>
+      <trans-unit id="editScore.tempo.placeholder" datatype="html">
+        <source>e.g. 120</source>
+        <target state="translated">例如 120</target>
+      </trans-unit>
+      <trans-unit id="editScore.confirmDelete" datatype="html">
+        <source>Confirm delete</source>
+        <target state="translated">确认删除</target>
+      </trans-unit>
+      <trans-unit id="editScore.thisActionCannotBeUndone" datatype="html">
+        <source>This action cannot be undone. Are you sure?</source>
+        <target state="translated">此操作无法撤销。确定要继续吗？</target>
+      </trans-unit>
+      <trans-unit id="editScore.cancel2" datatype="html">
+        <source> Cancel </source>
+        <target state="translated">取消</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.noId" datatype="html">
+        <source>No score ID provided</source>
+        <target state="translated">未指定乐谱</target>
+      </trans-unit>
+      <trans-unit id="score.error.load" datatype="html">
+        <source>Failed to load score</source>
+        <target state="translated">无法加载乐谱</target>
+      </trans-unit>
+      <trans-unit id="editScore.saved" datatype="html">
+        <source>Score updated successfully!</source>
+        <target state="translated">乐谱已更新！</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.save" datatype="html">
+        <source>Failed to update score</source>
+        <target state="translated">无法更新乐谱</target>
+      </trans-unit>
+      <trans-unit id="editScore.leftDefault" datatype="html">
+        <source>default to midi track 1</source>
+        <target state="translated">默认为 MIDI 音轨 1</target>
+      </trans-unit>
+      <trans-unit id="editScore.track" datatype="html">
+        <source>Track <x id="track" equiv-text="value"/></source>
+        <target state="translated">音轨 <x id="track" equiv-text="value"/></target>
+      </trans-unit>
+      <trans-unit id="editScore.rightDefault" datatype="html">
+        <source>default to midi track 0</source>
+        <target state="translated">默认为 MIDI 音轨 0</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.delete" datatype="html">
+        <source>Failed to delete score</source>
+        <target state="translated">无法删除乐谱</target>
+      </trans-unit>
+      <trans-unit id="accountHome.profile" datatype="html">
+        <source>Profile</source>
+        <target state="translated">个人资料</target>
+      </trans-unit>
+      <trans-unit id="accountHome.accountSettingsWorkbenchPreferences" datatype="html">
+        <source>Account settings &amp; workbench preferences</source>
+        <target state="translated">账户设置与工作台偏好</target>
+      </trans-unit>
+      <trans-unit id="accountHome.myScores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">我的乐谱</target>
+      </trans-unit>
+      <trans-unit id="accountHome.deleteAccount" datatype="html">
+        <source>Delete account</source>
+        <target state="translated">删除账户</target>
+      </trans-unit>
+      <trans-unit id="accountHome.logout" datatype="html">
+        <source>Logout</source>
+        <target state="translated">退出登录</target>
+      </trans-unit>
+      <trans-unit id="accountHome.identity" datatype="html">
+        <source>Identity</source>
+        <target state="translated">身份</target>
+      </trans-unit>
+      <trans-unit id="accountHome.name" datatype="html">
+        <source>Name</source>
+        <target state="translated">名字</target>
+      </trans-unit>
+      <trans-unit id="accountHome.edit" datatype="html">
+        <source>Edit</source>
+        <target state="translated">编辑</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourName.placeholder" datatype="html">
+        <source>Your name</source>
+        <target state="translated">你的名字</target>
+      </trans-unit>
+      <trans-unit id="accountHome.save" datatype="html">
+        <source>Save</source>
+        <target state="translated">保存</target>
+      </trans-unit>
+      <trans-unit id="accountHome.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">取消</target>
+      </trans-unit>
+      <trans-unit id="accountHome.workbench" datatype="html">
+        <source>Workbench</source>
+        <target state="translated">工作台</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiSetup" datatype="html">
+        <source>MIDI Setup →</source>
+        <target state="translated">MIDI 设置 →</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiLowestKey" datatype="html">
+        <source>MIDI lowest key</source>
+        <target state="translated">MIDI 最低键</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiHighestKey" datatype="html">
+        <source>MIDI highest key</source>
+        <target state="translated">MIDI 最高键</target>
+      </trans-unit>
+      <trans-unit id="accountHome.drawFingering" datatype="html">
+        <source>Draw fingering</source>
+        <target state="translated">显示指法</target>
+      </trans-unit>
+      <trans-unit id="accountHome.drawLyrics" datatype="html">
+        <source>Draw lyrics</source>
+        <target state="translated">显示歌词</target>
+      </trans-unit>
+      <trans-unit id="accountHome.showKeyboard" datatype="html">
+        <source>Show keyboard</source>
+        <target state="translated">显示键盘</target>
+      </trans-unit>
+      <trans-unit id="accountHome.lowestKeyLabel" datatype="html">
+        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">MIDI 最低键 <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>（弹一个音）<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.required" datatype="html">
+        <source>Required.</source>
+        <target state="translated">必填。</target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.min" datatype="html">
+        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
+        <target state="translated">最小 <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>。</target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.max" datatype="html">
+        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
+        <target state="translated">最大 <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>。</target>
+      </trans-unit>
+      <trans-unit id="accountHome.highestKeyLabel" datatype="html">
+        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">MIDI 最高键 <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>（弹一个音）<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="accountHome.listening.lowest" datatype="html">
+        <source>Listening for MIDI — lowest key…</source>
+        <target state="translated">正在监听 MIDI——最低键……</target>
+      </trans-unit>
+      <trans-unit id="accountHome.listening.highest" datatype="html">
+        <source>Listening for MIDI — highest key…</source>
+        <target state="translated">正在监听 MIDI——最高键……</target>
+      </trans-unit>
+      <trans-unit id="accountHome.lowestKeyMustBeLess" datatype="html">
+        <source>Lowest key must be less than highest key.</source>
+        <target state="translated">最低键必须低于最高键。</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourAccountWillBePermanently" datatype="html">
+        <source> Your account will be permanently deleted. This action cannot be undone. </source>
+        <target state="translated">你的账户将被永久删除。此操作无法撤销。</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourScoresAreKeptOn" datatype="html">
+        <source> Your scores are kept on PianoML but will no longer be linked to you. </source>
+        <target state="translated">你的乐谱会保留在 PianoML 上，但不再与你关联。</target>
+      </trans-unit>
+      <trans-unit id="accountHome.error.session" datatype="html">
+        <source>Your session needs a refresh. Please reload the page and try again.</source>
+        <target state="translated">你的会话需要刷新。请重新加载页面后重试。</target>
+      </trans-unit>
+      <trans-unit id="accountHome.error.delete" datatype="html">
+        <source>Account deletion failed. Please try again.</source>
+        <target state="translated">删除账户失败。请重试。</target>
+      </trans-unit>
+      <trans-unit id="login.login" datatype="html">
+        <source>Login</source>
+        <target state="translated">登录</target>
+      </trans-unit>
+      <trans-unit id="login.welcomeBack" datatype="html">
+        <source>Welcome Back</source>
+        <target state="translated">欢迎回来</target>
+      </trans-unit>
+      <trans-unit id="login.email" datatype="html">
+        <source>email</source>
+        <target state="translated">电子邮箱</target>
+      </trans-unit>
+      <trans-unit id="login.enterYourEmail.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">输入你的电子邮箱</target>
+      </trans-unit>
+      <trans-unit id="login.emailIsRequired" datatype="html">
+        <source> email is required. </source>
+        <target state="translated">请填写电子邮箱。</target>
+      </trans-unit>
+      <trans-unit id="login.password" datatype="html">
+        <source>Password</source>
+        <target state="translated">密码</target>
+      </trans-unit>
+      <trans-unit id="login.enterYourPassword.placeholder" datatype="html">
+        <source>Enter your password</source>
+        <target state="translated">输入你的密码</target>
+      </trans-unit>
+      <trans-unit id="login.passwordIsRequired" datatype="html">
+        <source> Password is required. </source>
+        <target state="translated">请填写密码。</target>
+      </trans-unit>
+      <trans-unit id="login.loggingIn" datatype="html">
+        <source>Logging in...</source>
+        <target state="translated">正在登录……</target>
+      </trans-unit>
+      <trans-unit id="login.donTHaveAnAccount" datatype="html">
+        <source>Don&apos;t have an account? Create one</source>
+        <target state="translated">还没有账户？创建一个</target>
+      </trans-unit>
+      <trans-unit id="login.error.denied" datatype="html">
+        <source>Access denied - Please check your credentials</source>
+        <target state="translated">访问被拒绝——请检查你的登录信息</target>
+      </trans-unit>
+      <trans-unit id="login.error.other" datatype="html">
+        <source>An error occurred during login</source>
+        <target state="translated">登录时出错</target>
+      </trans-unit>
+      <trans-unit id="route.error.title" datatype="html">
+        <source>Page Error</source>
+        <target state="translated">页面错误</target>
+      </trans-unit>
+      <trans-unit id="route.notFound.title" datatype="html">
+        <source>Page Not Found</source>
+        <target state="translated">页面未找到</target>
+      </trans-unit>
+      <trans-unit id="seo.blog.title" datatype="html">
+        <source>Piano Methods, Études &amp; Articles</source>
+        <target state="translated">钢琴教程、练习曲与文章</target>
+      </trans-unit>
+      <trans-unit id="seo.blog.description" datatype="html">
+        <source>Digitized piano methods and études — Burgmüller, Czerny and more — plus articles on practice, sight reading and music theory.</source>
+        <target state="translated">数字化的钢琴教程与练习曲——布格缪勒、车尔尼等——以及关于练习、视奏和乐理的文章。</target>
+      </trans-unit>
+      <trans-unit id="blog.englishOnly" datatype="html">
+        <source>This article is only available in English.</source>
+        <target state="translated">本文仅提供英文版。</target>
+      </trans-unit>
+      <trans-unit id="blog.heading" datatype="html">
+        <source>Blog posts</source>
+        <target state="translated">博客文章</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.heading" datatype="html">
+        <source> Workbench Setup </source>
+        <target state="translated">工作台设置</target>
+      </trans-unit>
+      <trans-unit id="score.errorLabel" datatype="html">
+        <source>Error:</source>
+        <target state="translated">错误：</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.noInputs" datatype="html">
+        <source> No MIDI IN devices detected. </source>
+        <target state="translated">未检测到 MIDI 输入设备。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.selectInput" datatype="html">
+        <source>-- Select a MIDI Input --</source>
+        <target state="translated">-- 选择 MIDI 输入 --</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.noOutputs" datatype="html">
+        <source>No MIDI OUT devices detected.</source>
+        <target state="translated">未检测到 MIDI 输出设备。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.appOutput" datatype="html">
+        <source> PianoML — The app might play piano (not the keyboard) </source>
+        <target state="translated">PianoML — 由应用演奏钢琴（而不是键盘）</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideKeyboard" datatype="html">
+        <source>Hide Keyboard</source>
+        <target state="translated">隐藏键盘</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideKeyboard.hint" datatype="html">
+        <source>Disable keyboard visibility to improve sight-reading.</source>
+        <target state="translated">隐藏键盘，提升视奏能力。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideKeyboard.label" datatype="html">
+        <source>Toggle keyboard visibility</source>
+        <target state="translated">显示或隐藏键盘</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideFingering" datatype="html">
+        <source>Hide Fingering</source>
+        <target state="translated">隐藏指法</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideFingering.label" datatype="html">
+        <source>Toggle fingering visibility</source>
+        <target state="translated">显示或隐藏指法</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideLyrics" datatype="html">
+        <source>Hide Lyrics</source>
+        <target state="translated">隐藏歌词</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideLyrics.label" datatype="html">
+        <source>Toggle lyrics visibility</source>
+        <target state="translated">显示或隐藏歌词</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideHarmony" datatype="html">
+        <source>Hide Fingering &amp; Harmony</source>
+        <target state="translated">隐藏指法与和声</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideHarmony.label" datatype="html">
+        <source>Toggle fingering and harmony visibility</source>
+        <target state="translated">显示或隐藏指法与和声</target>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">关闭</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.inputFallback" datatype="html">
+        <source>MIDI Input</source>
+        <target state="translated">MIDI 输入</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.outputFallback" datatype="html">
+        <source>MIDI Output</source>
+        <target state="translated">MIDI 输出</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.unknownManufacturer" datatype="html">
+        <source>Unknown</source>
+        <target state="translated">未知</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">浏览器阻止了 MIDI 访问。请打开浏览器设置，在网站权限中找到 MIDI，允许本网站访问，然后重新加载页面。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.failed" datatype="html">
+        <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
+        <target state="translated">MIDI 访问失败。如果你拒绝过权限，请打开浏览器设置，清除或重置本网站的权限，允许 MIDI 访问，然后重新加载页面。</target>
+      </trans-unit>
+      <trans-unit id="osmd.error" datatype="html">
+        <source>Error Loading Score</source>
+        <target state="translated">加载乐谱出错</target>
+      </trans-unit>
+      <trans-unit id="slop.heading" datatype="html">
+        <source> Encoding issue detected </source>
+        <target state="translated">检测到编码问题</target>
+      </trans-unit>
+      <trans-unit id="slop.explanation" datatype="html">
+        <source> Exact conversion from sheet music to sound has not been possible.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Ex: A 4/4 bar with 5 quarter notes. </source>
+        <target state="translated">无法将乐谱准确转换为声音。<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/>例如：一个 4/4 拍的小节里有 5 个四分音符。</target>
+      </trans-unit>
+      <trans-unit id="slop.repaired" datatype="html">
+        <source>The score has been rebuilt. Reload the page to practice the repaired version.</source>
+        <target state="translated">乐谱已重建。请重新加载页面，练习修复后的版本。</target>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Loading...</source>
+        <target state="translated">正在加载……</target>
+      </trans-unit>
+      <trans-unit id="slop.reload" datatype="html">
+        <source>Reload</source>
+        <target state="translated">重新加载</target>
+      </trans-unit>
+      <trans-unit id="workbench.retry" datatype="html">
+        <source>Try again</source>
+        <target state="translated">重试</target>
+      </trans-unit>
+      <trans-unit id="slop.repair" datatype="html">
+        <source>Repair</source>
+        <target state="translated">修复</target>
+      </trans-unit>
+      <trans-unit id="slop.downloading" datatype="html">
+        <source>Downloading...</source>
+        <target state="translated">正在下载……</target>
+      </trans-unit>
+      <trans-unit id="slop.computing" datatype="html">
+        <source>Computing...</source>
+        <target state="translated">正在计算……</target>
+      </trans-unit>
+      <trans-unit id="slop.error.download" datatype="html">
+        <source>The MIDI file of this score could not be downloaded.</source>
+        <target state="translated">无法下载此乐谱的 MIDI 文件。</target>
+      </trans-unit>
+      <trans-unit id="slop.error.read" datatype="html">
+        <source>The MIDI file of this score could not be read.</source>
+        <target state="translated">无法读取此乐谱的 MIDI 文件。</target>
+      </trans-unit>
+      <trans-unit id="slop.error.upload" datatype="html">
+        <source>The server could not rebuild this score.</source>
+        <target state="translated">服务器无法重建此乐谱。</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tempo" datatype="html">
+        <source>Tempo</source>
+        <target state="translated">速度</target>
+      </trans-unit>
+      <trans-unit id="tempo.metronome" datatype="html">
+        <source>Metronome</source>
+        <target state="translated">节拍器</target>
+      </trans-unit>
+      <trans-unit id="workbench.backToScore" datatype="html">
+        <source>Back to the score</source>
+        <target state="translated">返回乐谱</target>
+      </trans-unit>
+      <trans-unit id="workbench.backToLibrary" datatype="html">
+        <source>Back to the library</source>
+        <target state="translated">返回曲库</target>
+      </trans-unit>
+      <trans-unit id="workbench.downloadingData" datatype="html">
+        <source>Downloading data…</source>
+        <target state="translated">正在下载数据……</target>
+      </trans-unit>
+      <trans-unit id="workbench.loadingProgress" datatype="html">
+        <source>Loading progress</source>
+        <target state="translated">加载进度</target>
+      </trans-unit>
+      <trans-unit id="workbench.toggleToolbar" datatype="html">
+        <source>Toggle the top bar</source>
+        <target state="translated">显示或隐藏顶部栏</target>
+      </trans-unit>
+      <trans-unit id="workbench.toggleKeyboard" datatype="html">
+        <source>Toggle the keyboard</source>
+        <target state="translated">显示或隐藏键盘</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.download" datatype="html">
+        <source>Downloading the score</source>
+        <target state="translated">正在下载乐谱</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.offline" datatype="html">
+        <source>The score could not be downloaded: the server cannot be reached. Check your connection and try again.</source>
+        <target state="translated">无法下载乐谱：无法连接服务器。请检查网络连接后重试。</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.login" datatype="html">
+        <source>Please log in to practice this score.</source>
+        <target state="translated">请登录后练习此乐谱。</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.forbidden" datatype="html">
+        <source>You are not allowed to practice this score.</source>
+        <target state="translated">你无权练习此乐谱。</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.notFound" datatype="html">
+        <source>This score or its files are not available.</source>
+        <target state="translated">此乐谱或其文件不可用。</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.other" datatype="html">
+        <source>The score could not be loaded. Please try again later.</source>
+        <target state="translated">无法加载乐谱。请稍后再试。</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.reset" datatype="html">
+        <source>Resetting the previous score</source>
+        <target state="translated">正在重置上一份乐谱</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.midiBounds" datatype="html">
+        <source>Computing the MIDI range</source>
+        <target state="translated">正在计算 MIDI 音域</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.configuration" datatype="html">
+        <source>Building the configuration</source>
+        <target state="translated">正在准备配置</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.welcome.title" datatype="html">
+        <source>Welcome to the Workbench!</source>
+        <target state="translated">欢迎来到工作台！</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.welcome.content" datatype="html">
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls.</source>
+        <target state="translated">在这里你可以练习并学会喜欢的钢琴曲。我来带你认识各个控件。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.playPause.title" datatype="html">
+        <source>Play / Pause</source>
+        <target state="translated">播放 / 暂停</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.playPause.content" datatype="html">
+        <source>Start or pause the playback and MIDI monitoring. You can also click on the score itself to toggle playback.</source>
+        <target state="translated">开始或暂停播放和 MIDI 监听。也可以点击乐谱来切换播放。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.rightHand.title" datatype="html">
+        <source>Right Hand Practice</source>
+        <target state="translated">右手练习</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.rightHand.content" datatype="html">
+        <source>Toggle this to wait for you to play the right-hand notes before the score advances. Great for learning the melody at your own pace.</source>
+        <target state="translated">开启后，乐谱会等你弹出右手音符再前进。非常适合按自己的节奏学习旋律。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.leftHand.title" datatype="html">
+        <source>Left Hand Practice</source>
+        <target state="translated">左手练习</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.leftHand.content" datatype="html">
+        <source>Similarly, toggle this to wait for the left-hand notes. You can enable both for full hands-together practice.</source>
+        <target state="translated">同样，开启后会等待左手音符。两项都开启即可进行双手合练。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.loop.title" datatype="html">
+        <source>Loop Mode</source>
+        <target state="translated">循环模式</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.loop.content" datatype="html">
+        <source>When enabled, the selected range (or the entire piece) will repeat automatically, allowing for continuous practice.</source>
+        <target state="translated">开启后，所选范围（或整首曲子）会自动重复，便于连续练习。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.showTempo.title" datatype="html">
+        <source>Tempo &amp; Metronome</source>
+        <target state="translated">速度与节拍器</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.showTempo.content" datatype="html">
+        <source>Adjust the playback speed to match your current skill level. You can also toggle the metronome on or off from here.</source>
+        <target state="translated">根据当前水平调整播放速度。也可以在这里开关节拍器。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.midiSetup.title" datatype="html">
+        <source>MIDI &amp; Display Setup</source>
+        <target state="translated">MIDI 与显示设置</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.midiSetup.content" datatype="html">
+        <source>Configure your MIDI input and output devices here. You can also toggle display options like the virtual keyboard, fingering, lyrics, and harmony indicators.</source>
+        <target state="translated">在这里配置 MIDI 输入和输出设备，也可以切换虚拟键盘、指法、歌词和和声标记的显示。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.resetScore.title" datatype="html">
+        <source>Reset Playback</source>
+        <target state="translated">重新开始</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.resetScore.content" datatype="html">
+        <source>One click returns you to the beginning of your selected range. A second click resets the score back to the very beginning.</source>
+        <target state="translated">点击一次回到所选范围的开头，再点击一次回到整首乐谱的开头。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.scoreInfo.title" datatype="html">
+        <source>Score Information</source>
+        <target state="translated">乐谱信息</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.scoreInfo.content" datatype="html">
+        <source>Need to check the details of this piece? Click here to go back to the score information page.</source>
+        <target state="translated">想查看这首曲子的详情？点击这里返回乐谱信息页。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.fullscreen.title" datatype="html">
+        <source>Fullscreen Toggle</source>
+        <target state="translated">全屏切换</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.fullscreen.content" datatype="html">
+        <source>Maximize your workspace by entering fullscreen mode. Perfect for focusing entirely on the music.</source>
+        <target state="translated">进入全屏模式，扩大工作区域，专注于音乐。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.measureRange.title" datatype="html">
+        <source>Measure Selection</source>
+        <target state="translated">小节选择</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.measureRange.content" datatype="html">
+        <source>Use this slider to focus on specific measures. Drag the handles to set your practice range.</source>
+        <target state="translated">用这个滑块专注练习特定小节。拖动两端设置练习范围。</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.toggleKeyboard.title" datatype="html">
+        <source>Show/Hide Keyboard</source>
+        <target state="translated">显示/隐藏键盘</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.toggleKeyboard.content" datatype="html">
+        <source>Toggle the virtual piano keyboard at the bottom of the screen. It highlights notes as they are played.</source>
+        <target state="translated">在屏幕底部显示或隐藏虚拟钢琴键盘，演奏时会高亮显示音符。</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.initializing" datatype="html">
+        <source>Initializing...</source>
+        <target state="translated">正在初始化……</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.steps" datatype="html">
+        <source>Building the step sequence</source>
+        <target state="translated">正在生成步进序列</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.cursor" datatype="html">
+        <source>Initializing the sheet cursor</source>
+        <target state="translated">正在初始化乐谱光标</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.hydrating" datatype="html">
+        <source>Preparing the cursor</source>
+        <target state="translated">正在准备光标</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.measureSequence" datatype="html">
+        <source>Building the measure sequence</source>
+        <target state="translated">正在生成小节序列</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.voltas" datatype="html">
+        <source>Building the repeat endings</source>
+        <target state="translated">正在生成反复结尾</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.measures" datatype="html">
+        <source>Building the measures</source>
+        <target state="translated">正在生成小节</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.midiMap" datatype="html">
+        <source>Building the MIDI map</source>
+        <target state="translated">正在生成 MIDI 映射</target>
+      </trans-unit>
+      <trans-unit id="chord.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">大三和弦</target>
+      </trans-unit>
+      <trans-unit id="chord.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">小三和弦</target>
+      </trans-unit>
+      <trans-unit id="chord.dominant7.name" datatype="html">
+        <source>Dominant 7</source>
+        <target state="translated">属七和弦</target>
+      </trans-unit>
+      <trans-unit id="scale.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">大调</target>
+      </trans-unit>
+      <trans-unit id="scale.major.alt" datatype="html">
+        <source>Ionian</source>
+        <target state="translated">伊奥尼亚</target>
+      </trans-unit>
+      <trans-unit id="scale.major.description" datatype="html">
+        <source>The major (Ionian) scale is the default “bright / stable” sound in Western music. It’s the backbone of diatonic harmony: I, ii, iii, IV, V, vi and vii° all come straight from it.
+Common genres: classical, pop, folk, film music, worship, EDM melodies.
+Usage: build singable melodies, outline major triads/7ths, and write progressions like I–V–vi–IV. For improvisation, target chord tones on strong beats and use the remaining scale tones as passing/neighbor tones.</source>
+        <target state="translated">大调（伊奥尼亚）音阶是西方音乐中默认的“明亮 / 稳定”的声音，也是自然音阶和声的骨架：I、ii、iii、IV、V、vi 和 vii° 都直接来自它。
+常见风格：古典、流行、民谣、电影音乐、敬拜音乐、EDM 旋律。
+用法：创作朗朗上口的旋律，勾勒大三和弦与大七和弦，写出 I–V–vi–IV 之类的和弦进行。即兴时，在强拍上瞄准和弦音，其余音阶音用作经过音或辅助音。</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">小调</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.alt" datatype="html">
+        <source>Aeolian</source>
+        <target state="translated">爱奥利亚</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.description" datatype="html">
+        <source>Natural minor (Aeolian) is the “darker / melancholic” counterpart to major. It’s the relative minor of a major key (same notes, different tonic), which is why modulating between relative major/minor feels so natural.
+
+Common genres: rock, pop ballads, classical, cinematic, indie.
+
+Usage: great for i–bVII–bVI progressions (a classic minor-key sound), and for melodies that lean on the b3, b6, and b7. Harmonically it lacks a strong leading tone (7→1), so cadences can feel modal unless you introduce harmonic/melodic minor.</source>
+        <target state="translated">自然小调（爱奥利亚）是大调“更暗 / 忧郁”的对应。它是大调的关系小调（音相同，主音不同），所以在关系大小调之间转调显得十分自然。
+
+常见风格：摇滚、流行抒情、古典、电影音乐、独立音乐。
+
+用法：非常适合 i–bVII–bVI 这类经典小调进行，以及倚重 b3、b6、b7 的旋律。和声上它缺少强导音（7→1），所以除非引入和声小调或旋律小调，终止式可能听起来带调式感。</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.name" datatype="html">
+        <source>Harmonic Minor</source>
+        <target state="translated">和声小调</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.alt" datatype="html">
+        <source>Aeolian ♮7</source>
+        <target state="translated">爱奥利亚 ♮7</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.description" datatype="html">
+        <source>Harmonic minor is natural minor with a raised 7th degree, restoring the leading tone and enabling a strong V(7)→i cadence in minor keys. This is why it’s central to classical “functional” minor harmony.
+
+Signature color: the augmented 2nd between b6 and 7, which can sound “exotic” if emphasized melodically.
+
+Common genres: classical, neo-classical metal, film scoring, some Middle Eastern/Spanish-influenced lines.
+
+Usage: use it over the dominant in minor (V7 in minor), in cadences, and when you want that strong pull back to the tonic. Be mindful: sustained melodies may sound stylized; many writers mix it with natural minor.</source>
+        <target state="translated">和声小调是升高第 7 级的自然小调：它恢复了导音，使小调中能有强有力的 V(7)→i 终止。因此它是古典“功能”小调和声的核心。
+
+标志性色彩：b6 与 7 之间的增二度，在旋律中强调时会显得“异域”。
+
+常见风格：古典、新古典金属、电影配乐，以及部分受中东或西班牙影响的旋律线。
+
+用法：用于小调的属和弦（小调中的 V7）、终止式，以及需要强烈回归主音的地方。注意：长音旋律可能显得风格化，很多作者会把它与自然小调混用。</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.name" datatype="html">
+        <source>Melodic Minor</source>
+        <target state="translated">旋律小调</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.alt" datatype="html">
+        <source>Jazz minor</source>
+        <target state="translated">爵士小调</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.description" datatype="html">
+        <source>Melodic minor (as used in jazz) is a minor scale with raised 6th and 7th degrees. In classical theory it’s often taught as “ascending melodic minor”, but in jazz it’s generally used the same way up and down.
+
+Common genres: jazz, fusion, modern film/TV harmony.
+
+Usage: it’s a powerhouse “parent scale” because its modes are used everywhere (e.g., Lydian dominant, altered scale). Use melodic minor on minor-major7 chords, on tonic minor colors, and to derive dominant options in ii–V–i contexts.</source>
+        <target state="translated">旋律小调（爵士用法）是升高第 6、7 级的小调音阶。古典理论中常作为“上行旋律小调”教授，但在爵士中上下行用法相同。
+
+常见风格：爵士、融合、现代影视和声。
+
+用法：它是很有用的“母音阶”，因为它的各个调式随处可见（如利底亚属音阶、变化音阶）。可用于小大七和弦、小调主和弦色彩，以及在 ii–V–i 中推导属和弦的选择。</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.name" datatype="html">
+        <source>Dorian</source>
+        <target state="translated">多利亚</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.description" datatype="html">
+        <source>Dorian is a minor mode with a natural 6 (compared to Aeolian). That single note change makes it feel less “sad” and more “groovy / open”, perfect for modal vamps.
+
+Common genres: modal jazz (e.g., “So What”), funk, rock jams, Celtic/folk flavors.
+
+Usage: typically played over a minor7 chord (i7) when the harmony stays put for a long time. Emphasize the natural 6 to clearly distinguish it from natural minor; a classic vamp is i7–IV7 (or i7–IV) which highlights that color.</source>
+        <target state="translated">多利亚是带还原 6 级（相对爱奥利亚）的小调式。仅这一个音的变化，就让它听起来不那么“悲伤”，更“律动 / 开阔”，非常适合调式循环。
+
+常见风格：调式爵士（如《So What》）、放克、摇滚即兴、凯尔特与民谣风格。
+
+用法：通常在和声长时间停留时用于小七和弦（i7）上。强调还原 6 级以与自然小调明显区分；经典循环 i7–IV7（或 i7–IV）能突出这种色彩。</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.name" datatype="html">
+        <source>Phrygian Dominant</source>
+        <target state="translated">弗里几亚属音阶</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.alt" datatype="html">
+        <source>Metal riffs, Spanish/flamenco feeling</source>
+        <target state="translated">金属乐 riff，西班牙/弗拉门戈风格</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.description" datatype="html">
+        <source>Phrygian dominant is the 5th mode of harmonic minor. It sounds “Spanish / flamenco / Middle Eastern” because of the b2 combined with a major 3rd.
+
+Common genres: flamenco, metal riffs, cinematic “exotic” cues.
+
+Usage: great over dominant chords that want to resolve to a minor tonic (V7→i). It naturally implies dominant tension (b9, b13 colors) while staying strongly directional. Riff writing tip: lean on the b2–1 motion and the b6–5 movement for that instantly recognizable flavor.</source>
+        <target state="translated">弗里几亚属音阶是和声小调的第 5 个调式。b2 与大三度结合，使它听起来带有“西班牙 / 弗拉门戈 / 中东”风味。
+
+常见风格：弗拉门戈、金属乐 riff、电影中的“异域”段落。
+
+用法：非常适合要解决到小调主和弦的属和弦（V7→i）。它自然带出属和弦张力（b9、b13 色彩），同时方向感很强。写 riff 的小技巧：倚重 b2–1 和 b6–5 的进行，立刻就有那种辨识度。</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.name" datatype="html">
+        <source>Phrygian</source>
+        <target state="translated">弗里几亚</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.description" datatype="html">
+        <source>Phrygian is a minor mode with a flat 2, giving it a tense, “dark / ancient” character. It’s less functional-harmony-driven and more about sustained modal color.
+
+Common genres: metal, prog, film/game scoring, some Spanish-influenced lines.
+
+Usage: works well over minor chords (i or i7) when the harmony is static. The b2 is the identity note—use it carefully: sustained b2 can sound very tense, while quick b2→1 resolves nicely and feels idiomatic.</source>
+        <target state="translated">弗里几亚是带降 2 级的小调式，性格紧张，带有“黑暗 / 古老”的感觉。它较少依赖功能和声，更多是持续的调式色彩。
+
+常见风格：金属、前卫摇滚、电影与游戏配乐，以及部分受西班牙影响的旋律线。
+
+用法：在和声静止时用于小和弦（i 或 i7）效果很好。b2 是它的标志音，要谨慎使用：长时间停留在 b2 会非常紧张，而快速的 b2→1 解决自然又地道。</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.name" datatype="html">
+        <source>Lydian</source>
+        <target state="translated">利底亚</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.description" datatype="html">
+        <source>Lydian is a major mode with a raised 4 (#11). Compared to Ionian, it feels more “floating / dreamy / cinematic” because the #4 avoids the strong IV pull and adds a bright tension.
+
+Common genres: film scoring, ambient, fusion, modern pop harmony.
+
+Usage: ideal over maj7(#11) chords and long tonic major vamps. To highlight the mode, feature the #4 against the major chord (e.g., play 1–2–3–#4–5). Great for melodies that should feel uplifting but not overly “resolved”.</source>
+        <target state="translated">利底亚是带升 4 级（#11）的大调式。与伊奥尼亚相比，它更“漂浮 / 梦幻 / 电影感”，因为 #4 避开了 IV 级的强烈倾向，并增加了明亮的张力。
+
+常见风格：电影配乐、氛围音乐、融合、现代流行和声。
+
+用法：非常适合 maj7(#11) 和弦和长时间的大调主和弦循环。要突出这个调式，就在大和弦上强调 #4（例如弹 1–2–3–#4–5）。适合需要昂扬又不过分“解决”的旋律。</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.name" datatype="html">
+        <source>Mixolydian</source>
+        <target state="translated">混合利底亚</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.description" datatype="html">
+        <source>Mixolydian is major with a flat 7. It’s the classic “dominant / bluesy major” sound: bright like major, but with a relaxed, rootsy edge.
+
+Common genres: blues, rock, funk, country, folk, jam music.
+
+Usage: use it over dominant 7 chords (especially a I7 in blues/rock contexts) and in progressions like I–bVII–IV. Emphasize the b7 to separate it from Ionian; it pairs naturally with pentatonics and blues vocabulary.</source>
+        <target state="translated">混合利底亚是降 7 级的大调。它是经典的“属音 / 布鲁斯味大调”：像大调一样明亮，但多了一份放松和质朴。
+
+常见风格：布鲁斯、摇滚、放克、乡村、民谣、即兴演奏音乐。
+
+用法：用于属七和弦（尤其是布鲁斯/摇滚中的 I7），以及 I–bVII–IV 之类的进行。强调 b7 以区别于伊奥尼亚；它与五声音阶和布鲁斯语汇天然契合。</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.name" datatype="html">
+        <source>Locrian</source>
+        <target state="translated">洛克里亚</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.description" datatype="html">
+        <source>Locrian is the most unstable diatonic mode: it has a flat 2 and a diminished 5 (b5), which makes the tonic triad diminished. Because of that, it’s rarely used as a “home base” in tonal music.
+
+Common genres: jazz harmony (as a function), some metal/experimental contexts.
+
+Usage: most often used over half-diminished chords (m7b5), typically as iiø in minor ii–V–i progressions. Treat it as a color for a chord-function moment rather than a long tonic. Target chord tones (1, b3, b5, b7) for clarity.</source>
+        <target state="translated">洛克里亚是最不稳定的自然音阶调式：它有降 2 级和减 5 度（b5），使主三和弦成为减三和弦。因此在调性音乐中很少作为“落脚点”。
+
+常见风格：爵士和声（作为功能）、部分金属或实验音乐。
+
+用法：最常用于半减七和弦（m7b5），通常是小调 ii–V–i 中的 iiø。把它当作某个功能时刻的色彩，而不是长时间的主音。瞄准和弦音（1、b3、b5、b7）以保持清晰。</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.name" datatype="html">
+        <source>Minor blues (Hexatonic)</source>
+        <target state="translated">小调布鲁斯（六声音阶）</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.description" datatype="html">
+        <source>Minor blues (hexatonic) is essentially minor pentatonic with the added “blue note” (b5). It’s one of the most practical, high-hit-rate scales for expressive phrasing.
+
+Common genres: blues, rock, soul, funk, guitar-centric leads.
+
+Usage: play it over minor tonal centers (i, i7) and even over dominant blues contexts for a more “minor” bite. The b5 is a tension note—use it as a passing tone or bend/slide target rather than a long sustain for the most idiomatic blues feel.</source>
+        <target state="translated">小调布鲁斯（六声音阶）本质上是加入“蓝调音”（b5）的小调五声音阶，是富有表现力的乐句中最实用、最容易出效果的音阶之一。
+
+常见风格：布鲁斯、摇滚、灵魂乐、放克、吉他主奏。
+
+用法：用于小调中心（i、i7），甚至在属音布鲁斯中使用，带来更“小调”的锋利感。b5 是张力音：把它用作经过音或推弦、滑音的目标，而不是长音，布鲁斯味会更地道。</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.name" datatype="html">
+        <source>Major blues (Hexatonic)</source>
+        <target state="translated">大调布鲁斯（六声音阶）</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.description" datatype="html">
+        <source>Major blues (hexatonic) is major pentatonic with an added b3 “blues” color. This gives that classic major/minor mixture that defines so much blues and country phrasing.
+
+Common genres: blues, country, swing, classic rock.
+
+Usage: great over I7 in blues, or any major-key groove where you want sweetness (major pentatonic) plus grit (b3). A common approach is to alternate major blues and minor blues around the same chord for call-and-response phrasing.</source>
+        <target state="translated">大调布鲁斯（六声音阶）是加入 b3“布鲁斯”色彩的大调五声音阶，带来定义大量布鲁斯和乡村乐句的经典大小调混合。
+
+常见风格：布鲁斯、乡村、摇摆乐、经典摇滚。
+
+用法：非常适合布鲁斯中的 I7，或任何既要甜美（大调五声）又要粗粝（b3）的大调律动。常见做法是在同一和弦上交替使用大调布鲁斯和小调布鲁斯，形成一问一答的乐句。</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.name" datatype="html">
+        <source>Altered / Super Locrian</source>
+        <target state="translated">变化音阶 / 超洛克里亚</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.alt" datatype="html">
+        <source>Modern jazz - tense dominant V7alt chords</source>
+        <target state="translated">现代爵士：紧张的属七变化和弦（V7alt）</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.description" datatype="html">
+        <source>The altered (super Locrian) scale is the 7th mode of melodic minor. It contains the strongest set of dominant alterations: b9, #9, b5/#11, and #5/b13.
+
+Common genres: bebop/post-bop jazz, modern jazz, fusion.
+
+Usage: apply it over V7alt chords resolving by fifth (e.g., G7alt → Cmin/Cmaj). It’s a “maximum tension” choice: aim the altered tones to resolve by half-step into target chord tones of the resolution chord. In lines, treat it as a tension palette rather than a scale to run straight up and down.</source>
+        <target state="translated">变化音阶（超洛克里亚）是旋律小调的第 7 个调式，包含最强烈的一组属和弦变化音：b9、#9、b5/#11 和 #5/b13。
+
+常见风格：比波普与后比波普爵士、现代爵士、融合。
+
+用法：用于按五度解决的 V7alt 和弦（如 G7alt → Cmin/Cmaj）。这是“最大张力”的选择：让变化音以半音解决到目标和弦的和弦音上。在乐句中，把它当作张力调色板，而不是单纯上下跑动的音阶。</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.name" datatype="html">
+        <source>Blues (Heptatonic)</source>
+        <target state="translated">布鲁斯（七声音阶）</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.description" datatype="html">
+        <source>This heptatonic blues flavor expands beyond the common 6-note blues scale. With 7 notes, it can bridge “pentatonic safety” and more diatonic motion, while still keeping blues DNA.
+
+Common genres: blues, rock, funk, jam improvisation.
+
+Usage: useful when you want blues phrasing but also want a smoother melodic line that can outline more chord movement. Start with classic blues licks (1, b3, 4, b5, 5, b7) and use the extra scale degree as a connector between strong targets.</source>
+        <target state="translated">这种七声布鲁斯超越了常见的六声布鲁斯音阶。七个音可以在“五声音阶的安全感”与更多自然音阶式进行之间架起桥梁，同时保留布鲁斯的基因。
+
+常见风格：布鲁斯、摇滚、放克、即兴演奏。
+
+用法：当你想要布鲁斯乐句，又希望旋律线更流畅、能勾勒更多和声进行时很有用。从经典布鲁斯乐句（1、b3、4、b5、5、b7）开始，把多出的音级当作连接目标音之间的过渡。</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.name" datatype="html">
+        <source>Minor (pentatonic)</source>
+        <target state="translated">小调五声音阶</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.alt" datatype="html">
+        <source>90% of rock/blues solos</source>
+        <target state="translated">90% 的摇滚/布鲁斯独奏</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.description" datatype="html">
+        <source>Minor pentatonic is the workhorse scale for melodic improvisation: five notes, no “bad” avoid notes against many common chords, and extremely easy to phrase.
+
+Common genres: rock, blues, pop, funk, metal (as a base vocabulary).
+
+Usage: play it over minor tonal centers (i, i7) and many dominant blues contexts. For stronger storytelling, don’t just run the pattern—target chord tones, use bends/ornaments (where applicable), and vary rhythm. Add the b5 to turn it into the classic minor blues scale when you want more bite.</source>
+        <target state="translated">小调五声音阶是旋律即兴的主力音阶：五个音，在许多常见和弦上没有需要回避的“坏”音，而且非常容易组织乐句。
+
+常见风格：摇滚、布鲁斯、流行、放克、金属（作为基础语汇）。
+
+用法：用于小调中心（i、i7）和许多属音布鲁斯场景。要让乐句更有叙事感，别只是跑指型：瞄准和弦音，使用推弦和装饰音（如适用），并变化节奏。想要更锋利时，加入 b5 就成了经典的小调布鲁斯音阶。</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.name" datatype="html">
+        <source>Major (pentatonic)</source>
+        <target state="translated">大调五声音阶</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.alt" datatype="html">
+        <source>Sweet major blues/country</source>
+        <target state="translated">甜美的大调布鲁斯/乡村风格</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.description" datatype="html">
+        <source>Major pentatonic is a 5-note subset of the major scale (1–2–3–5–6). Because it avoids the 4 and 7, it tends to sound “clean” and consonant over many major-key progressions.
+
+Common genres: country, pop, folk, classic rock, gospel, melodic EDM leads.
+
+Usage: use it over major chords and major-key vamps when you want a smooth, singable melody. It’s also a great “safe” starting point for improvisation: you can focus on rhythm, phrasing, and target notes (especially 1/3/5) without worrying about harsh clashes. To add blues flavor, mix in the b3 occasionally (major blues sound) or switch to minor pentatonic for contrast.</source>
+        <target state="translated">大调五声音阶是大调音阶的五音子集（1–2–3–5–6）。因为避开了 4 级和 7 级，它在许多大调进行上听起来“干净”而协和。
+
+常见风格：乡村、流行、民谣、经典摇滚、福音、EDM 旋律。
+
+用法：在大和弦和大调循环上需要流畅、好唱的旋律时使用。它也是即兴的“安全”起点：可以专注于节奏、乐句和目标音（尤其是 1/3/5），不必担心刺耳的冲突。想加点布鲁斯味，可以偶尔加入 b3（大调布鲁斯的声音），或切换到小调五声音阶形成对比。</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.name" datatype="html">
+        <source>Bebop blues (dominant)</source>
+        <target state="translated">比波普布鲁斯（属音）</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.alt" datatype="html">
+        <source>8-note dominant bebop blues</source>
+        <target state="translated">八声属音比波普布鲁斯</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.description" datatype="html">
+        <source>Dominant bebop blues is an 8-note scale designed for swing/bebop phrasing over dominant harmony. The extra chromatic passing tone makes it easier to land chord tones on strong beats when playing continuous eighth-notes.
+
+Common genres: bebop, swing, blues-jazz, organ trio, big band lines.
+
+Usage: use it over dominant 7 chords (often I7 in blues, or V7 in a progression) when you want that “inside” bebop flow. A practical approach is to treat it as a rhythmic tool: run eighth-notes and aim for 1–3–5–b7 on downbeats, letting the chromatic note act as a connector. Combine with classic blues vocabulary (b3, b5 bends/approaches) for authentic language.</source>
+        <target state="translated">属音比波普布鲁斯是为在属和声上演奏摇摆/比波普乐句而设计的八声音阶。额外的半音经过音让连续八分音符演奏时更容易在强拍落在和弦音上。
+
+常见风格：比波普、摇摆、布鲁斯爵士、风琴三重奏、大乐队旋律线。
+
+用法：用于属七和弦（常见于布鲁斯中的 I7，或进行中的 V7），获得“内侧”的比波普流动感。实用做法是把它当作节奏工具：弹奏八分音符，在拍点上瞄准 1–3–5–b7，让半音作为连接。结合经典布鲁斯语汇（对 b3、b5 的推弦和趋近），语言会更地道。</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.name" datatype="html">
+        <source>Minor blues bebop</source>
+        <target state="translated">小调比波普布鲁斯</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.alt" datatype="html">
+        <source>8-note minor bebop blues</source>
+        <target state="translated">八声小调比波普布鲁斯</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.description" datatype="html">
+        <source>Minor blues bebop is an 8-note minor/blues-oriented scale that supports bebop-style eighth-note lines while keeping a minor-blues color. Like other bebop scales, the added chromaticism helps align chord tones with strong beats.
+
+Common genres: bebop over minor blues, jazz blues, fusion, modern blues improvisation.
+
+Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) when you want to keep the blues sound but phrase with bebop-style momentum. Target the minor chord tones (1, b3, 5, b7) on downbeats and use the chromatic notes as approach tones into those targets. It pairs well with minor pentatonic/blues licks—think of it as a “bebop-friendly” extension rather than a replacement.</source>
+        <target state="translated">小调比波普布鲁斯是一种偏小调与布鲁斯的八声音阶，可以演奏比波普风格的八分音符线条，同时保留小调布鲁斯的色彩。和其他比波普音阶一样，加入的半音有助于让和弦音对齐强拍。
+
+常见风格：小调布鲁斯上的比波普、爵士布鲁斯、融合、现代布鲁斯即兴。
+
+用法：用于小和弦和小调布鲁斯（i7 / i 中心），既想保留布鲁斯的声音，又想用比波普的冲劲组织乐句时使用。在拍点上瞄准小和弦音（1、b3、5、b7），用半音作为趋近音。它与小调五声/布鲁斯乐句很搭：把它看作“适合比波普”的扩展，而不是替代。</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.agility" datatype="html">
+        <source>Agility</source>
+        <target state="translated">灵活性</target>
+      </trans-unit>
+      <trans-unit id="agility.subtitle" datatype="html">
+        <source>Select a key, chord, and exercise to begin</source>
+        <target state="translated">选择调、和弦和练习后开始</target>
+      </trans-unit>
+      <trans-unit id="exercises.start" datatype="html">
+        <source>Start</source>
+        <target state="translated">开始</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.key" datatype="html">
+        <source>Key</source>
+        <target state="translated">调</target>
+      </trans-unit>
+      <trans-unit id="agility.chord" datatype="html">
+        <source>Chord</source>
+        <target state="translated">和弦</target>
+      </trans-unit>
+      <trans-unit id="exercises.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">练习</target>
+      </trans-unit>
+      <trans-unit id="exercises.noDescription" datatype="html">
+        <source>No description available.</source>
+        <target state="translated">暂无描述。</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.title" datatype="html">
+        <source><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></source>
+        <target state="translated"><x id="exercise" equiv-text="exerciseName"/>：<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.description" datatype="html">
+        <source>Practice piano agility with the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern. Build technique with interactive exercises and real-time feedback.</source>
+        <target state="translated">用<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦按<x id="exercise" equiv-text="exerciseName"/>模式练习钢琴灵活性。通过互动练习和实时反馈提升技巧。</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.teaches" datatype="html">
+        <source>Piano agility using the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern</source>
+        <target state="translated">用<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦按<x id="exercise" equiv-text="exerciseName"/>模式练习钢琴灵活性</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> Chord: Piano Agility Exercises</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦：钢琴灵活性练习</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.description" datatype="html">
+        <source>Practice <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.</source>
+        <target state="translated">用互动灵活性练习练习<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦进行，提升手指灵活度和和弦转换。</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.title" datatype="html">
+        <source>Piano Agility Exercises: Technique &amp; Finger Dexterity</source>
+        <target state="translated">钢琴灵活性练习：技巧与手指灵活度</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.description" datatype="html">
+        <source>Practice piano agility with interactive exercises — arpeggios in root position and inversions, across two octaves and around the circle of fifths.</source>
+        <target state="translated">通过互动练习提升钢琴灵活性——原位与转位琶音，跨两个八度，沿五度圈进行。</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.level" datatype="html">
+        <source>Beginner to Advanced</source>
+        <target state="translated">从初级到高级</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.title" datatype="html">
+        <source>Two-octave Arpeggios, root, 1st and 2nd inversions</source>
+        <target state="translated">两个八度琶音：原位、第一转位和第二转位</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">慢慢练习，逐步加快速度。练习时始终使用节拍器。使用正确的指法。每个转位重复多次。</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.title" datatype="html">
+        <source>Dominant Seventh Arpeggios (root position)</source>
+        <target state="translated">属七和弦琶音（原位）</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.advice" datatype="html">
+        <source>Always use a metronome when practicing exercises</source>
+        <target state="translated">练习时始终使用节拍器</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.title" datatype="html">
+        <source>Arpeggio in root position, two octaves</source>
+        <target state="translated">原位琶音，两个八度</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">慢慢练习，逐步加快速度。练习时始终使用节拍器。使用正确的指法。每个转位重复多次。</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.title" datatype="html">
+        <source>Chord inversions</source>
+        <target state="translated">和弦转位</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">慢慢练习，逐步加快速度。练习时始终使用节拍器。使用正确的指法。每个转位重复多次。</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.rightHand" datatype="html">
+        <source>Right Hand</source>
+        <target state="translated">右手</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.leftHand" datatype="html">
+        <source>Left Hand</source>
+        <target state="translated">左手</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.title" datatype="html">
+        <source>Piano Exercises: Scales, Arpeggios &amp; Agility</source>
+        <target state="translated">钢琴练习：音阶、琶音与灵活性</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.description" datatype="html">
+        <source>Practice piano scales, arpeggios and agility exercises around the circle of fifths, with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">沿五度圈练习钢琴音阶、琶音和灵活性，支持分手练习、速度调节和 MIDI 反馈。</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.scales" datatype="html">
+        <source>Scales</source>
+        <target state="translated">音阶</target>
+      </trans-unit>
+      <trans-unit id="nav.exercises" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">练习</target>
+      </trans-unit>
+      <trans-unit id="exercises.home.subtitle" datatype="html">
+        <source>Practice cycles and technique programs</source>
+        <target state="translated">练习周期与技巧训练计划</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.title" datatype="html">
+        <source>Level 1 Cycle</source>
+        <target state="translated">第 1 级周期</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.intro" datatype="html">
+        <source> Start with 2 keys per day. Each day work on a different key pair. The following sequence takes 12 days to complete a full cycle of all 24 major + minor keys. </source>
+        <target state="translated">每天从 2 个调开始，每天练习不同的一对调。下面的顺序需要 12 天，完整覆盖全部 24 个大小调。</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorSharp" datatype="html">
+        <source>Major Keys (Sharp):</source>
+        <target state="translated">大调（升号）：</target>
+      </trans-unit>
+      <trans-unit id="exercises.day" datatype="html">
+        <source>Day <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</source>
+        <target state="translated">第 <x id="INTERPOLATION" equiv-text="{{ 1 }}"/> 天：</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorFlat" datatype="html">
+        <source>Major Keys (Flat):</source>
+        <target state="translated">大调（降号）：</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorSharp" datatype="html">
+        <source>Minor Keys (Sharp):</source>
+        <target state="translated">小调（升号）：</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorFlat" datatype="html">
+        <source>Minor Keys (Flat):</source>
+        <target state="translated">小调（降号）：</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.chromatic" datatype="html">
+        <source>You can add the Chromatic Scale to any of these keys, starting on the key note.</source>
+        <target state="translated">你可以在其中任一调上加练半音阶，从主音开始。</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.enharmonic" datatype="html">
+        <source>Note that enharmonic keys like C# and Cb major are skipped. These are identical to Db and B, respectively.</source>
+        <target state="translated">注意：升 C 大调和降 C 大调等等音调被省略，它们分别与降 D 大调和 B 大调相同。</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.title" datatype="html">
+        <source>Level 2 Cycle</source>
+        <target state="translated">第 2 级周期</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.intro" datatype="html">
+        <source> We can increase the difficulty with a sequence that includes more keys in one day, combining relative major + minor keys, reducing total cycle time to 6 days. </source>
+        <target state="translated">可以通过一天练习更多调来提高难度：把关系大小调组合在一起，整个周期缩短为 6 天。</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.title" datatype="html">
+        <source>Level 3 Cycle</source>
+        <target state="translated">第 3 级周期</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.intro" datatype="html">
+        <source> A more advanced sequence will go through all keys in 2 days, using parallel major + minor keys. It should only be done after the previous patterns can be played automatically from memory. </source>
+        <target state="translated">更高级的顺序在 2 天内练完所有调，使用同主音的大小调。只有在能凭记忆自然弹奏前面的练习后再进行。</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.title" datatype="html">
+        <source>Level 4a Cycle: Ascending 5ths</source>
+        <target state="translated">第 4a 级周期：上行五度</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.intro" datatype="html">
+        <source>The most difficult cycle, playing all keys around the full Circle of 5ths in 1 day.</source>
+        <target state="translated">最难的周期：一天之内沿完整五度圈弹奏所有调。</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.title" datatype="html">
+        <source>Level 4b Cycle: Descending 5ths</source>
+        <target state="translated">第 4b 级周期：下行五度</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.intro" datatype="html">
+        <source>An alternative sequence goes the opposite direction around the Circle of 5ths.</source>
+        <target state="translated">另一种顺序沿五度圈反方向进行。</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.title" datatype="html">
+        <source>Contrary motion starting on the same note.</source>
+        <target state="translated">从同一个音开始的反向进行。</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.advice" datatype="html">
+        <source>Both thumbs play the same note. Up then down.</source>
+        <target state="translated">两个拇指弹同一个音。先上行再下行。</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.title" datatype="html">
+        <source>Parallel motion in octaves</source>
+        <target state="translated">八度平行进行</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">左手：4 指弹音阶第 2 级；右手：4 指弹音阶第 7 级。</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.title" datatype="html">
+        <source>Parallel motion in thirds</source>
+        <target state="translated">三度平行进行</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.advice" datatype="html">
+        <source>Hands a third apart: LH on the tonic, RH on the 3rd degree of the scale. Hands stay close, keep the thirds even. Two hands. Scales in parallel thirds are a common enough thing for intermediate to advanced technical exercise. Fingers crowding each other is what makes it challenging, but it is do-able. Each hand plays the scale as it ordinarily would, just separated by a third. The fingering is on the notation, just take it slowly until you’re able to do it, then gradually increase speed. There’s really no trick to it beyond that.</source>
+        <target state="translated">双手相隔三度：左手在主音，右手在音阶第 3 级。双手靠近，保持三度均匀。双手练习。三度平行音阶是中高级常见的技巧练习。难点在于手指互相拥挤，但完全可以做到。每只手照常弹音阶，只是相隔一个三度。指法标在乐谱上：先慢练直到能弹，再逐步加速。除此之外没有别的诀窍。</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.title" datatype="html">
+        <source>Parallel motion in sixths</source>
+        <target state="translated">六度平行进行</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.advice" datatype="html">
+        <source>Hands a sixth apart: RH on the tonic with the thumb, LH a sixth below on the 3rd degree of the scale (finger 3).</source>
+        <target state="translated">双手相隔六度：右手拇指在主音，左手在下方六度的音阶第 3 级（3 指）。</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.title" datatype="html">
+        <source>Parallel motion in tenths</source>
+        <target state="translated">十度平行进行</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.advice" datatype="html">
+        <source>Hands a tenth apart (octave + third): LH on the tonic, RH on the 3rd degree an octave higher. Open the arms and keep both hands together.</source>
+        <target state="translated">双手相隔十度（八度加三度）：左手在主音，右手在高八度的音阶第 3 级。张开手臂，双手保持同步。</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.title" datatype="html">
+        <source>Left than Right</source>
+        <target state="translated">先左手后右手</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.advice" datatype="html">
+        <source>Thumb (1) cross under 3. Both thumbs play the same note. Up then down.</source>
+        <target state="translated">拇指（1）从 3 指下方穿过。两个拇指弹同一个音。先上行再下行。</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.title" datatype="html">
+        <source>Intervals</source>
+        <target state="translated">音程</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">左手：4 指弹音阶第 2 级；右手：4 指弹音阶第 7 级。</target>
+      </trans-unit>
+      <trans-unit id="scales.subtitle" datatype="html">
+        <source>Select a scale, key, and exercise to begin</source>
+        <target state="translated">选择音阶、调和练习后开始</target>
+      </trans-unit>
+      <trans-unit id="scales.type" datatype="html">
+        <source>Scale type</source>
+        <target state="translated">音阶类型</target>
+      </trans-unit>
+      <trans-unit id="scales.scale" datatype="html">
+        <source>Scale</source>
+        <target state="translated">音阶</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: <x id="exercise" equiv-text="exerciseName"/></source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶：<x id="exercise" equiv-text="exerciseName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.description" datatype="html">
+        <source>Practice the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale with the <x id="exercise" equiv-text="exerciseName"/> exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.</source>
+        <target state="translated">用<x id="exercise" equiv-text="exerciseName"/>练习<x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶：分手练习、速度调节和实时 MIDI 反馈。</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: Piano Exercises</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶：钢琴练习</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.description" datatype="html">
+        <source>Learn the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.</source>
+        <target state="translated">在 PianoML 上通过互动练习、分手练习和速度调节学习<x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶。</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.title" datatype="html">
+        <source>Piano Scale Exercises: Major &amp; Minor Scales</source>
+        <target state="translated">钢琴音阶练习：大调与小调音阶</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.description" datatype="html">
+        <source>Practice major and minor piano scales with interactive exercises — contrary motion, parallel motion in octaves, thirds, sixths and tenths — at your own tempo.</source>
+        <target state="translated">通过互动练习按自己的速度练习大小调钢琴音阶——反向进行，以及八度、三度、六度和十度平行进行。</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.name" datatype="html">
+        <source>Piano Scales</source>
+        <target state="translated">钢琴音阶</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.description" datatype="html">
+        <source>Musical scales for piano practice and technique development</source>
+        <target state="translated">用于钢琴练习和技巧提升的音阶</target>
+      </trans-unit>
+      <trans-unit id="home.headline" datatype="html">
+        <source>A Machine to Learn Piano</source>
+        <target state="translated">学钢琴的智能机器</target>
+      </trans-unit>
+      <trans-unit id="home.cta.title" datatype="html">
+        <source>Start learning piano with PianoML</source>
+        <target state="translated">用 PianoML 开始学钢琴</target>
+      </trans-unit>
+      <trans-unit id="home.cta.label" datatype="html">
+        <source>Start your piano learning journey</source>
+        <target state="translated">开启你的钢琴学习之旅</target>
+      </trans-unit>
+      <trans-unit id="home.cta" datatype="html">
+        <source>Take a seat</source>
+        <target state="translated">请入座</target>
+      </trans-unit>
+      <trans-unit id="summary.tagline" datatype="html">
+        <source>Piano · Practice · Progress</source>
+        <target state="translated">钢琴 · 练习 · 进步</target>
+      </trans-unit>
+      <trans-unit id="summary.headline" datatype="html">
+        <source> Foster piano practice.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/>Build muscle memory. </source>
+        <target state="translated"> 坚持钢琴练习。<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/>培养肌肉记忆。 </target>
+      </trans-unit>
+      <trans-unit id="summary.intro" datatype="html">
+        <source> Practice piano and sight-read from an ever-growing library of thousands of études and piano works, Train with a scale generator, smart sheet music that gives real-time feedback, loop and adjustable tempo. No ads, no tracker, free and open source. </source>
+        <target state="translated"> 在不断扩充、收录数千首练习曲和钢琴作品的曲库中练琴和视奏。使用音阶生成器和能实时反馈的智能乐谱进行训练，支持循环播放和速度调节。无广告、无追踪，免费且开源。 </target>
+      </trans-unit>
+      <trans-unit id="summary.startExercises" datatype="html">
+        <source>Start scale exercises</source>
+        <target state="translated">开始音阶练习</target>
+      </trans-unit>
+      <trans-unit id="summary.browseLibrary" datatype="html">
+        <source>Browse library</source>
+        <target state="translated">浏览曲库</target>
+      </trans-unit>
+      <trans-unit id="summary.features.label" datatype="html">
+        <source>Features</source>
+        <target state="translated">功能</target>
+      </trans-unit>
+      <trans-unit id="summary.whatsInside" datatype="html">
+        <source>What&apos;s inside</source>
+        <target state="translated">包含内容</target>
+      </trans-unit>
+      <trans-unit id="summary.library.title" datatype="html">
+        <source>Library</source>
+        <target state="translated">曲库</target>
+      </trans-unit>
+      <trans-unit id="summary.library.description" datatype="html">
+        <source>Practice scores from the library — upload PDF, MIDI or MusicXML files — search for specific pieces, genre, grade, tonic.</source>
+        <target state="translated">练习曲库中的乐谱——上传 PDF、MIDI 或 MusicXML 文件——按曲目、风格、难度或主音搜索。</target>
+      </trans-unit>
+      <trans-unit id="summary.library.cta" datatype="html">
+        <source>Open library</source>
+        <target state="translated">打开曲库</target>
+      </trans-unit>
+      <trans-unit id="summary.exercises.title" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">练习</target>
+      </trans-unit>
+      <trans-unit id="summary.exercises.description" datatype="html">
+        <source>Scales generator, arpeggios, and practice exercises around the circle of fifths.</source>
+        <target state="translated">音阶生成器、琶音以及围绕五度圈的练习。</target>
+      </trans-unit>
+      <trans-unit id="summary.exercises.cta" datatype="html">
+        <source>Scales &amp; exercises</source>
+        <target state="translated">音阶与练习</target>
+      </trans-unit>
+      <trans-unit id="summary.etudes.title" datatype="html">
+        <source>Études for Pianists</source>
+        <target state="translated">钢琴练习曲</target>
+      </trans-unit>
+      <trans-unit id="summary.etudes.description" datatype="html">
+        <source>Collection of digitized musical courses for classical piano study.</source>
+        <target state="translated">用于古典钢琴学习的数字化教程合集。</target>
+      </trans-unit>
+      <trans-unit id="summary.etudes.cta" datatype="html">
+        <source>Browse collection</source>
+        <target state="translated">浏览合集</target>
+      </trans-unit>
+      <trans-unit id="summary.thanks.title" datatype="html">
+        <source>Acknowledgments</source>
+        <target state="translated">致谢</target>
+      </trans-unit>
+      <trans-unit id="summary.thanks.description" datatype="html">
+        <source>The people and open-source projects that made PianoML possible.</source>
+        <target state="translated">让 PianoML 成为可能的人们和开源项目。</target>
+      </trans-unit>
+      <trans-unit id="summary.thanks.cta" datatype="html">
+        <source>Read more</source>
+        <target state="translated">了解更多</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.description" datatype="html">
+        <source>Learn piano with interactive exercises, scales, arpeggios and sheet music practice: hands-separated practice, adjustable speed, MIDI support and real-time feedback.</source>
+        <target state="translated">通过互动练习、音阶、琶音和乐谱练习学钢琴：分手练习、速度可调、支持 MIDI，并提供实时反馈。</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.title" datatype="html">
+        <source>Features &amp; Practice Tools</source>
+        <target state="translated">功能与练习工具</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.scales" datatype="html">
+        <source>Interactive piano scales generator</source>
+        <target state="translated">互动式钢琴音阶生成器</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.arpeggios" datatype="html">
+        <source>Arpeggios exercises</source>
+        <target state="translated">琶音练习</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.generation" datatype="html">
+        <source>Sheet music generation from audio and MIDI</source>
+        <target state="translated">从音频和 MIDI 生成乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.handsSeparate" datatype="html">
+        <source>Hands-separated practice mode</source>
+        <target state="translated">分手练习模式</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.speed" datatype="html">
+        <source>Adjustable playback speed</source>
+        <target state="translated">可调节播放速度</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.midi" datatype="html">
+        <source>MIDI keyboard support with real-time feedback</source>
+        <target state="translated">支持 MIDI 键盘并实时反馈</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.upload" datatype="html">
+        <source>PDF, MIDI, and MusicXML file upload</source>
+        <target state="translated">上传 PDF、MIDI 和 MusicXML 文件</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.etudes" datatype="html">
+        <source>Collection of digitized piano études</source>
+        <target state="translated">数字化钢琴练习曲合集</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.feature.ml" datatype="html">
+        <source>Machine Learning-powered feedback</source>
+        <target state="translated">基于机器学习的反馈</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.about.education" datatype="html">
+        <source>Piano Education</source>
+        <target state="translated">钢琴教育</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.about.theory" datatype="html">
+        <source>Music Theory</source>
+        <target state="translated">乐理</target>
+      </trans-unit>
+      <trans-unit id="seo.summary.about.ml" datatype="html">
+        <source>Machine Learning</source>
+        <target state="translated">机器学习</target>
+      </trans-unit>
+      <trans-unit id="importWork.importMusicWork" datatype="html">
+        <source>Import Music Work</source>
+        <target state="translated">导入音乐作品</target>
+      </trans-unit>
+      <trans-unit id="importWork.pleaseSelectAFileTo" datatype="html">
+        <source>Please select a file to import</source>
+        <target state="translated">请选择要导入的文件</target>
+      </trans-unit>
+      <trans-unit id="importWork.scoreDetailsAndActions.label" datatype="html">
+        <source>Score details and actions</source>
+        <target state="translated">乐谱信息与操作</target>
+      </trans-unit>
+      <trans-unit id="importWork.notes" datatype="html">
+        <source>Notes</source>
+        <target state="translated">音符数</target>
+      </trans-unit>
+      <trans-unit id="importWork.instrument" datatype="html">
+        <source>Instrument</source>
+        <target state="translated">乐器</target>
+      </trans-unit>
+      <trans-unit id="importWork.trackName" datatype="html">
+        <source>Track Name</source>
+        <target state="translated">音轨名称</target>
+      </trans-unit>
+      <trans-unit id="importWork.study" datatype="html">
+        <source>Study</source>
+        <target state="translated">练习</target>
+      </trans-unit>
+      <trans-unit id="importWork.splitVoices" datatype="html">
+        <source>split voices</source>
+        <target state="translated">分声部</target>
+      </trans-unit>
+      <trans-unit id="importWork.dropzone" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;font-semibold&quot;&gt;"/>Click to upload<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> or drag and drop</source>
+        <target state="translated"><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;font-semibold&quot;&gt;"/>点击上传<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/>或拖放文件</target>
+      </trans-unit>
+      <trans-unit id="importWork.enableAutomaticFingering" datatype="html">
+        <source>Enable automatic fingering</source>
+        <target state="translated">启用自动指法</target>
+      </trans-unit>
+      <trans-unit id="importWork.load" datatype="html">
+        <source>load</source>
+        <target state="translated">加载</target>
+      </trans-unit>
+      <trans-unit id="importWork.reset" datatype="html">
+        <source>reset</source>
+        <target state="translated">重置</target>
+      </trans-unit>
+      <trans-unit id="importWork.importing" datatype="html">
+        <source>Importing …</source>
+        <target state="translated">正在导入……</target>
+      </trans-unit>
+      <trans-unit id="importWork.uploadingWithFingering" datatype="html">
+        <source>Uploading and converting your score, with automatic fingering. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">正在上传并转换你的乐谱，并生成自动指法。最多可能需要一分钟：请保持此页面打开。</target>
+      </trans-unit>
+      <trans-unit id="importWork.uploading" datatype="html">
+        <source>Uploading and converting your score. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">正在上传并转换你的乐谱。最多可能需要一分钟：请保持此页面打开。</target>
+      </trans-unit>
+      <trans-unit id="importWork.anErrorHasOccurredThe" datatype="html">
+        <source>An error has occurred, the file cannot be read</source>
+        <target state="translated">出错了，无法读取该文件</target>
+      </trans-unit>
+      <trans-unit id="importWork.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">关闭</target>
+      </trans-unit>
+      <trans-unit id="route.error" datatype="html">
+        <source>Error</source>
+        <target state="translated">错误</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.creationTitle" datatype="html">
+        <source>Creation Error</source>
+        <target state="translated">创建出错</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.creation" datatype="html">
+        <source>An error occurred while creating the score.</source>
+        <target state="translated">创建乐谱时出错。</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.uploadTitle" datatype="html">
+        <source>Upload Error</source>
+        <target state="translated">上传出错</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.upload" datatype="html">
+        <source>An error occurred while uploading the MIDI file.</source>
+        <target state="translated">上传 MIDI 文件时出错。</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.noWork" datatype="html">
+        <source>No work information available.</source>
+        <target state="translated">没有作品信息。</target>
+      </trans-unit>
+      <trans-unit id="importLink.importMusicWork" datatype="html">
+        <source>Import Music Work</source>
+        <target state="translated">导入音乐作品</target>
+      </trans-unit>
+      <trans-unit id="importLink.pleaseSelectATitleOr" datatype="html">
+        <source>Please select a title or artist &amp; title to import</source>
+        <target state="translated">请选择要导入的曲名，或艺术家和曲名</target>
+      </trans-unit>
+      <trans-unit id="importLink.scoreDetailsAndActions.label" datatype="html">
+        <source>Score details and actions</source>
+        <target state="translated">乐谱信息与操作</target>
+      </trans-unit>
+      <trans-unit id="importLink.authenticationRequired" datatype="html">
+        <source>Authentication Required</source>
+        <target state="translated">需要登录</target>
+      </trans-unit>
+      <trans-unit id="importLink.youMustBeLoggedIn" datatype="html">
+        <source>You must be logged in to link musical works.</source>
+        <target state="translated">登录后才能关联音乐作品。</target>
+      </trans-unit>
+      <trans-unit id="importLink.login" datatype="html">
+        <source> Login </source>
+        <target state="translated">登录</target>
+      </trans-unit>
+      <trans-unit id="importLink.quickSearchSelectAWork" datatype="html">
+        <source>Quick Search: select a work to define a title and author</source>
+        <target state="translated">快速搜索：选择一首作品来确定曲名和作者</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchForWorksEG.placeholder" datatype="html">
+        <source>Search for works (e.g., &apos;redemption song&apos;)</source>
+        <target state="translated">搜索作品（例如“redemption song”）</target>
+      </trans-unit>
+      <trans-unit id="importLink.clear" datatype="html">
+        <source> Clear </source>
+        <target state="translated">清除</target>
+      </trans-unit>
+      <trans-unit id="importLink.worksFound" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {1 work found} other {<x id="INTERPOLATION"/> works found}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {找到 1 首作品} other {找到 <x id="INTERPOLATION"/> 首作品}}</target>
+      </trans-unit>
+      <trans-unit id="importLink.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">乐谱</target>
+      </trans-unit>
+      <trans-unit id="importLink.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">曲名</target>
+      </trans-unit>
+      <trans-unit id="importLink.actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">操作</target>
+      </trans-unit>
+      <trans-unit id="importLink.select" datatype="html">
+        <source> Select </source>
+        <target state="translated">选择</target>
+      </trans-unit>
+      <trans-unit id="importLink.noWorksFoundMatchingYour" datatype="html">
+        <source>No works found matching your criteria.</source>
+        <target state="translated">没有符合条件的作品。</target>
+      </trans-unit>
+      <trans-unit id="importLink.noWorksFoundAfterFiltering" datatype="html">
+        <source>No works found after filtering (found <x id="INTERPOLATION" equiv-text="{{ response.count }}"/> but none matched the current filters).</source>
+        <target state="translated">筛选后没有作品（找到 <x id="INTERPOLATION" equiv-text="{{ response.count }}"/> 首，但都不符合当前筛选条件）。</target>
+      </trans-unit>
+      <trans-unit id="importLink.tryAdjustingYourSearchTerms" datatype="html">
+        <source>Try adjusting your search terms or filters.</source>
+        <target state="translated">试试调整搜索词或筛选条件。</target>
+      </trans-unit>
+      <trans-unit id="importLink.canTFindTheWork" datatype="html">
+        <source> Can&apos;t find the work you&apos;re looking for in the database? Create it manually </source>
+        <target state="translated">在数据库里找不到你要的作品？手动创建</target>
+      </trans-unit>
+      <trans-unit id="importLink.createWorkManually" datatype="html">
+        <source>Create Work Manually</source>
+        <target state="translated">手动创建作品</target>
+      </trans-unit>
+      <trans-unit id="importLink.cancel" datatype="html">
+        <source> Cancel </source>
+        <target state="translated">取消</target>
+      </trans-unit>
+      <trans-unit id="importLink.1SelectArtist" datatype="html">
+        <source> 1. Select Artist </source>
+        <target state="translated">1. 选择艺术家</target>
+      </trans-unit>
+      <trans-unit id="importLink.2EnterTitle" datatype="html">
+        <source> 2. Enter Title </source>
+        <target state="translated">2. 输入曲名</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchForAnArtist" datatype="html">
+        <source>Search for an artist</source>
+        <target state="translated">搜索艺术家</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterArtistNameEG.placeholder" datatype="html">
+        <source>Enter artist name (e.g., &apos;Bob Marley&apos;)</source>
+        <target state="translated">输入艺术家名字（例如“Bob Marley”）</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchingForArtists" datatype="html">
+        <source>Searching for artists...</source>
+        <target state="translated">正在搜索艺术家……</target>
+      </trans-unit>
+      <trans-unit id="importLink.foundArtists" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {Found 1 artist} other {Found <x id="INTERPOLATION"/> artists}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {找到 1 位艺术家} other {找到 <x id="INTERPOLATION"/> 位艺术家}}</target>
+      </trans-unit>
+      <trans-unit id="importLink.name" datatype="html">
+        <source>Name</source>
+        <target state="translated">名字</target>
+      </trans-unit>
+      <trans-unit id="importLink.type" datatype="html">
+        <source>Type</source>
+        <target state="translated">类型</target>
+      </trans-unit>
+      <trans-unit id="importLink.country" datatype="html">
+        <source>Country</source>
+        <target state="translated">国家</target>
+      </trans-unit>
+      <trans-unit id="importLink.noArtistsFoundMatchingYour" datatype="html">
+        <source>No artists found matching your search.</source>
+        <target state="translated">没有符合搜索的艺术家。</target>
+      </trans-unit>
+      <trans-unit id="importLink.tryDifferentSearchTerms" datatype="html">
+        <source>Try different search terms.</source>
+        <target state="translated">试试其他搜索词。</target>
+      </trans-unit>
+      <trans-unit id="importLink.selectedArtist" datatype="html">
+        <source>Selected Artist: <x id="INTERPOLATION" equiv-text="{{ selectedArtist?.name }}"/></source>
+        <target state="translated">已选艺术家：<x id="INTERPOLATION" equiv-text="{{ selectedArtist?.name }}"/></target>
+      </trans-unit>
+      <trans-unit id="importLink.changeArtist" datatype="html">
+        <source> Change artist </source>
+        <target state="translated">更换艺术家</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterTheWorkTitle" datatype="html">
+        <source>Enter the work title</source>
+        <target state="translated">输入作品曲名</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterWorkSongTitle.placeholder" datatype="html">
+        <source>Enter work/song title</source>
+        <target state="translated">作品/歌曲曲名</target>
+      </trans-unit>
+      <trans-unit id="importLink.back" datatype="html">
+        <source> Back </source>
+        <target state="translated">返回</target>
+      </trans-unit>
+      <trans-unit id="importLink.createWork" datatype="html">
+        <source> Create Work </source>
+        <target state="translated">创建作品</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchingMusicbrainzDatabase" datatype="html">
+        <source>Searching MusicBrainz database...</source>
+        <target state="translated">正在搜索 MusicBrainz 数据库……</target>
+      </trans-unit>
+      <trans-unit id="importLink.errorOccurred" datatype="html">
+        <source>Error occurred</source>
+        <target state="translated">出错了</target>
+      </trans-unit>
+      <trans-unit id="importLink.dismiss" datatype="html">
+        <source> Dismiss </source>
+        <target state="translated">关闭</target>
+      </trans-unit>
+      <trans-unit id="importLink.error.search" datatype="html">
+        <source>An error occurred while searching</source>
+        <target state="translated">搜索时出错</target>
+      </trans-unit>
+      <trans-unit id="importLink.error.artists" datatype="html">
+        <source>An error occurred while searching artists</source>
+        <target state="translated">搜索艺术家时出错</target>
+      </trans-unit>
+      <trans-unit id="browse.letters.all" datatype="html">
+        <source> All </source>
+        <target state="translated"> 全部 </target>
+      </trans-unit>
+      <trans-unit id="browse.noArtistsForLetter" datatype="html">
+        <source> No artists found for letter <x id="INTERPOLATION" equiv-text="{{ selectedLetter }}"/>. </source>
+        <target state="translated"> 没有以 <x id="INTERPOLATION" equiv-text="{{ selectedLetter }}"/> 开头的艺术家。 </target>
+      </trans-unit>
+      <trans-unit id="browse.genreNotSpecified" datatype="html">
+        <source>genre not specified</source>
+        <target state="translated">未指定风格</target>
+      </trans-unit>
+      <trans-unit id="browse.search.label" datatype="html">
+        <source>Search piano scores</source>
+        <target state="translated">搜索钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="browse.search.placeholder" datatype="html">
+        <source>Search scores by title, artist, or genre...</source>
+        <target state="translated">按曲名、艺术家或风格搜索乐谱……</target>
+      </trans-unit>
+      <trans-unit id="browse.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">正在搜索……</target>
+      </trans-unit>
+      <trans-unit id="browse.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">搜索</target>
+      </trans-unit>
+      <trans-unit id="browse.help.label" datatype="html">
+        <source>Restart library tour</source>
+        <target state="translated">重新开始曲库导览</target>
+      </trans-unit>
+      <trans-unit id="browse.help.title" datatype="html">
+        <source>Show help tour</source>
+        <target state="translated">显示导览</target>
+      </trans-unit>
+      <trans-unit id="browse.help" datatype="html">
+        <source> Help </source>
+        <target state="translated"> 帮助 </target>
+      </trans-unit>
+      <trans-unit id="browse.clear" datatype="html">
+        <source> Clear </source>
+        <target state="translated"> 清除 </target>
+      </trans-unit>
+      <trans-unit id="browse.oneHand" datatype="html">
+        <source>One hand</source>
+        <target state="translated">单手</target>
+      </trans-unit>
+      <trans-unit id="browse.twoHands" datatype="html">
+        <source>Two hands</source>
+        <target state="translated">双手</target>
+      </trans-unit>
+      <trans-unit id="browse.key.label" datatype="html">
+        <source>Key signature</source>
+        <target state="translated">调号</target>
+      </trans-unit>
+      <trans-unit id="browse.allKeys" datatype="html">
+        <source>All keys</source>
+        <target state="translated">所有调</target>
+      </trans-unit>
+      <trans-unit id="browse.clearFilter" datatype="html">
+        <source>Clear filter</source>
+        <target state="translated">清除筛选</target>
+      </trans-unit>
+      <trans-unit id="browse.stats" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/><x id="INTERPOLATION" equiv-text="{{ stats[&apos;public-domain&apos;] + stats.copyrighted | number }}"/><x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> scores in database</source>
+        <target state="translated">数据库中共有 <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/><x id="INTERPOLATION" equiv-text="{{ stats[&apos;public-domain&apos;] + stats.copyrighted | number }}"/><x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> 份乐谱</target>
+      </trans-unit>
+      <trans-unit id="browse.tabs.label" datatype="html">
+        <source>Browse options</source>
+        <target state="translated">浏览选项</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.new" datatype="html">
+        <source>New</source>
+        <target state="translated">最新</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.popular" datatype="html">
+        <source>Popular</source>
+        <target state="translated">热门</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.genres.long" datatype="html">
+        <source>Browse by Genres</source>
+        <target state="translated">按风格浏览</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.genres.short" datatype="html">
+        <source>Genres</source>
+        <target state="translated">风格</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.artists.long" datatype="html">
+        <source>Browse by Artist</source>
+        <target state="translated">按艺术家浏览</target>
+      </trans-unit>
+      <trans-unit id="browse.tab.artists.short" datatype="html">
+        <source>Artist</source>
+        <target state="translated">艺术家</target>
+      </trans-unit>
+      <trans-unit id="browse.results.label" datatype="html">
+        <source>Piano score results</source>
+        <target state="translated">乐谱结果</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.genre" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedGenre.genre!.name }}"/> Piano Scores Collection</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ selectedGenre.genre!.name }}"/>钢琴乐谱合集</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.artist" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ selectedAuthor.author.name }}"/> Piano Works Collection</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ selectedAuthor.author.name }}"/>钢琴作品合集</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.search" datatype="html">
+        <source>Piano Score Search Results</source>
+        <target state="translated">钢琴乐谱搜索结果</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.new" datatype="html">
+        <source>Latest Piano Scores</source>
+        <target state="translated">最新钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.genres" datatype="html">
+        <source>Available Music Genres</source>
+        <target state="translated">可选音乐风格</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.artists" datatype="html">
+        <source>Featured Composers and Artists</source>
+        <target state="translated">精选作曲家和艺术家</target>
+      </trans-unit>
+      <trans-unit id="browse.heading.popular" datatype="html">
+        <source>Most Popular Piano Scores</source>
+        <target state="translated">最受欢迎的钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="browse.empty" datatype="html">
+        <source>No scores found. Try a different search term.</source>
+        <target state="translated">未找到乐谱。请换个关键词试试。</target>
+      </trans-unit>
+      <trans-unit id="browse.loadMore" datatype="html">
+        <source>Load More</source>
+        <target state="translated">加载更多</target>
+      </trans-unit>
+      <trans-unit id="browse.showing" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {显示 1 份乐谱} other {显示 <x id="INTERPOLATION"/> 份乐谱}}</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.artist" datatype="html">
+        <source>Artist</source>
+        <target state="translated">艺术家</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">时长</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">难度</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">音轨</target>
+      </trans-unit>
+      <trans-unit id="browse.grade.min" datatype="html">
+        <source>Minimum grade</source>
+        <target state="translated">最低难度</target>
+      </trans-unit>
+      <trans-unit id="browse.grade.max" datatype="html">
+        <source>Maximum grade</source>
+        <target state="translated">最高难度</target>
+      </trans-unit>
+      <trans-unit id="browse.notFound" datatype="html">
+        <source>Not Found</source>
+        <target state="translated">未找到</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.descriptionWithArtists" datatype="html">
+        <source>Browse and practice <x id="genre" equiv-text="name"/> piano scores by <x id="artists" equiv-text="artists"/>. Interactive sheet music with hands-separated practice and MIDI support.</source>
+        <target state="translated">浏览并练习<x id="artists" equiv-text="artists"/>等人的<x id="genre" equiv-text="name"/>钢琴乐谱。互动乐谱，支持分手练习和 MIDI。</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.description" datatype="html">
+        <source>Browse and practice <x id="genre" equiv-text="name"/> piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and MIDI support.</source>
+        <target state="translated">在 PianoML 上浏览并练习<x id="genre" equiv-text="name"/>钢琴乐谱。互动乐谱，支持分手练习、速度调节和 MIDI。</target>
+      </trans-unit>
+      <trans-unit id="seo.genre.title" datatype="html">
+        <source><x id="genre" equiv-text="name"/> Piano Scores</source>
+        <target state="translated"><x id="genre" equiv-text="name"/>钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.descriptionWithTitles" datatype="html">
+        <source>Play <x id="artist" equiv-text="name"/> piano scores: <x id="titles" equiv-text="titles"/>. Interactive sheet music with adjustable tempo and real-time feedback.</source>
+        <target state="translated">演奏<x id="artist" equiv-text="name"/>的钢琴乐谱：<x id="titles" equiv-text="titles"/>。互动乐谱，支持速度调节和实时反馈。</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.description" datatype="html">
+        <source>Play <x id="artist" equiv-text="name"/> piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable tempo and real-time feedback.</source>
+        <target state="translated">在 PianoML 上演奏<x id="artist" equiv-text="name"/>的钢琴乐谱。互动乐谱，支持分手练习、速度调节和实时反馈。</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.title" datatype="html">
+        <source><x id="artist" equiv-text="name"/> Piano Scores</source>
+        <target state="translated"><x id="artist" equiv-text="name"/>钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.artist.collection" datatype="html">
+        <source><x id="artist" equiv-text="name"/> Piano Works</source>
+        <target state="translated"><x id="artist" equiv-text="name"/>钢琴作品</target>
+      </trans-unit>
+      <trans-unit id="seo.search.title" datatype="html">
+        <source>Search: &quot;<x id="keyword" equiv-text="state.searchKeyword"/>&quot;</source>
+        <target state="translated">搜索：“<x id="keyword" equiv-text="state.searchKeyword"/>”</target>
+      </trans-unit>
+      <trans-unit id="seo.search.description" datatype="html">
+        <source>Piano scores matching &quot;<x id="keyword" equiv-text="state.searchKeyword"/>&quot; in the PianoML library.</source>
+        <target state="translated">PianoML 曲库中与“<x id="keyword" equiv-text="state.searchKeyword"/>”匹配的钢琴乐谱。</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.title" datatype="html">
+        <source>Browse Piano Scores by Genre</source>
+        <target state="translated">按风格浏览钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.descriptionWithNames" datatype="html">
+        <source>Explore <x id="count" equiv-text="state.totalScores"/>+ piano scores by genre and style — <x id="genres" equiv-text="names"/> — with interactive practice features.</source>
+        <target state="translated">按风格和流派探索 <x id="count" equiv-text="state.totalScores"/>+ 份钢琴乐谱——<x id="genres" equiv-text="names"/>——并使用互动练习功能。</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.description" datatype="html">
+        <source>Explore <x id="count" equiv-text="state.totalScores"/>+ piano scores by genre and style, with hands-separated practice, adjustable tempo and MIDI support.</source>
+        <target state="translated">按风格和流派探索 <x id="count" equiv-text="state.totalScores"/>+ 份钢琴乐谱，支持分手练习、速度调节和 MIDI。</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.about.name" datatype="html">
+        <source>Piano Music Genres</source>
+        <target state="translated">钢琴音乐风格</target>
+      </trans-unit>
+      <trans-unit id="seo.genres.about.description" datatype="html">
+        <source>Collection of piano music organized by musical genre and style</source>
+        <target state="translated">按音乐风格和流派整理的钢琴音乐合集</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.title" datatype="html">
+        <source>Browse Piano Scores by Composer &amp; Artist</source>
+        <target state="translated">按作曲家和艺术家浏览钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.descriptionWithNames" datatype="html">
+        <source>Discover <x id="count" equiv-text="state.totalScores"/>+ piano scores and learn works by <x id="artists" equiv-text="names"/>.</source>
+        <target state="translated">发现 <x id="count" equiv-text="state.totalScores"/>+ 份钢琴乐谱，学习<x id="artists" equiv-text="names"/>的作品。</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.description" datatype="html">
+        <source>Discover <x id="count" equiv-text="state.totalScores"/>+ piano scores by composer, from classical to contemporary, with interactive practice features.</source>
+        <target state="translated">按作曲家发现 <x id="count" equiv-text="state.totalScores"/>+ 份钢琴乐谱，从古典到当代，并使用互动练习功能。</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.collection" datatype="html">
+        <source>Browse Piano Scores by Composer</source>
+        <target state="translated">按作曲家浏览钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.about.name" datatype="html">
+        <source>Piano Composers and Artists</source>
+        <target state="translated">钢琴作曲家和艺术家</target>
+      </trans-unit>
+      <trans-unit id="seo.artists.about.description" datatype="html">
+        <source>Collection of piano works organized by composer and artist</source>
+        <target state="translated">按作曲家和艺术家整理的钢琴作品合集</target>
+      </trans-unit>
+      <trans-unit id="seo.new.title" datatype="html">
+        <source>New Piano Scores: Latest Uploaded Sheet Music</source>
+        <target state="translated">最新钢琴乐谱：最近上传的乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.new.description" datatype="html">
+        <source>Browse the latest piano scores added to PianoML, with hands-separated practice, adjustable tempo and MIDI keyboard support.</source>
+        <target state="translated">浏览 PianoML 最新添加的钢琴乐谱，支持分手练习、速度调节和 MIDI 键盘。</target>
+      </trans-unit>
+      <trans-unit id="seo.new.collection" datatype="html">
+        <source>New Piano Scores</source>
+        <target state="translated">最新钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.new.about.name" datatype="html">
+        <source>Latest piano scores</source>
+        <target state="translated">最新钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.new.about.description" datatype="html">
+        <source>Collection of recently uploaded piano sheet music</source>
+        <target state="translated">最近上传的钢琴乐谱合集</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.title" datatype="html">
+        <source>Piano Scores Library: MusicXML, MIDI &amp; PDF Sheet Music</source>
+        <target state="translated">钢琴乐谱库：MusicXML、MIDI 和 PDF 乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.description" datatype="html">
+        <source>Browse popular piano scores on PianoML. Interactive sheet music with hands-separated practice, adjustable speed, loopable sections and MIDI keyboard support.</source>
+        <target state="translated">浏览 PianoML 上的热门钢琴乐谱。互动乐谱，支持分手练习、速度调节、段落循环和 MIDI 键盘。</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.collection" datatype="html">
+        <source>Piano Score Library</source>
+        <target state="translated">钢琴乐谱库</target>
+      </trans-unit>
+      <trans-unit id="seo.popular.about.description" datatype="html">
+        <source>Piano learning platform with features for interactive practice</source>
+        <target state="translated">提供互动练习功能的钢琴学习平台</target>
+      </trans-unit>
+      <trans-unit id="seo.namesAndMore" datatype="html">
+        <source><x id="names" equiv-text="shown"/> and more</source>
+        <target state="translated"><x id="names" equiv-text="shown"/>等</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.welcome.title" datatype="html">
+        <source>Welcome to the library</source>
+        <target state="translated">欢迎来到曲库</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.welcome.content" datatype="html">
+        <source>On this search page you can filter scores in several ways.</source>
+        <target state="translated">在这个搜索页面，你可以通过多种方式筛选乐谱。</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.grade.title" datatype="html">
+        <source>Grade range</source>
+        <target state="translated">难度范围</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.grade.content" datatype="html">
+        <source>Select a grade range to filter the scores displayed in the library. You can adjust the sliders to set the minimum and maximum grade levels you want to include in your search results.</source>
+        <target state="translated">选择难度范围来筛选曲库中的乐谱。拖动滑块设置搜索结果中包含的最低和最高难度。</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.handedness.title" datatype="html">
+        <source>Handedness</source>
+        <target state="translated">单手/双手</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.handedness.content" datatype="html">
+        <source>Use the checkboxes to filter scores based on handedness. Check &quot;One hand&quot; to include scores that can be played with one hand. Check &quot;Two hands&quot; to include scores that require two hands. You can select either or both options to refine your search results according to your preferences.</source>
+        <target state="translated">使用复选框按演奏手数筛选乐谱。勾选“单手”可包含单手即可演奏的乐谱，勾选“双手”可包含需要双手演奏的乐谱。可以只选一项，也可以两项都选，以缩小搜索结果。</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.tonality.title" datatype="html">
+        <source>Tonality</source>
+        <target state="translated">调性</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.tonality.content" datatype="html">
+        <source>Use the dropdown to filter scores based on their tonality. Select a specific key to include only scores in that key, or choose &quot;All keys&quot; to include scores in any key.</source>
+        <target state="translated">使用下拉菜单按调性筛选乐谱。选择某个调只显示该调的乐谱，或选择“所有调”显示全部乐谱。</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.search.title" datatype="html">
+        <source>Search by keyword</source>
+        <target state="translated">按关键词搜索</target>
+      </trans-unit>
+      <trans-unit id="browse.tour.search.content" datatype="html">
+        <source>Use the search bar to find scores by entering specific keywords. Type in the name of a composer, a piece, or any relevant term and press Enter to see the search results that match your query. This feature allows you to quickly locate scores based on specific criteria or interests.</source>
+        <target state="translated">使用搜索栏输入关键词查找乐谱。输入作曲家、曲目名称或任何相关词语，按回车即可查看匹配结果，快速找到你感兴趣的乐谱。</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.heading" datatype="html">
+        <source>Score information</source>
+        <target state="translated">乐谱信息</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">风格</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">作者</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">难度</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">时长</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">音轨</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.measures" datatype="html">
+        <source>Measures</source>
+        <target state="translated">小节</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.publicDomain" datatype="html">
+        <source>Public Domain</source>
+        <target state="translated">公有领域</target>
+      </trans-unit>
+      <trans-unit id="common.yes" datatype="html">
+        <source>Yes</source>
+        <target state="translated">是</target>
+      </trans-unit>
+      <trans-unit id="common.no" datatype="html">
+        <source>No</source>
+        <target state="translated">否</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.lyrics" datatype="html">
+        <source>Lyrics</source>
+        <target state="translated">歌词</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target state="translated">上传时间</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.musicbrainz" datatype="html">
+        <source>MusicBrainz</source>
+        <target state="translated">MusicBrainz</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.work" datatype="html">
+        <source>Work</source>
+        <target state="translated">作品</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.owner" datatype="html">
+        <source>Owner</source>
+        <target state="translated">上传者</target>
+      </trans-unit>
+      <trans-unit id="videos.untitled" datatype="html">
+        <source>Untitled video</source>
+        <target state="translated">无标题视频</target>
+      </trans-unit>
+      <trans-unit id="videos.thumbnail" datatype="html">
+        <source>Video thumbnail</source>
+        <target state="translated">视频缩略图</target>
+      </trans-unit>
+      <trans-unit id="videos.play" datatype="html">
+        <source>Play video <x id="title" equiv-text="this.video.title || &apos;&apos;"/></source>
+        <target state="translated">播放视频 <x id="title" equiv-text="this.video.title || &apos;&apos;"/></target>
+      </trans-unit>
+      <trans-unit id="videos.heading" datatype="html">
+        <source>Video lessons</source>
+        <target state="translated">视频课程</target>
+      </trans-unit>
+      <trans-unit id="videos.scrollLeft" datatype="html">
+        <source>Scroll left</source>
+        <target state="translated">向左滚动</target>
+      </trans-unit>
+      <trans-unit id="videos.scrollRight" datatype="html">
+        <source>Scroll right</source>
+        <target state="translated">向右滚动</target>
+      </trans-unit>
+      <trans-unit id="videos.upvote.label" datatype="html">
+        <source>Upvote video</source>
+        <target state="translated">为视频点赞</target>
+      </trans-unit>
+      <trans-unit id="videos.upvote" datatype="html">
+        <source>Upvote</source>
+        <target state="translated">赞</target>
+      </trans-unit>
+      <trans-unit id="videos.downvote.label" datatype="html">
+        <source>Downvote video</source>
+        <target state="translated">为视频点踩</target>
+      </trans-unit>
+      <trans-unit id="videos.downvote" datatype="html">
+        <source>Downvote</source>
+        <target state="translated">踩</target>
+      </trans-unit>
+      <trans-unit id="videos.report.label" datatype="html">
+        <source>Report video</source>
+        <target state="translated">举报视频</target>
+      </trans-unit>
+      <trans-unit id="videos.report" datatype="html">
+        <source>Report</source>
+        <target state="translated">举报</target>
+      </trans-unit>
+      <trans-unit id="videos.close" datatype="html">
+        <source>Close video</source>
+        <target state="translated">关闭视频</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.offline" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>: the server cannot be reached. Check your connection and try again.</source>
+        <target state="translated">无法下载<x id="file" equiv-text="label"/>：无法连接服务器。请检查网络连接后重试。</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.login" datatype="html">
+        <source>Please log in to download the <x id="file" equiv-text="label"/>.</source>
+        <target state="translated">请登录后下载<x id="file" equiv-text="label"/>。</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.forbidden" datatype="html">
+        <source>You are not allowed to download the <x id="file" equiv-text="label"/> of this score.</source>
+        <target state="translated">你无权下载此乐谱的<x id="file" equiv-text="label"/>。</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.notFound" datatype="html">
+        <source>The <x id="file" equiv-text="label"/> is not available for this score.</source>
+        <target state="translated">此乐谱没有可用的<x id="file" equiv-text="label"/>。</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.other" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>. Please try again later.</source>
+        <target state="translated">无法下载<x id="file" equiv-text="label"/>。请稍后再试。</target>
+      </trans-unit>
+      <trans-unit id="score.srHeading" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - Piano Score</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> - <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - 钢琴乐谱</target>
+      </trans-unit>
+      <trans-unit id="score.copyLink" datatype="html">
+        <source>Copy link</source>
+        <target state="translated">复制链接</target>
+      </trans-unit>
+      <trans-unit id="score.back" datatype="html">
+        <source>← Browse</source>
+        <target state="translated">← 浏览</target>
+      </trans-unit>
+      <trans-unit id="score.edit" datatype="html">
+        <source>Edit</source>
+        <target state="translated">编辑</target>
+      </trans-unit>
+      <trans-unit id="score.reimport.title" datatype="html">
+        <source>Choose the study tracks again from the original MIDI file (owner and admins only)</source>
+        <target state="translated">从原始 MIDI 文件重新选择练习音轨（仅限上传者和管理员）</target>
+      </trans-unit>
+      <trans-unit id="score.reimport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">重新导入</target>
+      </trans-unit>
+      <trans-unit id="score.download.original.title" datatype="html">
+        <source>Download the file uploaded at import (owner and admins only)</source>
+        <target state="translated">下载导入时上传的文件（仅限上传者和管理员）</target>
+      </trans-unit>
+      <trans-unit id="score.download.original" datatype="html">
+        <source>Original</source>
+        <target state="translated">原始文件</target>
+      </trans-unit>
+      <trans-unit id="score.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">练习</target>
+      </trans-unit>
+      <trans-unit id="score.download.dismiss" datatype="html">
+        <source>Dismiss download error</source>
+        <target state="translated">关闭下载错误</target>
+      </trans-unit>
+      <trans-unit id="score.loading" datatype="html">
+        <source>Loading score…</source>
+        <target state="translated">正在加载乐谱……</target>
+      </trans-unit>
+      <trans-unit id="score.processing.heading" datatype="html">
+        <source>Processing status</source>
+        <target state="translated">处理状态</target>
+      </trans-unit>
+      <trans-unit id="score.processing.loading" datatype="html">
+        <source>Loading status…</source>
+        <target state="translated">正在加载状态……</target>
+      </trans-unit>
+      <trans-unit id="score.processing.status" datatype="html">
+        <source>Status</source>
+        <target state="translated">状态</target>
+      </trans-unit>
+      <trans-unit id="score.processing.type" datatype="html">
+        <source>Type</source>
+        <target state="translated">类型</target>
+      </trans-unit>
+      <trans-unit id="score.processing.created" datatype="html">
+        <source>Created</source>
+        <target state="translated">创建时间</target>
+      </trans-unit>
+      <trans-unit id="score.processing.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">耗时</target>
+      </trans-unit>
+      <trans-unit id="score.processing.none" datatype="html">
+        <source>No processing information available. Files may not have been submitted yet.</source>
+        <target state="translated">暂无处理信息。文件可能尚未提交。</target>
+      </trans-unit>
+      <trans-unit id="score.videos.loading" datatype="html">
+        <source>Loading related videos…</source>
+        <target state="translated">正在加载相关视频……</target>
+      </trans-unit>
+      <trans-unit id="score.videos.errorLabel" datatype="html">
+        <source>Video API error:</source>
+        <target state="translated">视频接口错误：</target>
+      </trans-unit>
+      <trans-unit id="score.download.originalFile" datatype="html">
+        <source>original file</source>
+        <target state="translated">原始文件</target>
+      </trans-unit>
+      <trans-unit id="score.download.title" datatype="html">
+        <source>Download <x id="format" equiv-text="&apos;MIDI&apos;"/></source>
+        <target state="translated">下载 <x id="format" equiv-text="&apos;MIDI&apos;"/></target>
+      </trans-unit>
+      <trans-unit id="score.download.restricted" datatype="html">
+        <source>Downloads restricted — copyrighted work</source>
+        <target state="translated">下载受限——受版权保护的作品</target>
+      </trans-unit>
+      <trans-unit id="score.processing.pending" datatype="html">
+        <source>Pending</source>
+        <target state="translated">等待中</target>
+      </trans-unit>
+      <trans-unit id="score.processing.running" datatype="html">
+        <source>Running</source>
+        <target state="translated">处理中</target>
+      </trans-unit>
+      <trans-unit id="score.processing.completed" datatype="html">
+        <source>Completed</source>
+        <target state="translated">已完成</target>
+      </trans-unit>
+      <trans-unit id="score.processing.failed" datatype="html">
+        <source>Failed</source>
+        <target state="translated">失败</target>
+      </trans-unit>
+      <trans-unit id="score.error.noSlug" datatype="html">
+        <source>No score slug provided</source>
+        <target state="translated">未指定乐谱</target>
+      </trans-unit>
+      <trans-unit id="score.videos.error" datatype="html">
+        <source>Failed to load videos</source>
+        <target state="translated">无法加载视频</target>
+      </trans-unit>
+      <trans-unit id="score.download.error.missingInfo" datatype="html">
+        <source>Could not download the <x id="file" equiv-text="label"/>: this score is missing information.</source>
+        <target state="translated">无法下载<x id="file" equiv-text="label"/>：此乐谱信息不完整。</target>
+      </trans-unit>
+      <trans-unit id="seo.score.unknownArtist" datatype="html">
+        <source>Unknown Artist</source>
+        <target state="translated">未知艺术家</target>
+      </trans-unit>
+      <trans-unit id="seo.score.untitled" datatype="html">
+        <source>Untitled</source>
+        <target state="translated">无标题</target>
+      </trans-unit>
+      <trans-unit id="seo.score.title" datatype="html">
+        <source>Score</source>
+        <target state="translated">乐谱</target>
+      </trans-unit>
+      <trans-unit id="seo.score.descriptionWithGenre" datatype="html">
+        <source>Practice <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/> on PianoML: an interactive <x id="genre" equiv-text="genre"/> piano score with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">在 PianoML 上练习<x id="artist" equiv-text="author"/>的《<x id="title" equiv-text="title"/>》：一份互动式<x id="genre" equiv-text="genre"/>钢琴乐谱，支持分手练习、速度调节和 MIDI 反馈。</target>
+      </trans-unit>
+      <trans-unit id="seo.score.description" datatype="html">
+        <source>Practice <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/> on PianoML: an interactive piano score with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">在 PianoML 上练习<x id="artist" equiv-text="author"/>的《<x id="title" equiv-text="title"/>》：一份互动式钢琴乐谱，支持分手练习、速度调节和 MIDI 反馈。</target>
+      </trans-unit>
+      <trans-unit id="seo.score.publicDomain" datatype="html">
+        <source>Free to download and public domain.</source>
+        <target state="translated">免费下载，属于公有领域。</target>
+      </trans-unit>
+      <trans-unit id="reimport.titleNamed" datatype="html">
+        <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
+        <target state="translated">重新导入《<x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/>》</target>
+      </trans-unit>
+      <trans-unit id="reimport.title" datatype="html">
+        <source>Re-import the score</source>
+        <target state="translated">重新导入乐谱</target>
+      </trans-unit>
+      <trans-unit id="reimport.chooseTheStudyTracksAgain" datatype="html">
+        <source>Choose the study tracks again from the original MIDI file</source>
+        <target state="translated">从原始 MIDI 文件重新选择练习音轨</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImportTheScore.label" datatype="html">
+        <source>Re-import the score</source>
+        <target state="translated">重新导入乐谱</target>
+      </trans-unit>
+      <trans-unit id="reimport.readingTheOriginalFile" datatype="html">
+        <source>Reading the original file …</source>
+        <target state="translated">正在读取原始文件……</target>
+      </trans-unit>
+      <trans-unit id="reimport.backToTheScore" datatype="html">
+        <source>← Back to the score</source>
+        <target state="translated">← 返回乐谱</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImporting" datatype="html">
+        <source>Re-importing …</source>
+        <target state="translated">正在重新导入……</target>
+      </trans-unit>
+      <trans-unit id="reimport.convertingWithFingering" datatype="html">
+        <source>Converting the score again, with automatic fingering. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">正在重新转换乐谱，并生成自动指法。最多可能需要一分钟：请保持此页面打开。</target>
+      </trans-unit>
+      <trans-unit id="reimport.converting" datatype="html">
+        <source>Converting the score again. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">正在重新转换乐谱。最多可能需要一分钟：请保持此页面打开。</target>
+      </trans-unit>
+      <trans-unit id="reimport.theScoreKeepsItsPage" datatype="html">
+        <source> The score keeps its page, link and owner: only its notes, fingering and the details read from them (key, tempo, grade, …) are generated again. </source>
+        <target state="translated">乐谱会保留它的页面、链接和上传者：只重新生成音符、指法以及由它们得出的信息（调、速度、难度等）。</target>
+      </trans-unit>
+      <trans-unit id="reimport.notes" datatype="html">
+        <source>Notes</source>
+        <target state="translated">音符数</target>
+      </trans-unit>
+      <trans-unit id="reimport.instrument" datatype="html">
+        <source>Instrument</source>
+        <target state="translated">乐器</target>
+      </trans-unit>
+      <trans-unit id="reimport.trackName" datatype="html">
+        <source>Track Name</source>
+        <target state="translated">音轨名称</target>
+      </trans-unit>
+      <trans-unit id="reimport.study" datatype="html">
+        <source>Study</source>
+        <target state="translated">练习</target>
+      </trans-unit>
+      <trans-unit id="reimport.enableAutomaticFingering" datatype="html">
+        <source>Enable automatic fingering</source>
+        <target state="translated">启用自动指法</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">重新导入</target>
+      </trans-unit>
+      <trans-unit id="reimport.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">取消</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.noSlug" datatype="html">
+        <source>No score slug provided.</source>
+        <target state="translated">未指定乐谱。</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.notFound" datatype="html">
+        <source>This score does not exist.</source>
+        <target state="translated">此乐谱不存在。</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.load" datatype="html">
+        <source>Could not load the score.</source>
+        <target state="translated">无法加载乐谱。</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.missingInfo" datatype="html">
+        <source>This score is missing information.</source>
+        <target state="translated">此乐谱信息不完整。</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.noOriginal" datatype="html">
+        <source>The original file of this score is not available: it cannot be re-imported.</source>
+        <target state="translated">此乐谱的原始文件不可用：无法重新导入。</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.download" datatype="html">
+        <source>Could not download the original file of this score.</source>
+        <target state="translated">无法下载此乐谱的原始文件。</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.notMidi" datatype="html">
+        <source>Only scores imported from a MIDI file can be re-imported.</source>
+        <target state="translated">只有从 MIDI 文件导入的乐谱才能重新导入。</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.read" datatype="html">
+        <source>The original MIDI file cannot be read.</source>
+        <target state="translated">无法读取原始 MIDI 文件。</target>
+      </trans-unit>
+      <trans-unit id="reimport.bothHands" datatype="html">
+        <source>Both hands</source>
+        <target state="translated">双手</target>
+      </trans-unit>
+      <trans-unit id="reimport.rightHand" datatype="html">
+        <source>Right hand</source>
+        <target state="translated">右手</target>
+      </trans-unit>
+      <trans-unit id="reimport.leftHand" datatype="html">
+        <source>Left hand</source>
+        <target state="translated">左手</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.refused" datatype="html">
+        <source>The server refused these tracks, or the original file is not a MIDI file.</source>
+        <target state="translated">服务器拒绝了这些音轨，或原始文件不是 MIDI 文件。</target>
+      </trans-unit>
+      <trans-unit id="error.heading" datatype="html">
+        <source>Oops! An error occurred</source>
+        <target state="translated">哎呀！出错了</target>
+      </trans-unit>
+      <trans-unit id="error.message" datatype="html">
+        <source>We&apos;re sorry, an unexpected error has happened.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Please try again later or return to the homepage.</source>
+        <target state="translated">抱歉，发生了意外错误。<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/>请稍后再试，或返回首页。</target>
+      </trans-unit>
+      <trans-unit id="error.backHome" datatype="html">
+        <source>Back to homepage</source>
+        <target state="translated">返回首页</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.heading" datatype="html">
+        <source>Practice Exercises in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/>练习</target>
+      </trans-unit>
+      <trans-unit id="languageSwitcher.label" datatype="html">
+        <source>Language</source>
+        <target state="translated">语言</target>
+      </trans-unit>
+      <trans-unit id="layout.breadcrumb.label" datatype="html">
+        <source>Breadcrumb navigation</source>
+        <target state="translated">面包屑导航</target>
+      </trans-unit>
+      <trans-unit id="layout.brand.title" datatype="html">
+        <source>Go to the PianoML summary page</source>
+        <target state="translated">前往 PianoML 简介页</target>
+      </trans-unit>
+      <trans-unit id="layout.support.title" datatype="html">
+        <source>Support PianoML</source>
+        <target state="translated">支持 PianoML</target>
+      </trans-unit>
+      <trans-unit id="layout.support.buyMeA" datatype="html">
+        <source>Buy me a</source>
+        <target state="translated">请我喝杯</target>
+      </trans-unit>
+      <trans-unit id="layout.account.title" datatype="html">
+        <source>Go to your account page</source>
+        <target state="translated">前往你的账户</target>
+      </trans-unit>
+      <trans-unit id="layout.login.title" datatype="html">
+        <source>Log in to your PianoML account</source>
+        <target state="translated">登录你的 PianoML 账户</target>
+      </trans-unit>
+      <trans-unit id="layout.login" datatype="html">
+        <source> Login </source>
+        <target state="translated"> 登录 </target>
+      </trans-unit>
+      <trans-unit id="layout.source.label" datatype="html">
+        <source>View source on GitHub</source>
+        <target state="translated">在 GitHub 上查看源代码</target>
+      </trans-unit>
+      <trans-unit id="layout.source.title" datatype="html">
+        <source>View PianoML source code on GitHub</source>
+        <target state="translated">在 GitHub 上查看 PianoML 源代码</target>
+      </trans-unit>
+      <trans-unit id="layout.source" datatype="html">
+        <source>source</source>
+        <target state="translated">源代码</target>
+      </trans-unit>
+      <trans-unit id="layout.footer.label" datatype="html">
+        <source>Footer navigation</source>
+        <target state="translated">页脚导航</target>
+      </trans-unit>
+      <trans-unit id="layout.legal.title" datatype="html">
+        <source>Legal notice and terms of use</source>
+        <target state="translated">法律声明和使用条款</target>
+      </trans-unit>
+      <trans-unit id="layout.legal" datatype="html">
+        <source> Legal Notice </source>
+        <target state="translated"> 法律声明 </target>
+      </trans-unit>
+      <trans-unit id="layout.issue.title" datatype="html">
+        <source>Report a bug or request a feature</source>
+        <target state="translated">报告问题或提出功能建议</target>
+      </trans-unit>
+      <trans-unit id="layout.issue" datatype="html">
+        <source> Report an Issue </source>
+        <target state="translated"> 报告问题 </target>
+      </trans-unit>
+      <trans-unit id="layout.breadcrumb.navigateTo" datatype="html">
+        <source>Navigate to <x id="label" equiv-text="label"/></source>
+        <target state="translated">前往<x id="label" equiv-text="label"/></target>
+      </trans-unit>
+      <trans-unit id="popularInKey.heading" datatype="html">
+        <source>Popular works in this key</source>
+        <target state="translated">此调的热门作品</target>
+      </trans-unit>
+      <trans-unit id="popularInKey.viewAll" datatype="html">
+        <source>View all →</source>
+        <target state="translated">查看全部 →</target>
+      </trans-unit>
+      <trans-unit id="quickActions.import" datatype="html">
+        <source>Import</source>
+        <target state="translated">导入</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.actions" datatype="html">
+        <source> Actions </source>
+        <target state="translated"> 操作 </target>
+      </trans-unit>
+      <trans-unit id="scoreTable.sources.midi" datatype="html">
+        <source>Free MIDI</source>
+        <target state="translated">免费 MIDI</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.sources.pdf" datatype="html">
+        <source>Free sheet music (PDF)</source>
+        <target state="translated">免费乐谱（PDF）</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.notAvailable" datatype="html">
+        <source>N/A</source>
+        <target state="translated">无</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.empty" datatype="html">
+        <source>No scores found</source>
+        <target state="translated">未找到乐谱</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.difficulty" datatype="html">
+        <source>Difficulty</source>
+        <target state="translated">难度</target>
+      </trans-unit>
+      <trans-unit id="nav.home" datatype="html">
+        <source>Home</source>
+        <target state="translated">首页</target>
+      </trans-unit>
+      <trans-unit id="nav.browse" datatype="html">
+        <source>Browse</source>
+        <target state="translated">浏览</target>
+      </trans-unit>
+      <trans-unit id="manifest.name" datatype="html">
+        <source>PianoML: Learn Piano</source>
+        <target state="translated">PianoML：学钢琴</target>
+      </trans-unit>
+      <trans-unit id="manifest.shortName" datatype="html">
+        <source>PianoML</source>
+        <target state="translated">PianoML</target>
+      </trans-unit>
+      <trans-unit id="manifest.description" datatype="html">
+        <source>Learn piano with smart sheet music, scales and real-time feedback.</source>
+        <target state="translated">用智能乐谱、音阶练习和实时反馈学钢琴。</target>
+      </trans-unit>
+      <trans-unit id="shader.1.description" datatype="html">
+        <source>Wave-based animated shader</source>
+        <target state="translated">基于波浪的动画着色器</target>
+      </trans-unit>
+      <trans-unit id="shader.2.description" datatype="html">
+        <source>Space-themed shader with stars and cosmic effects</source>
+        <target state="translated">带有星星和宇宙效果的太空主题着色器</target>
+      </trans-unit>
+      <trans-unit id="shader.3.description" datatype="html">
+        <source>Wave-based animated shader</source>
+        <target state="translated">基于波浪的动画着色器</target>
+      </trans-unit>
+      <trans-unit id="shader.4.description" datatype="html">
+        <source>Space-themed shader with stars and cosmic effects</source>
+        <target state="translated">带有星星和宇宙效果的太空主题着色器</target>
+      </trans-unit>
+      <trans-unit id="shader.5.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">带有动态渐变的彩色动画着色器</target>
+      </trans-unit>
+      <trans-unit id="shader.6.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">带有动态渐变的彩色动画着色器</target>
+      </trans-unit>
+      <trans-unit id="shader.7.description" datatype="html">
+        <source>Colorful animated shader with dynamic gradients</source>
+        <target state="translated">带有动态渐变的彩色动画着色器</target>
+      </trans-unit>
+      <trans-unit id="song.noWomanNoCry.description" datatype="html">
+        <source>Choose a track to play with accompaniment</source>
+        <target state="translated">选择一个声部，在伴奏下演奏</target>
+      </trans-unit>
+      <trans-unit id="song.plicPloc.description" datatype="html">
+        <source>Exercise in rythm recognition and note reading</source>
+        <target state="translated">节奏辨识与识谱练习</target>
+      </trans-unit>
+      <trans-unit id="song.happyBirthday.description" datatype="html">
+        <source>The most recognized song in the English language</source>
+        <target state="translated">英语世界最广为人知的歌曲</target>
+      </trans-unit>
+      <trans-unit id="song.belleIleEnMer.description" datatype="html">
+        <source>Exercise in chord progression</source>
+        <target state="translated">和弦进行练习</target>
+      </trans-unit>
+      <trans-unit id="song.brahmsLullaby.description" datatype="html">
+        <source>Exercise in chord progression based on Brahms&apos; Lullaby.</source>
+        <target state="translated">基于勃拉姆斯《摇篮曲》的和弦进行练习。</target>
+      </trans-unit>
+      <trans-unit id="song.zeldaLullaby.description" datatype="html">
+        <source>Melody of the Royal Family.</source>
+        <target state="translated">王室家族的旋律。</target>
+      </trans-unit>
+      <trans-unit id="song.forElise.description" datatype="html">
+        <source>Try split voice option</source>
+        <target state="translated">试试分声部选项</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.beginner" datatype="html">
+        <source>beginner</source>
+        <target state="translated">初级</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.intermediate" datatype="html">
+        <source>intermediate</source>
+        <target state="translated">中级</target>
+      </trans-unit>
+      <trans-unit id="song.difficulty.advanced" datatype="html">
+        <source>advanced</source>
+        <target state="translated">高级</target>
+      </trans-unit>
+      <trans-unit id="shader.noDescription" datatype="html">
+        <source>No description available</source>
+        <target state="translated">暂无描述</target>
+      </trans-unit>
+      <trans-unit id="route.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">练习</target>
+      </trans-unit>
+      <trans-unit id="route.desktop" datatype="html">
+        <source>Desktop</source>
+        <target state="translated">桌面</target>
+      </trans-unit>
+      <trans-unit id="route.workbench" datatype="html">
+        <source>Workbench</source>
+        <target state="translated">工作台</target>
+      </trans-unit>
+      <trans-unit id="route.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">乐谱</target>
+      </trans-unit>
+      <trans-unit id="route.reimport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">重新导入</target>
+      </trans-unit>
+      <trans-unit id="route.account" datatype="html">
+        <source>Account</source>
+        <target state="translated">账户</target>
+      </trans-unit>
+      <trans-unit id="route.blog" datatype="html">
+        <source>Blog</source>
+        <target state="translated">博客</target>
+      </trans-unit>
+      <trans-unit id="route.import" datatype="html">
+        <source>Import</source>
+        <target state="translated">导入</target>
+      </trans-unit>
+      <trans-unit id="route.library" datatype="html">
+        <source>Library</source>
+        <target state="translated">曲库</target>
+      </trans-unit>
+      <trans-unit id="route.summary" datatype="html">
+        <source>Summary</source>
+        <target state="translated">简介</target>
+      </trans-unit>
+      <trans-unit id="route.notFound" datatype="html">
+        <source>Not found</source>
+        <target state="translated">未找到</target>
+      </trans-unit>
+      <trans-unit id="seo.defaultTitle" datatype="html">
+        <source>PianoML: Learn Piano with Smart Sheet Music &amp; Practice Tools</source>
+        <target state="translated">PianoML：用智能乐谱和练习工具学钢琴</target>
+      </trans-unit>
+      <trans-unit id="seo.defaultDescription" datatype="html">
+        <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
+        <target state="translated">用 PianoML 学钢琴：一款免费开源的网页应用，支持 MusicXML、MIDI 和 PDF 乐谱。练习音阶，获得实时反馈，并建立你自己的乐谱库。</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const zlib = require('zlib');
 const { readLocales, localizedPath } = require('./lib/i18n-config');
 
 const SRC_DIR = path.join(__dirname, '../src');
@@ -262,7 +263,9 @@ function urlEntries(urls, locales) {
 
 /**
  * The sitemap file(s), keyed by file name: a single sitemap.xml while it fits the limits, otherwise
- * sitemap.xml as an index of one sitemap-<code>.xml per language.
+ * sitemap.xml as an index of one sitemap-<code>.xml.gz per language. Those are written gzipped (the
+ * limits apply to the uncompressed size): every URL carries every language as an alternate, so with many
+ * languages the plain files would weigh hundreds of MB in the image.
  */
 function renderSitemaps(urls, locales, limits = { urls: MAX_URLS_PER_FILE, bytes: MAX_BYTES_PER_FILE }) {
   const perLocale = urlEntries(urls, locales);
@@ -276,12 +279,12 @@ function renderSitemaps(urls, locales, limits = { urls: MAX_URLS_PER_FILE, bytes
   const files = {};
   const lastmod = new Date().toISOString();
   for (const { locale, entries } of perLocale) {
-    files[`sitemap-${locale.code}.xml`] = `${URLSET_OPEN}${entries.join('')}</urlset>\n`;
+    files[`sitemap-${locale.code}.xml.gz`] = `${URLSET_OPEN}${entries.join('')}</urlset>\n`;
   }
   files['sitemap.xml'] = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${locales.map((locale) => `  <sitemap>
-    <loc>${BASE_URL}/sitemap-${locale.code}.xml</loc>
+    <loc>${BASE_URL}/sitemap-${locale.code}.xml.gz</loc>
     <lastmod>${lastmod}</lastmod>
   </sitemap>
 `).join('')}</sitemapindex>
@@ -313,10 +316,10 @@ async function main() {
 
     // Per-language files left over from a previous, bigger run would otherwise still be served.
     for (const file of fs.readdirSync(SRC_DIR)) {
-      if (/^sitemap-.+\.xml$/.test(file) && !files[file]) fs.unlinkSync(path.join(SRC_DIR, file));
+      if (/^sitemap-.+\.xml(\.gz)?$/.test(file) && !files[file]) fs.unlinkSync(path.join(SRC_DIR, file));
     }
     for (const [file, xml] of Object.entries(files)) {
-      fs.writeFileSync(path.join(SRC_DIR, file), xml, 'utf8');
+      fs.writeFileSync(path.join(SRC_DIR, file), file.endsWith('.gz') ? zlib.gzipSync(xml, { level: 9 }) : xml);
       console.log(`✓ Sitemap generated successfully at src/${file}`);
     }
     console.log(`✓ Total URLs: ${urls.length}`);

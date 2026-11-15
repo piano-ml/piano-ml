@@ -1,9 +1,9 @@
 @if (!loadingScores && popularScores.length > 0) {
-  <section class="popular-scores-section" aria-label="Popular works in this key">
+  <section class="popular-scores-section" i18n-aria-label="@@popularInKey.heading" aria-label="Popular works in this key">
 
     <div class="popular-scores-header">
-      <span class="popular-scores-label">Popular works in this key</span>
-      <a [href]="getLibraryUrl()" class="popular-scores-view-all">View all →</a>
+      <span class="popular-scores-label" i18n="@@popularInKey.heading">Popular works in this key</span>
+      <a [href]="getLibraryUrl()" class="popular-scores-view-all" i18n="@@popularInKey.viewAll">View all →</a>
     </div>
 
     <div class="popular-scores-list">

@@ -143,8 +143,8 @@ export class AccountHomeComponent implements OnDestroy {
         this.deleting = false;
         // 401 is handled by authInterceptor (session ended); anything else keeps the modal open.
         this.deleteError = isCsrfRejection(error)
-          ? 'Your session needs a refresh. Please reload the page and try again.'
-          : 'Account deletion failed. Please try again.';
+          ? $localize`:@@accountHome.error.session:Your session needs a refresh. Please reload the page and try again.`
+          : $localize`:@@accountHome.error.delete:Account deletion failed. Please try again.`;
         this.cdr.markForCheck();
       }
     });

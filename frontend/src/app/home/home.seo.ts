@@ -50,11 +50,10 @@ export const homeSeo = (): SeoData => ({
   structuredData: [organization(), website()]
 });
 
-const SUMMARY_DESCRIPTION =
-  'Learn piano with interactive exercises, scales, arpeggios and sheet music practice: hands-separated practice, adjustable speed, MIDI support and real-time feedback.';
+const SUMMARY_DESCRIPTION = $localize`:@@seo.summary.description:Learn piano with interactive exercises, scales, arpeggios and sheet music practice: hands-separated practice, adjustable speed, MIDI support and real-time feedback.`;
 
 export const summarySeo = (): SeoData => ({
-  title: 'Features & Practice Tools',
+  title: $localize`:@@seo.summary.title:Features & Practice Tools`,
   description: SUMMARY_DESCRIPTION,
   image: '/assets/images/keyboard.webp',
   structuredData: {
@@ -70,20 +69,20 @@ export const summarySeo = (): SeoData => ({
       priceCurrency: 'USD'
     },
     featureList: [
-      'Interactive piano scales generator',
-      'Arpeggios exercises',
-      'Sheet music generation from audio and MIDI',
-      'Hands-separated practice mode',
-      'Adjustable playback speed',
-      'MIDI keyboard support with real-time feedback',
-      'PDF, MIDI, and MusicXML file upload',
-      'Collection of digitized piano études',
-      'Machine Learning-powered feedback'
+      $localize`:@@seo.summary.feature.scales:Interactive piano scales generator`,
+      $localize`:@@seo.summary.feature.arpeggios:Arpeggios exercises`,
+      $localize`:@@seo.summary.feature.generation:Sheet music generation from audio and MIDI`,
+      $localize`:@@seo.summary.feature.handsSeparate:Hands-separated practice mode`,
+      $localize`:@@seo.summary.feature.speed:Adjustable playback speed`,
+      $localize`:@@seo.summary.feature.midi:MIDI keyboard support with real-time feedback`,
+      $localize`:@@seo.summary.feature.upload:PDF, MIDI, and MusicXML file upload`,
+      $localize`:@@seo.summary.feature.etudes:Collection of digitized piano études`,
+      $localize`:@@seo.summary.feature.ml:Machine Learning-powered feedback`
     ],
     about: [
-      { '@type': 'Thing', name: 'Piano Education' },
-      { '@type': 'Thing', name: 'Music Theory' },
-      { '@type': 'Thing', name: 'Machine Learning' }
+      { '@type': 'Thing', name: $localize`:@@seo.summary.about.education:Piano Education` },
+      { '@type': 'Thing', name: $localize`:@@seo.summary.about.theory:Music Theory` },
+      { '@type': 'Thing', name: $localize`:@@seo.summary.about.ml:Machine Learning` }
     ]
   }
 });

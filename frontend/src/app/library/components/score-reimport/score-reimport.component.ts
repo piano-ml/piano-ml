@@ -55,7 +55,7 @@ export class ScoreReimportComponent implements OnInit {
     const slug = this.route.snapshot.paramMap.get('slug');
     this.slug.set(slug);
     if (!slug) {
-      this.fail('No score slug provided.');
+      this.fail($localize`:@@reimport.error.noSlug:No score slug provided.`);
       return;
     }
     void this.load(slug);
@@ -76,7 +76,7 @@ export class ScoreReimportComponent implements OnInit {
     try {
       score = await firstValueFrom(this.scoreService.scoreGetBySlug(slug));
     } catch (e) {
-      this.fail((e as HttpErrorResponse)?.status === 404 ? 'This score does not exist.' : 'Could not load the score.');
+      this.fail((e as HttpErrorResponse)?.status === 404 ? $localize`:@@reimport.error.notFound:This score does not exist.` : $localize`:@@reimport.error.load:Could not load the score.`);
       return;
     }
     this.score.set(score);
@@ -85,7 +85,7 @@ export class ScoreReimportComponent implements OnInit {
       return;
     }
     if (!score.owner_id || !score.id || !score.version) {
-      this.fail('This score is missing information.');
+      this.fail($localize`:@@reimport.error.missingInfo:This score is missing information.`);
       return;
     }
     let blob: Blob | null;
@@ -97,19 +97,19 @@ export class ScoreReimportComponent implements OnInit {
       contentType = (blob?.type || response.headers?.get('Content-Type') || '').toLowerCase();
     } catch (e) {
       this.fail((e as HttpErrorResponse)?.status === 404
-        ? 'The original file of this score is not available: it cannot be re-imported.'
-        : 'Could not download the original file of this score.');
+        ? $localize`:@@reimport.error.noOriginal:The original file of this score is not available: it cannot be re-imported.`
+        : $localize`:@@reimport.error.download:Could not download the original file of this score.`);
       return;
     }
     if (!blob || !contentType.startsWith('audio/midi')) {
-      this.fail('Only scores imported from a MIDI file can be re-imported.');
+      this.fail($localize`:@@reimport.error.notMidi:Only scores imported from a MIDI file can be re-imported.`);
       return;
     }
     try {
       this.showTracks(new Midi(await blob.arrayBuffer()), score.study_tracks ?? []);
     } catch (e) {
       console.error('Error reading the original MIDI file:', e);
-      this.fail('The original MIDI file cannot be read.');
+      this.fail($localize`:@@reimport.error.read:The original MIDI file cannot be read.`);
       return;
     }
     this.loading.set(false);
@@ -147,8 +147,8 @@ export class ScoreReimportComponent implements OnInit {
     const studies = this.studies();
     const position = studies.indexOf(index);
     if (position < 0) return '';
-    if (studies.length === 1) return 'Both hands';
-    return position === 0 ? 'Right hand' : 'Left hand';
+    if (studies.length === 1) return $localize`:@@reimport.bothHands:Both hands`;
+    return position === 0 ? $localize`:@@reimport.rightHand:Right hand` : $localize`:@@reimport.leftHand:Left hand`;
   }
 
   toggleFingering() {
@@ -172,7 +172,7 @@ export class ScoreReimportComponent implements OnInit {
         console.error('Error re-importing the score:', e);
         this.importing.set(false);
         this.importError.set(e?.status === 400
-          ? 'The server refused these tracks, or the original file is not a MIDI file.'
+          ? $localize`:@@reimport.error.refused:The server refused these tracks, or the original file is not a MIDI file.`
           : 'The re-import failed. The score is unchanged: please try again.');
       },
     });
