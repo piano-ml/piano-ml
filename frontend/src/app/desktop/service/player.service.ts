@@ -17,6 +17,7 @@ import { PlayerKeyboardService } from './player-keyboard.service';
 import { PlayerAudioService } from './player-audio.service';
 import { LiveStatus, NoteKey, PlayerAssessService } from './player-assess.service';
 import { CursorService } from './cursor.service';
+import { PracticeSessionRecorder } from './practice-session-recorder.service';
 
 
 
@@ -31,6 +32,7 @@ export class PlayerService implements OnDestroy {
 
 
   private platformId = inject(PLATFORM_ID);
+  private recorder = inject(PracticeSessionRecorder);
   private isBrowser: boolean;
   private timeCounterInterval?: number;
   private highlightedBadNotes = new Set<GraphicalNote>();
@@ -201,6 +203,8 @@ export class PlayerService implements OnDestroy {
   }
 
   releaseScoreSession(): void {
+    // Before the assessment is reset: the recorder reads the counters of the take in progress
+    this.recorder.setItem(null);
     this.audio.resetSession();
     this.midiService.resetSessionOutputs();
     this.unHighlightBadNote();
@@ -214,12 +218,14 @@ export class PlayerService implements OnDestroy {
 
   pause() {
     this.audio.pause();
+    this.recorder.takeEnded(false);
   }
 
   async reset(playConfiguration: PlayConfiguration) {
     this.playConfiguration = playConfiguration;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
     this.audio.stop();
+    this.recorder.takeEnded(false); // a take still open is cut short (no-op after a pause or the end)
     this.assess.reset();
     this.lastMidiEventTime = -1;
     this.keyboard.removeAllNotesFromKeyboard();
@@ -237,7 +243,9 @@ export class PlayerService implements OnDestroy {
   async play(playConfigurations: PlayConfiguration) {
     this.audio.clearSchedule();
     this.unHighlightBadNote();
+    this.recorder.takeEnded(false);
     this.assess.reset();
+    this.recorder.takeStarted(playConfigurations);
     let midiStartTime = this.calculateStartTime();
     let midiEndTime = this.calculateEndTime();
 
@@ -275,6 +283,8 @@ export class PlayerService implements OnDestroy {
       }, 100);
       this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
 
+      // The take reached the end of its range; recorded before reset() clears the assessment
+      this.recorder.takeEnded(true);
       this.reset(this.playConfiguration);
       if (this.playConfiguration.isLoop) {
         this.play(this.playConfiguration);
@@ -331,6 +341,7 @@ export class PlayerService implements OnDestroy {
     }
 
     if (midiEvent.type === 'down' as MidiStateEvent['type']) {
+      this.recorder.noteOn();
       midiEvent.time = this.audio.getCurrentTime();
       const liveStatus = this.assess.getNewActual(this.audio.getTransportSeconds(), midiEvent);
       if (liveStatus === null) {
@@ -445,6 +456,7 @@ export class PlayerService implements OnDestroy {
       this.lightExpectedNotesOnKeyboard(liveStatus);
     }
     // normal operations
+    this.recorder.activity();
     this.cursorMayBeAdvance(note);
     this.keyboard.lightNoteOnKeyboard(hand, note);
     //this.setCurrentTick(note);

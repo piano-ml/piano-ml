@@ -11,6 +11,7 @@ import { type LiveStatus, PlayerAssessService } from './player-assess.service';
 import { PlayerAudioService } from './player-audio.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
 import { PlayerService } from './player.service';
+import { PracticeSessionRecorder } from './practice-session-recorder.service';
 
 type Callbacks = { onNoteStart: (t: number, n: Note, s: LiveStatus) => void; onNoteEnd: (t: number, n: Note, s: LiveStatus) => void };
 
@@ -253,6 +254,49 @@ describe('PlayerService', () => {
         player.resetLight(cfg);
         expect(player.message()).toBe('');
       });
+    });
+  });
+
+  describe('practice recording', () => {
+    let recorder: PracticeSessionRecorder;
+    let calls: string[];
+
+    beforeEach(() => {
+      recorder = TestBed.inject(PracticeSessionRecorder);
+      calls = [];
+      vi.spyOn(recorder, 'takeStarted').mockImplementation(() => { calls.push('started'); });
+      vi.spyOn(recorder, 'takeEnded').mockImplementation((completed) => { calls.push(completed ? 'completed' : 'cut'); });
+      vi.spyOn(assess, 'reset').mockImplementation(() => { calls.push('reset'); });
+    });
+
+    it('Play opens a take on a fresh assessment', async () => {
+      const cfg = load();
+      calls = [];
+      await player.play(cfg);
+      expect(calls).toEqual(['cut', 'reset', 'started']); // any take left open is closed first
+      expect(recorder.takeStarted).toHaveBeenCalledWith(cfg);
+    });
+
+    it('Pause closes the take', async () => {
+      await player.play(load());
+      calls = [];
+      player.pause();
+      expect(calls).toEqual(['cut']);
+    });
+
+    it('the end of the range completes the take before the assessment is reset', async () => {
+      await player.play(load());
+      calls = [];
+      onEnd!();
+      expect(calls[0]).toBe('completed');
+      expect(calls.indexOf('reset')).toBeGreaterThan(0);
+    });
+
+    it('leaving the score ends the session before the assessment is reset', () => {
+      const setItem = vi.spyOn(recorder, 'setItem').mockImplementation(() => { calls.push('session ended'); });
+      player.releaseScoreSession();
+      expect(setItem).toHaveBeenCalledWith(null);
+      expect(calls).toEqual(['session ended', 'reset']);
     });
   });
 

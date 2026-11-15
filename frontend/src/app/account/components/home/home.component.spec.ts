@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 
 import { AccountHomeComponent } from './home.component';
 import { AuthService } from '../../services/auth.service';
+import { PracticeService } from '../../../core/api';
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
 import { MidiSetupComponent } from '../../../desktop/components/midi-setup/midi-setup.component';
 
@@ -54,6 +55,7 @@ describe('AccountHomeComponent — delete account', () => {
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: authService },
+        { provide: PracticeService, useValue: { practiceSummaryGet: () => of(null), practiceSessionsGet: () => of([]) } },
         { provide: MidiServiceService, useValue: { midiEvent: signal(null) } },
       ],
     })
@@ -187,6 +189,7 @@ describe('AccountHomeComponent — profile and preferences', () => {
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: authService },
+        { provide: PracticeService, useValue: { practiceSummaryGet: () => of(null), practiceSessionsGet: () => of([]) } },
         { provide: MidiServiceService, useValue: { midiEvent } },
       ],
     })
