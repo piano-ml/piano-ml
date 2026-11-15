@@ -12,16 +12,18 @@ describe('authInterceptor', () => {
   let httpMock: HttpTestingController;
   const clearSession = vi.fn();
   const navigate = vi.fn();
+  let router: { url: string; navigate: typeof navigate; getCurrentNavigation: () => unknown };
 
   beforeEach(() => {
     clearSession.mockReset();
     navigate.mockReset();
+    router = { url: '/account/scores', navigate, getCurrentNavigation: () => null };
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
         { provide: SessionStorageService, useValue: { clearSession } },
-        { provide: Router, useValue: { url: '/library', navigate } },
+        { provide: Router, useValue: router },
       ],
     });
     http = TestBed.inject(HttpClient);
@@ -37,10 +39,35 @@ describe('authInterceptor', () => {
     return received;
   }
 
-  it('ends the session and redirects to login on 401', () => {
+  it('ends the session and redirects to login on 401 on a protected page', () => {
     expect(failWith(401)).toBe(401);
     expect(clearSession).toHaveBeenCalledOnce();
-    expect(navigate).toHaveBeenCalledWith(['/account/login'], { queryParams: { returnUrl: '/library' } });
+    expect(navigate).toHaveBeenCalledWith(['/account/login'], { queryParams: { returnUrl: '/account/scores' } });
+  });
+
+  it.each(['/', '/library', '/score/hanon-no-19', '/import/link', '/exercises/scale'])(
+    'ends the session but stays on public page %s on 401',
+    url => {
+      router.url = url;
+      expect(failWith(401)).toBe(401);
+      expect(clearSession).toHaveBeenCalledOnce();
+      expect(navigate).not.toHaveBeenCalled();
+    }
+  );
+
+  it('judges by the navigation in progress: a fresh visit to a protected page redirects', () => {
+    router.url = '/';
+    router.getCurrentNavigation = () => ({ extractedUrl: { toString: () => '/import/import-work/abc' } });
+    expect(failWith(401)).toBe(401);
+    expect(navigate).toHaveBeenCalledWith(['/account/login'], { queryParams: { returnUrl: '/import/import-work/abc' } });
+  });
+
+  it('judges by the navigation in progress: a fresh visit to a public page stays', () => {
+    router.url = '/account/scores';
+    router.getCurrentNavigation = () => ({ extractedUrl: { toString: () => '/library' } });
+    expect(failWith(401)).toBe(401);
+    expect(clearSession).toHaveBeenCalledOnce();
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('keeps the session on a CSRF 403', () => {
@@ -55,7 +82,7 @@ describe('authInterceptor', () => {
   });
 
   it('does not navigate again when already on the login page', () => {
-    (TestBed.inject(Router) as unknown as { url: string }).url = '/account/login';
+    router.url = '/account/login';
     expect(failWith(401)).toBe(401);
     expect(clearSession).toHaveBeenCalledOnce();
     expect(navigate).not.toHaveBeenCalled();

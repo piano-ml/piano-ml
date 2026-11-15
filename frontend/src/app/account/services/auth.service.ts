@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService, UserApiInfo } from '../../core/api';
 import { SessionStorageService } from './session-storage.service';
-import { LOGIN_PATH, loginQueryParams } from './return-url';
+import { LOGIN_PATH, loginQueryParams, requiresLogin } from './return-url';
 
 @Injectable({
   providedIn: 'root'
@@ -107,14 +107,19 @@ export class AuthService {
     });
   }
 
-  /** `rememberPage`: after an expired session, login brings the user back; after a logout it doesn't. */
+  /**
+   * `rememberPage`: after an expired session, login brings the user back (and only protected
+   * pages redirect: public ones stay, logged out); after a logout it doesn't, and always redirects.
+   */
   private clearSession(redirect: boolean, rememberPage = true): void {
     this.sessionStorage.clearSession();
     
     if (redirect && this.isBrowser) {
       if (!this.router.url.startsWith(LOGIN_PATH)) {
         if (rememberPage) {
-          this.router.navigate([LOGIN_PATH], { queryParams: loginQueryParams(this.router.url) });
+          if (requiresLogin(this.router.url)) {
+            this.router.navigate([LOGIN_PATH], { queryParams: loginQueryParams(this.router.url) });
+          }
         } else {
           this.router.navigate([LOGIN_PATH]);
         }
