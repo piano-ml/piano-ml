@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type PianoKeys from '@jesperdj/pianokeys';
+import { Midi } from '@tonejs/midi';
 import type { Note } from '@tonejs/midi/dist/Note';
 import type { MidiStateEvent } from '../../shared/model/webmidi';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
@@ -109,6 +110,43 @@ describe('PlayerService', () => {
       const midi = scoreMidi(SIMPLE_SCORE);
       midi.addTrack();
       expect(player.splitMidi(midi.toJSON(), [0, 1]).study.tracks).toHaveLength(2);
+    });
+
+    describe('with an empty first track (format 1 file: study_tracks count it)', () => {
+      /** The fixture score behind an empty track, as @tonejs/midi reads a format 1 file: hands at file indexes 1 and 2. */
+      function withEmptyFirstTrack() {
+        const json = scoreMidi(SIMPLE_SCORE).toJSON();
+        const empty = { ...json.tracks[0], name: 'conductor', notes: [], controlChanges: {}, pitchBends: [] };
+        return { ...json, tracks: [empty, ...json.tracks] };
+      }
+
+      it('studies the two hands at the stored file indexes, right hand first', () => {
+        const json = withEmptyFirstTrack();
+        const { study, other } = player.splitMidi(json, [1, 2]);
+        expect(study.tracks.map((t) => t.notes.length)).toEqual([json.tracks[1].notes.length, json.tracks[2].notes.length]);
+        expect(study.tracks[0].notes[0].midi).toBe(json.tracks[1].notes[0].midi);
+        expect(other.tracks).toHaveLength(0);
+      });
+
+      it('schedules the right hand and the left hand from the stored study tracks', async () => {
+        const shifted = new Midi();
+        shifted.fromJSON(withEmptyFirstTrack());
+        const cfg = player.preconfigurePlayConfiguration({ study_tracks: [1, 2] } as never, config(), shifted);
+        expect(cfg.midi!.tracks).toHaveLength(2);
+        expect(cfg.accompaniment!.tracks).toHaveLength(0);
+        await player.play(cfg);
+        expect(handTracks.map((t) => t.hand)).toEqual(['rh', 'lh']);
+      });
+
+      it('studies every track of the instrument from a single file index', () => {
+        expect(player.splitMidi(withEmptyFirstTrack(), [1]).study.tracks).toHaveLength(2);
+      });
+
+      it('ignores a study index pointing at an empty or missing track', () => {
+        const { study, other } = player.splitMidi(withEmptyFirstTrack(), [0, 7]);
+        expect(study.tracks).toHaveLength(0);
+        expect(other.tracks).toHaveLength(2);
+      });
     });
   });
 

@@ -118,23 +118,25 @@ export class PlayerService implements OnDestroy {
   }
 
 
+  /**
+   * Splits the MIDI file into the studied tracks and the accompaniment, dropping the tracks without notes.
+   * {@code studies} are indexes in {@code json.tracks} as read from the file, empty tracks included (what the import
+   * page and midi2pack.sh store in study_tracks): they are resolved before the empty tracks are dropped, since a
+   * format 1 file often starts with an empty track and would shift every index by one.
+   */
   splitMidi(json: Midi.MidiJSON, studies: number[]): { study: Midi.Midi, other: Midi.Midi } {
-    const filteredTracks = json.tracks.filter(track => track.notes.length > 0);
-
-    // json.tracks.forEach((track, idx) => {
-    //   console.log(`Track ${idx}: ${track.name}, instrument: ${track.instrument.name}, notes: ${track.notes.length}`);
-    // });
+    // Position of each track with notes in the file
+    const fileIndexes = json.tracks.map((_, idx) => idx).filter(idx => json.tracks[idx].notes.length > 0);
+    const filteredTracks = fileIndexes.map(idx => json.tracks[idx]);
 
     // If studies.length === 1, include all tracks with the same instrument name
-    if (studies.length === 1) {
-      const studyTrackInstrument = filteredTracks[studies[0]].instrument.name;
-      studies = filteredTracks
-        .map((track, idx) => ({ idx, instrumentName: track.instrument.name }))
-        .filter(item => item.instrumentName === studyTrackInstrument)
-        .map(item => item.idx);
+    if (studies.length === 1 && json.tracks[studies[0]]) {
+      const studyTrackInstrument = json.tracks[studies[0]].instrument.name;
+      studies = fileIndexes.filter(idx => json.tracks[idx].instrument.name === studyTrackInstrument);
     }
+    // From file indexes to positions among the tracks with notes
+    const studiesSet = new Set(studies.map(idx => fileIndexes.indexOf(idx)).filter(pos => pos >= 0));
 
-    //studies = [0,1]
     const normalizedJson: Midi.MidiJSON = {
       ...json,
       tracks: filteredTracks
@@ -150,7 +152,6 @@ export class PlayerService implements OnDestroy {
       midiAll.header.update();
     }
 
-    const studiesSet = new Set(studies);
     const allTracks = midiAll.tracks;
 
     const midiStudiedTracks = allTracks.filter((track, idx) => {
