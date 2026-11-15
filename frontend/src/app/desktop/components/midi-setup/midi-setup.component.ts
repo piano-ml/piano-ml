@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, inject } from '@angular/core';
-import { MidiServiceService } from '../../../shared/services/midi-service.service';
+import { MIDI_BLOCKED_MESSAGE, MidiServiceService } from '../../../shared/services/midi-service.service';
 
 @Component({
   selector: 'app-midi-setup',
@@ -135,7 +135,7 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
       if ('permissions' in navigator) {
         const status = await navigator.permissions.query({ name: 'midi' as PermissionName });
         if (status.state === 'denied') {
-          this.error = $localize`:@@midiSetup.error.blocked:MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.`;
+          this.error = MIDI_BLOCKED_MESSAGE;
           this.loading = false;
           this.cdr.markForCheck();
           return;

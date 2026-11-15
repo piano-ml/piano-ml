@@ -466,6 +466,46 @@
         <source>An error occurred during login</source>
         <target state="translated">Під час входу сталася помилка</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Заняття</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.empty" datatype="html">
+        <source>Nothing recorded yet. Play a score or an exercise to see your progress here.</source>
+        <target state="translated">Ще нічого не записано. Зіграйте твір або вправу, щоб побачити тут свій прогрес.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.daysInARow" datatype="html">
+        <source>Days in a row</source>
+        <target state="translated">Днів поспіль</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.last7Days" datatype="html">
+        <source>Last 7 days</source>
+        <target state="translated">Останні 7 днів</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.totalTime" datatype="html">
+        <source>Total time</source>
+        <target state="translated">Загальний час</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.accuracy" datatype="html">
+        <source>Accuracy (last 10 scores)</source>
+        <target state="translated">Точність (останні 10 творів)</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.recent" datatype="html">
+        <source>Recent sessions</source>
+        <target state="translated">Останні заняття</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">Вправа</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.deleteHistory" datatype="html">
+        <source>Delete practice history</source>
+        <target state="translated">Видалити історію занять</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.confirmDelete" datatype="html">
+        <source>Delete all sessions</source>
+        <target state="translated">Видалити всі заняття</target>
+      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Помилка сторінки</target>
@@ -566,10 +606,6 @@
         <source>Unknown</source>
         <target state="translated">Невідомо</target>
       </trans-unit>
-      <trans-unit id="midiSetup.error.blocked" datatype="html">
-        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
-        <target state="translated">Браузер блокує доступ до MIDI. Відкрийте налаштування браузера, знайдіть дозволи сайту для MIDI, дозвольте доступ цьому сайту та перезавантажте сторінку.</target>
-      </trans-unit>
       <trans-unit id="midiSetup.error.failed" datatype="html">
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">Не вдалося отримати доступ до MIDI. Якщо ви відхилили дозвіл, відкрийте налаштування браузера, скиньте дозволи цього сайту, дозвольте MIDI та перезавантажте сторінку.</target>
@@ -633,6 +669,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">Метроном</target>
+      </trans-unit>
+      <trans-unit id="workbench.midiBlocked.heading" datatype="html">
+        <source>MIDI access blocked</source>
+        <target state="translated">Доступ до MIDI заблоковано</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>
@@ -1721,6 +1761,14 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="importLink.searchForWorksEG.placeholder" datatype="html">
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">Пошук творів (напр., «redemption song»)</target>
+      </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">Пошук...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">Шукати</target>
       </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
@@ -2845,6 +2893,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="seo.defaultDescription" datatype="html">
         <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
         <target state="translated">Вчіться грати на фортепіано з PianoML — безкоштовним вебзастосунком з відкритим кодом для нот MusicXML, MIDI і PDF. Грайте гами, отримуйте відгук у реальному часі та створюйте власну нотну бібліотеку.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">Браузер блокує доступ до MIDI. Відкрийте налаштування браузера, знайдіть дозволи сайту для MIDI, дозвольте доступ цьому сайту та перезавантажте сторінку.</target>
       </trans-unit>
     </body>
   </file>

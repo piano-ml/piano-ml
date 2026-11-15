@@ -466,6 +466,46 @@
         <source>An error occurred during login</source>
         <target state="translated">Une erreur s'est produite lors de la connexion</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Pratique</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.empty" datatype="html">
+        <source>Nothing recorded yet. Play a score or an exercise to see your progress here.</source>
+        <target state="translated">Rien d’enregistré pour l’instant. Jouez une partition ou un exercice pour voir votre progression ici.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.daysInARow" datatype="html">
+        <source>Days in a row</source>
+        <target state="translated">Jours d’affilée</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.last7Days" datatype="html">
+        <source>Last 7 days</source>
+        <target state="translated">7 derniers jours</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.totalTime" datatype="html">
+        <source>Total time</source>
+        <target state="translated">Temps total</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.accuracy" datatype="html">
+        <source>Accuracy (last 10 scores)</source>
+        <target state="translated">Justesse (10 dernières partitions)</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.recent" datatype="html">
+        <source>Recent sessions</source>
+        <target state="translated">Séances récentes</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">Exercice</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.deleteHistory" datatype="html">
+        <source>Delete practice history</source>
+        <target state="translated">Supprimer l’historique de pratique</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.confirmDelete" datatype="html">
+        <source>Delete all sessions</source>
+        <target state="translated">Supprimer toutes les séances</target>
+      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Erreur de la page</target>
@@ -566,10 +606,6 @@
         <source>Unknown</source>
         <target state="translated">Inconnu</target>
       </trans-unit>
-      <trans-unit id="midiSetup.error.blocked" datatype="html">
-        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
-        <target state="translated">Votre navigateur bloque l'accès MIDI. Ouvrez les paramètres du navigateur, trouvez les autorisations du site pour le MIDI, autorisez ce site puis rechargez la page.</target>
-      </trans-unit>
       <trans-unit id="midiSetup.error.failed" datatype="html">
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">L'accès MIDI a échoué. Si vous avez refusé l'autorisation, ouvrez les paramètres du navigateur, réinitialisez les autorisations de ce site, autorisez le MIDI puis rechargez la page.</target>
@@ -633,6 +669,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">Métronome</target>
+      </trans-unit>
+      <trans-unit id="workbench.midiBlocked.heading" datatype="html">
+        <source>MIDI access blocked</source>
+        <target state="translated">Accès MIDI bloqué</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>
@@ -1721,6 +1761,14 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
       <trans-unit id="importLink.searchForWorksEG.placeholder" datatype="html">
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">Rechercher des œuvres (ex. « redemption song »)</target>
+      </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">Recherche...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">Rechercher</target>
       </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
@@ -2845,6 +2893,10 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
       <trans-unit id="seo.defaultDescription" datatype="html">
         <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
         <target state="translated">Apprenez le piano avec PianoML, une application web libre et open source pour les partitions MusicXML, MIDI et PDF. Travaillez vos gammes, recevez une correction en temps réel et constituez votre propre bibliothèque de partitions.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">Votre navigateur bloque l'accès MIDI. Ouvrez les paramètres du navigateur, trouvez les autorisations du site pour le MIDI, autorisez ce site puis rechargez la page.</target>
       </trans-unit>
     </body>
   </file>

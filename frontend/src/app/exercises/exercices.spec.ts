@@ -139,7 +139,11 @@ describe('exercise generator', () => {
       const midi = saveExerciseToStorage(exercise, MAJOR, 'G');
       expect(JSON.parse(localStorage.getItem(MIDI_STORAGE_KEY) as string)).toEqual(JSON.parse(JSON.stringify(midi)));
       expect(localStorage.getItem(MUSIC_XML_STORAGE_KEY)).toBe(generateExerciseAsMusicXML(exercise, MAJOR, 'G'));
-      expect(JSON.parse(localStorage.getItem(EXERCICE_INFO_KEY) as string)).toEqual({ title: exercise.title, tonic: 'G', mode: 'Major', kind: 'Scale' });
+      expect(JSON.parse(localStorage.getItem(EXERCICE_INFO_KEY) as string)).toEqual({
+        title: exercise.title, tonic: 'G', mode: 'Major', kind: 'Scale',
+        // stable identity for the practice history
+        exerciseType: 'scale', patternKey: 'major', exerciseKey: exercise.key,
+      });
     });
 
     it('names the score after the exercise', () => {

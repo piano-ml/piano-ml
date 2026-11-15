@@ -66,6 +66,10 @@ export function saveExerciseToStorage(exercice: Exercise, scaleOrChord: Scale | 
     tonic: key,
     mode: scaleOrChord.name,
     kind: scaleOrChord.kind,
+    // Stable identity for the practice history: names and titles are translated, keys are not
+    exerciseType: scaleOrChord.kind === 'Scale' ? 'scale' : 'agility',
+    patternKey: scaleOrChord.key ?? normalizeKey(scaleOrChord.name),
+    exerciseKey: exercice.key ?? normalizeKey(exercice.title),
   }
   localStorage.setItem(EXERCICE_INFO_KEY, JSON.stringify(exerciceInfo));
 

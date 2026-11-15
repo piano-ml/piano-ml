@@ -1,0 +1,88 @@
+# Practice sessions (issue #399): what a logged-in user played in the workbench - a score or an exercise -
+# with time, range, settings and assessment counters. One row per session; the client generates the id and
+# re-sends the whole session (idempotent upsert).
+# - rows go away with their user (ON DELETE CASCADE);
+# - a deleted score keeps its sessions, detached (ON DELETE SET NULL): title and key are snapshotted here;
+# - detail is JSON kept as text (per-measure counters and takes), so the schema is the same on PostgreSQL and H2.
+databaseChangeLog:
+  - changeSet:
+      id: 022-1-create-practice-session
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: practice_session
+            columns:
+              - column: { name: id, type: UUID, constraints: { nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: kind, type: VARCHAR(16), constraints: { nullable: false } }
+              - column: { name: score_id, type: UUID }
+              - column: { name: title, type: VARCHAR(255) }
+              - column: { name: author, type: VARCHAR(255) }
+              - column: { name: exercise_type, type: VARCHAR(16) }
+              - column: { name: pattern_key, type: VARCHAR(64) }
+              - column: { name: exercise_key, type: VARCHAR(64) }
+              - column: { name: tonic, type: VARCHAR(10) }
+              - column: { name: mode, type: VARCHAR(32) }
+              - column: { name: grade, type: FLOAT }
+              - column: { name: started_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: ended_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: local_date, type: DATE, constraints: { nullable: false } }
+              - column: { name: time_zone, type: VARCHAR(64) }
+              - column: { name: active_seconds, type: INT, constraints: { nullable: false } }
+              - column: { name: take_count, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: completed_count, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: measure_start, type: INT }
+              - column: { name: measure_end, type: INT }
+              - column: { name: measure_total, type: INT }
+              - column: { name: hands, type: VARCHAR(8) }
+              - column: { name: tempo_factor, type: DOUBLE PRECISION }
+              - column: { name: metronome, type: BOOLEAN }
+              - column: { name: is_loop, type: BOOLEAN }
+              - column: { name: input, type: VARCHAR(8) }
+              - column: { name: notes_expected, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: notes_hit, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: notes_wrong, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: onsets, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: waits, type: INT, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: accuracy, type: DOUBLE PRECISION }
+              - column: { name: flow, type: DOUBLE PRECISION }
+              - column: { name: end_reason, type: VARCHAR(16) }
+              - column: { name: detail, type: TEXT }
+        - addPrimaryKey:
+            schemaName: pianoml
+            tableName: practice_session
+            columnNames: id
+            constraintName: pk_practice_session
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: practice_session
+            baseColumnNames: user_id
+            constraintName: fk_practice_session_user
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: practice_session
+            baseColumnNames: score_id
+            constraintName: fk_practice_session_score
+            referencedTableSchemaName: pianoml
+            referencedTableName: score
+            referencedColumnNames: id
+            onDelete: SET NULL
+        - createIndex:
+            schemaName: pianoml
+            tableName: practice_session
+            indexName: idx_practice_session_user_started
+            columns:
+              - column: { name: user_id }
+              - column: { name: started_at, descending: true }
+        - createIndex:
+            schemaName: pianoml
+            tableName: practice_session
+            indexName: idx_practice_session_user_score
+            columns:
+              - column: { name: user_id }
+              - column: { name: score_id }

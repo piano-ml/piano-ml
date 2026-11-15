@@ -466,6 +466,46 @@
         <source>An error occurred during login</source>
         <target state="translated">登录时出错</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">练琴记录</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.empty" datatype="html">
+        <source>Nothing recorded yet. Play a score or an exercise to see your progress here.</source>
+        <target state="translated">暂无记录。弹奏一首乐谱或一个练习后，这里会显示你的进度。</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.daysInARow" datatype="html">
+        <source>Days in a row</source>
+        <target state="translated">连续天数</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.last7Days" datatype="html">
+        <source>Last 7 days</source>
+        <target state="translated">最近 7 天</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.totalTime" datatype="html">
+        <source>Total time</source>
+        <target state="translated">总时长</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.accuracy" datatype="html">
+        <source>Accuracy (last 10 scores)</source>
+        <target state="translated">准确率（最近 10 首乐谱）</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.recent" datatype="html">
+        <source>Recent sessions</source>
+        <target state="translated">最近的练习</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">练习</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.deleteHistory" datatype="html">
+        <source>Delete practice history</source>
+        <target state="translated">删除练琴记录</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.confirmDelete" datatype="html">
+        <source>Delete all sessions</source>
+        <target state="translated">删除所有记录</target>
+      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">页面错误</target>
@@ -566,10 +606,6 @@
         <source>Unknown</source>
         <target state="translated">未知</target>
       </trans-unit>
-      <trans-unit id="midiSetup.error.blocked" datatype="html">
-        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
-        <target state="translated">浏览器阻止了 MIDI 访问。请打开浏览器设置，在网站权限中找到 MIDI，允许本网站访问，然后重新加载页面。</target>
-      </trans-unit>
       <trans-unit id="midiSetup.error.failed" datatype="html">
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">MIDI 访问失败。如果你拒绝过权限，请打开浏览器设置，清除或重置本网站的权限，允许 MIDI 访问，然后重新加载页面。</target>
@@ -633,6 +669,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">节拍器</target>
+      </trans-unit>
+      <trans-unit id="workbench.midiBlocked.heading" datatype="html">
+        <source>MIDI access blocked</source>
+        <target state="translated">MIDI 访问已被阻止</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>
@@ -1721,6 +1761,14 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="importLink.searchForWorksEG.placeholder" datatype="html">
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">搜索作品（例如“redemption song”）</target>
+      </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">正在搜索……</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">搜索</target>
       </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
@@ -2845,6 +2893,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="seo.defaultDescription" datatype="html">
         <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
         <target state="translated">用 PianoML 学钢琴：一款免费开源的网页应用，支持 MusicXML、MIDI 和 PDF 乐谱。练习音阶，获得实时反馈，并建立你自己的乐谱库。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">浏览器阻止了 MIDI 访问。请打开浏览器设置，在网站权限中找到 MIDI，允许本网站访问，然后重新加载页面。</target>
       </trans-unit>
     </body>
   </file>

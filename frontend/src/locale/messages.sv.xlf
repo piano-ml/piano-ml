@@ -466,6 +466,46 @@
         <source>An error occurred during login</source>
         <target state="translated">Ett fel uppstod vid inloggningen</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Övning</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.empty" datatype="html">
+        <source>Nothing recorded yet. Play a score or an exercise to see your progress here.</source>
+        <target state="translated">Inget har registrerats ännu. Spela ett stycke eller en övning för att se dina framsteg här.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.daysInARow" datatype="html">
+        <source>Days in a row</source>
+        <target state="translated">Dagar i rad</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.last7Days" datatype="html">
+        <source>Last 7 days</source>
+        <target state="translated">Senaste 7 dagarna</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.totalTime" datatype="html">
+        <source>Total time</source>
+        <target state="translated">Total tid</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.accuracy" datatype="html">
+        <source>Accuracy (last 10 scores)</source>
+        <target state="translated">Träffsäkerhet (senaste 10 styckena)</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.recent" datatype="html">
+        <source>Recent sessions</source>
+        <target state="translated">Senaste passen</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">Övning</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.deleteHistory" datatype="html">
+        <source>Delete practice history</source>
+        <target state="translated">Ta bort övningshistoriken</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.confirmDelete" datatype="html">
+        <source>Delete all sessions</source>
+        <target state="translated">Ta bort alla pass</target>
+      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Sidfel</target>
@@ -566,10 +606,6 @@
         <source>Unknown</source>
         <target state="translated">Okänd</target>
       </trans-unit>
-      <trans-unit id="midiSetup.error.blocked" datatype="html">
-        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
-        <target state="translated">Webbläsaren blockerar MIDI-åtkomst. Öppna webbläsarens inställningar, leta upp webbplatsbehörigheter för MIDI, tillåt åtkomst för den här webbplatsen och ladda om sidan.</target>
-      </trans-unit>
       <trans-unit id="midiSetup.error.failed" datatype="html">
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">MIDI-åtkomsten misslyckades. Om du nekade behörigheten öppnar du webbläsarens inställningar, återställer behörigheterna för webbplatsen, tillåter MIDI och laddar om sidan.</target>
@@ -633,6 +669,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">Metronom</target>
+      </trans-unit>
+      <trans-unit id="workbench.midiBlocked.heading" datatype="html">
+        <source>MIDI access blocked</source>
+        <target state="translated">MIDI-åtkomst blockerad</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>
@@ -1721,6 +1761,14 @@ Användning: över mollackord och mollbluessammanhang (i7- / i-centrum) när du 
       <trans-unit id="importLink.searchForWorksEG.placeholder" datatype="html">
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">Sök verk (t.ex. 'redemption song')</target>
+      </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">Söker...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">Sök</target>
       </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
@@ -2845,6 +2893,10 @@ Användning: över mollackord och mollbluessammanhang (i7- / i-centrum) när du 
       <trans-unit id="seo.defaultDescription" datatype="html">
         <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
         <target state="translated">Lär dig piano med PianoML, en gratis webbapp med öppen källkod för noter i MusicXML, MIDI och PDF. Öva skalor, få återkoppling i realtid och bygg ditt eget notbibliotek.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">Webbläsaren blockerar MIDI-åtkomst. Öppna webbläsarens inställningar, leta upp webbplatsbehörigheter för MIDI, tillåt åtkomst för den här webbplatsen och ladda om sidan.</target>
       </trans-unit>
     </body>
   </file>

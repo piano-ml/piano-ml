@@ -18,6 +18,7 @@ import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../.
 import { CursorService } from '../../service/cursor.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { PlayerService } from '../../service/player.service';
+import { PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
 
 const SCORE: ScoreApiInfo = {
@@ -169,6 +170,42 @@ describe('WorkbenchComponent', () => {
     });
   });
 
+  describe('when the browser blocks MIDI', () => {
+    const midiPermission = (state: PermissionState) => {
+      const status = { state, onchange: null } as unknown as PermissionStatus;
+      vi.spyOn(navigator.permissions, 'query').mockResolvedValue(status);
+      return status;
+    };
+    const dialog = () => el().querySelector('[role="alertdialog"]');
+
+    it('says so in a popup that can be closed', async () => {
+      midiPermission('denied');
+      await openScore();
+      await waitFor(() => !!dialog());
+      expect(dialog()?.textContent).toContain('MIDI access is blocked by your browser');
+      (dialog()?.querySelector('button') as HTMLButtonElement).click();
+      render();
+      expect(dialog()).toBeNull();
+    });
+
+    it('closes the popup once access is allowed', async () => {
+      const status = midiPermission('denied');
+      await openScore();
+      await waitFor(() => !!dialog());
+      (status as { state: PermissionState }).state = 'granted';
+      status.onchange?.(new Event('change'));
+      render();
+      expect(dialog()).toBeNull();
+    });
+
+    it('shows no popup when MIDI is allowed', async () => {
+      midiPermission('granted');
+      await openScore();
+      expect(navigator.permissions.query).toHaveBeenCalledWith({ name: 'midi' });
+      expect(dialog()).toBeNull();
+    });
+  });
+
   describe('when the score cannot be loaded', () => {
     const errorBox = () => el().querySelector('[role="alert"]');
     const buttonText = (text: string) =>
@@ -286,16 +323,20 @@ describe('WorkbenchComponent', () => {
       expect(resetLight).toHaveBeenCalled();
     });
 
-    it('at the end, records the assessment and returns to the stopped state', async () => {
+    it('at the end, returns to the stopped state without counting the play a second time', async () => {
       await openScore();
       await component.start();
       vi.mocked(scores.scorePlayStatsPost).mockClear();
       player.message.set('END');
       render();
-      expect(scores.scorePlayStatsPost).toHaveBeenCalledWith(expect.objectContaining({
-        id: 's1', title: 'Happy Birthday', assessment: expect.objectContaining({ bad: 0, late: 0 }),
-      }));
+      expect(scores.scorePlayStatsPost).not.toHaveBeenCalled();
       expect(component.isPlaying).toBe(false);
+    });
+
+    it('tells the practice recorder which score is on the stand', async () => {
+      const setItem = vi.spyOn(TestBed.inject(PracticeSessionRecorder), 'setItem');
+      await openScore();
+      expect(setItem).toHaveBeenLastCalledWith({ kind: 'score', scoreId: 's1', title: 'Happy Birthday' }, expect.any(Number));
     });
 
     it('flashes the score on a wrong note and shows the keyboard for a while', async () => {
