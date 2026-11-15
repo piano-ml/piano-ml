@@ -9,7 +9,7 @@
 
   <!-- ── Toolbar ─────────────────────────────────────── -->
   <div class="flex items-center justify-between">
-    <p class="page-sub-title">{{ selectedKey }} · {{ selectedChord.name }} · {{ selectedExcercice.title }}</p>
+    <p class="page-sub-title">{{ selectedKey | noteName }} · {{ selectedChord.name }} · {{ selectedExcercice.title }}</p>
     <button (click)="load()" class="btn-hero" i18n="@@exercises.start">Start</button>
   </div>
 
@@ -22,7 +22,7 @@
         <label class="field-label" for="agility-key" i18n="@@scoreInfo.key">Key</label>
         <select id="agility-key" [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()" class="input-field">
           @for (key of keys; track key) {
-            <option [ngValue]="key">{{ key }}</option>
+            <option [ngValue]="key">{{ key | noteName }}</option>
           }
         </select>
       </div>
@@ -31,7 +31,7 @@
         <label class="field-label" for="agility-chord" i18n="@@agility.chord">Chord</label>
         <select id="agility-chord" [(ngModel)]="selectedChord" (ngModelChange)="onChordChange()" class="input-field">
           @for (chord of availableChords; track chord) {
-            <option [ngValue]="chord">{{ selectedKey }} {{ chord.name }}</option>
+            <option [ngValue]="chord">{{ selectedKey | noteName }} {{ chord.name }}</option>
           }
         </select>
       </div>
@@ -52,7 +52,7 @@
       <div class="exercise-desc-card">
 
         <div class="exercise-desc-section">
-          <p class="exercise-desc-label"><ng-container i18n="@@exercises.exercise">Exercise</ng-container> — <span class="text-neutral-300">{{ selectedKey }} {{ selectedChord.name }} — {{ selectedExcercice.title }}</span></p>
+          <p class="exercise-desc-label"><ng-container i18n="@@exercises.exercise">Exercise</ng-container> — <span class="text-neutral-300">{{ selectedKey | noteName }} {{ selectedChord.name }} — {{ selectedExcercice.title }}</span></p>
           <p class="exercise-desc-text">@if (selectedExcercice.advice) { {{ selectedExcercice.advice }} } @else { <ng-container i18n="@@exercises.noDescription">No description available.</ng-container> }</p>
         </div>
 

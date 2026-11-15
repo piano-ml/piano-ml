@@ -1191,23 +1191,23 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <target state="translated">暂无描述。</target>
       </trans-unit>
       <trans-unit id="seo.agility.exercise.title" datatype="html">
-        <source><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></source>
+        <source><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="keyLabel"/> <x id="chord" equiv-text="chordName"/></source>
         <target state="translated"><x id="exercise" equiv-text="exerciseName"/>：<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></target>
       </trans-unit>
       <trans-unit id="seo.agility.exercise.description" datatype="html">
-        <source>Practice piano agility with the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern. Build technique with interactive exercises and real-time feedback.</source>
+        <source>Practice piano agility with the <x id="key" equiv-text="keyLabel"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern. Build technique with interactive exercises and real-time feedback.</source>
         <target state="translated">用<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦按<x id="exercise" equiv-text="exerciseName"/>模式练习钢琴灵活性。通过互动练习和实时反馈提升技巧。</target>
       </trans-unit>
       <trans-unit id="seo.agility.exercise.teaches" datatype="html">
-        <source>Piano agility using the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern</source>
+        <source>Piano agility using the <x id="key" equiv-text="keyLabel"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern</source>
         <target state="translated">用<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦按<x id="exercise" equiv-text="exerciseName"/>模式练习钢琴灵活性</target>
       </trans-unit>
       <trans-unit id="seo.agility.chord.title" datatype="html">
-        <source><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> Chord: Piano Agility Exercises</source>
+        <source><x id="key" equiv-text="keyLabel"/> <x id="chord" equiv-text="chordName"/> Chord: Piano Agility Exercises</source>
         <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦：钢琴灵活性练习</target>
       </trans-unit>
       <trans-unit id="seo.agility.chord.description" datatype="html">
-        <source>Practice <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.</source>
+        <source>Practice <x id="key" equiv-text="keyLabel"/> <x id="chord" equiv-text="chordName"/> chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.</source>
         <target state="translated">用互动灵活性练习练习<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦进行，提升手指灵活度和和弦转换。</target>
       </trans-unit>
       <trans-unit id="seo.agility.title" datatype="html">
@@ -1419,19 +1419,19 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <target state="translated">音阶</target>
       </trans-unit>
       <trans-unit id="seo.scale.exercise.title" datatype="html">
-        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: <x id="exercise" equiv-text="exerciseName"/></source>
+        <source><x id="key" equiv-text="keyLabel"/> <x id="scale" equiv-text="scaleName"/> Scale: <x id="exercise" equiv-text="exerciseName"/></source>
         <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶：<x id="exercise" equiv-text="exerciseName"/></target>
       </trans-unit>
       <trans-unit id="seo.scale.exercise.description" datatype="html">
-        <source>Practice the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale with the <x id="exercise" equiv-text="exerciseName"/> exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.</source>
+        <source>Practice the <x id="key" equiv-text="keyLabel"/> <x id="scale" equiv-text="scaleName"/> scale with the <x id="exercise" equiv-text="exerciseName"/> exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.</source>
         <target state="translated">用<x id="exercise" equiv-text="exerciseName"/>练习<x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶：分手练习、速度调节和实时 MIDI 反馈。</target>
       </trans-unit>
       <trans-unit id="seo.scale.title" datatype="html">
-        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: Piano Exercises</source>
+        <source><x id="key" equiv-text="keyLabel"/> <x id="scale" equiv-text="scaleName"/> Scale: Piano Exercises</source>
         <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶：钢琴练习</target>
       </trans-unit>
       <trans-unit id="seo.scale.description" datatype="html">
-        <source>Learn the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.</source>
+        <source>Learn the <x id="key" equiv-text="keyLabel"/> <x id="scale" equiv-text="scaleName"/> scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.</source>
         <target state="translated">在 PianoML 上通过互动练习、分手练习和速度调节学习<x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶。</target>
       </trans-unit>
       <trans-unit id="seo.scales.title" datatype="html">
@@ -2593,6 +2593,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="exercisesInKey.heading" datatype="html">
         <source>Practice Exercises in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/>练习</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.thisKey" datatype="html">
+        <source>this key</source>
+        <target state="translated">该调</target>
       </trans-unit>
       <trans-unit id="languageSwitcher.label" datatype="html">
         <source>Language</source>

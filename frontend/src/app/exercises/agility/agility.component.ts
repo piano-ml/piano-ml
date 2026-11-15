@@ -9,12 +9,13 @@ import { FormsModule } from '@angular/forms';
 import { getWeekOfYear, loadExercice } from '../exercices';
 import { SeoService } from '../../shared/seo';
 import { buildAgilitySeo } from './agility.seo';
+import { NoteNamePipe } from '../../shared/i18n';
 import { PopularScoresInKeyComponent } from '../../shared/components/popular-scores-in-key/popular-scores-in-key.component';
 
 
 @Component({
   selector: 'app-agility',
-  imports: [FormsModule, PopularScoresInKeyComponent],
+  imports: [FormsModule, PopularScoresInKeyComponent, NoteNamePipe],
   templateUrl: './agility.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './agility.component.css'
@@ -68,7 +69,8 @@ export class AgilityComponent implements OnInit {
         this.selectedExcercice = foundExercise;
       }
 
-      if (this.keys.includes(selectedKey)) {
+      const keyFound = this.keys.includes(selectedKey);
+      if (keyFound) {
         this.selectedKey = selectedKey;
       }
 
@@ -82,6 +84,12 @@ export class AgilityComponent implements OnInit {
       }
 
       this.isHydratingFromUrl = false;
+
+      // A URL naming an exercise, key or chord the page doesn't offer (e.g. an unpublished exercise, or a
+      // chord the exercise can't play) shows the fallback: say so in the URL instead of keeping a wrong one.
+      if (!foundExercise || !keyFound || !foundChord) {
+        this.updateUrlFromState();
+      }
 
       this.updateFullKey();
       this.updatePageTitle();

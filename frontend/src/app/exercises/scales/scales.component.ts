@@ -9,11 +9,12 @@ import type { Exercise } from '../model';
 import { FormsModule } from '@angular/forms';
 import { SeoService } from '../../shared/seo';
 import { buildScalesSeo } from './scales.seo';
+import { NoteNamePipe } from '../../shared/i18n';
 import { PopularScoresInKeyComponent } from '../../shared/components/popular-scores-in-key/popular-scores-in-key.component';
 
 @Component({
   selector: 'app-scales',
-  imports: [FormsModule, PopularScoresInKeyComponent],
+  imports: [FormsModule, PopularScoresInKeyComponent, NoteNamePipe],
   templateUrl: './scales.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './scales.component.css'
@@ -67,6 +68,8 @@ export class ScalesComponent implements OnInit {
       const matchingKey = this.keys.find(k => k.toLowerCase() === selectedKey.toLowerCase());
       if (matchingKey) {
         this.selectedKey = matchingKey;
+      } else if (!this.keys.includes(this.selectedKey)) {
+        this.selectedKey = this.keys[getWeekOfYear() % this.keys.length];
       }
 
       const foundExercise = this.myexcerices.find(
@@ -77,6 +80,12 @@ export class ScalesComponent implements OnInit {
       }
 
       this.isHydratingFromUrl = false;
+
+      // A URL naming a scale, key or exercise the page doesn't offer shows the fallback: say so in the URL
+      // instead of keeping one that doesn't match the page.
+      if (!foundScale || !matchingKey || !foundExercise) {
+        this.updateUrlFromState();
+      }
 
       this.updateFullKey();
       this.updatePageTitle();
@@ -115,11 +124,16 @@ export class ScalesComponent implements OnInit {
     }));
   }
 
-  private syncKeysForScale(resetSelectedKey = false) {
-    const isMinor = this.selectedScale.key === 'minor';
-    this.keys = isMinor ? minorKeys : majorKeys;
+  /** Minor-family scales (natural, harmonic, melodic minor, minor pentatonic and blues…) use minor keys. */
+  private isMinorScale(): boolean {
+    return (this.selectedScale.key ?? '').includes('minor');
+  }
 
-    if (resetSelectedKey) {
+  private syncKeysForScale(resetSelectedKey = false) {
+    this.keys = this.isMinorScale() ? minorKeys : majorKeys;
+
+    // Keep the key when it is still offered (e.g. minor → harmonic minor), otherwise the key of the week.
+    if (resetSelectedKey && !this.keys.includes(this.selectedKey)) {
       this.selectedKey = this.keys[getWeekOfYear() % this.keys.length];
     }
   }
@@ -148,9 +162,8 @@ export class ScalesComponent implements OnInit {
 
   private updateFullKey(): void {
     // From the stable key, not the translated name: "harmonic_minor", "minor_pentatonic"… are minor.
-    const scaleKey = this.selectedScale.key ?? '';
-    const isMinor = scaleKey.includes('minor');
-    const isMajor = scaleKey === 'major';
+    const isMinor = this.isMinorScale();
+    const isMajor = this.selectedScale.key === 'major';
     
     let note = this.selectedKey;
     

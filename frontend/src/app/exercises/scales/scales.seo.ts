@@ -1,3 +1,4 @@
+import { noteName } from '../../shared/i18n';
 import type { SeoData } from '../../shared/seo';
 
 export interface ScalesSeoState {
@@ -12,17 +13,19 @@ const EXERCISES_PATH = '/exercises/scale';
 
 export function buildScalesSeo(state: ScalesSeoState): SeoData {
   const { scaleName, exerciseName, selectedKey } = state;
+  // The key in the page language ("F♯", "Fa♯", "Fis"); the canonical keeps the URL value.
+  const keyLabel = noteName(selectedKey);
   let title: string;
   let description: string;
   let canonical: string;
 
   if (scaleName && selectedKey && exerciseName) {
-    title = $localize`:@@seo.scale.exercise.title:${selectedKey}:key: ${scaleName}:scale: Scale: ${exerciseName}:exercise:`;
-    description = $localize`:@@seo.scale.exercise.description:Practice the ${selectedKey}:key: ${scaleName}:scale: scale with the ${exerciseName}:exercise: exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.`;
+    title = $localize`:@@seo.scale.exercise.title:${keyLabel}:key: ${scaleName}:scale: Scale: ${exerciseName}:exercise:`;
+    description = $localize`:@@seo.scale.exercise.description:Practice the ${keyLabel}:key: ${scaleName}:scale: scale with the ${exerciseName}:exercise: exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.`;
     canonical = `${EXERCISES_PATH}/${selectedKey}/${state.scaleKey}/${state.exerciseKey}`;
   } else if (scaleName && selectedKey) {
-    title = $localize`:@@seo.scale.title:${selectedKey}:key: ${scaleName}:scale: Scale: Piano Exercises`;
-    description = $localize`:@@seo.scale.description:Learn the ${selectedKey}:key: ${scaleName}:scale: scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.`;
+    title = $localize`:@@seo.scale.title:${keyLabel}:key: ${scaleName}:scale: Scale: Piano Exercises`;
+    description = $localize`:@@seo.scale.description:Learn the ${keyLabel}:key: ${scaleName}:scale: scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.`;
     canonical = `${EXERCISES_PATH}/${selectedKey}/${state.scaleKey}`;
   } else {
     title = $localize`:@@seo.scales.title:Piano Scale Exercises: Major & Minor Scales`;

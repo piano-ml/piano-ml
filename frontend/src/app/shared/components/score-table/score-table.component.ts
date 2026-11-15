@@ -84,8 +84,13 @@ export class ScoreTableComponent implements OnInit {
 
   getCellValue(score: ScoreApiInfo, column: ScoreTableColumn): string {
     const value = this.getPropertyValue(score, column.key);
-    return column.formatter ? column.formatter(value, score) : (value?.toString() || '');
+    if (column.formatter) return column.formatter(value, score);
+    // Numbers (grades) in the page language: 2.5 in English, 2,5 in French and German.
+    if (typeof value === 'number') return this.numberFormat.format(value);
+    return value?.toString() || '';
   }
+
+  private readonly numberFormat = new Intl.NumberFormat(currentLocale(), { maximumFractionDigits: 2 });
 
   getCellIcon(score: ScoreApiInfo, column: ScoreTableColumn): ScoreTableCellIcon | null {
     return column.icon ? column.icon(this.getPropertyValue(score, column.key), score) : null;

@@ -9,7 +9,7 @@
 
   <!-- ── Toolbar ─────────────────────────────────────── -->
   <div class="flex items-center justify-between">
-    <p class="page-sub-title">{{ selectedKey }} · {{ selectedScale.name }} · {{ selectedExcercice.title }}</p>
+    <p class="page-sub-title">{{ selectedKey | noteName }} · {{ selectedScale.name }} · {{ selectedExcercice.title }}</p>
     <button (click)="load()" class="btn-hero" i18n="@@exercises.start">Start</button>
   </div>
 
@@ -31,7 +31,7 @@
         <label class="field-label" for="select-key" i18n="@@scoreInfo.key">Key</label>
         <select id="select-key" [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()" class="input-field">
           @for (key of keys; track key) {
-            <option [ngValue]="key">{{ key }}</option>
+            <option [ngValue]="key">{{ key | noteName }}</option>
           }
         </select>
       </div>

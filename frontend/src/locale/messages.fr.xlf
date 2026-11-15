@@ -1191,23 +1191,23 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
         <target state="translated">Aucune description disponible.</target>
       </trans-unit>
       <trans-unit id="seo.agility.exercise.title" datatype="html">
-        <source><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></source>
+        <source><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="keyLabel"/> <x id="chord" equiv-text="chordName"/></source>
         <target state="translated"><x id="exercise" equiv-text="exerciseName"/> : <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></target>
       </trans-unit>
       <trans-unit id="seo.agility.exercise.description" datatype="html">
-        <source>Practice piano agility with the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern. Build technique with interactive exercises and real-time feedback.</source>
+        <source>Practice piano agility with the <x id="key" equiv-text="keyLabel"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern. Build technique with interactive exercises and real-time feedback.</source>
         <target state="translated">Travaillez l'agilité au piano avec l'accord de <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> dans le motif <x id="exercise" equiv-text="exerciseName"/>. Développez votre technique avec des exercices interactifs et une correction en temps réel.</target>
       </trans-unit>
       <trans-unit id="seo.agility.exercise.teaches" datatype="html">
-        <source>Piano agility using the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern</source>
+        <source>Piano agility using the <x id="key" equiv-text="keyLabel"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern</source>
         <target state="translated">Agilité au piano avec l'accord de <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> dans le motif <x id="exercise" equiv-text="exerciseName"/></target>
       </trans-unit>
       <trans-unit id="seo.agility.chord.title" datatype="html">
-        <source><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> Chord: Piano Agility Exercises</source>
+        <source><x id="key" equiv-text="keyLabel"/> <x id="chord" equiv-text="chordName"/> Chord: Piano Agility Exercises</source>
         <target state="translated">Accord de <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> : exercices d'agilité au piano</target>
       </trans-unit>
       <trans-unit id="seo.agility.chord.description" datatype="html">
-        <source>Practice <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.</source>
+        <source>Practice <x id="key" equiv-text="keyLabel"/> <x id="chord" equiv-text="chordName"/> chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.</source>
         <target state="translated">Travaillez les enchaînements de l'accord de <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> avec des exercices d'agilité interactifs. Améliorez la dextérité de vos doigts et vos changements d'accord.</target>
       </trans-unit>
       <trans-unit id="seo.agility.title" datatype="html">
@@ -1419,19 +1419,19 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
         <target state="translated">Gamme</target>
       </trans-unit>
       <trans-unit id="seo.scale.exercise.title" datatype="html">
-        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: <x id="exercise" equiv-text="exerciseName"/></source>
+        <source><x id="key" equiv-text="keyLabel"/> <x id="scale" equiv-text="scaleName"/> Scale: <x id="exercise" equiv-text="exerciseName"/></source>
         <target state="translated">Gamme de <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> : <x id="exercise" equiv-text="exerciseName"/></target>
       </trans-unit>
       <trans-unit id="seo.scale.exercise.description" datatype="html">
-        <source>Practice the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale with the <x id="exercise" equiv-text="exerciseName"/> exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.</source>
+        <source>Practice the <x id="key" equiv-text="keyLabel"/> <x id="scale" equiv-text="scaleName"/> scale with the <x id="exercise" equiv-text="exerciseName"/> exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.</source>
         <target state="translated">Travaillez la gamme de <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> avec l'exercice <x id="exercise" equiv-text="exerciseName"/> : pratique mains séparées, tempo réglable et correction MIDI en temps réel.</target>
       </trans-unit>
       <trans-unit id="seo.scale.title" datatype="html">
-        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: Piano Exercises</source>
+        <source><x id="key" equiv-text="keyLabel"/> <x id="scale" equiv-text="scaleName"/> Scale: Piano Exercises</source>
         <target state="translated">Gamme de <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> : exercices de piano</target>
       </trans-unit>
       <trans-unit id="seo.scale.description" datatype="html">
-        <source>Learn the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.</source>
+        <source>Learn the <x id="key" equiv-text="keyLabel"/> <x id="scale" equiv-text="scaleName"/> scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.</source>
         <target state="translated">Apprenez la gamme de <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> sur PianoML avec des exercices interactifs, la pratique mains séparées et un tempo réglable.</target>
       </trans-unit>
       <trans-unit id="seo.scales.title" datatype="html">
@@ -2593,6 +2593,10 @@ Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous
       <trans-unit id="exercisesInKey.heading" datatype="html">
         <source>Practice Exercises in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></source>
         <target state="translated">Exercices en <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.thisKey" datatype="html">
+        <source>this key</source>
+        <target state="translated">cette tonalité</target>
       </trans-unit>
       <trans-unit id="languageSwitcher.label" datatype="html">
         <source>Language</source>

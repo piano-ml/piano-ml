@@ -1,3 +1,4 @@
+import { noteName } from '../../shared/i18n';
 import { localizedUrl } from '../../shared/i18n';
 import { SITE, type SeoData } from '../../shared/seo';
 
@@ -13,19 +14,21 @@ const EXERCISES_PATH = '/exercises/agility';
 
 export function buildAgilitySeo(state: AgilitySeoState): SeoData {
   const { chordName, exerciseName, selectedKey } = state;
+  // The key in the page language ("F♯", "Fa♯", "Fis"); the canonical keeps the URL value.
+  const keyLabel = noteName(selectedKey);
   let title: string;
   let description: string;
   let canonical: string;
   let teaches: string | undefined;
 
   if (chordName && selectedKey && exerciseName) {
-    title = $localize`:@@seo.agility.exercise.title:${exerciseName}:exercise:: ${selectedKey}:key: ${chordName}:chord:`;
-    description = $localize`:@@seo.agility.exercise.description:Practice piano agility with the ${selectedKey}:key: ${chordName}:chord: chord in the ${exerciseName}:exercise: pattern. Build technique with interactive exercises and real-time feedback.`;
+    title = $localize`:@@seo.agility.exercise.title:${exerciseName}:exercise:: ${keyLabel}:key: ${chordName}:chord:`;
+    description = $localize`:@@seo.agility.exercise.description:Practice piano agility with the ${keyLabel}:key: ${chordName}:chord: chord in the ${exerciseName}:exercise: pattern. Build technique with interactive exercises and real-time feedback.`;
     canonical = `${EXERCISES_PATH}/${selectedKey}/${state.chordKey}/${state.exerciseKey}`;
-    teaches = $localize`:@@seo.agility.exercise.teaches:Piano agility using the ${selectedKey}:key: ${chordName}:chord: chord in the ${exerciseName}:exercise: pattern`;
+    teaches = $localize`:@@seo.agility.exercise.teaches:Piano agility using the ${keyLabel}:key: ${chordName}:chord: chord in the ${exerciseName}:exercise: pattern`;
   } else if (chordName && selectedKey) {
-    title = $localize`:@@seo.agility.chord.title:${selectedKey}:key: ${chordName}:chord: Chord: Piano Agility Exercises`;
-    description = $localize`:@@seo.agility.chord.description:Practice ${selectedKey}:key: ${chordName}:chord: chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.`;
+    title = $localize`:@@seo.agility.chord.title:${keyLabel}:key: ${chordName}:chord: Chord: Piano Agility Exercises`;
+    description = $localize`:@@seo.agility.chord.description:Practice ${keyLabel}:key: ${chordName}:chord: chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.`;
     canonical = EXERCISES_PATH;
   } else {
     title = $localize`:@@seo.agility.title:Piano Agility Exercises: Technique & Finger Dexterity`;

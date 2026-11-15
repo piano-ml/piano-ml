@@ -24,15 +24,15 @@
       <div>
         <p class="field-label" i18n="@@scoreInfo.key">Key</p>
         @if (score.fullKey && score.genre_slug) {
-          <a [routerLink]="['/library/genres', score.genre_slug]" [queryParams]="{fullKey: score.fullKey}" class="link-primary text-sm mt-0.5 block">{{ score.fullKey }}</a>
+          <a [routerLink]="['/library/genres', score.genre_slug]" [queryParams]="{fullKey: score.fullKey}" class="link-primary text-sm mt-0.5 block">{{ score.fullKey | keyName }}</a>
         } @else {
-          <p class="text-sm text-neutral-300 mt-0.5">{{ score.fullKey || '—' }}</p>
+          <p class="text-sm text-neutral-300 mt-0.5">{{ (score.fullKey | keyName) || '—' }}</p>
         }
       </div>
 
       <div>
         <p class="field-label" i18n="@@scoreInfo.grade">Grade</p>
-        <p class="text-sm text-neutral-300 mt-0.5">{{ score.grade || '—' }}</p>
+        <p class="text-sm text-neutral-300 mt-0.5">{{ score.grade ? (score.grade | number) : '—' }}</p>
       </div>
 
       <div>

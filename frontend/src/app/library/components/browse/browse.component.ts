@@ -17,6 +17,7 @@ import noUiSlider, { API as NoUiSliderApi, PipsMode } from 'nouislider';
 import wNumb from 'wnumb';
 import { BeaconService } from 'ng-beacon';
 import { BROWSE_TOUR } from './browse.tour';
+import { KeyNamePipe } from '../../../shared/i18n';
 
 @Component({
   selector: 'app-browse',
@@ -29,7 +30,8 @@ import { BROWSE_TOUR } from './browse.tour';
     QuickActionsComponent,
     BrowseByAuthorsComponent,
     BrowseByGenreComponent,
-    DecimalPipe
+    DecimalPipe,
+    KeyNamePipe
   ]
 })
 export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {

@@ -43,7 +43,7 @@
         <select id="browse-tonality" [(ngModel)]="selectedFullKey" (change)="applyFilters()" [disabled]="loadingFullKeys" class="px-2 py-1" i18n-aria-label="@@browse.key.label" aria-label="Key signature">
           <option value="" i18n="@@browse.allKeys">All keys</option>
           @for (key of fullKeyOptions; track key) {
-          <option [value]="key">{{ key }}</option>
+          <option [value]="key">{{ key | keyName }}</option>
           }
         </select>
       </label>

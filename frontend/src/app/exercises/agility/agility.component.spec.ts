@@ -1,3 +1,4 @@
+import { noteName } from '../../shared/i18n';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -72,7 +73,7 @@ describe('AgilityComponent', () => {
     render();
     expect(component.availableChords.every((c) => c.pattern.length === exercises[0].patternSize)).toBe(true);
     expect(navigate).toHaveBeenCalledWith(['/', 'exercises', 'agility', weekKey, 'major', exercises[0].key], { replaceUrl: true });
-    expect(seo.mock.calls.at(-1)?.[0].title).toBe(`${exercises[0].title}: ${weekKey} Major`);
+    expect(seo.mock.calls.at(-1)?.[0].title).toBe(`${exercises[0].title}: ${noteName(weekKey)} Major`);
   });
 
   it('opens the exercise, key and chord of the URL, without rewriting it', () => {
@@ -84,6 +85,12 @@ describe('AgilityComponent', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
+  it('rewrites the URL of a chord no published exercise offers, so the URL matches the page', () => {
+    render({ selectedKey: 'C', chordKey: 'dominant_seventh', exerciseKey: 'nothing' });
+    expect(component.selectedChord.name).toBe('Major');
+    expect(navigate).toHaveBeenCalledWith(['/', 'exercises', 'agility', 'C', 'major', exercises[0].key], { replaceUrl: true });
+  });
+
   it('keeps the defaults for parts of the URL it does not know', () => {
     render({ selectedKey: 'H', chordKey: 'augmented', exerciseKey: 'nothing' });
     expect(component.selectedExcercice).toBe(exercises[0]);
@@ -93,10 +100,10 @@ describe('AgilityComponent', () => {
 
   it('follows the key, chord and exercise selectors', async () => {
     render({ selectedKey: 'C', chordKey: 'major', exerciseKey: exercises[0].key as string });
-    await choose('agility-key', 'Bb');
+    await choose('agility-key', 'B♭');
     expect(component.fullKey).toBe('B- major');
     expect(navigate).toHaveBeenLastCalledWith(['/', 'exercises', 'agility', 'Bb', 'major', exercises[0].key], { replaceUrl: true });
-    await choose('agility-chord', 'Bb Minor');
+    await choose('agility-chord', 'B♭ Minor');
     expect(component.fullKey).toBe('b- minor');
     expect(navigate).toHaveBeenLastCalledWith(['/', 'exercises', 'agility', 'Bb', 'minor', exercises[0].key], { replaceUrl: true });
     await choose('agility-exercise', exercises[1].title);

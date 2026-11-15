@@ -3,20 +3,18 @@ import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } f
 import { exercises as agilityExercises } from '../../../exercises/agility/pattern';
 import { exercises as scalesExercises } from '../../../exercises/scales/pattern';
 import { Exercise } from '../../../exercises/model';
-import { localizedPath } from '../../i18n';
+import { keyName, localizedPath, parseKey } from '../../i18n';
 
 interface ExerciseWithType extends Exercise {
   exerciseType: 'agility' | 'scale';
 }
 
-/** A key as stored ("f# minor", "B- major") written for people ("F♯ minor", "B♭ major"); "this key" when unreadable. */
+/**
+ * A key as stored ("f# minor", "B- major") written for people in the page language ("F♯ minor", "Fa♯ menor",
+ * "B-Dur"); "this key" when it is not a major or minor key.
+ */
 export function formatKeyLabel(fullKey: string | null | undefined): string {
-  const [note, mode, ...rest] = (fullKey ?? '').trim().split(/\s+/);
-  if (!note || !mode || rest.length > 0 || !/^[a-g][#-]?$/i.test(note) || !/^(major|minor)$/i.test(mode)) {
-    return 'this key';
-  }
-  const tonic = note.charAt(0).toUpperCase() + note.slice(1).replace('#', '♯').replace('-', '♭');
-  return `${tonic} ${mode.toLowerCase()}`;
+  return parseKey(fullKey)?.mode ? keyName(fullKey) : $localize`:@@exercisesInKey.thisKey:this key`;
 }
 
 @Component({
@@ -55,7 +53,7 @@ export class ExercisesInKeyComponent implements OnChanges {
     this.exercises = [...agilityWithType, ...scalesWithType];
   }
 
-  /** The key for people: "f# minor" -> "F♯ minor", "B- major" -> "B♭ major"; "this key" when it cannot be read. */
+  /** The key for people, in the page language; "this key" when it cannot be read. */
   get keyLabel(): string {
     return formatKeyLabel(this.fullKey);
   }
