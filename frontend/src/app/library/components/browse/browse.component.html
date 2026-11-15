@@ -103,27 +103,27 @@
   <!-- Tabs Section -->
   @if ( !(selectedAuthor || selectedGenre || activeSearchKeyword)) {
   <nav class="" aria-label="Browse options">
-    <!-- Tab Headers -->
-    <div class="flex">
+    <!-- Tab Headers: tighter and shorter on phones; scrolls on its own rather than widening the page -->
+    <div class="flex overflow-x-auto">
       <button (click)="setActiveTab('new')" [class.border-emerald-500]="activeTab === 'new'"
         [class.text-white]="activeTab === 'new'" [class.text-gray-300]="activeTab !== 'new'"
-        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200  focus:outline-none">
+        class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200  focus:outline-none">
         New
       </button>
       <button (click)="setActiveTab('popular')" [class.border-emerald-500]="activeTab === 'popular'"
         [class.text-white]="activeTab === 'popular'" [class.text-gray-300]="activeTab !== 'popular'"
-        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 focus:outline-none">
+        class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200 focus:outline-none">
         Popular
       </button>
       <button (click)="setActiveTab('genres')" [class.border-emerald-500]="activeTab === 'genres'"
         [class.text-white]="activeTab === 'genres'" [class.text-gray-300]="activeTab !== 'genres'"
-        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
-        Browse by Genres
+        class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+        <span class="hidden sm:inline">Browse by </span>Genres
       </button>
       <button (click)="setActiveTab('artists')" [class.border-emerald-500]="activeTab === 'artists'"
         [class.text-white]="activeTab === 'artists'" [class.text-gray-300]="activeTab !== 'artists'"
-        class="px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
-        Browse by Artist
+        class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+        <span class="hidden sm:inline">Browse by </span>Artist
       </button>
     </div>
     <!-- Tab Content -->
