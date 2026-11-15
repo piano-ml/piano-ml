@@ -94,7 +94,7 @@ export class CursorService implements OnDestroy {
 
         this.cursor = cursor;
         this.midiTicksToOsmdCursorIndex.clear();
-        this.feedbackSignal.set({ message: 'Initializing...', percentage: 0 });
+        this.feedbackSignal.set({ message: $localize`:@@workbench.progress.initializing:Initializing...`, percentage: 0 });
         await this.yieldToUi();
 
         this.buildMidiTicksNoteMap(midi)
@@ -224,7 +224,7 @@ export class CursorService implements OnDestroy {
      * @returns 
      */
     private async buildOsmdStepsSequence(cursor: Cursor): Promise<Map<number, number>> {
-        let feedbackMessage = "Building Step Sequence";
+        let feedbackMessage = $localize`:@@workbench.progress.steps:Building the step sequence`;
         const feedbackStep = Math.max(1, Math.floor(this.iteratorSize / 100));
         cursor.reset();
         const osmdSteps: number[] = [];
@@ -265,7 +265,7 @@ export class CursorService implements OnDestroy {
         const osmdMesureSequence = this.osmdMeasureSequence;
         const maxSecondPassIterations = Math.max(this.iteratorSize * 20, osmdMesureSequence.length * 20, 20000);
         const cursor = this.cursor!;
-        const feedbackMessage = "Initializing Sheet Cursor";
+        const feedbackMessage = $localize`:@@workbench.progress.cursor:Initializing the sheet cursor`;
         let secondPassCounter = 0;
         while (!cursor.iterator.EndReached) {
             if (secondPassCounter > maxSecondPassIterations) {
@@ -370,7 +370,7 @@ export class CursorService implements OnDestroy {
     hydrateTargets(osmdMeasureToFirstStepIndex: Map<number, number>): OsmdArrayElement[] {
         //console.log("hydrateTargets start (need osmdMeasureToFirstStepIndex)", osmdMeasureToFirstStepIndex);
         const osmdArray = this.osmdArray!;
-        const feedbackMessage = "Hydrating Cursor";
+        const feedbackMessage = $localize`:@@workbench.progress.hydrating:Preparing the cursor`;
         let targetOsmdIndex = 0;
         let thirdPassCounter = 0;
         const feedbackStep = Math.max(1, Math.floor(osmdArray.length / 100));
@@ -567,7 +567,7 @@ export class CursorService implements OnDestroy {
      * This is intentionally computed standalone for future refactors.
      */
     buildOsmdMeasureSequence(): number[] {
-        const feedbackMessage = "Building Measure Sequence";
+        const feedbackMessage = $localize`:@@workbench.progress.measureSequence:Building the measure sequence`;
         this.feedback(feedbackMessage, 0);
         const osmdMeasureSequence: number[] = Array.from(this.osmdMeasureNoteMap.keys());
         const outputSequence: number[] = [];
@@ -659,7 +659,7 @@ export class CursorService implements OnDestroy {
      * @return repetitionInstructions the list of repetition instructions
      */
     hydrateRepetitionInstructions(cursor: Cursor): RepetitionInstruction[] {
-        const feedbackMessage = "Building Voltas List";
+        const feedbackMessage = $localize`:@@workbench.progress.voltas:Building the repeat endings`;
         this.feedback(feedbackMessage, 0)
         this.repetitionInstructions = [];
         this.iteratorSize = 0;
@@ -698,7 +698,7 @@ export class CursorService implements OnDestroy {
      * @return this.osmdMeasureNoteMap Map<number, OSMDNote[]> measure index => osmd notes under cursor
      */
     builOsmdMeasureNoteMap(cursor: Cursor): Map<number, OSMDNote[]> {
-        const feedbackMessage = "Building Measures";
+        const feedbackMessage = $localize`:@@workbench.progress.measures:Building the measures`;
         this.feedback(feedbackMessage, 0);
         this.osmdMeasureNoteMap.clear();
         let maxMeasureNumberXml = 0;
@@ -759,7 +759,7 @@ export class CursorService implements OnDestroy {
     */
     buildMidiTicksNoteMap(midi: Midi): Map<number, MidiNote[]> {
         const totalNotes = midi.tracks.reduce((sum, track) => sum + track.notes.length, 0);
-        const feedbackMessage = "Building MIDI Map";
+        const feedbackMessage = $localize`:@@workbench.progress.midiMap:Building the MIDI map`;
         const feedbackStep = Math.max(1, Math.floor(totalNotes / 100));
         this.feedback(feedbackMessage, 0);
 

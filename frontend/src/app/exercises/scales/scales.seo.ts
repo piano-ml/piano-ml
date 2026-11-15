@@ -17,17 +17,16 @@ export function buildScalesSeo(state: ScalesSeoState): SeoData {
   let canonical: string;
 
   if (scaleName && selectedKey && exerciseName) {
-    title = `${selectedKey} ${scaleName} Scale: ${exerciseName}`;
-    description = `Practice the ${selectedKey} ${scaleName} scale with the ${exerciseName} exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.`;
+    title = $localize`:@@seo.scale.exercise.title:${selectedKey}:key: ${scaleName}:scale: Scale: ${exerciseName}:exercise:`;
+    description = $localize`:@@seo.scale.exercise.description:Practice the ${selectedKey}:key: ${scaleName}:scale: scale with the ${exerciseName}:exercise: exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.`;
     canonical = `${EXERCISES_PATH}/${selectedKey}/${state.scaleKey}/${state.exerciseKey}`;
   } else if (scaleName && selectedKey) {
-    title = `${selectedKey} ${scaleName} Scale: Piano Exercises`;
-    description = `Learn the ${selectedKey} ${scaleName} scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.`;
+    title = $localize`:@@seo.scale.title:${selectedKey}:key: ${scaleName}:scale: Scale: Piano Exercises`;
+    description = $localize`:@@seo.scale.description:Learn the ${selectedKey}:key: ${scaleName}:scale: scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.`;
     canonical = `${EXERCISES_PATH}/${selectedKey}/${state.scaleKey}`;
   } else {
-    title = 'Piano Scale Exercises: Major & Minor Scales';
-    description =
-      'Practice major and minor piano scales with interactive exercises — contrary motion, parallel motion in octaves, thirds, sixths and tenths — at your own tempo.';
+    title = $localize`:@@seo.scales.title:Piano Scale Exercises: Major & Minor Scales`;
+    description = $localize`:@@seo.scales.description:Practice major and minor piano scales with interactive exercises — contrary motion, parallel motion in octaves, thirds, sixths and tenths — at your own tempo.`;
     canonical = EXERCISES_PATH;
   }
 
@@ -41,11 +40,11 @@ export function buildScalesSeo(state: ScalesSeoState): SeoData {
       name: title,
       description,
       learningResourceType: 'Interactive Exercise',
-      educationalLevel: 'Beginner to Advanced',
+      educationalLevel: $localize`:@@seo.exercises.level:Beginner to Advanced`,
       about: {
         '@type': 'Thing',
-        name: 'Piano Scales',
-        description: 'Musical scales for piano practice and technique development'
+        name: $localize`:@@seo.scales.about.name:Piano Scales`,
+        description: $localize`:@@seo.scales.about.description:Musical scales for piano practice and technique development`
       }
     }
   };

@@ -2,6 +2,470 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="account.route.home" datatype="html">
+        <source>Home</source>
+        <target state="translated">Accueil</target>
+      </trans-unit>
+      <trans-unit id="account.route.login" datatype="html">
+        <source>Login</source>
+        <target state="translated">Connexion</target>
+      </trans-unit>
+      <trans-unit id="account.route.create" datatype="html">
+        <source>Create</source>
+        <target state="translated">Créer</target>
+      </trans-unit>
+      <trans-unit id="account.route.scores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">Mes partitions</target>
+      </trans-unit>
+      <trans-unit id="account.route.editScore" datatype="html">
+        <source>Edit Score</source>
+        <target state="translated">Modifier la partition</target>
+      </trans-unit>
+      <trans-unit id="accountScores.myScores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">Mes partitions</target>
+      </trans-unit>
+      <trans-unit id="accountScores.yourUploadedAndCuratedCollection" datatype="html">
+        <source>Your uploaded and curated collection</source>
+        <target state="translated">Votre collection de partitions importées et choisies</target>
+      </trans-unit>
+      <trans-unit id="browse.capsuleCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {1 partition} other {<x id="INTERPOLATION"/> partitions}}</target>
+      </trans-unit>
+      <trans-unit id="accountScores.browseLibrary" datatype="html">
+        <source> Browse library </source>
+        <target state="translated">Parcourir la bibliothèque</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error" datatype="html">
+        <source>Error:</source>
+        <target state="translated">Erreur :</target>
+      </trans-unit>
+      <trans-unit id="accountScores.empty" datatype="html">
+        <source>No scores yet — upload your first MIDI file to get started.</source>
+        <target state="translated">Aucune partition pour l'instant : importez votre premier fichier MIDI pour commencer.</target>
+      </trans-unit>
+      <trans-unit id="accountScores.loading" datatype="html">
+        <source>Loading your scores…</source>
+        <target state="translated">Chargement de vos partitions…</target>
+      </trans-unit>
+      <trans-unit id="accountScores.col.played" datatype="html">
+        <source>#played</source>
+        <target state="translated">#jouées</target>
+      </trans-unit>
+      <trans-unit id="accountScores.filesMissing" datatype="html">
+        <source>Files missing: the import did not finish</source>
+        <target state="translated">Fichiers manquants : l'import n'est pas allé au bout</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.version" datatype="html">
+        <source>Version</source>
+        <target state="translated">Version</target>
+      </trans-unit>
+      <trans-unit id="accountScores.col.publicDomain" datatype="html">
+        <source>Public domain</source>
+        <target state="translated">Domaine public</target>
+      </trans-unit>
+      <trans-unit id="accountScores.copyrighted" datatype="html">
+        <source>Copyrighted, downloads restricted</source>
+        <target state="translated">Protégée par le droit d'auteur, téléchargements restreints</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Titre</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">Auteur</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">Genre</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target state="translated">Ajoutée le</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error.auth" datatype="html">
+        <source>User not authenticated</source>
+        <target state="translated">Utilisateur non authentifié</target>
+      </trans-unit>
+      <trans-unit id="accountScores.error.load" datatype="html">
+        <source>An error occurred while loading scores</source>
+        <target state="translated">Une erreur s'est produite lors du chargement des partitions</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.searchComposer.placeholder" datatype="html">
+        <source>Search composer…</source>
+        <target state="translated">Rechercher un compositeur…</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.select" datatype="html">
+        <source>Select ↵</source>
+        <target state="translated">Choisir ↵</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.noResultsFor" datatype="html">
+        <source>No results for &quot;<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>&quot;</source>
+        <target state="translated">Aucun résultat pour « <x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/> »</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.tryADifferentSpellingOr" datatype="html">
+        <source>Try a different spelling or use the name directly below</source>
+        <target state="translated">Essayez une autre orthographe ou utilisez directement le nom ci-dessous</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.typeANameAndPress" datatype="html">
+        <source>Type a name and press ↵ to search MusicBrainz</source>
+        <target state="translated">Saisissez un nom et appuyez sur ↵ pour chercher dans MusicBrainz</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.useAsAuthor" datatype="html">
+        <source>Use <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;text-neutral-200&quot;&gt;"/>&quot;<x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/>&quot;<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> as author</source>
+        <target state="translated">Utiliser <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;text-neutral-200&quot;&gt;"/>« <x id="INTERPOLATION" equiv-text="{{ searchQuery }}"/> »<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> comme auteur</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.withoutMusicbrainzLink" datatype="html">
+        <source>Without MusicBrainz link</source>
+        <target state="translated">Sans lien MusicBrainz</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.escToClose" datatype="html">
+        <source>esc to close</source>
+        <target state="translated">Échap pour fermer</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="authorSearch.error" datatype="html">
+        <source>Failed to search authors</source>
+        <target state="translated">La recherche d'auteurs a échoué</target>
+      </trans-unit>
+      <trans-unit id="createAccount.createAccount" datatype="html">
+        <source>Create Account</source>
+        <target state="translated">Créer un compte</target>
+      </trans-unit>
+      <trans-unit id="createAccount.accountDetails" datatype="html">
+        <source>Account Details</source>
+        <target state="translated">Informations du compte</target>
+      </trans-unit>
+      <trans-unit id="createAccount.name" datatype="html">
+        <source>name</source>
+        <target state="translated">nom</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourName.placeholder" datatype="html">
+        <source>Enter your name</source>
+        <target state="translated">Saisissez votre nom</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsRequired" datatype="html">
+        <source> name is required. </source>
+        <target state="translated">Le nom est obligatoire.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">E-mail</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourEmail.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">Saisissez votre e-mail</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsRequired" datatype="html">
+        <source>Email is required.</source>
+        <target state="translated">L'e-mail est obligatoire.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
+        <source>Invalid email format.</source>
+        <target state="translated">Format d'e-mail invalide.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.password" datatype="html">
+        <source>Password</source>
+        <target state="translated">Mot de passe</target>
+      </trans-unit>
+      <trans-unit id="createAccount.enterYourPassword.placeholder" datatype="html">
+        <source>Enter your password</source>
+        <target state="translated">Saisissez votre mot de passe</target>
+      </trans-unit>
+      <trans-unit id="createAccount.passwordMustBeAtLeast" datatype="html">
+        <source> Password must be at least 8 characters long. </source>
+        <target state="translated">Le mot de passe doit contenir au moins 8 caractères.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.confirmPassword" datatype="html">
+        <source>Confirm Password</source>
+        <target state="translated">Confirmer le mot de passe</target>
+      </trans-unit>
+      <trans-unit id="createAccount.confirmYourPassword.placeholder" datatype="html">
+        <source>Confirm your password</source>
+        <target state="translated">Confirmez votre mot de passe</target>
+      </trans-unit>
+      <trans-unit id="createAccount.passwordsDoNotMatch" datatype="html">
+        <source> Passwords do not match. </source>
+        <target state="translated">Les mots de passe ne correspondent pas.</target>
+      </trans-unit>
+      <trans-unit id="editScore.editByPianoScore" datatype="html">
+        <source>Edit <x id="INTERPOLATION" equiv-text="{{ score.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score.author }}"/> - Piano Score</source>
+        <target state="translated">Modifier <x id="INTERPOLATION" equiv-text="{{ score.title }}"/> de <x id="INTERPOLATION_1" equiv-text="{{ score.author }}"/> - Partition de piano</target>
+      </trans-unit>
+      <trans-unit id="editScore.editScore" datatype="html">
+        <source>Edit score</source>
+        <target state="translated">Modifier la partition</target>
+      </trans-unit>
+      <trans-unit id="editScore.delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">Supprimer</target>
+      </trans-unit>
+      <trans-unit id="editScore.cancel" datatype="html">
+        <source>← Cancel</source>
+        <target state="translated">← Annuler</target>
+      </trans-unit>
+      <trans-unit id="editScore.loadingScore" datatype="html">
+        <source>Loading score…</source>
+        <target state="translated">Chargement de la partition…</target>
+      </trans-unit>
+      <trans-unit id="editScore.error" datatype="html">
+        <source>Error:</source>
+        <target state="translated">Erreur :</target>
+      </trans-unit>
+      <trans-unit id="editScore.scoreDetails" datatype="html">
+        <source>Score details</source>
+        <target state="translated">Informations de la partition</target>
+      </trans-unit>
+      <trans-unit id="editScore.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Titre</target>
+      </trans-unit>
+      <trans-unit id="editScore.enterScoreTitle.placeholder" datatype="html">
+        <source>Enter score title</source>
+        <target state="translated">Saisissez le titre de la partition</target>
+      </trans-unit>
+      <trans-unit id="editScore.author" datatype="html">
+        <source>Author</source>
+        <target state="translated">Auteur</target>
+      </trans-unit>
+      <trans-unit id="editScore.genre" datatype="html">
+        <source>Genre</source>
+        <target state="translated">Genre</target>
+      </trans-unit>
+      <trans-unit id="editScore.selectGenre" datatype="html">
+        <source>— Select genre —</source>
+        <target state="translated">— Choisir un genre —</target>
+      </trans-unit>
+      <trans-unit id="editScore.loadingGenres" datatype="html">
+        <source>Loading genres…</source>
+        <target state="translated">Chargement des genres…</target>
+      </trans-unit>
+      <trans-unit id="editScore.tempoBpm" datatype="html">
+        <source>Tempo (BPM)</source>
+        <target state="translated">Tempo (BPM)</target>
+      </trans-unit>
+      <trans-unit id="editScore.tempo.placeholder" datatype="html">
+        <source>e.g. 120</source>
+        <target state="translated">ex. 120</target>
+      </trans-unit>
+      <trans-unit id="editScore.confirmDelete" datatype="html">
+        <source>Confirm delete</source>
+        <target state="translated">Confirmer la suppression</target>
+      </trans-unit>
+      <trans-unit id="editScore.thisActionCannotBeUndone" datatype="html">
+        <source>This action cannot be undone. Are you sure?</source>
+        <target state="translated">Cette action est irréversible. Voulez-vous continuer ?</target>
+      </trans-unit>
+      <trans-unit id="editScore.cancel2" datatype="html">
+        <source> Cancel </source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.noId" datatype="html">
+        <source>No score ID provided</source>
+        <target state="translated">Aucune partition indiquée</target>
+      </trans-unit>
+      <trans-unit id="score.error.load" datatype="html">
+        <source>Failed to load score</source>
+        <target state="translated">Impossible de charger la partition</target>
+      </trans-unit>
+      <trans-unit id="editScore.saved" datatype="html">
+        <source>Score updated successfully!</source>
+        <target state="translated">Partition mise à jour !</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.save" datatype="html">
+        <source>Failed to update score</source>
+        <target state="translated">Impossible de mettre à jour la partition</target>
+      </trans-unit>
+      <trans-unit id="editScore.leftDefault" datatype="html">
+        <source>default to midi track 1</source>
+        <target state="translated">par défaut, piste MIDI 1</target>
+      </trans-unit>
+      <trans-unit id="editScore.track" datatype="html">
+        <source>Track <x id="track" equiv-text="value"/></source>
+        <target state="translated">Piste <x id="track" equiv-text="value"/></target>
+      </trans-unit>
+      <trans-unit id="editScore.rightDefault" datatype="html">
+        <source>default to midi track 0</source>
+        <target state="translated">par défaut, piste MIDI 0</target>
+      </trans-unit>
+      <trans-unit id="editScore.error.delete" datatype="html">
+        <source>Failed to delete score</source>
+        <target state="translated">Impossible de supprimer la partition</target>
+      </trans-unit>
+      <trans-unit id="accountHome.profile" datatype="html">
+        <source>Profile</source>
+        <target state="translated">Profil</target>
+      </trans-unit>
+      <trans-unit id="accountHome.accountSettingsWorkbenchPreferences" datatype="html">
+        <source>Account settings &amp; workbench preferences</source>
+        <target state="translated">Paramètres du compte et préférences de l'atelier</target>
+      </trans-unit>
+      <trans-unit id="accountHome.myScores" datatype="html">
+        <source>My Scores</source>
+        <target state="translated">Mes partitions</target>
+      </trans-unit>
+      <trans-unit id="accountHome.deleteAccount" datatype="html">
+        <source>Delete account</source>
+        <target state="translated">Supprimer le compte</target>
+      </trans-unit>
+      <trans-unit id="accountHome.logout" datatype="html">
+        <source>Logout</source>
+        <target state="translated">Déconnexion</target>
+      </trans-unit>
+      <trans-unit id="accountHome.identity" datatype="html">
+        <source>Identity</source>
+        <target state="translated">Identité</target>
+      </trans-unit>
+      <trans-unit id="accountHome.name" datatype="html">
+        <source>Name</source>
+        <target state="translated">Nom</target>
+      </trans-unit>
+      <trans-unit id="accountHome.edit" datatype="html">
+        <source>Edit</source>
+        <target state="translated">Modifier</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourName.placeholder" datatype="html">
+        <source>Your name</source>
+        <target state="translated">Votre nom</target>
+      </trans-unit>
+      <trans-unit id="accountHome.save" datatype="html">
+        <source>Save</source>
+        <target state="translated">Enregistrer</target>
+      </trans-unit>
+      <trans-unit id="accountHome.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="accountHome.workbench" datatype="html">
+        <source>Workbench</source>
+        <target state="translated">Atelier</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiSetup" datatype="html">
+        <source>MIDI Setup →</source>
+        <target state="translated">Réglages MIDI →</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiLowestKey" datatype="html">
+        <source>MIDI lowest key</source>
+        <target state="translated">Touche MIDI la plus grave</target>
+      </trans-unit>
+      <trans-unit id="accountHome.midiHighestKey" datatype="html">
+        <source>MIDI highest key</source>
+        <target state="translated">Touche MIDI la plus aiguë</target>
+      </trans-unit>
+      <trans-unit id="accountHome.drawFingering" datatype="html">
+        <source>Draw fingering</source>
+        <target state="translated">Afficher le doigté</target>
+      </trans-unit>
+      <trans-unit id="accountHome.drawLyrics" datatype="html">
+        <source>Draw lyrics</source>
+        <target state="translated">Afficher les paroles</target>
+      </trans-unit>
+      <trans-unit id="accountHome.showKeyboard" datatype="html">
+        <source>Show keyboard</source>
+        <target state="translated">Afficher le clavier</target>
+      </trans-unit>
+      <trans-unit id="accountHome.lowestKeyLabel" datatype="html">
+        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Touche MIDI la plus grave <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(jouez une note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.required" datatype="html">
+        <source>Required.</source>
+        <target state="translated">Obligatoire.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.min" datatype="html">
+        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
+        <target state="translated">Min. <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.key.max" datatype="html">
+        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
+        <target state="translated">Max. <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.highestKeyLabel" datatype="html">
+        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Touche MIDI la plus aiguë <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(jouez une note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="accountHome.listening.lowest" datatype="html">
+        <source>Listening for MIDI — lowest key…</source>
+        <target state="translated">Écoute MIDI : touche la plus grave…</target>
+      </trans-unit>
+      <trans-unit id="accountHome.listening.highest" datatype="html">
+        <source>Listening for MIDI — highest key…</source>
+        <target state="translated">Écoute MIDI : touche la plus aiguë…</target>
+      </trans-unit>
+      <trans-unit id="accountHome.lowestKeyMustBeLess" datatype="html">
+        <source>Lowest key must be less than highest key.</source>
+        <target state="translated">La touche la plus grave doit être inférieure à la plus aiguë.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourAccountWillBePermanently" datatype="html">
+        <source> Your account will be permanently deleted. This action cannot be undone. </source>
+        <target state="translated">Votre compte sera définitivement supprimé. Cette action est irréversible.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.yourScoresAreKeptOn" datatype="html">
+        <source> Your scores are kept on PianoML but will no longer be linked to you. </source>
+        <target state="translated">Vos partitions restent sur PianoML mais ne seront plus liées à vous.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.error.session" datatype="html">
+        <source>Your session needs a refresh. Please reload the page and try again.</source>
+        <target state="translated">Votre session doit être actualisée. Rechargez la page et réessayez.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.error.delete" datatype="html">
+        <source>Account deletion failed. Please try again.</source>
+        <target state="translated">La suppression du compte a échoué. Réessayez.</target>
+      </trans-unit>
+      <trans-unit id="login.login" datatype="html">
+        <source>Login</source>
+        <target state="translated">Connexion</target>
+      </trans-unit>
+      <trans-unit id="login.welcomeBack" datatype="html">
+        <source>Welcome Back</source>
+        <target state="translated">Bon retour</target>
+      </trans-unit>
+      <trans-unit id="login.email" datatype="html">
+        <source>email</source>
+        <target state="translated">e-mail</target>
+      </trans-unit>
+      <trans-unit id="login.enterYourEmail.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">Saisissez votre e-mail</target>
+      </trans-unit>
+      <trans-unit id="login.emailIsRequired" datatype="html">
+        <source> email is required. </source>
+        <target state="translated">L'e-mail est obligatoire.</target>
+      </trans-unit>
+      <trans-unit id="login.password" datatype="html">
+        <source>Password</source>
+        <target state="translated">Mot de passe</target>
+      </trans-unit>
+      <trans-unit id="login.enterYourPassword.placeholder" datatype="html">
+        <source>Enter your password</source>
+        <target state="translated">Saisissez votre mot de passe</target>
+      </trans-unit>
+      <trans-unit id="login.passwordIsRequired" datatype="html">
+        <source> Password is required. </source>
+        <target state="translated">Le mot de passe est obligatoire.</target>
+      </trans-unit>
+      <trans-unit id="login.loggingIn" datatype="html">
+        <source>Logging in...</source>
+        <target state="translated">Connexion...</target>
+      </trans-unit>
+      <trans-unit id="login.donTHaveAnAccount" datatype="html">
+        <source>Don&apos;t have an account? Create one</source>
+        <target state="translated">Pas encore de compte ? Créez-en un</target>
+      </trans-unit>
+      <trans-unit id="login.error.denied" datatype="html">
+        <source>Access denied - Please check your credentials</source>
+        <target state="translated">Accès refusé : vérifiez vos identifiants</target>
+      </trans-unit>
+      <trans-unit id="login.error.other" datatype="html">
+        <source>An error occurred during login</source>
+        <target state="translated">Une erreur s'est produite lors de la connexion</target>
+      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Erreur de la page</target>
@@ -9,6 +473,982 @@
       <trans-unit id="route.notFound.title" datatype="html">
         <source>Page Not Found</source>
         <target state="translated">Page introuvable</target>
+      </trans-unit>
+      <trans-unit id="seo.blog.title" datatype="html">
+        <source>Piano Methods, Études &amp; Articles</source>
+        <target state="translated">Méthodes de piano, études et articles</target>
+      </trans-unit>
+      <trans-unit id="seo.blog.description" datatype="html">
+        <source>Digitized piano methods and études — Burgmüller, Czerny and more — plus articles on practice, sight reading and music theory.</source>
+        <target state="translated">Méthodes et études de piano numérisées — Burgmüller, Czerny et d'autres — et articles sur la pratique, le déchiffrage et la théorie musicale.</target>
+      </trans-unit>
+      <trans-unit id="blog.englishOnly" datatype="html">
+        <source>This article is only available in English.</source>
+        <target state="translated">Cet article n'est disponible qu'en anglais.</target>
+      </trans-unit>
+      <trans-unit id="blog.heading" datatype="html">
+        <source>Blog posts</source>
+        <target state="translated">Articles du blog</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.heading" datatype="html">
+        <source> Workbench Setup </source>
+        <target state="translated">Réglages de l'atelier</target>
+      </trans-unit>
+      <trans-unit id="score.errorLabel" datatype="html">
+        <source>Error:</source>
+        <target state="translated">Erreur :</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.noInputs" datatype="html">
+        <source> No MIDI IN devices detected. </source>
+        <target state="translated">Aucun périphérique MIDI d'entrée détecté.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.selectInput" datatype="html">
+        <source>-- Select a MIDI Input --</source>
+        <target state="translated">-- Choisir une entrée MIDI --</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.noOutputs" datatype="html">
+        <source>No MIDI OUT devices detected.</source>
+        <target state="translated">Aucun périphérique MIDI de sortie détecté.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.appOutput" datatype="html">
+        <source> PianoML — The app might play piano (not the keyboard) </source>
+        <target state="translated">PianoML — L'application joue le piano (pas le clavier)</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideKeyboard" datatype="html">
+        <source>Hide Keyboard</source>
+        <target state="translated">Masquer le clavier</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideKeyboard.hint" datatype="html">
+        <source>Disable keyboard visibility to improve sight-reading.</source>
+        <target state="translated">Masquez le clavier pour progresser en déchiffrage.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideKeyboard.label" datatype="html">
+        <source>Toggle keyboard visibility</source>
+        <target state="translated">Afficher ou masquer le clavier</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideFingering" datatype="html">
+        <source>Hide Fingering</source>
+        <target state="translated">Masquer le doigté</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideFingering.label" datatype="html">
+        <source>Toggle fingering visibility</source>
+        <target state="translated">Afficher ou masquer le doigté</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideLyrics" datatype="html">
+        <source>Hide Lyrics</source>
+        <target state="translated">Masquer les paroles</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideLyrics.label" datatype="html">
+        <source>Toggle lyrics visibility</source>
+        <target state="translated">Afficher ou masquer les paroles</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideHarmony" datatype="html">
+        <source>Hide Fingering &amp; Harmony</source>
+        <target state="translated">Masquer le doigté et l'harmonie</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.hideHarmony.label" datatype="html">
+        <source>Toggle fingering and harmony visibility</source>
+        <target state="translated">Afficher ou masquer le doigté et l'harmonie</target>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">Fermer</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.inputFallback" datatype="html">
+        <source>MIDI Input</source>
+        <target state="translated">Entrée MIDI</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.outputFallback" datatype="html">
+        <source>MIDI Output</source>
+        <target state="translated">Sortie MIDI</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.unknownManufacturer" datatype="html">
+        <source>Unknown</source>
+        <target state="translated">Inconnu</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">Votre navigateur bloque l'accès MIDI. Ouvrez les paramètres du navigateur, trouvez les autorisations du site pour le MIDI, autorisez ce site puis rechargez la page.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.failed" datatype="html">
+        <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
+        <target state="translated">L'accès MIDI a échoué. Si vous avez refusé l'autorisation, ouvrez les paramètres du navigateur, réinitialisez les autorisations de ce site, autorisez le MIDI puis rechargez la page.</target>
+      </trans-unit>
+      <trans-unit id="osmd.error" datatype="html">
+        <source>Error Loading Score</source>
+        <target state="translated">Erreur de chargement de la partition</target>
+      </trans-unit>
+      <trans-unit id="slop.heading" datatype="html">
+        <source> Encoding issue detected </source>
+        <target state="translated">Problème d'encodage détecté</target>
+      </trans-unit>
+      <trans-unit id="slop.explanation" datatype="html">
+        <source> Exact conversion from sheet music to sound has not been possible.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Ex: A 4/4 bar with 5 quarter notes. </source>
+        <target state="translated">La conversion exacte de la partition en son n'a pas été possible.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Ex. : une mesure à 4/4 contenant 5 noires.</target>
+      </trans-unit>
+      <trans-unit id="slop.repaired" datatype="html">
+        <source>The score has been rebuilt. Reload the page to practice the repaired version.</source>
+        <target state="translated">La partition a été reconstruite. Rechargez la page pour travailler la version réparée.</target>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Loading...</source>
+        <target state="translated">Chargement...</target>
+      </trans-unit>
+      <trans-unit id="slop.reload" datatype="html">
+        <source>Reload</source>
+        <target state="translated">Recharger</target>
+      </trans-unit>
+      <trans-unit id="workbench.retry" datatype="html">
+        <source>Try again</source>
+        <target state="translated">Réessayer</target>
+      </trans-unit>
+      <trans-unit id="slop.repair" datatype="html">
+        <source>Repair</source>
+        <target state="translated">Réparer</target>
+      </trans-unit>
+      <trans-unit id="slop.downloading" datatype="html">
+        <source>Downloading...</source>
+        <target state="translated">Téléchargement...</target>
+      </trans-unit>
+      <trans-unit id="slop.computing" datatype="html">
+        <source>Computing...</source>
+        <target state="translated">Calcul...</target>
+      </trans-unit>
+      <trans-unit id="slop.error.download" datatype="html">
+        <source>The MIDI file of this score could not be downloaded.</source>
+        <target state="translated">Impossible de télécharger le fichier MIDI de cette partition.</target>
+      </trans-unit>
+      <trans-unit id="slop.error.read" datatype="html">
+        <source>The MIDI file of this score could not be read.</source>
+        <target state="translated">Impossible de lire le fichier MIDI de cette partition.</target>
+      </trans-unit>
+      <trans-unit id="slop.error.upload" datatype="html">
+        <source>The server could not rebuild this score.</source>
+        <target state="translated">Le serveur n'a pas pu reconstruire cette partition.</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tempo" datatype="html">
+        <source>Tempo</source>
+        <target state="translated">Tempo</target>
+      </trans-unit>
+      <trans-unit id="tempo.metronome" datatype="html">
+        <source>Metronome</source>
+        <target state="translated">Métronome</target>
+      </trans-unit>
+      <trans-unit id="workbench.backToScore" datatype="html">
+        <source>Back to the score</source>
+        <target state="translated">Retour à la partition</target>
+      </trans-unit>
+      <trans-unit id="workbench.backToLibrary" datatype="html">
+        <source>Back to the library</source>
+        <target state="translated">Retour à la bibliothèque</target>
+      </trans-unit>
+      <trans-unit id="workbench.downloadingData" datatype="html">
+        <source>Downloading data…</source>
+        <target state="translated">Téléchargement des données…</target>
+      </trans-unit>
+      <trans-unit id="workbench.loadingProgress" datatype="html">
+        <source>Loading progress</source>
+        <target state="translated">Progression du chargement</target>
+      </trans-unit>
+      <trans-unit id="workbench.toggleToolbar" datatype="html">
+        <source>Toggle the top bar</source>
+        <target state="translated">Afficher ou masquer la barre du haut</target>
+      </trans-unit>
+      <trans-unit id="workbench.toggleKeyboard" datatype="html">
+        <source>Toggle the keyboard</source>
+        <target state="translated">Afficher ou masquer le clavier</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.download" datatype="html">
+        <source>Downloading the score</source>
+        <target state="translated">Téléchargement de la partition</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.offline" datatype="html">
+        <source>The score could not be downloaded: the server cannot be reached. Check your connection and try again.</source>
+        <target state="translated">Impossible de télécharger la partition : le serveur est injoignable. Vérifiez votre connexion et réessayez.</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.login" datatype="html">
+        <source>Please log in to practice this score.</source>
+        <target state="translated">Connectez-vous pour travailler cette partition.</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.forbidden" datatype="html">
+        <source>You are not allowed to practice this score.</source>
+        <target state="translated">Vous n'êtes pas autorisé à travailler cette partition.</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.notFound" datatype="html">
+        <source>This score or its files are not available.</source>
+        <target state="translated">Cette partition ou ses fichiers ne sont pas disponibles.</target>
+      </trans-unit>
+      <trans-unit id="workbench.error.other" datatype="html">
+        <source>The score could not be loaded. Please try again later.</source>
+        <target state="translated">Impossible de charger la partition. Réessayez plus tard.</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.reset" datatype="html">
+        <source>Resetting the previous score</source>
+        <target state="translated">Réinitialisation de la partition précédente</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.midiBounds" datatype="html">
+        <source>Computing the MIDI range</source>
+        <target state="translated">Calcul de l'étendue MIDI</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.configuration" datatype="html">
+        <source>Building the configuration</source>
+        <target state="translated">Préparation de la configuration</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.welcome.title" datatype="html">
+        <source>Welcome to the Workbench!</source>
+        <target state="translated">Bienvenue dans l'atelier !</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.welcome.content" datatype="html">
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls.</source>
+        <target state="translated">C'est ici que vous travaillez et apprenez vos morceaux de piano préférés. Je vous montre les commandes.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.playPause.title" datatype="html">
+        <source>Play / Pause</source>
+        <target state="translated">Lecture / Pause</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.playPause.content" datatype="html">
+        <source>Start or pause the playback and MIDI monitoring. You can also click on the score itself to toggle playback.</source>
+        <target state="translated">Lance ou met en pause la lecture et l'écoute MIDI. Vous pouvez aussi cliquer sur la partition pour lancer ou arrêter la lecture.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.rightHand.title" datatype="html">
+        <source>Right Hand Practice</source>
+        <target state="translated">Main droite</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.rightHand.content" datatype="html">
+        <source>Toggle this to wait for you to play the right-hand notes before the score advances. Great for learning the melody at your own pace.</source>
+        <target state="translated">Activez cette option pour que la partition attende les notes de la main droite avant d'avancer. Idéal pour apprendre la mélodie à votre rythme.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.leftHand.title" datatype="html">
+        <source>Left Hand Practice</source>
+        <target state="translated">Main gauche</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.leftHand.content" datatype="html">
+        <source>Similarly, toggle this to wait for the left-hand notes. You can enable both for full hands-together practice.</source>
+        <target state="translated">De même, activez cette option pour attendre les notes de la main gauche. Activez les deux pour travailler mains ensemble.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.loop.title" datatype="html">
+        <source>Loop Mode</source>
+        <target state="translated">Mode boucle</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.loop.content" datatype="html">
+        <source>When enabled, the selected range (or the entire piece) will repeat automatically, allowing for continuous practice.</source>
+        <target state="translated">Une fois activé, la plage choisie (ou tout le morceau) se répète automatiquement pour un travail en continu.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.showTempo.title" datatype="html">
+        <source>Tempo &amp; Metronome</source>
+        <target state="translated">Tempo et métronome</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.showTempo.content" datatype="html">
+        <source>Adjust the playback speed to match your current skill level. You can also toggle the metronome on or off from here.</source>
+        <target state="translated">Adaptez la vitesse de lecture à votre niveau. Vous pouvez aussi activer ou couper le métronome ici.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.midiSetup.title" datatype="html">
+        <source>MIDI &amp; Display Setup</source>
+        <target state="translated">Réglages MIDI et affichage</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.midiSetup.content" datatype="html">
+        <source>Configure your MIDI input and output devices here. You can also toggle display options like the virtual keyboard, fingering, lyrics, and harmony indicators.</source>
+        <target state="translated">Configurez ici vos périphériques MIDI d'entrée et de sortie. Vous pouvez aussi afficher ou masquer le clavier virtuel, le doigté, les paroles et les indications d'harmonie.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.resetScore.title" datatype="html">
+        <source>Reset Playback</source>
+        <target state="translated">Revenir au début</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.resetScore.content" datatype="html">
+        <source>One click returns you to the beginning of your selected range. A second click resets the score back to the very beginning.</source>
+        <target state="translated">Un clic vous ramène au début de la plage choisie. Un second clic revient au tout début de la partition.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.scoreInfo.title" datatype="html">
+        <source>Score Information</source>
+        <target state="translated">Informations sur la partition</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.scoreInfo.content" datatype="html">
+        <source>Need to check the details of this piece? Click here to go back to the score information page.</source>
+        <target state="translated">Besoin des détails de ce morceau ? Cliquez ici pour revenir à la page d'informations de la partition.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.fullscreen.title" datatype="html">
+        <source>Fullscreen Toggle</source>
+        <target state="translated">Plein écran</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.fullscreen.content" datatype="html">
+        <source>Maximize your workspace by entering fullscreen mode. Perfect for focusing entirely on the music.</source>
+        <target state="translated">Agrandissez votre espace de travail en plein écran. Parfait pour vous concentrer entièrement sur la musique.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.measureRange.title" datatype="html">
+        <source>Measure Selection</source>
+        <target state="translated">Choix des mesures</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.measureRange.content" datatype="html">
+        <source>Use this slider to focus on specific measures. Drag the handles to set your practice range.</source>
+        <target state="translated">Utilisez ce curseur pour vous concentrer sur certaines mesures. Faites glisser les poignées pour définir votre plage de travail.</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.toggleKeyboard.title" datatype="html">
+        <source>Show/Hide Keyboard</source>
+        <target state="translated">Afficher/masquer le clavier</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.toggleKeyboard.content" datatype="html">
+        <source>Toggle the virtual piano keyboard at the bottom of the screen. It highlights notes as they are played.</source>
+        <target state="translated">Affiche ou masque le clavier de piano virtuel en bas de l'écran. Il met en évidence les notes jouées.</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.initializing" datatype="html">
+        <source>Initializing...</source>
+        <target state="translated">Initialisation...</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.steps" datatype="html">
+        <source>Building the step sequence</source>
+        <target state="translated">Construction de la séquence de pas</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.cursor" datatype="html">
+        <source>Initializing the sheet cursor</source>
+        <target state="translated">Initialisation du curseur de la partition</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.hydrating" datatype="html">
+        <source>Preparing the cursor</source>
+        <target state="translated">Préparation du curseur</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.measureSequence" datatype="html">
+        <source>Building the measure sequence</source>
+        <target state="translated">Construction de la séquence de mesures</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.voltas" datatype="html">
+        <source>Building the repeat endings</source>
+        <target state="translated">Construction des fins de reprise</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.measures" datatype="html">
+        <source>Building the measures</source>
+        <target state="translated">Construction des mesures</target>
+      </trans-unit>
+      <trans-unit id="workbench.progress.midiMap" datatype="html">
+        <source>Building the MIDI map</source>
+        <target state="translated">Construction de la table MIDI</target>
+      </trans-unit>
+      <trans-unit id="chord.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">Majeur</target>
+      </trans-unit>
+      <trans-unit id="chord.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">Mineur</target>
+      </trans-unit>
+      <trans-unit id="chord.dominant7.name" datatype="html">
+        <source>Dominant 7</source>
+        <target state="translated">Septième de dominante</target>
+      </trans-unit>
+      <trans-unit id="scale.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">Majeure</target>
+      </trans-unit>
+      <trans-unit id="scale.major.alt" datatype="html">
+        <source>Ionian</source>
+        <target state="translated">Ionien</target>
+      </trans-unit>
+      <trans-unit id="scale.major.description" datatype="html">
+        <source>The major (Ionian) scale is the default “bright / stable” sound in Western music. It’s the backbone of diatonic harmony: I, ii, iii, IV, V, vi and vii° all come straight from it.
+Common genres: classical, pop, folk, film music, worship, EDM melodies.
+Usage: build singable melodies, outline major triads/7ths, and write progressions like I–V–vi–IV. For improvisation, target chord tones on strong beats and use the remaining scale tones as passing/neighbor tones.</source>
+        <target state="translated">La gamme majeure (ionienne) est le son « lumineux / stable » par défaut de la musique occidentale. C'est la colonne vertébrale de l'harmonie diatonique : I, ii, iii, IV, V, vi et vii° en découlent directement.
+Genres courants : classique, pop, folk, musique de film, musique liturgique, mélodies EDM.
+Usage : construisez des mélodies chantantes, dessinez les accords parfaits et septièmes majeurs, et écrivez des enchaînements comme I–V–vi–IV. En improvisation, visez les notes de l'accord sur les temps forts et utilisez les autres notes comme notes de passage ou broderies.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">Mineure</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.alt" datatype="html">
+        <source>Aeolian</source>
+        <target state="translated">Éolien</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.description" datatype="html">
+        <source>Natural minor (Aeolian) is the “darker / melancholic” counterpart to major. It’s the relative minor of a major key (same notes, different tonic), which is why modulating between relative major/minor feels so natural.
+
+Common genres: rock, pop ballads, classical, cinematic, indie.
+
+Usage: great for i–bVII–bVI progressions (a classic minor-key sound), and for melodies that lean on the b3, b6, and b7. Harmonically it lacks a strong leading tone (7→1), so cadences can feel modal unless you introduce harmonic/melodic minor.</source>
+        <target state="translated">La mineure naturelle (éolienne) est le pendant « plus sombre / mélancolique » de la majeure. C'est la relative mineure d'une tonalité majeure (mêmes notes, autre tonique), d'où le naturel des modulations entre relatives.
+
+Genres courants : rock, ballades pop, classique, musique de film, indie.
+
+Usage : idéale pour les enchaînements i–bVII–bVI (un son mineur classique) et pour les mélodies qui s'appuient sur la b3, la b6 et la b7. Harmoniquement, il lui manque une sensible forte (7→1) : les cadences peuvent sonner modales si vous n'introduisez pas la mineure harmonique ou mélodique.</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.name" datatype="html">
+        <source>Harmonic Minor</source>
+        <target state="translated">Mineure harmonique</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.alt" datatype="html">
+        <source>Aeolian ♮7</source>
+        <target state="translated">Éolien ♮7</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.description" datatype="html">
+        <source>Harmonic minor is natural minor with a raised 7th degree, restoring the leading tone and enabling a strong V(7)→i cadence in minor keys. This is why it’s central to classical “functional” minor harmony.
+
+Signature color: the augmented 2nd between b6 and 7, which can sound “exotic” if emphasized melodically.
+
+Common genres: classical, neo-classical metal, film scoring, some Middle Eastern/Spanish-influenced lines.
+
+Usage: use it over the dominant in minor (V7 in minor), in cadences, and when you want that strong pull back to the tonic. Be mindful: sustained melodies may sound stylized; many writers mix it with natural minor.</source>
+        <target state="translated">La mineure harmonique est la mineure naturelle avec le 7e degré haussé : elle retrouve la sensible et permet une cadence V(7)→i forte en mineur. C'est pourquoi elle est au cœur de l'harmonie mineure « fonctionnelle » classique.
+
+Couleur caractéristique : la seconde augmentée entre la b6 et le 7, qui peut sonner « exotique » si on la souligne mélodiquement.
+
+Genres courants : classique, metal néoclassique, musique de film, certaines lignes d'influence orientale ou espagnole.
+
+Usage : sur la dominante en mineur (V7 en mineur), dans les cadences et chaque fois que vous voulez ce fort retour vers la tonique. Attention : les mélodies tenues peuvent sonner stylisées ; beaucoup la mélangent avec la mineure naturelle.</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.name" datatype="html">
+        <source>Melodic Minor</source>
+        <target state="translated">Mineure mélodique</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.alt" datatype="html">
+        <source>Jazz minor</source>
+        <target state="translated">Mineure jazz</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.description" datatype="html">
+        <source>Melodic minor (as used in jazz) is a minor scale with raised 6th and 7th degrees. In classical theory it’s often taught as “ascending melodic minor”, but in jazz it’s generally used the same way up and down.
+
+Common genres: jazz, fusion, modern film/TV harmony.
+
+Usage: it’s a powerhouse “parent scale” because its modes are used everywhere (e.g., Lydian dominant, altered scale). Use melodic minor on minor-major7 chords, on tonic minor colors, and to derive dominant options in ii–V–i contexts.</source>
+        <target state="translated">La mineure mélodique (au sens du jazz) est une gamme mineure aux 6e et 7e degrés haussés. En théorie classique, on l'enseigne souvent comme « mineure mélodique ascendante », mais en jazz on l'utilise de la même façon en montant et en descendant.
+
+Genres courants : jazz, fusion, harmonie moderne de film et de télévision.
+
+Usage : c'est une « gamme mère » très riche, car ses modes servent partout (lydien dominant, gamme altérée…). Utilisez-la sur les accords mineur-majeur 7, pour les couleurs de tonique mineure et pour trouver des options de dominante dans les contextes ii–V–i.</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.name" datatype="html">
+        <source>Dorian</source>
+        <target state="translated">Dorien</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.description" datatype="html">
+        <source>Dorian is a minor mode with a natural 6 (compared to Aeolian). That single note change makes it feel less “sad” and more “groovy / open”, perfect for modal vamps.
+
+Common genres: modal jazz (e.g., “So What”), funk, rock jams, Celtic/folk flavors.
+
+Usage: typically played over a minor7 chord (i7) when the harmony stays put for a long time. Emphasize the natural 6 to clearly distinguish it from natural minor; a classic vamp is i7–IV7 (or i7–IV) which highlights that color.</source>
+        <target state="translated">Le dorien est un mode mineur avec une 6te naturelle (par rapport à l'éolien). Cette seule note le rend moins « triste » et plus « groovy / ouvert », parfait pour les vamps modaux.
+
+Genres courants : jazz modal (par exemple « So What »), funk, jams rock, couleurs celtiques et folk.
+
+Usage : se joue généralement sur un accord mineur 7 (i7) quand l'harmonie reste longtemps immobile. Soulignez la 6te naturelle pour bien le distinguer de la mineure naturelle ; un vamp classique est i7–IV7 (ou i7–IV), qui met cette couleur en valeur.</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.name" datatype="html">
+        <source>Phrygian Dominant</source>
+        <target state="translated">Phrygien dominant</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.alt" datatype="html">
+        <source>Metal riffs, Spanish/flamenco feeling</source>
+        <target state="translated">Riffs metal, couleur espagnole/flamenco</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.description" datatype="html">
+        <source>Phrygian dominant is the 5th mode of harmonic minor. It sounds “Spanish / flamenco / Middle Eastern” because of the b2 combined with a major 3rd.
+
+Common genres: flamenco, metal riffs, cinematic “exotic” cues.
+
+Usage: great over dominant chords that want to resolve to a minor tonic (V7→i). It naturally implies dominant tension (b9, b13 colors) while staying strongly directional. Riff writing tip: lean on the b2–1 motion and the b6–5 movement for that instantly recognizable flavor.</source>
+        <target state="translated">Le phrygien dominant est le 5e mode de la mineure harmonique. Il sonne « espagnol / flamenco / proche-oriental » grâce à la b2 associée à une tierce majeure.
+
+Genres courants : flamenco, riffs metal, passages « exotiques » de musique de film.
+
+Usage : idéal sur les accords de dominante qui veulent résoudre vers une tonique mineure (V7→i). Il implique naturellement la tension de dominante (couleurs b9 et b13) tout en restant très directionnel. Astuce pour les riffs : appuyez-vous sur le mouvement b2–1 et sur b6–5 pour ce parfum immédiatement reconnaissable.</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.name" datatype="html">
+        <source>Phrygian</source>
+        <target state="translated">Phrygien</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.description" datatype="html">
+        <source>Phrygian is a minor mode with a flat 2, giving it a tense, “dark / ancient” character. It’s less functional-harmony-driven and more about sustained modal color.
+
+Common genres: metal, prog, film/game scoring, some Spanish-influenced lines.
+
+Usage: works well over minor chords (i or i7) when the harmony is static. The b2 is the identity note—use it carefully: sustained b2 can sound very tense, while quick b2→1 resolves nicely and feels idiomatic.</source>
+        <target state="translated">Le phrygien est un mode mineur avec une seconde bémol, au caractère tendu, « sombre / ancien ». Il repose moins sur l'harmonie fonctionnelle que sur une couleur modale tenue.
+
+Genres courants : metal, rock progressif, musique de film et de jeu vidéo, certaines lignes d'influence espagnole.
+
+Usage : fonctionne bien sur les accords mineurs (i ou i7) quand l'harmonie est statique. La b2 est la note identitaire : maniez-la avec soin. Une b2 tenue peut sonner très tendue, alors qu'un b2→1 rapide résout bien et sonne idiomatique.</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.name" datatype="html">
+        <source>Lydian</source>
+        <target state="translated">Lydien</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.description" datatype="html">
+        <source>Lydian is a major mode with a raised 4 (#11). Compared to Ionian, it feels more “floating / dreamy / cinematic” because the #4 avoids the strong IV pull and adds a bright tension.
+
+Common genres: film scoring, ambient, fusion, modern pop harmony.
+
+Usage: ideal over maj7(#11) chords and long tonic major vamps. To highlight the mode, feature the #4 against the major chord (e.g., play 1–2–3–#4–5). Great for melodies that should feel uplifting but not overly “resolved”.</source>
+        <target state="translated">Le lydien est un mode majeur avec une quarte augmentée (#11). Par rapport à l'ionien, il sonne plus « flottant / rêveur / cinématographique », car la #4 évite l'attraction du IV et ajoute une tension lumineuse.
+
+Genres courants : musique de film, ambient, fusion, harmonie pop moderne.
+
+Usage : idéal sur les accords maj7(#11) et les longs vamps de tonique majeure. Pour faire entendre le mode, mettez en avant la #4 sur l'accord majeur (par exemple 1–2–3–#4–5). Parfait pour des mélodies qui doivent sembler élevées sans paraître trop « résolues ».</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.name" datatype="html">
+        <source>Mixolydian</source>
+        <target state="translated">Mixolydien</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.description" datatype="html">
+        <source>Mixolydian is major with a flat 7. It’s the classic “dominant / bluesy major” sound: bright like major, but with a relaxed, rootsy edge.
+
+Common genres: blues, rock, funk, country, folk, jam music.
+
+Usage: use it over dominant 7 chords (especially a I7 in blues/rock contexts) and in progressions like I–bVII–IV. Emphasize the b7 to separate it from Ionian; it pairs naturally with pentatonics and blues vocabulary.</source>
+        <target state="translated">Le mixolydien est un majeur avec une septième bémol. C'est le son classique « dominante / majeur bluesy » : lumineux comme le majeur, mais avec une touche détendue et terrienne.
+
+Genres courants : blues, rock, funk, country, folk, musique de jam.
+
+Usage : sur les accords de septième de dominante (surtout un I7 en blues ou en rock) et dans des enchaînements comme I–bVII–IV. Soulignez la b7 pour le distinguer de l'ionien ; il se marie naturellement avec les pentatoniques et le vocabulaire blues.</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.name" datatype="html">
+        <source>Locrian</source>
+        <target state="translated">Locrien</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.description" datatype="html">
+        <source>Locrian is the most unstable diatonic mode: it has a flat 2 and a diminished 5 (b5), which makes the tonic triad diminished. Because of that, it’s rarely used as a “home base” in tonal music.
+
+Common genres: jazz harmony (as a function), some metal/experimental contexts.
+
+Usage: most often used over half-diminished chords (m7b5), typically as iiø in minor ii–V–i progressions. Treat it as a color for a chord-function moment rather than a long tonic. Target chord tones (1, b3, b5, b7) for clarity.</source>
+        <target state="translated">Le locrien est le mode diatonique le plus instable : seconde bémol et quinte diminuée (b5), ce qui rend l'accord de tonique diminué. Il sert donc rarement de « point d'ancrage » en musique tonale.
+
+Genres courants : harmonie jazz (comme fonction), certains contextes metal ou expérimentaux.
+
+Usage : le plus souvent sur les accords demi-diminués (m7b5), typiquement comme iiø dans les ii–V–i mineurs. Traitez-le comme une couleur pour un moment fonctionnel plutôt que comme une tonique durable. Visez les notes de l'accord (1, b3, b5, b7) pour rester clair.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.name" datatype="html">
+        <source>Minor blues (Hexatonic)</source>
+        <target state="translated">Blues mineur (hexatonique)</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.description" datatype="html">
+        <source>Minor blues (hexatonic) is essentially minor pentatonic with the added “blue note” (b5). It’s one of the most practical, high-hit-rate scales for expressive phrasing.
+
+Common genres: blues, rock, soul, funk, guitar-centric leads.
+
+Usage: play it over minor tonal centers (i, i7) and even over dominant blues contexts for a more “minor” bite. The b5 is a tension note—use it as a passing tone or bend/slide target rather than a long sustain for the most idiomatic blues feel.</source>
+        <target state="translated">Le blues mineur (hexatonique) est essentiellement la pentatonique mineure avec la « blue note » ajoutée (b5). C'est l'une des gammes les plus pratiques et efficaces pour phraser avec expression.
+
+Genres courants : blues, rock, soul, funk, solos de guitare.
+
+Usage : jouez-la sur des centres tonals mineurs (i, i7) et même sur des blues de dominante pour un mordant plus « mineur ». La b5 est une note de tension : utilisez-la comme note de passage ou comme destination d'un bend ou d'un glissé plutôt que comme note tenue, pour un blues plus idiomatique.</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.name" datatype="html">
+        <source>Major blues (Hexatonic)</source>
+        <target state="translated">Blues majeur (hexatonique)</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.description" datatype="html">
+        <source>Major blues (hexatonic) is major pentatonic with an added b3 “blues” color. This gives that classic major/minor mixture that defines so much blues and country phrasing.
+
+Common genres: blues, country, swing, classic rock.
+
+Usage: great over I7 in blues, or any major-key groove where you want sweetness (major pentatonic) plus grit (b3). A common approach is to alternate major blues and minor blues around the same chord for call-and-response phrasing.</source>
+        <target state="translated">Le blues majeur (hexatonique) est la pentatonique majeure avec une b3 ajoutée, la couleur « blues ». Cela donne le mélange classique majeur/mineur qui définit tant de phrasés blues et country.
+
+Genres courants : blues, country, swing, rock classique.
+
+Usage : idéal sur un I7 en blues ou sur tout groove majeur où vous voulez de la douceur (pentatonique majeure) et du grain (b3). Une approche courante consiste à alterner blues majeur et blues mineur sur le même accord pour un phrasé en question-réponse.</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.name" datatype="html">
+        <source>Altered / Super Locrian</source>
+        <target state="translated">Altérée / Super locrien</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.alt" datatype="html">
+        <source>Modern jazz - tense dominant V7alt chords</source>
+        <target state="translated">Jazz moderne : accords de dominante V7alt tendus</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.description" datatype="html">
+        <source>The altered (super Locrian) scale is the 7th mode of melodic minor. It contains the strongest set of dominant alterations: b9, #9, b5/#11, and #5/b13.
+
+Common genres: bebop/post-bop jazz, modern jazz, fusion.
+
+Usage: apply it over V7alt chords resolving by fifth (e.g., G7alt → Cmin/Cmaj). It’s a “maximum tension” choice: aim the altered tones to resolve by half-step into target chord tones of the resolution chord. In lines, treat it as a tension palette rather than a scale to run straight up and down.</source>
+        <target state="translated">La gamme altérée (super locrien) est le 7e mode de la mineure mélodique. Elle contient l'ensemble le plus fort d'altérations de dominante : b9, #9, b5/#11 et #5/b13.
+
+Genres courants : jazz bebop et post-bop, jazz moderne, fusion.
+
+Usage : sur des accords V7alt qui résolvent par quinte (par exemple G7alt → Cmin/Cmaj). C'est le choix de la « tension maximale » : faites résoudre les notes altérées par demi-ton vers les notes de l'accord de résolution. Dans vos phrases, voyez-la comme une palette de tensions plutôt que comme une gamme à monter et descendre telle quelle.</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.name" datatype="html">
+        <source>Blues (Heptatonic)</source>
+        <target state="translated">Blues (heptatonique)</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.description" datatype="html">
+        <source>This heptatonic blues flavor expands beyond the common 6-note blues scale. With 7 notes, it can bridge “pentatonic safety” and more diatonic motion, while still keeping blues DNA.
+
+Common genres: blues, rock, funk, jam improvisation.
+
+Usage: useful when you want blues phrasing but also want a smoother melodic line that can outline more chord movement. Start with classic blues licks (1, b3, 4, b5, 5, b7) and use the extra scale degree as a connector between strong targets.</source>
+        <target state="translated">Ce blues heptatonique va au-delà de la gamme blues courante à 6 notes. Avec 7 notes, il fait le pont entre la « sécurité pentatonique » et un mouvement plus diatonique, tout en gardant l'ADN du blues.
+
+Genres courants : blues, rock, funk, improvisation en jam.
+
+Usage : utile quand vous voulez phraser blues tout en ayant une ligne mélodique plus fluide qui dessine davantage le mouvement harmonique. Partez des licks blues classiques (1, b3, 4, b5, 5, b7) et utilisez le degré supplémentaire comme liaison entre les notes cibles.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.name" datatype="html">
+        <source>Minor (pentatonic)</source>
+        <target state="translated">Pentatonique mineure</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.alt" datatype="html">
+        <source>90% of rock/blues solos</source>
+        <target state="translated">90 % des solos rock/blues</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.description" datatype="html">
+        <source>Minor pentatonic is the workhorse scale for melodic improvisation: five notes, no “bad” avoid notes against many common chords, and extremely easy to phrase.
+
+Common genres: rock, blues, pop, funk, metal (as a base vocabulary).
+
+Usage: play it over minor tonal centers (i, i7) and many dominant blues contexts. For stronger storytelling, don’t just run the pattern—target chord tones, use bends/ornaments (where applicable), and vary rhythm. Add the b5 to turn it into the classic minor blues scale when you want more bite.</source>
+        <target state="translated">La pentatonique mineure est la gamme à tout faire de l'improvisation mélodique : cinq notes, pas de « mauvaises » notes à éviter sur beaucoup d'accords courants, et très facile à phraser.
+
+Genres courants : rock, blues, pop, funk, metal (comme vocabulaire de base).
+
+Usage : jouez-la sur des centres tonals mineurs (i, i7) et dans beaucoup de blues de dominante. Pour raconter une histoire, ne vous contentez pas de dérouler le motif : visez les notes de l'accord, utilisez bends et ornements (quand c'est possible) et variez le rythme. Ajoutez la b5 pour obtenir la gamme blues mineure classique quand vous voulez plus de mordant.</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.name" datatype="html">
+        <source>Major (pentatonic)</source>
+        <target state="translated">Pentatonique majeure</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.alt" datatype="html">
+        <source>Sweet major blues/country</source>
+        <target state="translated">Blues majeur doux/country</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.description" datatype="html">
+        <source>Major pentatonic is a 5-note subset of the major scale (1–2–3–5–6). Because it avoids the 4 and 7, it tends to sound “clean” and consonant over many major-key progressions.
+
+Common genres: country, pop, folk, classic rock, gospel, melodic EDM leads.
+
+Usage: use it over major chords and major-key vamps when you want a smooth, singable melody. It’s also a great “safe” starting point for improvisation: you can focus on rhythm, phrasing, and target notes (especially 1/3/5) without worrying about harsh clashes. To add blues flavor, mix in the b3 occasionally (major blues sound) or switch to minor pentatonic for contrast.</source>
+        <target state="translated">La pentatonique majeure est un sous-ensemble de 5 notes de la gamme majeure (1–2–3–5–6). Comme elle évite la 4te et la 7e, elle sonne souvent « propre » et consonante sur beaucoup d'enchaînements majeurs.
+
+Genres courants : country, pop, folk, rock classique, gospel, mélodies EDM.
+
+Usage : sur les accords majeurs et les vamps en majeur quand vous voulez une mélodie fluide et chantante. C'est aussi un point de départ « sûr » pour improviser : concentrez-vous sur le rythme, le phrasé et les notes cibles (surtout 1/3/5) sans craindre de frottements durs. Pour une couleur blues, ajoutez de temps en temps la b3 (son de blues majeur) ou passez à la pentatonique mineure pour contraster.</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.name" datatype="html">
+        <source>Bebop blues (dominant)</source>
+        <target state="translated">Blues bebop (dominante)</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.alt" datatype="html">
+        <source>8-note dominant bebop blues</source>
+        <target state="translated">Blues bebop de dominante à 8 notes</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.description" datatype="html">
+        <source>Dominant bebop blues is an 8-note scale designed for swing/bebop phrasing over dominant harmony. The extra chromatic passing tone makes it easier to land chord tones on strong beats when playing continuous eighth-notes.
+
+Common genres: bebop, swing, blues-jazz, organ trio, big band lines.
+
+Usage: use it over dominant 7 chords (often I7 in blues, or V7 in a progression) when you want that “inside” bebop flow. A practical approach is to treat it as a rhythmic tool: run eighth-notes and aim for 1–3–5–b7 on downbeats, letting the chromatic note act as a connector. Combine with classic blues vocabulary (b3, b5 bends/approaches) for authentic language.</source>
+        <target state="translated">Le blues bebop de dominante est une gamme de 8 notes conçue pour phraser swing et bebop sur une harmonie de dominante. La note de passage chromatique supplémentaire aide à tomber sur les notes de l'accord aux temps forts en jouant des croches continues.
+
+Genres courants : bebop, swing, blues-jazz, trio d'orgue, lignes de big band.
+
+Usage : sur les accords de septième de dominante (souvent un I7 en blues ou un V7 dans un enchaînement) quand vous voulez ce flux bebop « inside ». Une approche pratique consiste à la traiter comme un outil rythmique : jouez des croches et visez 1–3–5–b7 sur les temps, en laissant la note chromatique servir de liaison. Combinez-la avec le vocabulaire blues classique (bends et approches de la b3 et de la b5) pour un langage authentique.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.name" datatype="html">
+        <source>Minor blues bebop</source>
+        <target state="translated">Blues bebop mineur</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.alt" datatype="html">
+        <source>8-note minor bebop blues</source>
+        <target state="translated">Blues bebop mineur à 8 notes</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.description" datatype="html">
+        <source>Minor blues bebop is an 8-note minor/blues-oriented scale that supports bebop-style eighth-note lines while keeping a minor-blues color. Like other bebop scales, the added chromaticism helps align chord tones with strong beats.
+
+Common genres: bebop over minor blues, jazz blues, fusion, modern blues improvisation.
+
+Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) when you want to keep the blues sound but phrase with bebop-style momentum. Target the minor chord tones (1, b3, 5, b7) on downbeats and use the chromatic notes as approach tones into those targets. It pairs well with minor pentatonic/blues licks—think of it as a “bebop-friendly” extension rather than a replacement.</source>
+        <target state="translated">Le blues bebop mineur est une gamme de 8 notes orientée mineur et blues, qui permet des lignes de croches de style bebop tout en gardant la couleur du blues mineur. Comme les autres gammes bebop, le chromatisme ajouté aide à placer les notes de l'accord sur les temps forts.
+
+Genres courants : bebop sur blues mineur, jazz-blues, fusion, improvisation blues moderne.
+
+Usage : sur les accords mineurs et les blues mineurs (centres i7 / i) quand vous voulez garder le son blues tout en phrasant avec l'élan du bebop. Visez les notes de l'accord mineur (1, b3, 5, b7) sur les temps et utilisez les notes chromatiques comme approches. Elle se marie bien avec les licks pentatoniques et blues mineurs : voyez-la comme une extension « compatible bebop » plutôt que comme un remplacement.</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.agility" datatype="html">
+        <source>Agility</source>
+        <target state="translated">Agilité</target>
+      </trans-unit>
+      <trans-unit id="agility.subtitle" datatype="html">
+        <source>Select a key, chord, and exercise to begin</source>
+        <target state="translated">Choisissez une tonalité, un accord et un exercice pour commencer</target>
+      </trans-unit>
+      <trans-unit id="exercises.start" datatype="html">
+        <source>Start</source>
+        <target state="translated">Commencer</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.key" datatype="html">
+        <source>Key</source>
+        <target state="translated">Tonalité</target>
+      </trans-unit>
+      <trans-unit id="agility.chord" datatype="html">
+        <source>Chord</source>
+        <target state="translated">Accord</target>
+      </trans-unit>
+      <trans-unit id="exercises.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">Exercice</target>
+      </trans-unit>
+      <trans-unit id="exercises.noDescription" datatype="html">
+        <source>No description available.</source>
+        <target state="translated">Aucune description disponible.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.title" datatype="html">
+        <source><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></source>
+        <target state="translated"><x id="exercise" equiv-text="exerciseName"/> : <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.description" datatype="html">
+        <source>Practice piano agility with the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern. Build technique with interactive exercises and real-time feedback.</source>
+        <target state="translated">Travaillez l'agilité au piano avec l'accord de <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> dans le motif <x id="exercise" equiv-text="exerciseName"/>. Développez votre technique avec des exercices interactifs et une correction en temps réel.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.teaches" datatype="html">
+        <source>Piano agility using the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern</source>
+        <target state="translated">Agilité au piano avec l'accord de <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> dans le motif <x id="exercise" equiv-text="exerciseName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> Chord: Piano Agility Exercises</source>
+        <target state="translated">Accord de <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> : exercices d'agilité au piano</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.description" datatype="html">
+        <source>Practice <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.</source>
+        <target state="translated">Travaillez les enchaînements de l'accord de <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> avec des exercices d'agilité interactifs. Améliorez la dextérité de vos doigts et vos changements d'accord.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.title" datatype="html">
+        <source>Piano Agility Exercises: Technique &amp; Finger Dexterity</source>
+        <target state="translated">Exercices d'agilité au piano : technique et dextérité</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.description" datatype="html">
+        <source>Practice piano agility with interactive exercises — arpeggios in root position and inversions, across two octaves and around the circle of fifths.</source>
+        <target state="translated">Travaillez l'agilité au piano avec des exercices interactifs — arpèges en position fondamentale et renversements, sur deux octaves et autour du cycle des quintes.</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.level" datatype="html">
+        <source>Beginner to Advanced</source>
+        <target state="translated">Du débutant au confirmé</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.title" datatype="html">
+        <source>Two-octave Arpeggios, root, 1st and 2nd inversions</source>
+        <target state="translated">Arpèges sur deux octaves, position fondamentale, 1er et 2e renversements</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">Travaillez lentement, puis augmentez progressivement la vitesse. Utilisez toujours un métronome pour les exercices. Respectez le doigté. Répétez chaque renversement plusieurs fois.</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.title" datatype="html">
+        <source>Dominant Seventh Arpeggios (root position)</source>
+        <target state="translated">Arpèges de septième de dominante (position fondamentale)</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.advice" datatype="html">
+        <source>Always use a metronome when practicing exercises</source>
+        <target state="translated">Utilisez toujours un métronome pour les exercices</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.title" datatype="html">
+        <source>Arpeggio in root position, two octaves</source>
+        <target state="translated">Arpège en position fondamentale, deux octaves</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">Travaillez lentement, puis augmentez progressivement la vitesse. Utilisez toujours un métronome pour les exercices. Respectez le doigté. Répétez chaque renversement plusieurs fois.</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.title" datatype="html">
+        <source>Chord inversions</source>
+        <target state="translated">Renversements d'accords</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">Travaillez lentement, puis augmentez progressivement la vitesse. Utilisez toujours un métronome pour les exercices. Respectez le doigté. Répétez chaque renversement plusieurs fois.</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.rightHand" datatype="html">
+        <source>Right Hand</source>
+        <target state="translated">Main droite</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.leftHand" datatype="html">
+        <source>Left Hand</source>
+        <target state="translated">Main gauche</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.title" datatype="html">
+        <source>Piano Exercises: Scales, Arpeggios &amp; Agility</source>
+        <target state="translated">Exercices de piano : gammes, arpèges et agilité</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.description" datatype="html">
+        <source>Practice piano scales, arpeggios and agility exercises around the circle of fifths, with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">Travaillez les gammes, les arpèges et l'agilité au piano autour du cycle des quintes, avec pratique mains séparées, tempo réglable et correction MIDI.</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.scales" datatype="html">
+        <source>Scales</source>
+        <target state="translated">Gammes</target>
+      </trans-unit>
+      <trans-unit id="nav.exercises" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">Exercices</target>
+      </trans-unit>
+      <trans-unit id="exercises.home.subtitle" datatype="html">
+        <source>Practice cycles and technique programs</source>
+        <target state="translated">Cycles de travail et programmes de technique</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.title" datatype="html">
+        <source>Level 1 Cycle</source>
+        <target state="translated">Cycle de niveau 1</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.intro" datatype="html">
+        <source> Start with 2 keys per day. Each day work on a different key pair. The following sequence takes 12 days to complete a full cycle of all 24 major + minor keys. </source>
+        <target state="translated">Commencez par 2 tonalités par jour, une paire différente chaque jour. La séquence suivante demande 12 jours pour parcourir les 24 tonalités majeures et mineures.</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorSharp" datatype="html">
+        <source>Major Keys (Sharp):</source>
+        <target state="translated">Tonalités majeures (dièses) :</target>
+      </trans-unit>
+      <trans-unit id="exercises.day" datatype="html">
+        <source>Day <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</source>
+        <target state="translated">Jour <x id="INTERPOLATION" equiv-text="{{ 1 }}"/> :</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorFlat" datatype="html">
+        <source>Major Keys (Flat):</source>
+        <target state="translated">Tonalités majeures (bémols) :</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorSharp" datatype="html">
+        <source>Minor Keys (Sharp):</source>
+        <target state="translated">Tonalités mineures (dièses) :</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorFlat" datatype="html">
+        <source>Minor Keys (Flat):</source>
+        <target state="translated">Tonalités mineures (bémols) :</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.chromatic" datatype="html">
+        <source>You can add the Chromatic Scale to any of these keys, starting on the key note.</source>
+        <target state="translated">Vous pouvez ajouter la gamme chromatique à chacune de ces tonalités, en partant de la tonique.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.enharmonic" datatype="html">
+        <source>Note that enharmonic keys like C# and Cb major are skipped. These are identical to Db and B, respectively.</source>
+        <target state="translated">Les tonalités enharmoniques comme do# et dob majeur sont omises : elles sont identiques à réb et si.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.title" datatype="html">
+        <source>Level 2 Cycle</source>
+        <target state="translated">Cycle de niveau 2</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.intro" datatype="html">
+        <source> We can increase the difficulty with a sequence that includes more keys in one day, combining relative major + minor keys, reducing total cycle time to 6 days. </source>
+        <target state="translated">On peut augmenter la difficulté avec une séquence qui couvre plus de tonalités par jour, en associant tonalités relatives majeure et mineure : le cycle passe à 6 jours.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.title" datatype="html">
+        <source>Level 3 Cycle</source>
+        <target state="translated">Cycle de niveau 3</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.intro" datatype="html">
+        <source> A more advanced sequence will go through all keys in 2 days, using parallel major + minor keys. It should only be done after the previous patterns can be played automatically from memory. </source>
+        <target state="translated">Une séquence plus avancée parcourt toutes les tonalités en 2 jours, avec les tonalités homonymes majeure et mineure. À n'aborder que lorsque les séquences précédentes se jouent de mémoire sans effort.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.title" datatype="html">
+        <source>Level 4a Cycle: Ascending 5ths</source>
+        <target state="translated">Cycle de niveau 4a : quintes ascendantes</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.intro" datatype="html">
+        <source>The most difficult cycle, playing all keys around the full Circle of 5ths in 1 day.</source>
+        <target state="translated">Le cycle le plus difficile : toutes les tonalités autour du cycle des quintes complet en 1 jour.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.title" datatype="html">
+        <source>Level 4b Cycle: Descending 5ths</source>
+        <target state="translated">Cycle de niveau 4b : quintes descendantes</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.intro" datatype="html">
+        <source>An alternative sequence goes the opposite direction around the Circle of 5ths.</source>
+        <target state="translated">Une séquence alternative parcourt le cycle des quintes dans l'autre sens.</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.title" datatype="html">
+        <source>Contrary motion starting on the same note.</source>
+        <target state="translated">Mouvement contraire en partant de la même note.</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.advice" datatype="html">
+        <source>Both thumbs play the same note. Up then down.</source>
+        <target state="translated">Les deux pouces jouent la même note. Monter puis descendre.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.title" datatype="html">
+        <source>Parallel motion in octaves</source>
+        <target state="translated">Mouvement parallèle en octaves</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">MG : 4e doigt sur le 2e degré de la gamme ; MD : 4e doigt sur le 7e degré de la gamme.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.title" datatype="html">
+        <source>Parallel motion in thirds</source>
+        <target state="translated">Mouvement parallèle en tierces</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.advice" datatype="html">
+        <source>Hands a third apart: LH on the tonic, RH on the 3rd degree of the scale. Hands stay close, keep the thirds even. Two hands. Scales in parallel thirds are a common enough thing for intermediate to advanced technical exercise. Fingers crowding each other is what makes it challenging, but it is do-able. Each hand plays the scale as it ordinarily would, just separated by a third. The fingering is on the notation, just take it slowly until you’re able to do it, then gradually increase speed. There’s really no trick to it beyond that.</source>
+        <target state="translated">Mains à la tierce : MG sur la tonique, MD sur le 3e degré de la gamme. Les mains restent proches ; gardez des tierces régulières. Deux mains. Les gammes en tierces parallèles sont un exercice technique courant du niveau intermédiaire au confirmé. La difficulté vient des doigts qui se gênent, mais c'est faisable. Chaque main joue la gamme normalement, simplement décalée d'une tierce. Le doigté est noté sur la partition : allez lentement jusqu'à y arriver, puis augmentez peu à peu la vitesse. Il n'y a pas d'autre secret.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.title" datatype="html">
+        <source>Parallel motion in sixths</source>
+        <target state="translated">Mouvement parallèle en sixtes</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.advice" datatype="html">
+        <source>Hands a sixth apart: RH on the tonic with the thumb, LH a sixth below on the 3rd degree of the scale (finger 3).</source>
+        <target state="translated">Mains à la sixte : MD sur la tonique avec le pouce, MG une sixte plus bas sur le 3e degré de la gamme (doigt 3).</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.title" datatype="html">
+        <source>Parallel motion in tenths</source>
+        <target state="translated">Mouvement parallèle en dixièmes</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.advice" datatype="html">
+        <source>Hands a tenth apart (octave + third): LH on the tonic, RH on the 3rd degree an octave higher. Open the arms and keep both hands together.</source>
+        <target state="translated">Mains à la dixième (octave + tierce) : MG sur la tonique, MD sur le 3e degré une octave plus haut. Ouvrez les bras et gardez les mains ensemble.</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.title" datatype="html">
+        <source>Left than Right</source>
+        <target state="translated">Gauche puis droite</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.advice" datatype="html">
+        <source>Thumb (1) cross under 3. Both thumbs play the same note. Up then down.</source>
+        <target state="translated">Le pouce (1) passe sous le 3. Les deux pouces jouent la même note. Monter puis descendre.</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.title" datatype="html">
+        <source>Intervals</source>
+        <target state="translated">Intervalles</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">MG : 4e doigt sur le 2e degré de la gamme ; MD : 4e doigt sur le 7e degré de la gamme.</target>
+      </trans-unit>
+      <trans-unit id="scales.subtitle" datatype="html">
+        <source>Select a scale, key, and exercise to begin</source>
+        <target state="translated">Choisissez une gamme, une tonalité et un exercice pour commencer</target>
+      </trans-unit>
+      <trans-unit id="scales.type" datatype="html">
+        <source>Scale type</source>
+        <target state="translated">Type de gamme</target>
+      </trans-unit>
+      <trans-unit id="scales.scale" datatype="html">
+        <source>Scale</source>
+        <target state="translated">Gamme</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: <x id="exercise" equiv-text="exerciseName"/></source>
+        <target state="translated">Gamme de <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> : <x id="exercise" equiv-text="exerciseName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.description" datatype="html">
+        <source>Practice the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale with the <x id="exercise" equiv-text="exerciseName"/> exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.</source>
+        <target state="translated">Travaillez la gamme de <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> avec l'exercice <x id="exercise" equiv-text="exerciseName"/> : pratique mains séparées, tempo réglable et correction MIDI en temps réel.</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: Piano Exercises</source>
+        <target state="translated">Gamme de <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> : exercices de piano</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.description" datatype="html">
+        <source>Learn the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.</source>
+        <target state="translated">Apprenez la gamme de <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> sur PianoML avec des exercices interactifs, la pratique mains séparées et un tempo réglable.</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.title" datatype="html">
+        <source>Piano Scale Exercises: Major &amp; Minor Scales</source>
+        <target state="translated">Exercices de gammes au piano : gammes majeures et mineures</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.description" datatype="html">
+        <source>Practice major and minor piano scales with interactive exercises — contrary motion, parallel motion in octaves, thirds, sixths and tenths — at your own tempo.</source>
+        <target state="translated">Travaillez les gammes majeures et mineures au piano avec des exercices interactifs — mouvement contraire, mouvement parallèle en octaves, tierces, sixtes et dixièmes — à votre rythme.</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.name" datatype="html">
+        <source>Piano Scales</source>
+        <target state="translated">Gammes de piano</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.description" datatype="html">
+        <source>Musical scales for piano practice and technique development</source>
+        <target state="translated">Gammes musicales pour travailler le piano et développer sa technique</target>
       </trans-unit>
       <trans-unit id="home.headline" datatype="html">
         <source>A Machine to Learn Piano</source>
@@ -158,13 +1598,269 @@
         <source>Machine Learning</source>
         <target state="translated">Apprentissage automatique</target>
       </trans-unit>
+      <trans-unit id="importWork.importMusicWork" datatype="html">
+        <source>Import Music Work</source>
+        <target state="translated">Importer une œuvre musicale</target>
+      </trans-unit>
+      <trans-unit id="importWork.pleaseSelectAFileTo" datatype="html">
+        <source>Please select a file to import</source>
+        <target state="translated">Choisissez un fichier à importer</target>
+      </trans-unit>
+      <trans-unit id="importWork.scoreDetailsAndActions.label" datatype="html">
+        <source>Score details and actions</source>
+        <target state="translated">Informations et actions de la partition</target>
+      </trans-unit>
+      <trans-unit id="importWork.notes" datatype="html">
+        <source>Notes</source>
+        <target state="translated">Notes</target>
+      </trans-unit>
+      <trans-unit id="importWork.instrument" datatype="html">
+        <source>Instrument</source>
+        <target state="translated">Instrument</target>
+      </trans-unit>
+      <trans-unit id="importWork.trackName" datatype="html">
+        <source>Track Name</source>
+        <target state="translated">Nom de la piste</target>
+      </trans-unit>
+      <trans-unit id="importWork.study" datatype="html">
+        <source>Study</source>
+        <target state="translated">Étudier</target>
+      </trans-unit>
+      <trans-unit id="importWork.splitVoices" datatype="html">
+        <source>split voices</source>
+        <target state="translated">séparer les voix</target>
+      </trans-unit>
+      <trans-unit id="importWork.dropzone" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;font-semibold&quot;&gt;"/>Click to upload<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> or drag and drop</source>
+        <target state="translated"><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;font-semibold&quot;&gt;"/>Cliquez pour importer<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> ou glissez-déposez</target>
+      </trans-unit>
+      <trans-unit id="importWork.enableAutomaticFingering" datatype="html">
+        <source>Enable automatic fingering</source>
+        <target state="translated">Activer le doigté automatique</target>
+      </trans-unit>
+      <trans-unit id="importWork.load" datatype="html">
+        <source>load</source>
+        <target state="translated">charger</target>
+      </trans-unit>
+      <trans-unit id="importWork.reset" datatype="html">
+        <source>reset</source>
+        <target state="translated">réinitialiser</target>
+      </trans-unit>
+      <trans-unit id="importWork.importing" datatype="html">
+        <source>Importing …</source>
+        <target state="translated">Import en cours…</target>
+      </trans-unit>
+      <trans-unit id="importWork.uploadingWithFingering" datatype="html">
+        <source>Uploading and converting your score, with automatic fingering. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">Envoi et conversion de votre partition, avec doigté automatique. Cela peut prendre jusqu'à une minute : gardez cette page ouverte.</target>
+      </trans-unit>
+      <trans-unit id="importWork.uploading" datatype="html">
+        <source>Uploading and converting your score. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">Envoi et conversion de votre partition. Cela peut prendre jusqu'à une minute : gardez cette page ouverte.</target>
+      </trans-unit>
+      <trans-unit id="importWork.anErrorHasOccurredThe" datatype="html">
+        <source>An error has occurred, the file cannot be read</source>
+        <target state="translated">Une erreur s'est produite : le fichier ne peut pas être lu</target>
+      </trans-unit>
+      <trans-unit id="importWork.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">Fermer</target>
+      </trans-unit>
+      <trans-unit id="route.error" datatype="html">
+        <source>Error</source>
+        <target state="translated">Erreur</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.creationTitle" datatype="html">
+        <source>Creation Error</source>
+        <target state="translated">Erreur de création</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.creation" datatype="html">
+        <source>An error occurred while creating the score.</source>
+        <target state="translated">Une erreur s'est produite lors de la création de la partition.</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.uploadTitle" datatype="html">
+        <source>Upload Error</source>
+        <target state="translated">Erreur d'envoi</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.upload" datatype="html">
+        <source>An error occurred while uploading the MIDI file.</source>
+        <target state="translated">Une erreur s'est produite lors de l'envoi du fichier MIDI.</target>
+      </trans-unit>
+      <trans-unit id="importWork.error.noWork" datatype="html">
+        <source>No work information available.</source>
+        <target state="translated">Aucune information sur l'œuvre.</target>
+      </trans-unit>
+      <trans-unit id="importLink.importMusicWork" datatype="html">
+        <source>Import Music Work</source>
+        <target state="translated">Importer une œuvre musicale</target>
+      </trans-unit>
+      <trans-unit id="importLink.pleaseSelectATitleOr" datatype="html">
+        <source>Please select a title or artist &amp; title to import</source>
+        <target state="translated">Choisissez un titre, ou un artiste et un titre, à importer</target>
+      </trans-unit>
+      <trans-unit id="importLink.scoreDetailsAndActions.label" datatype="html">
+        <source>Score details and actions</source>
+        <target state="translated">Informations et actions de la partition</target>
+      </trans-unit>
+      <trans-unit id="importLink.authenticationRequired" datatype="html">
+        <source>Authentication Required</source>
+        <target state="translated">Connexion requise</target>
+      </trans-unit>
+      <trans-unit id="importLink.youMustBeLoggedIn" datatype="html">
+        <source>You must be logged in to link musical works.</source>
+        <target state="translated">Vous devez être connecté pour lier des œuvres musicales.</target>
+      </trans-unit>
+      <trans-unit id="importLink.login" datatype="html">
+        <source> Login </source>
+        <target state="translated">Connexion</target>
+      </trans-unit>
+      <trans-unit id="importLink.quickSearchSelectAWork" datatype="html">
+        <source>Quick Search: select a work to define a title and author</source>
+        <target state="translated">Recherche rapide : choisissez une œuvre pour définir le titre et l'auteur</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchForWorksEG.placeholder" datatype="html">
+        <source>Search for works (e.g., &apos;redemption song&apos;)</source>
+        <target state="translated">Rechercher des œuvres (ex. « redemption song »)</target>
+      </trans-unit>
+      <trans-unit id="importLink.clear" datatype="html">
+        <source> Clear </source>
+        <target state="translated">Effacer</target>
+      </trans-unit>
+      <trans-unit id="importLink.worksFound" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {1 work found} other {<x id="INTERPOLATION"/> works found}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {1 œuvre trouvée} other {<x id="INTERPOLATION"/> œuvres trouvées}}</target>
+      </trans-unit>
+      <trans-unit id="importLink.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">Partition</target>
+      </trans-unit>
+      <trans-unit id="importLink.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Titre</target>
+      </trans-unit>
+      <trans-unit id="importLink.actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Actions</target>
+      </trans-unit>
+      <trans-unit id="importLink.select" datatype="html">
+        <source> Select </source>
+        <target state="translated">Choisir</target>
+      </trans-unit>
+      <trans-unit id="importLink.noWorksFoundMatchingYour" datatype="html">
+        <source>No works found matching your criteria.</source>
+        <target state="translated">Aucune œuvre ne correspond à vos critères.</target>
+      </trans-unit>
+      <trans-unit id="importLink.noWorksFoundAfterFiltering" datatype="html">
+        <source>No works found after filtering (found <x id="INTERPOLATION" equiv-text="{{ response.count }}"/> but none matched the current filters).</source>
+        <target state="translated">Aucune œuvre après filtrage (<x id="INTERPOLATION" equiv-text="{{ response.count }}"/> trouvées, mais aucune ne correspond aux filtres actuels).</target>
+      </trans-unit>
+      <trans-unit id="importLink.tryAdjustingYourSearchTerms" datatype="html">
+        <source>Try adjusting your search terms or filters.</source>
+        <target state="translated">Essayez de modifier vos termes de recherche ou vos filtres.</target>
+      </trans-unit>
+      <trans-unit id="importLink.canTFindTheWork" datatype="html">
+        <source> Can&apos;t find the work you&apos;re looking for in the database? Create it manually </source>
+        <target state="translated">Vous ne trouvez pas l'œuvre dans la base de données ? Créez-la manuellement</target>
+      </trans-unit>
+      <trans-unit id="importLink.createWorkManually" datatype="html">
+        <source>Create Work Manually</source>
+        <target state="translated">Créer l'œuvre manuellement</target>
+      </trans-unit>
+      <trans-unit id="importLink.cancel" datatype="html">
+        <source> Cancel </source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="importLink.1SelectArtist" datatype="html">
+        <source> 1. Select Artist </source>
+        <target state="translated">1. Choisir l'artiste</target>
+      </trans-unit>
+      <trans-unit id="importLink.2EnterTitle" datatype="html">
+        <source> 2. Enter Title </source>
+        <target state="translated">2. Saisir le titre</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchForAnArtist" datatype="html">
+        <source>Search for an artist</source>
+        <target state="translated">Rechercher un artiste</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterArtistNameEG.placeholder" datatype="html">
+        <source>Enter artist name (e.g., &apos;Bob Marley&apos;)</source>
+        <target state="translated">Nom de l'artiste (ex. « Bob Marley »)</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchingForArtists" datatype="html">
+        <source>Searching for artists...</source>
+        <target state="translated">Recherche des artistes...</target>
+      </trans-unit>
+      <trans-unit id="importLink.foundArtists" datatype="html">
+        <source>{VAR_PLURAL, plural, =1 {Found 1 artist} other {Found <x id="INTERPOLATION"/> artists}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =1 {1 artiste trouvé} other {<x id="INTERPOLATION"/> artistes trouvés}}</target>
+      </trans-unit>
+      <trans-unit id="importLink.name" datatype="html">
+        <source>Name</source>
+        <target state="translated">Nom</target>
+      </trans-unit>
+      <trans-unit id="importLink.type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Type</target>
+      </trans-unit>
+      <trans-unit id="importLink.country" datatype="html">
+        <source>Country</source>
+        <target state="translated">Pays</target>
+      </trans-unit>
+      <trans-unit id="importLink.noArtistsFoundMatchingYour" datatype="html">
+        <source>No artists found matching your search.</source>
+        <target state="translated">Aucun artiste ne correspond à votre recherche.</target>
+      </trans-unit>
+      <trans-unit id="importLink.tryDifferentSearchTerms" datatype="html">
+        <source>Try different search terms.</source>
+        <target state="translated">Essayez d'autres termes.</target>
+      </trans-unit>
+      <trans-unit id="importLink.selectedArtist" datatype="html">
+        <source>Selected Artist: <x id="INTERPOLATION" equiv-text="{{ selectedArtist?.name }}"/></source>
+        <target state="translated">Artiste choisi : <x id="INTERPOLATION" equiv-text="{{ selectedArtist?.name }}"/></target>
+      </trans-unit>
+      <trans-unit id="importLink.changeArtist" datatype="html">
+        <source> Change artist </source>
+        <target state="translated">Changer d'artiste</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterTheWorkTitle" datatype="html">
+        <source>Enter the work title</source>
+        <target state="translated">Saisissez le titre de l'œuvre</target>
+      </trans-unit>
+      <trans-unit id="importLink.enterWorkSongTitle.placeholder" datatype="html">
+        <source>Enter work/song title</source>
+        <target state="translated">Titre de l'œuvre ou de la chanson</target>
+      </trans-unit>
+      <trans-unit id="importLink.back" datatype="html">
+        <source> Back </source>
+        <target state="translated">Retour</target>
+      </trans-unit>
+      <trans-unit id="importLink.createWork" datatype="html">
+        <source> Create Work </source>
+        <target state="translated">Créer l'œuvre</target>
+      </trans-unit>
+      <trans-unit id="importLink.searchingMusicbrainzDatabase" datatype="html">
+        <source>Searching MusicBrainz database...</source>
+        <target state="translated">Recherche dans la base de données MusicBrainz...</target>
+      </trans-unit>
+      <trans-unit id="importLink.errorOccurred" datatype="html">
+        <source>Error occurred</source>
+        <target state="translated">Une erreur s'est produite</target>
+      </trans-unit>
+      <trans-unit id="importLink.dismiss" datatype="html">
+        <source> Dismiss </source>
+        <target state="translated">Fermer</target>
+      </trans-unit>
+      <trans-unit id="importLink.error.search" datatype="html">
+        <source>An error occurred while searching</source>
+        <target state="translated">Une erreur s'est produite lors de la recherche</target>
+      </trans-unit>
+      <trans-unit id="importLink.error.artists" datatype="html">
+        <source>An error occurred while searching artists</source>
+        <target state="translated">Une erreur s'est produite lors de la recherche d'artistes</target>
+      </trans-unit>
       <trans-unit id="browse.letters.all" datatype="html">
         <source> All </source>
         <target state="translated"> Tous </target>
-      </trans-unit>
-      <trans-unit id="browse.capsuleCount" datatype="html">
-        <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
-        <target state="translated">{VAR_PLURAL, plural, =1 {1 partition} other {<x id="INTERPOLATION"/> partitions}}</target>
       </trans-unit>
       <trans-unit id="browse.noArtistsForLetter" datatype="html">
         <source> No artists found for letter <x id="INTERPOLATION" equiv-text="{{ selectedLetter }}"/>. </source>
@@ -294,10 +1990,6 @@
         <source>No scores found. Try a different search term.</source>
         <target state="translated">Aucune partition trouvée. Essayez une autre recherche.</target>
       </trans-unit>
-      <trans-unit id="common.loading" datatype="html">
-        <source>Loading...</source>
-        <target state="translated">Chargement...</target>
-      </trans-unit>
       <trans-unit id="browse.loadMore" datatype="html">
         <source>Load More</source>
         <target state="translated">Afficher plus</target>
@@ -306,17 +1998,9 @@
         <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
         <target state="translated">{VAR_PLURAL, plural, =1 {1 partition affichée} other {<x id="INTERPOLATION"/> partitions affichées}}</target>
       </trans-unit>
-      <trans-unit id="scoreTable.genre" datatype="html">
-        <source>Genre</source>
-        <target state="translated">Genre</target>
-      </trans-unit>
       <trans-unit id="scoreTable.artist" datatype="html">
         <source>Artist</source>
         <target state="translated">Artiste</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.title" datatype="html">
-        <source>Title</source>
-        <target state="translated">Titre</target>
       </trans-unit>
       <trans-unit id="scoreTable.duration" datatype="html">
         <source>Duration</source>
@@ -514,10 +2198,6 @@
         <source>Author</source>
         <target state="translated">Auteur</target>
       </trans-unit>
-      <trans-unit id="scoreInfo.key" datatype="html">
-        <source>Key</source>
-        <target state="translated">Tonalité</target>
-      </trans-unit>
       <trans-unit id="scoreInfo.grade" datatype="html">
         <source>Grade</source>
         <target state="translated">Niveau</target>
@@ -525,10 +2205,6 @@
       <trans-unit id="scoreInfo.duration" datatype="html">
         <source>Duration</source>
         <target state="translated">Durée</target>
-      </trans-unit>
-      <trans-unit id="scoreInfo.tempo" datatype="html">
-        <source>Tempo</source>
-        <target state="translated">Tempo</target>
       </trans-unit>
       <trans-unit id="scoreInfo.tracks" datatype="html">
         <source>Tracks</source>
@@ -686,10 +2362,6 @@
         <source>Loading score…</source>
         <target state="translated">Chargement de la partition…</target>
       </trans-unit>
-      <trans-unit id="score.errorLabel" datatype="html">
-        <source>Error:</source>
-        <target state="translated">Erreur :</target>
-      </trans-unit>
       <trans-unit id="score.processing.heading" datatype="html">
         <source>Processing status</source>
         <target state="translated">État du traitement</target>
@@ -758,10 +2430,6 @@
         <source>No score slug provided</source>
         <target state="translated">Aucune partition indiquée</target>
       </trans-unit>
-      <trans-unit id="score.error.load" datatype="html">
-        <source>Failed to load score</source>
-        <target state="translated">Impossible de charger la partition</target>
-      </trans-unit>
       <trans-unit id="score.videos.error" datatype="html">
         <source>Failed to load videos</source>
         <target state="translated">Impossible de charger les vidéos</target>
@@ -794,6 +2462,122 @@
         <source>Free to download and public domain.</source>
         <target state="translated">Téléchargement gratuit, domaine public.</target>
       </trans-unit>
+      <trans-unit id="reimport.titleNamed" datatype="html">
+        <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
+        <target state="translated">Réimporter <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></target>
+      </trans-unit>
+      <trans-unit id="reimport.title" datatype="html">
+        <source>Re-import the score</source>
+        <target state="translated">Réimporter la partition</target>
+      </trans-unit>
+      <trans-unit id="reimport.chooseTheStudyTracksAgain" datatype="html">
+        <source>Choose the study tracks again from the original MIDI file</source>
+        <target state="translated">Choisissez à nouveau les pistes d'étude à partir du fichier MIDI d'origine</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImportTheScore.label" datatype="html">
+        <source>Re-import the score</source>
+        <target state="translated">Réimporter la partition</target>
+      </trans-unit>
+      <trans-unit id="reimport.readingTheOriginalFile" datatype="html">
+        <source>Reading the original file …</source>
+        <target state="translated">Lecture du fichier d'origine…</target>
+      </trans-unit>
+      <trans-unit id="reimport.backToTheScore" datatype="html">
+        <source>← Back to the score</source>
+        <target state="translated">← Retour à la partition</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImporting" datatype="html">
+        <source>Re-importing …</source>
+        <target state="translated">Réimport en cours…</target>
+      </trans-unit>
+      <trans-unit id="reimport.convertingWithFingering" datatype="html">
+        <source>Converting the score again, with automatic fingering. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">Nouvelle conversion de la partition, avec doigté automatique. Cela peut prendre jusqu'à une minute : gardez cette page ouverte.</target>
+      </trans-unit>
+      <trans-unit id="reimport.converting" datatype="html">
+        <source>Converting the score again. This can take up to a minute: please keep this page open.</source>
+        <target state="translated">Nouvelle conversion de la partition. Cela peut prendre jusqu'à une minute : gardez cette page ouverte.</target>
+      </trans-unit>
+      <trans-unit id="reimport.theScoreKeepsItsPage" datatype="html">
+        <source> The score keeps its page, link and owner: only its notes, fingering and the details read from them (key, tempo, grade, …) are generated again. </source>
+        <target state="translated">La partition garde sa page, son lien et son propriétaire : seuls ses notes, son doigté et les informations qui en découlent (tonalité, tempo, niveau, …) sont générés à nouveau.</target>
+      </trans-unit>
+      <trans-unit id="reimport.notes" datatype="html">
+        <source>Notes</source>
+        <target state="translated">Notes</target>
+      </trans-unit>
+      <trans-unit id="reimport.instrument" datatype="html">
+        <source>Instrument</source>
+        <target state="translated">Instrument</target>
+      </trans-unit>
+      <trans-unit id="reimport.trackName" datatype="html">
+        <source>Track Name</source>
+        <target state="translated">Nom de la piste</target>
+      </trans-unit>
+      <trans-unit id="reimport.study" datatype="html">
+        <source>Study</source>
+        <target state="translated">Étudier</target>
+      </trans-unit>
+      <trans-unit id="reimport.enableAutomaticFingering" datatype="html">
+        <source>Enable automatic fingering</source>
+        <target state="translated">Activer le doigté automatique</target>
+      </trans-unit>
+      <trans-unit id="reimport.reImport" datatype="html">
+        <source>Re-import</source>
+        <target state="translated">Réimporter</target>
+      </trans-unit>
+      <trans-unit id="reimport.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.noSlug" datatype="html">
+        <source>No score slug provided.</source>
+        <target state="translated">Aucune partition indiquée.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.notFound" datatype="html">
+        <source>This score does not exist.</source>
+        <target state="translated">Cette partition n'existe pas.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.load" datatype="html">
+        <source>Could not load the score.</source>
+        <target state="translated">Impossible de charger la partition.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.missingInfo" datatype="html">
+        <source>This score is missing information.</source>
+        <target state="translated">Il manque des informations à cette partition.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.noOriginal" datatype="html">
+        <source>The original file of this score is not available: it cannot be re-imported.</source>
+        <target state="translated">Le fichier d'origine de cette partition n'est pas disponible : elle ne peut pas être réimportée.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.download" datatype="html">
+        <source>Could not download the original file of this score.</source>
+        <target state="translated">Impossible de télécharger le fichier d'origine de cette partition.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.notMidi" datatype="html">
+        <source>Only scores imported from a MIDI file can be re-imported.</source>
+        <target state="translated">Seules les partitions importées depuis un fichier MIDI peuvent être réimportées.</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.read" datatype="html">
+        <source>The original MIDI file cannot be read.</source>
+        <target state="translated">Le fichier MIDI d'origine ne peut pas être lu.</target>
+      </trans-unit>
+      <trans-unit id="reimport.bothHands" datatype="html">
+        <source>Both hands</source>
+        <target state="translated">Deux mains</target>
+      </trans-unit>
+      <trans-unit id="reimport.rightHand" datatype="html">
+        <source>Right hand</source>
+        <target state="translated">Main droite</target>
+      </trans-unit>
+      <trans-unit id="reimport.leftHand" datatype="html">
+        <source>Left hand</source>
+        <target state="translated">Main gauche</target>
+      </trans-unit>
+      <trans-unit id="reimport.error.refused" datatype="html">
+        <source>The server refused these tracks, or the original file is not a MIDI file.</source>
+        <target state="translated">Le serveur a refusé ces pistes, ou le fichier d'origine n'est pas un fichier MIDI.</target>
+      </trans-unit>
       <trans-unit id="error.heading" datatype="html">
         <source>Oops! An error occurred</source>
         <target state="translated">Oups ! Une erreur s&apos;est produite</target>
@@ -809,14 +2593,6 @@
       <trans-unit id="exercisesInKey.heading" datatype="html">
         <source>Practice Exercises in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></source>
         <target state="translated">Exercices en <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></target>
-      </trans-unit>
-      <trans-unit id="exercisesInKey.agility" datatype="html">
-        <source>Agility</source>
-        <target state="translated">Agilité</target>
-      </trans-unit>
-      <trans-unit id="exercisesInKey.scales" datatype="html">
-        <source>Scales</source>
-        <target state="translated">Gammes</target>
       </trans-unit>
       <trans-unit id="languageSwitcher.label" datatype="html">
         <source>Language</source>
@@ -918,21 +2694,9 @@
         <source>No scores found</source>
         <target state="translated">Aucune partition trouvée</target>
       </trans-unit>
-      <trans-unit id="scoreTable.author" datatype="html">
-        <source>Author</source>
-        <target state="translated">Auteur</target>
-      </trans-unit>
       <trans-unit id="scoreTable.difficulty" datatype="html">
         <source>Difficulty</source>
         <target state="translated">Difficulté</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.version" datatype="html">
-        <source>Version</source>
-        <target state="translated">Version</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.uploaded" datatype="html">
-        <source>Uploaded</source>
-        <target state="translated">Ajoutée le</target>
       </trans-unit>
       <trans-unit id="nav.home" datatype="html">
         <source>Home</source>
@@ -941,10 +2705,6 @@
       <trans-unit id="nav.browse" datatype="html">
         <source>Browse</source>
         <target state="translated">Parcourir</target>
-      </trans-unit>
-      <trans-unit id="nav.exercises" datatype="html">
-        <source>Exercises</source>
-        <target state="translated">Exercices</target>
       </trans-unit>
       <trans-unit id="manifest.name" datatype="html">
         <source>PianoML: Learn Piano</source>
@@ -1069,10 +2829,6 @@
       <trans-unit id="route.summary" datatype="html">
         <source>Summary</source>
         <target state="translated">Présentation</target>
-      </trans-unit>
-      <trans-unit id="route.error" datatype="html">
-        <source>Error</source>
-        <target state="translated">Erreur</target>
       </trans-unit>
       <trans-unit id="route.notFound" datatype="html">
         <source>Not found</source>

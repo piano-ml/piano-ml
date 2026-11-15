@@ -70,7 +70,7 @@ export class EditScoreComponent implements OnInit {
       this.loadGenres();
       this.loadScore();
     } else {
-      this.error = 'No score ID provided';
+      this.error = $localize`:@@editScore.error.noId:No score ID provided`;
     }
   }
 
@@ -120,7 +120,7 @@ export class EditScoreComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.error = error.message || 'Failed to load score';
+        this.error = error.message || $localize`:@@score.error.load:Failed to load score`;
         this.loading = false;
         console.error('Error loading score:', error);
         this.cdr.detectChanges();
@@ -182,7 +182,7 @@ export class EditScoreComponent implements OnInit {
 
     this.scoreService.scoreIdPut(this.scoreId, updatedScore).subscribe({
       next: (response) => {
-        this.success = 'Score updated successfully!';
+        this.success = $localize`:@@editScore.saved:Score updated successfully!`;
         this.loading = false;
         this.score = response;
         this.cdr.detectChanges();
@@ -192,7 +192,7 @@ export class EditScoreComponent implements OnInit {
         }, 2000);
       },
       error: (error) => {
-        this.error = error.message || 'Failed to update score';
+        this.error = error.message || $localize`:@@editScore.error.save:Failed to update score`;
         this.loading = false;
         console.error('Error updating score:', error);
         this.cdr.detectChanges();
@@ -292,17 +292,17 @@ export class EditScoreComponent implements OnInit {
   getSelectedLeftHandLabel(): string {
     const value = this.scoreForm.get('leftHandTrack')?.value;
     if (value === null || value === undefined) {
-      return 'default to midi track 1';
+      return $localize`:@@editScore.leftDefault:default to midi track 1`;
     }
-    return `Track ${value}`;
+    return $localize`:@@editScore.track:Track ${value}:track:`;
   }
 
   getSelectedRightHandLabel(): string {
     const value = this.scoreForm.get('rightHandTrack')?.value;
     if (value === null || value === undefined) {
-      return 'default to midi track 0';
+      return $localize`:@@editScore.rightDefault:default to midi track 0`;
     }
-    return `Track ${value}`;
+    return $localize`:@@editScore.track:Track ${value}:track:`;
   }
 
   // Close dropdowns when clicking outside
@@ -336,7 +336,7 @@ export class EditScoreComponent implements OnInit {
         this.router.navigate(['/account/scores']);
       },
       error: (error) => {
-        this.error = error.message || 'Failed to delete score';
+        this.error = error.message || $localize`:@@editScore.error.delete:Failed to delete score`;
         this.deleting = false;
         this.showDeleteConfirmation = false;
         console.error('Error deleting score:', error);
