@@ -788,6 +788,28 @@ class ScoreIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
+    void lockTheCopyrightedPdfToItsOwnerAndAdmins() throws Exception {
+      score.setPublicDomain(false);
+      mockMvc.perform(get(url("pdf"))).andExpect(status().isUnauthorized());
+      mockMvc.perform(get(url("pdf")).header("Authorization", bearer(other))).andExpect(status().isForbidden());
+      mockMvc.perform(get(url("pdf")).header("Authorization", bearer(owner))).andExpect(status().isOk()).andExpect(content().string("%PDF"));
+      mockMvc.perform(get(url("pdf")).header("Authorization", bearer(admin))).andExpect(status().isOk());
+    }
+
+    @Test
+    void keepTheCopyrightedMidiAndMusicXmlOpenForPractice() throws Exception {
+      score.setPublicDomain(false);
+      mockMvc.perform(get(url("midi"))).andExpect(status().isOk()).andExpect(content().string("MThd"));
+      mockMvc.perform(get(url("musicxml"))).andExpect(status().isOk());
+    }
+
+    @Test
+    void treatAScoreWithoutCopyrightStatusAsCopyrighted() throws Exception {
+      score.setPublicDomain(null);
+      mockMvc.perform(get(url("pdf"))).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void answers400ForMalformedIds() throws Exception {
       mockMvc.perform(get("/score/not-a-uuid/" + score.getId() + "/midi/1/0")).andExpect(status().isBadRequest());
     }

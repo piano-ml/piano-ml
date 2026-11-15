@@ -43,6 +43,11 @@ import java.util.UUID;
 public class ScoreController implements ScoreApi {
 
   private static final Logger log = LoggerFactory.getLogger(ScoreController.class);
+  /**
+   * Files of a copyrighted score (not public domain) only its owner and admins may download. The printable PDF only:
+   * MIDI and MusicXML feed the practice page, which stays open to everyone.
+   */
+  static final java.util.Set<String> OWNER_ONLY_WHEN_COPYRIGHTED = java.util.Set.of("pdf");
   /** Download type of the file uploaded at import, restricted to the score owner and admins. */
   static final String ORIGINAL_TYPE = "original";
   private static final java.util.Set<String> YOUTUBE_ACTIONS = java.util.Set.of("upvote", "downvote", "view", "report");
@@ -276,6 +281,12 @@ public class ScoreController implements ScoreApi {
       if (ORIGINAL_TYPE.equals(type)) {
         return downloadOriginal(score);
       }
+      if (OWNER_ONLY_WHEN_COPYRIGHTED.contains(type) && !Boolean.TRUE.equals(score.getPublicDomain())) {
+        Optional<HttpStatus> refused = refuseUnlessOwnerOrAdmin(score);
+        if (refused.isPresent()) {
+          return ResponseEntity.status(refused.get()).build();
+        }
+      }
       DownloadFormat format = DOWNLOAD_FORMATS.get(type);
       return scoreService.getAttachmentFromScore(score, type)
         .map(bytes -> attachment(bytes, format.mediaType(), downloadBaseName(score) + format.extension()))
@@ -301,11 +312,8 @@ public class ScoreController implements ScoreApi {
       .body(new ByteArrayResource(bytes));
   }
 
-  /**
-   * The file uploaded at import ({@code ori.<ext>} in the score zip): only its owner and admins may fetch it.
-   * 401 when not logged in, 403 for anyone else.
-   */
-  private ResponseEntity<org.springframework.core.io.Resource> downloadOriginal(Score score) throws IOException {
+  /** Why the current user may not get an owner-only file: 401 when not logged in, 403 when neither owner nor admin. */
+  private Optional<HttpStatus> refuseUnlessOwnerOrAdmin(Score score) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user;
     try {
@@ -314,10 +322,19 @@ public class ScoreController implements ScoreApi {
       user = null;
     }
     if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      return Optional.of(HttpStatus.UNAUTHORIZED);
     }
-    if (!ScoreService.isOwnerOrAdmin(score, user)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    return ScoreService.isOwnerOrAdmin(score, user) ? Optional.empty() : Optional.of(HttpStatus.FORBIDDEN);
+  }
+
+  /**
+   * The file uploaded at import ({@code ori.<ext>} in the score zip): only its owner and admins may fetch it.
+   * 401 when not logged in, 403 for anyone else.
+   */
+  private ResponseEntity<org.springframework.core.io.Resource> downloadOriginal(Score score) throws IOException {
+    Optional<HttpStatus> refused = refuseUnlessOwnerOrAdmin(score);
+    if (refused.isPresent()) {
+      return ResponseEntity.status(refused.get()).build();
     }
     return scoreService.getOriginalFromScore(score)
       .map(file -> {

@@ -638,7 +638,7 @@ export class ScoreService extends BaseService {
      * Download a file for a specific score
      * @param owner The User Id
      * @param id The ID of the score
-     * @param type The type of file to download (e.g., pdf or musicxml). \&quot;original\&quot; is the file uploaded at import, served with its own content type and restricted to the score owner and admins.
+     * @param type The type of file to download (e.g., pdf or musicxml). \&quot;original\&quot; is the file uploaded at import, served with its own content type.
      * @param version The ID of the score
      * @param revision The ID of the score
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

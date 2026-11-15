@@ -699,7 +699,7 @@ paths:
             enum: [pdf, musicxml, midi, original]
           description: >-
             The type of file to download (e.g., pdf or musicxml). "original" is the file uploaded at import,
-            served with its own content type and restricted to the score owner and admins.
+            served with its own content type.
         - name: version
           in: path
           required: true
@@ -722,9 +722,9 @@ paths:
                 type: string
                 format: binary
         '401':
-          description: Not logged in (type "original" only)
+          description: Authentication required
         '403':
-          description: Not the score owner nor an admin (type "original" only)
+          description: Access denied
         '404':
           description: ScoreApiInfo or file type not found
 

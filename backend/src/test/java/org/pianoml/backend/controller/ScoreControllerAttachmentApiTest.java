@@ -322,4 +322,31 @@ public class ScoreControllerAttachmentApiTest {
     score.setImmutableSlug("fox-toby-my-castle-town");
     org.junit.jupiter.api.Assertions.assertEquals("fox-toby-my-castle-town", ScoreController.downloadBaseName(score));
   }
+
+  @Test
+  void copyrightedPdf_ownerOnly() throws Exception {
+    User owner = user("USER");
+    Score score = scoreOwnedBy(owner);
+    score.setPublicDomain(false);
+    when(scoreService.getAttachmentFromScore(eq(score), eq("pdf"))).thenReturn(Optional.of(new byte[]{1}));
+
+    anonymous();
+    mockMvc.perform(get(URL, owner.getId(), score.getId(), "pdf", 1, 1)).andExpect(status().isUnauthorized());
+    loggedInAs(user("USER"));
+    mockMvc.perform(get(URL, owner.getId(), score.getId(), "pdf", 1, 1)).andExpect(status().isForbidden());
+    verify(scoreService, never()).getAttachmentFromScore(any(), any());
+    loggedInAs(owner);
+    mockMvc.perform(get(URL, owner.getId(), score.getId(), "pdf", 1, 1)).andExpect(status().isOk());
+  }
+
+  @Test
+  void copyrightedMidi_stillOpen() throws Exception {
+    User owner = user("USER");
+    Score score = scoreOwnedBy(owner);
+    score.setPublicDomain(false);
+    SecurityContextHolder.clearContext();
+    when(scoreService.getAttachmentFromScore(eq(score), eq("midi"))).thenReturn(Optional.of(new byte[]{1}));
+
+    mockMvc.perform(get(URL, owner.getId(), score.getId(), "midi", 1, 1)).andExpect(status().isOk());
+  }
 }
