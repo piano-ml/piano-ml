@@ -342,6 +342,634 @@
         <source>Building the MIDI map</source>
         <target state="translated">Preparazione della mappa MIDI</target>
       </trans-unit>
+      <trans-unit id="chord.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">Maggiore</target>
+      </trans-unit>
+      <trans-unit id="chord.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">Minore</target>
+      </trans-unit>
+      <trans-unit id="chord.dominant7.name" datatype="html">
+        <source>Dominant 7</source>
+        <target state="translated">Settima di dominante</target>
+      </trans-unit>
+      <trans-unit id="scale.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">Maggiore</target>
+      </trans-unit>
+      <trans-unit id="scale.major.alt" datatype="html">
+        <source>Ionian</source>
+        <target state="translated">Ionica</target>
+      </trans-unit>
+      <trans-unit id="scale.major.description" datatype="html">
+        <source>The major (Ionian) scale is the default “bright / stable” sound in Western music. It’s the backbone of diatonic harmony: I, ii, iii, IV, V, vi and vii° all come straight from it.
+Common genres: classical, pop, folk, film music, worship, EDM melodies.
+Usage: build singable melodies, outline major triads/7ths, and write progressions like I–V–vi–IV. For improvisation, target chord tones on strong beats and use the remaining scale tones as passing/neighbor tones.</source>
+        <target state="translated">La scala maggiore (ionica) è il suono «luminoso / stabile» predefinito della musica occidentale. È la spina dorsale dell'armonia diatonica: I, ii, iii, IV, V, vi e vii° derivano direttamente da essa.
+Generi comuni: classica, pop, folk, colonne sonore, musica sacra, melodie EDM.
+Uso: costruisci melodie cantabili, delinea triadi e settime maggiori e scrivi progressioni come I–V–vi–IV. Improvvisando, punta alle note dell'accordo sui tempi forti e usa le altre note della scala come note di passaggio o di volta.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">Minore</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.alt" datatype="html">
+        <source>Aeolian</source>
+        <target state="translated">Eolia</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.description" datatype="html">
+        <source>Natural minor (Aeolian) is the “darker / melancholic” counterpart to major. It’s the relative minor of a major key (same notes, different tonic), which is why modulating between relative major/minor feels so natural.
+
+Common genres: rock, pop ballads, classical, cinematic, indie.
+
+Usage: great for i–bVII–bVI progressions (a classic minor-key sound), and for melodies that lean on the b3, b6, and b7. Harmonically it lacks a strong leading tone (7→1), so cadences can feel modal unless you introduce harmonic/melodic minor.</source>
+        <target state="translated">La minore naturale (eolia) è la controparte «più scura / malinconica» della maggiore. È la relativa minore di una tonalità maggiore (stesse note, tonica diversa), ed è per questo che modulare tra relative suona così naturale.
+
+Generi comuni: rock, ballate pop, classica, colonne sonore, indie.
+
+Uso: perfetta per le progressioni i–bVII–bVI (un classico suono minore) e per melodie che si appoggiano su b3, b6 e b7. Armonicamente le manca una sensibile forte (7→1), quindi le cadenze possono suonare modali se non introduci la minore armonica o melodica.</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.name" datatype="html">
+        <source>Harmonic Minor</source>
+        <target state="translated">Minore armonica</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.alt" datatype="html">
+        <source>Aeolian ♮7</source>
+        <target state="translated">Eolia ♮7</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.description" datatype="html">
+        <source>Harmonic minor is natural minor with a raised 7th degree, restoring the leading tone and enabling a strong V(7)→i cadence in minor keys. This is why it’s central to classical “functional” minor harmony.
+
+Signature color: the augmented 2nd between b6 and 7, which can sound “exotic” if emphasized melodically.
+
+Common genres: classical, neo-classical metal, film scoring, some Middle Eastern/Spanish-influenced lines.
+
+Usage: use it over the dominant in minor (V7 in minor), in cadences, and when you want that strong pull back to the tonic. Be mindful: sustained melodies may sound stylized; many writers mix it with natural minor.</source>
+        <target state="translated">La minore armonica è la minore naturale con il 7° grado alzato: ripristina la sensibile e permette una cadenza V(7)→i forte nelle tonalità minori. Per questo è centrale nell'armonia minore «funzionale» classica.
+
+Colore caratteristico: la seconda aumentata tra b6 e 7, che può suonare «esotica» se sottolineata melodicamente.
+
+Generi comuni: classica, metal neoclassico, colonne sonore, alcune linee di influenza mediorientale o spagnola.
+
+Uso: sulla dominante in minore (V7 in minore), nelle cadenze e quando vuoi quella forte spinta verso la tonica. Attenzione: le melodie lunghe possono suonare stilizzate; molti la alternano con la minore naturale.</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.name" datatype="html">
+        <source>Melodic Minor</source>
+        <target state="translated">Minore melodica</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.alt" datatype="html">
+        <source>Jazz minor</source>
+        <target state="translated">Minore jazz</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.description" datatype="html">
+        <source>Melodic minor (as used in jazz) is a minor scale with raised 6th and 7th degrees. In classical theory it’s often taught as “ascending melodic minor”, but in jazz it’s generally used the same way up and down.
+
+Common genres: jazz, fusion, modern film/TV harmony.
+
+Usage: it’s a powerhouse “parent scale” because its modes are used everywhere (e.g., Lydian dominant, altered scale). Use melodic minor on minor-major7 chords, on tonic minor colors, and to derive dominant options in ii–V–i contexts.</source>
+        <target state="translated">La minore melodica (come la si usa nel jazz) è una scala minore con il 6° e il 7° grado alzati. Nella teoria classica viene spesso insegnata come «minore melodica ascendente», ma nel jazz si usa allo stesso modo in salita e in discesa.
+
+Generi comuni: jazz, fusion, armonia moderna per cinema e TV.
+
+Uso: è una «scala madre» potentissima perché i suoi modi si usano ovunque (ad esempio lidia dominante, scala alterata). Usala sugli accordi minore-maggiore 7, nei colori di tonica minore e per ricavare opzioni di dominante nei contesti ii–V–i.</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.name" datatype="html">
+        <source>Dorian</source>
+        <target state="translated">Dorica</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.description" datatype="html">
+        <source>Dorian is a minor mode with a natural 6 (compared to Aeolian). That single note change makes it feel less “sad” and more “groovy / open”, perfect for modal vamps.
+
+Common genres: modal jazz (e.g., “So What”), funk, rock jams, Celtic/folk flavors.
+
+Usage: typically played over a minor7 chord (i7) when the harmony stays put for a long time. Emphasize the natural 6 to clearly distinguish it from natural minor; a classic vamp is i7–IV7 (or i7–IV) which highlights that color.</source>
+        <target state="translated">La dorica è un modo minore con la 6ª naturale (rispetto all'eolia). Questa sola nota la rende meno «triste» e più «groovy / aperta», perfetta per i vamp modali.
+
+Generi comuni: jazz modale (ad esempio «So What»), funk, jam rock, atmosfere celtiche e folk.
+
+Uso: si suona di solito su un accordo minore 7 (i7) quando l'armonia resta ferma a lungo. Sottolinea la 6ª naturale per distinguerla chiaramente dalla minore naturale; un vamp classico è i7–IV7 (o i7–IV), che mette in risalto quel colore.</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.name" datatype="html">
+        <source>Phrygian Dominant</source>
+        <target state="translated">Frigia dominante</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.alt" datatype="html">
+        <source>Metal riffs, Spanish/flamenco feeling</source>
+        <target state="translated">Riff metal, atmosfera spagnola/flamenco</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.description" datatype="html">
+        <source>Phrygian dominant is the 5th mode of harmonic minor. It sounds “Spanish / flamenco / Middle Eastern” because of the b2 combined with a major 3rd.
+
+Common genres: flamenco, metal riffs, cinematic “exotic” cues.
+
+Usage: great over dominant chords that want to resolve to a minor tonic (V7→i). It naturally implies dominant tension (b9, b13 colors) while staying strongly directional. Riff writing tip: lean on the b2–1 motion and the b6–5 movement for that instantly recognizable flavor.</source>
+        <target state="translated">La frigia dominante è il 5° modo della minore armonica. Suona «spagnola / flamenca / mediorientale» per la b2 unita a una terza maggiore.
+
+Generi comuni: flamenco, riff metal, momenti «esotici» nelle colonne sonore.
+
+Uso: ottima sugli accordi di dominante che vogliono risolvere su una tonica minore (V7→i). Implica naturalmente la tensione di dominante (colori b9 e b13) restando molto direzionale. Consiglio per i riff: appoggiati sul movimento b2–1 e su b6–5 per quel sapore subito riconoscibile.</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.name" datatype="html">
+        <source>Phrygian</source>
+        <target state="translated">Frigia</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.description" datatype="html">
+        <source>Phrygian is a minor mode with a flat 2, giving it a tense, “dark / ancient” character. It’s less functional-harmony-driven and more about sustained modal color.
+
+Common genres: metal, prog, film/game scoring, some Spanish-influenced lines.
+
+Usage: works well over minor chords (i or i7) when the harmony is static. The b2 is the identity note—use it carefully: sustained b2 can sound very tense, while quick b2→1 resolves nicely and feels idiomatic.</source>
+        <target state="translated">La frigia è un modo minore con la seconda bemolle, dal carattere teso, «scuro / antico». Dipende meno dall'armonia funzionale e più da un colore modale sostenuto.
+
+Generi comuni: metal, prog, colonne sonore per cinema e videogiochi, alcune linee di influenza spagnola.
+
+Uso: funziona bene sugli accordi minori (i o i7) quando l'armonia è statica. La b2 è la nota che la identifica: usala con attenzione. Una b2 tenuta può suonare molto tesa, mentre un rapido b2→1 risolve bene e suona idiomatico.</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.name" datatype="html">
+        <source>Lydian</source>
+        <target state="translated">Lidia</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.description" datatype="html">
+        <source>Lydian is a major mode with a raised 4 (#11). Compared to Ionian, it feels more “floating / dreamy / cinematic” because the #4 avoids the strong IV pull and adds a bright tension.
+
+Common genres: film scoring, ambient, fusion, modern pop harmony.
+
+Usage: ideal over maj7(#11) chords and long tonic major vamps. To highlight the mode, feature the #4 against the major chord (e.g., play 1–2–3–#4–5). Great for melodies that should feel uplifting but not overly “resolved”.</source>
+        <target state="translated">La lidia è un modo maggiore con la quarta aumentata (#11). Rispetto alla ionica suona più «sospesa / sognante / cinematografica», perché la #4 evita l'attrazione del IV e aggiunge una tensione luminosa.
+
+Generi comuni: colonne sonore, ambient, fusion, armonia pop moderna.
+
+Uso: ideale sugli accordi maj7(#11) e sui lunghi vamp di tonica maggiore. Per far sentire il modo, metti in evidenza la #4 sull'accordo maggiore (ad esempio 1–2–3–#4–5). Perfetta per melodie che devono suonare ottimiste senza sembrare troppo «risolte».</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.name" datatype="html">
+        <source>Mixolydian</source>
+        <target state="translated">Misolidia</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.description" datatype="html">
+        <source>Mixolydian is major with a flat 7. It’s the classic “dominant / bluesy major” sound: bright like major, but with a relaxed, rootsy edge.
+
+Common genres: blues, rock, funk, country, folk, jam music.
+
+Usage: use it over dominant 7 chords (especially a I7 in blues/rock contexts) and in progressions like I–bVII–IV. Emphasize the b7 to separate it from Ionian; it pairs naturally with pentatonics and blues vocabulary.</source>
+        <target state="translated">La misolidia è una maggiore con la settima bemolle. È il classico suono «dominante / maggiore blues»: luminosa come la maggiore, ma con un tocco rilassato e terroso.
+
+Generi comuni: blues, rock, funk, country, folk, musica da jam.
+
+Uso: sugli accordi di settima di dominante (soprattutto un I7 nel blues o nel rock) e in progressioni come I–bVII–IV. Sottolinea la b7 per distinguerla dalla ionica; si sposa naturalmente con le pentatoniche e il linguaggio blues.</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.name" datatype="html">
+        <source>Locrian</source>
+        <target state="translated">Locria</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.description" datatype="html">
+        <source>Locrian is the most unstable diatonic mode: it has a flat 2 and a diminished 5 (b5), which makes the tonic triad diminished. Because of that, it’s rarely used as a “home base” in tonal music.
+
+Common genres: jazz harmony (as a function), some metal/experimental contexts.
+
+Usage: most often used over half-diminished chords (m7b5), typically as iiø in minor ii–V–i progressions. Treat it as a color for a chord-function moment rather than a long tonic. Target chord tones (1, b3, b5, b7) for clarity.</source>
+        <target state="translated">La locria è il modo diatonico più instabile: ha la seconda bemolle e la quinta diminuita (b5), che rendono diminuita la triade di tonica. Per questo si usa raramente come «base» nella musica tonale.
+
+Generi comuni: armonia jazz (come funzione), alcuni contesti metal o sperimentali.
+
+Uso: soprattutto sugli accordi semidiminuiti (m7b5), tipicamente come iiø nelle progressioni ii–V–i minori. Trattala come un colore per un momento funzionale più che come una tonica lunga. Punta alle note dell'accordo (1, b3, b5, b7) per essere chiaro.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.name" datatype="html">
+        <source>Minor blues (Hexatonic)</source>
+        <target state="translated">Blues minore (esatonica)</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.description" datatype="html">
+        <source>Minor blues (hexatonic) is essentially minor pentatonic with the added “blue note” (b5). It’s one of the most practical, high-hit-rate scales for expressive phrasing.
+
+Common genres: blues, rock, soul, funk, guitar-centric leads.
+
+Usage: play it over minor tonal centers (i, i7) and even over dominant blues contexts for a more “minor” bite. The b5 is a tension note—use it as a passing tone or bend/slide target rather than a long sustain for the most idiomatic blues feel.</source>
+        <target state="translated">Il blues minore (esatonico) è in sostanza la pentatonica minore con l'aggiunta della «blue note» (b5). È una delle scale più pratiche ed efficaci per un fraseggio espressivo.
+
+Generi comuni: blues, rock, soul, funk, assoli di chitarra.
+
+Uso: suonala su centri tonali minori (i, i7) e anche nei blues di dominante per un mordente più «minore». La b5 è una nota di tensione: usala come nota di passaggio o come arrivo di un bending o di uno slide piuttosto che come nota lunga, per un blues più idiomatico.</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.name" datatype="html">
+        <source>Major blues (Hexatonic)</source>
+        <target state="translated">Blues maggiore (esatonica)</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.description" datatype="html">
+        <source>Major blues (hexatonic) is major pentatonic with an added b3 “blues” color. This gives that classic major/minor mixture that defines so much blues and country phrasing.
+
+Common genres: blues, country, swing, classic rock.
+
+Usage: great over I7 in blues, or any major-key groove where you want sweetness (major pentatonic) plus grit (b3). A common approach is to alternate major blues and minor blues around the same chord for call-and-response phrasing.</source>
+        <target state="translated">Il blues maggiore (esatonico) è la pentatonica maggiore con l'aggiunta della b3, il colore «blues». Ne nasce la classica miscela maggiore/minore che definisce tanto fraseggio blues e country.
+
+Generi comuni: blues, country, swing, rock classico.
+
+Uso: ottimo su un I7 nel blues o su qualsiasi groove maggiore in cui vuoi dolcezza (pentatonica maggiore) e grinta (b3). Un approccio comune è alternare blues maggiore e blues minore sullo stesso accordo per un fraseggio a domanda e risposta.</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.name" datatype="html">
+        <source>Altered / Super Locrian</source>
+        <target state="translated">Alterata / Superlocria</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.alt" datatype="html">
+        <source>Modern jazz - tense dominant V7alt chords</source>
+        <target state="translated">Jazz moderno: accordi di dominante V7alt tesi</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.description" datatype="html">
+        <source>The altered (super Locrian) scale is the 7th mode of melodic minor. It contains the strongest set of dominant alterations: b9, #9, b5/#11, and #5/b13.
+
+Common genres: bebop/post-bop jazz, modern jazz, fusion.
+
+Usage: apply it over V7alt chords resolving by fifth (e.g., G7alt → Cmin/Cmaj). It’s a “maximum tension” choice: aim the altered tones to resolve by half-step into target chord tones of the resolution chord. In lines, treat it as a tension palette rather than a scale to run straight up and down.</source>
+        <target state="translated">La scala alterata (superlocria) è il 7° modo della minore melodica. Contiene l'insieme più forte di alterazioni di dominante: b9, #9, b5/#11 e #5/b13.
+
+Generi comuni: jazz bebop e post-bop, jazz moderno, fusion.
+
+Uso: applicala sugli accordi V7alt che risolvono per quinta (ad esempio G7alt → Cmin/Cmaj). È la scelta di «massima tensione»: fai risolvere le note alterate per semitono sulle note dell'accordo di risoluzione. Nelle frasi, trattala come una tavolozza di tensioni piuttosto che come una scala da percorrere su e giù.</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.name" datatype="html">
+        <source>Blues (Heptatonic)</source>
+        <target state="translated">Blues (eptatonica)</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.description" datatype="html">
+        <source>This heptatonic blues flavor expands beyond the common 6-note blues scale. With 7 notes, it can bridge “pentatonic safety” and more diatonic motion, while still keeping blues DNA.
+
+Common genres: blues, rock, funk, jam improvisation.
+
+Usage: useful when you want blues phrasing but also want a smoother melodic line that can outline more chord movement. Start with classic blues licks (1, b3, 4, b5, 5, b7) and use the extra scale degree as a connector between strong targets.</source>
+        <target state="translated">Questo blues eptatonico va oltre la comune scala blues a 6 note. Con 7 note fa da ponte tra la «sicurezza pentatonica» e un movimento più diatonico, mantenendo il DNA del blues.
+
+Generi comuni: blues, rock, funk, improvvisazione in jam.
+
+Uso: utile quando vuoi un fraseggio blues ma anche una linea melodica più fluida che delinei più movimento armonico. Parti dai classici licks blues (1, b3, 4, b5, 5, b7) e usa il grado in più come collegamento tra le note d'arrivo.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.name" datatype="html">
+        <source>Minor (pentatonic)</source>
+        <target state="translated">Pentatonica minore</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.alt" datatype="html">
+        <source>90% of rock/blues solos</source>
+        <target state="translated">Il 90% degli assoli rock/blues</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.description" datatype="html">
+        <source>Minor pentatonic is the workhorse scale for melodic improvisation: five notes, no “bad” avoid notes against many common chords, and extremely easy to phrase.
+
+Common genres: rock, blues, pop, funk, metal (as a base vocabulary).
+
+Usage: play it over minor tonal centers (i, i7) and many dominant blues contexts. For stronger storytelling, don’t just run the pattern—target chord tones, use bends/ornaments (where applicable), and vary rhythm. Add the b5 to turn it into the classic minor blues scale when you want more bite.</source>
+        <target state="translated">La pentatonica minore è la scala di base dell'improvvisazione melodica: cinque note, nessuna nota «sbagliata» da evitare su molti accordi comuni, e facilissima da fraseggiare.
+
+Generi comuni: rock, blues, pop, funk, metal (come vocabolario di base).
+
+Uso: suonala su centri tonali minori (i, i7) e in molti blues di dominante. Per raccontare meglio una storia, non limitarti a ripetere lo schema: punta alle note dell'accordo, usa bending e abbellimenti (dove possibile) e varia il ritmo. Aggiungi la b5 per ottenere la classica scala blues minore quando vuoi più mordente.</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.name" datatype="html">
+        <source>Major (pentatonic)</source>
+        <target state="translated">Pentatonica maggiore</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.alt" datatype="html">
+        <source>Sweet major blues/country</source>
+        <target state="translated">Blues maggiore dolce/country</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.description" datatype="html">
+        <source>Major pentatonic is a 5-note subset of the major scale (1–2–3–5–6). Because it avoids the 4 and 7, it tends to sound “clean” and consonant over many major-key progressions.
+
+Common genres: country, pop, folk, classic rock, gospel, melodic EDM leads.
+
+Usage: use it over major chords and major-key vamps when you want a smooth, singable melody. It’s also a great “safe” starting point for improvisation: you can focus on rhythm, phrasing, and target notes (especially 1/3/5) without worrying about harsh clashes. To add blues flavor, mix in the b3 occasionally (major blues sound) or switch to minor pentatonic for contrast.</source>
+        <target state="translated">La pentatonica maggiore è un sottoinsieme di 5 note della scala maggiore (1–2–3–5–6). Poiché evita la 4ª e la 7ª, tende a suonare «pulita» e consonante su molte progressioni in maggiore.
+
+Generi comuni: country, pop, folk, rock classico, gospel, melodie EDM.
+
+Uso: sugli accordi maggiori e sui vamp in maggiore quando vuoi una melodia fluida e cantabile. È anche un punto di partenza «sicuro» per improvvisare: puoi concentrarti su ritmo, fraseggio e note d'arrivo (soprattutto 1/3/5) senza temere scontri duri. Per un sapore blues, aggiungi ogni tanto la b3 (suono di blues maggiore) o passa alla pentatonica minore per contrasto.</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.name" datatype="html">
+        <source>Bebop blues (dominant)</source>
+        <target state="translated">Blues bebop (dominante)</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.alt" datatype="html">
+        <source>8-note dominant bebop blues</source>
+        <target state="translated">Blues bebop di dominante a 8 note</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.description" datatype="html">
+        <source>Dominant bebop blues is an 8-note scale designed for swing/bebop phrasing over dominant harmony. The extra chromatic passing tone makes it easier to land chord tones on strong beats when playing continuous eighth-notes.
+
+Common genres: bebop, swing, blues-jazz, organ trio, big band lines.
+
+Usage: use it over dominant 7 chords (often I7 in blues, or V7 in a progression) when you want that “inside” bebop flow. A practical approach is to treat it as a rhythmic tool: run eighth-notes and aim for 1–3–5–b7 on downbeats, letting the chromatic note act as a connector. Combine with classic blues vocabulary (b3, b5 bends/approaches) for authentic language.</source>
+        <target state="translated">Il blues bebop di dominante è una scala a 8 note pensata per il fraseggio swing e bebop sull'armonia di dominante. La nota di passaggio cromatica in più aiuta a cadere sulle note dell'accordo nei tempi forti suonando crome continue.
+
+Generi comuni: bebop, swing, blues-jazz, organ trio, linee da big band.
+
+Uso: sugli accordi di settima di dominante (spesso un I7 nel blues o un V7 in una progressione) quando vuoi quel flusso bebop «inside». Un approccio pratico è trattarla come uno strumento ritmico: suona crome e punta a 1–3–5–b7 sui tempi, lasciando che la nota cromatica faccia da collegamento. Abbinala al classico linguaggio blues (bending e approcci a b3 e b5) per un linguaggio autentico.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.name" datatype="html">
+        <source>Minor blues bebop</source>
+        <target state="translated">Blues bebop minore</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.alt" datatype="html">
+        <source>8-note minor bebop blues</source>
+        <target state="translated">Blues bebop minore a 8 note</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.description" datatype="html">
+        <source>Minor blues bebop is an 8-note minor/blues-oriented scale that supports bebop-style eighth-note lines while keeping a minor-blues color. Like other bebop scales, the added chromaticism helps align chord tones with strong beats.
+
+Common genres: bebop over minor blues, jazz blues, fusion, modern blues improvisation.
+
+Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) when you want to keep the blues sound but phrase with bebop-style momentum. Target the minor chord tones (1, b3, 5, b7) on downbeats and use the chromatic notes as approach tones into those targets. It pairs well with minor pentatonic/blues licks—think of it as a “bebop-friendly” extension rather than a replacement.</source>
+        <target state="translated">Il blues bebop minore è una scala a 8 note orientata al minore e al blues, che permette linee di crome in stile bebop mantenendo il colore del blues minore. Come le altre scale bebop, il cromatismo aggiunto aiuta ad allineare le note dell'accordo ai tempi forti.
+
+Generi comuni: bebop sul blues minore, jazz blues, fusion, improvvisazione blues moderna.
+
+Uso: sugli accordi minori e nei blues minori (centri i7 / i) quando vuoi mantenere il suono blues ma fraseggiare con lo slancio del bebop. Punta alle note dell'accordo minore (1, b3, 5, b7) sui tempi e usa le note cromatiche come approcci. Si abbina bene ai licks di pentatonica minore e blues: pensala come un'estensione «adatta al bebop» più che come un sostituto.</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.agility" datatype="html">
+        <source>Agility</source>
+        <target state="translated">Agilità</target>
+      </trans-unit>
+      <trans-unit id="agility.subtitle" datatype="html">
+        <source>Select a key, chord, and exercise to begin</source>
+        <target state="translated">Scegli una tonalità, un accordo e un esercizio per iniziare</target>
+      </trans-unit>
+      <trans-unit id="exercises.start" datatype="html">
+        <source>Start</source>
+        <target state="translated">Inizia</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.key" datatype="html">
+        <source>Key</source>
+        <target state="translated">Tonalità</target>
+      </trans-unit>
+      <trans-unit id="agility.chord" datatype="html">
+        <source>Chord</source>
+        <target state="translated">Accordo</target>
+      </trans-unit>
+      <trans-unit id="exercises.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">Esercizio</target>
+      </trans-unit>
+      <trans-unit id="exercises.noDescription" datatype="html">
+        <source>No description available.</source>
+        <target state="translated">Nessuna descrizione disponibile.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.title" datatype="html">
+        <source><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></source>
+        <target state="translated"><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.description" datatype="html">
+        <source>Practice piano agility with the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern. Build technique with interactive exercises and real-time feedback.</source>
+        <target state="translated">Allena l'agilità al pianoforte con l'accordo di <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> nello schema <x id="exercise" equiv-text="exerciseName"/>. Sviluppa la tecnica con esercizi interattivi e correzione in tempo reale.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.teaches" datatype="html">
+        <source>Piano agility using the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern</source>
+        <target state="translated">Agilità al pianoforte con l'accordo di <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> nello schema <x id="exercise" equiv-text="exerciseName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> Chord: Piano Agility Exercises</source>
+        <target state="translated">Accordo di <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>: esercizi di agilità al pianoforte</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.description" datatype="html">
+        <source>Practice <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.</source>
+        <target state="translated">Esercitati sulle progressioni dell'accordo di <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> con esercizi interattivi di agilità. Migliora la destrezza delle dita e i cambi di accordo.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.title" datatype="html">
+        <source>Piano Agility Exercises: Technique &amp; Finger Dexterity</source>
+        <target state="translated">Esercizi di agilità al pianoforte: tecnica e destrezza delle dita</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.description" datatype="html">
+        <source>Practice piano agility with interactive exercises — arpeggios in root position and inversions, across two octaves and around the circle of fifths.</source>
+        <target state="translated">Allena l'agilità al pianoforte con esercizi interattivi — arpeggi in posizione fondamentale e rivolti, su due ottave e lungo il circolo delle quinte.</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.level" datatype="html">
+        <source>Beginner to Advanced</source>
+        <target state="translated">Da principiante ad avanzato</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.title" datatype="html">
+        <source>Two-octave Arpeggios, root, 1st and 2nd inversions</source>
+        <target state="translated">Arpeggi su due ottave, posizione fondamentale, 1° e 2° rivolto</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">Esercitati lentamente e aumenta la velocità gradualmente. Usa sempre il metronomo per gli esercizi. Usa la diteggiatura corretta. Ripeti ogni rivolto più volte.</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.title" datatype="html">
+        <source>Dominant Seventh Arpeggios (root position)</source>
+        <target state="translated">Arpeggi di settima di dominante (posizione fondamentale)</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.advice" datatype="html">
+        <source>Always use a metronome when practicing exercises</source>
+        <target state="translated">Usa sempre il metronomo per gli esercizi</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.title" datatype="html">
+        <source>Arpeggio in root position, two octaves</source>
+        <target state="translated">Arpeggio in posizione fondamentale, due ottave</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">Esercitati lentamente e aumenta la velocità gradualmente. Usa sempre il metronomo per gli esercizi. Usa la diteggiatura corretta. Ripeti ogni rivolto più volte.</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.title" datatype="html">
+        <source>Chord inversions</source>
+        <target state="translated">Rivolti degli accordi</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">Esercitati lentamente e aumenta la velocità gradualmente. Usa sempre il metronomo per gli esercizi. Usa la diteggiatura corretta. Ripeti ogni rivolto più volte.</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.rightHand" datatype="html">
+        <source>Right Hand</source>
+        <target state="translated">Mano destra</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.leftHand" datatype="html">
+        <source>Left Hand</source>
+        <target state="translated">Mano sinistra</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.title" datatype="html">
+        <source>Piano Exercises: Scales, Arpeggios &amp; Agility</source>
+        <target state="translated">Esercizi per pianoforte: scale, arpeggi e agilità</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.description" datatype="html">
+        <source>Practice piano scales, arpeggios and agility exercises around the circle of fifths, with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">Esercitati su scale, arpeggi ed esercizi di agilità lungo il circolo delle quinte, con pratica a mani separate, tempo regolabile e correzione MIDI.</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.scales" datatype="html">
+        <source>Scales</source>
+        <target state="translated">Scale</target>
+      </trans-unit>
+      <trans-unit id="nav.exercises" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">Esercizi</target>
+      </trans-unit>
+      <trans-unit id="exercises.home.subtitle" datatype="html">
+        <source>Practice cycles and technique programs</source>
+        <target state="translated">Cicli di studio e programmi di tecnica</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.title" datatype="html">
+        <source>Level 1 Cycle</source>
+        <target state="translated">Ciclo di livello 1</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.intro" datatype="html">
+        <source> Start with 2 keys per day. Each day work on a different key pair. The following sequence takes 12 days to complete a full cycle of all 24 major + minor keys. </source>
+        <target state="translated">Inizia con 2 tonalità al giorno, una coppia diversa ogni giorno. La sequenza seguente richiede 12 giorni per completare un ciclo di tutte le 24 tonalità maggiori e minori.</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorSharp" datatype="html">
+        <source>Major Keys (Sharp):</source>
+        <target state="translated">Tonalità maggiori (diesis):</target>
+      </trans-unit>
+      <trans-unit id="exercises.day" datatype="html">
+        <source>Day <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</source>
+        <target state="translated">Giorno <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorFlat" datatype="html">
+        <source>Major Keys (Flat):</source>
+        <target state="translated">Tonalità maggiori (bemolle):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorSharp" datatype="html">
+        <source>Minor Keys (Sharp):</source>
+        <target state="translated">Tonalità minori (diesis):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorFlat" datatype="html">
+        <source>Minor Keys (Flat):</source>
+        <target state="translated">Tonalità minori (bemolle):</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.chromatic" datatype="html">
+        <source>You can add the Chromatic Scale to any of these keys, starting on the key note.</source>
+        <target state="translated">Puoi aggiungere la scala cromatica a ciascuna di queste tonalità, partendo dalla tonica.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.enharmonic" datatype="html">
+        <source>Note that enharmonic keys like C# and Cb major are skipped. These are identical to Db and B, respectively.</source>
+        <target state="translated">Le tonalità enarmoniche come Do# e Dob maggiore sono omesse: equivalgono rispettivamente a Reb e Si.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.title" datatype="html">
+        <source>Level 2 Cycle</source>
+        <target state="translated">Ciclo di livello 2</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.intro" datatype="html">
+        <source> We can increase the difficulty with a sequence that includes more keys in one day, combining relative major + minor keys, reducing total cycle time to 6 days. </source>
+        <target state="translated">Possiamo aumentare la difficoltà con una sequenza che include più tonalità al giorno, abbinando le relative maggiori e minori: il ciclo scende a 6 giorni.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.title" datatype="html">
+        <source>Level 3 Cycle</source>
+        <target state="translated">Ciclo di livello 3</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.intro" datatype="html">
+        <source> A more advanced sequence will go through all keys in 2 days, using parallel major + minor keys. It should only be done after the previous patterns can be played automatically from memory. </source>
+        <target state="translated">Una sequenza più avanzata percorre tutte le tonalità in 2 giorni, con le omologhe maggiori e minori. Va affrontata solo quando gli schemi precedenti si suonano a memoria in modo automatico.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.title" datatype="html">
+        <source>Level 4a Cycle: Ascending 5ths</source>
+        <target state="translated">Ciclo di livello 4a: quinte ascendenti</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.intro" datatype="html">
+        <source>The most difficult cycle, playing all keys around the full Circle of 5ths in 1 day.</source>
+        <target state="translated">Il ciclo più difficile: tutte le tonalità lungo l'intero circolo delle quinte in 1 giorno.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.title" datatype="html">
+        <source>Level 4b Cycle: Descending 5ths</source>
+        <target state="translated">Ciclo di livello 4b: quinte discendenti</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.intro" datatype="html">
+        <source>An alternative sequence goes the opposite direction around the Circle of 5ths.</source>
+        <target state="translated">Una sequenza alternativa percorre il circolo delle quinte nella direzione opposta.</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.title" datatype="html">
+        <source>Contrary motion starting on the same note.</source>
+        <target state="translated">Moto contrario partendo dalla stessa nota.</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.advice" datatype="html">
+        <source>Both thumbs play the same note. Up then down.</source>
+        <target state="translated">Entrambi i pollici suonano la stessa nota. Su e poi giù.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.title" datatype="html">
+        <source>Parallel motion in octaves</source>
+        <target state="translated">Moto parallelo per ottave</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">MS: 4° dito sul 2° grado della scala; MD: 4° dito sul 7° grado della scala.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.title" datatype="html">
+        <source>Parallel motion in thirds</source>
+        <target state="translated">Moto parallelo per terze</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.advice" datatype="html">
+        <source>Hands a third apart: LH on the tonic, RH on the 3rd degree of the scale. Hands stay close, keep the thirds even. Two hands. Scales in parallel thirds are a common enough thing for intermediate to advanced technical exercise. Fingers crowding each other is what makes it challenging, but it is do-able. Each hand plays the scale as it ordinarily would, just separated by a third. The fingering is on the notation, just take it slowly until you’re able to do it, then gradually increase speed. There’s really no trick to it beyond that.</source>
+        <target state="translated">Mani a distanza di terza: MS sulla tonica, MD sul 3° grado della scala. Le mani restano vicine; mantieni le terze regolari. Due mani. Le scale per terze parallele sono un esercizio tecnico comune dal livello intermedio all'avanzato. La difficoltà è che le dita si intralciano, ma si può fare. Ogni mano suona la scala come al solito, solo a distanza di una terza. La diteggiatura è sullo spartito: vai piano finché non ci riesci, poi aumenta la velocità poco a poco. Non c'è altro trucco.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.title" datatype="html">
+        <source>Parallel motion in sixths</source>
+        <target state="translated">Moto parallelo per seste</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.advice" datatype="html">
+        <source>Hands a sixth apart: RH on the tonic with the thumb, LH a sixth below on the 3rd degree of the scale (finger 3).</source>
+        <target state="translated">Mani a distanza di sesta: MD sulla tonica con il pollice, MS una sesta sotto sul 3° grado della scala (dito 3).</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.title" datatype="html">
+        <source>Parallel motion in tenths</source>
+        <target state="translated">Moto parallelo per decime</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.advice" datatype="html">
+        <source>Hands a tenth apart (octave + third): LH on the tonic, RH on the 3rd degree an octave higher. Open the arms and keep both hands together.</source>
+        <target state="translated">Mani a distanza di decima (ottava + terza): MS sulla tonica, MD sul 3° grado un'ottava sopra. Apri le braccia e tieni le mani insieme.</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.title" datatype="html">
+        <source>Left than Right</source>
+        <target state="translated">Sinistra poi destra</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.advice" datatype="html">
+        <source>Thumb (1) cross under 3. Both thumbs play the same note. Up then down.</source>
+        <target state="translated">Il pollice (1) passa sotto il 3. Entrambi i pollici suonano la stessa nota. Su e poi giù.</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.title" datatype="html">
+        <source>Intervals</source>
+        <target state="translated">Intervalli</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">MS: 4° dito sul 2° grado della scala; MD: 4° dito sul 7° grado della scala.</target>
+      </trans-unit>
+      <trans-unit id="scales.subtitle" datatype="html">
+        <source>Select a scale, key, and exercise to begin</source>
+        <target state="translated">Scegli una scala, una tonalità e un esercizio per iniziare</target>
+      </trans-unit>
+      <trans-unit id="scales.type" datatype="html">
+        <source>Scale type</source>
+        <target state="translated">Tipo di scala</target>
+      </trans-unit>
+      <trans-unit id="scales.scale" datatype="html">
+        <source>Scale</source>
+        <target state="translated">Scala</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: <x id="exercise" equiv-text="exerciseName"/></source>
+        <target state="translated">Scala di <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>: <x id="exercise" equiv-text="exerciseName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.description" datatype="html">
+        <source>Practice the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale with the <x id="exercise" equiv-text="exerciseName"/> exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.</source>
+        <target state="translated">Esercitati sulla scala di <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> con l'esercizio <x id="exercise" equiv-text="exerciseName"/>: pratica a mani separate, tempo regolabile e correzione MIDI in tempo reale.</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: Piano Exercises</source>
+        <target state="translated">Scala di <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>: esercizi per pianoforte</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.description" datatype="html">
+        <source>Learn the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.</source>
+        <target state="translated">Impara la scala di <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> su PianoML con esercizi interattivi, pratica a mani separate e tempo regolabile.</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.title" datatype="html">
+        <source>Piano Scale Exercises: Major &amp; Minor Scales</source>
+        <target state="translated">Esercizi di scale al pianoforte: scale maggiori e minori</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.description" datatype="html">
+        <source>Practice major and minor piano scales with interactive exercises — contrary motion, parallel motion in octaves, thirds, sixths and tenths — at your own tempo.</source>
+        <target state="translated">Esercitati su scale maggiori e minori con esercizi interattivi — moto contrario, moto parallelo per ottave, terze, seste e decime — al tuo ritmo.</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.name" datatype="html">
+        <source>Piano Scales</source>
+        <target state="translated">Scale per pianoforte</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.description" datatype="html">
+        <source>Musical scales for piano practice and technique development</source>
+        <target state="translated">Scale musicali per esercitarsi al pianoforte e sviluppare la tecnica</target>
+      </trans-unit>
       <trans-unit id="home.headline" datatype="html">
         <source>A Machine to Learn Piano</source>
         <target state="translated">Una macchina per imparare il pianoforte</target>
@@ -842,10 +1470,6 @@
         <source>Author</source>
         <target state="translated">Autore</target>
       </trans-unit>
-      <trans-unit id="scoreInfo.key" datatype="html">
-        <source>Key</source>
-        <target state="translated">Tonalità</target>
-      </trans-unit>
       <trans-unit id="scoreInfo.grade" datatype="html">
         <source>Grade</source>
         <target state="translated">Livello</target>
@@ -1130,14 +1754,6 @@
         <source>Practice Exercises in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></source>
         <target state="translated">Esercizi in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></target>
       </trans-unit>
-      <trans-unit id="exercisesInKey.agility" datatype="html">
-        <source>Agility</source>
-        <target state="translated">Agilità</target>
-      </trans-unit>
-      <trans-unit id="exercisesInKey.scales" datatype="html">
-        <source>Scales</source>
-        <target state="translated">Scale</target>
-      </trans-unit>
       <trans-unit id="languageSwitcher.label" datatype="html">
         <source>Language</source>
         <target state="translated">Lingua</target>
@@ -1261,10 +1877,6 @@
       <trans-unit id="nav.browse" datatype="html">
         <source>Browse</source>
         <target state="translated">Sfoglia</target>
-      </trans-unit>
-      <trans-unit id="nav.exercises" datatype="html">
-        <source>Exercises</source>
-        <target state="translated">Esercizi</target>
       </trans-unit>
       <trans-unit id="manifest.name" datatype="html">
         <source>PianoML: Learn Piano</source>

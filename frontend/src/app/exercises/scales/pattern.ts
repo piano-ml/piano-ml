@@ -153,10 +153,10 @@ function parallelMotionPattern(startDegree: number, noteDuration: number) {
 
 const exercice2: Exercise = {
     key: "contrary_motion",
-    title: "Contrary motion starting on the same note.",
+    title: $localize`:@@exercise.contrary_motion.title:Contrary motion starting on the same note.`,
     deckName: "Furious Shirley",
     type: "scale",
-    advice: "Both thumbs play the same note. Up then down.",
+    advice: $localize`:@@exercise.contrary_motion.advice:Both thumbs play the same note. Up then down.`,
     measure: 4,
     beat: reducedFraction(4, 4),
     tempo: 60,
@@ -238,10 +238,10 @@ const exercice2: Exercise = {
 
 const exercice4: Exercise = {
     key: "parallel_motion_in_octaves",
-    title: "Parallel motion in octaves",
+    title: $localize`:@@exercise.parallel_motion_in_octaves.title:Parallel motion in octaves`,
     deckName: "Awesome Hamilton",
     type: "scale",
-    advice: "LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.",
+    advice: $localize`:@@exercise.parallel_motion_in_octaves.advice:LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.`,
     measure: 4,
     beat: reducedFraction(4, 4),
     tempo: 60,
@@ -258,10 +258,10 @@ const exercice4: Exercise = {
 // natural register), RH on the 3rd degree of the same octave.
 const exercice5: Exercise = {
     key: "parallel_motion_in_thirds",
-    title: "Parallel motion in thirds",
+    title: $localize`:@@exercise.parallel_motion_in_thirds.title:Parallel motion in thirds`,
     deckName: "Awesome Hamilton",
     type: "scale",
-    advice: "Hands a third apart: LH on the tonic, RH on the 3rd degree of the scale. Hands stay close, keep the thirds even. Two hands. Scales in parallel thirds are a common enough thing for intermediate to advanced technical exercise. Fingers crowding each other is what makes it challenging, but it is do-able. Each hand plays the scale as it ordinarily would, just separated by a third. The fingering is on the notation, just take it slowly until you’re able to do it, then gradually increase speed. There’s really no trick to it beyond that.",
+    advice: $localize`:@@exercise.parallel_motion_in_thirds.advice:Hands a third apart: LH on the tonic, RH on the 3rd degree of the scale. Hands stay close, keep the thirds even. Two hands. Scales in parallel thirds are a common enough thing for intermediate to advanced technical exercise. Fingers crowding each other is what makes it challenging, but it is do-able. Each hand plays the scale as it ordinarily would, just separated by a third. The fingering is on the notation, just take it slowly until you’re able to do it, then gradually increase speed. There’s really no trick to it beyond that.`,
     measure: 4,
     beat: reducedFraction(4, 4),
     tempo: 60,
@@ -276,10 +276,10 @@ const exercice5: Exercise = {
 // LH the 3rd degree of the octave below, which sits a sixth under it.
 const exercice7: Exercise = {
     key: "parallel_motion_in_sixths",
-    title: "Parallel motion in sixths",
+    title: $localize`:@@exercise.parallel_motion_in_sixths.title:Parallel motion in sixths`,
     deckName: "Awesome Hamilton",
     type: "scale",
-    advice: "Hands a sixth apart: RH on the tonic with the thumb, LH a sixth below on the 3rd degree of the scale (finger 3).",
+    advice: $localize`:@@exercise.parallel_motion_in_sixths.advice:Hands a sixth apart: RH on the tonic with the thumb, LH a sixth below on the 3rd degree of the scale (finger 3).`,
     measure: 4,
     beat: reducedFraction(4, 4),
     tempo: 60,
@@ -294,10 +294,10 @@ const exercice7: Exercise = {
 // own register while the RH plays the 3rd degree an octave higher.
 const exercice6: Exercise = {
     key: "parallel_motion_in_tenths",
-    title: "Parallel motion in tenths",
+    title: $localize`:@@exercise.parallel_motion_in_tenths.title:Parallel motion in tenths`,
     deckName: "Awesome Hamilton",
     type: "scale",
-    advice: "Hands a tenth apart (octave + third): LH on the tonic, RH on the 3rd degree an octave higher. Open the arms and keep both hands together.",
+    advice: $localize`:@@exercise.parallel_motion_in_tenths.advice:Hands a tenth apart (octave + third): LH on the tonic, RH on the 3rd degree an octave higher. Open the arms and keep both hands together.`,
     measure: 4,
     beat: reducedFraction(4, 4),
     tempo: 60,
@@ -310,10 +310,10 @@ const exercice6: Exercise = {
 
 const exercice3: Exercise = {
     key: "left_than_right",
-    title: "Left than Right",
+    title: $localize`:@@exercise.left_than_right.title:Left than Right`,
     deckName: "Furious Shirley",
     type: "scale",
-    advice: "Thumb (1) cross under 3. Both thumbs plays the same note. Up then down.",
+    advice: $localize`:@@exercise.left_than_right.advice:Thumb (1) cross under 3. Both thumbs play the same note. Up then down.`,
     measure: 4,
     beat: reducedFraction(4, 4),
     tempo: 60,
@@ -401,10 +401,10 @@ const exercice3: Exercise = {
 
 const exercice1: Exercise = {
     key: "intervals",
-    title: "Intervals",
+    title: $localize`:@@exercise.intervals.title:Intervals`,
     deckName: "Awesome Hamilton",
     type: "scale",
-    advice: "LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.",
+    advice: $localize`:@@exercise.intervals.advice:LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.`,
     measure: 6,
     beat: reducedFraction(4, 4),
     tempo: 60,

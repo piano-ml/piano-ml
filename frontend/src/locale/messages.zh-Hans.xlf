@@ -342,6 +342,634 @@
         <source>Building the MIDI map</source>
         <target state="translated">正在生成 MIDI 映射</target>
       </trans-unit>
+      <trans-unit id="chord.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">大三和弦</target>
+      </trans-unit>
+      <trans-unit id="chord.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">小三和弦</target>
+      </trans-unit>
+      <trans-unit id="chord.dominant7.name" datatype="html">
+        <source>Dominant 7</source>
+        <target state="translated">属七和弦</target>
+      </trans-unit>
+      <trans-unit id="scale.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">大调</target>
+      </trans-unit>
+      <trans-unit id="scale.major.alt" datatype="html">
+        <source>Ionian</source>
+        <target state="translated">伊奥尼亚</target>
+      </trans-unit>
+      <trans-unit id="scale.major.description" datatype="html">
+        <source>The major (Ionian) scale is the default “bright / stable” sound in Western music. It’s the backbone of diatonic harmony: I, ii, iii, IV, V, vi and vii° all come straight from it.
+Common genres: classical, pop, folk, film music, worship, EDM melodies.
+Usage: build singable melodies, outline major triads/7ths, and write progressions like I–V–vi–IV. For improvisation, target chord tones on strong beats and use the remaining scale tones as passing/neighbor tones.</source>
+        <target state="translated">大调（伊奥尼亚）音阶是西方音乐中默认的“明亮 / 稳定”的声音，也是自然音阶和声的骨架：I、ii、iii、IV、V、vi 和 vii° 都直接来自它。
+常见风格：古典、流行、民谣、电影音乐、敬拜音乐、EDM 旋律。
+用法：创作朗朗上口的旋律，勾勒大三和弦与大七和弦，写出 I–V–vi–IV 之类的和弦进行。即兴时，在强拍上瞄准和弦音，其余音阶音用作经过音或辅助音。</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">小调</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.alt" datatype="html">
+        <source>Aeolian</source>
+        <target state="translated">爱奥利亚</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.description" datatype="html">
+        <source>Natural minor (Aeolian) is the “darker / melancholic” counterpart to major. It’s the relative minor of a major key (same notes, different tonic), which is why modulating between relative major/minor feels so natural.
+
+Common genres: rock, pop ballads, classical, cinematic, indie.
+
+Usage: great for i–bVII–bVI progressions (a classic minor-key sound), and for melodies that lean on the b3, b6, and b7. Harmonically it lacks a strong leading tone (7→1), so cadences can feel modal unless you introduce harmonic/melodic minor.</source>
+        <target state="translated">自然小调（爱奥利亚）是大调“更暗 / 忧郁”的对应。它是大调的关系小调（音相同，主音不同），所以在关系大小调之间转调显得十分自然。
+
+常见风格：摇滚、流行抒情、古典、电影音乐、独立音乐。
+
+用法：非常适合 i–bVII–bVI 这类经典小调进行，以及倚重 b3、b6、b7 的旋律。和声上它缺少强导音（7→1），所以除非引入和声小调或旋律小调，终止式可能听起来带调式感。</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.name" datatype="html">
+        <source>Harmonic Minor</source>
+        <target state="translated">和声小调</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.alt" datatype="html">
+        <source>Aeolian ♮7</source>
+        <target state="translated">爱奥利亚 ♮7</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.description" datatype="html">
+        <source>Harmonic minor is natural minor with a raised 7th degree, restoring the leading tone and enabling a strong V(7)→i cadence in minor keys. This is why it’s central to classical “functional” minor harmony.
+
+Signature color: the augmented 2nd between b6 and 7, which can sound “exotic” if emphasized melodically.
+
+Common genres: classical, neo-classical metal, film scoring, some Middle Eastern/Spanish-influenced lines.
+
+Usage: use it over the dominant in minor (V7 in minor), in cadences, and when you want that strong pull back to the tonic. Be mindful: sustained melodies may sound stylized; many writers mix it with natural minor.</source>
+        <target state="translated">和声小调是升高第 7 级的自然小调：它恢复了导音，使小调中能有强有力的 V(7)→i 终止。因此它是古典“功能”小调和声的核心。
+
+标志性色彩：b6 与 7 之间的增二度，在旋律中强调时会显得“异域”。
+
+常见风格：古典、新古典金属、电影配乐，以及部分受中东或西班牙影响的旋律线。
+
+用法：用于小调的属和弦（小调中的 V7）、终止式，以及需要强烈回归主音的地方。注意：长音旋律可能显得风格化，很多作者会把它与自然小调混用。</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.name" datatype="html">
+        <source>Melodic Minor</source>
+        <target state="translated">旋律小调</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.alt" datatype="html">
+        <source>Jazz minor</source>
+        <target state="translated">爵士小调</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.description" datatype="html">
+        <source>Melodic minor (as used in jazz) is a minor scale with raised 6th and 7th degrees. In classical theory it’s often taught as “ascending melodic minor”, but in jazz it’s generally used the same way up and down.
+
+Common genres: jazz, fusion, modern film/TV harmony.
+
+Usage: it’s a powerhouse “parent scale” because its modes are used everywhere (e.g., Lydian dominant, altered scale). Use melodic minor on minor-major7 chords, on tonic minor colors, and to derive dominant options in ii–V–i contexts.</source>
+        <target state="translated">旋律小调（爵士用法）是升高第 6、7 级的小调音阶。古典理论中常作为“上行旋律小调”教授，但在爵士中上下行用法相同。
+
+常见风格：爵士、融合、现代影视和声。
+
+用法：它是很有用的“母音阶”，因为它的各个调式随处可见（如利底亚属音阶、变化音阶）。可用于小大七和弦、小调主和弦色彩，以及在 ii–V–i 中推导属和弦的选择。</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.name" datatype="html">
+        <source>Dorian</source>
+        <target state="translated">多利亚</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.description" datatype="html">
+        <source>Dorian is a minor mode with a natural 6 (compared to Aeolian). That single note change makes it feel less “sad” and more “groovy / open”, perfect for modal vamps.
+
+Common genres: modal jazz (e.g., “So What”), funk, rock jams, Celtic/folk flavors.
+
+Usage: typically played over a minor7 chord (i7) when the harmony stays put for a long time. Emphasize the natural 6 to clearly distinguish it from natural minor; a classic vamp is i7–IV7 (or i7–IV) which highlights that color.</source>
+        <target state="translated">多利亚是带还原 6 级（相对爱奥利亚）的小调式。仅这一个音的变化，就让它听起来不那么“悲伤”，更“律动 / 开阔”，非常适合调式循环。
+
+常见风格：调式爵士（如《So What》）、放克、摇滚即兴、凯尔特与民谣风格。
+
+用法：通常在和声长时间停留时用于小七和弦（i7）上。强调还原 6 级以与自然小调明显区分；经典循环 i7–IV7（或 i7–IV）能突出这种色彩。</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.name" datatype="html">
+        <source>Phrygian Dominant</source>
+        <target state="translated">弗里几亚属音阶</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.alt" datatype="html">
+        <source>Metal riffs, Spanish/flamenco feeling</source>
+        <target state="translated">金属乐 riff，西班牙/弗拉门戈风格</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.description" datatype="html">
+        <source>Phrygian dominant is the 5th mode of harmonic minor. It sounds “Spanish / flamenco / Middle Eastern” because of the b2 combined with a major 3rd.
+
+Common genres: flamenco, metal riffs, cinematic “exotic” cues.
+
+Usage: great over dominant chords that want to resolve to a minor tonic (V7→i). It naturally implies dominant tension (b9, b13 colors) while staying strongly directional. Riff writing tip: lean on the b2–1 motion and the b6–5 movement for that instantly recognizable flavor.</source>
+        <target state="translated">弗里几亚属音阶是和声小调的第 5 个调式。b2 与大三度结合，使它听起来带有“西班牙 / 弗拉门戈 / 中东”风味。
+
+常见风格：弗拉门戈、金属乐 riff、电影中的“异域”段落。
+
+用法：非常适合要解决到小调主和弦的属和弦（V7→i）。它自然带出属和弦张力（b9、b13 色彩），同时方向感很强。写 riff 的小技巧：倚重 b2–1 和 b6–5 的进行，立刻就有那种辨识度。</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.name" datatype="html">
+        <source>Phrygian</source>
+        <target state="translated">弗里几亚</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.description" datatype="html">
+        <source>Phrygian is a minor mode with a flat 2, giving it a tense, “dark / ancient” character. It’s less functional-harmony-driven and more about sustained modal color.
+
+Common genres: metal, prog, film/game scoring, some Spanish-influenced lines.
+
+Usage: works well over minor chords (i or i7) when the harmony is static. The b2 is the identity note—use it carefully: sustained b2 can sound very tense, while quick b2→1 resolves nicely and feels idiomatic.</source>
+        <target state="translated">弗里几亚是带降 2 级的小调式，性格紧张，带有“黑暗 / 古老”的感觉。它较少依赖功能和声，更多是持续的调式色彩。
+
+常见风格：金属、前卫摇滚、电影与游戏配乐，以及部分受西班牙影响的旋律线。
+
+用法：在和声静止时用于小和弦（i 或 i7）效果很好。b2 是它的标志音，要谨慎使用：长时间停留在 b2 会非常紧张，而快速的 b2→1 解决自然又地道。</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.name" datatype="html">
+        <source>Lydian</source>
+        <target state="translated">利底亚</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.description" datatype="html">
+        <source>Lydian is a major mode with a raised 4 (#11). Compared to Ionian, it feels more “floating / dreamy / cinematic” because the #4 avoids the strong IV pull and adds a bright tension.
+
+Common genres: film scoring, ambient, fusion, modern pop harmony.
+
+Usage: ideal over maj7(#11) chords and long tonic major vamps. To highlight the mode, feature the #4 against the major chord (e.g., play 1–2–3–#4–5). Great for melodies that should feel uplifting but not overly “resolved”.</source>
+        <target state="translated">利底亚是带升 4 级（#11）的大调式。与伊奥尼亚相比，它更“漂浮 / 梦幻 / 电影感”，因为 #4 避开了 IV 级的强烈倾向，并增加了明亮的张力。
+
+常见风格：电影配乐、氛围音乐、融合、现代流行和声。
+
+用法：非常适合 maj7(#11) 和弦和长时间的大调主和弦循环。要突出这个调式，就在大和弦上强调 #4（例如弹 1–2–3–#4–5）。适合需要昂扬又不过分“解决”的旋律。</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.name" datatype="html">
+        <source>Mixolydian</source>
+        <target state="translated">混合利底亚</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.description" datatype="html">
+        <source>Mixolydian is major with a flat 7. It’s the classic “dominant / bluesy major” sound: bright like major, but with a relaxed, rootsy edge.
+
+Common genres: blues, rock, funk, country, folk, jam music.
+
+Usage: use it over dominant 7 chords (especially a I7 in blues/rock contexts) and in progressions like I–bVII–IV. Emphasize the b7 to separate it from Ionian; it pairs naturally with pentatonics and blues vocabulary.</source>
+        <target state="translated">混合利底亚是降 7 级的大调。它是经典的“属音 / 布鲁斯味大调”：像大调一样明亮，但多了一份放松和质朴。
+
+常见风格：布鲁斯、摇滚、放克、乡村、民谣、即兴演奏音乐。
+
+用法：用于属七和弦（尤其是布鲁斯/摇滚中的 I7），以及 I–bVII–IV 之类的进行。强调 b7 以区别于伊奥尼亚；它与五声音阶和布鲁斯语汇天然契合。</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.name" datatype="html">
+        <source>Locrian</source>
+        <target state="translated">洛克里亚</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.description" datatype="html">
+        <source>Locrian is the most unstable diatonic mode: it has a flat 2 and a diminished 5 (b5), which makes the tonic triad diminished. Because of that, it’s rarely used as a “home base” in tonal music.
+
+Common genres: jazz harmony (as a function), some metal/experimental contexts.
+
+Usage: most often used over half-diminished chords (m7b5), typically as iiø in minor ii–V–i progressions. Treat it as a color for a chord-function moment rather than a long tonic. Target chord tones (1, b3, b5, b7) for clarity.</source>
+        <target state="translated">洛克里亚是最不稳定的自然音阶调式：它有降 2 级和减 5 度（b5），使主三和弦成为减三和弦。因此在调性音乐中很少作为“落脚点”。
+
+常见风格：爵士和声（作为功能）、部分金属或实验音乐。
+
+用法：最常用于半减七和弦（m7b5），通常是小调 ii–V–i 中的 iiø。把它当作某个功能时刻的色彩，而不是长时间的主音。瞄准和弦音（1、b3、b5、b7）以保持清晰。</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.name" datatype="html">
+        <source>Minor blues (Hexatonic)</source>
+        <target state="translated">小调布鲁斯（六声音阶）</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.description" datatype="html">
+        <source>Minor blues (hexatonic) is essentially minor pentatonic with the added “blue note” (b5). It’s one of the most practical, high-hit-rate scales for expressive phrasing.
+
+Common genres: blues, rock, soul, funk, guitar-centric leads.
+
+Usage: play it over minor tonal centers (i, i7) and even over dominant blues contexts for a more “minor” bite. The b5 is a tension note—use it as a passing tone or bend/slide target rather than a long sustain for the most idiomatic blues feel.</source>
+        <target state="translated">小调布鲁斯（六声音阶）本质上是加入“蓝调音”（b5）的小调五声音阶，是富有表现力的乐句中最实用、最容易出效果的音阶之一。
+
+常见风格：布鲁斯、摇滚、灵魂乐、放克、吉他主奏。
+
+用法：用于小调中心（i、i7），甚至在属音布鲁斯中使用，带来更“小调”的锋利感。b5 是张力音：把它用作经过音或推弦、滑音的目标，而不是长音，布鲁斯味会更地道。</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.name" datatype="html">
+        <source>Major blues (Hexatonic)</source>
+        <target state="translated">大调布鲁斯（六声音阶）</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.description" datatype="html">
+        <source>Major blues (hexatonic) is major pentatonic with an added b3 “blues” color. This gives that classic major/minor mixture that defines so much blues and country phrasing.
+
+Common genres: blues, country, swing, classic rock.
+
+Usage: great over I7 in blues, or any major-key groove where you want sweetness (major pentatonic) plus grit (b3). A common approach is to alternate major blues and minor blues around the same chord for call-and-response phrasing.</source>
+        <target state="translated">大调布鲁斯（六声音阶）是加入 b3“布鲁斯”色彩的大调五声音阶，带来定义大量布鲁斯和乡村乐句的经典大小调混合。
+
+常见风格：布鲁斯、乡村、摇摆乐、经典摇滚。
+
+用法：非常适合布鲁斯中的 I7，或任何既要甜美（大调五声）又要粗粝（b3）的大调律动。常见做法是在同一和弦上交替使用大调布鲁斯和小调布鲁斯，形成一问一答的乐句。</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.name" datatype="html">
+        <source>Altered / Super Locrian</source>
+        <target state="translated">变化音阶 / 超洛克里亚</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.alt" datatype="html">
+        <source>Modern jazz - tense dominant V7alt chords</source>
+        <target state="translated">现代爵士：紧张的属七变化和弦（V7alt）</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.description" datatype="html">
+        <source>The altered (super Locrian) scale is the 7th mode of melodic minor. It contains the strongest set of dominant alterations: b9, #9, b5/#11, and #5/b13.
+
+Common genres: bebop/post-bop jazz, modern jazz, fusion.
+
+Usage: apply it over V7alt chords resolving by fifth (e.g., G7alt → Cmin/Cmaj). It’s a “maximum tension” choice: aim the altered tones to resolve by half-step into target chord tones of the resolution chord. In lines, treat it as a tension palette rather than a scale to run straight up and down.</source>
+        <target state="translated">变化音阶（超洛克里亚）是旋律小调的第 7 个调式，包含最强烈的一组属和弦变化音：b9、#9、b5/#11 和 #5/b13。
+
+常见风格：比波普与后比波普爵士、现代爵士、融合。
+
+用法：用于按五度解决的 V7alt 和弦（如 G7alt → Cmin/Cmaj）。这是“最大张力”的选择：让变化音以半音解决到目标和弦的和弦音上。在乐句中，把它当作张力调色板，而不是单纯上下跑动的音阶。</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.name" datatype="html">
+        <source>Blues (Heptatonic)</source>
+        <target state="translated">布鲁斯（七声音阶）</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.description" datatype="html">
+        <source>This heptatonic blues flavor expands beyond the common 6-note blues scale. With 7 notes, it can bridge “pentatonic safety” and more diatonic motion, while still keeping blues DNA.
+
+Common genres: blues, rock, funk, jam improvisation.
+
+Usage: useful when you want blues phrasing but also want a smoother melodic line that can outline more chord movement. Start with classic blues licks (1, b3, 4, b5, 5, b7) and use the extra scale degree as a connector between strong targets.</source>
+        <target state="translated">这种七声布鲁斯超越了常见的六声布鲁斯音阶。七个音可以在“五声音阶的安全感”与更多自然音阶式进行之间架起桥梁，同时保留布鲁斯的基因。
+
+常见风格：布鲁斯、摇滚、放克、即兴演奏。
+
+用法：当你想要布鲁斯乐句，又希望旋律线更流畅、能勾勒更多和声进行时很有用。从经典布鲁斯乐句（1、b3、4、b5、5、b7）开始，把多出的音级当作连接目标音之间的过渡。</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.name" datatype="html">
+        <source>Minor (pentatonic)</source>
+        <target state="translated">小调五声音阶</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.alt" datatype="html">
+        <source>90% of rock/blues solos</source>
+        <target state="translated">90% 的摇滚/布鲁斯独奏</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.description" datatype="html">
+        <source>Minor pentatonic is the workhorse scale for melodic improvisation: five notes, no “bad” avoid notes against many common chords, and extremely easy to phrase.
+
+Common genres: rock, blues, pop, funk, metal (as a base vocabulary).
+
+Usage: play it over minor tonal centers (i, i7) and many dominant blues contexts. For stronger storytelling, don’t just run the pattern—target chord tones, use bends/ornaments (where applicable), and vary rhythm. Add the b5 to turn it into the classic minor blues scale when you want more bite.</source>
+        <target state="translated">小调五声音阶是旋律即兴的主力音阶：五个音，在许多常见和弦上没有需要回避的“坏”音，而且非常容易组织乐句。
+
+常见风格：摇滚、布鲁斯、流行、放克、金属（作为基础语汇）。
+
+用法：用于小调中心（i、i7）和许多属音布鲁斯场景。要让乐句更有叙事感，别只是跑指型：瞄准和弦音，使用推弦和装饰音（如适用），并变化节奏。想要更锋利时，加入 b5 就成了经典的小调布鲁斯音阶。</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.name" datatype="html">
+        <source>Major (pentatonic)</source>
+        <target state="translated">大调五声音阶</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.alt" datatype="html">
+        <source>Sweet major blues/country</source>
+        <target state="translated">甜美的大调布鲁斯/乡村风格</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.description" datatype="html">
+        <source>Major pentatonic is a 5-note subset of the major scale (1–2–3–5–6). Because it avoids the 4 and 7, it tends to sound “clean” and consonant over many major-key progressions.
+
+Common genres: country, pop, folk, classic rock, gospel, melodic EDM leads.
+
+Usage: use it over major chords and major-key vamps when you want a smooth, singable melody. It’s also a great “safe” starting point for improvisation: you can focus on rhythm, phrasing, and target notes (especially 1/3/5) without worrying about harsh clashes. To add blues flavor, mix in the b3 occasionally (major blues sound) or switch to minor pentatonic for contrast.</source>
+        <target state="translated">大调五声音阶是大调音阶的五音子集（1–2–3–5–6）。因为避开了 4 级和 7 级，它在许多大调进行上听起来“干净”而协和。
+
+常见风格：乡村、流行、民谣、经典摇滚、福音、EDM 旋律。
+
+用法：在大和弦和大调循环上需要流畅、好唱的旋律时使用。它也是即兴的“安全”起点：可以专注于节奏、乐句和目标音（尤其是 1/3/5），不必担心刺耳的冲突。想加点布鲁斯味，可以偶尔加入 b3（大调布鲁斯的声音），或切换到小调五声音阶形成对比。</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.name" datatype="html">
+        <source>Bebop blues (dominant)</source>
+        <target state="translated">比波普布鲁斯（属音）</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.alt" datatype="html">
+        <source>8-note dominant bebop blues</source>
+        <target state="translated">八声属音比波普布鲁斯</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.description" datatype="html">
+        <source>Dominant bebop blues is an 8-note scale designed for swing/bebop phrasing over dominant harmony. The extra chromatic passing tone makes it easier to land chord tones on strong beats when playing continuous eighth-notes.
+
+Common genres: bebop, swing, blues-jazz, organ trio, big band lines.
+
+Usage: use it over dominant 7 chords (often I7 in blues, or V7 in a progression) when you want that “inside” bebop flow. A practical approach is to treat it as a rhythmic tool: run eighth-notes and aim for 1–3–5–b7 on downbeats, letting the chromatic note act as a connector. Combine with classic blues vocabulary (b3, b5 bends/approaches) for authentic language.</source>
+        <target state="translated">属音比波普布鲁斯是为在属和声上演奏摇摆/比波普乐句而设计的八声音阶。额外的半音经过音让连续八分音符演奏时更容易在强拍落在和弦音上。
+
+常见风格：比波普、摇摆、布鲁斯爵士、风琴三重奏、大乐队旋律线。
+
+用法：用于属七和弦（常见于布鲁斯中的 I7，或进行中的 V7），获得“内侧”的比波普流动感。实用做法是把它当作节奏工具：弹奏八分音符，在拍点上瞄准 1–3–5–b7，让半音作为连接。结合经典布鲁斯语汇（对 b3、b5 的推弦和趋近），语言会更地道。</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.name" datatype="html">
+        <source>Minor blues bebop</source>
+        <target state="translated">小调比波普布鲁斯</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.alt" datatype="html">
+        <source>8-note minor bebop blues</source>
+        <target state="translated">八声小调比波普布鲁斯</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.description" datatype="html">
+        <source>Minor blues bebop is an 8-note minor/blues-oriented scale that supports bebop-style eighth-note lines while keeping a minor-blues color. Like other bebop scales, the added chromaticism helps align chord tones with strong beats.
+
+Common genres: bebop over minor blues, jazz blues, fusion, modern blues improvisation.
+
+Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) when you want to keep the blues sound but phrase with bebop-style momentum. Target the minor chord tones (1, b3, 5, b7) on downbeats and use the chromatic notes as approach tones into those targets. It pairs well with minor pentatonic/blues licks—think of it as a “bebop-friendly” extension rather than a replacement.</source>
+        <target state="translated">小调比波普布鲁斯是一种偏小调与布鲁斯的八声音阶，可以演奏比波普风格的八分音符线条，同时保留小调布鲁斯的色彩。和其他比波普音阶一样，加入的半音有助于让和弦音对齐强拍。
+
+常见风格：小调布鲁斯上的比波普、爵士布鲁斯、融合、现代布鲁斯即兴。
+
+用法：用于小和弦和小调布鲁斯（i7 / i 中心），既想保留布鲁斯的声音，又想用比波普的冲劲组织乐句时使用。在拍点上瞄准小和弦音（1、b3、5、b7），用半音作为趋近音。它与小调五声/布鲁斯乐句很搭：把它看作“适合比波普”的扩展，而不是替代。</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.agility" datatype="html">
+        <source>Agility</source>
+        <target state="translated">灵活性</target>
+      </trans-unit>
+      <trans-unit id="agility.subtitle" datatype="html">
+        <source>Select a key, chord, and exercise to begin</source>
+        <target state="translated">选择调、和弦和练习后开始</target>
+      </trans-unit>
+      <trans-unit id="exercises.start" datatype="html">
+        <source>Start</source>
+        <target state="translated">开始</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.key" datatype="html">
+        <source>Key</source>
+        <target state="translated">调</target>
+      </trans-unit>
+      <trans-unit id="agility.chord" datatype="html">
+        <source>Chord</source>
+        <target state="translated">和弦</target>
+      </trans-unit>
+      <trans-unit id="exercises.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">练习</target>
+      </trans-unit>
+      <trans-unit id="exercises.noDescription" datatype="html">
+        <source>No description available.</source>
+        <target state="translated">暂无描述。</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.title" datatype="html">
+        <source><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></source>
+        <target state="translated"><x id="exercise" equiv-text="exerciseName"/>：<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.description" datatype="html">
+        <source>Practice piano agility with the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern. Build technique with interactive exercises and real-time feedback.</source>
+        <target state="translated">用<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦按<x id="exercise" equiv-text="exerciseName"/>模式练习钢琴灵活性。通过互动练习和实时反馈提升技巧。</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.teaches" datatype="html">
+        <source>Piano agility using the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern</source>
+        <target state="translated">用<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦按<x id="exercise" equiv-text="exerciseName"/>模式练习钢琴灵活性</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> Chord: Piano Agility Exercises</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦：钢琴灵活性练习</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.description" datatype="html">
+        <source>Practice <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.</source>
+        <target state="translated">用互动灵活性练习练习<x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/>和弦进行，提升手指灵活度和和弦转换。</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.title" datatype="html">
+        <source>Piano Agility Exercises: Technique &amp; Finger Dexterity</source>
+        <target state="translated">钢琴灵活性练习：技巧与手指灵活度</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.description" datatype="html">
+        <source>Practice piano agility with interactive exercises — arpeggios in root position and inversions, across two octaves and around the circle of fifths.</source>
+        <target state="translated">通过互动练习提升钢琴灵活性——原位与转位琶音，跨两个八度，沿五度圈进行。</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.level" datatype="html">
+        <source>Beginner to Advanced</source>
+        <target state="translated">从初级到高级</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.title" datatype="html">
+        <source>Two-octave Arpeggios, root, 1st and 2nd inversions</source>
+        <target state="translated">两个八度琶音：原位、第一转位和第二转位</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">慢慢练习，逐步加快速度。练习时始终使用节拍器。使用正确的指法。每个转位重复多次。</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.title" datatype="html">
+        <source>Dominant Seventh Arpeggios (root position)</source>
+        <target state="translated">属七和弦琶音（原位）</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.advice" datatype="html">
+        <source>Always use a metronome when practicing exercises</source>
+        <target state="translated">练习时始终使用节拍器</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.title" datatype="html">
+        <source>Arpeggio in root position, two octaves</source>
+        <target state="translated">原位琶音，两个八度</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">慢慢练习，逐步加快速度。练习时始终使用节拍器。使用正确的指法。每个转位重复多次。</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.title" datatype="html">
+        <source>Chord inversions</source>
+        <target state="translated">和弦转位</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">慢慢练习，逐步加快速度。练习时始终使用节拍器。使用正确的指法。每个转位重复多次。</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.rightHand" datatype="html">
+        <source>Right Hand</source>
+        <target state="translated">右手</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.leftHand" datatype="html">
+        <source>Left Hand</source>
+        <target state="translated">左手</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.title" datatype="html">
+        <source>Piano Exercises: Scales, Arpeggios &amp; Agility</source>
+        <target state="translated">钢琴练习：音阶、琶音与灵活性</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.description" datatype="html">
+        <source>Practice piano scales, arpeggios and agility exercises around the circle of fifths, with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">沿五度圈练习钢琴音阶、琶音和灵活性，支持分手练习、速度调节和 MIDI 反馈。</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.scales" datatype="html">
+        <source>Scales</source>
+        <target state="translated">音阶</target>
+      </trans-unit>
+      <trans-unit id="nav.exercises" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">练习</target>
+      </trans-unit>
+      <trans-unit id="exercises.home.subtitle" datatype="html">
+        <source>Practice cycles and technique programs</source>
+        <target state="translated">练习周期与技巧训练计划</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.title" datatype="html">
+        <source>Level 1 Cycle</source>
+        <target state="translated">第 1 级周期</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.intro" datatype="html">
+        <source> Start with 2 keys per day. Each day work on a different key pair. The following sequence takes 12 days to complete a full cycle of all 24 major + minor keys. </source>
+        <target state="translated">每天从 2 个调开始，每天练习不同的一对调。下面的顺序需要 12 天，完整覆盖全部 24 个大小调。</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorSharp" datatype="html">
+        <source>Major Keys (Sharp):</source>
+        <target state="translated">大调（升号）：</target>
+      </trans-unit>
+      <trans-unit id="exercises.day" datatype="html">
+        <source>Day <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</source>
+        <target state="translated">第 <x id="INTERPOLATION" equiv-text="{{ 1 }}"/> 天：</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorFlat" datatype="html">
+        <source>Major Keys (Flat):</source>
+        <target state="translated">大调（降号）：</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorSharp" datatype="html">
+        <source>Minor Keys (Sharp):</source>
+        <target state="translated">小调（升号）：</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorFlat" datatype="html">
+        <source>Minor Keys (Flat):</source>
+        <target state="translated">小调（降号）：</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.chromatic" datatype="html">
+        <source>You can add the Chromatic Scale to any of these keys, starting on the key note.</source>
+        <target state="translated">你可以在其中任一调上加练半音阶，从主音开始。</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.enharmonic" datatype="html">
+        <source>Note that enharmonic keys like C# and Cb major are skipped. These are identical to Db and B, respectively.</source>
+        <target state="translated">注意：升 C 大调和降 C 大调等等音调被省略，它们分别与降 D 大调和 B 大调相同。</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.title" datatype="html">
+        <source>Level 2 Cycle</source>
+        <target state="translated">第 2 级周期</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.intro" datatype="html">
+        <source> We can increase the difficulty with a sequence that includes more keys in one day, combining relative major + minor keys, reducing total cycle time to 6 days. </source>
+        <target state="translated">可以通过一天练习更多调来提高难度：把关系大小调组合在一起，整个周期缩短为 6 天。</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.title" datatype="html">
+        <source>Level 3 Cycle</source>
+        <target state="translated">第 3 级周期</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.intro" datatype="html">
+        <source> A more advanced sequence will go through all keys in 2 days, using parallel major + minor keys. It should only be done after the previous patterns can be played automatically from memory. </source>
+        <target state="translated">更高级的顺序在 2 天内练完所有调，使用同主音的大小调。只有在能凭记忆自然弹奏前面的练习后再进行。</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.title" datatype="html">
+        <source>Level 4a Cycle: Ascending 5ths</source>
+        <target state="translated">第 4a 级周期：上行五度</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.intro" datatype="html">
+        <source>The most difficult cycle, playing all keys around the full Circle of 5ths in 1 day.</source>
+        <target state="translated">最难的周期：一天之内沿完整五度圈弹奏所有调。</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.title" datatype="html">
+        <source>Level 4b Cycle: Descending 5ths</source>
+        <target state="translated">第 4b 级周期：下行五度</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.intro" datatype="html">
+        <source>An alternative sequence goes the opposite direction around the Circle of 5ths.</source>
+        <target state="translated">另一种顺序沿五度圈反方向进行。</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.title" datatype="html">
+        <source>Contrary motion starting on the same note.</source>
+        <target state="translated">从同一个音开始的反向进行。</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.advice" datatype="html">
+        <source>Both thumbs play the same note. Up then down.</source>
+        <target state="translated">两个拇指弹同一个音。先上行再下行。</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.title" datatype="html">
+        <source>Parallel motion in octaves</source>
+        <target state="translated">八度平行进行</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">左手：4 指弹音阶第 2 级；右手：4 指弹音阶第 7 级。</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.title" datatype="html">
+        <source>Parallel motion in thirds</source>
+        <target state="translated">三度平行进行</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.advice" datatype="html">
+        <source>Hands a third apart: LH on the tonic, RH on the 3rd degree of the scale. Hands stay close, keep the thirds even. Two hands. Scales in parallel thirds are a common enough thing for intermediate to advanced technical exercise. Fingers crowding each other is what makes it challenging, but it is do-able. Each hand plays the scale as it ordinarily would, just separated by a third. The fingering is on the notation, just take it slowly until you’re able to do it, then gradually increase speed. There’s really no trick to it beyond that.</source>
+        <target state="translated">双手相隔三度：左手在主音，右手在音阶第 3 级。双手靠近，保持三度均匀。双手练习。三度平行音阶是中高级常见的技巧练习。难点在于手指互相拥挤，但完全可以做到。每只手照常弹音阶，只是相隔一个三度。指法标在乐谱上：先慢练直到能弹，再逐步加速。除此之外没有别的诀窍。</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.title" datatype="html">
+        <source>Parallel motion in sixths</source>
+        <target state="translated">六度平行进行</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.advice" datatype="html">
+        <source>Hands a sixth apart: RH on the tonic with the thumb, LH a sixth below on the 3rd degree of the scale (finger 3).</source>
+        <target state="translated">双手相隔六度：右手拇指在主音，左手在下方六度的音阶第 3 级（3 指）。</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.title" datatype="html">
+        <source>Parallel motion in tenths</source>
+        <target state="translated">十度平行进行</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.advice" datatype="html">
+        <source>Hands a tenth apart (octave + third): LH on the tonic, RH on the 3rd degree an octave higher. Open the arms and keep both hands together.</source>
+        <target state="translated">双手相隔十度（八度加三度）：左手在主音，右手在高八度的音阶第 3 级。张开手臂，双手保持同步。</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.title" datatype="html">
+        <source>Left than Right</source>
+        <target state="translated">先左手后右手</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.advice" datatype="html">
+        <source>Thumb (1) cross under 3. Both thumbs play the same note. Up then down.</source>
+        <target state="translated">拇指（1）从 3 指下方穿过。两个拇指弹同一个音。先上行再下行。</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.title" datatype="html">
+        <source>Intervals</source>
+        <target state="translated">音程</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">左手：4 指弹音阶第 2 级；右手：4 指弹音阶第 7 级。</target>
+      </trans-unit>
+      <trans-unit id="scales.subtitle" datatype="html">
+        <source>Select a scale, key, and exercise to begin</source>
+        <target state="translated">选择音阶、调和练习后开始</target>
+      </trans-unit>
+      <trans-unit id="scales.type" datatype="html">
+        <source>Scale type</source>
+        <target state="translated">音阶类型</target>
+      </trans-unit>
+      <trans-unit id="scales.scale" datatype="html">
+        <source>Scale</source>
+        <target state="translated">音阶</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: <x id="exercise" equiv-text="exerciseName"/></source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶：<x id="exercise" equiv-text="exerciseName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.description" datatype="html">
+        <source>Practice the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale with the <x id="exercise" equiv-text="exerciseName"/> exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.</source>
+        <target state="translated">用<x id="exercise" equiv-text="exerciseName"/>练习<x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶：分手练习、速度调节和实时 MIDI 反馈。</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: Piano Exercises</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶：钢琴练习</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.description" datatype="html">
+        <source>Learn the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.</source>
+        <target state="translated">在 PianoML 上通过互动练习、分手练习和速度调节学习<x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/>音阶。</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.title" datatype="html">
+        <source>Piano Scale Exercises: Major &amp; Minor Scales</source>
+        <target state="translated">钢琴音阶练习：大调与小调音阶</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.description" datatype="html">
+        <source>Practice major and minor piano scales with interactive exercises — contrary motion, parallel motion in octaves, thirds, sixths and tenths — at your own tempo.</source>
+        <target state="translated">通过互动练习按自己的速度练习大小调钢琴音阶——反向进行，以及八度、三度、六度和十度平行进行。</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.name" datatype="html">
+        <source>Piano Scales</source>
+        <target state="translated">钢琴音阶</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.description" datatype="html">
+        <source>Musical scales for piano practice and technique development</source>
+        <target state="translated">用于钢琴练习和技巧提升的音阶</target>
+      </trans-unit>
       <trans-unit id="home.headline" datatype="html">
         <source>A Machine to Learn Piano</source>
         <target state="translated">学钢琴的智能机器</target>
@@ -842,10 +1470,6 @@
         <source>Author</source>
         <target state="translated">作者</target>
       </trans-unit>
-      <trans-unit id="scoreInfo.key" datatype="html">
-        <source>Key</source>
-        <target state="translated">调</target>
-      </trans-unit>
       <trans-unit id="scoreInfo.grade" datatype="html">
         <source>Grade</source>
         <target state="translated">难度</target>
@@ -1130,14 +1754,6 @@
         <source>Practice Exercises in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/>练习</target>
       </trans-unit>
-      <trans-unit id="exercisesInKey.agility" datatype="html">
-        <source>Agility</source>
-        <target state="translated">灵活性</target>
-      </trans-unit>
-      <trans-unit id="exercisesInKey.scales" datatype="html">
-        <source>Scales</source>
-        <target state="translated">音阶</target>
-      </trans-unit>
       <trans-unit id="languageSwitcher.label" datatype="html">
         <source>Language</source>
         <target state="translated">语言</target>
@@ -1261,10 +1877,6 @@
       <trans-unit id="nav.browse" datatype="html">
         <source>Browse</source>
         <target state="translated">浏览</target>
-      </trans-unit>
-      <trans-unit id="nav.exercises" datatype="html">
-        <source>Exercises</source>
-        <target state="translated">练习</target>
       </trans-unit>
       <trans-unit id="manifest.name" datatype="html">
         <source>PianoML: Learn Piano</source>

@@ -342,6 +342,634 @@
         <source>Building the MIDI map</source>
         <target state="translated">MIDI 맵을 만드는 중</target>
       </trans-unit>
+      <trans-unit id="chord.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">메이저</target>
+      </trans-unit>
+      <trans-unit id="chord.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">마이너</target>
+      </trans-unit>
+      <trans-unit id="chord.dominant7.name" datatype="html">
+        <source>Dominant 7</source>
+        <target state="translated">도미넌트 7</target>
+      </trans-unit>
+      <trans-unit id="scale.major.name" datatype="html">
+        <source>Major</source>
+        <target state="translated">메이저</target>
+      </trans-unit>
+      <trans-unit id="scale.major.alt" datatype="html">
+        <source>Ionian</source>
+        <target state="translated">이오니안</target>
+      </trans-unit>
+      <trans-unit id="scale.major.description" datatype="html">
+        <source>The major (Ionian) scale is the default “bright / stable” sound in Western music. It’s the backbone of diatonic harmony: I, ii, iii, IV, V, vi and vii° all come straight from it.
+Common genres: classical, pop, folk, film music, worship, EDM melodies.
+Usage: build singable melodies, outline major triads/7ths, and write progressions like I–V–vi–IV. For improvisation, target chord tones on strong beats and use the remaining scale tones as passing/neighbor tones.</source>
+        <target state="translated">장음계(이오니안)는 서양 음악의 기본적인 "밝고 / 안정된" 소리이자 온음계 화성의 뼈대입니다. I, ii, iii, IV, V, vi, vii°가 모두 여기에서 나옵니다.
+주요 장르: 클래식, 팝, 포크, 영화 음악, 워십, EDM 멜로디.
+활용: 부르기 쉬운 멜로디를 만들고, 장3화음과 장7화음을 그리며, I–V–vi–IV 같은 진행을 써 보세요. 즉흥 연주에서는 강박에 코드 톤을 두고 나머지 음은 경과음이나 보조음으로 쓰세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.name" datatype="html">
+        <source>Minor</source>
+        <target state="translated">마이너</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.alt" datatype="html">
+        <source>Aeolian</source>
+        <target state="translated">에올리안</target>
+      </trans-unit>
+      <trans-unit id="scale.minor.description" datatype="html">
+        <source>Natural minor (Aeolian) is the “darker / melancholic” counterpart to major. It’s the relative minor of a major key (same notes, different tonic), which is why modulating between relative major/minor feels so natural.
+
+Common genres: rock, pop ballads, classical, cinematic, indie.
+
+Usage: great for i–bVII–bVI progressions (a classic minor-key sound), and for melodies that lean on the b3, b6, and b7. Harmonically it lacks a strong leading tone (7→1), so cadences can feel modal unless you introduce harmonic/melodic minor.</source>
+        <target state="translated">자연 단음계(에올리안)는 장음계의 "더 어둡고 / 우울한" 짝입니다. 장조의 나란한조(같은 음, 다른 으뜸음)이므로 나란한조 사이의 전조가 아주 자연스럽게 들립니다.
+
+주요 장르: 록, 팝 발라드, 클래식, 영화 음악, 인디.
+
+활용: i–bVII–bVI 같은 진행(전형적인 단조 사운드)과 b3, b6, b7에 기대는 멜로디에 잘 어울립니다. 화성적으로 강한 이끎음(7→1)이 없어서 화성 단음계나 가락 단음계를 쓰지 않으면 종지가 선법적으로 들릴 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.name" datatype="html">
+        <source>Harmonic Minor</source>
+        <target state="translated">화성 단음계</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.alt" datatype="html">
+        <source>Aeolian ♮7</source>
+        <target state="translated">에올리안 ♮7</target>
+      </trans-unit>
+      <trans-unit id="scale.harmonic_minor.description" datatype="html">
+        <source>Harmonic minor is natural minor with a raised 7th degree, restoring the leading tone and enabling a strong V(7)→i cadence in minor keys. This is why it’s central to classical “functional” minor harmony.
+
+Signature color: the augmented 2nd between b6 and 7, which can sound “exotic” if emphasized melodically.
+
+Common genres: classical, neo-classical metal, film scoring, some Middle Eastern/Spanish-influenced lines.
+
+Usage: use it over the dominant in minor (V7 in minor), in cadences, and when you want that strong pull back to the tonic. Be mindful: sustained melodies may sound stylized; many writers mix it with natural minor.</source>
+        <target state="translated">화성 단음계는 자연 단음계의 7음을 올린 음계로, 이끎음을 되살려 단조에서 강한 V(7)→i 종지를 만듭니다. 그래서 고전적인 "기능" 단조 화성의 중심입니다.
+
+특징적인 색채: b6과 7 사이의 증2도로, 멜로디에서 강조하면 "이국적으로" 들릴 수 있습니다.
+
+주요 장르: 클래식, 네오클래시컬 메탈, 영화 음악, 일부 중동·스페인풍 선율.
+
+활용: 단조의 딸림화음(단조의 V7), 종지, 그리고 으뜸음으로 강하게 돌아가고 싶을 때 쓰세요. 주의: 긴 음으로 된 멜로디는 양식적으로 들릴 수 있어 많은 작곡가가 자연 단음계와 섞어 씁니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.name" datatype="html">
+        <source>Melodic Minor</source>
+        <target state="translated">가락 단음계</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.alt" datatype="html">
+        <source>Jazz minor</source>
+        <target state="translated">재즈 마이너</target>
+      </trans-unit>
+      <trans-unit id="scale.melodic_minor.description" datatype="html">
+        <source>Melodic minor (as used in jazz) is a minor scale with raised 6th and 7th degrees. In classical theory it’s often taught as “ascending melodic minor”, but in jazz it’s generally used the same way up and down.
+
+Common genres: jazz, fusion, modern film/TV harmony.
+
+Usage: it’s a powerhouse “parent scale” because its modes are used everywhere (e.g., Lydian dominant, altered scale). Use melodic minor on minor-major7 chords, on tonic minor colors, and to derive dominant options in ii–V–i contexts.</source>
+        <target state="translated">가락 단음계(재즈 용법)는 6음과 7음을 올린 단음계입니다. 클래식 이론에서는 흔히 "상행 가락 단음계"로 배우지만, 재즈에서는 오르내릴 때 똑같이 씁니다.
+
+주요 장르: 재즈, 퓨전, 현대 영화·TV 화성.
+
+활용: 그 선법들이 곳곳에 쓰이는 강력한 "모음계"입니다(예: 리디안 도미넌트, 얼터드 스케일). 마이너메이저7 코드, 단조 으뜸화음의 색채, 그리고 ii–V–i에서 도미넌트 선택지를 끌어낼 때 쓰세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.name" datatype="html">
+        <source>Dorian</source>
+        <target state="translated">도리안</target>
+      </trans-unit>
+      <trans-unit id="scale.dorian.description" datatype="html">
+        <source>Dorian is a minor mode with a natural 6 (compared to Aeolian). That single note change makes it feel less “sad” and more “groovy / open”, perfect for modal vamps.
+
+Common genres: modal jazz (e.g., “So What”), funk, rock jams, Celtic/folk flavors.
+
+Usage: typically played over a minor7 chord (i7) when the harmony stays put for a long time. Emphasize the natural 6 to clearly distinguish it from natural minor; a classic vamp is i7–IV7 (or i7–IV) which highlights that color.</source>
+        <target state="translated">도리안은 (에올리안에 비해) 6음이 제자리인 단조 선법입니다. 그 한 음의 차이로 덜 "슬프고" 더 "그루비하고 / 열린" 느낌이 나서 선법적 반복 진행에 딱 맞습니다.
+
+주요 장르: 모달 재즈(예: "So What"), 펑크, 록 잼, 켈틱·포크 색채.
+
+활용: 화성이 오래 머무를 때 마이너 7 코드(i7) 위에서 주로 씁니다. 자연 단음계와 확실히 구분되도록 제자리 6음을 강조하세요. 대표적인 반복 진행 i7–IV7(또는 i7–IV)이 이 색채를 잘 살립니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.name" datatype="html">
+        <source>Phrygian Dominant</source>
+        <target state="translated">프리지안 도미넌트</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.alt" datatype="html">
+        <source>Metal riffs, Spanish/flamenco feeling</source>
+        <target state="translated">메탈 리프, 스페인/플라멩코 느낌</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian_dominant.description" datatype="html">
+        <source>Phrygian dominant is the 5th mode of harmonic minor. It sounds “Spanish / flamenco / Middle Eastern” because of the b2 combined with a major 3rd.
+
+Common genres: flamenco, metal riffs, cinematic “exotic” cues.
+
+Usage: great over dominant chords that want to resolve to a minor tonic (V7→i). It naturally implies dominant tension (b9, b13 colors) while staying strongly directional. Riff writing tip: lean on the b2–1 motion and the b6–5 movement for that instantly recognizable flavor.</source>
+        <target state="translated">프리지안 도미넌트는 화성 단음계의 다섯 번째 선법입니다. b2와 장3도가 결합해 "스페인 / 플라멩코 / 중동" 느낌이 납니다.
+
+주요 장르: 플라멩코, 메탈 리프, 영화 음악의 "이국적인" 장면.
+
+활용: 단조 으뜸화음으로 해결하려는 도미넌트 코드(V7→i) 위에서 훌륭합니다. 방향성을 강하게 유지하면서 도미넌트 긴장(b9, b13 색채)을 자연스럽게 드러냅니다. 리프 팁: b2–1과 b6–5 움직임에 기대면 단번에 알아볼 수 있는 맛이 납니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.name" datatype="html">
+        <source>Phrygian</source>
+        <target state="translated">프리지안</target>
+      </trans-unit>
+      <trans-unit id="scale.phrygian.description" datatype="html">
+        <source>Phrygian is a minor mode with a flat 2, giving it a tense, “dark / ancient” character. It’s less functional-harmony-driven and more about sustained modal color.
+
+Common genres: metal, prog, film/game scoring, some Spanish-influenced lines.
+
+Usage: works well over minor chords (i or i7) when the harmony is static. The b2 is the identity note—use it carefully: sustained b2 can sound very tense, while quick b2→1 resolves nicely and feels idiomatic.</source>
+        <target state="translated">프리지안은 b2를 가진 단조 선법으로 긴장감 있고 "어둡고 / 고풍스러운" 성격입니다. 기능 화성보다는 지속되는 선법적 색채가 중심입니다.
+
+주요 장르: 메탈, 프로그레시브, 영화·게임 음악, 일부 스페인풍 선율.
+
+활용: 화성이 정적일 때 단조 코드(i 또는 i7) 위에서 잘 어울립니다. b2가 정체성을 드러내는 음이니 신중히 쓰세요. 길게 끄는 b2는 매우 긴장되게 들리고, 빠른 b2→1은 깔끔하게 해결되어 자연스럽습니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.name" datatype="html">
+        <source>Lydian</source>
+        <target state="translated">리디안</target>
+      </trans-unit>
+      <trans-unit id="scale.lydian.description" datatype="html">
+        <source>Lydian is a major mode with a raised 4 (#11). Compared to Ionian, it feels more “floating / dreamy / cinematic” because the #4 avoids the strong IV pull and adds a bright tension.
+
+Common genres: film scoring, ambient, fusion, modern pop harmony.
+
+Usage: ideal over maj7(#11) chords and long tonic major vamps. To highlight the mode, feature the #4 against the major chord (e.g., play 1–2–3–#4–5). Great for melodies that should feel uplifting but not overly “resolved”.</source>
+        <target state="translated">리디안은 증4도(#11)를 가진 장조 선법입니다. 이오니안보다 더 "떠다니고 / 몽환적이고 / 영화적인" 느낌인데, #4가 IV로 끌리는 힘을 피하고 밝은 긴장을 더하기 때문입니다.
+
+주요 장르: 영화 음악, 앰비언트, 퓨전, 현대 팝 화성.
+
+활용: maj7(#11) 코드와 긴 장조 으뜸화음 반복 진행에 이상적입니다. 선법을 드러내려면 장화음 위에서 #4를 부각하세요(예: 1–2–3–#4–5). 고양되지만 지나치게 "해결"되지 않아야 하는 멜로디에 좋습니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.name" datatype="html">
+        <source>Mixolydian</source>
+        <target state="translated">믹솔리디안</target>
+      </trans-unit>
+      <trans-unit id="scale.mixolydian.description" datatype="html">
+        <source>Mixolydian is major with a flat 7. It’s the classic “dominant / bluesy major” sound: bright like major, but with a relaxed, rootsy edge.
+
+Common genres: blues, rock, funk, country, folk, jam music.
+
+Usage: use it over dominant 7 chords (especially a I7 in blues/rock contexts) and in progressions like I–bVII–IV. Emphasize the b7 to separate it from Ionian; it pairs naturally with pentatonics and blues vocabulary.</source>
+        <target state="translated">믹솔리디안은 b7을 가진 장음계입니다. 장조처럼 밝지만 여유롭고 소박한 맛이 있는, 전형적인 "도미넌트 / 블루지한 장조" 사운드입니다.
+
+주요 장르: 블루스, 록, 펑크, 컨트리, 포크, 잼 음악.
+
+활용: 도미넌트 7 코드(특히 블루스·록의 I7) 위와 I–bVII–IV 같은 진행에서 쓰세요. 이오니안과 구분되도록 b7을 강조하고, 펜타토닉 및 블루스 어휘와 자연스럽게 어울립니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.name" datatype="html">
+        <source>Locrian</source>
+        <target state="translated">로크리안</target>
+      </trans-unit>
+      <trans-unit id="scale.locrian.description" datatype="html">
+        <source>Locrian is the most unstable diatonic mode: it has a flat 2 and a diminished 5 (b5), which makes the tonic triad diminished. Because of that, it’s rarely used as a “home base” in tonal music.
+
+Common genres: jazz harmony (as a function), some metal/experimental contexts.
+
+Usage: most often used over half-diminished chords (m7b5), typically as iiø in minor ii–V–i progressions. Treat it as a color for a chord-function moment rather than a long tonic. Target chord tones (1, b3, b5, b7) for clarity.</source>
+        <target state="translated">로크리안은 가장 불안정한 온음계 선법입니다. b2와 감5도(b5)가 있어 으뜸 3화음이 감3화음이 됩니다. 그래서 조성 음악에서 "기본 바탕"으로는 거의 쓰이지 않습니다.
+
+주요 장르: 재즈 화성(기능으로서), 일부 메탈·실험 음악.
+
+활용: 주로 하프 디미니시드 코드(m7b5) 위에서, 보통 단조 ii–V–i의 iiø로 씁니다. 긴 으뜸음이 아니라 기능적 순간을 위한 색채로 다루세요. 명확하게 들리도록 코드 톤(1, b3, b5, b7)을 노리세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.name" datatype="html">
+        <source>Minor blues (Hexatonic)</source>
+        <target state="translated">마이너 블루스 (6음)</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_hexatonic.description" datatype="html">
+        <source>Minor blues (hexatonic) is essentially minor pentatonic with the added “blue note” (b5). It’s one of the most practical, high-hit-rate scales for expressive phrasing.
+
+Common genres: blues, rock, soul, funk, guitar-centric leads.
+
+Usage: play it over minor tonal centers (i, i7) and even over dominant blues contexts for a more “minor” bite. The b5 is a tension note—use it as a passing tone or bend/slide target rather than a long sustain for the most idiomatic blues feel.</source>
+        <target state="translated">마이너 블루스(6음)는 본질적으로 마이너 펜타토닉에 "블루 노트"(b5)를 더한 음계입니다. 표현력 있는 프레이징에 가장 실용적이고 효과적인 음계 중 하나입니다.
+
+주요 장르: 블루스, 록, 소울, 펑크, 기타 중심의 솔로.
+
+활용: 단조 중심(i, i7) 위에서, 그리고 도미넌트 블루스에서도 더 "마이너"한 날카로움을 위해 쓰세요. b5는 긴장음이니 긴 음보다 경과음이나 벤딩·슬라이드의 목표음으로 쓰면 가장 블루스답게 들립니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.name" datatype="html">
+        <source>Major blues (Hexatonic)</source>
+        <target state="translated">메이저 블루스 (6음)</target>
+      </trans-unit>
+      <trans-unit id="scale.major_blues_hexatonic.description" datatype="html">
+        <source>Major blues (hexatonic) is major pentatonic with an added b3 “blues” color. This gives that classic major/minor mixture that defines so much blues and country phrasing.
+
+Common genres: blues, country, swing, classic rock.
+
+Usage: great over I7 in blues, or any major-key groove where you want sweetness (major pentatonic) plus grit (b3). A common approach is to alternate major blues and minor blues around the same chord for call-and-response phrasing.</source>
+        <target state="translated">메이저 블루스(6음)는 메이저 펜타토닉에 "블루스" 색채인 b3를 더한 음계입니다. 수많은 블루스·컨트리 프레이징을 규정하는 고전적인 장조/단조 혼합을 만들어 냅니다.
+
+주요 장르: 블루스, 컨트리, 스윙, 클래식 록.
+
+활용: 블루스의 I7이나, 달콤함(메이저 펜타토닉)과 거친 맛(b3)을 함께 원하는 장조 그루브에 잘 맞습니다. 같은 코드 위에서 메이저 블루스와 마이너 블루스를 번갈아 문답식 프레이즈를 만드는 방법이 흔합니다.</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.name" datatype="html">
+        <source>Altered / Super Locrian</source>
+        <target state="translated">얼터드 / 슈퍼 로크리안</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.alt" datatype="html">
+        <source>Modern jazz - tense dominant V7alt chords</source>
+        <target state="translated">모던 재즈 – 긴장감 있는 V7alt 도미넌트 코드</target>
+      </trans-unit>
+      <trans-unit id="scale.altered_super_locrian.description" datatype="html">
+        <source>The altered (super Locrian) scale is the 7th mode of melodic minor. It contains the strongest set of dominant alterations: b9, #9, b5/#11, and #5/b13.
+
+Common genres: bebop/post-bop jazz, modern jazz, fusion.
+
+Usage: apply it over V7alt chords resolving by fifth (e.g., G7alt → Cmin/Cmaj). It’s a “maximum tension” choice: aim the altered tones to resolve by half-step into target chord tones of the resolution chord. In lines, treat it as a tension palette rather than a scale to run straight up and down.</source>
+        <target state="translated">얼터드 스케일(슈퍼 로크리안)은 가락 단음계의 일곱 번째 선법입니다. 가장 강한 도미넌트 변화음 조합인 b9, #9, b5/#11, #5/b13을 담고 있습니다.
+
+주요 장르: 비밥·포스트밥 재즈, 모던 재즈, 퓨전.
+
+활용: 5도로 해결하는 V7alt 코드(예: G7alt → Cmin/Cmaj) 위에서 쓰세요. "최대 긴장"의 선택이므로 변화음이 해결 코드의 코드 톤으로 반음 해결되도록 하세요. 프레이즈에서는 그냥 오르내리는 음계가 아니라 긴장의 팔레트로 다루세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.name" datatype="html">
+        <source>Blues (Heptatonic)</source>
+        <target state="translated">블루스 (7음)</target>
+      </trans-unit>
+      <trans-unit id="scale.blues_heptatonic.description" datatype="html">
+        <source>This heptatonic blues flavor expands beyond the common 6-note blues scale. With 7 notes, it can bridge “pentatonic safety” and more diatonic motion, while still keeping blues DNA.
+
+Common genres: blues, rock, funk, jam improvisation.
+
+Usage: useful when you want blues phrasing but also want a smoother melodic line that can outline more chord movement. Start with classic blues licks (1, b3, 4, b5, 5, b7) and use the extra scale degree as a connector between strong targets.</source>
+        <target state="translated">이 7음 블루스는 흔한 6음 블루스 음계를 넘어섭니다. 7개의 음으로 블루스 DNA를 유지하면서 "펜타토닉의 안전함"과 더 온음계적인 움직임을 잇습니다.
+
+주요 장르: 블루스, 록, 펑크, 잼 즉흥 연주.
+
+활용: 블루스 프레이징을 원하면서도 코드 움직임을 더 그려 내는 매끄러운 선율선이 필요할 때 유용합니다. 클래식 블루스 릭(1, b3, 4, b5, 5, b7)으로 시작해, 추가된 음을 강한 목표음 사이의 연결음으로 쓰세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.name" datatype="html">
+        <source>Minor (pentatonic)</source>
+        <target state="translated">마이너 펜타토닉</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.alt" datatype="html">
+        <source>90% of rock/blues solos</source>
+        <target state="translated">록/블루스 솔로의 90%</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_pentatonic.description" datatype="html">
+        <source>Minor pentatonic is the workhorse scale for melodic improvisation: five notes, no “bad” avoid notes against many common chords, and extremely easy to phrase.
+
+Common genres: rock, blues, pop, funk, metal (as a base vocabulary).
+
+Usage: play it over minor tonal centers (i, i7) and many dominant blues contexts. For stronger storytelling, don’t just run the pattern—target chord tones, use bends/ornaments (where applicable), and vary rhythm. Add the b5 to turn it into the classic minor blues scale when you want more bite.</source>
+        <target state="translated">마이너 펜타토닉은 선율 즉흥 연주의 일꾼 같은 음계입니다. 다섯 음뿐이고, 흔한 코드 위에서 피해야 할 "나쁜" 음이 없으며, 프레이징이 아주 쉽습니다.
+
+주요 장르: 록, 블루스, 팝, 펑크, 메탈(기본 어휘로서).
+
+활용: 단조 중심(i, i7)과 여러 도미넌트 블루스 상황에서 쓰세요. 더 이야기하듯 연주하려면 패턴만 훑지 말고 코드 톤을 노리고, (가능하면) 벤딩과 꾸밈음을 쓰고, 리듬을 바꿔 보세요. 더 날카로운 맛을 원하면 b5를 더해 고전적인 마이너 블루스 음계로 만드세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.name" datatype="html">
+        <source>Major (pentatonic)</source>
+        <target state="translated">메이저 펜타토닉</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.alt" datatype="html">
+        <source>Sweet major blues/country</source>
+        <target state="translated">달콤한 메이저 블루스/컨트리</target>
+      </trans-unit>
+      <trans-unit id="scale.major_pentatonic.description" datatype="html">
+        <source>Major pentatonic is a 5-note subset of the major scale (1–2–3–5–6). Because it avoids the 4 and 7, it tends to sound “clean” and consonant over many major-key progressions.
+
+Common genres: country, pop, folk, classic rock, gospel, melodic EDM leads.
+
+Usage: use it over major chords and major-key vamps when you want a smooth, singable melody. It’s also a great “safe” starting point for improvisation: you can focus on rhythm, phrasing, and target notes (especially 1/3/5) without worrying about harsh clashes. To add blues flavor, mix in the b3 occasionally (major blues sound) or switch to minor pentatonic for contrast.</source>
+        <target state="translated">메이저 펜타토닉은 장음계의 5음 부분 집합(1–2–3–5–6)입니다. 4음과 7음을 피하기 때문에 많은 장조 진행 위에서 "깨끗하고" 협화적으로 들립니다.
+
+주요 장르: 컨트리, 팝, 포크, 클래식 록, 가스펠, EDM 멜로디.
+
+활용: 매끄럽고 부르기 쉬운 멜로디가 필요할 때 장화음과 장조 반복 진행 위에서 쓰세요. 즉흥 연주의 "안전한" 출발점이기도 합니다. 거친 충돌을 걱정하지 않고 리듬, 프레이징, 목표음(특히 1/3/5)에 집중할 수 있습니다. 블루스 맛을 더하려면 가끔 b3를 섞거나(메이저 블루스 사운드) 대비를 위해 마이너 펜타토닉으로 바꿔 보세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.name" datatype="html">
+        <source>Bebop blues (dominant)</source>
+        <target state="translated">비밥 블루스 (도미넌트)</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.alt" datatype="html">
+        <source>8-note dominant bebop blues</source>
+        <target state="translated">8음 도미넌트 비밥 블루스</target>
+      </trans-unit>
+      <trans-unit id="scale.bebop_blues.description" datatype="html">
+        <source>Dominant bebop blues is an 8-note scale designed for swing/bebop phrasing over dominant harmony. The extra chromatic passing tone makes it easier to land chord tones on strong beats when playing continuous eighth-notes.
+
+Common genres: bebop, swing, blues-jazz, organ trio, big band lines.
+
+Usage: use it over dominant 7 chords (often I7 in blues, or V7 in a progression) when you want that “inside” bebop flow. A practical approach is to treat it as a rhythmic tool: run eighth-notes and aim for 1–3–5–b7 on downbeats, letting the chromatic note act as a connector. Combine with classic blues vocabulary (b3, b5 bends/approaches) for authentic language.</source>
+        <target state="translated">도미넌트 비밥 블루스는 도미넌트 화성 위에서 스윙·비밥 프레이징을 위해 만든 8음 음계입니다. 추가된 반음 경과음 덕분에 8분음표를 이어 칠 때 강박에 코드 톤이 오기 쉽습니다.
+
+주요 장르: 비밥, 스윙, 블루스 재즈, 오르간 트리오, 빅밴드 라인.
+
+활용: "인사이드" 비밥의 흐름을 원할 때 도미넌트 7 코드(흔히 블루스의 I7이나 진행 속의 V7) 위에서 쓰세요. 실용적인 방법은 리듬 도구로 다루는 것입니다. 8분음표를 치며 정박에 1–3–5–b7을 노리고, 반음은 연결음으로 쓰세요. 정통적인 어법을 위해 고전적인 블루스 어휘(b3, b5로의 벤딩과 접근)와 함께 쓰세요.</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.name" datatype="html">
+        <source>Minor blues bebop</source>
+        <target state="translated">마이너 블루스 비밥</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.alt" datatype="html">
+        <source>8-note minor bebop blues</source>
+        <target state="translated">8음 마이너 비밥 블루스</target>
+      </trans-unit>
+      <trans-unit id="scale.minor_blues_bebop.description" datatype="html">
+        <source>Minor blues bebop is an 8-note minor/blues-oriented scale that supports bebop-style eighth-note lines while keeping a minor-blues color. Like other bebop scales, the added chromaticism helps align chord tones with strong beats.
+
+Common genres: bebop over minor blues, jazz blues, fusion, modern blues improvisation.
+
+Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) when you want to keep the blues sound but phrase with bebop-style momentum. Target the minor chord tones (1, b3, 5, b7) on downbeats and use the chromatic notes as approach tones into those targets. It pairs well with minor pentatonic/blues licks—think of it as a “bebop-friendly” extension rather than a replacement.</source>
+        <target state="translated">마이너 블루스 비밥은 마이너 블루스 색채를 유지하면서 비밥식 8분음표 라인을 가능하게 하는 8음 단조·블루스 음계입니다. 다른 비밥 음계처럼 추가된 반음계가 코드 톤을 강박에 맞추도록 돕습니다.
+
+주요 장르: 마이너 블루스 위의 비밥, 재즈 블루스, 퓨전, 모던 블루스 즉흥 연주.
+
+활용: 블루스 사운드를 유지하면서 비밥의 추진력으로 프레이징하고 싶을 때 단조 코드와 마이너 블루스(i7 / i 중심) 위에서 쓰세요. 정박에 단조 코드 톤(1, b3, 5, b7)을 노리고 반음은 접근음으로 쓰세요. 마이너 펜타토닉·블루스 릭과 잘 어울리니, 대체물이 아니라 "비밥 친화적인" 확장으로 생각하세요.</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.agility" datatype="html">
+        <source>Agility</source>
+        <target state="translated">민첩성</target>
+      </trans-unit>
+      <trans-unit id="agility.subtitle" datatype="html">
+        <source>Select a key, chord, and exercise to begin</source>
+        <target state="translated">조, 코드, 연습을 선택해 시작하세요</target>
+      </trans-unit>
+      <trans-unit id="exercises.start" datatype="html">
+        <source>Start</source>
+        <target state="translated">시작</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.key" datatype="html">
+        <source>Key</source>
+        <target state="translated">조성</target>
+      </trans-unit>
+      <trans-unit id="agility.chord" datatype="html">
+        <source>Chord</source>
+        <target state="translated">코드</target>
+      </trans-unit>
+      <trans-unit id="exercises.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">연습</target>
+      </trans-unit>
+      <trans-unit id="exercises.noDescription" datatype="html">
+        <source>No description available.</source>
+        <target state="translated">설명이 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.title" datatype="html">
+        <source><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></source>
+        <target state="translated"><x id="exercise" equiv-text="exerciseName"/>: <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.description" datatype="html">
+        <source>Practice piano agility with the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern. Build technique with interactive exercises and real-time feedback.</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> 코드로 <x id="exercise" equiv-text="exerciseName"/> 패턴을 연습해 피아노 민첩성을 키우세요. 인터랙티브 연습과 실시간 피드백으로 테크닉을 다집니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.exercise.teaches" datatype="html">
+        <source>Piano agility using the <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord in the <x id="exercise" equiv-text="exerciseName"/> pattern</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> 코드와 <x id="exercise" equiv-text="exerciseName"/> 패턴으로 익히는 피아노 민첩성</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> Chord: Piano Agility Exercises</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> 코드: 피아노 민첩성 연습</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.chord.description" datatype="html">
+        <source>Practice <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> chord progressions with interactive agility exercises. Improve finger dexterity and chord transitions.</source>
+        <target state="translated">인터랙티브 민첩성 연습으로 <x id="key" equiv-text="selectedKey"/> <x id="chord" equiv-text="chordName"/> 코드 진행을 연습하세요. 손가락 민첩성과 코드 전환을 향상시킵니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.title" datatype="html">
+        <source>Piano Agility Exercises: Technique &amp; Finger Dexterity</source>
+        <target state="translated">피아노 민첩성 연습: 테크닉과 손가락 민첩성</target>
+      </trans-unit>
+      <trans-unit id="seo.agility.description" datatype="html">
+        <source>Practice piano agility with interactive exercises — arpeggios in root position and inversions, across two octaves and around the circle of fifths.</source>
+        <target state="translated">인터랙티브 연습으로 피아노 민첩성을 키우세요 — 기본 위치와 전위 아르페지오, 두 옥타브, 5도권을 따라.</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.level" datatype="html">
+        <source>Beginner to Advanced</source>
+        <target state="translated">초급부터 고급까지</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.title" datatype="html">
+        <source>Two-octave Arpeggios, root, 1st and 2nd inversions</source>
+        <target state="translated">두 옥타브 아르페지오: 기본 위치, 제1·제2 전위</target>
+      </trans-unit>
+      <trans-unit id="exercise.two_octave_arpeggios.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">천천히 연습하고 속도를 점차 높이세요. 연습할 때는 항상 메트로놈을 사용하세요. 올바른 운지를 지키세요. 각 전위를 여러 번 반복하세요.</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.title" datatype="html">
+        <source>Dominant Seventh Arpeggios (root position)</source>
+        <target state="translated">도미넌트 7 아르페지오 (기본 위치)</target>
+      </trans-unit>
+      <trans-unit id="exercise.dominant_seventh.advice" datatype="html">
+        <source>Always use a metronome when practicing exercises</source>
+        <target state="translated">연습할 때는 항상 메트로놈을 사용하세요</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.title" datatype="html">
+        <source>Arpeggio in root position, two octaves</source>
+        <target state="translated">기본 위치 아르페지오, 두 옥타브</target>
+      </trans-unit>
+      <trans-unit id="exercise.arpeggio_root_position.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">천천히 연습하고 속도를 점차 높이세요. 연습할 때는 항상 메트로놈을 사용하세요. 올바른 운지를 지키세요. 각 전위를 여러 번 반복하세요.</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.title" datatype="html">
+        <source>Chord inversions</source>
+        <target state="translated">코드 전위</target>
+      </trans-unit>
+      <trans-unit id="exercise.chord_inversions.advice" datatype="html">
+        <source>Practice slowly, and increase the speed gradually. Always use a metronome when practicing exercises. Use the correct fingering. Repeat each inversion multiple times.</source>
+        <target state="translated">천천히 연습하고 속도를 점차 높이세요. 연습할 때는 항상 메트로놈을 사용하세요. 올바른 운지를 지키세요. 각 전위를 여러 번 반복하세요.</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.rightHand" datatype="html">
+        <source>Right Hand</source>
+        <target state="translated">오른손</target>
+      </trans-unit>
+      <trans-unit id="exercise.part.leftHand" datatype="html">
+        <source>Left Hand</source>
+        <target state="translated">왼손</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.title" datatype="html">
+        <source>Piano Exercises: Scales, Arpeggios &amp; Agility</source>
+        <target state="translated">피아노 연습: 음계, 아르페지오, 민첩성</target>
+      </trans-unit>
+      <trans-unit id="seo.exercises.description" datatype="html">
+        <source>Practice piano scales, arpeggios and agility exercises around the circle of fifths, with hands-separated practice, adjustable tempo and MIDI feedback.</source>
+        <target state="translated">5도권을 따라 피아노 음계, 아르페지오, 민첩성을 연습하세요. 양손 분리 연습, 템포 조절, MIDI 피드백을 지원합니다.</target>
+      </trans-unit>
+      <trans-unit id="exercisesInKey.scales" datatype="html">
+        <source>Scales</source>
+        <target state="translated">음계</target>
+      </trans-unit>
+      <trans-unit id="nav.exercises" datatype="html">
+        <source>Exercises</source>
+        <target state="translated">연습</target>
+      </trans-unit>
+      <trans-unit id="exercises.home.subtitle" datatype="html">
+        <source>Practice cycles and technique programs</source>
+        <target state="translated">연습 주기와 테크닉 프로그램</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.title" datatype="html">
+        <source>Level 1 Cycle</source>
+        <target state="translated">1단계 주기</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.intro" datatype="html">
+        <source> Start with 2 keys per day. Each day work on a different key pair. The following sequence takes 12 days to complete a full cycle of all 24 major + minor keys. </source>
+        <target state="translated">하루에 2개 조로 시작해 매일 다른 쌍을 연습하세요. 아래 순서로 12일 동안 24개 장조와 단조를 한 바퀴 돕니다.</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorSharp" datatype="html">
+        <source>Major Keys (Sharp):</source>
+        <target state="translated">장조 (샵):</target>
+      </trans-unit>
+      <trans-unit id="exercises.day" datatype="html">
+        <source>Day <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ 1 }}"/>일차:</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorFlat" datatype="html">
+        <source>Major Keys (Flat):</source>
+        <target state="translated">장조 (플랫):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorSharp" datatype="html">
+        <source>Minor Keys (Sharp):</source>
+        <target state="translated">단조 (샵):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorFlat" datatype="html">
+        <source>Minor Keys (Flat):</source>
+        <target state="translated">단조 (플랫):</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.chromatic" datatype="html">
+        <source>You can add the Chromatic Scale to any of these keys, starting on the key note.</source>
+        <target state="translated">이 조들 중 어느 조에든 으뜸음부터 반음계를 추가할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level1.enharmonic" datatype="html">
+        <source>Note that enharmonic keys like C# and Cb major are skipped. These are identical to Db and B, respectively.</source>
+        <target state="translated">C#장조와 Cb장조 같은 이명동음 조는 생략합니다. 각각 Db장조, B장조와 같습니다.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.title" datatype="html">
+        <source>Level 2 Cycle</source>
+        <target state="translated">2단계 주기</target>
+      </trans-unit>
+      <trans-unit id="exercises.level2.intro" datatype="html">
+        <source> We can increase the difficulty with a sequence that includes more keys in one day, combining relative major + minor keys, reducing total cycle time to 6 days. </source>
+        <target state="translated">하루에 더 많은 조를 다루고 나란한조의 장조와 단조를 함께 묶으면 난이도가 높아지고 주기가 6일로 줄어듭니다.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.title" datatype="html">
+        <source>Level 3 Cycle</source>
+        <target state="translated">3단계 주기</target>
+      </trans-unit>
+      <trans-unit id="exercises.level3.intro" datatype="html">
+        <source> A more advanced sequence will go through all keys in 2 days, using parallel major + minor keys. It should only be done after the previous patterns can be played automatically from memory. </source>
+        <target state="translated">더 고급 순서로 같은으뜸음조의 장조와 단조를 사용해 2일 만에 모든 조를 돕니다. 앞의 패턴을 외워서 자동으로 칠 수 있을 때만 시작하세요.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.title" datatype="html">
+        <source>Level 4a Cycle: Ascending 5ths</source>
+        <target state="translated">4a단계 주기: 상행 5도</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4a.intro" datatype="html">
+        <source>The most difficult cycle, playing all keys around the full Circle of 5ths in 1 day.</source>
+        <target state="translated">가장 어려운 주기: 하루 만에 5도권 전체를 따라 모든 조를 연주합니다.</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.title" datatype="html">
+        <source>Level 4b Cycle: Descending 5ths</source>
+        <target state="translated">4b단계 주기: 하행 5도</target>
+      </trans-unit>
+      <trans-unit id="exercises.level4b.intro" datatype="html">
+        <source>An alternative sequence goes the opposite direction around the Circle of 5ths.</source>
+        <target state="translated">5도권을 반대 방향으로 도는 다른 순서입니다.</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.title" datatype="html">
+        <source>Contrary motion starting on the same note.</source>
+        <target state="translated">같은 음에서 시작하는 반진행.</target>
+      </trans-unit>
+      <trans-unit id="exercise.contrary_motion.advice" datatype="html">
+        <source>Both thumbs play the same note. Up then down.</source>
+        <target state="translated">두 엄지가 같은 음을 칩니다. 올라갔다가 내려옵니다.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.title" datatype="html">
+        <source>Parallel motion in octaves</source>
+        <target state="translated">옥타브 평행 진행</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_octaves.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">왼손: 4번 손가락을 음계 2음에, 오른손: 4번 손가락을 음계 7음에.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.title" datatype="html">
+        <source>Parallel motion in thirds</source>
+        <target state="translated">3도 평행 진행</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_thirds.advice" datatype="html">
+        <source>Hands a third apart: LH on the tonic, RH on the 3rd degree of the scale. Hands stay close, keep the thirds even. Two hands. Scales in parallel thirds are a common enough thing for intermediate to advanced technical exercise. Fingers crowding each other is what makes it challenging, but it is do-able. Each hand plays the scale as it ordinarily would, just separated by a third. The fingering is on the notation, just take it slowly until you’re able to do it, then gradually increase speed. There’s really no trick to it beyond that.</source>
+        <target state="translated">양손을 3도 간격으로: 왼손은 으뜸음, 오른손은 음계의 3음. 양손을 가깝게 두고 3도를 고르게 유지하세요. 양손 연습. 3도 평행 음계는 중급에서 고급까지 흔한 테크닉 연습입니다. 손가락이 서로 붐비는 것이 어렵지만 충분히 할 수 있습니다. 각 손은 평소처럼 음계를 치되 3도 떨어져 있을 뿐입니다. 운지는 악보에 있으니 될 때까지 천천히 연습한 뒤 점차 속도를 높이세요. 그 밖의 요령은 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.title" datatype="html">
+        <source>Parallel motion in sixths</source>
+        <target state="translated">6도 평행 진행</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_sixths.advice" datatype="html">
+        <source>Hands a sixth apart: RH on the tonic with the thumb, LH a sixth below on the 3rd degree of the scale (finger 3).</source>
+        <target state="translated">양손을 6도 간격으로: 오른손 엄지는 으뜸음, 왼손은 6도 아래 음계의 3음(3번 손가락).</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.title" datatype="html">
+        <source>Parallel motion in tenths</source>
+        <target state="translated">10도 평행 진행</target>
+      </trans-unit>
+      <trans-unit id="exercise.parallel_motion_in_tenths.advice" datatype="html">
+        <source>Hands a tenth apart (octave + third): LH on the tonic, RH on the 3rd degree an octave higher. Open the arms and keep both hands together.</source>
+        <target state="translated">양손을 10도(옥타브 + 3도) 간격으로: 왼손은 으뜸음, 오른손은 한 옥타브 위 3음. 팔을 벌리고 양손을 함께 움직이세요.</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.title" datatype="html">
+        <source>Left than Right</source>
+        <target state="translated">왼손 다음 오른손</target>
+      </trans-unit>
+      <trans-unit id="exercise.left_than_right.advice" datatype="html">
+        <source>Thumb (1) cross under 3. Both thumbs play the same note. Up then down.</source>
+        <target state="translated">엄지(1)를 3번 손가락 아래로 넘깁니다. 두 엄지가 같은 음을 칩니다. 올라갔다가 내려옵니다.</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.title" datatype="html">
+        <source>Intervals</source>
+        <target state="translated">음정</target>
+      </trans-unit>
+      <trans-unit id="exercise.intervals.advice" datatype="html">
+        <source>LH: 4th finger on 2nd degree of scale, RH; 4th finger on 7th degree of scale.</source>
+        <target state="translated">왼손: 4번 손가락을 음계 2음에, 오른손: 4번 손가락을 음계 7음에.</target>
+      </trans-unit>
+      <trans-unit id="scales.subtitle" datatype="html">
+        <source>Select a scale, key, and exercise to begin</source>
+        <target state="translated">음계, 조, 연습을 선택해 시작하세요</target>
+      </trans-unit>
+      <trans-unit id="scales.type" datatype="html">
+        <source>Scale type</source>
+        <target state="translated">음계 유형</target>
+      </trans-unit>
+      <trans-unit id="scales.scale" datatype="html">
+        <source>Scale</source>
+        <target state="translated">음계</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: <x id="exercise" equiv-text="exerciseName"/></source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> 음계: <x id="exercise" equiv-text="exerciseName"/></target>
+      </trans-unit>
+      <trans-unit id="seo.scale.exercise.description" datatype="html">
+        <source>Practice the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale with the <x id="exercise" equiv-text="exerciseName"/> exercise: hands-separated practice, adjustable tempo and real-time MIDI feedback.</source>
+        <target state="translated"><x id="exercise" equiv-text="exerciseName"/> 연습으로 <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> 음계를 연습하세요. 양손 분리 연습, 템포 조절, 실시간 MIDI 피드백을 지원합니다.</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.title" datatype="html">
+        <source><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> Scale: Piano Exercises</source>
+        <target state="translated"><x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> 음계: 피아노 연습</target>
+      </trans-unit>
+      <trans-unit id="seo.scale.description" datatype="html">
+        <source>Learn the <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> scale on PianoML with interactive exercises, hands-separated practice and adjustable tempo.</source>
+        <target state="translated">PianoML에서 인터랙티브 연습, 양손 분리 연습, 템포 조절로 <x id="key" equiv-text="selectedKey"/> <x id="scale" equiv-text="scaleName"/> 음계를 배우세요.</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.title" datatype="html">
+        <source>Piano Scale Exercises: Major &amp; Minor Scales</source>
+        <target state="translated">피아노 음계 연습: 장음계와 단음계</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.description" datatype="html">
+        <source>Practice major and minor piano scales with interactive exercises — contrary motion, parallel motion in octaves, thirds, sixths and tenths — at your own tempo.</source>
+        <target state="translated">인터랙티브 연습으로 장음계와 단음계를 내 속도로 연습하세요 — 반진행, 옥타브·3도·6도·10도 평행 진행.</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.name" datatype="html">
+        <source>Piano Scales</source>
+        <target state="translated">피아노 음계</target>
+      </trans-unit>
+      <trans-unit id="seo.scales.about.description" datatype="html">
+        <source>Musical scales for piano practice and technique development</source>
+        <target state="translated">피아노 연습과 테크닉 향상을 위한 음계</target>
+      </trans-unit>
       <trans-unit id="home.headline" datatype="html">
         <source>A Machine to Learn Piano</source>
         <target state="translated">피아노를 배우는 기계</target>
@@ -842,10 +1470,6 @@
         <source>Author</source>
         <target state="translated">작곡가</target>
       </trans-unit>
-      <trans-unit id="scoreInfo.key" datatype="html">
-        <source>Key</source>
-        <target state="translated">조성</target>
-      </trans-unit>
       <trans-unit id="scoreInfo.grade" datatype="html">
         <source>Grade</source>
         <target state="translated">난이도</target>
@@ -1130,14 +1754,6 @@
         <source>Practice Exercises in <x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/></source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ keyLabel }}"/> 연습</target>
       </trans-unit>
-      <trans-unit id="exercisesInKey.agility" datatype="html">
-        <source>Agility</source>
-        <target state="translated">민첩성</target>
-      </trans-unit>
-      <trans-unit id="exercisesInKey.scales" datatype="html">
-        <source>Scales</source>
-        <target state="translated">음계</target>
-      </trans-unit>
       <trans-unit id="languageSwitcher.label" datatype="html">
         <source>Language</source>
         <target state="translated">언어</target>
@@ -1261,10 +1877,6 @@
       <trans-unit id="nav.browse" datatype="html">
         <source>Browse</source>
         <target state="translated">둘러보기</target>
-      </trans-unit>
-      <trans-unit id="nav.exercises" datatype="html">
-        <source>Exercises</source>
-        <target state="translated">연습</target>
       </trans-unit>
       <trans-unit id="manifest.name" datatype="html">
         <source>PianoML: Learn Piano</source>
