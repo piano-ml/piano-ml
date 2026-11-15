@@ -1762,6 +1762,14 @@ Anwendung: über Mollakkorden und Moll-Blues-Kontexten (i7- bzw. i-Zentren), wen
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">Werke suchen (z. B. „redemption song“)</target>
       </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">Suche läuft...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">Suchen</target>
+      </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
         <target state="translated">Zurücksetzen</target>

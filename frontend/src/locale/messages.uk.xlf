@@ -1762,6 +1762,14 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">Пошук творів (напр., «redemption song»)</target>
       </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">Пошук...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">Шукати</target>
+      </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
         <target state="translated">Очистити</target>

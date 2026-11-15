@@ -1762,6 +1762,14 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>Search for works (e.g., &apos;redemption song&apos;)</source>
         <target state="translated">작품 검색 (예: 'redemption song')</target>
       </trans-unit>
+      <trans-unit id="importLink.searching" datatype="html">
+        <source>Searching...</source>
+        <target state="translated">검색하는 중...</target>
+      </trans-unit>
+      <trans-unit id="importLink.search" datatype="html">
+        <source>Search</source>
+        <target state="translated">검색</target>
+      </trans-unit>
       <trans-unit id="importLink.clear" datatype="html">
         <source> Clear </source>
         <target state="translated">지우기</target>
