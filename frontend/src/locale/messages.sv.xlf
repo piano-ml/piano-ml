@@ -606,10 +606,6 @@
         <source>Unknown</source>
         <target state="translated">Okänd</target>
       </trans-unit>
-      <trans-unit id="midiSetup.error.blocked" datatype="html">
-        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
-        <target state="translated">Webbläsaren blockerar MIDI-åtkomst. Öppna webbläsarens inställningar, leta upp webbplatsbehörigheter för MIDI, tillåt åtkomst för den här webbplatsen och ladda om sidan.</target>
-      </trans-unit>
       <trans-unit id="midiSetup.error.failed" datatype="html">
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">MIDI-åtkomsten misslyckades. Om du nekade behörigheten öppnar du webbläsarens inställningar, återställer behörigheterna för webbplatsen, tillåter MIDI och laddar om sidan.</target>
@@ -673,6 +669,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">Metronom</target>
+      </trans-unit>
+      <trans-unit id="workbench.midiBlocked.heading" datatype="html">
+        <source>MIDI access blocked</source>
+        <target state="translated">MIDI-åtkomst blockerad</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>
@@ -2893,6 +2893,10 @@ Användning: över mollackord och mollbluessammanhang (i7- / i-centrum) när du 
       <trans-unit id="seo.defaultDescription" datatype="html">
         <source>Learn piano with PianoML, a free and open-source web app for MusicXML, MIDI and PDF sheet music. Practice scales, get real-time feedback and build your own score library.</source>
         <target state="translated">Lär dig piano med PianoML, en gratis webbapp med öppen källkod för noter i MusicXML, MIDI och PDF. Öva skalor, få återkoppling i realtid och bygg ditt eget notbibliotek.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.error.blocked" datatype="html">
+        <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
+        <target state="translated">Webbläsaren blockerar MIDI-åtkomst. Öppna webbläsarens inställningar, leta upp webbplatsbehörigheter för MIDI, tillåt åtkomst för den här webbplatsen och ladda om sidan.</target>
       </trans-unit>
     </body>
   </file>

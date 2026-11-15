@@ -170,6 +170,42 @@ describe('WorkbenchComponent', () => {
     });
   });
 
+  describe('when the browser blocks MIDI', () => {
+    const midiPermission = (state: PermissionState) => {
+      const status = { state, onchange: null } as unknown as PermissionStatus;
+      vi.spyOn(navigator.permissions, 'query').mockResolvedValue(status);
+      return status;
+    };
+    const dialog = () => el().querySelector('[role="alertdialog"]');
+
+    it('says so in a popup that can be closed', async () => {
+      midiPermission('denied');
+      await openScore();
+      await waitFor(() => !!dialog());
+      expect(dialog()?.textContent).toContain('MIDI access is blocked by your browser');
+      (dialog()?.querySelector('button') as HTMLButtonElement).click();
+      render();
+      expect(dialog()).toBeNull();
+    });
+
+    it('closes the popup once access is allowed', async () => {
+      const status = midiPermission('denied');
+      await openScore();
+      await waitFor(() => !!dialog());
+      (status as { state: PermissionState }).state = 'granted';
+      status.onchange?.(new Event('change'));
+      render();
+      expect(dialog()).toBeNull();
+    });
+
+    it('shows no popup when MIDI is allowed', async () => {
+      midiPermission('granted');
+      await openScore();
+      expect(navigator.permissions.query).toHaveBeenCalledWith({ name: 'midi' });
+      expect(dialog()).toBeNull();
+    });
+  });
+
   describe('when the score cannot be loaded', () => {
     const errorBox = () => el().querySelector('[role="alert"]');
     const buttonText = (text: string) =>
