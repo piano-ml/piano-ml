@@ -1,50 +1,50 @@
 <article class="main-article">
-  <div class="page-title">Create Account</div>
+  <div class="page-title" i18n="@@createAccount.createAccount">Create Account</div>
 
   <section class="main-section">
     <div class="flex justify-center items-center h-full">
       <form [formGroup]="createAccountForm" (ngSubmit)="onSubmit()" class="card-secondary w-full max-w-sm">
-        <h2 class="card-secondary-title text-center">Account Details</h2>
+        <h2 class="card-secondary-title text-center" i18n="@@createAccount.accountDetails">Account Details</h2>
 
         <div class="mb-4">
-          <label for="name" class="block text-sm font-medium mb-2">name</label>
+          <label for="name" class="block text-sm font-medium mb-2" i18n="@@createAccount.name">name</label>
           <input type="text" id="name" formControlName="name"
             class="input-field w-full"
-            placeholder="Enter your name">
+            i18n-placeholder="@@createAccount.enterYourName.placeholder" placeholder="Enter your name">
           @if (createAccountForm.get('name')?.invalid && createAccountForm.get('name')?.touched) {
             <div
-              class="text-error text-sm mt-1">
+              class="text-error text-sm mt-1" i18n="@@createAccount.nameIsRequired">
               name is required.
             </div>
           }
         </div>
 
         <div class="mb-4">
-          <label for="email" class="block text-sm font-medium mb-2">Email</label>
+          <label for="email" class="block text-sm font-medium mb-2" i18n="@@createAccount.email">Email</label>
           <input type="email" id="email" formControlName="email"
             class="input-field w-full"
-            placeholder="Enter your email">
+            i18n-placeholder="@@createAccount.enterYourEmail.placeholder" placeholder="Enter your email">
           @if (createAccountForm.get('email')?.invalid && createAccountForm.get('email')?.touched) {
             <div
               class="text-error text-sm mt-1">
               @if (createAccountForm.get('email')?.errors?.['required']) {
-                <span>Email is required.</span>
+                <span i18n="@@createAccount.emailIsRequired">Email is required.</span>
               }
               @if (createAccountForm.get('email')?.errors?.['email']) {
-                <span>Invalid email format.</span>
+                <span i18n="@@createAccount.invalidEmailFormat">Invalid email format.</span>
               }
             </div>
           }
         </div>
 
         <div class="mb-4">
-          <label for="password" class="block text-sm font-medium mb-2">Password</label>
+          <label for="password" class="block text-sm font-medium mb-2" i18n="@@createAccount.password">Password</label>
           <input type="password" id="password" formControlName="password"
             class="input-field w-full"
-            placeholder="Enter your password" (input)="checkPasswordStrength($any($event.target).value)">
+            i18n-placeholder="@@createAccount.enterYourPassword.placeholder" placeholder="Enter your password" (input)="checkPasswordStrength($any($event.target).value)">
           @if (createAccountForm.get('password')?.invalid && createAccountForm.get('password')?.touched) {
             <div
-              class="text-error text-sm mt-1">
+              class="text-error text-sm mt-1" i18n="@@createAccount.passwordMustBeAtLeast">
               Password must be at least 8 characters long.
             </div>
           }
@@ -56,20 +56,20 @@
         </div>
 
         <div class="mb-6">
-          <label for="confirmPassword" class="block text-sm font-medium mb-2">Confirm Password</label>
+          <label for="confirmPassword" class="block text-sm font-medium mb-2" i18n="@@createAccount.confirmPassword">Confirm Password</label>
           <input type="password" id="confirmPassword" formControlName="confirmPassword"
             class="input-field w-full"
-            placeholder="Confirm your password">
+            i18n-placeholder="@@createAccount.confirmYourPassword.placeholder" placeholder="Confirm your password">
           @if (createAccountForm.get('confirmPassword')?.errors?.['mismatch'] && createAccountForm.get('confirmPassword')?.touched) {
             <div
-              class="text-error text-sm mt-1">
+              class="text-error text-sm mt-1" i18n="@@createAccount.passwordsDoNotMatch">
               Passwords do not match.
             </div>
           }
         </div>
 
         <button type="submit" [disabled]="createAccountForm.invalid"
-          class="btn-primary w-full">
+          class="btn-primary w-full" i18n="@@createAccount.createAccount">
           Create Account
         </button>
       </form>

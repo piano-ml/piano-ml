@@ -1,8 +1,9 @@
+import { noteName } from '../../shared/i18n';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { MIDI_STORAGE_KEY } from '../../desktop/model/model';
-import { majorKeys } from '../../desktop/service/music-theory';
+import { chords, majorKeys } from '../../desktop/service/music-theory';
 import { SeoService } from '../../shared/seo';
 import { provideTesting } from '../../testing/test-providers';
 import { getWeekOfYear } from '../exercices';
@@ -50,12 +51,29 @@ describe('AgilityComponent', () => {
     localStorage.removeItem(MIDI_STORAGE_KEY);
   });
 
+  it('reads and writes the chord by its stable key, whatever its translated name (the URL never changes language)', () => {
+    const minor = chords.find((c) => c.key === 'minor')!;
+    const english = minor.name;
+    minor.name = 'Moll'; // as in the German build
+    try {
+      render({ selectedKey: 'E', chordKey: 'minor', exerciseKey: exercises[0].key! });
+      expect(component.selectedChord.key).toBe('minor');
+      expect(component.fullKey).toBe('e minor');
+      navigate.mockClear();
+      component.selectedKey = 'A';
+      component.onKeyChange(); // keeps the chord, rewrites the URL
+      expect(navigate).toHaveBeenLastCalledWith(['/', 'exercises', 'agility', 'A', 'minor', component.selectedExcercice.key], { replaceUrl: true });
+    } finally {
+      minor.name = english;
+    }
+  });
+
   it('without a URL, starts on the first exercise, a major chord, in the key of the week, and writes the URL', () => {
     const seo = vi.spyOn(TestBed.inject(SeoService), 'update');
     render();
     expect(component.availableChords.every((c) => c.pattern.length === exercises[0].patternSize)).toBe(true);
     expect(navigate).toHaveBeenCalledWith(['/', 'exercises', 'agility', weekKey, 'major', exercises[0].key], { replaceUrl: true });
-    expect(seo.mock.calls.at(-1)?.[0].title).toBe(`${exercises[0].title}: ${weekKey} Major`);
+    expect(seo.mock.calls.at(-1)?.[0].title).toBe(`${exercises[0].title}: ${noteName(weekKey)} Major`);
   });
 
   it('opens the exercise, key and chord of the URL, without rewriting it', () => {
@@ -67,6 +85,12 @@ describe('AgilityComponent', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
+  it('rewrites the URL of a chord no published exercise offers, so the URL matches the page', () => {
+    render({ selectedKey: 'C', chordKey: 'dominant_seventh', exerciseKey: 'nothing' });
+    expect(component.selectedChord.name).toBe('Major');
+    expect(navigate).toHaveBeenCalledWith(['/', 'exercises', 'agility', 'C', 'major', exercises[0].key], { replaceUrl: true });
+  });
+
   it('keeps the defaults for parts of the URL it does not know', () => {
     render({ selectedKey: 'H', chordKey: 'augmented', exerciseKey: 'nothing' });
     expect(component.selectedExcercice).toBe(exercises[0]);
@@ -76,10 +100,10 @@ describe('AgilityComponent', () => {
 
   it('follows the key, chord and exercise selectors', async () => {
     render({ selectedKey: 'C', chordKey: 'major', exerciseKey: exercises[0].key as string });
-    await choose('agility-key', 'Bb');
+    await choose('agility-key', 'B♭');
     expect(component.fullKey).toBe('B- major');
     expect(navigate).toHaveBeenLastCalledWith(['/', 'exercises', 'agility', 'Bb', 'major', exercises[0].key], { replaceUrl: true });
-    await choose('agility-chord', 'Bb Minor');
+    await choose('agility-chord', 'B♭ Minor');
     expect(component.fullKey).toBe('b- minor');
     expect(navigate).toHaveBeenLastCalledWith(['/', 'exercises', 'agility', 'Bb', 'minor', exercises[0].key], { replaceUrl: true });
     await choose('agility-exercise', exercises[1].title);

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { ScoreApiInfo } from '../../../core/api';
 import { ScoreTableComponent, type ScoreTableColumn } from './score-table.component';
+import { setCurrentLocale } from '../../i18n';
 
 const SCORE = {
   id: 's1', title: 'Gymnopédie No. 1', author: 'Erik Satie', genre: 'classical', grade: 3, duration: 185,
@@ -41,7 +42,14 @@ describe('ScoreTableComponent', () => {
       const byKey = (key: string) => component.defaultColumns.find((c) => c.key === key)!;
       expect(component.getCellValue(SCORE, byKey('version'))).toBe('v2');
       expect(component.getCellValue({} as ScoreApiInfo, byKey('version'))).toBe('v1');
-      expect(component.getCellValue(SCORE, byKey('uploaded_at'))).toBe(new Date(SCORE.uploaded_at!).toLocaleDateString());
+      // In the page's language, not the device's: server and browser render the same date.
+      expect(component.getCellValue(SCORE, byKey('uploaded_at'))).toBe(new Date(SCORE.uploaded_at!).toLocaleDateString('en'));
+      setCurrentLocale('es');
+      try {
+        expect(component.getCellValue(SCORE, byKey('uploaded_at'))).toBe(new Date(SCORE.uploaded_at!).toLocaleDateString('es'));
+      } finally {
+        setCurrentLocale(undefined);
+      }
       expect(component.getCellValue({} as ScoreApiInfo, byKey('uploaded_at'))).toBe('N/A');
     });
   });

@@ -14,6 +14,12 @@ export class VideoCarouselItemComponent {
   @Input({ required: true }) video!: YoutubeVideoApiInfo;
   @Output() selectVideo = new EventEmitter<YoutubeVideoApiInfo>();
 
+  protected readonly thumbnailAlt = $localize`:@@videos.thumbnail:Video thumbnail`;
+
+  protected playLabel(): string {
+    return $localize`:@@videos.play:Play video ${this.video.title || ''}:title:`;
+  }
+
   onSelect(): void {
     this.selectVideo.emit(this.video);
   }

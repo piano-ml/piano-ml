@@ -1,16 +1,16 @@
 <div class="exercise-page">
 
   <header>
-    <div class="page-title">Scales</div>
-    <div class="page-sub-title">Select a scale, key, and exercise to begin</div>
+    <div class="page-title" i18n="@@exercisesInKey.scales">Scales</div>
+    <div class="page-sub-title" i18n="@@scales.subtitle">Select a scale, key, and exercise to begin</div>
   </header>
 
   <hr>
 
   <!-- ── Toolbar ─────────────────────────────────────── -->
   <div class="flex items-center justify-between">
-    <p class="page-sub-title">{{ selectedKey }} · {{ selectedScale.name }} · {{ selectedExcercice.title }}</p>
-    <button (click)="load()" class="btn-hero">Start</button>
+    <p class="page-sub-title">{{ selectedKey | noteName }} · {{ selectedScale.name }} · {{ selectedExcercice.title }}</p>
+    <button (click)="load()" class="btn-hero" i18n="@@exercises.start">Start</button>
   </div>
 
   <div class="exercise-body">
@@ -19,7 +19,7 @@
     <div class="exercise-controls">
 
       <div class="flex flex-col gap-1.5">
-        <label class="field-label" for="select-scale">Scale type</label>
+        <label class="field-label" for="select-scale" i18n="@@scales.type">Scale type</label>
         <select id="select-scale" [(ngModel)]="selectedScale" (ngModelChange)="onScaleChange()" class="input-field">
           @for (scale of scales; track scale) {
             <option [ngValue]="scale">{{ scale.name }}</option>
@@ -28,16 +28,16 @@
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="field-label" for="select-key">Key</label>
+        <label class="field-label" for="select-key" i18n="@@scoreInfo.key">Key</label>
         <select id="select-key" [(ngModel)]="selectedKey" (ngModelChange)="onKeyChange()" class="input-field">
           @for (key of keys; track key) {
-            <option [ngValue]="key">{{ key }}</option>
+            <option [ngValue]="key">{{ key | noteName }}</option>
           }
         </select>
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="field-label" for="select-exercise">Exercise</label>
+        <label class="field-label" for="select-exercise" i18n="@@exercises.exercise">Exercise</label>
         <select id="select-exercise" [(ngModel)]="selectedExcercice" (ngModelChange)="onExerciseChange()" class="input-field">
           @for (exercise of myexcerices; track exercise) {
             <option [ngValue]="exercise">{{ exercise.title }}</option>
@@ -52,15 +52,15 @@
       <div class="exercise-desc-card">
 
         <div class="exercise-desc-section">
-          <p class="exercise-desc-label">Scale</p>
-          <p class="exercise-desc-text">{{ selectedScale.description || 'No description available.' }}</p>
+          <p class="exercise-desc-label" i18n="@@scales.scale">Scale</p>
+          <p class="exercise-desc-text">@if (selectedScale.description) { {{ selectedScale.description }} } @else { <ng-container i18n="@@exercises.noDescription">No description available.</ng-container> }</p>
         </div>
 
         <div class="exercise-desc-divider"></div>
 
         <div class="exercise-desc-section">
-          <p class="exercise-desc-label">Exercise — <span class="text-neutral-300">{{ selectedExcercice.title }}</span></p>
-          <p class="exercise-desc-text">{{ selectedExcercice.advice || 'No description available.' }}</p>
+          <p class="exercise-desc-label"><ng-container i18n="@@exercises.exercise">Exercise</ng-container> — <span class="text-neutral-300">{{ selectedExcercice.title }}</span></p>
+          <p class="exercise-desc-text">@if (selectedExcercice.advice) { {{ selectedExcercice.advice }} } @else { <ng-container i18n="@@exercises.noDescription">No description available.</ng-container> }</p>
         </div>
 
       </div>

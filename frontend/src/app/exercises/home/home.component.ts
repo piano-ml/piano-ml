@@ -3,10 +3,11 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Router, RouterModule } from '@angular/router';
+import { KeyNamePipe, ModeNamePipe, NoteNamePipe } from '../../shared/i18n';
 
 @Component({
   selector: 'app-home',
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, KeyNamePipe, ModeNamePipe, NoteNamePipe],
   templateUrl: './home.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home.component.css'

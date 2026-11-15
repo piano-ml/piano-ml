@@ -1,4 +1,4 @@
-import { type ApplicationConfig, inject, provideZoneChangeDetection, LOCALE_ID, PLATFORM_ID, provideEnvironmentInitializer } from '@angular/core';
+import { type ApplicationConfig, inject, provideZoneChangeDetection, PLATFORM_ID, provideEnvironmentInitializer } from '@angular/core';
 import { IsActiveMatchOptions, NavigationStart, isActive, provideRouter, Router, withInMemoryScrolling, withRouterConfig, withViewTransitions } from '@angular/router';
 import { registerLocaleData, isPlatformBrowser } from '@angular/common';
 
@@ -26,14 +26,13 @@ import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
 import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
 import { provideBeacon } from 'ng-beacon';
+import { provideI18n } from './shared/i18n';
 import { provideSeo } from './shared/seo';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    {
-      provide: LOCALE_ID,
-      useValue:  'en-US'
-    },
+    // LOCALE_ID comes from the localized build (and from the SSR engine, per request).
+    provideI18n(),
     // CSRF: xsrfInterceptor replaces Angular's built-in XSRF support, which skips absolute API URLs.
     provideHttpClient(withXhr(), withNoXsrfProtection(), withInterceptors([xsrfInterceptor, authInterceptor])),
     provideApi({ basePath: environment.api, withCredentials: true }),

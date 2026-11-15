@@ -1,38 +1,41 @@
 <article class="main-article">
   <div class="px-4 sm:px-6 pt-4">
-    <h1 class="page-title">Re-import {{ score()?.title || 'score' }}</h1>
-    <div class="page-sub-title">Choose the study tracks again from the original MIDI file</div>
+    <h1 class="page-title">@if (score()?.title) { <ng-container i18n="@@reimport.titleNamed">Re-import {{ score()?.title }}</ng-container> } @else { <ng-container i18n="@@reimport.title">Re-import the score</ng-container> }</h1>
+    <div class="page-sub-title" i18n="@@reimport.chooseTheStudyTracksAgain">Choose the study tracks again from the original MIDI file</div>
   </div>
 
   <hr class="mx-4 sm:mx-6">
 
-  <section class="main-section" aria-label="Re-import the score">
+  <section class="main-section" i18n-aria-label="@@reimport.reImportTheScore.label" aria-label="Re-import the score">
     <div class="card-secondary">
       @if (loading()) {
       <div class="flex items-center gap-3 py-8 justify-center" role="status" aria-live="polite" data-testid="reimport-loading">
         <div class="spinner w-5 h-5 text-neutral-500"></div>
-        <p class="text-neutral-300">Reading the original file …</p>
+        <p class="text-neutral-300" i18n="@@reimport.readingTheOriginalFile">Reading the original file …</p>
       </div>
       } @else if (error()) {
       <div class="alert-error m-2" role="alert" data-testid="reimport-error">{{ error() }}</div>
       @if (slug()) {
-      <a class="btn-secondary m-2 inline-block" [routerLink]="['/score', slug()]">← Back to the score</a>
+      <a class="btn-secondary m-2 inline-block" [routerLink]="['/score', slug()]" i18n="@@reimport.backToTheScore">← Back to the score</a>
       }
       } @else if (importing()) {
       <div class="flex flex-col items-center justify-center gap-3 py-12 text-center" role="status" aria-live="polite" data-testid="reimport-progress">
         <div class="flex items-center gap-3">
           <div class="spinner w-5 h-5 text-neutral-500"></div>
-          <p class="text-neutral-300">Re-importing …</p>
+          <p class="text-neutral-300" i18n="@@reimport.reImporting">Re-importing …</p>
         </div>
         <p class="text-sm text-neutral-400">
-          Converting the score again{{ makeFingering() ? ', with automatic fingering' : '' }}.
-          This can take up to a minute: please keep this page open.
+          @if (makeFingering()) {
+          <ng-container i18n="@@reimport.convertingWithFingering">Converting the score again, with automatic fingering. This can take up to a minute: please keep this page open.</ng-container>
+          } @else {
+          <ng-container i18n="@@reimport.converting">Converting the score again. This can take up to a minute: please keep this page open.</ng-container>
+          }
         </p>
       </div>
       } @else {
       <div class="m-2">
         <div class="text-2xl">{{ midi()?.name || score()?.title }}</div>
-        <p class="text-sm text-neutral-400 my-2">
+        <p class="text-sm text-neutral-400 my-2" i18n="@@reimport.theScoreKeepsItsPage">
           The score keeps its page, link and owner: only its notes, fingering and the details read from them
           (key, tempo, grade, …) are generated again.
         </p>
@@ -41,10 +44,10 @@
             <thead>
               <tr>
                 <th class="border border-gray-300 px-4 py-2"></th>
-                <th class="border border-gray-300 px-4 py-2">Notes</th>
-                <th class="border border-gray-300 px-4 py-2">Instrument</th>
-                <th class="border border-gray-300 px-4 py-2">Track Name</th>
-                <th class="border border-gray-300 px-4 py-2">Study</th>
+                <th class="border border-gray-300 px-4 py-2" i18n="@@reimport.notes">Notes</th>
+                <th class="border border-gray-300 px-4 py-2" i18n="@@reimport.instrument">Instrument</th>
+                <th class="border border-gray-300 px-4 py-2" i18n="@@reimport.trackName">Track Name</th>
+                <th class="border border-gray-300 px-4 py-2" i18n="@@reimport.study">Study</th>
               </tr>
             </thead>
             <tbody>
@@ -68,14 +71,14 @@
         </div>
         <div>
           <input class="m-4" type="checkbox" id="reimport-fingering" (change)="toggleFingering()" [checked]="makeFingering()" />
-          <label for="reimport-fingering" class="italic p-2">Enable automatic fingering</label>
+          <label for="reimport-fingering" class="italic p-2" i18n="@@reimport.enableAutomaticFingering">Enable automatic fingering</label>
         </div>
         @if (importError()) {
         <div class="alert-error my-2" role="alert" data-testid="reimport-failed">{{ importError() }}</div>
         }
         <div class="flex flex-wrap gap-2">
-          <button type="button" class="btn-primary" (click)="reimport()" [disabled]="studies().length === 0">Re-import</button>
-          <a class="btn-secondary" [routerLink]="['/score', slug()]">Cancel</a>
+          <button type="button" class="btn-primary" (click)="reimport()" [disabled]="studies().length === 0" i18n="@@reimport.reImport">Re-import</button>
+          <a class="btn-secondary" [routerLink]="['/score', slug()]" i18n="@@reimport.cancel">Cancel</a>
         </div>
       </div>
       }

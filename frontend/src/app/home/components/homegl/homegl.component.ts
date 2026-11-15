@@ -2,6 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { type AfterViewInit, ChangeDetectionStrategy, Component, type ElementRef, OnDestroy, ViewChild, inject, NgZone, PLATFORM_ID } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { shaderDescription } from '../../../shared/i18n/content-messages';
 
 interface ShaderManifest {
   shaders: Array<{
@@ -85,7 +86,7 @@ export class HomeglComponent implements AfterViewInit, OnDestroy {
    */
   private async loadFromManifest(): Promise<ShaderSet[]> {
     try {
-      const manifest = await firstValueFrom(this.http.get<ShaderManifest>('assets/shader/manifest.json?'));
+      const manifest = await firstValueFrom(this.http.get<ShaderManifest>('/assets/shader/manifest.json?'));
       if (!manifest?.shaders) {
         return [];
       }
@@ -132,8 +133,8 @@ export class HomeglComponent implements AfterViewInit, OnDestroy {
     try {
 
       const [fragmentResponse, vertexResponse] = await Promise.all([
-        firstValueFrom(this.http.get(`assets/shader/${index}/fragment_shader.glsl`, { responseType: 'text' })),
-        firstValueFrom(this.http.get(`assets/shader/${index}/vertex_shader.glsl`, { responseType: 'text' }))
+        firstValueFrom(this.http.get(`/assets/shader/${index}/fragment_shader.glsl`, { responseType: 'text' })),
+        firstValueFrom(this.http.get(`/assets/shader/${index}/vertex_shader.glsl`, { responseType: 'text' }))
       ]);
 
       if (fragmentResponse && vertexResponse) {
@@ -204,7 +205,7 @@ export class HomeglComponent implements AfterViewInit, OnDestroy {
     return {
       index: this.selectedShader.index,
       name: this.selectedShader.name || `Shader ${this.selectedShader.index}`,
-      description: this.selectedShader.description || 'Pas de description disponible'
+      description: shaderDescription(this.selectedShader.index, this.selectedShader.description)
     };
   }
 
@@ -215,7 +216,7 @@ export class HomeglComponent implements AfterViewInit, OnDestroy {
     return this.availableShaders.map(shader => ({
       index: shader.index,
       name: shader.name || `Shader ${shader.index}`,
-      description: shader.description || 'Pas de description disponible'
+      description: shaderDescription(shader.index, shader.description)
     }));
   }
 

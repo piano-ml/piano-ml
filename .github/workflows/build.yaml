@@ -226,6 +226,18 @@ jobs:
             || fail "SSR deopted to client-side rendering behind proxy headers"
 
           echo "SSR verified behind proxy headers"
+
+          # Each language is its own build: English at the root, the others under /<code>/ (angular.json i18n).
+          grep -q '<html lang="en"' /tmp/smoke-ssr.html || fail "/ is not served in English"
+          curl -fsS --compressed -H 'X-Forwarded-For: 1.2.3.4' \
+            http://localhost:8080/es/library -o /tmp/smoke-es.html \
+            || fail "Spanish deep link failed"
+          grep -q '<html lang="es"' /tmp/smoke-es.html || fail "/es/ is not served in Spanish"
+          grep -q 'ng-server-context="ssr"' /tmp/smoke-es.html || fail "/es/ is not server-rendered"
+          grep -q 'href="/manifest.es.webmanifest"' /tmp/smoke-es.html || fail "/es/ does not link its web app manifest"
+          curl -fsS http://localhost:8080/manifest.es.webmanifest | grep -q '"lang": "es"' \
+            || fail "manifest.es.webmanifest is missing"
+          echo "Spanish build verified"
           docker logs fe-smoke
           docker stop fe-smoke
 

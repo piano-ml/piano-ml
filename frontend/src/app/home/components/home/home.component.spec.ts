@@ -3,8 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { SITE } from '../../../shared/seo';
+import { setCurrentLocale } from '../../../shared/i18n';
 import { provideTesting } from '../../../testing/test-providers';
-import { HOME_SEO, SUMMARY_SEO } from '../../home.seo';
+import { homeSeo, summarySeo } from '../../home.seo';
 import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {
@@ -61,6 +62,7 @@ describe('HomeComponent', () => {
 
 describe('home SEO data', () => {
   it('describes the homepage as the canonical site root, with the organization and site search', () => {
+    const HOME_SEO = homeSeo();
     expect(HOME_SEO).toMatchObject({ title: SITE.defaultTitle, description: SITE.defaultDescription, canonical: '/' });
     const [organization, website] = HOME_SEO.structuredData as Record<string, unknown>[];
     expect(organization).toMatchObject({ '@type': 'Organization', name: SITE.name, url: SITE.url });
@@ -69,7 +71,21 @@ describe('home SEO data', () => {
     expect(search).toBe(`${SITE.url}/library/popular?search={search_term_string}`);
   });
 
+  it('builds the Spanish site URLs under /es/, keeping one organization', () => {
+    setCurrentLocale('es');
+    try {
+      const [organization, website] = homeSeo().structuredData as Record<string, unknown>[];
+      expect(organization).toMatchObject({ '@id': `${SITE.url}/#organization`, url: `${SITE.url}/es/` });
+      expect(website).toMatchObject({ '@id': `${SITE.url}/es/#website`, url: `${SITE.url}/es/` });
+      const search = (website['potentialAction'] as { target: { urlTemplate: string } }).target.urlTemplate;
+      expect(search).toBe(`${SITE.url}/es/library/popular?search={search_term_string}`);
+    } finally {
+      setCurrentLocale(undefined);
+    }
+  });
+
   it('describes the summary page as a free educational web application', () => {
+    const SUMMARY_SEO = summarySeo();
     expect(SUMMARY_SEO.title).toBe('Features & Practice Tools');
     expect(SUMMARY_SEO.structuredData).toMatchObject({
       '@type': 'WebApplication', applicationCategory: 'EducationalApplication', offers: { price: '0' },

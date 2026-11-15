@@ -14,8 +14,8 @@
           type="button"
           [disabled]="actionLoading.upvote"
           (click)="onYoutubeAction('upvote')"
-          aria-label="Upvote video"
-          title="Upvote">
+          i18n-aria-label="@@videos.upvote.label" aria-label="Upvote video"
+          i18n-title="@@videos.upvote" title="Upvote">
           <ng-icon name="bootstrapHandThumbsUp" size="14"></ng-icon>
         </button>
 
@@ -24,8 +24,8 @@
           type="button"
           [disabled]="actionLoading.downvote"
           (click)="onYoutubeAction('downvote')"
-          aria-label="Downvote video"
-          title="Downvote">
+          i18n-aria-label="@@videos.downvote.label" aria-label="Downvote video"
+          i18n-title="@@videos.downvote" title="Downvote">
           <ng-icon name="bootstrapHandThumbsDown" size="14"></ng-icon>
         </button>
 
@@ -34,12 +34,12 @@
           type="button"
           [disabled]="actionLoading.report"
           (click)="onYoutubeAction('report')"
-          aria-label="Report video"
-          title="Report">
+          i18n-aria-label="@@videos.report.label" aria-label="Report video"
+          i18n-title="@@videos.report" title="Report">
           <ng-icon name="bootstrapEyeSlash" size="14"></ng-icon>
         </button>
 
-        <button class="btn-secondary close-btn" type="button" (click)="onClose()" aria-label="Close video">
+        <button class="btn-secondary close-btn" type="button" (click)="onClose()" i18n-aria-label="@@videos.close" aria-label="Close video">
           ✕
         </button>
       </div>

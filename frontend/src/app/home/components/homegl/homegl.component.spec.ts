@@ -27,7 +27,7 @@ describe('HomeglComponent', () => {
 
     it('looks for shader folders 1 to 20 without a manifest, and reports when none is found', async () => {
       const loading = component.loadAvailableShaders();
-      http.expectOne('assets/shader/manifest.json?').flush('missing', { status: 404, statusText: 'Not Found' });
+      http.expectOne('/assets/shader/manifest.json?').flush('missing', { status: 404, statusText: 'Not Found' });
       await new Promise((resolve) => setTimeout(resolve));
       const probes = http.match(() => true);
       expect(probes).toHaveLength(40); // fragment + vertex for each folder
@@ -40,14 +40,17 @@ describe('HomeglComponent', () => {
 
     it('names and describes shaders found without a manifest', async () => {
       const loading = component.loadAvailableShaders();
-      http.expectOne('assets/shader/manifest.json?').flush(null);
+      http.expectOne('/assets/shader/manifest.json?').flush(null);
       await new Promise((resolve) => setTimeout(resolve));
       for (const probe of http.match(() => true)) {
-        if (probe.request.url.startsWith('assets/shader/6/')) probe.flush('void main() {}');
+        if (probe.request.url.startsWith('/assets/shader/6/')) probe.flush('void main() {}');
         else probe.flush('missing', { status: 404, statusText: 'Not Found' });
       }
       await loading;
-      expect(component.getAllAvailableShaders()).toEqual([{ index: 6, name: 'Shader 6', description: 'Pas de description disponible' }]);
+      // Described from the translated table by id, even without a manifest.
+      expect(component.getAllAvailableShaders()).toEqual([
+        { index: 6, name: 'Shader 6', description: 'Colorful animated shader with dynamic gradients' },
+      ]);
       expect(component.getCurrentShaderInfo()?.name).toBe('Shader 6');
     });
   });
