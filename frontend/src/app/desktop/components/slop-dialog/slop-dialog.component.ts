@@ -3,6 +3,8 @@ import { ScoreApiInfo } from '../../../core/api';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../account/services/auth.service';
 import { ScoreService } from '../../../core/api/api/score.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-slop-dialog',
@@ -17,6 +19,8 @@ export class SlopDialogComponent {
     loadingText = '';
     error = false;
     errorText = '';
+    /** The repair went through: the dialog offers to reload the rebuilt score. */
+    repaired = false;
 
     constructor(
         public authService: AuthService,
@@ -41,98 +45,62 @@ export class SlopDialogComponent {
     }
 
 
+    /**
+     * Rebuilds the score on the server from its own MIDI file (download, then upload with fingering). Progress, the
+     * outcome and any failure are shown inside the dialog.
+     */
     async repair() {
-        if (!this.scoreData || !this.scoreData?.id || !this.scoreData?.version || !this.scoreData?.owner_id) return;
+        const score = this.scoreData;
+        if (!score?.id || !score.version || !score.owner_id || this.loading) return;
         this.loading = true;
-        this.loadingText = 'Downloading...';
+        this.repaired = false;
         this.error = false;
         this.errorText = '';
+        let step: 'download' | 'read' | 'upload' = 'download';
         try {
-            await new Promise<void>((resolve, reject) => {
-                this.scoreService.scoreOwnerIdTypeVersionRevisionGet(
-                    this.scoreData!.owner_id!,
-                    this.scoreData!.id!,
-                    'midi',
-                    this.scoreData!.version!,
-                    1
-                ).subscribe({
-                    next: async (data: any) => {
-                        try {
-                            const arrayBuffer = await data.arrayBuffer();
-                            const blob = new Blob([arrayBuffer], { type: 'audio/midi' });
-                            this.loadingText = 'Computing...';
-                            if (this.cdr) {
-                                this.cdr.detectChanges();
-                            } else {
-                                console.warn('[SlopDialogComponent] ChangeDetectorRef is undefined');
-                            }
-                            this.scoreService.scoreIdTypeVersionRevisionPost(
-                                this.scoreData!.id!,
-                                'midi',
-                                this.scoreData!.version!,
-                                0,
-                                blob,
-                                undefined,
-                                undefined,
-                                true
-                            ).subscribe({
-                                next: (res) => {
-                                    this.loading = false;
-                                    this.loadingText = '';
-                                    this.error = false;
-                                    this.errorText = '';
-                                    alert('Repair POST success!');
-                                    this.close();
-                                    resolve();
-                                },
-                                error: (err) => {
-                                    this.loading = false;
-                                    this.loadingText = '';
-                                    this.error = true;
-                                    this.errorText = ' (POST) ' + (err?.message || err);
-                                    if (this.cdr) {
-                                        this.cdr.detectChanges();
-                                    } else {
-                                        console.warn('[SlopDialogComponent] ChangeDetectorRef is undefined');
-                                    }
-                                    reject(err);
-                                }
-                            });
-                        } catch (e) {
-                            this.loading = false;
-                            this.loadingText = '';
-                            this.error = true;
-                            this.errorText = ' (MIDI) ' + (e as any)?.message;
-                            if (this.cdr) {
-                                this.cdr.detectChanges();
-                            } else {
-                                console.warn('[SlopDialogComponent] ChangeDetectorRef is undefined');
-                            }
-                            reject(e);
-                        }
-                    },
-                    error: (err) => {
-                        this.loading = false;
-                        this.loadingText = '';
-                        this.error = true;
-                        this.errorText = ' (DOWNLOAD) ' + (err?.message || err);
-                        if (this.cdr) {
-                            this.cdr.detectChanges();
-                        } else {
-                            console.warn('[SlopDialogComponent] ChangeDetectorRef is undefined');
-                        }
-                        reject(err);
-                    }
-                });
-            });
+            this.setLoadingText('Downloading...');
+            const file = await firstValueFrom(this.scoreService.scoreOwnerIdTypeVersionRevisionGet(score.owner_id, score.id, 'midi', score.version, 1));
+            step = 'read';
+            const midi = new Blob([await file.arrayBuffer()], { type: 'audio/midi' });
+            step = 'upload';
+            this.setLoadingText('Computing...');
+            await firstValueFrom(this.scoreService.scoreIdTypeVersionRevisionPost(score.id, 'midi', score.version, 0, midi, undefined, undefined, true));
+            this.repaired = true;
         } catch (e) {
+            console.error(`[SlopDialogComponent] repair failed (${step})`, e);
+            this.error = true;
+            this.errorText = repairErrorMessage(step, e);
+        } finally {
             this.loading = false;
             this.loadingText = '';
-            if (this.cdr) {
-                this.cdr.detectChanges();
-            } else {
-                console.warn('[SlopDialogComponent] ChangeDetectorRef is undefined');
-            }
+            this.cdr.detectChanges();
         }
+    }
+
+    /** Reloads the page so the practice view uses the rebuilt score. */
+    reload() {
+        window.location.reload();
+    }
+
+    private setLoadingText(text: string) {
+        this.loadingText = text;
+        this.cdr.detectChanges();
+    }
+}
+
+/** What to tell the owner when a repair step fails, and what to do about it. */
+export function repairErrorMessage(step: 'download' | 'read' | 'upload', error: unknown): string {
+    const what = {
+        download: 'The MIDI file of this score could not be downloaded.',
+        read: 'The MIDI file of this score could not be read.',
+        upload: 'The server could not rebuild this score.',
+    }[step];
+    const status = error instanceof HttpErrorResponse ? error.status : undefined;
+    switch (status) {
+        case 0: return `${what} The server cannot be reached: check your connection and try again.`;
+        case 401: return `${what} Please log in again.`;
+        case 403: return `${what} You are not allowed to repair this score.`;
+        case 404: return `${what} The file is not available.`;
+        default: return `${what} Please try again later.`;
     }
 }

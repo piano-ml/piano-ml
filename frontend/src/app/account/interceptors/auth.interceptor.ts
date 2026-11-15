@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { SessionStorageService } from '../services/session-storage.service';
-import { LOGIN_PATH, loginQueryParams } from '../services/return-url';
+import { LOGIN_PATH, loginQueryParams, requiresLogin } from '../services/return-url';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -20,9 +20,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         // Clear session data
         sessionStorage.clearSession();
         
-        // Redirect to login page
-        if (!router.url.startsWith(LOGIN_PATH)) {
-          router.navigate([LOGIN_PATH], { queryParams: loginQueryParams(router.url) });
+        // Only a protected page sends the user to login; on a public page they stay, logged out.
+        // On a fresh visit the 401 can arrive while the first navigation is still running
+        // (router.url is still "/"), so judge by where that navigation is heading.
+        const url = router.getCurrentNavigation()?.extractedUrl.toString() ?? router.url;
+        if (requiresLogin(url)) {
+          router.navigate([LOGIN_PATH], { queryParams: loginQueryParams(url) });
         }
       }
       return throwError(() => error);

@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { YouTubePlayerModule } from '@angular/youtube-player';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 import { AuthService } from '../../../account/services/auth.service';
 import { GenreService, ScoreApiInfo, ScoreService, WorkloadApiInfo, WorkloadService, YoutubeVideoApiInfo } from '../../../core/api';
 import { ResponseStatusService, SeoService } from '../../../shared/seo';
@@ -48,6 +49,9 @@ describe('ScoreInfoComponent', () => {
     { title: 'No id: dropped' },
   ] as YoutubeVideoApiInfo[];
 
+  /** A download answer of the API: the file and, when the browser can read it, the server-chosen name. */
+  const fileResponse = (type = 'application/octet-stream', disposition?: string) =>
+    new HttpResponse<Blob>({ body: new Blob(['file'], { type }), headers: disposition ? new HttpHeaders({ 'Content-Disposition': disposition }) : new HttpHeaders() });
   const settle = () => new Promise((resolve) => setTimeout(resolve));
   async function render(score: Partial<ScoreApiInfo> | null = {}) {
     if (score) scores.scoreGetBySlug.mockReturnValue(of({ ...SCORE, ...score }));
@@ -68,7 +72,7 @@ describe('ScoreInfoComponent', () => {
     scores = {
       scoreGetBySlug: vi.fn((): Observable<ScoreApiInfo> => of(SCORE)),
       scoreIdVideoGet: vi.fn((): Observable<YoutubeVideoApiInfo[]> => of(VIDEOS)),
-      scoreOwnerIdTypeVersionRevisionGet: vi.fn((): Observable<Blob> => of(new Blob(['file']))),
+      scoreOwnerIdTypeVersionRevisionGet: vi.fn((): Observable<HttpResponse<Blob>> => of(fileResponse())),
       scoreYoutubeEdit: vi.fn(() => of({})),
     };
     genres = { genreGet: vi.fn(() => of([{ id: 'g1', name: 'Classical' }, { id: 'g2', name: 'Jazz' }])) };
@@ -181,39 +185,168 @@ describe('ScoreInfoComponent', () => {
   });
 
   describe('downloads', () => {
-    it('downloads a public-domain score as a named file', async () => {
+    let downloaded: string[];
+    const buttonsOrder = () => [...el.querySelectorAll('button')].map((b) => b.textContent?.replace(/\s+/g, ' ').trim());
+
+    beforeEach(() => {
+      downloaded = [];
+      vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) { downloaded.push(this.download); });
+      vi.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob:fake');
+      vi.spyOn(window.URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    });
+
+    it('saves each file as an attachment named after the slug, PDF included (never opened inline)', async () => {
       await render();
-      const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
-      let downloaded = '';
-      click.mockImplementation(function (this: HTMLAnchorElement) { downloaded = this.download; });
+      const href = window.location.href;
       button('MIDI').click();
-      expect(scores.scoreOwnerIdTypeVersionRevisionGet).toHaveBeenCalledWith('owner-1', 'sc1', 'midi', 1, 1);
-      expect(downloaded).toBe('Gymnopédie No. 1_sc1.midi');
       button('MusicXML').click();
-      expect(downloaded).toBe('Gymnopédie No. 1_sc1.xml');
+      button('PDF').click();
+      expect(scores.scoreOwnerIdTypeVersionRevisionGet).toHaveBeenCalledWith('owner-1', 'sc1', 'midi', 1, 1, 'response');
+      expect(downloaded).toEqual(['satie-gymnopedie-1.mid', 'satie-gymnopedie-1.musicxml', 'satie-gymnopedie-1.pdf']);
+      expect(window.location.href).toBe(href);
+    });
+
+    it('uses the file name the API chose when the browser can read it', async () => {
+      await render();
+      scores.scoreOwnerIdTypeVersionRevisionGet.mockReturnValue(of(fileResponse('application/pdf',
+        `attachment; filename="=?UTF-8?Q?x?="; filename*=UTF-8''satie-gymnopedie-1.pdf`)));
+      button('PDF').click();
+      expect(downloaded).toEqual(['satie-gymnopedie-1.pdf']);
+    });
+
+    it('falls back to the score id for a score without slug', async () => {
+      await render({ immutableSlug: undefined });
+      button('MIDI').click();
+      expect(downloaded).toEqual(['sc1.mid']);
+    });
+
+    it('frees the object URL after the browser took the file', async () => {
+      await render();
+      vi.useFakeTimers();
+      try {
+        component.download('midi');
+        expect(window.URL.revokeObjectURL).not.toHaveBeenCalled();
+        vi.advanceTimersByTime(1000);
+        expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:fake');
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('refuses copyrighted scores to everyone but their owner', async () => {
       await render({ publicDomain: false });
       expect(button('MIDI').disabled).toBe(true);
       expect(button('MIDI').title).toBe('Downloads restricted — copyrighted work');
-      component.downloadFile('midi');
+      component.download('midi');
       expect(scores.scoreOwnerIdTypeVersionRevisionGet).not.toHaveBeenCalled();
 
       user = { id: 'owner-1', admin: false };
       fixture.detectChanges();
       expect(button('MIDI').disabled).toBe(false);
+      expect(button('MIDI').title).toBe('Download MIDI');
     });
 
-    it('reports a failed download, and a score missing what a download needs', async () => {
+    it('runs one download at a time, with a spinner on its button', async () => {
       await render();
-      scores.scoreOwnerIdTypeVersionRevisionGet.mockReturnValue(throwError(() => new Error('500')));
-      component.downloadFile('musicxml');
-      expect(component.error).toBe('Failed to download musicxml file');
+      const pending = new Subject<HttpResponse<Blob>>();
+      scores.scoreOwnerIdTypeVersionRevisionGet.mockReturnValue(pending);
+      button('PDF').click();
+      fixture.detectChanges();
+      expect(button('PDF').getAttribute('aria-busy')).toBe('true');
+      expect(button('PDF').querySelector('.spinner')).toBeTruthy();
+      expect(button('MIDI').disabled).toBe(true);
+      component.download('midi');
+      expect(scores.scoreOwnerIdTypeVersionRevisionGet).toHaveBeenCalledTimes(1);
+
+      pending.next(fileResponse('application/pdf'));
+      pending.complete();
+      fixture.detectChanges();
+      expect(component.downloading).toBeNull();
+      expect(button('MIDI').disabled).toBe(false);
+      expect(downloaded).toEqual(['satie-gymnopedie-1.pdf']);
+    });
+
+    it('explains a failed download next to the buttons, keeps the score visible, and clears it on retry or dismiss', async () => {
+      await render();
+      scores.scoreOwnerIdTypeVersionRevisionGet.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
+      button('MusicXML').click();
+      fixture.detectChanges();
+      const alert = el.querySelector('[role="alert"]');
+      expect(alert?.textContent).toContain('The MusicXML is not available for this score.');
+      expect(component.error).toBeNull();
+      expect(el.textContent).toContain('Gymnopédie No. 1');
+      expect(component.downloading).toBeNull();
+
+      scores.scoreOwnerIdTypeVersionRevisionGet.mockReturnValue(of(fileResponse()));
+      button('MIDI').click();
+      fixture.detectChanges();
+      expect(el.querySelector('[role="alert"]')).toBeNull();
+
+      component.downloadError = 'boom';
+      fixture.detectChanges();
+      (el.querySelector('[aria-label="Dismiss download error"]') as HTMLButtonElement).click();
+      fixture.detectChanges();
+      expect(el.querySelector('[role="alert"]')).toBeNull();
+    });
+
+    it('reports an empty answer and a score missing what a download needs', async () => {
+      await render();
+      scores.scoreOwnerIdTypeVersionRevisionGet.mockReturnValue(of(new HttpResponse<Blob>({ body: null })));
+      component.download('pdf');
+      expect(component.downloadError).toBe('Could not download the PDF. Please try again later.');
+      expect(downloaded).toEqual([]);
 
       component.score = { ...SCORE, version: undefined } as ScoreApiInfo;
-      component.downloadFile('midi');
-      expect(component.error).toBe('Missing required information for download');
+      component.download('midi');
+      expect(component.downloadError).toBe('Could not download the MIDI: this score is missing information.');
+    });
+
+    describe('the original upload', () => {
+      it('shows only to the owner and admins, between Browse and MIDI', async () => {
+        await render();
+        expect(button('Original')).toBeUndefined();
+
+        user = { id: 'owner-1', admin: false };
+        fixture.detectChanges();
+        const order = buttonsOrder();
+        expect(order.indexOf('Original')).toBeGreaterThan(order.indexOf('← Browse'));
+        expect(order.indexOf('Original')).toBeLessThan(order.indexOf('MIDI'));
+
+        user = { id: 'someone-else', admin: true };
+        fixture.detectChanges();
+        expect(button('Original')).toBeTruthy();
+
+        user = { id: 'someone-else', admin: false };
+        fixture.detectChanges();
+        expect(button('Original')).toBeUndefined();
+      });
+
+      it('stays available to the owner while the import is still processing', async () => {
+        user = { id: 'owner-1', admin: false };
+        await render({ has_files: false });
+        expect(button('MIDI')).toBeUndefined();
+        expect(button('Original')).toBeTruthy();
+      });
+
+      it('downloads it named from the slug and the served content type, even for a copyrighted work', async () => {
+        user = { id: 'owner-1', admin: false };
+        await render({ publicDomain: false });
+        scores.scoreOwnerIdTypeVersionRevisionGet.mockReturnValue(of(fileResponse('application/pdf')));
+        button('Original').click();
+        expect(scores.scoreOwnerIdTypeVersionRevisionGet).toHaveBeenCalledWith('owner-1', 'sc1', 'original', 1, 1, 'response');
+        expect(downloaded).toEqual(['satie-gymnopedie-1-original.pdf']);
+      });
+
+      it('is not requested for other users, and explains a refusal', async () => {
+        await render();
+        component.download('original');
+        expect(scores.scoreOwnerIdTypeVersionRevisionGet).not.toHaveBeenCalled();
+
+        user = { id: 'owner-1', admin: false };
+        scores.scoreOwnerIdTypeVersionRevisionGet.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 403 })));
+        component.download('original');
+        expect(component.downloadError).toBe('You are not allowed to download the original file of this score.');
+      });
     });
   });
 

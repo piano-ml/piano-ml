@@ -81,7 +81,7 @@
           <p class="field-label">MusicBrainz</p>
           <div class="flex gap-3 mt-0.5">
             @if (score.author_mbid) {
-              <a class="link-primary text-sm" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank" rel="noopener noreferrer">Artist</a>
+              <a class="link-primary text-sm" href="https://musicbrainz.org/artist/{{ score.author_mbid }}" target="_blank" rel="noopener noreferrer">{{ score.author || 'Artist' }}</a>
             }
             @if (score.mbid) {
               <a class="link-primary text-sm" href="https://musicbrainz.org/work/{{ score.mbid }}" target="_blank" rel="noopener noreferrer">Work</a>

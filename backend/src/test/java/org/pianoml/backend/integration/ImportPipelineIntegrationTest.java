@@ -55,6 +55,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -226,5 +229,59 @@ class ImportPipelineIntegrationTest {
     assertThat(queued.getValue().getStatus()).isEqualTo(Workload.WorkloadStatus.COMPLETED);
     assertThat(entries(bucket.get(key()))).containsEntry("ori.png", "PNG-photo")
       .hasEntrySatisfying("score.musicxml", xml -> assertThat(xml).contains("image2pack.sh"));
+  }
+
+  // ── the upload kept as ori.<ext>, downloaded back through the score download API ──
+
+  private User otherUser(String roles) {
+    User user = new User();
+    user.setId(UUID.randomUUID());
+    user.setEmail(roles.toLowerCase() + "@example.com");
+    user.setName(roles);
+    user.setPassword("x");
+    user.setRoles(roles);
+    given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
+    return user;
+  }
+
+  private org.springframework.test.web.servlet.ResultActions downloadOriginal(User as) throws Exception {
+    var request = get("/score/" + owner.getId() + "/" + score.getId() + "/original/1/1");
+    if (as != null) {
+      request.header("Authorization", "Bearer " + jwtTokenProvider.generateToken(as));
+    }
+    return mockMvc.perform(request);
+  }
+
+  @Test
+  void theUploadedMidiIsDownloadableBackByItsOwnerAndAdminsOnly() throws Exception {
+    score.setImmutableSlug("satie-erik-gymnopedie-no-1");
+    upload("midi", "MThd-the-upload", "?makeFingering=false").andExpect(status().isOk());
+
+    downloadOriginal(owner)
+      .andExpect(status().isOk())
+      .andExpect(content().contentType("audio/midi"))
+      .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("satie-erik-gymnopedie-no-1-original.midi")))
+      .andExpect(content().bytes("MThd-the-upload".getBytes(StandardCharsets.UTF_8)));
+    downloadOriginal(otherUser("USER,ADMIN"))
+      .andExpect(status().isOk())
+      .andExpect(content().bytes("MThd-the-upload".getBytes(StandardCharsets.UTF_8)));
+    downloadOriginal(otherUser("USER")).andExpect(status().isForbidden());
+    downloadOriginal(null).andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void theUploadedPdfIsServedAsPdfOnceRecognized() throws Exception {
+    given(cloudRunJobService.executeJob(any(), any())).willReturn(CompletableFuture.completedFuture("executions/44"));
+    given(workloadRepository.save(any(Workload.class))).willAnswer(call -> call.getArgument(0));
+    upload("pdf", "%PDF-scan", "").andExpect(status().isOk());
+    ArgumentCaptor<Workload> queued = ArgumentCaptor.forClass(Workload.class);
+    verify(workloadRepository, atLeastOnce()).save(queued.capture());
+    given(workloadRepository.findPendingWorkloadsOrderedByCreatedAt()).willReturn(List.of(queued.getValue()));
+    workloadProcessingService.processPendingWorkloads();
+
+    downloadOriginal(owner)
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+      .andExpect(content().bytes("%PDF-scan".getBytes(StandardCharsets.UTF_8)));
   }
 }

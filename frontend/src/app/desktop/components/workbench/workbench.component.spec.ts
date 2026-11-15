@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { HttpEventType, HttpResponse, type HttpEvent } from '@angular/common/http';
+import { HttpErrorResponse, HttpEventType, HttpResponse, type HttpEvent } from '@angular/common/http';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { page } from 'vitest/browser';
-import { Subject, of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { type ScoreApiInfo, ScoreService } from '../../../core/api';
 import { SeoService } from '../../../shared/seo';
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
@@ -18,7 +18,7 @@ import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../.
 import { CursorService } from '../../service/cursor.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { PlayerService } from '../../service/player.service';
-import { WorkbenchComponent } from './workbench.component';
+import { WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
 
 const SCORE: ScoreApiInfo = {
   id: 's1', owner_id: 'o1', version: 1, title: 'Happy Birthday', author: 'Mildred J. Hill', tempo: 100,
@@ -166,6 +166,65 @@ describe('WorkbenchComponent', () => {
       expect(component.loadingFeedBack).toEqual({ message: 'Downloading score', percentage: 0 });
       serveFiles();
       await waitFor(() => component.osmdLoading === false);
+    });
+  });
+
+  describe('when the score cannot be loaded', () => {
+    const errorBox = () => el().querySelector('[role="alert"]');
+    const buttonText = (text: string) =>
+      [...el().querySelectorAll('button')].find((b) => b.textContent?.trim() === text) as HTMLButtonElement | undefined;
+
+    beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => undefined));
+
+    it('replaces the loader with the reason when a file download fails, then loads again on retry', async () => {
+      component = await harness.navigateByUrl('/work/hill-happy-birthday', WorkbenchComponent);
+      downloads.midi.error(new HttpErrorResponse({ status: 404 }));
+      await waitFor(() => component.loadError !== null);
+      expect(errorBox()?.textContent).toContain('This score or its files are not available.');
+      expect(el().querySelector('.loading-feedback')).toBeNull();
+      expect(component.osmdLoading).toBe(false);
+
+      downloads = { midi: new Subject(), musicxml: new Subject() };
+      buttonText('Try again')!.click();
+      render();
+      expect(component.loadError).toBeNull();
+      await waitFor(() => vi.mocked(scores.scoreOwnerIdTypeVersionRevisionGet).mock.calls.length === 4);
+      serveFiles();
+      await waitFor(() => component.osmdLoading === false && !!el().querySelector('.osmd-container svg'));
+      expect(errorBox()).toBeNull();
+    });
+
+    it('explains an unreachable server and goes back to the score page', async () => {
+      component = await harness.navigateByUrl('/work/hill-happy-birthday', WorkbenchComponent);
+      downloads.musicxml.error(new HttpErrorResponse({ status: 0 }));
+      await waitFor(() => component.loadError !== null);
+      expect(errorBox()?.textContent).toContain('the server cannot be reached');
+      buttonText('Back to the score')!.click();
+      expect(navigate).toHaveBeenCalledWith(['/score', 'hill-happy-birthday']);
+    });
+
+    it('reports an unknown score and offers the library instead', async () => {
+      vi.mocked(scores.scoreGetBySlug).mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })) as never);
+      component = await harness.navigateByUrl('/work/hill-happy-birthday', WorkbenchComponent);
+      await waitFor(() => component.loadError !== null);
+      expect(scores.scoreOwnerIdTypeVersionRevisionGet).not.toHaveBeenCalled();
+      buttonText('Back to the library')!.click();
+      expect(navigate).toHaveBeenCalledWith(['/library']);
+    });
+
+    it('reports an empty or unreadable file', async () => {
+      component = await harness.navigateByUrl('/work/hill-happy-birthday', WorkbenchComponent);
+      downloads.midi.next(new HttpResponse<Blob>({ body: null }));
+      downloads.midi.complete();
+      await waitFor(() => component.loadError !== null);
+      expect(component.loadError).toBe('The score could not be loaded. Please try again later.');
+    });
+
+    it('words each failure', () => {
+      expect(scoreLoadErrorMessage(new HttpErrorResponse({ status: 401 }))).toBe('Please log in to practice this score.');
+      expect(scoreLoadErrorMessage(new HttpErrorResponse({ status: 403 }))).toBe('You are not allowed to practice this score.');
+      expect(scoreLoadErrorMessage(new HttpErrorResponse({ status: 500 }))).toBe('The score could not be loaded. Please try again later.');
+      expect(scoreLoadErrorMessage(new Error('x'))).toBe('The score could not be loaded. Please try again later.');
     });
   });
 

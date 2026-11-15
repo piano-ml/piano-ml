@@ -170,10 +170,18 @@ describe('AuthService', () => {
     expect(api['accountUserinfoPut']).toHaveBeenCalledWith({ name: 'b' });
   });
 
-  it('handleUnauthorized clears the session and redirects to login, remembering the page', () => {
+  it('handleUnauthorized clears the session and redirects to login from a protected page, remembering it', () => {
+    router.url = '/account/scores';
     const service = create();
     service.handleUnauthorized();
     expect(session.clearSession).toHaveBeenCalledOnce();
-    expect(router.navigate).toHaveBeenCalledWith(['/account/login'], { queryParams: { returnUrl: '/library' } });
+    expect(router.navigate).toHaveBeenCalledWith(['/account/login'], { queryParams: { returnUrl: '/account/scores' } });
+  });
+
+  it('handleUnauthorized clears the session but stays on a public page', () => {
+    const service = create();
+    service.handleUnauthorized();
+    expect(session.clearSession).toHaveBeenCalledOnce();
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 });

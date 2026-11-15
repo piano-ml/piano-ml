@@ -330,15 +330,66 @@ public class ScoreService {
     return score;
   }
 
+  /** A file of the score zip: its entry name (without folders) and content. */
+  public record ScoreFile(String filename, byte[] content) {
+  }
+
+  /** True for the zip entry holding the untouched upload: {@code ori.<ext>}. */
+  static boolean isOriginalEntry(String entryName) {
+    String name = entryName.substring(entryName.lastIndexOf('/') + 1);
+    return name.startsWith(PackService.ORIGINAL_FILENAME_PREFIX + ".");
+  }
+
+  /**
+   * A generated file of the score zip, matched by its name ending. The untouched upload ({@code ori.<ext>}) is
+   * skipped: {@code ori.pdf} or {@code ori.midi} also end with "pdf"/"midi" and must never be served in place of
+   * the generated files.
+   */
   public Optional<byte[]> getAttachmentFromScore(Score score, String type) throws IOException {
+    return findZipEntry(score, name -> !isOriginalEntry(name) && name.endsWith(type)).map(ScoreFile::content);
+  }
+
+  /** The file uploaded at import, as kept in the score zip ({@code ori.<ext>}). */
+  public Optional<ScoreFile> getOriginalFromScore(Score score) throws IOException {
+    return findZipEntry(score, ScoreService::isOriginalEntry);
+  }
+
+  /** Content type of an original upload, from its extension. */
+  public static String originalContentType(String filename) {
+    String lower = filename.toLowerCase(java.util.Locale.ROOT);
+    String ext = lower.contains(".") ? lower.substring(lower.lastIndexOf('.') + 1) : "";
+    return switch (ext) {
+      case "pdf" -> "application/pdf";
+      case "png" -> "image/png";
+      case "jpg", "jpeg" -> "image/jpeg";
+      case "mid", "midi" -> "audio/midi";
+      case "musicxml", "xml" -> "application/vnd.recordare.musicxml+xml";
+      case "mxl" -> "application/vnd.recordare.musicxml";
+      default -> "application/octet-stream";
+    };
+  }
+
+  /** Owners and admins may manage a score (delete it, download its original upload). */
+  public static boolean isOwnerOrAdmin(Score score, User user) {
+    if (user == null) {
+      return false;
+    }
+    boolean isOwner = score.getOwner() != null && score.getOwner().getId().equals(user.getId());
+    boolean isAdmin = user.getRoles() != null && Arrays.stream(user.getRoles().split(","))
+      .anyMatch(role -> "ADMIN".equals(role.trim()));
+    return isOwner || isAdmin;
+  }
+
+  private Optional<ScoreFile> findZipEntry(Score score, java.util.function.Predicate<String> matcher) throws IOException {
     String key = makeBucketKeyFromScore(score);
     try {
       byte[] zipData = s3Client.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build()).readAllBytes();
       try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipData))) {
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
-          if (entry.getName().endsWith(type)) {
-            return Optional.of(zis.readAllBytes());
+          if (!entry.isDirectory() && matcher.test(entry.getName())) {
+            String name = entry.getName().substring(entry.getName().lastIndexOf('/') + 1);
+            return Optional.of(new ScoreFile(name, zis.readAllBytes()));
           }
         }
       }
@@ -361,12 +412,7 @@ public class ScoreService {
 
     Score score = scoreOpt.get();
 
-    // Check if user is owner or has admin role
-    boolean isOwner = score.getOwner().getId().equals(authenticatedUser.getId());
-    boolean isAdmin = Arrays.stream(authenticatedUser.getRoles().split(","))
-      .anyMatch(role -> "ADMIN".equals(role.trim()));
-
-    if (!isOwner && !isAdmin) {
+    if (!isOwnerOrAdmin(score, authenticatedUser)) {
       throw new RuntimeException("Unauthorized: Only owner or admin can delete this score");
     }
 

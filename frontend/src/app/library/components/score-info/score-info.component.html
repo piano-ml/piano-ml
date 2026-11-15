@@ -26,43 +26,51 @@
       <span>Edit</span>
     </button>
     }
+    @if (score && canDownload('original')) {
+    <button (click)="download('original')"
+      [disabled]="!!downloading"
+      [attr.aria-busy]="downloading === 'original'"
+      title="Download the file uploaded at import (owner and admins only)"
+      class="btn-primary download-btn">
+      @if (downloading === 'original') {
+      <span class="spinner w-3 h-3" aria-hidden="true"></span>
+      } @else {
+      <ng-icon name="bootstrapDownload" size="13"></ng-icon>
+      }
+      <span>Original</span>
+    </button>
+    }
     @if (score?.has_files) {
+    @for (file of downloadButtons; track file.type) {
     <button
-      (click)="downloadFile('midi')"
-      [disabled]="!isOwnerOrPublic()"
-      [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download MIDI'"
+      (click)="download(file.type)"
+      [disabled]="!canDownload(file.type) || !!downloading"
+      [attr.aria-busy]="downloading === file.type"
+      [title]="!canDownload(file.type) ? 'Downloads restricted — copyrighted work' : file.title"
       class="btn-primary download-btn"
-      [class.opacity-40]="!isOwnerOrPublic()"
-      [class.cursor-not-allowed]="!isOwnerOrPublic()">
+      [class.opacity-40]="!canDownload(file.type)"
+      [class.cursor-not-allowed]="!canDownload(file.type)">
+      @if (downloading === file.type) {
+      <span class="spinner w-3 h-3" aria-hidden="true"></span>
+      } @else {
       <ng-icon name="bootstrapDownload" size="13"></ng-icon>
-      <span>MIDI</span>
+      }
+      <span>{{ file.label }}</span>
     </button>
-    <button
-      (click)="downloadFile('musicxml')"
-      [disabled]="!isOwnerOrPublic()"
-      [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download MusicXML'"
-      class="btn-primary download-btn"
-      [class.opacity-40]="!isOwnerOrPublic()"
-      [class.cursor-not-allowed]="!isOwnerOrPublic()">
-      <ng-icon name="bootstrapDownload" size="13"></ng-icon>
-      <span>MusicXML</span>
-    </button>
-    <button
-      (click)="downloadFile('pdf')"
-      [disabled]="!isOwnerOrPublic()"
-      [title]="!isOwnerOrPublic() ? 'Downloads restricted — copyrighted work' : 'Download PDF'"
-      class="btn-primary download-btn"
-      [class.opacity-40]="!isOwnerOrPublic()"
-      [class.cursor-not-allowed]="!isOwnerOrPublic()">
-      <ng-icon name="bootstrapDownload" size="13"></ng-icon>
-      <span>PDF</span>
-    </button>
+    }
     <button (click)="playScore()" class="btn-hero w-full sm:w-auto justify-center inline-flex items-center gap-1.5">
       <span aria-hidden="true">🎹</span>
       <span>Practice</span>
     </button>
     }
   </div>
+
+  @if (downloadError) {
+  <div class="alert-error mx-4 sm:mx-6 mt-2 flex items-start justify-between gap-3" role="alert">
+    <span>{{ downloadError }}</span>
+    <button type="button" (click)="dismissDownloadError()" class="shrink-0" aria-label="Dismiss download error">✕</button>
+  </div>
+  }
 
   <div class="px-4 sm:px-6 pb-12 flex flex-col gap-5 mt-6">
 
