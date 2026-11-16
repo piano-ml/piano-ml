@@ -1,6 +1,7 @@
 package org.pianoml.backend.coach.tools;
 
 import org.pianoml.backend.coach.CoachToolHandler;
+import org.pianoml.backend.coach.bridge.PlayerBridge;
 import org.pianoml.backend.entity.CoachGrant;
 import org.pianoml.backend.entity.PracticeSession;
 import org.pianoml.backend.entity.User;
@@ -24,8 +25,10 @@ public class GetContextTool implements CoachToolHandler {
   private final PracticeData practice;
   private final CoachGrantRepository grants;
   private final Clock clock;
+  private final PlayerBridge bridge;
 
-  public GetContextTool(CoachRows rows, PracticeData practice, CoachGrantRepository grants, Clock clock) {
+  public GetContextTool(CoachRows rows, PracticeData practice, CoachGrantRepository grants, Clock clock, PlayerBridge bridge) {
+    this.bridge = bridge;
     this.rows = rows;
     this.practice = practice;
     this.grants = grants;
@@ -59,8 +62,7 @@ public class GetContextTool implements CoachToolHandler {
       data.put("level", levelMap);
     }
     if (principal.hasScope("player:control")) {
-      // Browser tabs connect through the WebSocket bridge (phase 7); until then, none
-      data.put("player", Map.of("connectedTabs", 0));
+      data.put("player", Map.of("connectedTabs", bridge.connectedTabs(user.getId())));
     }
     data.put("siteUrl", rows.siteUrl());
     data.put("connectUrl", rows.siteUrl() + "/coach/connect");

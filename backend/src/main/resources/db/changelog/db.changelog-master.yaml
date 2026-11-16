@@ -49,3 +49,5 @@ databaseChangeLog:
       file: db/changelog/changes/025-create-coach-grant.yaml
   - include:
       file: db/changelog/changes/026-create-coach-audit.yaml
+  - include:
+      file: db/changelog/changes/027-create-coach-bridge.yaml

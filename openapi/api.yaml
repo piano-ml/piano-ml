@@ -1285,6 +1285,27 @@ paths:
         '404':
           description: No such grant for this user
 
+  /coach/bridge/ticket:
+    post:
+      operationId: coachBridgeTicketPost
+      tags:
+        - coach
+      summary: A one-time ticket to open the Remote coach WebSocket (issue #414)
+      description: >
+        Requires the cookie session and the CSRF header. The ticket is valid 30 seconds, once: the browser sends
+        it in the first message of the WebSocket /coach/ws (never in the URL). 10 tickets per minute per user.
+      responses:
+        '200':
+          description: Ticket
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoachBridgeTicket'
+        '401':
+          description: Not logged in
+        '429':
+          description: Too many tickets in the last minute
+
   /coach/prompts:
     get:
       operationId: coachPromptsGet
@@ -2372,3 +2393,13 @@ components:
         - description
         - arguments
         - text
+    CoachBridgeTicket:
+      type: object
+      properties:
+        ticket:
+          type: string
+        expiresInSeconds:
+          type: integer
+      required:
+        - ticket
+        - expiresInSeconds
