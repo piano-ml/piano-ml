@@ -2510,6 +2510,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>Free to download and public domain.</source>
         <target state="translated">무료로 다운로드할 수 있는 퍼블릭 도메인 작품입니다.</target>
       </trans-unit>
+      <trans-unit id="seo.score.videoDescription" datatype="html">
+        <source>Piano video of <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/>, to watch before practicing it on PianoML.</source>
+        <target state="translated"><x id="artist" equiv-text="author"/>의 <x id="title" equiv-text="title"/> 피아노 영상입니다. PianoML에서 연습하기 전에 보세요.</target>
+      </trans-unit>
       <trans-unit id="reimport.titleNamed" datatype="html">
         <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/> 다시 가져오기</target>

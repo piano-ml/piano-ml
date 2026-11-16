@@ -2510,6 +2510,10 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source>Free to download and public domain.</source>
         <target state="translated">Do pobrania za darmo, domena publiczna.</target>
       </trans-unit>
+      <trans-unit id="seo.score.videoDescription" datatype="html">
+        <source>Piano video of <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/>, to watch before practicing it on PianoML.</source>
+        <target state="translated">Film fortepianowy: <x id="title" equiv-text="title"/>, <x id="artist" equiv-text="author"/> – do obejrzenia przed ćwiczeniem w PianoML.</target>
+      </trans-unit>
       <trans-unit id="reimport.titleNamed" datatype="html">
         <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
         <target state="translated">Importuj ponownie: <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></target>

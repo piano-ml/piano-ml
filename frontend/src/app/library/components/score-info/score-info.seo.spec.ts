@@ -80,6 +80,19 @@ describe('buildScoreSeo', () => {
     expect(withoutId.creator).toBeUndefined();
   });
 
+  it('gives every video a description: its own, or one written from the score', () => {
+    const seo = buildScoreSeo({
+      score,
+      slug: 'any-slug',
+      videos: [{ videoId: 'a', title: 'With text', description: 'A slow tutorial' }, { videoId: 'b', title: 'Empty', description: '  ' }]
+    });
+    const [, own, written] = seo.structuredData as any[];
+
+    expect(own.description).toBe('A slow tutorial');
+    expect(written.description).toContain(score.title as string);
+    expect(written.description).toContain('PianoML');
+  });
+
   it('keeps a missing score out of the index', () => {
     expect(buildScoreSeo({ score: null, slug: 'any-slug' }).noindex).toBe(true);
   });
