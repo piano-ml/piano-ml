@@ -83,6 +83,11 @@ export class LayoutComponent implements OnDestroy {
     }
   }
 
+  /** The admin nav entry (issue #410); the backend still refuses non-admins. */
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
   logout() {
     this.authService.logout();
   }

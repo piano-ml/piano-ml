@@ -11,7 +11,7 @@ describe('LayoutComponent', () => {
   let component: LayoutComponent;
   let el: HTMLElement;
   let loggedIn: BehaviorSubject<boolean>;
-  let auth: { isLoggedIn: BehaviorSubject<boolean>; getUserInfo: ReturnType<typeof vi.fn>; logout: ReturnType<typeof vi.fn> };
+  let auth: { isLoggedIn: BehaviorSubject<boolean>; getUserInfo: ReturnType<typeof vi.fn>; logout: ReturnType<typeof vi.fn>; isAdmin: ReturnType<typeof vi.fn> };
 
   function render() {
     fixture = TestBed.createComponent(LayoutComponent);
@@ -23,7 +23,7 @@ describe('LayoutComponent', () => {
   beforeEach(async () => {
     localStorage.removeItem('username');
     loggedIn = new BehaviorSubject(false);
-    auth = { isLoggedIn: loggedIn, getUserInfo: vi.fn(() => of({ name: 'Alice' })), logout: vi.fn() };
+    auth = { isLoggedIn: loggedIn, getUserInfo: vi.fn(() => of({ name: 'Alice' })), logout: vi.fn(), isAdmin: vi.fn(() => false) };
     await TestBed.configureTestingModule({
       imports: [LayoutComponent],
       providers: [...provideTesting(), { provide: AuthService, useValue: auth }],
@@ -49,6 +49,22 @@ describe('LayoutComponent', () => {
     expect(el.querySelector('a.user-link')?.textContent?.trim()).toBe('Alice');
     expect(el.querySelector('a.login-btn')).toBeNull();
     expect(localStorage.getItem('username')).toBe('Alice');
+  });
+
+  it('shows the error reports entry to admins only', () => {
+    loggedIn.next(true);
+    render();
+    expect(el.querySelector('[data-admin-errors]')).toBeNull();
+
+    auth.isAdmin.mockReturnValue(true);
+    fixture.detectChanges();
+    expect(el.querySelector('[data-admin-errors]')?.getAttribute('href')).toBe('/admin/errors');
+  });
+
+  it('hides the error reports entry when logged out, even with a stale admin role', () => {
+    auth.isAdmin.mockReturnValue(true);
+    render();
+    expect(el.querySelector('[data-admin-errors]')).toBeNull();
   });
 
   it('logout() logs out', () => {

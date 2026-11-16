@@ -506,6 +506,262 @@
         <source>Delete all sessions</source>
         <target state="translated">모든 기록 삭제</target>
       </trans-unit>
+      <trans-unit id="admin.route.errors" datatype="html">
+        <source>Error reports</source>
+        <target state="translated">오류 보고서</target>
+      </trans-unit>
+      <trans-unit id="admin.route.errorReport" datatype="html">
+        <source>Report</source>
+        <target state="translated">보고서</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">취소</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.back" datatype="html">
+        <source>← Error reports</source>
+        <target state="translated">← 오류 보고서</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.denied" datatype="html">
+        <source>Access denied: error reports are for administrators only.</source>
+        <target state="translated">접근 거부: 오류 보고서는 관리자 전용입니다.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.notFound" datatype="html">
+        <source>This report does not exist, or it has been deleted.</source>
+        <target state="translated">이 보고서는 없거나 삭제되었습니다.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.detailFailed" datatype="html">
+        <source>The report could not be loaded.</source>
+        <target state="translated">보고서를 불러오지 못했습니다.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">다시 시도</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.loading" datatype="html">
+        <source>Loading…</source>
+        <target state="translated">불러오는 중…</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.source.backend" datatype="html">
+        <source>Backend</source>
+        <target state="translated">백엔드</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.source.frontend" datatype="html">
+        <source>Browser</source>
+        <target state="translated">브라우저</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.level.warning" datatype="html">
+        <source>Warning</source>
+        <target state="translated">경고</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.level.error" datatype="html">
+        <source>Error</source>
+        <target state="translated">오류</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.occurrences.label" datatype="html">
+        <source>Occurrences</source>
+        <target state="translated">발생 내역</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.occurrences" datatype="html">
+        <source>Occurrences</source>
+        <target state="translated">발생 횟수</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.firstSeen" datatype="html">
+        <source>First seen</source>
+        <target state="translated">최초 발생</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.lastSeen" datatype="html">
+        <source>Last seen</source>
+        <target state="translated">최근 발생</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.showOccurrences" datatype="html">
+        <source>Show the occurrences</source>
+        <target state="translated">발생 내역 보기</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.url" datatype="html">
+        <source>URL</source>
+        <target state="translated">URL</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.request" datatype="html">
+        <source>Request</source>
+        <target state="translated">요청</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.userAgent" datatype="html">
+        <source>User agent</source>
+        <target state="translated">사용자 에이전트</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.release" datatype="html">
+        <source>Release</source>
+        <target state="translated">릴리스</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.user" datatype="html">
+        <source>User</source>
+        <target state="translated">사용자</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.fingerprint" datatype="html">
+        <source>Fingerprint</source>
+        <target state="translated">지문</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.stackTrace" datatype="html">
+        <source>Stack trace</source>
+        <target state="translated">스택 추적</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.copied" datatype="html">
+        <source>Copied</source>
+        <target state="translated">복사됨</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.copy" datatype="html">
+        <source>Copy</source>
+        <target state="translated">복사</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.context" datatype="html">
+        <source>Context</source>
+        <target state="translated">컨텍스트</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.deleteOne" datatype="html">
+        <source>Delete this report</source>
+        <target state="translated">이 보고서 삭제</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.resolveAll" datatype="html">
+        <source>Resolve: delete all occurrences</source>
+        <target state="translated">해결: 모든 발생 내역 삭제</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupTitle" datatype="html">
+        <source>Resolve this error?</source>
+        <target state="translated">이 오류를 해결 처리할까요?</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneTitle" datatype="html">
+        <source>Delete this report?</source>
+        <target state="translated">이 보고서를 삭제할까요?</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupBody" datatype="html">
+        <source>All <x id="count" equiv-text="this.report()?.count ?? 1"/> occurrences of this error will be deleted. Do it once the bug is fixed.</source>
+        <target state="translated">이 오류의 발생 내역 <x id="count" equiv-text="this.report()?.count ?? 1"/>건이 모두 삭제됩니다. 버그를 수정한 뒤에 진행하세요.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneBody" datatype="html">
+        <source>This occurrence will be deleted. Other occurrences of the same error are kept.</source>
+        <target state="translated">이 발생 내역이 삭제됩니다. 같은 오류의 다른 발생 내역은 유지됩니다.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupConfirm" datatype="html">
+        <source>Delete all</source>
+        <target state="translated">모두 삭제</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneConfirm" datatype="html">
+        <source>Delete</source>
+        <target state="translated">삭제</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.title" datatype="html">
+        <source>Error reports</source>
+        <target state="translated">오류 보고서</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.subtitle" datatype="html">
+        <source>Errors of the backend and of visitors&apos; browsers. Reports are deleted automatically after 3 months.</source>
+        <target state="translated">백엔드와 방문자 브라우저의 오류입니다. 보고서는 3개월 후 자동으로 삭제됩니다.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.search" datatype="html">
+        <source>Message or URL</source>
+        <target state="translated">메시지 또는 URL</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.source" datatype="html">
+        <source>Source</source>
+        <target state="translated">출처</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.all" datatype="html">
+        <source>All</source>
+        <target state="translated">전체</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.level" datatype="html">
+        <source>Level</source>
+        <target state="translated">수준</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.from" datatype="html">
+        <source>From</source>
+        <target state="translated">시작</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.to" datatype="html">
+        <source>To</source>
+        <target state="translated">종료</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.apply" datatype="html">
+        <source>Search</source>
+        <target state="translated">검색</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.label" datatype="html">
+        <source>View</source>
+        <target state="translated">보기</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.grouped" datatype="html">
+        <source>Grouped by error</source>
+        <target state="translated">오류별 그룹</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.all" datatype="html">
+        <source>All occurrences</source>
+        <target state="translated">모든 발생 내역</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.oneError" datatype="html">
+        <source>Occurrences of one error</source>
+        <target state="translated">한 오류의 발생 내역</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.showAll" datatype="html">
+        <source>Show all errors</source>
+        <target state="translated">모든 오류 보기</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.clear" datatype="html">
+        <source>Clear filters</source>
+        <target state="translated">필터 지우기</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.failed" datatype="html">
+        <source>The error reports could not be loaded.</source>
+        <target state="translated">오류 보고서를 불러오지 못했습니다.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.empty" datatype="html">
+        <source>No error reports match these filters.</source>
+        <target state="translated">이 필터에 맞는 오류 보고서가 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.time" datatype="html">
+        <source>Time</source>
+        <target state="translated">시간</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.source" datatype="html">
+        <source>Source</source>
+        <target state="translated">출처</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.level" datatype="html">
+        <source>Level</source>
+        <target state="translated">수준</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.message" datatype="html">
+        <source>Message</source>
+        <target state="translated">메시지</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.count" datatype="html">
+        <source>Count</source>
+        <target state="translated">횟수</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">작업</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.resolve" datatype="html">
+        <source>Resolve</source>
+        <target state="translated">해결</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">삭제</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.shown" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ shown().first }}"/>–<x id="INTERPOLATION_1" equiv-text="{{ shown().last }}"/> of <x id="INTERPOLATION_2" equiv-text="{{ shown().total }}"/></source>
+        <target state="translated"><x id="INTERPOLATION_2" equiv-text="{{ shown().total }}"/>개 중 <x id="INTERPOLATION" equiv-text="{{ shown().first }}"/>–<x id="INTERPOLATION_1" equiv-text="{{ shown().last }}"/></target>
+      </trans-unit>
+      <trans-unit id="adminErrors.previous" datatype="html">
+        <source>Previous</source>
+        <target state="translated">이전</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.next" datatype="html">
+        <source>Next</source>
+        <target state="translated">다음</target>
+      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">페이지 오류</target>
@@ -2670,6 +2926,14 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>Go to your account page</source>
         <target state="translated">내 계정으로 이동</target>
       </trans-unit>
+      <trans-unit id="layout.adminErrors.title" datatype="html">
+        <source>Error reports (administrators)</source>
+        <target state="translated">오류 보고서 (관리자)</target>
+      </trans-unit>
+      <trans-unit id="layout.adminErrors" datatype="html">
+        <source>Errors</source>
+        <target state="translated">오류</target>
+      </trans-unit>
       <trans-unit id="layout.login.title" datatype="html">
         <source>Log in to your PianoML account</source>
         <target state="translated">PianoML 계정에 로그인</target>
@@ -2881,6 +3145,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="route.summary" datatype="html">
         <source>Summary</source>
         <target state="translated">소개</target>
+      </trans-unit>
+      <trans-unit id="route.admin" datatype="html">
+        <source>Admin</source>
+        <target state="translated">관리</target>
       </trans-unit>
       <trans-unit id="route.notFound" datatype="html">
         <source>Not found</source>

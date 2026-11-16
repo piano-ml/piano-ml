@@ -506,6 +506,262 @@
         <source>Delete all sessions</source>
         <target state="translated">Usuń wszystkie sesje</target>
       </trans-unit>
+      <trans-unit id="admin.route.errors" datatype="html">
+        <source>Error reports</source>
+        <target state="translated">Raporty błędów</target>
+      </trans-unit>
+      <trans-unit id="admin.route.errorReport" datatype="html">
+        <source>Report</source>
+        <target state="translated">Raport</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Anuluj</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.back" datatype="html">
+        <source>← Error reports</source>
+        <target state="translated">← Raporty błędów</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.denied" datatype="html">
+        <source>Access denied: error reports are for administrators only.</source>
+        <target state="translated">Odmowa dostępu: raporty błędów są tylko dla administratorów.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.notFound" datatype="html">
+        <source>This report does not exist, or it has been deleted.</source>
+        <target state="translated">Ten raport nie istnieje lub został usunięty.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.detailFailed" datatype="html">
+        <source>The report could not be loaded.</source>
+        <target state="translated">Nie udało się wczytać raportu.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Spróbuj ponownie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.loading" datatype="html">
+        <source>Loading…</source>
+        <target state="translated">Wczytywanie…</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.source.backend" datatype="html">
+        <source>Backend</source>
+        <target state="translated">Backend</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.source.frontend" datatype="html">
+        <source>Browser</source>
+        <target state="translated">Przeglądarka</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.level.warning" datatype="html">
+        <source>Warning</source>
+        <target state="translated">Ostrzeżenie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.level.error" datatype="html">
+        <source>Error</source>
+        <target state="translated">Błąd</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.occurrences.label" datatype="html">
+        <source>Occurrences</source>
+        <target state="translated">Wystąpienia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.occurrences" datatype="html">
+        <source>Occurrences</source>
+        <target state="translated">Wystąpienia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.firstSeen" datatype="html">
+        <source>First seen</source>
+        <target state="translated">Pierwsze wystąpienie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.lastSeen" datatype="html">
+        <source>Last seen</source>
+        <target state="translated">Ostatnie wystąpienie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.showOccurrences" datatype="html">
+        <source>Show the occurrences</source>
+        <target state="translated">Pokaż wystąpienia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.url" datatype="html">
+        <source>URL</source>
+        <target state="translated">URL</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.request" datatype="html">
+        <source>Request</source>
+        <target state="translated">Żądanie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.userAgent" datatype="html">
+        <source>User agent</source>
+        <target state="translated">User agent</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.release" datatype="html">
+        <source>Release</source>
+        <target state="translated">Wersja</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.user" datatype="html">
+        <source>User</source>
+        <target state="translated">Użytkownik</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.fingerprint" datatype="html">
+        <source>Fingerprint</source>
+        <target state="translated">Odcisk</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.stackTrace" datatype="html">
+        <source>Stack trace</source>
+        <target state="translated">Stos wywołań</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.copied" datatype="html">
+        <source>Copied</source>
+        <target state="translated">Skopiowano</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.copy" datatype="html">
+        <source>Copy</source>
+        <target state="translated">Kopiuj</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.context" datatype="html">
+        <source>Context</source>
+        <target state="translated">Kontekst</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.deleteOne" datatype="html">
+        <source>Delete this report</source>
+        <target state="translated">Usuń ten raport</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.resolveAll" datatype="html">
+        <source>Resolve: delete all occurrences</source>
+        <target state="translated">Rozwiąż: usuń wszystkie wystąpienia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupTitle" datatype="html">
+        <source>Resolve this error?</source>
+        <target state="translated">Rozwiązać ten błąd?</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneTitle" datatype="html">
+        <source>Delete this report?</source>
+        <target state="translated">Usunąć ten raport?</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupBody" datatype="html">
+        <source>All <x id="count" equiv-text="this.report()?.count ?? 1"/> occurrences of this error will be deleted. Do it once the bug is fixed.</source>
+        <target state="translated">Wszystkie wystąpienia tego błędu (<x id="count" equiv-text="this.report()?.count ?? 1"/>) zostaną usunięte. Zrób to po naprawieniu błędu.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneBody" datatype="html">
+        <source>This occurrence will be deleted. Other occurrences of the same error are kept.</source>
+        <target state="translated">To wystąpienie zostanie usunięte. Pozostałe wystąpienia tego samego błędu zostaną zachowane.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupConfirm" datatype="html">
+        <source>Delete all</source>
+        <target state="translated">Usuń wszystko</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneConfirm" datatype="html">
+        <source>Delete</source>
+        <target state="translated">Usuń</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.title" datatype="html">
+        <source>Error reports</source>
+        <target state="translated">Raporty błędów</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.subtitle" datatype="html">
+        <source>Errors of the backend and of visitors&apos; browsers. Reports are deleted automatically after 3 months.</source>
+        <target state="translated">Błędy backendu i przeglądarek odwiedzających. Raporty są automatycznie usuwane po 3 miesiącach.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.search" datatype="html">
+        <source>Message or URL</source>
+        <target state="translated">Komunikat lub URL</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.source" datatype="html">
+        <source>Source</source>
+        <target state="translated">Źródło</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.all" datatype="html">
+        <source>All</source>
+        <target state="translated">Wszystkie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.level" datatype="html">
+        <source>Level</source>
+        <target state="translated">Poziom</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.from" datatype="html">
+        <source>From</source>
+        <target state="translated">Od</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.to" datatype="html">
+        <source>To</source>
+        <target state="translated">Do</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.apply" datatype="html">
+        <source>Search</source>
+        <target state="translated">Szukaj</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.label" datatype="html">
+        <source>View</source>
+        <target state="translated">Widok</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.grouped" datatype="html">
+        <source>Grouped by error</source>
+        <target state="translated">Pogrupowane według błędu</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.all" datatype="html">
+        <source>All occurrences</source>
+        <target state="translated">Wszystkie wystąpienia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.oneError" datatype="html">
+        <source>Occurrences of one error</source>
+        <target state="translated">Wystąpienia jednego błędu</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.showAll" datatype="html">
+        <source>Show all errors</source>
+        <target state="translated">Pokaż wszystkie błędy</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.clear" datatype="html">
+        <source>Clear filters</source>
+        <target state="translated">Wyczyść filtry</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.failed" datatype="html">
+        <source>The error reports could not be loaded.</source>
+        <target state="translated">Nie udało się wczytać raportów błędów.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.empty" datatype="html">
+        <source>No error reports match these filters.</source>
+        <target state="translated">Brak raportów błędów pasujących do tych filtrów.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.time" datatype="html">
+        <source>Time</source>
+        <target state="translated">Czas</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.source" datatype="html">
+        <source>Source</source>
+        <target state="translated">Źródło</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.level" datatype="html">
+        <source>Level</source>
+        <target state="translated">Poziom</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.message" datatype="html">
+        <source>Message</source>
+        <target state="translated">Komunikat</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.count" datatype="html">
+        <source>Count</source>
+        <target state="translated">Liczba</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Działania</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.resolve" datatype="html">
+        <source>Resolve</source>
+        <target state="translated">Rozwiąż</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">Usuń</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.shown" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ shown().first }}"/>–<x id="INTERPOLATION_1" equiv-text="{{ shown().last }}"/> of <x id="INTERPOLATION_2" equiv-text="{{ shown().total }}"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ shown().first }}"/>–<x id="INTERPOLATION_1" equiv-text="{{ shown().last }}"/> z <x id="INTERPOLATION_2" equiv-text="{{ shown().total }}"/></target>
+      </trans-unit>
+      <trans-unit id="adminErrors.previous" datatype="html">
+        <source>Previous</source>
+        <target state="translated">Poprzednia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.next" datatype="html">
+        <source>Next</source>
+        <target state="translated">Następna</target>
+      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Błąd strony</target>
@@ -2670,6 +2926,14 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source>Go to your account page</source>
         <target state="translated">Przejdź do swojego konta</target>
       </trans-unit>
+      <trans-unit id="layout.adminErrors.title" datatype="html">
+        <source>Error reports (administrators)</source>
+        <target state="translated">Raporty błędów (administratorzy)</target>
+      </trans-unit>
+      <trans-unit id="layout.adminErrors" datatype="html">
+        <source>Errors</source>
+        <target state="translated">Błędy</target>
+      </trans-unit>
       <trans-unit id="layout.login.title" datatype="html">
         <source>Log in to your PianoML account</source>
         <target state="translated">Zaloguj się do konta PianoML</target>
@@ -2881,6 +3145,10 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
       <trans-unit id="route.summary" datatype="html">
         <source>Summary</source>
         <target state="translated">Przegląd</target>
+      </trans-unit>
+      <trans-unit id="route.admin" datatype="html">
+        <source>Admin</source>
+        <target state="translated">Administracja</target>
       </trans-unit>
       <trans-unit id="route.notFound" datatype="html">
         <source>Not found</source>
