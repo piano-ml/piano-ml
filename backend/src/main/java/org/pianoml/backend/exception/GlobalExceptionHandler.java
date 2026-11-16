@@ -64,6 +64,31 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(makeFromException(ex), HttpStatus.BAD_REQUEST);
   }
 
+  /**
+   * 400 for a parameter outside the bounds the API declares (minimum/maximum: Spring validates them before the
+   * controller runs). Without it, {@link #handleAll} answered 500.
+   */
+  @ExceptionHandler({org.springframework.web.method.annotation.HandlerMethodValidationException.class,
+    jakarta.validation.ConstraintViolationException.class})
+  public ResponseEntity<org.pianoml.backend.model.ErrorApiInfo> handleMethodValidation(Exception ex) {
+    log.debug("Invalid parameter: {}", ex.getMessage());
+    return new ResponseEntity<>(makeFromException(ex), HttpStatus.BAD_REQUEST);
+  }
+
+  /** 409: a stale playlist reorder, or deleting the Favorites playlist. */
+  @ExceptionHandler(PlaylistConflictException.class)
+  public ResponseEntity<org.pianoml.backend.model.ErrorApiInfo> handlePlaylistConflict(Exception ex) {
+    log.debug("Playlist conflict: {}", ex.getMessage());
+    return new ResponseEntity<>(makeFromException(ex), HttpStatus.CONFLICT);
+  }
+
+  /** 422: too many playlists, or a full playlist. */
+  @ExceptionHandler(PlaylistLimitException.class)
+  public ResponseEntity<org.pianoml.backend.model.ErrorApiInfo> handlePlaylistLimit(Exception ex) {
+    log.debug("Playlist limit: {}", ex.getMessage());
+    return new ResponseEntity<>(makeFromException(ex), HttpStatus.UNPROCESSABLE_CONTENT);
+  }
+
   private org.pianoml.backend.model.ErrorApiInfo makeFromException(Exception ex) {
     org.pianoml.backend.model.ErrorApiInfo errorApiInfo = new org.pianoml.backend.model.ErrorApiInfo();
     ErrorApiInfoError errorApiInfoError = new ErrorApiInfoError();

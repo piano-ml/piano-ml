@@ -15,9 +15,11 @@ import { LanguageSwitcherComponent } from '../language-switcher/language-switche
 
 import versionInfo from '../../../../assets/version.json';
 
+import { ToastHostComponent } from '../toast-host/toast-host.component';
+
 @Component({
   selector: 'app-layout',
-  imports: [RouterModule, CommonModule, NgIcon, LanguageSwitcherComponent],
+  imports: [RouterModule, CommonModule, NgIcon, LanguageSwitcherComponent, ToastHostComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
     changeDetection: ChangeDetectionStrategy.Eager,

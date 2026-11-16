@@ -14,6 +14,7 @@ import { VideoPlayerModalComponent } from './components/video-player-modal/video
 import { ScoreDownloadType, downloadErrorMessage, downloadFilename } from './score-download';
 import { finalize } from 'rxjs';
 import { localizedPath } from '../../../shared/i18n';
+import { FavoriteButtonComponent } from '../../../shared/components/favorite-button/favorite-button.component';
 
 const DOWNLOAD_LABELS: Record<ScoreDownloadType, string> = {
   pdf: 'PDF',
@@ -25,7 +26,7 @@ const DOWNLOAD_LABELS: Record<ScoreDownloadType, string> = {
 @Component({
   selector: 'app-score-info',
   standalone: true,
-  imports: [CommonModule, NgIcon, ScoreBasicInfoComponent, ExercisesInKeyComponent, VideoCarouselComponent, VideoPlayerModalComponent],
+  imports: [CommonModule, NgIcon, FavoriteButtonComponent, ScoreBasicInfoComponent, ExercisesInKeyComponent, VideoCarouselComponent, VideoPlayerModalComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,

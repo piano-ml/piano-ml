@@ -1,0 +1,24 @@
+meta {
+  name: playlist create
+  type: http
+  seq: 28
+}
+
+post {
+  url: http://localhost:8080/account/playlist
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "title": "Recital 2027",
+    "description": "Pieces for the June recital"
+  }
+}

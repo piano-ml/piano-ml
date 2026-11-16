@@ -8,10 +8,11 @@
   <hr class="mx-4 sm:mx-6">
 
   <!-- ── Toolbar ─────────────────────────────────────── -->
-  <div class="flex items-center justify-between px-4 sm:px-6">
+  <div class="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6">
     <p class="text-xs text-neutral-400">{{ userInfo.email }}</p>
-    <div class="flex items-center gap-3">
+    <div class="flex flex-wrap items-center gap-3">
       <a routerLink="/account/scores" class="btn-primary" i18n="@@accountHome.myScores">My Scores</a>
+      <a routerLink="/account/playlists" class="btn-primary" data-testid="my-playlists" i18n="@@accountHome.myPlaylists">My Playlists</a>
       <button type="button" (click)="openDeleteConfirmation()" class="btn-danger" data-testid="delete-account" i18n="@@accountHome.deleteAccount">Delete account</button>
       <button (click)="logout()" class="btn-danger" i18n="@@accountHome.logout">Logout</button>
     </div>
