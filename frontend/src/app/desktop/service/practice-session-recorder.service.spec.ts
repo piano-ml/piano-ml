@@ -382,4 +382,52 @@ describe('PracticeSessionRecorder', () => {
       expect(Object.keys(JSON.parse(localStorage.getItem(OUTBOX_KEY) as string))).toEqual(['theirs']);
     });
   });
+
+  describe('for the coach (issue #414)', () => {
+    it('publishes the take that just ended, and forgets it when another item is loaded', () => {
+      setup();
+      recorder.setItem(SCORE, 8);
+      expect(recorder.lastTake()).toBeNull();
+      recorder.takeStarted(config({ scoreRange: [2, 5], tempoFactor: 0.8, waitForLeftHand: false }));
+      snapshot = counters(20, 15, 5, 2);
+      play(30);
+      recorder.takeEnded(true);
+      expect(recorder.lastTake()).toMatchObject({
+        measureStart: 3, measureEnd: 5, completed: true, hands: 'right', tempoFactor: 0.8,
+        notesExpected: 20, notesHit: 15, notesWrong: 5, waits: 2,
+      });
+      sent();
+
+      recorder.setItem(EXERCISE, 4);
+      expect(recorder.lastTake()).toBeNull();
+    });
+
+    it('gives the session in progress: totals, takes and weakest measures, without sending anything', () => {
+      setup();
+      expect(recorder.currentSessionSnapshot()).toBeNull();
+      recorder.setItem(SCORE, 8);
+      recorder.takeStarted(config());
+      snapshot = {
+        expected: 30, hit: 24, wrong: 2, onsets: 30, waits: 3,
+        measures: [
+          { measure: 1, expected: 10, hit: 10, wrong: 0, onsets: 10, waits: 0 },
+          { measure: 2, expected: 20, hit: 14, wrong: 2, onsets: 20, waits: 3 },
+          { measure: 3, expected: 0, hit: 0, wrong: 0, onsets: 0, waits: 0 },
+        ],
+      };
+      play(30);
+      recorder.takeEnded(false);
+      sent();
+
+      const current = recorder.currentSessionSnapshot();
+      expect(current?.item).toEqual({ kind: 'score', scoreId: 's1', title: 'Prelude' });
+      expect(current?.takeCount).toBe(1);
+      expect(current?.activeSeconds).toBe(30);
+      expect(current?.totals.accuracy).toBeCloseTo(24 / 32);
+      expect(current?.takes).toHaveLength(1);
+      expect(current?.takes[0].accuracy).toBeCloseTo(24 / 32);
+      expect(current?.weakMeasures.map(m => m.measure)).toEqual([2, 1]);
+      expect(sent()).toHaveLength(0);
+    });
+  });
 });

@@ -1,4 +1,4 @@
-import { Injectable, Injector, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, Injector, OnDestroy, PLATFORM_ID, inject, signal } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PracticeMeasure, PracticeService, PracticeSessionApiInfo, PracticeTake } from '../../core/api';
@@ -6,6 +6,7 @@ import { SessionStorageService } from '../../account/services/session-storage.se
 import { XSRF_API_BASE, XSRF_COOKIE_NAME, XSRF_HEADER_NAME, readCookie } from '../../account/interceptors/xsrf.interceptor';
 import type { PlayConfiguration } from '../model/model';
 import { AssessCounters, AssessSnapshot, PlayerAssessService } from './player-assess.service';
+import type { CurrentSession } from './player-control.service';
 
 /** What is on the music stand: a library score, or an exercise identified by its stable keys. */
 export type PracticeItem =
@@ -114,6 +115,12 @@ export class PracticeSessionRecorder implements OnDestroy {
   private take: OpenTake | null = null;
   private checkpointTimer?: ReturnType<typeof setInterval>;
 
+  /**
+   * The take that just ended, as sent to the server; null after another item is loaded. Read by the coach's
+   * remote control (issue #414) for immediate feedback.
+   */
+  readonly lastTake = signal<PracticeTake | null>(null);
+
   private readonly onVisibilityChange = () => {
     if (this.document.visibilityState === 'hidden') {
       this.flush('checkpoint', true);
@@ -133,6 +140,7 @@ export class PracticeSessionRecorder implements OnDestroy {
   /** The score or exercise now loaded in the workbench; ends the session on the previous one. */
   setItem(item: PracticeItem | null, measureTotal?: number): void {
     this.endSession('left');
+    this.lastTake.set(null);
     this.item = item;
     this.measureTotal = measureTotal;
   }
@@ -223,9 +231,11 @@ export class PracticeSessionRecorder implements OnDestroy {
       session.completedCount += 1;
     }
     this.mergeTake(session, take, snapshot);
+    const apiTake = this.toApiTake(take, take.activeMs, snapshot, completed);
     if (session.takes.length < MAX_TAKES) {
-      session.takes.push(this.toApiTake(take, take.activeMs, snapshot, completed));
+      session.takes.push(apiTake);
     }
+    this.lastTake.set(apiTake);
     this.flush(completed ? 'ended' : 'stopped');
   }
 
@@ -274,6 +284,54 @@ export class PracticeSessionRecorder implements OnDestroy {
         this.send(id, entry.session, false);
       }
     }
+  }
+
+  /**
+   * The session in progress, closed takes only, as plain data (coach, issue #414): totals, the 10 latest takes
+   * and the 10 measures with the lowest accuracy. Null when no session is open. Nothing is sent or changed.
+   */
+  currentSessionSnapshot(): CurrentSession | null {
+    const session = this.session;
+    if (!session) {
+      return null;
+    }
+    const ratio = (c: AssessCounters) => ({
+      ...toApiCounters(c),
+      accuracy: c.expected > 0 ? c.hit / (c.expected + c.wrong) : null,
+      flow: c.onsets > 0 ? 1 - c.waits / c.onsets : null,
+    });
+    const item = session.item;
+    return {
+      item: item.kind === 'score'
+        ? { kind: 'score', scoreId: item.scoreId, title: item.title }
+        : { kind: 'exercise', exerciseType: item.exerciseType, patternKey: item.patternKey, exerciseKey: item.exerciseKey, tonic: item.tonic, mode: item.mode, title: item.title },
+      startedAt: new Date(session.startedAt).toISOString(),
+      activeSeconds: Math.round(session.activeMs / 1000),
+      takeCount: session.takeCount,
+      completedCount: session.completedCount,
+      totals: ratio(session.totals),
+      takes: session.takes.slice(-10).map(t => ({
+        startedAt: t.startedAt ?? '',
+        activeSeconds: t.activeSeconds ?? 0,
+        measureStart: t.measureStart ?? 0,
+        measureEnd: t.measureEnd ?? 0,
+        completed: !!t.completed,
+        tempoFactor: t.tempoFactor ?? 1,
+        hands: t.hands ?? 'listen',
+        notesExpected: t.notesExpected ?? 0,
+        notesHit: t.notesHit ?? 0,
+        notesWrong: t.notesWrong ?? 0,
+        onsets: t.onsets ?? 0,
+        waits: t.waits ?? 0,
+        accuracy: (t.notesExpected ?? 0) > 0 ? (t.notesHit ?? 0) / ((t.notesExpected ?? 0) + (t.notesWrong ?? 0)) : null,
+        flow: (t.onsets ?? 0) > 0 ? 1 - (t.waits ?? 0) / (t.onsets ?? 0) : null,
+      })),
+      weakMeasures: [...session.measures.entries()]
+        .filter(([, c]) => c.expected > 0)
+        .map(([measure, c]) => ({ measure, ...ratio(c) }))
+        .sort((a, b) => (a.accuracy ?? 1) - (b.accuracy ?? 1))
+        .slice(0, 10),
+    };
   }
 
   ngOnDestroy(): void {
