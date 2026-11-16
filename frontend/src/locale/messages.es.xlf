@@ -2698,6 +2698,10 @@ Uso: sobre acordes menores y contextos de blues menor (centros i7 / i) cuando qu
         <source>Free to download and public domain.</source>
         <target state="translated">Descarga gratuita, de dominio público.</target>
       </trans-unit>
+      <trans-unit id="seo.score.videoDescription" datatype="html">
+        <source>Piano video of <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/>, to watch before practicing it on PianoML.</source>
+        <target state="translated">Vídeo de piano de <x id="title" equiv-text="title"/> de <x id="artist" equiv-text="author"/>, para ver antes de practicarlo en PianoML.</target>
+      </trans-unit>
       <trans-unit id="reimport.titleNamed" datatype="html">
         <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
         <target state="translated">Reimportar <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></target>

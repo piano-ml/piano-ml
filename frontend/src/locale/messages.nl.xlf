@@ -2698,6 +2698,10 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
         <source>Free to download and public domain.</source>
         <target state="translated">Gratis te downloaden en publiek domein.</target>
       </trans-unit>
+      <trans-unit id="seo.score.videoDescription" datatype="html">
+        <source>Piano video of <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/>, to watch before practicing it on PianoML.</source>
+        <target state="translated">Pianovideo van <x id="title" equiv-text="title"/> van <x id="artist" equiv-text="author"/>, om te bekijken voordat je het op PianoML oefent.</target>
+      </trans-unit>
       <trans-unit id="reimport.titleNamed" datatype="html">
         <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/> opnieuw importeren</target>

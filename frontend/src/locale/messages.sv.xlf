@@ -2698,6 +2698,10 @@ Användning: över mollackord och mollbluessammanhang (i7- / i-centrum) när du 
         <source>Free to download and public domain.</source>
         <target state="translated">Gratis att ladda ned, allmän egendom.</target>
       </trans-unit>
+      <trans-unit id="seo.score.videoDescription" datatype="html">
+        <source>Piano video of <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/>, to watch before practicing it on PianoML.</source>
+        <target state="translated">Pianovideo av <x id="title" equiv-text="title"/> av <x id="artist" equiv-text="author"/>, att se innan du övar på det i PianoML.</target>
+      </trans-unit>
       <trans-unit id="reimport.titleNamed" datatype="html">
         <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
         <target state="translated">Importera <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/> igen</target>

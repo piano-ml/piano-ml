@@ -2037,6 +2037,11 @@ components:
         channelTitle:
           type: string
           description: Name of the YouTube channel
+        channelId:
+          type: string
+          description: >
+            ID of the YouTube channel (its page is https://www.youtube.com/channel/<channelId>). Absent for videos
+            cached before it was stored.
         publishedAt:
           type: string
           format: date-time

@@ -65,6 +65,34 @@ describe('buildScoreSeo', () => {
     expect(entries[1].embedUrl).toBe('https://www.youtube.com/embed/abc123');
   });
 
+  it('gives the video creator the url of its YouTube channel, and leaves it out without one', () => {
+    const seo = buildScoreSeo({
+      score,
+      slug: 'any-slug',
+      videos: [
+        { videoId: 'a', title: 'With channel', channelTitle: 'Piano Channel', channelId: 'UC123' },
+        { videoId: 'b', title: 'Cached before channel ids', channelTitle: 'Old Channel' }
+      ]
+    });
+    const [, withChannel, withoutId] = seo.structuredData as any[];
+
+    expect(withChannel.creator).toEqual({ '@type': 'Person', name: 'Piano Channel', url: 'https://www.youtube.com/channel/UC123' });
+    expect(withoutId.creator).toBeUndefined();
+  });
+
+  it('gives every video a description: its own, or one written from the score', () => {
+    const seo = buildScoreSeo({
+      score,
+      slug: 'any-slug',
+      videos: [{ videoId: 'a', title: 'With text', description: 'A slow tutorial' }, { videoId: 'b', title: 'Empty', description: '  ' }]
+    });
+    const [, own, written] = seo.structuredData as any[];
+
+    expect(own.description).toBe('A slow tutorial');
+    expect(written.description).toContain(score.title as string);
+    expect(written.description).toContain('PianoML');
+  });
+
   it('keeps a missing score out of the index', () => {
     expect(buildScoreSeo({ score: null, slug: 'any-slug' }).noindex).toBe(true);
   });
