@@ -65,6 +65,21 @@ describe('buildScoreSeo', () => {
     expect(entries[1].embedUrl).toBe('https://www.youtube.com/embed/abc123');
   });
 
+  it('gives the video creator the url of its YouTube channel, and leaves it out without one', () => {
+    const seo = buildScoreSeo({
+      score,
+      slug: 'any-slug',
+      videos: [
+        { videoId: 'a', title: 'With channel', channelTitle: 'Piano Channel', channelId: 'UC123' },
+        { videoId: 'b', title: 'Cached before channel ids', channelTitle: 'Old Channel' }
+      ]
+    });
+    const [, withChannel, withoutId] = seo.structuredData as any[];
+
+    expect(withChannel.creator).toEqual({ '@type': 'Person', name: 'Piano Channel', url: 'https://www.youtube.com/channel/UC123' });
+    expect(withoutId.creator).toBeUndefined();
+  });
+
   it('keeps a missing score out of the index', () => {
     expect(buildScoreSeo({ score: null, slug: 'any-slug' }).noindex).toBe(true);
   });

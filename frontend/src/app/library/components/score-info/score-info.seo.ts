@@ -73,9 +73,24 @@ function videoStructuredData(video: YoutubeVideoApiInfo) {
     ...(video.description ? { description: video.description } : {}),
     ...(video.thumbnailUrl ? { thumbnailUrl: video.thumbnailUrl } : {}),
     ...(video.publishedAt ? { uploadDate: video.publishedAt } : {}),
-    ...(video.channelTitle ? { creator: { '@type': 'Person', name: video.channelTitle } } : {}),
+    ...creatorOf(video),
     embedUrl: `https://www.youtube.com/embed/${video.videoId}`,
     url: `https://www.youtube.com/watch?v=${video.videoId}`
+  };
+}
+
+/**
+ * The channel that published the video. Search Console wants a url on a creator, so it is left out when the
+ * channel id is unknown (videos cached before the API returned it).
+ */
+function creatorOf(video: YoutubeVideoApiInfo) {
+  if (!video.channelTitle || !video.channelId) return {};
+  return {
+    creator: {
+      '@type': 'Person',
+      name: video.channelTitle,
+      url: `https://www.youtube.com/channel/${encodeURIComponent(video.channelId)}`
+    }
   };
 }
 
