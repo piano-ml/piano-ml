@@ -65,7 +65,12 @@ The MCP Inspector (`npx @modelcontextprotocol/inspector`) can also connect: choo
 
 ## Tools available now
 
-`get_context`, `get_practice_summary`, `get_practice_calendar`, `list_practiced_items`, `get_item_progress`, `get_weak_spots`, `get_key_stats`, `get_practice_sessions`, `get_practice_session`. Library and player tools come in the next phases; the full list is in section 4 of the specification.
+- Context: `get_context`
+- Practice (`practice:read`): `get_practice_summary`, `get_practice_calendar`, `list_practiced_items`, `get_item_progress`, `get_weak_spots`, `get_key_stats`, `get_practice_sessions`, `get_practice_session`
+- Library (`scores:read`): `search_scores`, `get_score`, `get_score_harmony`, `get_score_videos`, `list_my_scores`, `list_composers`, `search_composers`, `get_composer`, `list_genres`, `list_keys`
+- Both: `recommend_scores`
+
+Player tools come in a later phase; the full list is in section 4 of the specification.
 
 Every result is a JSON text: `{"ok": true, "data": ...}` or `{"ok": false, "code": "...", "message": "..."}`.
 

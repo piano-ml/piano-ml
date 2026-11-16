@@ -3,6 +3,8 @@ package org.pianoml.backend.coach.tools;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.model.PracticeItemStats;
 import org.pianoml.backend.model.PracticeSessionApiInfo;
+import org.pianoml.backend.model.ScoreApiInfo;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.security.GrantPrincipal;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +55,48 @@ public class CoachRows {
 
   public static String iso(Temporal value) {
     return value == null ? null : value.toString();
+  }
+
+  /** The value of an optional API field, or null. */
+  public static <T> T present(JsonNullable<T> value) {
+    return value != null && value.isPresent() ? value.get() : null;
+  }
+
+  public static String slugOf(ScoreApiInfo score) {
+    return score.getImmutableSlug() != null ? score.getImmutableSlug() : score.getMutableSlug();
+  }
+
+  /** The compact score row of section 4.1. */
+  public Map<String, Object> scoreRow(ScoreApiInfo score) {
+    String slug = slugOf(score);
+    Map<String, Object> row = new LinkedHashMap<>();
+    row.put("id", score.getId());
+    row.put("slug", slug);
+    row.put("title", cut(score.getTitle(), TEXT_CAP));
+    row.put("author", cut(score.getAuthor(), TEXT_CAP));
+    row.put("authorSlug", score.getAuthorSlug());
+    row.put("grade", score.getGrade());
+    row.put("key", score.getFullKey() != null ? score.getFullKey()
+      : score.getTonic() != null && score.getMode() != null ? score.getTonic() + " " + score.getMode() : null);
+    row.put("tempo", score.getTempo());
+    row.put("measures", score.getMeasures());
+    row.put("durationSeconds", score.getDuration() == null ? null : Math.round(score.getDuration()));
+    row.put("genre", score.getGenre());
+    row.put("genreSlug", score.getGenreSlug());
+    row.put("handSeparated", score.getHandSeparated());
+    row.put("hasLyrics", score.getHasLyrics());
+    row.put("playCount", score.getPlayCount());
+    row.put("url", scoreUrl(slug));
+    row.put("practiceUrl", practiceUrl(slug));
+    return row;
+  }
+
+  public String composerUrl(String slug) {
+    return slug == null ? null : siteUrl + "/library/artists/" + slug;
+  }
+
+  public String genreUrl(String slug) {
+    return slug == null ? null : siteUrl + "/library/genres/" + slug;
   }
 
   /** One practiced score or exercise. */

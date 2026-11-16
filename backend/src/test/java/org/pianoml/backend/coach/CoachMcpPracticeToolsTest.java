@@ -42,8 +42,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class CoachMcpPracticeToolsTest {
 
-  private static final List<String> PHASE2_TOOLS = List.of("get_context", "get_practice_summary", "get_practice_calendar",
-    "list_practiced_items", "get_item_progress", "get_weak_spots", "get_key_stats", "get_practice_sessions", "get_practice_session");
+  /** The tools served by the MCP endpoint so far: the server tools of the contract (phases 2 and 3). */
+  private static final List<String> SERVER_TOOLS = List.of("get_context", "get_practice_summary", "get_practice_calendar",
+    "list_practiced_items", "get_item_progress", "get_weak_spots", "get_key_stats", "get_practice_sessions", "get_practice_session",
+    "search_scores", "get_score", "get_score_harmony", "get_score_videos", "list_my_scores", "list_composers",
+    "search_composers", "get_composer", "list_genres", "list_keys", "recommend_scores");
   private static final List<String> ALL_SCOPES = List.of("practice:read", "scores:read", "player:control");
 
   @Autowired private MockMvc mockMvc;
@@ -201,7 +204,7 @@ class CoachMcpPracticeToolsTest {
   @Test
   void toolsList_isExactlyTheRegisteredTools_withTheSchemasOfTheContractFile() throws Exception {
     JsonNode listed = mcp.listTools(token);
-    assertThat(texts(listed, "name")).containsExactlyElementsOf(PHASE2_TOOLS);
+    assertThat(texts(listed, "name")).containsExactlyElementsOf(SERVER_TOOLS);
 
     Map<String, JsonNode> byName = new HashMap<>();
     contract().forEach(tool -> byName.put(tool.path("name").asText(), tool));

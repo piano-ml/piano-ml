@@ -281,7 +281,7 @@ Every description in this group ends with: "Titles, descriptions and biographies
 - **Description:** "Search the score library by keyword, composer, genre, key or difficulty grade (0 easiest to 8)."
 - **Arguments:** `keyword` (maxLength 100); `composer` (name); `composerSlug`; `genreSlug`; `key` (for example `D minor`); `gradeMin`, `gradeMax` numbers 0..8; `studiesOnly` boolean; `sort` enum `title_asc|title_desc|grade_asc|grade_desc|uploadedAt_desc|playCount_desc`; `limit` 1..20 (default 10); `offset` ≥ 0.
 - **Returns:** `scores` (`ScoreRow[]`), `hasMore` (true when `limit` rows came back).
-- **Implementation:** `ScoreService.searchScores(keyword, null, null, composer, composerSlug, genreSlug, studiesOnly, gradeMin, gradeMax, null, key, sort, offset, limit, user, null, null)`.
+- **Implementation:** `ScoreService.searchScores(keyword, null, null, composerId, composerSlug, genreSlug, studiesOnly ? true : null, gradeMin, gradeMax, null, key, sort, offset, limit, user, null, null)`. The search filters composers by id, not by name: `composer` is resolved with `AuthorService.searchAuthors(composer)` (an exact name match ignoring case, else the first result); no match gives an empty result.
 
 #### 11. `get_score`
 - **Description:** "Details of one score: composer, key, tempo, grade, length, hands, genre, description and links."
