@@ -59,6 +59,10 @@ public class SecurityConfig {
         .ignoringRequestMatchers("/account/login", "/account/create")
         // Explicit bearer-token clients (scripts, tools): a cross-site page cannot set this header.
         .ignoringRequestMatchers(new RequestHeaderRequestMatcher("Authorization"))
+        // Browser error reports (issue #408): write-only, nothing readable comes back, and open to anonymous
+        // users anyway, so a forged request can do no more than any visitor. Exempt so that errors raised
+        // before the XSRF-TOKEN cookie exists, and navigator.sendBeacon (no custom header) on page exit, get through.
+        .ignoringRequestMatchers("/error-report")
       )
       .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
       .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -69,13 +73,17 @@ public class SecurityConfig {
         .accessDeniedHandler(new CsrfAwareAccessDeniedHandler())
       )
       .authorizeHttpRequests(authz -> authz
+        // Admin only, whatever the method: must come before the open GET rule below (issue #408).
+        .requestMatchers("/admin/**").hasRole("ADMIN")
         .requestMatchers(HttpMethod.GET, "/**").permitAll()
         .requestMatchers(HttpMethod.POST,
           "/account/login",
           "/account/create",
           // Clearing the cookie must work even when the JWT has already expired.
           "/account/logout",
-          "/score/play/stats"
+          "/score/play/stats",
+          // Browser error reports, rate-limited per IP (ErrorReportRateLimiter)
+          "/error-report"
         ).permitAll()
         .anyRequest().authenticated()
       );

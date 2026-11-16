@@ -1,0 +1,20 @@
+meta {
+  name: admin error_report delete fingerprint
+  type: http
+  seq: 35
+}
+
+delete {
+  url: http://localhost:8080/admin/error-report?fingerprint={{fingerprint}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+docs {
+  Admin only: 401 without a token, 403 for a non-admin. Returns the number deleted.
+}

@@ -5,6 +5,7 @@ api.module.ts
 api/account.service.ts
 api/api.ts
 api/author.service.ts
+api/errorReport.service.ts
 api/genre.service.ts
 api/genreTree.service.ts
 api/musicbrainz.service.ts
@@ -28,6 +29,13 @@ model/authorApiInfo.ts
 model/authorWithScoreCount.ts
 model/errorApiInfo.ts
 model/errorApiInfoError.ts
+model/errorReportCreate.ts
+model/errorReportDeleted.ts
+model/errorReportDetail.ts
+model/errorReportLevel.ts
+model/errorReportPage.ts
+model/errorReportSource.ts
+model/errorReportSummary.ts
 model/genreApiInfo.ts
 model/genreTreeNode.ts
 model/genreTreeUpdate.ts
