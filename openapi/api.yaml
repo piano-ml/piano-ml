@@ -1217,6 +1217,74 @@ paths:
         '404':
           description: Work not found
 
+  /account/grants:
+    get:
+      operationId: accountGrantsGet
+      tags:
+        - accountGrants
+      summary: The user's access grants for external tools (coach, issue #414), newest first
+      description: Never returns a token or its secret. Requires the cookie session.
+      responses:
+        '200':
+          description: Grants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CoachGrantApiInfo'
+        '401':
+          description: Not logged in
+    post:
+      operationId: accountGrantsPost
+      tags:
+        - accountGrants
+      summary: Create an access grant and its token
+      description: >
+        The token is returned once, in this response only; the server keeps a hash of its secret. At most 5
+        live (not revoked, not expired) grants per user, and 10 creations per hour.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoachGrantCreate'
+      responses:
+        '201':
+          description: Grant created, with its token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoachGrantCreated'
+        '400':
+          description: Invalid name, scopes or expiry
+        '401':
+          description: Not logged in
+        '409':
+          description: The user already has 5 live grants
+        '429':
+          description: Too many grants created in the last hour
+  /account/grants/{id}:
+    delete:
+      operationId: accountGrantsIdDelete
+      tags:
+        - accountGrants
+      summary: Revoke one of the user's grants
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Grant revoked (also when it was already revoked)
+        '401':
+          description: Not logged in
+        '404':
+          description: No such grant for this user
+
   /practice/session/{id}:
     put:
       operationId: practiceSessionPut
@@ -2179,3 +2247,72 @@ components:
             $ref: '#/components/schemas/PracticeItemStats'
         level:
           $ref: '#/components/schemas/PracticeLevel'
+    CoachGrantScope:
+      type: string
+      enum: [practice:read, scores:read, player:control]
+    CoachGrantApiInfo:
+      type: object
+      description: An access grant for an external tool. Never carries the token.
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        kind:
+          type: string
+          enum: [pat, oauth]
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoachGrantScope'
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        lastUsedAt:
+          type: string
+          format: date-time
+        revokedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - kind
+        - scopes
+        - createdAt
+        - expiresAt
+    CoachGrantCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+          description: Name of the tool, shown to the user when the tool acts
+        scopes:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CoachGrantScope'
+        expiresInDays:
+          type: integer
+          minimum: 1
+          maximum: 365
+          default: 90
+      required:
+        - name
+        - scopes
+    CoachGrantCreated:
+      allOf:
+        - $ref: '#/components/schemas/CoachGrantApiInfo'
+        - type: object
+          properties:
+            token:
+              type: string
+              description: The bearer token, pml_<grantId>_<secret>. Returned once; it cannot be read again.
+          required:
+            - token

@@ -1,5 +1,7 @@
 export * from './account.service';
 import { AccountService } from './account.service';
+export * from './accountGrants.service';
+import { AccountGrantsService } from './accountGrants.service';
 export * from './author.service';
 import { AuthorService } from './author.service';
 export * from './genre.service';
@@ -14,4 +16,4 @@ export * from './score.service';
 import { ScoreService } from './score.service';
 export * from './workload.service';
 import { WorkloadService } from './workload.service';
-export const APIS = [AccountService, AuthorService, GenreService, GenreTreeService, MusicbrainzService, PracticeService, ScoreService, WorkloadService];
+export const APIS = [AccountService, AccountGrantsService, AuthorService, GenreService, GenreTreeService, MusicbrainzService, PracticeService, ScoreService, WorkloadService];

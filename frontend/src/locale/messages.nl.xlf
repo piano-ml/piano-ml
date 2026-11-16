@@ -134,6 +134,146 @@
         <source>Failed to search authors</source>
         <target state="translated">Auteurs zoeken is mislukt</target>
       </trans-unit>
+      <trans-unit id="coach.grants.title" datatype="html">
+        <source>Access for external tools</source>
+        <target state="translated">Toegang voor externe tools</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.new" datatype="html">
+        <source>New access →</source>
+        <target state="translated">Nieuwe toegang →</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.notice" datatype="html">
+        <source>A tool using this access can read your practice history and the score library, and control the player in a tab where you turned on Remote coach. What it reads is sent to the AI provider used by that tool.</source>
+        <target state="translated">Een tool met deze toegang kan je oefengeschiedenis en de bladmuziekbibliotheek lezen, en de speler bedienen in een tabblad waarin je de coach op afstand hebt aangezet. Wat de tool leest, wordt naar de AI-aanbieder van die tool gestuurd.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.title" datatype="html">
+        <source>Your token</source>
+        <target state="translated">Je token</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.warning" datatype="html">
+        <source>Copy it now and paste it in your tool: it will not be shown again.</source>
+        <target state="translated">Kopieer het nu en plak het in je tool: het wordt niet nog eens getoond.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.label" datatype="html">
+        <source>Access token</source>
+        <target state="translated">Toegangstoken</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copied" datatype="html">
+        <source>Copied</source>
+        <target state="translated">Gekopieerd</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copy" datatype="html">
+        <source>Copy</source>
+        <target state="translated">Kopiëren</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copyFailed" datatype="html">
+        <source>Copy failed: select the token and copy it manually.</source>
+        <target state="translated">Kopiëren mislukt: selecteer het token en kopieer het handmatig.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.done" datatype="html">
+        <source>Done</source>
+        <target state="translated">Klaar</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.name" datatype="html">
+        <source>Name of the tool</source>
+        <target state="translated">Naam van de tool</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.name.placeholder" datatype="html">
+        <source>For example: assistant on my laptop</source>
+        <target state="translated">Bijvoorbeeld: assistent op mijn laptop</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scopes" datatype="html">
+        <source>What it can do</source>
+        <target state="translated">Wat de tool mag</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.expiry" datatype="html">
+        <source>Expires after</source>
+        <target state="translated">Verloopt na</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.days" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ days }}"/> days</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ days }}"/> dagen</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.create" datatype="html">
+        <source>Create</source>
+        <target state="translated">Aanmaken</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annuleren</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.empty" datatype="html">
+        <source>No access created yet.</source>
+        <target state="translated">Nog geen toegang aangemaakt.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.status.revoked" datatype="html">
+        <source>Revoked</source>
+        <target state="translated">Ingetrokken</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.status.expired" datatype="html">
+        <source>Expired</source>
+        <target state="translated">Verlopen</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.revoke.confirm" datatype="html">
+        <source>The tool will stop working at once.</source>
+        <target state="translated">De tool werkt meteen niet meer.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.revoke" datatype="html">
+        <source>Revoke</source>
+        <target state="translated">Intrekken</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.expires" datatype="html">
+        <source>Expires <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></source>
+        <target state="translated">Verloopt op <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></target>
+      </trans-unit>
+      <trans-unit id="coach.grants.lastUsed" datatype="html">
+        <source>Last used <x id="INTERPOLATION" equiv-text="{{ date(grant.lastUsedAt) }}"/></source>
+        <target state="translated">Laatst gebruikt op <x id="INTERPOLATION" equiv-text="{{ date(grant.lastUsedAt) }}"/></target>
+      </trans-unit>
+      <trans-unit id="coach.grants.neverUsed" datatype="html">
+        <source>Never used</source>
+        <target state="translated">Nooit gebruikt</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.practice" datatype="html">
+        <source>Practice history</source>
+        <target state="translated">Oefengeschiedenis</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.scores" datatype="html">
+        <source>Score library</source>
+        <target state="translated">Bladmuziekbibliotheek</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.player" datatype="html">
+        <source>Player</source>
+        <target state="translated">Speler</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.practice.hint" datatype="html">
+        <source>Read your sessions, accuracy, streaks and level.</source>
+        <target state="translated">Je sessies, nauwkeurigheid, reeksen en niveau lezen.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.scores.hint" datatype="html">
+        <source>Search and read the scores of the library.</source>
+        <target state="translated">De bladmuziek van de bibliotheek zoeken en lezen.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.player.hint" datatype="html">
+        <source>Open scores and start or stop the player in a tab where you turned on Remote coach.</source>
+        <target state="translated">Bladmuziek openen en de speler starten of stoppen in een tabblad waarin je de coach op afstand hebt aangezet.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.tooMany" datatype="html">
+        <source>You already have 5 active accesses. Revoke one first.</source>
+        <target state="translated">Je hebt al 5 actieve toegangen. Trek er eerst een in.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.rateLimited" datatype="html">
+        <source>Too many accesses created in the last hour. Try again later.</source>
+        <target state="translated">Te veel toegangen aangemaakt in het afgelopen uur. Probeer het later opnieuw.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.create" datatype="html">
+        <source>The access could not be created. Try again later.</source>
+        <target state="translated">De toegang kon niet worden aangemaakt. Probeer het later opnieuw.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.revoke" datatype="html">
+        <source>The access could not be revoked. Try again later.</source>
+        <target state="translated">De toegang kon niet worden ingetrokken. Probeer het later opnieuw.</target>
+      </trans-unit>
       <trans-unit id="createAccount.createAccount" datatype="html">
         <source>Create Account</source>
         <target state="translated">Account aanmaken</target>

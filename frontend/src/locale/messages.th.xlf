@@ -134,6 +134,146 @@
         <source>Failed to search authors</source>
         <target state="translated">ค้นหาผู้แต่งไม่สำเร็จ</target>
       </trans-unit>
+      <trans-unit id="coach.grants.title" datatype="html">
+        <source>Access for external tools</source>
+        <target state="translated">สิทธิ์เข้าถึงสำหรับเครื่องมือภายนอก</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.new" datatype="html">
+        <source>New access →</source>
+        <target state="translated">สิทธิ์เข้าถึงใหม่ →</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.notice" datatype="html">
+        <source>A tool using this access can read your practice history and the score library, and control the player in a tab where you turned on Remote coach. What it reads is sent to the AI provider used by that tool.</source>
+        <target state="translated">เครื่องมือที่มีสิทธิ์นี้สามารถอ่านประวัติการฝึกซ้อมและคลังโน้ตเพลงของคุณ และควบคุมเครื่องเล่นในแท็บที่คุณเปิดโค้ชทางไกลไว้ได้ สิ่งที่เครื่องมืออ่านจะถูกส่งไปยังผู้ให้บริการ AI ที่เครื่องมือนั้นใช้</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.title" datatype="html">
+        <source>Your token</source>
+        <target state="translated">โทเค็นของคุณ</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.warning" datatype="html">
+        <source>Copy it now and paste it in your tool: it will not be shown again.</source>
+        <target state="translated">คัดลอกตอนนี้แล้ววางลงในเครื่องมือของคุณ: จะไม่แสดงอีก</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.label" datatype="html">
+        <source>Access token</source>
+        <target state="translated">โทเค็นการเข้าถึง</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copied" datatype="html">
+        <source>Copied</source>
+        <target state="translated">คัดลอกแล้ว</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copy" datatype="html">
+        <source>Copy</source>
+        <target state="translated">คัดลอก</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copyFailed" datatype="html">
+        <source>Copy failed: select the token and copy it manually.</source>
+        <target state="translated">คัดลอกไม่สำเร็จ: เลือกโทเค็นแล้วคัดลอกด้วยตนเอง</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.done" datatype="html">
+        <source>Done</source>
+        <target state="translated">เสร็จสิ้น</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.name" datatype="html">
+        <source>Name of the tool</source>
+        <target state="translated">ชื่อเครื่องมือ</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.name.placeholder" datatype="html">
+        <source>For example: assistant on my laptop</source>
+        <target state="translated">ตัวอย่าง: ผู้ช่วยบนแล็ปท็อปของฉัน</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scopes" datatype="html">
+        <source>What it can do</source>
+        <target state="translated">สิ่งที่ทำได้</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.expiry" datatype="html">
+        <source>Expires after</source>
+        <target state="translated">หมดอายุหลังจาก</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.days" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ days }}"/> days</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ days }}"/> วัน</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.create" datatype="html">
+        <source>Create</source>
+        <target state="translated">สร้าง</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">ยกเลิก</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.empty" datatype="html">
+        <source>No access created yet.</source>
+        <target state="translated">ยังไม่มีสิทธิ์เข้าถึงที่สร้างไว้</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.status.revoked" datatype="html">
+        <source>Revoked</source>
+        <target state="translated">เพิกถอนแล้ว</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.status.expired" datatype="html">
+        <source>Expired</source>
+        <target state="translated">หมดอายุแล้ว</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.revoke.confirm" datatype="html">
+        <source>The tool will stop working at once.</source>
+        <target state="translated">เครื่องมือจะหยุดทำงานทันที</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.revoke" datatype="html">
+        <source>Revoke</source>
+        <target state="translated">เพิกถอน</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.expires" datatype="html">
+        <source>Expires <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></source>
+        <target state="translated">หมดอายุ <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></target>
+      </trans-unit>
+      <trans-unit id="coach.grants.lastUsed" datatype="html">
+        <source>Last used <x id="INTERPOLATION" equiv-text="{{ date(grant.lastUsedAt) }}"/></source>
+        <target state="translated">ใช้ล่าสุด <x id="INTERPOLATION" equiv-text="{{ date(grant.lastUsedAt) }}"/></target>
+      </trans-unit>
+      <trans-unit id="coach.grants.neverUsed" datatype="html">
+        <source>Never used</source>
+        <target state="translated">ไม่เคยใช้</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.practice" datatype="html">
+        <source>Practice history</source>
+        <target state="translated">ประวัติการฝึกซ้อม</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.scores" datatype="html">
+        <source>Score library</source>
+        <target state="translated">คลังโน้ตเพลง</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.player" datatype="html">
+        <source>Player</source>
+        <target state="translated">เครื่องเล่น</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.practice.hint" datatype="html">
+        <source>Read your sessions, accuracy, streaks and level.</source>
+        <target state="translated">อ่านเซสชัน ความแม่นยำ สถิติต่อเนื่อง และระดับของคุณ</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.scores.hint" datatype="html">
+        <source>Search and read the scores of the library.</source>
+        <target state="translated">ค้นหาและอ่านโน้ตเพลงในคลัง</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.player.hint" datatype="html">
+        <source>Open scores and start or stop the player in a tab where you turned on Remote coach.</source>
+        <target state="translated">เปิดโน้ตเพลงและเริ่มหรือหยุดเครื่องเล่นในแท็บที่คุณเปิดโค้ชทางไกลไว้</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.tooMany" datatype="html">
+        <source>You already have 5 active accesses. Revoke one first.</source>
+        <target state="translated">คุณมีสิทธิ์เข้าถึงที่ใช้งานอยู่ 5 รายการแล้ว เพิกถอนหนึ่งรายการก่อน</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.rateLimited" datatype="html">
+        <source>Too many accesses created in the last hour. Try again later.</source>
+        <target state="translated">สร้างสิทธิ์เข้าถึงมากเกินไปในชั่วโมงที่ผ่านมา โปรดลองอีกครั้งภายหลัง</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.create" datatype="html">
+        <source>The access could not be created. Try again later.</source>
+        <target state="translated">ไม่สามารถสร้างสิทธิ์เข้าถึงได้ โปรดลองอีกครั้งภายหลัง</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.revoke" datatype="html">
+        <source>The access could not be revoked. Try again later.</source>
+        <target state="translated">ไม่สามารถเพิกถอนสิทธิ์เข้าถึงได้ โปรดลองอีกครั้งภายหลัง</target>
+      </trans-unit>
       <trans-unit id="createAccount.createAccount" datatype="html">
         <source>Create Account</source>
         <target state="translated">สร้างบัญชี</target>

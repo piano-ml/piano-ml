@@ -69,6 +69,8 @@ public class SecurityConfig {
         .accessDeniedHandler(new CsrfAwareAccessDeniedHandler())
       )
       .authorizeHttpRequests(authz -> authz
+        // Private to the logged-in user (coach access grants, issue #414): must come before the open GET rule.
+        .requestMatchers(HttpMethod.GET, "/account/grants").authenticated()
         .requestMatchers(HttpMethod.GET, "/**").permitAll()
         .requestMatchers(HttpMethod.POST,
           "/account/login",

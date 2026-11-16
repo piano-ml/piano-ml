@@ -3,6 +3,7 @@ README.md
 api.base.service.ts
 api.module.ts
 api/account.service.ts
+api/accountGrants.service.ts
 api/api.ts
 api/author.service.ts
 api/genre.service.ts
@@ -26,6 +27,10 @@ model/allWorksApiInfoWorksInnerRelationsInner.ts
 model/allWorksApiInfoWorksInnerRelationsInnerArtist.ts
 model/authorApiInfo.ts
 model/authorWithScoreCount.ts
+model/coachGrantApiInfo.ts
+model/coachGrantCreate.ts
+model/coachGrantCreated.ts
+model/coachGrantScope.ts
 model/errorApiInfo.ts
 model/errorApiInfoError.ts
 model/genreApiInfo.ts

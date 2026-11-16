@@ -6,6 +6,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.pianoml.backend.service.CustomUserDetailsService;
+import org.pianoml.backend.service.CoachGrantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,10 +51,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // First check Authorization header
     String bearerToken = request.getHeader("Authorization");
     if (StringUtils.hasText(bearerToken)) {
-      if (bearerToken.startsWith("Bearer ")) {
-        return bearerToken.substring(7);
-      }
-      return bearerToken;
+      String token = bearerToken.startsWith("Bearer ") ? bearerToken.substring(7) : bearerToken;
+      return isGrantToken(token) ? null : token;
     }
 
     // Fallback: check cookies for an Authorization cookie
@@ -62,15 +61,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if ("Authorization".equals(cookie.getName())) {
           String value = cookie.getValue();
           if (StringUtils.hasText(value)) {
-            if (value.startsWith("Bearer ")) {
-              return value.substring(7);
-            }
-            return value;
+            String token = value.startsWith("Bearer ") ? value.substring(7) : value;
+            return isGrantToken(token) ? null : token;
           }
         }
       }
     }
 
     return null;
+  }
+
+  /**
+   * An access grant token for external tools (coach, issue #414). It authenticates on /mcp/** only
+   * (McpSecurityConfig): here it must never become a session, whether it comes in the header or the cookie.
+   */
+  private static boolean isGrantToken(String token) {
+    return token.strip().startsWith(CoachGrantService.TOKEN_PREFIX);
   }
 }
