@@ -1,0 +1,160 @@
+<article class="main-article">
+
+  <div class="px-4 sm:px-6 pt-4">
+    <a routerLink="/account/playlists" class="link-primary text-xs inline-flex items-center gap-1">
+      <ng-icon name="bootstrapArrowLeft" size="12" aria-hidden="true" />
+      <span i18n="@@playlist.back">My Playlists</span>
+    </a>
+  </div>
+
+  @if (loading() && !playlist()) {
+    <div class="flex items-center gap-3 px-4 sm:px-6 py-10" role="status">
+      <span class="spinner w-4 h-4 text-neutral-500" aria-hidden="true"></span>
+      <span class="text-sm text-neutral-400" i18n="@@common.loading">Loading...</span>
+    </div>
+  }
+
+  @if (notFound()) {
+    <div class="px-4 sm:px-6 py-10" data-testid="playlist-not-found">
+      <p class="text-neutral-300" i18n="@@playlist.notFound">This playlist does not exist, or it is not yours.</p>
+    </div>
+  }
+
+  @if (playlist(); as p) {
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <div class="px-4 sm:px-6 pt-2">
+      @if (!editing()) {
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="min-w-0">
+            <h1 class="page-title inline-flex items-center gap-2" data-testid="playlist-title">
+              @if (p.isDefault) {
+                <ng-icon name="bootstrapHeartFill" size="20" class="text-rose-500" aria-hidden="true" />
+              }
+              {{ titleOf(p) }}
+            </h1>
+            @if (p.description) {
+              <p class="page-sub-title">{{ p.description }}</p>
+            }
+            <p class="text-xs text-neutral-500 mt-1">
+              <span i18n="@@playlist.scoreCount">{items().length, plural, =0 {No scores} =1 {1 score} other {{{ items().length }} scores}}</span>
+              · <span i18n="@@playlist.created">created {{ meta().created }}</span>
+              · <span i18n="@@playlist.updated">updated {{ meta().updated }}</span>
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" class="btn-primary gap-1.5" (click)="startEdit()" data-testid="edit-playlist">
+              <ng-icon name="bootstrapPencil" size="13" aria-hidden="true" />
+              <span i18n="@@accountHome.edit">Edit</span>
+            </button>
+            @if (!p.isDefault) {
+              <button type="button" class="btn-secondary !px-3" (click)="askDelete()" data-testid="delete-playlist"
+                i18n-aria-label="@@playlist.delete" aria-label="Delete playlist" i18n-title="@@playlist.delete" title="Delete playlist">
+                <ng-icon name="bootstrapTrash" size="14" aria-hidden="true" />
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <form class="exercise-desc-card max-w-xl" (ngSubmit)="saveEdit()" (keydown.escape)="cancelEdit()" data-testid="edit-form">
+          <div class="exercise-desc-section flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="field-label" for="playlist-title" i18n="@@playlist.field.title">Title</label>
+              <input id="playlist-title" type="text" class="input-field" name="title" maxlength="100" required autofocus
+                [ngModel]="editTitle()" (ngModelChange)="editTitle.set($event)">
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="field-label" for="playlist-description" i18n="@@playlist.field.description">Description (optional)</label>
+              <textarea id="playlist-description" class="input-field" name="description" rows="2" maxlength="1000"
+                [ngModel]="editDescription()" (ngModelChange)="editDescription.set($event)"></textarea>
+            </div>
+            <div class="flex gap-3">
+              <button type="submit" class="btn-success" [disabled]="!editTitle().trim() || saving()" i18n="@@accountHome.save">Save</button>
+              <button type="button" class="btn-secondary" (click)="cancelEdit()" i18n="@@accountHome.cancel">Cancel</button>
+            </div>
+          </div>
+        </form>
+      }
+    </div>
+
+    <hr class="mx-4 sm:mx-6">
+
+    <!-- ── Items ──────────────────────────────────────────── -->
+    <div class="px-4 sm:px-6 pb-12">
+      @if (items().length === 0) {
+        <div class="playlist-empty" data-testid="playlist-empty">
+          <p class="text-neutral-300" i18n="@@playlist.detail.empty">No scores yet. Use ♡ or "Save to…" on any score page.</p>
+          <a routerLink="/library" class="link-primary text-sm" i18n="@@playlist.browseLibrary">Browse the library →</a>
+        </div>
+      } @else {
+        <p class="text-xs text-neutral-500 mb-3 hidden sm:block" i18n="@@playlist.reorderHint">Drag ⋮⋮ to reorder, or focus a row and press Alt+↑ / Alt+↓.</p>
+        <ol class="playlist-rows" cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="drop($event)">
+          @for (item of items(); track item.score.id; let i = $index, first = $first, last = $last) {
+            <li class="playlist-row" cdkDrag [cdkDragStartDelay]="{ touch: 150, mouse: 0 }" tabindex="0" data-row
+              [attr.data-testid]="'row-' + item.score.id" (keydown)="onRowKeydown($event, i)">
+              <span class="row-handle" cdkDragHandle i18n-aria-label="@@playlist.dragHandle" aria-label="Drag to reorder">
+                <ng-icon name="bootstrapGripVertical" size="16" aria-hidden="true" />
+              </span>
+              <span class="row-position">{{ i + 1 }}</span>
+              @if (item.score.image) {
+                <img class="row-thumb" [src]="item.score.image" alt="" loading="lazy">
+              } @else {
+                <span class="row-thumb row-thumb-empty" aria-hidden="true"><ng-icon name="bootstrapMusicNoteBeamed" size="16" /></span>
+              }
+              <div class="flex-1 min-w-0">
+                <a [routerLink]="scorePath(item.score)" class="block truncate font-semibold text-neutral-100 hover:text-white">{{ item.score.title }}</a>
+                <p class="truncate text-xs text-neutral-400">{{ item.score.author }}</p>
+              </div>
+              <div class="hidden md:flex items-center gap-1.5">
+                @if (item.score.grade != null) {
+                  <span class="row-badge" i18n="@@playlist.grade">Grade {{ item.score.grade }}</span>
+                }
+                @if (item.score.fullKey) {
+                  <span class="row-badge">{{ item.score.fullKey }}</span>
+                }
+              </div>
+              <span class="hidden lg:block text-xs text-neutral-500 whitespace-nowrap" i18n="@@playlist.added">added {{ added(item) }}</span>
+              <div class="flex items-center">
+                <button type="button" class="row-btn hidden sm:inline-flex" [disabled]="first" (click)="move(i, 0)"
+                  i18n-aria-label="@@playlist.moveTop" aria-label="Move to top" i18n-title="@@playlist.moveTop" title="Move to top">
+                  <ng-icon name="bootstrapChevronBarUp" size="14" aria-hidden="true" />
+                </button>
+                <button type="button" class="row-btn" [disabled]="first" (click)="move(i, i - 1)" [attr.data-testid]="'up-' + item.score.id"
+                  i18n-aria-label="@@playlist.moveUp" aria-label="Move up" i18n-title="@@playlist.moveUp" title="Move up">
+                  <ng-icon name="bootstrapArrowUp" size="14" aria-hidden="true" />
+                </button>
+                <button type="button" class="row-btn" [disabled]="last" (click)="move(i, i + 1)" [attr.data-testid]="'down-' + item.score.id"
+                  i18n-aria-label="@@playlist.moveDown" aria-label="Move down" i18n-title="@@playlist.moveDown" title="Move down">
+                  <ng-icon name="bootstrapArrowDown" size="14" aria-hidden="true" />
+                </button>
+                <button type="button" class="row-btn hidden sm:inline-flex" [disabled]="last" (click)="move(i, items().length - 1)"
+                  i18n-aria-label="@@playlist.moveBottom" aria-label="Move to bottom" i18n-title="@@playlist.moveBottom" title="Move to bottom">
+                  <ng-icon name="bootstrapChevronBarDown" size="14" aria-hidden="true" />
+                </button>
+                <button type="button" class="row-btn row-btn-danger" (click)="remove(item)" [attr.data-testid]="'remove-' + item.score.id"
+                  i18n-aria-label="@@playlist.remove" aria-label="Remove from playlist" i18n-title="@@playlist.remove" title="Remove from playlist">
+                  <ng-icon name="bootstrapX" size="16" aria-hidden="true" />
+                </button>
+              </div>
+            </li>
+          }
+        </ol>
+      }
+      <p class="sr-only" aria-live="polite">{{ announcement() }}</p>
+    </div>
+
+    <!-- ── Delete confirmation ────────────────────────────── -->
+    @if (confirmingDelete()) {
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-playlist-title" (keydown.escape)="cancelDelete()">
+        <div class="modal-content max-w-md">
+          <h3 id="delete-playlist-title" class="page-sub-title mb-4" i18n="@@playlist.deleteConfirm.title">Delete "{{ titleOf(p) }}"?</h3>
+          <p class="text-sm text-neutral-400 mb-4" i18n="@@playlist.deleteConfirm.body">{items().length, plural, =0 {The playlist is empty.} =1 {The score itself is not deleted.} other {The {{ items().length }} scores themselves are not deleted.}}</p>
+          <div class="flex justify-end gap-3">
+            <button type="button" class="btn-secondary" (click)="cancelDelete()" [disabled]="deleting()" i18n="@@accountHome.cancel">Cancel</button>
+            <button type="button" class="btn-danger" (click)="confirmDelete()" [disabled]="deleting()" data-testid="delete-confirm"
+              i18n="@@playlist.deleteConfirm.confirm">Delete playlist</button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</article>

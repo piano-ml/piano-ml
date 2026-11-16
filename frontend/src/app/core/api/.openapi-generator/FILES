@@ -8,6 +8,7 @@ api/author.service.ts
 api/genre.service.ts
 api/genreTree.service.ts
 api/musicbrainz.service.ts
+api/playlist.service.ts
 api/practice.service.ts
 api/score.service.ts
 api/workload.service.ts
@@ -36,6 +37,16 @@ model/mbAuthorApiInfo.ts
 model/models.ts
 model/musicBrainzService.ts
 model/musicBrainzServiceLifeSpan.ts
+model/playlistCreate.ts
+model/playlistDetail.ts
+model/playlistItem.ts
+model/playlistItemAdd.ts
+model/playlistMembership.ts
+model/playlistOrder.ts
+model/playlistOwner.ts
+model/playlistPage.ts
+model/playlistSummary.ts
+model/playlistUpdate.ts
 model/practiceAccuracyTrend.ts
 model/practiceAccuracyWindow.ts
 model/practiceCounters.ts

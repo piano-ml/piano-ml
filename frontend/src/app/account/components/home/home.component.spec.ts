@@ -76,7 +76,7 @@ describe('AccountHomeComponent — delete account', () => {
   it('places "Delete account" between "My Scores" and "Logout"', () => {
     const toolbar = query('delete-account')!.parentElement!;
     const labels = Array.from(toolbar.children).map(node => node.textContent!.trim());
-    expect(labels).toEqual(['My Scores', 'Delete account', 'Logout']);
+    expect(labels).toEqual(['My Scores', 'My Playlists', 'Delete account', 'Logout']);
   });
 
   it('opens a confirmation modal without calling the backend', () => {

@@ -1,0 +1,78 @@
+<div class="fav-group" [class.fav-md]="size() === 'md'" [class.fav-with-menu]="withMenu()">
+  <button type="button" class="fav-heart" data-testid="favorite-toggle"
+    [class.is-on]="favorite()" [class.pop]="popping()"
+    [attr.aria-pressed]="favorite()" [attr.aria-label]="label()" [title]="label()"
+    (click)="toggle($event)">
+    <ng-icon [name]="favorite() ? 'bootstrapHeartFill' : 'bootstrapHeart'" [size]="size() === 'md' ? '14' : '16'" aria-hidden="true" />
+    @if (size() === 'md') {
+      @if (favorite()) {
+        <span i18n="@@favorite.saved">Saved</span>
+      } @else {
+        <span i18n="@@favorite.favorite">Favorite</span>
+      }
+    }
+  </button>
+
+  @if (withMenu()) {
+    <button #chevron type="button" class="fav-chevron" data-testid="favorite-menu-toggle"
+      aria-haspopup="dialog" [attr.aria-expanded]="menuOpen()"
+      i18n-aria-label="@@favorite.saveTo" aria-label="Save to…" i18n-title="@@favorite.saveTo" title="Save to…"
+      (click)="toggleMenu($event)">
+      <ng-icon name="bootstrapChevronDown" size="12" aria-hidden="true" />
+    </button>
+
+    @if (menuOpen()) {
+      <div class="fav-backdrop" (click)="closeMenu()" aria-hidden="true"></div>
+      <div class="fav-menu" role="dialog" aria-labelledby="fav-menu-title" data-testid="favorite-menu"
+        cdkTrapFocus [cdkTrapFocusAutoCapture]="true"
+        (keydown.escape)="closeMenu(true)" (click)="$event.stopPropagation()">
+        <p id="fav-menu-title" class="section-label px-3 pt-3 pb-2" i18n="@@favorite.saveTo">Save to…</p>
+
+        @if (menuLoading()) {
+          <div class="flex items-center gap-2 px-3 py-3 text-sm text-neutral-400" role="status">
+            <span class="spinner w-3 h-3" aria-hidden="true"></span>
+            <span i18n="@@common.loading">Loading...</span>
+          </div>
+        } @else {
+          <ul class="fav-list">
+            @for (m of memberships(); track m.slug) {
+              <li>
+                <label class="fav-option" [class.opacity-60]="isBusy(m.slug)">
+                  <input type="checkbox" class="fav-check" [checked]="m.contains" [disabled]="isBusy(m.slug)"
+                    [attr.data-testid]="'membership-' + m.slug"
+                    (change)="setMembership(m, $any($event.target).checked)">
+                  @if (m.isDefault) {
+                    <ng-icon name="bootstrapHeartFill" size="12" class="text-rose-500" aria-hidden="true" />
+                  } @else {
+                    <span class="w-3" aria-hidden="true"></span>
+                  }
+                  <span class="flex-1 truncate">{{ titleOf(m) }}</span>
+                  <span class="text-xs text-neutral-500 tabular-nums">{{ m.itemCount ?? 0 }}</span>
+                </label>
+              </li>
+            }
+          </ul>
+
+          <div class="fav-create">
+            @if (creating()) {
+              <form class="flex gap-2" (submit)="create($event)">
+                <input type="text" class="input-field !py-1.5 !px-2 text-sm" name="title" maxlength="100" required
+                  data-testid="new-playlist-title" cdkFocusInitial
+                  i18n-aria-label="@@favorite.newPlaylistTitle" aria-label="New playlist title"
+                  i18n-placeholder="@@favorite.newPlaylistTitle.placeholder" placeholder="Title"
+                  [value]="newTitle()" (input)="newTitle.set($any($event.target).value)">
+                <button type="submit" class="btn-success !px-3 !py-1.5" [disabled]="!newTitle().trim() || isBusy('')"
+                  i18n="@@favorite.create">Create</button>
+              </form>
+            } @else {
+              <button type="button" class="fav-new" (click)="startCreate()" data-testid="new-playlist">
+                <ng-icon name="bootstrapPlus" size="14" aria-hidden="true" />
+                <span i18n="@@favorite.newPlaylist">New playlist…</span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
