@@ -138,6 +138,10 @@
         <source>Access for external tools</source>
         <target state="translated">외부 도구용 접근 권한</target>
       </trans-unit>
+      <trans-unit id="coach.grants.connectLink" datatype="html">
+        <source>Connect an AI coach →</source>
+        <target state="translated">AI 코치 연결 →</target>
+      </trans-unit>
       <trans-unit id="coach.grants.new" datatype="html">
         <source>New access →</source>
         <target state="translated">새 접근 권한 →</target>
@@ -669,6 +673,146 @@
       <trans-unit id="blog.heading" datatype="html">
         <source>Blog posts</source>
         <target state="translated">블로그 글</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.title" datatype="html">
+        <source>Connect an AI coach</source>
+        <target state="translated">AI 코치 연결</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.subtitle" datatype="html">
+        <source>Use your own AI assistant as your piano coach</source>
+        <target state="translated">나만의 AI 어시스턴트를 피아노 코치로</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.intro" datatype="html">
+        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history and, soon, drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
+        <target state="translated">나만의 AI 어시스턴트가 피아노 코치가 될 수 있습니다. PianoML에 연결하면 연습 기록을 읽고, 곧 플레이어도 제어합니다. 어시스턴트가 읽은 내용은 PianoML이 아니라 그 어시스턴트의 AI 제공업체로 전송됩니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step1" datatype="html">
+        <source>1. Connect your assistant</source>
+        <target state="translated">1. 어시스턴트 연결</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.url" datatype="html">
+        <source>Server URL</source>
+        <target state="translated">서버 URL</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tokenHint" datatype="html">
+        <source>Then create an access below: its token goes in your assistant&apos;s configuration.</source>
+        <target state="translated">그다음 아래에서 접근 권한을 만드세요. 그 토큰을 어시스턴트 설정에 넣습니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.snippets" datatype="html">
+        <source>Configuration</source>
+        <target state="translated">설정</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.placeholder" datatype="html">
+        <source>Replace &lt;your token&gt; with the token of an access, or create one above: it then appears here.</source>
+        <target state="translated">&lt;your token&gt;을 접근 권한의 토큰으로 바꾸거나 위에서 새로 만드세요. 그러면 여기에 표시됩니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.copyFailed" datatype="html">
+        <source>Copy failed: select the text and copy it manually.</source>
+        <target state="translated">복사하지 못했습니다. 텍스트를 선택해 직접 복사하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step2" datatype="html">
+        <source>2. Start the coach</source>
+        <target state="translated">2. 코치 시작</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptsHint" datatype="html">
+        <source>Paste one of these messages in your assistant. They tell it how to coach you with PianoML; it will answer in your language.</source>
+        <target state="translated">이 메시지 중 하나를 어시스턴트에 붙여 넣으세요. PianoML로 코칭하는 방법을 알려 주며, 어시스턴트는 사용자의 언어로 답합니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptsError" datatype="html">
+        <source>The prompts could not be loaded. Try again later.</source>
+        <target state="translated">메시지를 불러오지 못했습니다. 나중에 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptText" datatype="html">
+        <source>Message to paste</source>
+        <target state="translated">붙여 넣을 메시지</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step3" datatype="html">
+        <source>3. Play</source>
+        <target state="translated">3. 연주</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.playSoon" datatype="html">
+        <source>Coming soon: your assistant will open scores and start or stop the player in a PianoML tab where you turn on Remote coach.</source>
+        <target state="translated">곧 제공: 원격 코치를 켠 PianoML 탭에서 어시스턴트가 악보를 열고 플레이어를 시작하거나 멈춥니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.coach_start.title" datatype="html">
+        <source>Start a coaching session</source>
+        <target state="translated">코칭 세션 시작</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.coach_start.description" datatype="html">
+        <source>Where you stand, and one thing to practice today.</source>
+        <target state="translated">현재 수준과 오늘 연습할 한 가지.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.review_progress.title" datatype="html">
+        <source>Review my progress</source>
+        <target state="translated">내 진행 상황 돌아보기</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.review_progress.description" datatype="html">
+        <source>A review of your last days of practice, without practicing.</source>
+        <target state="translated">최근 연습한 날들을 연주 없이 돌아봅니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.practice_piece.title" datatype="html">
+        <source>Practice a piece</source>
+        <target state="translated">곡 연습</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.practice_piece.description" datatype="html">
+        <source>Work on one piece, its weakest passage first.</source>
+        <target state="translated">한 곡을 가장 약한 부분부터 연습합니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.warm_up.title" datatype="html">
+        <source>Warm up</source>
+        <target state="translated">워밍업</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.warm_up.description" datatype="html">
+        <source>Scales and arpeggios suited to your level and your pieces.</source>
+        <target state="translated">레벨과 연습 중인 곡에 맞춘 스케일과 아르페지오.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.find_new_piece.title" datatype="html">
+        <source>Find a new piece</source>
+        <target state="translated">새 곡 찾기</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.find_new_piece.description" datatype="html">
+        <source>Three suggestions at the right level, then the chosen one opens.</source>
+        <target state="translated">알맞은 레벨의 곡 세 개를 추천하고, 고른 곡을 엽니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.days" datatype="html">
+        <source>Number of days</source>
+        <target state="translated">일수</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.piece" datatype="html">
+        <source>Piece (title, composer or both)</source>
+        <target state="translated">곡 (제목, 작곡가 또는 둘 다)</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.minutes" datatype="html">
+        <source>Minutes</source>
+        <target state="translated">분</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.wish" datatype="html">
+        <source>What you would like</source>
+        <target state="translated">원하는 것</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.generic" datatype="html">
+        <source>Any MCP host</source>
+        <target state="translated">모든 MCP 호스트</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.generic.note" datatype="html">
+        <source>For any assistant with a setting to add a remote MCP server by URL and header.</source>
+        <target state="translated">URL과 헤더로 원격 MCP 서버를 추가할 수 있는 모든 어시스턴트용.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.json" datatype="html">
+        <source>JSON configuration</source>
+        <target state="translated">JSON 설정</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.json.note" datatype="html">
+        <source>For assistants configured with an mcpServers file, for example Claude Code, Cursor or Cline. Some hosts do not use &quot;type&quot;, or name the keys differently: check their documentation.</source>
+        <target state="translated">mcpServers 파일로 설정하는 어시스턴트용입니다(예: Claude Code, Cursor, Cline). 일부 호스트는 &quot;type&quot;을 쓰지 않거나 키 이름이 다릅니다. 해당 문서를 확인하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.bridge" datatype="html">
+        <source>Command-line bridge</source>
+        <target state="translated">명령줄 브리지</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.bridge.note" datatype="html">
+        <source>For assistants that can only start local servers, for example the Claude Desktop configuration file. Needs Node.js.</source>
+        <target state="translated">로컬 서버만 실행할 수 있는 어시스턴트용입니다(예: Claude Desktop 설정 파일). Node.js가 필요합니다.</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -3025,6 +3169,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="route.notFound" datatype="html">
         <source>Not found</source>
         <target state="translated">찾을 수 없음</target>
+      </trans-unit>
+      <trans-unit id="route.coachConnect" datatype="html">
+        <source>Connect an AI coach</source>
+        <target state="translated">AI 코치 연결</target>
       </trans-unit>
       <trans-unit id="seo.defaultTitle" datatype="html">
         <source>PianoML: Learn Piano with Smart Sheet Music &amp; Practice Tools</source>

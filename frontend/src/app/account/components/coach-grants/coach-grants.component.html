@@ -1,9 +1,14 @@
 <section data-testid="coach-grants">
   <div class="flex items-center justify-between mb-3">
     <p class="section-label" i18n="@@coach.grants.title">Access for external tools</p>
-    @if (!formOpen() && !createdToken()) {
-      <button type="button" class="link-primary text-xs" data-testid="coach-grant-new" (click)="openForm()" i18n="@@coach.grants.new">New access →</button>
-    }
+    <span class="flex items-center gap-4">
+      @if (showConnectLink()) {
+        <a routerLink="/coach/connect" class="link-primary text-xs" data-testid="coach-grant-connect" i18n="@@coach.grants.connectLink">Connect an AI coach →</a>
+      }
+      @if (!formOpen() && !createdToken()) {
+        <button type="button" class="link-primary text-xs" data-testid="coach-grant-new" (click)="openForm()" i18n="@@coach.grants.new">New access →</button>
+      }
+    </span>
   </div>
 
   <div class="exercise-desc-card">

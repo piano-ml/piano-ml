@@ -91,7 +91,7 @@ test('robots.txt disallows each private path in each language, with one sitemap 
 
 test('the default robots.txt keeps every path the hand-written one had', () => {
   const robots = renderRobots(localesFromAngularJson(SAMPLE));
-  for (const privatePath of ['/work/', '/account/', '/desktop/', '/workbench/', '/blog/legal', '/blog/help', '/import/', '/score/*/reimport']) {
+  for (const privatePath of ['/work/', '/account/', '/desktop/', '/workbench/', '/blog/legal', '/blog/help', '/import/', '/coach/', '/score/*/reimport']) {
     assert.ok(robots.includes(`Disallow: ${privatePath}\n`), privatePath);
   }
   assert.ok(robots.includes('Sitemap: https://pianoml.org/sitemap.xml'));

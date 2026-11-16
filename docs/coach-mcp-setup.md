@@ -2,6 +2,8 @@
 
 PianoML exposes an MCP server that any MCP host (desktop assistant, coding assistant, chat application) can use to read your practice history and, in later versions, drive the player. Specification: `docs/coach-external-harness.md` (issue #414).
 
+The quickest way is the **Connect an AI coach** page of the app (`/coach/connect`, linked from the account page): it shows the server URL, creates a token, fills configuration snippets with it, and offers ready-made prompts to paste. This document is the reference for developers.
+
 ## Endpoint
 
 | | |
@@ -73,6 +75,10 @@ The MCP Inspector (`npx @modelcontextprotocol/inspector`) can also connect: choo
 Player tools come in a later phase; the full list is in section 4 of the specification.
 
 Every result is a JSON text: `{"ok": true, "data": ...}` or `{"ok": false, "code": "...", "message": "..."}`.
+
+## Prompts
+
+The server offers five MCP prompts (`coach_start`, `review_progress`, `practice_piece`, `warm_up`, `find_new_piece`) for hosts that list them. The same catalog is public at `GET /coach/prompts` and shown on the Connect page, for hosts that do not. Each prompt carries the full coaching rules, so it works even where the host ignores server instructions.
 
 ## Limits
 

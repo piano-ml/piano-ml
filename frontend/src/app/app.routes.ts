@@ -75,6 +75,18 @@ export const routes: Routes = [
 
     },
     {
+        // Connect an external AI assistant (coach, issue #414): logged-in users only, no SEO value
+        component: LayoutComponent,
+        path: 'coach',
+        children: [
+            {
+                path: 'connect',
+                loadComponent: () => import('./coach/connect/connect.component').then(m => m.ConnectComponent),
+                data: { breadcrumb: ROUTE_LABELS.coachConnect, seo: NOINDEX_SEO }
+            }
+        ]
+    },
+    {
         component: LayoutComponent,
         path: '',
         loadChildren: () => import('./home/home.module').then(m => m.HomeModule),

@@ -1285,6 +1285,25 @@ paths:
         '404':
           description: No such grant for this user
 
+  /coach/prompts:
+    get:
+      operationId: coachPromptsGet
+      tags:
+        - coach
+      summary: Ready-made prompts that start the coach in any AI assistant (issue #414)
+      description: >
+        The same catalog as the MCP prompts of /mcp. Public: no user data. Each text is addressed to the
+        assistant, in English; {name} placeholders stand for the arguments.
+      responses:
+        '200':
+          description: Prompt catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CoachPrompt'
+
   /practice/session/{id}:
     put:
       operationId: practiceSessionPut
@@ -2316,3 +2335,40 @@ components:
               description: The bearer token, pml_<grantId>_<secret>. Returned once; it cannot be read again.
           required:
             - token
+    CoachPromptArgument:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        required:
+          type: boolean
+        default:
+          type: string
+          description: Value used when the argument is not given
+      required:
+        - name
+        - required
+    CoachPrompt:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        arguments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoachPromptArgument'
+        text:
+          type: string
+          description: The prompt, with {name} placeholders for the arguments
+      required:
+        - id
+        - title
+        - description
+        - arguments
+        - text

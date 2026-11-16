@@ -13,6 +13,8 @@ export * from './coachGrantApiInfo';
 export * from './coachGrantCreate';
 export * from './coachGrantCreated';
 export * from './coachGrantScope';
+export * from './coachPrompt';
+export * from './coachPromptArgument';
 export * from './errorApiInfo';
 export * from './errorApiInfoError';
 export * from './genreApiInfo';

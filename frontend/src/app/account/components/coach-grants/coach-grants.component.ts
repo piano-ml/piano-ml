@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, LOCALE_ID, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, LOCALE_ID, OnInit, inject, input, output, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AccountGrantsService, CoachGrantScope, type CoachGrantApiInfo } from '../../../core/api';
@@ -35,7 +36,7 @@ const ERROR_REVOKE = $localize`:@@coach.grants.error.revoke:The access could not
  */
 @Component({
   selector: 'app-coach-grants',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './coach-grants.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -58,6 +59,10 @@ export class CoachGrantsComponent implements OnInit {
   readonly createdToken = signal<string | null>(null);
   readonly copyState = signal<'idle' | 'copied' | 'failed'>('idle');
   readonly confirmingRevoke = signal<string | null>(null);
+  /** The token of a grant just created, for a host page that fills configuration snippets with it. */
+  readonly created = output<string>();
+  /** The link to the Connect page: on the account page, not on the Connect page itself. */
+  readonly showConnectLink = input(true);
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(80), Validators.pattern(/\S/)]],
@@ -114,6 +119,7 @@ export class CoachGrantsComponent implements OnInit {
         this.formOpen.set(false);
         this.copyState.set('idle');
         this.createdToken.set(created.token);
+        this.created.emit(created.token);
         this.load();
       },
       error: (e: unknown) => {

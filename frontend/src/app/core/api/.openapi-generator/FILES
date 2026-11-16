@@ -6,6 +6,7 @@ api/account.service.ts
 api/accountGrants.service.ts
 api/api.ts
 api/author.service.ts
+api/coach.service.ts
 api/genre.service.ts
 api/genreTree.service.ts
 api/musicbrainz.service.ts
@@ -31,6 +32,8 @@ model/coachGrantApiInfo.ts
 model/coachGrantCreate.ts
 model/coachGrantCreated.ts
 model/coachGrantScope.ts
+model/coachPrompt.ts
+model/coachPromptArgument.ts
 model/errorApiInfo.ts
 model/errorApiInfoError.ts
 model/genreApiInfo.ts

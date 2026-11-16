@@ -17,6 +17,7 @@ const PRIVATE_PATHS = [
   '/desktop/',
   '/workbench/',
   '/import/',
+  '/coach/',
   '/blog/legal',
   '/blog/help',
   '/score/*/reimport'

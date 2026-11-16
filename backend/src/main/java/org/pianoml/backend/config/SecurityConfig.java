@@ -71,6 +71,8 @@ public class SecurityConfig {
       .authorizeHttpRequests(authz -> authz
         // Private to the logged-in user (coach access grants, issue #414): must come before the open GET rule.
         .requestMatchers(HttpMethod.GET, "/account/grants").authenticated()
+        // Coach prompt catalog (issue #414): public on purpose, it holds no user data.
+        .requestMatchers(HttpMethod.GET, "/coach/prompts").permitAll()
         .requestMatchers(HttpMethod.GET, "/**").permitAll()
         .requestMatchers(HttpMethod.POST,
           "/account/login",

@@ -14,5 +14,6 @@ export const ROUTE_LABELS = {
   library: $localize`:@@route.library:Library`,
   summary: $localize`:@@route.summary:Summary`,
   error: $localize`:@@route.error:Error`,
-  notFound: $localize`:@@route.notFound:Not found`
+  notFound: $localize`:@@route.notFound:Not found`,
+  coachConnect: $localize`:@@route.coachConnect:Connect an AI coach`
 } as const;

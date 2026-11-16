@@ -138,6 +138,10 @@
         <source>Access for external tools</source>
         <target state="translated">สิทธิ์เข้าถึงสำหรับเครื่องมือภายนอก</target>
       </trans-unit>
+      <trans-unit id="coach.grants.connectLink" datatype="html">
+        <source>Connect an AI coach →</source>
+        <target state="translated">เชื่อมต่อโค้ช AI →</target>
+      </trans-unit>
       <trans-unit id="coach.grants.new" datatype="html">
         <source>New access →</source>
         <target state="translated">สิทธิ์เข้าถึงใหม่ →</target>
@@ -669,6 +673,146 @@
       <trans-unit id="blog.heading" datatype="html">
         <source>Blog posts</source>
         <target state="translated">บทความในบล็อก</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.title" datatype="html">
+        <source>Connect an AI coach</source>
+        <target state="translated">เชื่อมต่อโค้ช AI</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.subtitle" datatype="html">
+        <source>Use your own AI assistant as your piano coach</source>
+        <target state="translated">ใช้ผู้ช่วย AI ของคุณเองเป็นโค้ชเปียโน</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.intro" datatype="html">
+        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history and, soon, drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
+        <target state="translated">ผู้ช่วย AI ของคุณเองสามารถเป็นโค้ชเปียโนของคุณได้ เมื่อเชื่อมต่อกับ PianoML จะอ่านประวัติการฝึกซ้อมของคุณ และในไม่ช้าจะควบคุมเครื่องเล่นได้ สิ่งที่อ่านจะส่งไปยังผู้ให้บริการ AI ของผู้ช่วยนั้น ไม่ใช่ PianoML</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step1" datatype="html">
+        <source>1. Connect your assistant</source>
+        <target state="translated">1. เชื่อมต่อผู้ช่วยของคุณ</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.url" datatype="html">
+        <source>Server URL</source>
+        <target state="translated">URL ของเซิร์ฟเวอร์</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tokenHint" datatype="html">
+        <source>Then create an access below: its token goes in your assistant&apos;s configuration.</source>
+        <target state="translated">จากนั้นสร้างสิทธิ์เข้าถึงด้านล่าง: นำโทเค็นไปใส่ในการตั้งค่าผู้ช่วยของคุณ</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.snippets" datatype="html">
+        <source>Configuration</source>
+        <target state="translated">การตั้งค่า</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.placeholder" datatype="html">
+        <source>Replace &lt;your token&gt; with the token of an access, or create one above: it then appears here.</source>
+        <target state="translated">แทนที่ &lt;your token&gt; ด้วยโทเค็นของสิทธิ์เข้าถึง หรือสร้างใหม่ด้านบน: โทเค็นจะแสดงที่นี่</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.copyFailed" datatype="html">
+        <source>Copy failed: select the text and copy it manually.</source>
+        <target state="translated">คัดลอกไม่สำเร็จ: เลือกข้อความแล้วคัดลอกด้วยตนเอง</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step2" datatype="html">
+        <source>2. Start the coach</source>
+        <target state="translated">2. เริ่มโค้ช</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptsHint" datatype="html">
+        <source>Paste one of these messages in your assistant. They tell it how to coach you with PianoML; it will answer in your language.</source>
+        <target state="translated">วางข้อความใดข้อความหนึ่งนี้ในผู้ช่วยของคุณ ข้อความจะบอกวิธีโค้ชคุณด้วย PianoML และผู้ช่วยจะตอบเป็นภาษาของคุณ</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptsError" datatype="html">
+        <source>The prompts could not be loaded. Try again later.</source>
+        <target state="translated">ไม่สามารถโหลดข้อความได้ โปรดลองอีกครั้งภายหลัง</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptText" datatype="html">
+        <source>Message to paste</source>
+        <target state="translated">ข้อความที่จะวาง</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step3" datatype="html">
+        <source>3. Play</source>
+        <target state="translated">3. เล่น</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.playSoon" datatype="html">
+        <source>Coming soon: your assistant will open scores and start or stop the player in a PianoML tab where you turn on Remote coach.</source>
+        <target state="translated">เร็ว ๆ นี้: ผู้ช่วยจะเปิดโน้ตเพลงและเริ่มหรือหยุดเครื่องเล่นในแท็บ PianoML ที่คุณเปิดโค้ชทางไกลไว้</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.coach_start.title" datatype="html">
+        <source>Start a coaching session</source>
+        <target state="translated">เริ่มเซสชันโค้ช</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.coach_start.description" datatype="html">
+        <source>Where you stand, and one thing to practice today.</source>
+        <target state="translated">ตอนนี้คุณอยู่ตรงไหน และหนึ่งสิ่งที่ควรฝึกวันนี้</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.review_progress.title" datatype="html">
+        <source>Review my progress</source>
+        <target state="translated">ทบทวนความก้าวหน้าของฉัน</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.review_progress.description" datatype="html">
+        <source>A review of your last days of practice, without practicing.</source>
+        <target state="translated">สรุปการฝึกซ้อมช่วงหลายวันที่ผ่านมา โดยไม่ต้องเล่น</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.practice_piece.title" datatype="html">
+        <source>Practice a piece</source>
+        <target state="translated">ฝึกเพลง</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.practice_piece.description" datatype="html">
+        <source>Work on one piece, its weakest passage first.</source>
+        <target state="translated">ฝึกเพลงหนึ่งเพลง โดยเริ่มจากช่วงที่อ่อนที่สุด</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.warm_up.title" datatype="html">
+        <source>Warm up</source>
+        <target state="translated">วอร์มอัพ</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.warm_up.description" datatype="html">
+        <source>Scales and arpeggios suited to your level and your pieces.</source>
+        <target state="translated">สเกลและอาร์เปจโจที่เหมาะกับระดับและเพลงของคุณ</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.find_new_piece.title" datatype="html">
+        <source>Find a new piece</source>
+        <target state="translated">หาเพลงใหม่</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.find_new_piece.description" datatype="html">
+        <source>Three suggestions at the right level, then the chosen one opens.</source>
+        <target state="translated">สามข้อเสนอในระดับที่เหมาะสม แล้วเปิดเพลงที่เลือก</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.days" datatype="html">
+        <source>Number of days</source>
+        <target state="translated">จำนวนวัน</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.piece" datatype="html">
+        <source>Piece (title, composer or both)</source>
+        <target state="translated">เพลง (ชื่อ ผู้ประพันธ์ หรือทั้งสองอย่าง)</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.minutes" datatype="html">
+        <source>Minutes</source>
+        <target state="translated">นาที</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.wish" datatype="html">
+        <source>What you would like</source>
+        <target state="translated">สิ่งที่คุณอยากได้</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.generic" datatype="html">
+        <source>Any MCP host</source>
+        <target state="translated">โฮสต์ MCP ใดก็ได้</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.generic.note" datatype="html">
+        <source>For any assistant with a setting to add a remote MCP server by URL and header.</source>
+        <target state="translated">สำหรับผู้ช่วยที่เพิ่มเซิร์ฟเวอร์ MCP ระยะไกลด้วย URL และเฮดเดอร์ได้</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.json" datatype="html">
+        <source>JSON configuration</source>
+        <target state="translated">การตั้งค่า JSON</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.json.note" datatype="html">
+        <source>For assistants configured with an mcpServers file, for example Claude Code, Cursor or Cline. Some hosts do not use &quot;type&quot;, or name the keys differently: check their documentation.</source>
+        <target state="translated">สำหรับผู้ช่วยที่ตั้งค่าด้วยไฟล์ mcpServers เช่น Claude Code, Cursor หรือ Cline บางโฮสต์ไม่ใช้ &quot;type&quot; หรือตั้งชื่อคีย์ต่างออกไป: ดูเอกสารของโฮสต์นั้น</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.bridge" datatype="html">
+        <source>Command-line bridge</source>
+        <target state="translated">บริดจ์บรรทัดคำสั่ง</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.bridge.note" datatype="html">
+        <source>For assistants that can only start local servers, for example the Claude Desktop configuration file. Needs Node.js.</source>
+        <target state="translated">สำหรับผู้ช่วยที่เริ่มได้เฉพาะเซิร์ฟเวอร์ในเครื่อง เช่น ไฟล์ตั้งค่าของ Claude Desktop ต้องมี Node.js</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -3025,6 +3169,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="route.notFound" datatype="html">
         <source>Not found</source>
         <target state="translated">ไม่พบ</target>
+      </trans-unit>
+      <trans-unit id="route.coachConnect" datatype="html">
+        <source>Connect an AI coach</source>
+        <target state="translated">เชื่อมต่อโค้ช AI</target>
       </trans-unit>
       <trans-unit id="seo.defaultTitle" datatype="html">
         <source>PianoML: Learn Piano with Smart Sheet Music &amp; Practice Tools</source>

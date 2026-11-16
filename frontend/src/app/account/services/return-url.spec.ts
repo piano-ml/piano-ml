@@ -48,6 +48,7 @@ describe('return-url', () => {
       '/account/scores',
       '/account/scores?page=2',
       '/account/score/edit/42',
+      '/coach/connect',
       '/import/import-work/abc#top',
     ])('is true for protected page %s', url => {
       expect(requiresLogin(url)).toBe(true);

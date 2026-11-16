@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { AccountGrantsService, type CoachGrantApiInfo, type CoachGrantCreated } from '../../../core/api';
@@ -27,7 +28,7 @@ describe('CoachGrantsComponent', () => {
     };
     TestBed.configureTestingModule({
       imports: [CoachGrantsComponent],
-      providers: [{ provide: AccountGrantsService, useValue: api }],
+      providers: [provideRouter([]), { provide: AccountGrantsService, useValue: api }],
     });
     fixture = TestBed.createComponent(CoachGrantsComponent);
     fixture.detectChanges();
@@ -132,6 +133,17 @@ describe('CoachGrantsComponent', () => {
       // The form stays open with the input, for another try
       expect(q('coach-grant-form')).not.toBeNull();
     }
+  });
+
+  it('tells its host page about the token it created, and links to the Connect page', () => {
+    create();
+    const tokens: string[] = [];
+    fixture.componentInstance.created.subscribe(token => tokens.push(token));
+    expect(q('coach-grant-connect')?.getAttribute('href')).toBe('/coach/connect');
+    click('coach-grant-new');
+    type('coach-grant-name', 'Tool');
+    q<HTMLButtonElement>('coach-grant-submit')!.click();
+    expect(tokens).toEqual(['pml_0123_secret']);
   });
 
   it('revokes only after a confirmation, then reloads', () => {

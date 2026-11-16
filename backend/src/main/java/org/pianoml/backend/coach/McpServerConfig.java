@@ -3,6 +3,7 @@ package org.pianoml.backend.coach;
 import io.modelcontextprotocol.common.McpTransportContext;
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpStatelessServerFeatures;
+import io.modelcontextprotocol.spec.McpError;
 import io.modelcontextprotocol.spec.McpSchema;
 import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.security.GrantPrincipal;
@@ -47,7 +48,7 @@ public class McpServerConfig {
    * separate server bean would never be created and the transport would have no handler.
    */
   @Bean
-  public RouterFunction<ServerResponse> mcpRouterFunction(CoachToolDispatcher dispatcher) {
+  public RouterFunction<ServerResponse> mcpRouterFunction(CoachToolDispatcher dispatcher, CoachPromptCatalog prompts) {
     WebMvcStatelessServerTransport transport = WebMvcStatelessServerTransport.builder()
       .messageEndpoint(ENDPOINT)
       .contextExtractor(request -> request.servletRequest().getAttribute(GrantPrincipal.REQUEST_ATTRIBUTE) instanceof GrantPrincipal p
@@ -62,12 +63,13 @@ public class McpServerConfig {
     McpServer.sync(transport)
       .serverInfo("pianoml", "1")
       .instructions(instructions())
-      .capabilities(McpSchema.ServerCapabilities.builder().tools(false).build())
+      .capabilities(McpSchema.ServerCapabilities.builder().tools(false).prompts(false).build())
       // Arguments are checked by the dispatcher, which answers INVALID_ARGUMENT in the result envelope
       .validateToolInputs(false)
       .tools(tools)
+      .prompts(prompts.all().stream().map(prompt -> promptSpecification(prompt, prompts)).toList())
       .build();
-    log.info("Coach MCP server: {} tool(s) at {}", tools.size(), ENDPOINT);
+    log.info("Coach MCP server: {} tool(s), {} prompt(s) at {}", tools.size(), prompts.all().size(), ENDPOINT);
     return transport.getRouterFunction();
   }
 
@@ -89,6 +91,25 @@ public class McpServerConfig {
         .isError(!result.ok())
         .build();
     });
+  }
+
+  private static McpStatelessServerFeatures.SyncPromptSpecification promptSpecification(CoachPromptCatalog.Prompt prompt,
+                                                                                      CoachPromptCatalog catalog) {
+    List<McpSchema.PromptArgument> arguments = prompt.arguments().stream()
+      .map(a -> new McpSchema.PromptArgument(a.name(), a.description(), a.required()))
+      .toList();
+    return new McpStatelessServerFeatures.SyncPromptSpecification(
+      new McpSchema.Prompt(prompt.id(), prompt.title(), prompt.description(), arguments),
+      (context, request) -> {
+        String text;
+        try {
+          text = catalog.render(prompt, request.arguments());
+        } catch (CoachPromptCatalog.MissingArgumentException e) {
+          throw McpError.builder(McpSchema.ErrorCodes.INVALID_PARAMS).message(e.getMessage()).build();
+        }
+        return new McpSchema.GetPromptResult(prompt.description(),
+          List.of(new McpSchema.PromptMessage(McpSchema.Role.USER, new McpSchema.TextContent(text))));
+      });
   }
 
   static String instructions() {
