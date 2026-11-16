@@ -11,6 +11,12 @@ import java.util.UUID;
  */
 public record GrantPrincipal(UUID userId, UUID grantId, String clientName, Set<String> scopes) implements Principal {
 
+  /**
+   * Request attribute holding the authenticated grant. MCP tool handlers run on another thread, where the
+   * security context is empty: they get the grant from the request through this attribute.
+   */
+  public static final String REQUEST_ATTRIBUTE = GrantPrincipal.class.getName();
+
   @Override
   public String getName() {
     return userId.toString();

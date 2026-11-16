@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class McpOriginFilterTest {
 
   private static int status(List<String> allowed, String origin) throws Exception {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mcp/ping");
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", "/mcp");
     if (origin != null) {
       request.addHeader("Origin", origin);
     }

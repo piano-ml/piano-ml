@@ -36,6 +36,7 @@ public class GrantAuthenticationFilter extends OncePerRequestFilter {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(new GrantAuthenticationToken(principal));
         SecurityContextHolder.setContext(context);
+        request.setAttribute(GrantPrincipal.REQUEST_ATTRIBUTE, principal);
       });
     }
     chain.doFilter(request, response);

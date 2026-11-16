@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.pianoml.backend.coach.McpTestClient;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.security.JwtTokenProvider;
@@ -47,6 +48,21 @@ class CoachGrantTest {
   @Autowired private CoachGrantService coachGrantService;
 
   private final ObjectMapper json = new ObjectMapper();
+
+  /** An MCP tools/list request: it needs nothing but a valid grant. */
+  private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder mcpRequest(String authorization) {
+    var request = post("/mcp").contentType(MediaType.APPLICATION_JSON)
+      .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_EVENT_STREAM)
+      .content("{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\",\"params\":{}}");
+    if (authorization != null) {
+      request.header("Authorization", authorization);
+    }
+    return request;
+  }
+
+  private org.springframework.test.web.servlet.ResultActions mcp(String authorization) throws Exception {
+    return mockMvc.perform(mcpRequest(authorization));
+  }
   private final List<UUID> createdUsers = new ArrayList<>();
 
   @AfterEach
@@ -217,7 +233,7 @@ class CoachGrantTest {
     mockMvc.perform(delete("/account/grants/" + grantId(token)).with(xsrf()).cookie(session(other)))
       .andExpect(status().isNotFound());
     mockMvc.perform(get("/account/grants").cookie(session(other))).andExpect(jsonPath("$", hasSize(0)));
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+    mcp("Bearer " + token).andExpect(status().isOk());
   }
 
   @Test
@@ -238,10 +254,10 @@ class CoachGrantTest {
     User user = newUser();
     String token = token(user);
 
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + token))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.grant").value("Test host"))
-      .andExpect(jsonPath("$.scopes", contains("practice:read", "scores:read")));
+    JsonNode context = new McpTestClient(mockMvc).data(token, "get_context", Map.of());
+    assertThat(context.path("grant").path("name").asText()).isEqualTo("Test host");
+    assertThat(context.path("grant").path("scopes").toString()).isEqualTo("[\"practice:read\",\"scores:read\"]");
+    assertThat(context.path("user").path("name").asText()).isEqualTo(user.getName());
 
     assertThat(jdbc.queryForObject("SELECT last_used_at FROM pianoml.coach_grant WHERE id = ?", Object.class, grantId(token)))
       .isNotNull();
@@ -253,18 +269,17 @@ class CoachGrantTest {
     String token = token(user);
     String wrongSecret = token.substring(0, 37) + (token.charAt(37) == 'A' ? 'B' : 'A') + token.substring(38);
 
-    mockMvc.perform(get("/mcp/ping")).andExpect(status().isUnauthorized());
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + wrongSecret)).andExpect(status().isUnauthorized());
-    mockMvc.perform(get("/mcp/ping").header("Authorization", token)).andExpect(status().isUnauthorized());
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer pml_" + UUID.randomUUID().toString().replace("-", "")
-        + "_" + "A".repeat(43)))
+    mcp(null).andExpect(status().isUnauthorized());
+    mcp("Bearer " + wrongSecret).andExpect(status().isUnauthorized());
+    mcp(token).andExpect(status().isUnauthorized());
+    mcp("Bearer pml_" + UUID.randomUUID().toString().replace("-", "") + "_" + "A".repeat(43))
       .andExpect(status().isUnauthorized());
     // A browser session never reaches /mcp, neither as a bearer header nor as the cookie
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + jwtTokenProvider.generateToken(user)))
+    mcp("Bearer " + jwtTokenProvider.generateToken(user))
       .andExpect(status().isUnauthorized());
-    mockMvc.perform(get("/mcp/ping").cookie(session(user))).andExpect(status().isUnauthorized());
+    mockMvc.perform(mcpRequest(null).cookie(session(user))).andExpect(status().isUnauthorized());
     // Nor does the grant token in the cookie
-    mockMvc.perform(get("/mcp/ping").cookie(new Cookie("Authorization", token))).andExpect(status().isUnauthorized());
+    mockMvc.perform(mcpRequest(null).cookie(new Cookie("Authorization", token))).andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -273,13 +288,13 @@ class CoachGrantTest {
     String expired = token(user);
     jdbc.update("UPDATE pianoml.coach_grant SET expires_at = DATEADD('SECOND', -1, CURRENT_TIMESTAMP) WHERE id = ?",
       grantId(expired));
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + expired)).andExpect(status().isUnauthorized());
+    mcp("Bearer " + expired).andExpect(status().isUnauthorized());
 
     String revoked = token(user);
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + revoked)).andExpect(status().isOk());
+    mcp("Bearer " + revoked).andExpect(status().isOk());
     mockMvc.perform(delete("/account/grants/" + grantId(revoked)).with(xsrf()).cookie(session(user)))
       .andExpect(status().isNoContent());
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + revoked)).andExpect(status().isUnauthorized());
+    mcp("Bearer " + revoked).andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -291,17 +306,17 @@ class CoachGrantTest {
 
     assertThat(coachGrantService.revokeAll(user.getId())).isEqualTo(2);
 
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + a)).andExpect(status().isUnauthorized());
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + b)).andExpect(status().isUnauthorized());
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + otherUsers)).andExpect(status().isOk());
+    mcp("Bearer " + a).andExpect(status().isUnauthorized());
+    mcp("Bearer " + b).andExpect(status().isUnauthorized());
+    mcp("Bearer " + otherUsers).andExpect(status().isOk());
   }
 
   @Test
   void requestWithAnOriginHeader_isRefusedOnMcp() throws Exception {
     String token = token(newUser());
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + token).header("Origin", "https://www.pianoml.org"))
+    mockMvc.perform(mcpRequest("Bearer " + token).header("Origin", "https://www.pianoml.org"))
       .andExpect(status().isForbidden());
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + token).header("Origin", "https://evil.example"))
+    mockMvc.perform(mcpRequest("Bearer " + token).header("Origin", "https://evil.example"))
       .andExpect(status().isForbidden());
   }
 
@@ -341,7 +356,7 @@ class CoachGrantTest {
 
     assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM pianoml.coach_grant WHERE user_id = ?", Integer.class, user.getId()))
       .isZero();
-    mockMvc.perform(get("/mcp/ping").header("Authorization", "Bearer " + token)).andExpect(status().isUnauthorized());
+    mcp("Bearer " + token).andExpect(status().isUnauthorized());
   }
 
   @Test

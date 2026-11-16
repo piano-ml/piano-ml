@@ -47,3 +47,5 @@ databaseChangeLog:
       file: db/changelog/changes/022-create-practice-session.yaml
   - include:
       file: db/changelog/changes/025-create-coach-grant.yaml
+  - include:
+      file: db/changelog/changes/026-create-coach-audit.yaml

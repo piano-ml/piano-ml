@@ -156,7 +156,7 @@ Postgres is the only thing the instances share. Tickets, presence, commands and 
 - `openapi/coach-tools.json`: array of `{ name, runsIn: "server" | "browser", scopes: [...], timeoutSeconds, description, inputSchema }` for the 30 tools of section 4.
 - `openapi/coach-prompts.json`: the catalog of section 5.
 
-The backend packages both as classpath resources `coach/tools.json` and `coach/prompts.json` (add `../openapi` as a Maven resource directory limited to these two files, target path `coach/`). The frontend copies `coach-tools.json` to `src/app/coach/tools/tools.generated.json` with an npm script run wherever `generate:api` runs.
+The backend packages both as classpath resources `coach/coach-tools.json` and `coach/coach-prompts.json` (add `../openapi` as a Maven resource directory limited to these two files, target path `coach/`). The frontend copies `coach-tools.json` to `src/app/coach/tools/tools.generated.json` with an npm script run wherever `generate:api` runs.
 
 ### 3.6 MCP library
 
@@ -609,7 +609,7 @@ conventions of 4.1, the limits and audit of 2.7, and tools 1 to 9 (4.2, 4.3).
 
 Build:
 1. openapi/coach-tools.json with all 30 tools of section 4 (descriptions verbatim, including the
-   group sentences of 4.3 and 4.4), packaged as coach/tools.json. Only tools that have a handler are
+   group sentences of 4.3 and 4.4), packaged as coach/coach-tools.json. Only tools that have a handler are
    registered on the endpoint; a test fails if a registered tool is absent from the file or differs.
 2. Package coach/: CoachToolCatalog (loads and validates the file); CoachToolResult (envelope);
    CoachArgumentValidator (flat-schema rules of 4.1); CoachToolHandler (name,
@@ -658,7 +658,7 @@ Manual: a real host answers "find me an easy piece in D minor" and "recommend so
 
 ```
 Backend: openapi/coach-prompts.json with the five prompts of section 5 (texts verbatim), packaged as
-coach/prompts.json; CoachPromptCatalog (unique ids; every {placeholder} is a declared argument);
+coach/coach-prompts.json; CoachPromptCatalog (unique ids; every {placeholder} is a declared argument);
 GET /coach/prompts (3.2); MCP prompts: prompts/list and prompts/get from the catalog, with the
 substitution rules of section 5; a missing required argument is the protocol's invalid-params error.
 
