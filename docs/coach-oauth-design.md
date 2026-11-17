@@ -247,7 +247,7 @@ Tests: documents served at the three paths with every field of 2.1; an anonymous
 - *A DCR client id is `pmc_` + 32 hex digits. A missing `token_endpoint_auth_method` is registered as `none` (the response says so), a missing `client_name` as "Unnamed application"; a CIMD document must have a name.*
 - *A CIMD document is accepted when `token_endpoint_auth_method` is absent or `none`, or when `none` is in `token_endpoint_auth_methods_supported` (ChatGPT lists several).*
 - *The registration limit is per client address, 60 per hour (`coach.oauth.register.per-ip-per-hour`), in memory per instance. Hosted applications register from a few shared egress addresses, hence the generous value; both hosts prefer CIMD, which needs no registration.*
-- *Behind a reverse proxy or load balancer, the client address is the proxy's unless `server.forward-headers-strategy` is set for the deployment: check it before turning OAuth on, or every registration shares one limit.*
+- *Behind a proxy, the limits key on the client address read from `X-Forwarded-For` by `ClientAddressResolver`: the entry `coach.client-address.trusted-proxies` places from the right (set to 1 in the `gcloud` profile; 0, the TCP peer, by default). Not `server.forward-headers-strategy=framework`, whose filter takes the leftmost entry, which a client can forge to escape a limit. (Changed after review.)*
 - *`/oauth/register` answers 404 while `coach.oauth.enabled` is off.*
 
 Build: `coach_oauth_client`; CIMD fetcher with the SSRF guard and cache (any public HTTPS host accepted); open DCR with its validation and rate limit; CORS on `/oauth/register`; daily cleanup.
@@ -278,7 +278,7 @@ Tests: every validation of 2.3 with the right outcome (page before `redirect_uri
 - *A sixth OAuth grant (another application, or another installation of the same one) replaces the least recently used rather than failing at the token endpoint, where the user cannot be told why. Personal tokens keep their own limit of 5.*
 - *Revoking a refresh token (RFC 7009) revokes the grant; revoking an access token ends that token only.*
 - *A `pml_` token can never authenticate an OAuth grant (its secret hash is random and the kind is checked).*
-- *`coach.oauth.enabled` stays `false` by default: every endpoint exists, but each environment turns OAuth on explicitly, staging first, for phase O5. Before that, check `server.forward-headers-strategy` (O2) and that `coach.oauth.issuer` and `coach.oauth.consent-url` match the environment.*
+- *`coach.oauth.enabled` stays `false` by default: every endpoint exists, but each environment turns OAuth on explicitly, staging first, for phase O5. Before that, check `coach.client-address.trusted-proxies` for the deployment (O2) and that `coach.oauth.issuer` and `coach.oauth.consent-url` match the environment.*
 - *Cold-instance latency (Claude allows 10 seconds) is not measured by the tests; it is part of O5.*
 
 Build: `POST /oauth/token` (code with PKCE and `resource`, refresh with rotation and reuse detection, 365-day absolute grant), `pmo_` access tokens, `coach_oauth_token`, `POST /oauth/revoke`, CORS on both; `GrantAuthenticationFilter` accepts `pmo_`; one live grant per (user, client); account page lists OAuth grants.
@@ -293,6 +293,7 @@ Tests: RFC 7636 test vectors; wrong verifier, wrong redirect URI, wrong client, 
 - *JSON values of the wrong type in a registration or a metadata document are refused as `invalid_client_metadata` instead of failing with a server error.*
 - *Remote coach sockets cancel their hello and renewal timers when they close (`BridgeWebSocketHandler`), so dropped connections leave nothing scheduled.*
 - *Two installations of the same application no longer disconnect each other (2.5).*
+- *Per-address limits behind a proxy: see `ClientAddressResolver` (O2 decisions). The count of trusted proxies must match the deployment: too low shares one limit, too high trusts a forged entry.*
 - *`wait_for_take_end` tells two takes apart by their start time (`lastTake.startedAt`), so a loop whose takes have identical counts (listen mode, for example) is still seen.*
 - *`CoachGrantService.revokeAll` has no caller because nothing changes a password yet (`POST /account/password_reset` answers 501); the reset, when built, must call it. A marker is in `AccountController`.*
 

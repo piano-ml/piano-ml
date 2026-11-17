@@ -25,6 +25,7 @@ public class OAuthAuthorizeController {
   private final CoachOAuthSettings settings;
   private final CoachOAuthAuthorizationService authorization;
   private final FixedWindowLimiter limiter;
+  private final ClientAddressResolver addresses;
 
   /**
    * Unauthenticated and able to make the server fetch a metadata URL and store a request, so limited per client
@@ -33,9 +34,11 @@ public class OAuthAuthorizeController {
    */
   public OAuthAuthorizeController(CoachOAuthSettings settings, CoachOAuthAuthorizationService authorization,
                                   java.time.Clock clock,
-                                  @org.springframework.beans.factory.annotation.Value("${coach.oauth.authorize.per-ip-per-minute:30}") int perIpPerMinute) {
+                                  @org.springframework.beans.factory.annotation.Value("${coach.oauth.authorize.per-ip-per-minute:30}") int perIpPerMinute,
+                                  ClientAddressResolver addresses) {
     this.settings = settings;
     this.authorization = authorization;
+    this.addresses = addresses;
     this.limiter = new FixedWindowLimiter(perIpPerMinute, java.time.Duration.ofMinutes(1), clock);
   }
 
@@ -44,7 +47,7 @@ public class OAuthAuthorizeController {
     if (!settings.enabled()) {
       return ResponseEntity.notFound().build();
     }
-    if (!limiter.tryAcquire(request.getRemoteAddr())) {
+    if (!limiter.tryAcquire(addresses.resolve(request))) {
       return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
         .contentType(new MediaType(MediaType.TEXT_HTML, java.nio.charset.StandardCharsets.UTF_8))
         .header("Content-Security-Policy", PAGE_CSP)

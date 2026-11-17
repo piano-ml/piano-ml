@@ -31,11 +31,14 @@ public class OAuthTokenController {
   private final CoachOAuthSettings settings;
   private final CoachOAuthTokenService tokens;
   private final FixedWindowLimiter limiter;
+  private final ClientAddressResolver addresses;
 
   public OAuthTokenController(CoachOAuthSettings settings, CoachOAuthTokenService tokens, Clock clock,
-                              @Value("${coach.oauth.token.per-ip-per-minute:120}") int perIpPerMinute) {
+                              @Value("${coach.oauth.token.per-ip-per-minute:120}") int perIpPerMinute,
+                                  ClientAddressResolver addresses) {
     this.settings = settings;
     this.tokens = tokens;
+    this.addresses = addresses;
     this.limiter = new FixedWindowLimiter(perIpPerMinute, Duration.ofMinutes(1), clock);
   }
 
@@ -89,7 +92,7 @@ public class OAuthTokenController {
 
   /** Rate limit, form encoding, no repeated parameter (RFC 6749 3.2). Null when the request may go on. */
   private ResponseEntity<Map<String, Object>> checkRequest(HttpServletRequest request) {
-    if (!limiter.tryAcquire(request.getRemoteAddr())) {
+    if (!limiter.tryAcquire(addresses.resolve(request))) {
       return error(HttpStatus.TOO_MANY_REQUESTS, "temporarily_unavailable", "Too many requests. Try again later.");
     }
     String type = request.getContentType();

@@ -25,7 +25,7 @@ import java.util.Map;
  * way a user registers by hand a client that does neither. 404 while OAuth is off.
  *
  * <p>Unauthenticated, so limited per client address ({@code coach.oauth.register.per-ip-per-hour}, 60 by default:
- * hosted applications register from a few shared egress addresses). Registered clients that never complete an
+ * hosted applications register from a few shared egress addresses), as {@link ClientAddressResolver} finds it. Registered clients that never complete an
  * authorization are deleted after 24 hours. Hand-written: the paths and fields are fixed by the RFC, and the SPA
  * never calls it.
  */
@@ -37,13 +37,16 @@ public class OAuthRegistrationController {
   private final CoachOAuthSettings settings;
   private final CoachOAuthClientService clients;
   private final FixedWindowLimiter limiter;
+  private final ClientAddressResolver addresses;
   private final Clock clock;
   private final ObjectMapper json = new ObjectMapper();
 
   public OAuthRegistrationController(CoachOAuthSettings settings, CoachOAuthClientService clients, Clock clock,
-                                     @Value("${coach.oauth.register.per-ip-per-hour:60}") int perIpPerHour) {
+                                     @Value("${coach.oauth.register.per-ip-per-hour:60}") int perIpPerHour,
+                                  ClientAddressResolver addresses) {
     this.settings = settings;
     this.clients = clients;
+    this.addresses = addresses;
     this.limiter = new FixedWindowLimiter(perIpPerHour, Duration.ofHours(1), clock);
     this.clock = clock;
   }
@@ -53,7 +56,7 @@ public class OAuthRegistrationController {
     if (!settings.enabled()) {
       return ResponseEntity.notFound().build();
     }
-    if (!limiter.tryAcquire(request.getRemoteAddr())) {
+    if (!limiter.tryAcquire(addresses.resolve(request))) {
       return error(HttpStatus.TOO_MANY_REQUESTS, "temporarily_unavailable", "Too many registrations. Try again later.");
     }
     if (request.getContentType() == null || !MediaType.APPLICATION_JSON.isCompatibleWith(MediaType.parseMediaType(request.getContentType()))) {
