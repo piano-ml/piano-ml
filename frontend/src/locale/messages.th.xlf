@@ -730,9 +730,17 @@
         <source>3. Play</source>
         <target state="translated">3. เล่น</target>
       </trans-unit>
-      <trans-unit id="coach.connect.playSoon" datatype="html">
-        <source>Coming soon: your assistant will open scores and start or stop the player in a PianoML tab where you turn on Remote coach.</source>
-        <target state="translated">เร็ว ๆ นี้: ผู้ช่วยจะเปิดโน้ตเพลงและเริ่มหรือหยุดเครื่องเล่นในแท็บ PianoML ที่คุณเปิดโค้ชทางไกลไว้</target>
+      <trans-unit id="coach.connect.playText" datatype="html">
+        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch stays at the bottom right of every page; turn it off at any time.</source>
+        <target state="translated">เปิดโค้ชทางไกลในแท็บ PianoML: ผู้ช่วยของคุณจะเปิดโน้ตเพลงและแบบฝึกหัด ตั้งค่าการฝึก และเริ่มหรือหยุดเครื่องเล่นในแท็บนั้นได้ สวิตช์อยู่มุมขวาล่างของทุกหน้า ปิดได้ทุกเมื่อ</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.playHint" datatype="html">
+        <source>Your browser asks for one click before the first sound: press Start playback when it shows up.</source>
+        <target state="translated">เบราว์เซอร์ต้องการการคลิกหนึ่งครั้งก่อนเสียงแรก: กด เริ่มเล่น เมื่อปุ่มปรากฏ</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.turnOn" datatype="html">
+        <source>Turn on Remote coach</source>
+        <target state="translated">เปิดโค้ชทางไกล</target>
       </trans-unit>
       <trans-unit id="coach.prompt.coach_start.title" datatype="html">
         <source>Start a coaching session</source>

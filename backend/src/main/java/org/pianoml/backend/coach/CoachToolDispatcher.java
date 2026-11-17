@@ -1,7 +1,9 @@
 package org.pianoml.backend.coach;
 
 import lombok.extern.slf4j.Slf4j;
+import org.pianoml.backend.coach.bridge.BrowserToolHandlers;
 import org.pianoml.backend.security.GrantPrincipal;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
@@ -11,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Runs one tool call for a grant (coach, issue #414), in this order: scopes, arguments, rate limit, handler.
@@ -31,6 +34,13 @@ public class CoachToolDispatcher {
   private final CoachAuditService audit;
   private final ObjectMapper objectMapper;
 
+  @Autowired
+  public CoachToolDispatcher(CoachToolCatalog catalog, List<CoachToolHandler> handlers, BrowserToolHandlers browserTools,
+                             CoachRateLimiter rateLimiter, CoachAuditService audit, ObjectMapper objectMapper) {
+    this(catalog, Stream.concat(handlers.stream(), browserTools.handlers().stream()).toList(), rateLimiter, audit, objectMapper);
+  }
+
+  /** The server tools are beans; the browser tools come from {@link BrowserToolHandlers}. */
   public CoachToolDispatcher(CoachToolCatalog catalog, List<CoachToolHandler> handlers, CoachRateLimiter rateLimiter,
                              CoachAuditService audit, ObjectMapper objectMapper) {
     this.catalog = catalog;

@@ -133,6 +133,12 @@ describe('ConnectComponent', () => {
     expect(q('connect-prompts-error')).not.toBeNull();
   });
 
+  it('the Play step turns Remote coach on through the confirmation link', () => {
+    create();
+    const link = q<HTMLAnchorElement>('connect-remote-coach')!;
+    expect(link.getAttribute('href')).toMatch(/[?&]remoteCoach=1$/);
+  });
+
   it('copies the server URL', async () => {
     create();
     q<HTMLButtonElement>('connect-url-copy')!.click();

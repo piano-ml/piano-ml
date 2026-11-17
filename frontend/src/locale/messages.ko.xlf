@@ -730,9 +730,17 @@
         <source>3. Play</source>
         <target state="translated">3. 연주</target>
       </trans-unit>
-      <trans-unit id="coach.connect.playSoon" datatype="html">
-        <source>Coming soon: your assistant will open scores and start or stop the player in a PianoML tab where you turn on Remote coach.</source>
-        <target state="translated">곧 제공: 원격 코치를 켠 PianoML 탭에서 어시스턴트가 악보를 열고 플레이어를 시작하거나 멈춥니다.</target>
+      <trans-unit id="coach.connect.playText" datatype="html">
+        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch stays at the bottom right of every page; turn it off at any time.</source>
+        <target state="translated">PianoML 탭에서 원격 코치를 켜세요. 그러면 어시스턴트가 그 탭에서 악보와 연습곡을 열고, 연습을 설정하고, 플레이어를 시작하거나 멈출 수 있습니다. 스위치는 모든 페이지의 오른쪽 아래에 있으며 언제든지 끌 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.playHint" datatype="html">
+        <source>Your browser asks for one click before the first sound: press Start playback when it shows up.</source>
+        <target state="translated">브라우저는 첫 소리 전에 한 번의 클릭을 요구합니다. 재생 시작 버튼이 나타나면 누르세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.turnOn" datatype="html">
+        <source>Turn on Remote coach</source>
+        <target state="translated">원격 코치 켜기</target>
       </trans-unit>
       <trans-unit id="coach.prompt.coach_start.title" datatype="html">
         <source>Start a coaching session</source>

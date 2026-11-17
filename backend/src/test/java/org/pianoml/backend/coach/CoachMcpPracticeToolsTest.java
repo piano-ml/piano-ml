@@ -42,11 +42,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class CoachMcpPracticeToolsTest {
 
-  /** The tools served by the MCP endpoint so far: the server tools of the contract (phases 2 and 3). */
+  /** Every tool of the contract is served since phase 9: the server tools and the browser tools. */
   private static final List<String> SERVER_TOOLS = List.of("get_context", "get_practice_summary", "get_practice_calendar",
     "list_practiced_items", "get_item_progress", "get_weak_spots", "get_key_stats", "get_practice_sessions", "get_practice_session",
     "search_scores", "get_score", "get_score_harmony", "get_score_videos", "list_my_scores", "list_composers",
-    "search_composers", "get_composer", "list_genres", "list_keys", "recommend_scores");
+    "search_composers", "get_composer", "list_genres", "list_keys", "recommend_scores",
+    "get_player_state", "list_exercises", "open_score", "open_exercise", "configure_practice", "play", "stop",
+    "wait_for_take_end", "get_current_session", "navigate");
   private static final List<String> ALL_SCOPES = List.of("practice:read", "scores:read", "player:control");
 
   @Autowired private MockMvc mockMvc;

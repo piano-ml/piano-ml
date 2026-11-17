@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CoachService, type CoachPrompt } from '../../core/api';
 import { SessionStorageService } from '../../account/services/session-storage.service';
 import { LOGIN_PATH, loginQueryParams } from '../../account/services/return-url';
@@ -69,7 +69,7 @@ const TABS: SnippetTab[] = [
  */
 @Component({
   selector: 'app-coach-connect',
-  imports: [CoachGrantsComponent],
+  imports: [CoachGrantsComponent, RouterLink],
   templateUrl: './connect.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

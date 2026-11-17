@@ -730,9 +730,17 @@
         <source>3. Play</source>
         <target state="translated">3. 演奏</target>
       </trans-unit>
-      <trans-unit id="coach.connect.playSoon" datatype="html">
-        <source>Coming soon: your assistant will open scores and start or stop the player in a PianoML tab where you turn on Remote coach.</source>
-        <target state="translated">即将推出：在你开启远程教练的 PianoML 标签页中，助手将打开乐谱并开始或停止播放器。</target>
+      <trans-unit id="coach.connect.playText" datatype="html">
+        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch stays at the bottom right of every page; turn it off at any time.</source>
+        <target state="translated">在 PianoML 标签页中开启远程教练：你的助手即可在那里打开乐谱和练习、设置练习，并开始或停止播放器。开关位于每个页面的右下角，可随时关闭。</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.playHint" datatype="html">
+        <source>Your browser asks for one click before the first sound: press Start playback when it shows up.</source>
+        <target state="translated">浏览器在发出第一个声音前需要一次点击：出现“开始播放”按钮时请点击它。</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.turnOn" datatype="html">
+        <source>Turn on Remote coach</source>
+        <target state="translated">开启远程教练</target>
       </trans-unit>
       <trans-unit id="coach.prompt.coach_start.title" datatype="html">
         <source>Start a coaching session</source>

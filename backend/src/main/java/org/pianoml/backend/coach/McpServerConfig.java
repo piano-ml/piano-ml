@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,8 @@ public class McpServerConfig {
   static final String ENDPOINT = "/mcp";
   static final String PRINCIPAL = "principal";
   static final String INSTRUCTIONS = "coach/instructions.md";
+  /** Above the longest wait of a browser tool on its tab (55 s), with a margin. */
+  static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(70);
 
   /**
    * The server is built here, in the same bean method as the router function: with lazy initialization a
@@ -66,6 +69,10 @@ public class McpServerConfig {
       .capabilities(McpSchema.ServerCapabilities.builder().tools(false).prompts(false).build())
       // Arguments are checked by the dispatcher, which answers INVALID_ARGUMENT in the result envelope
       .validateToolInputs(false)
+      // Player calls wait up to 55 s (open_score 50 s, wait_for_take_end its timeout + 5 s). The SDK default is
+      // 10 s; SDK 2.1.0 does not apply it to stateless tool calls (CoachMcpPlayerToolsTest passes a 12 s answer
+      // without this line), set anyway so that a version which does apply it cannot cut them.
+      .requestTimeout(REQUEST_TIMEOUT)
       .tools(tools)
       .prompts(prompts.all().stream().map(prompt -> promptSpecification(prompt, prompts)).toList())
       .build();

@@ -730,9 +730,17 @@
         <source>3. Play</source>
         <target state="translated">3. Graj</target>
       </trans-unit>
-      <trans-unit id="coach.connect.playSoon" datatype="html">
-        <source>Coming soon: your assistant will open scores and start or stop the player in a PianoML tab where you turn on Remote coach.</source>
-        <target state="translated">Wkrótce: asystent będzie otwierać nuty oraz uruchamiać i zatrzymywać odtwarzacz w karcie PianoML, w której włączysz zdalnego trenera.</target>
+      <trans-unit id="coach.connect.playText" datatype="html">
+        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch stays at the bottom right of every page; turn it off at any time.</source>
+        <target state="translated">Włącz zdalnego trenera w karcie PianoML: asystent będzie mógł tam otwierać nuty i ćwiczenia, ustawiać ćwiczenie oraz uruchamiać i zatrzymywać odtwarzacz. Przełącznik jest w prawym dolnym rogu każdej strony; wyłącz go w dowolnej chwili.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.playHint" datatype="html">
+        <source>Your browser asks for one click before the first sound: press Start playback when it shows up.</source>
+        <target state="translated">Przeglądarka wymaga jednego kliknięcia przed pierwszym dźwiękiem: naciśnij Rozpocznij odtwarzanie, gdy przycisk się pojawi.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.turnOn" datatype="html">
+        <source>Turn on Remote coach</source>
+        <target state="translated">Włącz zdalnego trenera</target>
       </trans-unit>
       <trans-unit id="coach.prompt.coach_start.title" datatype="html">
         <source>Start a coaching session</source>

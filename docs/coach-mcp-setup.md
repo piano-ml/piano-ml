@@ -27,7 +27,7 @@ Scopes:
 |---|---|
 | `practice:read` | Practice history, accuracy, streaks, level |
 | `scores:read` | Searching and reading the score library |
-| `player:control` | Opening scores and starting or stopping the player in a tab where you turned on Remote coach (not available yet) |
+| `player:control` | Opening scores and starting or stopping the player in a tab where you turned on Remote coach |
 
 Revoke a token from the same page; it stops working at once. Tokens are also revoked when the account is deleted.
 
@@ -71,8 +71,25 @@ The MCP Inspector (`npx @modelcontextprotocol/inspector`) can also connect: choo
 - Practice (`practice:read`): `get_practice_summary`, `get_practice_calendar`, `list_practiced_items`, `get_item_progress`, `get_weak_spots`, `get_key_stats`, `get_practice_sessions`, `get_practice_session`
 - Library (`scores:read`): `search_scores`, `get_score`, `get_score_harmony`, `get_score_videos`, `list_my_scores`, `list_composers`, `search_composers`, `get_composer`, `list_genres`, `list_keys`
 - Both: `recommend_scores`
+- Player (`player:control`, needs a PianoML tab with Remote coach on): `get_player_state`, `list_exercises`, `open_score`, `open_exercise`, `configure_practice`, `play`, `stop`, `wait_for_take_end`, `get_current_session`, `navigate`
 
-Player tools come in a later phase; the full list is in section 4 of the specification.
+The full descriptions are in section 4 of the specification.
+
+## Remote coach (player tools)
+
+The player tools run in your browser, not on the server: the assistant's call goes to the PianoML tab where you turned on **Remote coach**, and that tab answers.
+
+1. Open PianoML, logged in, and turn on the **Remote coach** switch at the bottom right of any page (or use the **Turn on Remote coach** button of the Connect page). Confirm.
+2. While it is on, the switch shows which tool controls the tab and lists what it did. Turn it off at any time; it is also off after a page reload or a logout.
+3. The browser needs one click before the first sound: when the assistant starts playback for the first time, press **Start playback** in the tab.
+
+What the assistant sees:
+
+- `NO_ACTIVE_PLAYER`: no tab has Remote coach on; the message gives the link `https://www.pianoml.org/?remoteCoach=1`, which opens the confirmation.
+- `AUDIO_LOCKED`: sound is not allowed yet; the student must press Start playback.
+- `PLAYER_TIMEOUT`: the tab did not answer in time (closed, asleep, offline).
+
+With several tabs on, the most recently focused one is controlled. The token needs the `player:control` scope.
 
 Every result is a JSON text: `{"ok": true, "data": ...}` or `{"ok": false, "code": "...", "message": "..."}`.
 
