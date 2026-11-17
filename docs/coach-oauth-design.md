@@ -239,7 +239,16 @@ Five phases, then one optional phase (O6), each one issue and one pull request, 
 Build: the two metadata documents (2.1) as static JSON from configuration (`coach.oauth.issuer`, `coach.oauth.resource`); the `WWW-Authenticate` challenge on 401 from the `/mcp` chain; CORS without credentials on `/mcp` and the well-known documents, with preflight answered before authentication (2.6); remove the `Origin` refusal of `/mcp` and the `coach.mcp.allowed-origins` property, and update section 2.3 of the coach specification and `CoachGrantTest`/`McpOriginFilterTest` accordingly.
 Tests: documents served at the three paths with every field of 2.1; an anonymous `/mcp` call gets 401 with the exact challenge, readable from a browser (`WWW-Authenticate` exposed); a `pml_` token works with and without an `Origin` header from any site; a preflight from any origin gets the CORS headers and no `Allow-Credentials`; a cookie sent to `/mcp` still authenticates nothing; the Remote coach WebSocket still refuses a foreign `Origin`.
 
-### Phase O2. Clients
+### Phase O2. Clients (done)
+
+*Implemented: changeset 028 `coach_oauth_client`; `coach/oauth/` `PublicAddresses` (SSRF address policy), `RedirectUris`, `ClientMetadataFetcher` (httpclient5, guarded DNS resolver: the address checked is the address connected to), `CoachOAuthClientService` (CIMD resolve and cache, DCR, cleanup), `OAuthRegistrationController` (`POST /oauth/register`), `OAuthSecurityConfig` (the OAuth chain, `@Order(2)`, and the daily cleanup at 03:37 UTC). Tests: `PublicAddressesTest`, `RedirectUrisTest`, `ClientMetadataFetcherTest`, `CoachOAuthClientServiceTest`, `OAuthRegistrationTest`.*
+
+*Decisions taken while building it:*
+- *A DCR client id is `pmc_` + 32 hex digits. A missing `token_endpoint_auth_method` is registered as `none` (the response says so), a missing `client_name` as "Unnamed application"; a CIMD document must have a name.*
+- *A CIMD document is accepted when `token_endpoint_auth_method` is absent or `none`, or when `none` is in `token_endpoint_auth_methods_supported` (ChatGPT lists several).*
+- *The registration limit is per client address, 60 per hour (`coach.oauth.register.per-ip-per-hour`), in memory per instance. Hosted applications register from a few shared egress addresses, hence the generous value; both hosts prefer CIMD, which needs no registration.*
+- *Behind a reverse proxy or load balancer, the client address is the proxy's unless `server.forward-headers-strategy` is set for the deployment: check it before turning OAuth on, or every registration shares one limit.*
+- *`/oauth/register` answers 404 while `coach.oauth.enabled` is off.*
 
 Build: `coach_oauth_client`; CIMD fetcher with the SSRF guard and cache (any public HTTPS host accepted); open DCR with its validation and rate limit; CORS on `/oauth/register`; daily cleanup.
 Tests: CIMD accepted from any public host, cached, refreshed; refused for HTTP, redirects, private and loopback addresses (also after DNS resolution), oversize, timeout, `client_id` mismatch, missing fields; DCR accepted with HTTPS redirect URIs on any host and with loopback ones, refused for confidential methods, plain-HTTP or custom-scheme redirect URIs, more than 5, rate limit; loopback port-agnostic match for `localhost`, `127.0.0.1` and `[::1]`; unused clients deleted.
