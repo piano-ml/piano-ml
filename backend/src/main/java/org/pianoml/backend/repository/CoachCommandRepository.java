@@ -15,6 +15,10 @@ import java.util.UUID;
 public interface CoachCommandRepository extends JpaRepository<CoachCommand, UUID> {
 
   /** The pending, unexpired commands of these tabs, oldest first: one query per pump tick. */
+  /** The user's commands still waiting for a result, on every instance. */
+  @Query("SELECT COUNT(c) FROM CoachCommand c WHERE c.userId = :userId AND c.status IN ('pending', 'sent') AND c.expiresAt > :now")
+  long countInFlight(@Param("userId") UUID userId, @Param("now") OffsetDateTime now);
+
   @Query("SELECT c FROM CoachCommand c WHERE c.status = 'pending' AND c.expiresAt > :now AND c.tabId IN :tabIds ORDER BY c.createdAt")
   List<CoachCommand> pendingFor(@Param("tabIds") Collection<UUID> tabIds, @Param("now") OffsetDateTime now);
 

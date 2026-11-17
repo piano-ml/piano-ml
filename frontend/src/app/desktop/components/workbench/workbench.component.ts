@@ -30,7 +30,7 @@ import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
-import { type Hands, type PlayerState, PlayerControlService, type WorkbenchHandle, accuracyOf, flowOf, handsOf, waitFor } from '../../service/player-control.service';
+import { type Hands, type PlayerState, PlayerControlService, type WorkbenchHandle, handsOf, lastTakeOf, waitFor } from '../../service/player-control.service';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
@@ -409,21 +409,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       showKeyboard: !this.hideKeyboard,
       midiInput: this.midiInputState(),
       audioUnlocked: this.playerAudio.isUnlocked(),
-      lastTake: take == null ? null : {
-        startedAt: take.startedAt ?? '',
-        measureStart: take.measureStart ?? 0,
-        measureEnd: take.measureEnd ?? 0,
-        completed: !!take.completed,
-        tempoFactor: take.tempoFactor ?? 1,
-        hands: take.hands ?? 'listen',
-        notesExpected: take.notesExpected ?? 0,
-        notesHit: take.notesHit ?? 0,
-        notesWrong: take.notesWrong ?? 0,
-        onsets: take.onsets ?? 0,
-        waits: take.waits ?? 0,
-        accuracy: accuracyOf(take.notesExpected ?? 0, take.notesHit ?? 0, take.notesWrong ?? 0),
-        flow: flowOf(take.onsets ?? 0, take.waits ?? 0),
-      },
+      lastTake: take == null ? null : lastTakeOf(take),
     };
   }
 

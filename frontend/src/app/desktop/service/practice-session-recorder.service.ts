@@ -7,6 +7,7 @@ import { XSRF_API_BASE, XSRF_COOKIE_NAME, XSRF_HEADER_NAME, readCookie } from '.
 import type { PlayConfiguration } from '../model/model';
 import { AssessCounters, AssessSnapshot, PlayerAssessService } from './player-assess.service';
 import type { CurrentSession } from './player-control.service';
+import { accuracyOf, flowOf, lastTakeOf } from './take-stats';
 
 /** What is on the music stand: a library score, or an exercise identified by its stable keys. */
 export type PracticeItem =
@@ -297,8 +298,8 @@ export class PracticeSessionRecorder implements OnDestroy {
     }
     const ratio = (c: AssessCounters) => ({
       ...toApiCounters(c),
-      accuracy: c.expected > 0 ? c.hit / (c.expected + c.wrong) : null,
-      flow: c.onsets > 0 ? 1 - c.waits / c.onsets : null,
+      accuracy: accuracyOf(c.expected, c.hit, c.wrong),
+      flow: flowOf(c.onsets, c.waits),
     });
     const item = session.item;
     return {
@@ -310,22 +311,7 @@ export class PracticeSessionRecorder implements OnDestroy {
       takeCount: session.takeCount,
       completedCount: session.completedCount,
       totals: ratio(session.totals),
-      takes: session.takes.slice(-10).map(t => ({
-        startedAt: t.startedAt ?? '',
-        activeSeconds: t.activeSeconds ?? 0,
-        measureStart: t.measureStart ?? 0,
-        measureEnd: t.measureEnd ?? 0,
-        completed: !!t.completed,
-        tempoFactor: t.tempoFactor ?? 1,
-        hands: t.hands ?? 'listen',
-        notesExpected: t.notesExpected ?? 0,
-        notesHit: t.notesHit ?? 0,
-        notesWrong: t.notesWrong ?? 0,
-        onsets: t.onsets ?? 0,
-        waits: t.waits ?? 0,
-        accuracy: (t.notesExpected ?? 0) > 0 ? (t.notesHit ?? 0) / ((t.notesExpected ?? 0) + (t.notesWrong ?? 0)) : null,
-        flow: (t.onsets ?? 0) > 0 ? 1 - (t.waits ?? 0) / (t.onsets ?? 0) : null,
-      })),
+      takes: session.takes.slice(-10).map(t => ({ ...lastTakeOf(t), activeSeconds: t.activeSeconds ?? 0 })),
       weakMeasures: [...session.measures.entries()]
         .filter(([, c]) => c.expected > 0)
         .map(([measure, c]) => ({ measure, ...ratio(c) }))

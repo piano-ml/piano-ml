@@ -29,7 +29,11 @@ import java.util.UUID;
 @Service
 public class PlayerBridge {
 
+  /** Result polling: every 150 ms for the first 2 seconds (most commands answer within that), then slower. */
   static final long POLL_MS = 150;
+  static final long POLL_MS_AFTER_2S = 400;
+  static final long POLL_MS_AFTER_10S = 1000;
+  public static final String BUSY = "BUSY";
 
   private final CoachToolCatalog catalog;
   private final CoachPresenceRepository presence;
@@ -38,9 +42,17 @@ public class PlayerBridge {
   private final CoachRows rows;
   private final ObjectMapper objectMapper;
   private final Clock clock;
+  private final int maxInFlight;
 
+  /**
+   * {@code coach.bridge.max-in-flight} (2 by default): browser commands a user may have waiting at once, across
+   * instances. Each waits on a thread for up to the tool's timeout; the per-grant rate limit bounds how many start
+   * per minute, not how many wait together. Two let a coach check the player while a wait_for_take_end runs.
+   */
   public PlayerBridge(CoachToolCatalog catalog, CoachPresenceRepository presence, CoachCommandRepository commands,
-                      BridgeSessions sessions, CoachRows rows, ObjectMapper objectMapper, Clock clock) {
+                      BridgeSessions sessions, CoachRows rows, ObjectMapper objectMapper, Clock clock,
+                      @org.springframework.beans.factory.annotation.Value("${coach.bridge.max-in-flight:2}") int maxInFlight) {
+    this.maxInFlight = maxInFlight;
     this.catalog = catalog;
     this.presence = presence;
     this.commands = commands;
@@ -65,6 +77,11 @@ public class PlayerBridge {
       return CoachToolResult.error("NO_ACTIVE_PLAYER",
         "No PianoML tab has Remote coach on. Ask the student to open " + rows.siteUrl() + "/?remoteCoach=1 and confirm.");
     }
+    if (commands.countInFlight(userId, now) >= maxInFlight) {
+      return CoachToolResult.error(BUSY, "Another player command for this student is still running (for example "
+        + "wait_for_take_end). Wait for it to finish before sending another one, or call stop to end the current take. "
+        + "Do not retry in a loop.");
+    }
     CoachCommand command = new CoachCommand();
     command.setId(UUID.randomUUID());
     command.setUserId(userId);
@@ -81,14 +98,15 @@ public class PlayerBridge {
     if (sessions.isLocal(command.getTabId())) {
       sessions.deliver(command);
     }
-    long deadline = System.nanoTime() + waitSeconds * 1_000_000_000L;
+    long started = System.nanoTime();
+    long deadline = started + waitSeconds * 1_000_000_000L;
     while (System.nanoTime() < deadline) {
       Optional<CoachCommand> current = commands.findById(command.getId());
       if (current.isPresent() && CoachCommand.DONE.equals(current.get().getStatus())) {
         return parse(current.get().getResult());
       }
       try {
-        Thread.sleep(POLL_MS);
+        Thread.sleep(pollDelay((System.nanoTime() - started) / 1_000_000L));
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         break;
@@ -97,6 +115,14 @@ public class PlayerBridge {
     commands.expire(command.getId());
     return CoachToolResult.error("PLAYER_TIMEOUT",
       "The PianoML tab did not answer in time. Check that it is still open, then try again.");
+  }
+
+  /** The pause before the next read of the result, after {@code elapsedMs} of waiting. */
+  static long pollDelay(long elapsedMs) {
+    if (elapsedMs < 2_000) {
+      return POLL_MS;
+    }
+    return elapsedMs < 10_000 ? POLL_MS_AFTER_2S : POLL_MS_AFTER_10S;
   }
 
   private CoachToolResult parse(String result) {

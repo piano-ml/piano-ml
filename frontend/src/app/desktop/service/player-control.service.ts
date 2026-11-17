@@ -103,15 +103,7 @@ export interface WorkbenchHandle {
   stop(): void;
 }
 
-/** notesHit / (notesExpected + notesWrong), null when nothing was assessed. */
-export function accuracyOf(notesExpected: number, notesHit: number, notesWrong: number): number | null {
-  return notesExpected > 0 ? notesHit / (notesExpected + notesWrong) : null;
-}
-
-/** 1 - waits / onsets, null when nothing was assessed. */
-export function flowOf(onsets: number, waits: number): number | null {
-  return onsets > 0 ? 1 - waits / onsets : null;
-}
+export { accuracyOf, flowOf, lastTakeOf } from './take-stats';
 
 /** The hands setting from the workbench's two "wait for" switches. */
 export function handsOf(waitForLeftHand: boolean, waitForRightHand: boolean): Hands {

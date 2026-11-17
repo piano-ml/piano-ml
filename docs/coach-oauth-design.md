@@ -295,6 +295,8 @@ Tests: RFC 7636 test vectors; wrong verifier, wrong redirect URI, wrong client, 
 - *Two installations of the same application no longer disconnect each other (2.5).*
 - *Per-address limits behind a proxy: see `ClientAddressResolver` (O2 decisions). The count of trusted proxies must match the deployment: too low shares one limit, too high trusts a forged entry.*
 - *`wait_for_take_end` tells two takes apart by their start time (`lastTake.startedAt`), so a loop whose takes have identical counts (listen mode, for example) is still seen.*
+- *Browser commands: at most `coach.bridge.max-in-flight` (2) waiting per user, across instances; one more answers the tool error `BUSY`, whose message tells the coach to wait or call stop, and the coach instructions say to send player commands one at a time. Result polling slows from 150 ms to 400 ms after 2 seconds and 1 second after 10. Each waiting command holds a thread, which the per-grant rate limit did not bound.*
+- *Accuracy and flow are computed in one place (`desktop/service/take-stats.ts`) for get_player_state and get_current_session, so the two tools cannot drift apart.*
 - *`CoachGrantService.revokeAll` has no caller because nothing changes a password yet (`POST /account/password_reset` answers 501); the reset, when built, must call it. A marker is in `AccountController`.*
 
 ### Phase O5. Real clients, wherever they run (verification)

@@ -339,6 +339,55 @@ class BridgeTest {
   }
 
   @Test
+  void aThirdCommandWhileTwoWait_isBusy_andTheNextOneGoesThroughOnceOneEnds() throws Exception {
+    User user = newUser();
+    TestTab tab = ready(user);
+    CompletableFuture<CoachToolResult> wait = sendAsync(user, "wait_for_take_end", "{\"timeoutSeconds\":30}", 30);
+    JsonNode waitCommand = tab.next();
+    CompletableFuture<CoachToolResult> check = sendAsync(user, "get_player_state", "{}", 30);
+    JsonNode checkCommand = tab.next();
+
+    CoachToolResult busy = bridge.send(user.getId(), UUID.randomUUID(), "Test host", "play", "{}", 5);
+    assertThat(busy.ok()).isFalse();
+    assertThat(busy.code()).isEqualTo(PlayerBridge.BUSY);
+    assertThat(busy.message()).contains("Wait for it to finish").contains("call stop");
+    assertThat(tab.next(300)).isNull(); // a refused command never reaches the tab
+
+    tab.send(Map.of("type", "result", "id", checkCommand.path("id").asText(), "result", Map.of("ok", true, "data", 1)));
+    assertThat(check.get(10, TimeUnit.SECONDS).ok()).isTrue();
+    CompletableFuture<CoachToolResult> stop = sendAsync(user, "stop", "{}", 5);
+    tab.answerNext(Map.of("ok", true, "data", Map.of("playing", false)));
+    assertThat(stop.get(10, TimeUnit.SECONDS).ok()).isTrue();
+
+    tab.send(Map.of("type", "result", "id", waitCommand.path("id").asText(), "result", Map.of("ok", true, "data", 2)));
+    assertThat(wait.get(10, TimeUnit.SECONDS).ok()).isTrue();
+  }
+
+  @Test
+  void theCapIsPerUser() throws Exception {
+    User busyUser = newUser();
+    TestTab busyTab = ready(busyUser);
+    sendAsync(busyUser, "wait_for_take_end", "{}", 30);
+    sendAsync(busyUser, "wait_for_take_end", "{}", 30);
+    busyTab.next();
+    busyTab.next();
+    User other = newUser();
+    TestTab otherTab = ready(other);
+    CompletableFuture<CoachToolResult> pending = sendAsync(other, "get_player_state", "{}", 5);
+    otherTab.answerNext(Map.of("ok", true, "data", 1));
+    assertThat(pending.get(10, TimeUnit.SECONDS).ok()).isTrue();
+  }
+
+  @Test
+  void polling_slowsDownAsTheWaitGrows() {
+    assertThat(PlayerBridge.pollDelay(0)).isEqualTo(150);
+    assertThat(PlayerBridge.pollDelay(1_999)).isEqualTo(150);
+    assertThat(PlayerBridge.pollDelay(2_000)).isEqualTo(400);
+    assertThat(PlayerBridge.pollDelay(9_999)).isEqualTo(400);
+    assertThat(PlayerBridge.pollDelay(10_000)).isEqualTo(1000);
+  }
+
+  @Test
   void aForgedCommandRow_forAnotherUsersTab_isNeverDelivered() throws Exception {
     User victim = newUser();
     TestTab tab = ready(victim);
