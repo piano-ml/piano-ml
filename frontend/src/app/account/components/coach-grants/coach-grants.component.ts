@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AccountGrantsService, CoachGrantScope, type CoachGrantApiInfo } from '../../../core/api';
+import { CoachGrantPresenceService } from '../../../coach/remote/coach-grant-presence.service';
 
 export const SCOPES: readonly CoachGrantScope[] = [
   CoachGrantScope.PracticeRead,
@@ -42,6 +43,7 @@ const ERROR_REVOKE = $localize`:@@coach.grants.error.revoke:The access could not
 })
 export class CoachGrantsComponent implements OnInit {
   private readonly api = inject(AccountGrantsService);
+  private readonly presence = inject(CoachGrantPresenceService);
   private readonly locale = inject(LOCALE_ID);
   private readonly fb = inject(FormBuilder);
 
@@ -80,6 +82,7 @@ export class CoachGrantsComponent implements OnInit {
     this.api.accountGrantsGet().subscribe({
       next: grants => {
         this.grants.set(grants);
+        this.presence.update(grants);
         this.loaded.set(true);
       },
       // A failure leaves the list empty: the rest of the account page does not depend on it

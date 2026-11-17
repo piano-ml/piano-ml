@@ -4,6 +4,7 @@ import { Router, provideRouter } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { vi } from 'vitest';
 import { SessionStorageService } from '../../account/services/session-storage.service';
+import { CoachGrantPresenceService } from './coach-grant-presence.service';
 import type { BridgeActivity, BridgeState, RemoteBridgeService } from './remote-bridge.service';
 import { REMOTE_BRIDGE_LOADER, RemoteCoachComponent } from './remote-coach.component';
 
@@ -16,8 +17,16 @@ describe('RemoteCoachComponent', () => {
     enable: ReturnType<typeof vi.fn>; disable: ReturnType<typeof vi.fn>; startPlayback: ReturnType<typeof vi.fn>;
   };
 
-  async function create(options: { loggedIn?: boolean; platform?: string; url?: string } = {}) {
+  let presence: { hasPlayerGrant: ReturnType<typeof signal<boolean>>; refresh: ReturnType<typeof vi.fn>; reset: ReturnType<typeof vi.fn> };
+
+  async function create(options: { loggedIn?: boolean; platform?: string; url?: string; hasGrant?: boolean } = {}) {
     loggedIn = new BehaviorSubject(options.loggedIn ?? true);
+    const hasGrant = options.hasGrant ?? true;
+    presence = {
+      hasPlayerGrant: signal(false),
+      refresh: vi.fn(() => presence.hasPlayerGrant.set(hasGrant)),
+      reset: vi.fn(() => presence.hasPlayerGrant.set(false)),
+    };
     bridge = {
       state: signal<BridgeState>('off'), lastClient: signal<string | null>(null), activity: signal<BridgeActivity[]>([]),
       audioLocked: signal(false),
@@ -29,6 +38,7 @@ describe('RemoteCoachComponent', () => {
         provideRouter([{ path: '**', children: [] }]),
         { provide: PLATFORM_ID, useValue: options.platform ?? 'browser' },
         { provide: SessionStorageService, useValue: { isLoggedIn: loggedIn.asObservable(), getUserId: () => (loggedIn.value ? 'u1' : null) } },
+        { provide: CoachGrantPresenceService, useValue: presence },
         { provide: REMOTE_BRIDGE_LOADER, useValue: () => Promise.resolve(bridge as unknown as RemoteBridgeService) },
       ],
     });
@@ -128,5 +138,32 @@ describe('RemoteCoachComponent', () => {
     const url = TestBed.inject(Router).url;
     expect(url).toMatch(/^\/account\/login\?returnUrl=/);
     expect(decodeURIComponent(url)).toContain('remoteCoach=1');
+  });
+
+  it('stays hidden from a user without a grant that can drive the player', async () => {
+    await create({ hasGrant: false });
+    expect(presence.refresh).toHaveBeenCalledOnce();
+    expect(q('remote-coach')).toBeNull();
+  });
+
+  it('appears once a grant shows up, and hides again on logout', async () => {
+    await create({ hasGrant: false });
+    presence.hasPlayerGrant.set(true);
+    fixture.detectChanges();
+    expect(q('remote-coach')).not.toBeNull();
+    loggedIn.next(false);
+    fixture.detectChanges();
+    expect(presence.reset).toHaveBeenCalled();
+    expect(q('remote-coach')).toBeNull();
+  });
+
+  it('without a grant, the Connect page link still turns it on, and it then shows', async () => {
+    await create({ hasGrant: false, url: '/coach/connect?remoteCoach=1' });
+    await fixture.whenStable();
+    expect(q('remote-coach')).toBeNull();
+    await click('remote-coach-confirm-yes');
+    await vi.waitFor(() => expect(bridge.enable).toHaveBeenCalledOnce());
+    fixture.detectChanges();
+    expect(q('remote-coach-status')?.textContent).toContain('Remote coach on');
   });
 });

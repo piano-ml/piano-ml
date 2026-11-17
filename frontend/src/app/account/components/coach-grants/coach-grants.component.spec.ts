@@ -1,3 +1,4 @@
+import { CoachGrantPresenceService } from '../../../coach/remote/coach-grant-presence.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -153,5 +154,14 @@ describe('CoachGrantsComponent', () => {
     click('coach-grant-revoke-confirm');
     expect(api.accountGrantsIdDelete).toHaveBeenCalledWith('g1');
     expect(api.accountGrantsGet).toHaveBeenCalledTimes(2);
+  });
+
+  it('tells the Remote coach switch whether a live player grant exists, without asking again', () => {
+    create([{ ...ACTIVE, scopes: ['player:control'] }]);
+    expect(TestBed.inject(CoachGrantPresenceService).hasPlayerGrant()).toBe(true);
+    expect(api.accountGrantsGet).toHaveBeenCalledOnce();
+    TestBed.resetTestingModule();
+    create([ACTIVE, REVOKED, EXPIRED]); // no live grant with the player scope
+    expect(TestBed.inject(CoachGrantPresenceService).hasPlayerGrant()).toBe(false);
   });
 });

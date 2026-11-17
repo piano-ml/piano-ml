@@ -6,6 +6,7 @@ import { filter } from 'rxjs';
 import { SessionStorageService } from '../../account/services/session-storage.service';
 import { LOGIN_PATH, loginQueryParams } from '../../account/services/return-url';
 import type { BridgeState, RemoteBridgeService } from './remote-bridge.service';
+import { CoachGrantPresenceService } from './coach-grant-presence.service';
 
 /**
  * Loads the bridge, with the tool registry and the tools, the first time the switch is turned on: none of it is
@@ -37,7 +38,8 @@ const TOOL_LABELS: Record<string, string> = {
 /**
  * The Remote coach switch (issue #414): lets the student's AI assistant drive the player in this tab. Off by
  * default, on after a confirmation, never remembered across page loads. The bridge and the tools are loaded the
- * first time it is turned on.
+ * first time it is turned on. Shown only to users with a live grant that can drive the player, or while it is on
+ * (turned on from the Connect page, or still connecting after the grant was revoked).
  */
 @Component({
   selector: 'app-remote-coach',
@@ -49,6 +51,7 @@ export class RemoteCoachComponent {
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
   private readonly loadBridge = inject(REMOTE_BRIDGE_LOADER);
+  private readonly grants = inject(CoachGrantPresenceService);
   protected readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   readonly loggedIn = toSignal(this.session.isLoggedIn, { initialValue: false });
@@ -62,11 +65,19 @@ export class RemoteCoachComponent {
   readonly lastClient = computed(() => this.bridge()?.lastClient() ?? null);
   readonly activity = computed(() => this.bridge()?.activity() ?? []);
   readonly audioLocked = computed(() => this.bridge()?.audioLocked() ?? false);
+  readonly visible = computed(() => this.grants.hasPlayerGrant() || this.state() !== 'off');
 
   constructor() {
     if (!this.isBrowser) {
       return;
     }
+    this.session.isLoggedIn.pipe(takeUntilDestroyed()).subscribe(loggedIn => {
+      if (loggedIn) {
+        this.grants.refresh();
+      } else {
+        this.grants.reset();
+      }
+    });
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd), takeUntilDestroyed(inject(DestroyRef)))
       .subscribe(e => this.onNavigation(e.urlAfterRedirects));

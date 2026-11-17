@@ -1,4 +1,4 @@
-@if (isBrowser && loggedIn()) {
+@if (isBrowser && loggedIn() && visible()) {
   <div class="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 max-w-xs" data-testid="remote-coach">
     @if (audioLocked()) {
       <button type="button" class="btn-success shadow-lg" data-testid="remote-coach-start-playback" (click)="startPlayback()"
