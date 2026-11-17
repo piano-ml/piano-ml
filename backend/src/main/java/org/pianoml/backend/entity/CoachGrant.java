@@ -52,4 +52,8 @@ public class CoachGrant {
 
   @Column(name = "revoked_at")
   private OffsetDateTime revokedAt;
+
+  /** The OAuth client of a grant of kind {@link #KIND_OAUTH}; null for a personal access token. */
+  @Column(name = "client_id", length = 500)
+  private String clientId;
 }

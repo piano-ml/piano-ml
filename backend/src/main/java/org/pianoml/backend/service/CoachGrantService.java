@@ -43,6 +43,9 @@ public class CoachGrantService {
   public static final int MAX_NAME_LENGTH = 80;
   public static final int DEFAULT_EXPIRY_DAYS = 90;
   public static final int MAX_EXPIRY_DAYS = 365;
+  /** An OAuth grant lasts this long from consent, whatever its refresh tokens do (docs/coach-oauth-design.md 2.4). */
+  public static final int OAUTH_GRANT_DAYS = 365;
+  private static final List<String> SCOPES_ORDER = List.of("practice:read", "scores:read", "player:control");
   /** Expired or revoked grants are kept this long (the account page still lists them), then deleted. */
   static final Duration KEEP_STALE = Duration.ofDays(30);
   /** {@code last_used_at} is written at most this often per grant. */
@@ -91,7 +94,7 @@ public class CoachGrantService {
       throw new IllegalArgumentException("The expiry must be 1 to " + MAX_EXPIRY_DAYS + " days.");
     }
     OffsetDateTime now = now();
-    if (repository.countLive(user.getId(), now) >= MAX_LIVE_GRANTS) {
+    if (repository.countLive(user.getId(), CoachGrant.KIND_PAT, now) >= MAX_LIVE_GRANTS) {
       throw new TooManyGrantsException();
     }
 
@@ -170,11 +173,57 @@ public class CoachGrantService {
     boolean hashMatches = MessageDigest.isEqual(
       grant.getSecretHash().getBytes(StandardCharsets.US_ASCII),
       sha256Hex(secret).getBytes(StandardCharsets.US_ASCII));
-    if (!hashMatches || grant.getRevokedAt() != null || !grant.getExpiresAt().isAfter(now)) {
+    if (!hashMatches || !CoachGrant.KIND_PAT.equals(grant.getKind()) || grant.getRevokedAt() != null
+      || !grant.getExpiresAt().isAfter(now)) {
       return Optional.empty();
     }
     repository.touch(id, now, now.minus(TOUCH_INTERVAL));
     return Optional.of(new GrantPrincipal(grant.getUserId(), grant.getId(), grant.getName(), scopesOf(grant)));
+  }
+
+  /**
+   * Creates the grant an OAuth authorization produced (phase O4): kind oauth, named after the client, valid
+   * {@link #OAUTH_GRANT_DAYS} days from now, absolute. It replaces the user's previous live grant for the same
+   * client (one connection per application: Claude's web, desktop and mobile apps share one client), and, when
+   * the user already has {@link #MAX_LIVE_GRANTS} live OAuth grants, the least recently used one: connecting an
+   * application never fails for that, and never touches personal access tokens. No secret: OAuth grants are
+   * reached through their tokens only, and a {@code pml_} token can never match one.
+   */
+  @Transactional
+  public CoachGrant createOAuth(UUID userId, String clientId, String clientName, Set<String> scopes) {
+    OffsetDateTime now = now();
+    List<CoachGrant> live = repository.findLiveOAuth(userId, now);
+    for (CoachGrant previous : live) {
+      if (clientId.equals(previous.getClientId())) {
+        repository.revokeById(previous.getId(), now);
+      }
+    }
+    List<CoachGrant> others = live.stream().filter(g -> !clientId.equals(g.getClientId())).toList();
+    for (int i = 0; i <= others.size() - MAX_LIVE_GRANTS; i++) {
+      repository.revokeById(others.get(i).getId(), now);
+    }
+    byte[] unusable = new byte[SECRET_BYTES];
+    random.nextBytes(unusable);
+    CoachGrant grant = new CoachGrant();
+    grant.setId(UUID.randomUUID());
+    grant.setUserId(userId);
+    grant.setName(clientName.length() > MAX_NAME_LENGTH ? clientName.substring(0, MAX_NAME_LENGTH) : clientName);
+    grant.setKind(CoachGrant.KIND_OAUTH);
+    grant.setSecretHash(sha256Hex(unusable));
+    grant.setScopes(String.join(" ", SCOPES_ORDER.stream().filter(scopes::contains).toList()));
+    grant.setCreatedAt(now);
+    grant.setExpiresAt(now.plusDays(OAUTH_GRANT_DAYS));
+    grant.setClientId(clientId);
+    repository.save(grant);
+    log.info("Coach OAuth grant {} created for user {} and client {}", grant.getId(), userId, clientId);
+    return grant;
+  }
+
+  /** Revokes one grant by id, whoever owns it: a reused code or refresh token means theft. */
+  public void revokeById(UUID grantId) {
+    if (repository.revokeById(grantId, now()) > 0) {
+      log.warn("Coach grant {} revoked: a code or refresh token was used twice", grantId);
+    }
   }
 
   /** Deletes the grants expired or revoked more than 30 days ago. */

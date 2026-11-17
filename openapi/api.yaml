@@ -2365,6 +2365,13 @@ components:
         kind:
           type: string
           enum: [pat, oauth]
+          description: pat, a personal access token created on the account page; oauth, an application connected by signing in.
+        clientHost:
+          type: string
+          nullable: true
+          description: >
+            For an oauth grant, the host of the application's metadata URL (who vouches for it). Null for a
+            personal access token and for a dynamically registered application.
         scopes:
           type: array
           items:

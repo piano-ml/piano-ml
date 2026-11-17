@@ -69,16 +69,20 @@ public class OAuthSecurityConfig {
 
     private final CoachOAuthClientService clients;
     private final CoachOAuthAuthorizationService authorization;
+    private final CoachOAuthTokenService tokens;
 
-    public CoachOAuthCleanup(CoachOAuthClientService clients, CoachOAuthAuthorizationService authorization) {
+    public CoachOAuthCleanup(CoachOAuthClientService clients, CoachOAuthAuthorizationService authorization,
+                             CoachOAuthTokenService tokens) {
       this.clients = clients;
       this.authorization = authorization;
+      this.tokens = tokens;
     }
 
     @Scheduled(cron = "${coach.oauth.cleanup.cron:0 37 3 * * *}", zone = "UTC")
     public void purge() {
       try {
         authorization.purgeExpired();
+        tokens.purgeExpired();
         int deleted = clients.purgeStale();
         if (deleted > 0) {
           log.info("Deleted {} unused coach OAuth client(s)", deleted);

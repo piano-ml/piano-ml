@@ -1,0 +1,51 @@
+# OAuth tokens of the coach (issue #414, docs/coach-oauth-design.md 2.4, phase O4).
+# - coach_oauth_token: access tokens (pmo_..., 1 hour) and refresh tokens (pmr_..., 60 days, never past the
+#   grant); token_hash is the hex SHA-256 of the whole token. A refresh token is single use (used_at): using it
+#   twice revokes its grant. Rows go away with their grant (ON DELETE CASCADE).
+# - coach_grant.client_id: the OAuth client of a grant of kind oauth (null for personal access tokens).
+databaseChangeLog:
+  - changeSet:
+      id: 030-1-create-coach-oauth-token
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: coach_oauth_token
+            columns:
+              - column: { name: token_hash, type: CHAR(64), constraints: { nullable: false } }
+              - column: { name: grant_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: kind, type: VARCHAR(8), constraints: { nullable: false } }
+              - column: { name: client_id, type: VARCHAR(500), constraints: { nullable: false } }
+              - column: { name: resource, type: VARCHAR(500), constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: expires_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: used_at, type: TIMESTAMP WITH TIME ZONE }
+        - addPrimaryKey:
+            schemaName: pianoml
+            tableName: coach_oauth_token
+            columnNames: token_hash
+            constraintName: pk_coach_oauth_token
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: coach_oauth_token
+            baseColumnNames: grant_id
+            constraintName: fk_coach_oauth_token_grant
+            referencedTableSchemaName: pianoml
+            referencedTableName: coach_grant
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - createIndex:
+            schemaName: pianoml
+            tableName: coach_oauth_token
+            indexName: idx_coach_oauth_token_grant
+            columns:
+              - column: { name: grant_id }
+  - changeSet:
+      id: 030-2-add-coach-grant-client-id
+      author: pianoml
+      changes:
+        - addColumn:
+            schemaName: pianoml
+            tableName: coach_grant
+            columns:
+              - column: { name: client_id, type: VARCHAR(500) }

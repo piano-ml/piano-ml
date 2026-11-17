@@ -226,6 +226,10 @@
         <source>Revoke</source>
         <target state="translated">Widerrufen</target>
       </trans-unit>
+      <trans-unit id="coach.grants.kind.oauth" datatype="html">
+        <source>Connected application</source>
+        <target state="translated">Verbundene Anwendung</target>
+      </trans-unit>
       <trans-unit id="coach.grants.expires" datatype="html">
         <source>Expires <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></source>
         <target state="translated">Läuft ab am <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></target>

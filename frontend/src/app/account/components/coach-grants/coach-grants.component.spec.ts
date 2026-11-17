@@ -164,4 +164,18 @@ describe('CoachGrantsComponent', () => {
     create([ACTIVE, REVOKED, EXPIRED]); // no live grant with the player scope
     expect(TestBed.inject(CoachGrantPresenceService).hasPlayerGrant()).toBe(false);
   });
+
+  it('tells connected applications from personal tokens, with the host that vouches for them', () => {
+    create([
+      { ...ACTIVE, id: 'o1', name: 'Claude', kind: 'oauth', clientHost: 'claude.ai' },
+      { ...ACTIVE, id: 'o2', name: 'My harness', kind: 'oauth', clientHost: null },
+      ACTIVE,
+    ]);
+    const rows = Array.from(el().querySelectorAll('[data-testid="coach-grant"]'));
+    expect(rows[0].querySelector('[data-testid="coach-grant-oauth"]')?.textContent).toContain('Connected application');
+    expect(rows[0].querySelector('[data-testid="coach-grant-oauth"]')?.textContent).toContain('claude.ai');
+    expect(rows[1].querySelector('[data-testid="coach-grant-oauth"]')?.textContent?.trim()).toBe('Connected application');
+    expect(rows[2].querySelector('[data-testid="coach-grant-oauth"]')).toBeNull();
+    expect(rows[0].querySelector('[data-testid="coach-grant-revoke"]')).not.toBeNull();
+  });
 });

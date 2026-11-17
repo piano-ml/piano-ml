@@ -115,6 +115,11 @@
                     }
                   }
                 </div>
+                @if (grant.kind === 'oauth') {
+                  <span class="text-xs text-neutral-400" data-testid="coach-grant-oauth">
+                    <ng-container i18n="@@coach.grants.kind.oauth">Connected application</ng-container>@if (grant.clientHost) { · <span class="font-mono">{{ grant.clientHost }}</span> }
+                  </span>
+                }
                 <span class="text-xs text-neutral-400">{{ scopeList(grant) }}</span>
                 <span class="text-xs text-neutral-500">
                   <ng-container i18n="@@coach.grants.expires">Expires {{ date(grant.expiresAt) }}</ng-container>

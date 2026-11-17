@@ -13,7 +13,14 @@ import { CoachGrantScope } from './coachGrantScope';
 export interface CoachGrantCreated { 
     id: string;
     name: string;
+    /**
+     * pat, a personal access token created on the account page; oauth, an application connected by signing in.
+     */
     kind: CoachGrantCreated.KindEnum;
+    /**
+     * For an oauth grant, the host of the application\'s metadata URL (who vouches for it). Null for a personal access token and for a dynamically registered application. 
+     */
+    clientHost?: string | null;
     scopes: Array<CoachGrantScope>;
     createdAt: string;
     expiresAt: string;

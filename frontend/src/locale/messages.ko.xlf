@@ -226,6 +226,10 @@
         <source>Revoke</source>
         <target state="translated">취소하기</target>
       </trans-unit>
+      <trans-unit id="coach.grants.kind.oauth" datatype="html">
+        <source>Connected application</source>
+        <target state="translated">연결된 애플리케이션</target>
+      </trans-unit>
       <trans-unit id="coach.grants.expires" datatype="html">
         <source>Expires <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/>에 만료</target>

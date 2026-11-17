@@ -11,6 +11,17 @@ import java.time.OffsetDateTime;
 
 public interface CoachOAuthCodeRepository extends JpaRepository<CoachOAuthCode, String> {
 
+  /** Marks an unused code used; 1 for the one caller that wins, 0 when it was already used. */
+  @Transactional
+  @Modifying
+  @Query("UPDATE CoachOAuthCode c SET c.usedAt = :now WHERE c.codeHash = :hash AND c.usedAt IS NULL")
+  int markUsed(@Param("hash") String hash, @Param("now") OffsetDateTime now);
+
+  @Transactional
+  @Modifying
+  @Query("UPDATE CoachOAuthCode c SET c.grantId = :grantId WHERE c.codeHash = :hash")
+  int setGrant(@Param("hash") String hash, @Param("grantId") java.util.UUID grantId);
+
   /** Kept a day after expiry, so that a late second use is still recognized as a reuse (phase O4). */
   @Transactional
   @Modifying

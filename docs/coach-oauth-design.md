@@ -107,8 +107,8 @@ The session cookie is `HttpOnly; Secure; SameSite=Strict`, host-only on `api.pia
   - `authorization_code`: checks `code`, `redirect_uri`, `client_id`, `code_verifier` against the S256 challenge, `resource`. Creates the `coach_grant` row (kind `oauth`, `name` = the client name, scopes = granted, `expires_at` = consent date + **365 days, absolute**), then an access token and a refresh token.
   - `refresh_token`: rotation. The used refresh token is marked used and a new pair is returned in the same response. A refresh token used twice means theft: the grant is revoked (all its tokens die) and `invalid_grant` is returned.
   - Errors follow RFC 6749 (`invalid_grant`, `invalid_client`, `invalid_request`), JSON body, `Cache-Control: no-store`.
-- **Access token.** Opaque, stored hashed, **1 hour**, bound to the grant and the resource. Format `pmo_<tokenId>_<secret>` (same shape as `pml_`, its own prefix so the two kinds are told apart and scanners can recognize both).
-- **Refresh token.** Opaque, stored hashed, 60 days, rotated on each use, never past the grant's expiry: an active connection lasts until the grant's 365 days, then the client gets `invalid_grant` and the user consents again.
+- **Access token.** Opaque, stored hashed, **1 hour**, bound to the grant and the resource. Format `pmo_<43 base64url characters>`, looked up by its SHA-256: its own prefix, so personal and OAuth tokens are told apart and secret scanners can recognize both.
+- **Refresh token.** Opaque (`pmr_<43 base64url characters>`), stored hashed, 60 days, rotated on each use, never past the grant's expiry: an active connection lasts until the grant's 365 days, then the client gets `invalid_grant` and the user consents again.
 - **Revocation** `POST /oauth/revoke` (RFC 7009) for clients; users revoke on the account page as today.
 - **On `/mcp`.** `GrantAuthenticationFilter` accepts `pml_` (personal) and `pmo_` (OAuth access) tokens. For `pmo_` it checks expiry, the grant (not revoked, not expired) and the audience (`resource` = canonical), then builds the same `GrantPrincipal`.
 
@@ -268,7 +268,18 @@ Tests: CIMD accepted from any public host, cached, refreshed; refused for HTTP, 
 Build: `GET /oauth/authorize`, `coach_oauth_request`, the HTML error page, `GET /oauth/requests/{id}`, `POST /oauth/requests/{id}/decision`, `coach_oauth_code`; SPA consent page `/coach/authorize` (lazy, noindex, rendered in the browser, `frame-ancestors 'none'`), login round trip, translations.
 Tests: every validation of 2.3 with the right outcome (page before `redirect_uri` is trusted, redirect after), `iss` and `state` on every redirect; request single use, bound to the deciding user, expiry; refusal gives `access_denied`; narrowed scopes; frontend: renders client host, redirect host and scopes, loopback warning, unverified label, login round trip, approve and refuse navigate to the returned URL.
 
-### Phase O4. Tokens
+### Phase O4. Tokens (done)
+
+*Implemented: changeset 030 (`coach_oauth_token`, `coach_grant.client_id`); `coach/oauth/CoachOAuthTokenService`, `OAuthTokenController` (`POST /oauth/token`, `POST /oauth/revoke`); `CoachGrantService.createOAuth`; `GrantAuthenticationFilter` accepts `pmo_`; `clientHost` on the grants of `GET /account/grants` and the "Connected application" line on the account page. Tests: `OAuthTokenTest` (20), `coach-grants.component.spec.ts`.*
+
+*Decisions taken while building it:*
+- *Tokens are `pmo_` (access) and `pmr_` (refresh) followed by 32 random bytes, looked up by hash; no id part is needed.*
+- *Code and refresh token single use are conditional updates: of two concurrent requests with the same value, one wins and the other is treated as a reuse (the grant is revoked), as OAuth 2.1 prescribes.*
+- *A sixth connected application replaces the least recently used OAuth grant rather than failing at the token endpoint, where the user cannot be told why. Personal tokens keep their own limit of 5.*
+- *Revoking a refresh token (RFC 7009) revokes the grant; revoking an access token ends that token only.*
+- *A `pml_` token can never authenticate an OAuth grant (its secret hash is random and the kind is checked).*
+- *`coach.oauth.enabled` stays `false` by default: every endpoint exists, but each environment turns OAuth on explicitly, staging first, for phase O5. Before that, check `server.forward-headers-strategy` (O2) and that `coach.oauth.issuer` and `coach.oauth.consent-url` match the environment.*
+- *Cold-instance latency (Claude allows 10 seconds) is not measured by the tests; it is part of O5.*
 
 Build: `POST /oauth/token` (code with PKCE and `resource`, refresh with rotation and reuse detection, 365-day absolute grant), `pmo_` access tokens, `coach_oauth_token`, `POST /oauth/revoke`, CORS on both; `GrantAuthenticationFilter` accepts `pmo_`; one live grant per (user, client); account page lists OAuth grants.
 Tests: RFC 7636 test vectors; wrong verifier, wrong redirect URI, wrong client, wrong resource, missing resource bound to the canonical one, expired or reused code (the reuse revokes the grant); form-urlencoded only; refresh returns a new pair and the old token dies; a reused refresh token revokes the grant and answers `invalid_grant`; no refresh past the grant's 365 days (`invalid_grant`); a `pmo_` token works on `/mcp` with the grant's scopes, is refused when expired, revoked or of another audience; revoking on the account page kills the tokens at once; a new consent for the same client replaces the old grant; the token endpoint is usable from a browser page on another site; the endpoints answer well under 10 s on a cold instance.

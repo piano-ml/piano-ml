@@ -18,9 +18,26 @@ public interface CoachGrantRepository extends JpaRepository<CoachGrant, UUID> {
 
   Optional<CoachGrant> findByIdAndUserId(UUID id, UUID userId);
 
-  /** Grants neither revoked nor expired at {@code now}. */
-  @Query("SELECT COUNT(g) FROM CoachGrant g WHERE g.userId = :userId AND g.revokedAt IS NULL AND g.expiresAt > :now")
-  long countLive(@Param("userId") UUID userId, @Param("now") OffsetDateTime now);
+  /** Grants of this kind neither revoked nor expired at {@code now}. */
+  @Query("""
+    SELECT COUNT(g) FROM CoachGrant g
+    WHERE g.userId = :userId AND g.kind = :kind AND g.revokedAt IS NULL AND g.expiresAt > :now
+    """)
+  long countLive(@Param("userId") UUID userId, @Param("kind") String kind, @Param("now") OffsetDateTime now);
+
+  /** The user's live OAuth grants, least recently used first. */
+  @Query("""
+    SELECT g FROM CoachGrant g
+    WHERE g.userId = :userId AND g.kind = 'oauth' AND g.revokedAt IS NULL AND g.expiresAt > :now
+    ORDER BY COALESCE(g.lastUsedAt, g.createdAt) ASC
+    """)
+  List<CoachGrant> findLiveOAuth(@Param("userId") UUID userId, @Param("now") OffsetDateTime now);
+
+  /** Revokes one grant, if still live. */
+  @Transactional
+  @Modifying
+  @Query("UPDATE CoachGrant g SET g.revokedAt = :now WHERE g.id = :id AND g.revokedAt IS NULL")
+  int revokeById(@Param("id") UUID id, @Param("now") OffsetDateTime now);
 
   /** Records a use, at most once per minute: only when the last recorded use is older than {@code before}. */
   @Transactional

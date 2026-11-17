@@ -213,11 +213,24 @@ public class AccountController implements AccountApi {
       .id(grant.getId())
       .name(grant.getName())
       .kind(CoachGrantApiInfo.KindEnum.fromValue(grant.getKind()))
+      .clientHost(clientHost(grant.getClientId()))
       .scopes(CoachGrantService.scopesOf(grant).stream().sorted().map(CoachGrantScope::fromValue).toList())
       .createdAt(grant.getCreatedAt())
       .expiresAt(grant.getExpiresAt())
       .lastUsedAt(grant.getLastUsedAt())
       .revokedAt(grant.getRevokedAt());
+  }
+
+  /** The host of an OAuth client id that is a metadata URL; null otherwise (dynamic registration, personal token). */
+  private static String clientHost(String clientId) {
+    if (clientId == null || !clientId.startsWith("https://")) {
+      return null;
+    }
+    try {
+      return java.net.URI.create(clientId).getHost();
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 
   /** @throws org.pianoml.backend.exception.UserNotLoggedInException (401) for an anonymous request */

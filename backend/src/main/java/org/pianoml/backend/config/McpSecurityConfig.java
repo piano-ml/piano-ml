@@ -2,6 +2,7 @@ package org.pianoml.backend.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.coach.oauth.CoachOAuthSettings;
+import org.pianoml.backend.coach.oauth.CoachOAuthTokenService;
 import org.pianoml.backend.coach.oauth.McpAuthenticationEntryPoint;
 import org.pianoml.backend.coach.oauth.PublicCors;
 import org.pianoml.backend.security.GrantAuthenticationFilter;
@@ -25,7 +26,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  * Security of /mcp/**, the endpoint external AI tools call with an access grant token (coach, issue #414).
  *
  * <p>A chain of its own, ordered before {@link SecurityConfig}'s catch-all chain, so the two can never be
- * confused: here only {@code pml_} tokens authenticate (no cookie, no session JWT), there a {@code pml_} token
+ * confused: here only grant tokens authenticate ({@code pml_} personal, {@code pmo_} OAuth; no cookie, no session
+ * JWT), there a {@code pml_} token
  * authenticates nothing ({@link org.pianoml.backend.security.JwtAuthenticationFilter}). The main chain skips
  * CSRF for any request with an Authorization header; a grant token that worked there would be a full session.
  *
@@ -41,7 +43,8 @@ public class McpSecurityConfig {
 
   @Bean
   @Order(1)
-  public SecurityFilterChain mcpFilterChain(HttpSecurity http, CoachGrantService grants, CoachOAuthSettings oauth)
+  public SecurityFilterChain mcpFilterChain(HttpSecurity http, CoachGrantService grants, CoachOAuthSettings oauth,
+                                            CoachOAuthTokenService oauthTokens)
     throws Exception {
     UrlBasedCorsConfigurationSource cors = new UrlBasedCorsConfigurationSource();
     cors.registerCorsConfiguration("/mcp/**", PublicCors.configuration());
@@ -57,7 +60,7 @@ public class McpSecurityConfig {
       .exceptionHandling(exceptions -> exceptions
         .authenticationEntryPoint(new McpAuthenticationEntryPoint(oauth))
         .accessDeniedHandler(new AccessDeniedHandlerImpl()))
-      .addFilterBefore(new GrantAuthenticationFilter(grants), AnonymousAuthenticationFilter.class)
+      .addFilterBefore(new GrantAuthenticationFilter(grants, oauthTokens), AnonymousAuthenticationFilter.class)
       .authorizeHttpRequests(authz -> authz.anyRequest().authenticated());
     return http.build();
   }
