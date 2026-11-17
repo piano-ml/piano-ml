@@ -814,6 +814,86 @@
         <source>For assistants that can only start local servers, for example the Claude Desktop configuration file. Needs Node.js.</source>
         <target state="translated">适用于只能启动本地服务器的助手，例如 Claude Desktop 的配置文件。需要 Node.js。</target>
       </trans-unit>
+      <trans-unit id="coach.remote.startPlayback" datatype="html">
+        <source>Start playback</source>
+        <target state="translated">开始播放</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.controlledBy" datatype="html">
+        <source>Controlled by <x id="INTERPOLATION" equiv-text="{{ client }}"/></source>
+        <target state="translated">由 <x id="INTERPOLATION" equiv-text="{{ client }}"/> 控制</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.waiting" datatype="html">
+        <source>Remote coach on</source>
+        <target state="translated">远程教练已开启</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.connecting" datatype="html">
+        <source>Connecting…</source>
+        <target state="translated">正在连接…</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.error" datatype="html">
+        <source>Remote coach could not connect</source>
+        <target state="translated">远程教练无法连接</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.label" datatype="html">
+        <source>Remote coach</source>
+        <target state="translated">远程教练</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.activity" datatype="html">
+        <source>Activity</source>
+        <target state="translated">活动</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.confirm.title" datatype="html">
+        <source>Turn on Remote coach?</source>
+        <target state="translated">开启远程教练？</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.confirm.text" datatype="html">
+        <source>External tools you gave access to will be able to open scores and start or stop the player in this tab until you turn this off or close the tab.</source>
+        <target state="translated">你授予访问权限的外部工具将能在此标签页中打开乐谱并开始或停止播放器，直到你关闭此功能或关闭标签页。</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.confirm.yes" datatype="html">
+        <source>Turn on</source>
+        <target state="translated">开启</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.get_player_state" datatype="html">
+        <source>Checked the player</source>
+        <target state="translated">查看了播放器</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.list_exercises" datatype="html">
+        <source>Looked at the exercises</source>
+        <target state="translated">查看了练习</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.open_score" datatype="html">
+        <source>Opened a score</source>
+        <target state="translated">打开了乐谱</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.open_exercise" datatype="html">
+        <source>Opened an exercise</source>
+        <target state="translated">打开了练习</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.configure_practice" datatype="html">
+        <source>Set up the practice</source>
+        <target state="translated">设置了练习</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.play" datatype="html">
+        <source>Started playback</source>
+        <target state="translated">开始了播放</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.stop" datatype="html">
+        <source>Stopped playback</source>
+        <target state="translated">停止了播放</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.wait_for_take_end" datatype="html">
+        <source>Waited for the end of the take</source>
+        <target state="translated">等待本次弹奏结束</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.get_current_session" datatype="html">
+        <source>Read the current session</source>
+        <target state="translated">读取了当前练习</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.navigate" datatype="html">
+        <source>Showed a page</source>
+        <target state="translated">显示了页面</target>
+      </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
         <target state="translated">工作台设置</target>

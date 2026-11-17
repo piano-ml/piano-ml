@@ -28,6 +28,7 @@ model/allWorksApiInfoWorksInnerRelationsInner.ts
 model/allWorksApiInfoWorksInnerRelationsInnerArtist.ts
 model/authorApiInfo.ts
 model/authorWithScoreCount.ts
+model/coachBridgeTicket.ts
 model/coachGrantApiInfo.ts
 model/coachGrantCreate.ts
 model/coachGrantCreated.ts

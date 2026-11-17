@@ -1,0 +1,61 @@
+@if (isBrowser && loggedIn()) {
+  <div class="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 max-w-xs" data-testid="remote-coach">
+    @if (audioLocked()) {
+      <button type="button" class="btn-success shadow-lg" data-testid="remote-coach-start-playback" (click)="startPlayback()"
+        i18n="@@coach.remote.startPlayback">Start playback</button>
+    }
+
+    @if (expanded() && activity().length > 0) {
+      <ul class="exercise-desc-card p-3 flex flex-col gap-1 text-xs shadow-lg" data-testid="remote-coach-activity">
+        @for (entry of activity(); track $index) {
+          <li class="flex justify-between gap-3" [class.text-error]="!entry.ok">
+            <span>{{ label(entry.tool) }}</span>
+            <span class="text-neutral-400 shrink-0">{{ time(entry.at) }}</span>
+          </li>
+        }
+      </ul>
+    }
+
+    <div class="exercise-desc-card px-3 py-2 flex items-center gap-3 shadow-lg">
+      @if (on()) {
+        <span class="inline-block w-2.5 h-2.5 rounded-full" [class.bg-success]="state() === 'on'" [class.bg-warning]="state() === 'connecting'"
+          aria-hidden="true"></span>
+      }
+      <span class="text-xs text-neutral-300" data-testid="remote-coach-status">
+        @switch (state()) {
+          @case ('on') {
+            @if (lastClient(); as client) {
+              <ng-container i18n="@@coach.remote.controlledBy">Controlled by {{ client }}</ng-container>
+            } @else {
+              <ng-container i18n="@@coach.remote.waiting">Remote coach on</ng-container>
+            }
+          }
+          @case ('connecting') { <ng-container i18n="@@coach.remote.connecting">Connecting…</ng-container> }
+          @case ('error') { <ng-container i18n="@@coach.remote.error">Remote coach could not connect</ng-container> }
+          @default { <ng-container i18n="@@coach.remote.label">Remote coach</ng-container> }
+        }
+      </span>
+      @if (activity().length > 0) {
+        <button type="button" class="link-primary text-xs" data-testid="remote-coach-expand" [attr.aria-expanded]="expanded()"
+          (click)="expanded.set(!expanded())" i18n="@@coach.remote.activity">Activity</button>
+      }
+      <label class="flex items-center cursor-pointer">
+        <input type="checkbox" class="w-4 h-4 cursor-pointer" role="switch" [checked]="on()" (click)="$event.preventDefault(); toggle()"
+          data-testid="remote-coach-switch" i18n-aria-label="@@coach.remote.label" aria-label="Remote coach">
+      </label>
+    </div>
+  </div>
+}
+
+@if (confirming()) {
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="remote-coach-title" data-testid="remote-coach-confirm">
+    <div class="modal-content">
+      <h3 id="remote-coach-title" class="page-sub-title mb-4" i18n="@@coach.remote.confirm.title">Turn on Remote coach?</h3>
+      <p class="text-sm text-neutral-400 mb-6" i18n="@@coach.remote.confirm.text">External tools you gave access to will be able to open scores and start or stop the player in this tab until you turn this off or close the tab.</p>
+      <div class="flex justify-end gap-3">
+        <button type="button" class="btn-secondary" data-testid="remote-coach-dismiss" (click)="dismiss()" i18n="@@coach.grants.cancel">Cancel</button>
+        <button type="button" class="btn-primary" data-testid="remote-coach-confirm-yes" (click)="confirm()" i18n="@@coach.remote.confirm.yes">Turn on</button>
+      </div>
+    </div>
+  </div>
+}

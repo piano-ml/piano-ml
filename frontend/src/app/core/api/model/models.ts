@@ -9,6 +9,7 @@ export * from './allWorksApiInfoWorksInnerRelationsInner';
 export * from './allWorksApiInfoWorksInnerRelationsInnerArtist';
 export * from './authorApiInfo';
 export * from './authorWithScoreCount';
+export * from './coachBridgeTicket';
 export * from './coachGrantApiInfo';
 export * from './coachGrantCreate';
 export * from './coachGrantCreated';
