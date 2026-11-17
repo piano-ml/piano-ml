@@ -139,6 +139,27 @@ What makes the last row work:
 
 Clients that support neither CIMD nor DCR are registered by hand by the user (section 7, question 1).
 
+### 2.7 Device code (optional, phase O6)
+
+For a client on a machine where no browser can reach it: Claude Code or a harness over SSH on a server, a terminal, a headless box. The loopback redirect of 2.2 needs a browser on that same machine. The OAuth 2.0 Device Authorization Grant (RFC 8628) needs none: the client shows a short code, and the user approves on any device, the phone included.
+
+**Client support is the open point.** The MCP authorization specification does not define the device flow and neither host documents it. The server side is built only when a client that supports it needs it (phase O6); until then such clients use a personal access token.
+
+Flow:
+
+1. **`POST /oauth/device_authorization`** (form-urlencoded, public client, CORS without credentials): `client_id`, `scope`, `resource`. Answer: `device_code` (32 random bytes, stored hashed), `user_code` (8 characters from `BCDFGHJKLMNPQRSTVWXZ`, shown `BCDF-GHJK`, stored hashed), `verification_uri: https://www.pianoml.org/device`, `verification_uri_complete: …/device?code=BCDF-GHJK`, `expires_in: 600`, `interval: 5`.
+2. **The client shows** the URL and the code (or a QR code of `verification_uri_complete`) and starts polling.
+3. **SPA page `/device`** (same site as the API, so the session works): login if needed, enter the code (prefilled from `?code=`), then the same consent content as 2.3 (client name and host, scopes) plus a phishing warning: "Approve only if you started this connection yourself and see the same code on that device." Decision by `POST /oauth/device/decision` (session + CSRF), body `{ userCode, approve, scopes }`.
+4. **The client polls** `POST /oauth/token` with `grant_type=urn:ietf:params:oauth:grant-type:device_code`, `device_code`, `client_id`. Answers: `authorization_pending` while undecided, `slow_down` when it polls faster than `interval` (the interval grows by 5 s), `access_denied` after a refusal, `expired_token` after 10 minutes; on approval the same grant and token pair as 2.4 (365-day grant, `pmo_` access token, rotated refresh token). The device code is single use.
+
+Safety:
+
+- **User-code guessing:** 20⁸ ≈ 2.6 × 10¹⁰ codes, at most 5 wrong entries per session per 10 minutes and a per-IP limit; a code is bound to the user who enters it first.
+- **Phishing** (an attacker starts a flow and sends its code to a victim): the warning above, the client's name and host on the page, and the grant visible on the account page with its Revoke button.
+- No redirect URI is involved, so the redirect rules of 2.2 do not apply; the client must still be identified by CIMD or DCR.
+
+Changes elsewhere when O6 is built: the metadata of 2.1 adds `device_authorization_endpoint` and the device grant type to `grant_types_supported`; DCR accepts that grant type and, for a client that only uses it, no redirect URIs; the state is polled from Postgres, so any instance can answer any poll.
+
 ---
 
 ## 3. Data model (Liquibase)
@@ -154,6 +175,9 @@ coach_oauth_code     code_hash char(64) pk, client_id, redirect_uri, code_challe
 coach_oauth_token    token_hash char(64) pk, grant_id fk coach_grant cascade, kind ('access' | 'refresh'),
                      client_id, resource, created_at, expires_at, used_at, replaced_by null
 coach_grant          + client_id varchar(500) null (OAuth grants)
+coach_oauth_device   device_code_hash char(64) pk, user_code_hash char(64) unique, client_id, scopes,
+                     resource, user_id null, status ('pending' | 'approved' | 'denied'), interval_seconds,
+                     last_polled_at, created_at, expires_at, used_at     -- phase O6 only
 ```
 
 Every table is cleaned daily (expired requests and codes, used and expired tokens, unused clients), the way the other coach jobs are.
@@ -168,6 +192,8 @@ Every table is cleaned daily (expired requests and codes, used and expired token
 | `GET /oauth/authorize` | new OAuth chain | none (a browser navigation) |
 | `POST /oauth/token`, `POST /oauth/register`, `POST /oauth/revoke` | new OAuth chain | none (public clients); no CSRF (no cookie is read); CORS `*` without credentials; rate-limited |
 | `GET /oauth/requests/{id}`, `POST /oauth/requests/{id}/decision` | main chain | cookie session; CSRF on the POST; same-site only (PianoML's consent page) |
+| `POST /oauth/device_authorization` (O6) | OAuth chain | none (public client); CORS `*` without credentials; rate-limited |
+| `POST /oauth/device/decision` (O6) | main chain | cookie session; CSRF |
 | `/mcp/**` | existing `/mcp` chain | `pml_` or `pmo_` bearer; 401 with the challenge; any `Origin`; CORS `*` without credentials |
 
 The OAuth chain (`/oauth/authorize`, `/oauth/token`, `/oauth/register`, `/oauth/revoke`) reads no cookie at all, like the `/mcp` chain: these endpoints must work without the session and must never be turned into a session.
@@ -204,7 +230,7 @@ Scopes, `GrantPrincipal`, the `/mcp` chain rules (no cookie, `Origin` refused un
 
 ## 8. Implementation plan
 
-Five phases, each one issue and one pull request, in the format of section 7 of the coach specification (common rules apply).
+Five phases, then one optional phase (O6), each one issue and one pull request, in the format of section 7 of the coach specification (common rules apply).
 
 ### Phase O1. Discovery, the 401 challenge, clients anywhere
 
@@ -238,3 +264,10 @@ With a staging deployment, one client of each kind of section 2.6:
 For each, record: the client identification it used, the redirect URI, whether `/mcp` requests carry an `Origin` header, the refresh behavior, and the time each endpoint took. Fix what differs from this design without special-casing a client, run an OAuth conformance tool against staging, update the coach specification and `docs/coach-mcp-setup.md` (sections "Add PianoML to an application that signs in by OAuth", with Claude and ChatGPT as examples, and "Register a client by hand" with the `curl` recipe of section 7, question 1), and check the coach prompts: `coach_start` pasted in each client calls `get_context`.
 
 Done when all five clients connect, use the tools, survive a token refresh, and lose access when the grant is revoked on the account page.
+
+### Phase O6 (optional). Device code
+
+Start only when a client that supports RFC 8628 needs to connect from a machine without a reachable browser.
+Build: `POST /oauth/device_authorization`, `coach_oauth_device`, the device grant on `POST /oauth/token`, `POST /oauth/device/decision`, SPA page `/device` (lazy, noindex, rendered in the browser, `frame-ancestors 'none'`, code prefilled from `?code=`, translations), the metadata and DCR changes of 2.7, daily cleanup.
+Tests: codes have the right alphabet, length and lifetime, stored hashed; polling answers `authorization_pending`, `slow_down` (interval grows), `access_denied`, `expired_token`, then tokens once and never again; a poll on another instance than the approval succeeds; wrong user codes are limited per session and per IP; a code entered by one user cannot be approved by another; the grant is the same as from the code flow (365 days, rotation, revocation from the account page); frontend: login round trip, prefilled code, phishing warning, approve and refuse.
+Done when a client using the device flow on a machine without a browser connects with approval from a phone, and loses access when the grant is revoked.
