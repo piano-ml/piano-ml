@@ -2,6 +2,13 @@
 
 Phase 10 of `docs/coach-external-harness.md` (issue #414). Design only: no code in this phase. The implementation plan is in section 8.
 
+**Decisions (2026-11-17).**
+
+- **Clients can be hosted anywhere**: a hosted chat application, a desktop or command-line program on the user's machine, a self-hosted harness on any domain, or a web page running in the user's browser. Nothing in the design may assume where the client runs (section 2.6).
+- **The OAuth endpoints are implemented in the backend, without Spring Security's authorization server.** Spring Security keeps routing requests to the existing filter chains; the protocol itself is plain controllers and services (section 5).
+- **Any client metadata URL is accepted** (open CIMD trust policy), behind the SSRF guard.
+- **A grant lasts 365 days** from consent, absolute; refresh tokens rotate within it. After that the user consents again.
+
 **Goal.** A user adds `https://api.pianoml.org/mcp` to a hosted chat application (the Claude apps first), is sent to PianoML to log in and approve, and the application gets an access token. The result of the flow is a `coach_grant` row of kind `oauth`: everything after authentication (the `/mcp` chain, `GrantPrincipal`, scopes, dispatcher, audit, limits) stays as it is. Personal access tokens (`pml_…`) keep working beside it.
 
 **Rule.** Follow the MCP authorization specification; special-case no host. Where a host is stricter than the specification, meet the stricter rule if it stays within the specification.
@@ -34,7 +41,7 @@ The second host is ChatGPT (apps and connectors): another vendor, OAuth-capable 
 | Token endpoint | | `application/x-www-form-urlencoded`; **10 s** limit (30 s for refresh), also for discovery and registration | `none` or `private_key_jwt` for CIMD |
 | Where calls come from | | Anthropic servers, `160.79.104.0/21` | OpenAI servers; mTLS client certificate and published egress ranges |
 
-**Origin header.** Neither host's documentation says whether requests to `/mcp` carry an `Origin` header. Calls come from their servers, so most likely not. Section B3 of the coach specification refuses any request with an `Origin` unless it is allow-listed: keep the rule, check it in the host tests (phase O5), and allow-list only what a real host sends.
+**Origin header.** Neither host's documentation says whether requests to `/mcp` carry an `Origin` header; calls from their servers most likely do not. Clients running in a browser always send one. Since clients can be hosted anywhere, `/mcp` accepts any `Origin` (section 2.6).
 
 **Consequence.** One server design serves both hosts: CIMD with public clients, DCR as a fallback, PKCE S256, `resource` binding, RFC 9207 `iss`, refresh rotation, a 401 challenge. No host-specific code path is needed.
 
@@ -55,6 +62,8 @@ The second host is ChatGPT (apps and connectors): another vendor, OAuth-capable 
 
 The canonical resource is `https://api.pianoml.org/mcp` (no trailing slash): the Connect page shows exactly that URL, because Claude compares `resource` with what the user typed.
 
+**`resource` parameter.** A request naming another resource is refused (`invalid_target`). A request without it is accepted and bound to the canonical resource: the specification requires clients to send it, but older clients do not, and there is only one resource to mean.
+
 ### 2.2 Clients
 
 Public clients only (`token_endpoint_auth_method: none`, PKCE). No client secrets to store or leak.
@@ -64,7 +73,7 @@ Public clients only (`token_endpoint_auth_method: none`, PKCE). No client secret
 - Fetch the document when an unknown URL-shaped `client_id` arrives; cache it per `Cache-Control`, at most 24 hours.
 - SSRF guard: HTTPS only, port 443, no redirects, a public address only (resolve the host and refuse loopback, private, link-local and metadata ranges, also after resolution), 5 s timeout, 16 KB maximum.
 - Check: valid JSON; `client_id` equals the URL exactly; `client_name` and `redirect_uris` present; the requested `redirect_uri` is in `redirect_uris` (loopback rule below).
-- Trust policy: open (any HTTPS client id), because the coach is meant for any host. The consent page shows the client id's host prominently; hosts of a short "known" list (`claude.ai`, `chatgpt.com`) get a "known application" label, any other host a neutral one. The list is presentation, never a security boundary.
+- Trust policy: **open, decided**: any HTTPS client id, on any host. The consent page shows the client id's host prominently, with the self-declared client name next to it, so the user judges who asks.
 
 **DCR** (RFC 7591), the fallback both hosts use when CIMD is missing:
 
@@ -72,7 +81,7 @@ Public clients only (`token_endpoint_auth_method: none`, PKCE). No client secret
 - Accept only `token_endpoint_auth_method: none`, `grant_types` ⊆ {authorization_code, refresh_token}, `response_types: ["code"]`, redirect URIs that are HTTPS or loopback, at most 5 of them, `client_name` at most 80 characters.
 - Rate limit per IP (registration is unauthenticated). Delete clients that never completed an authorization within 24 hours, and clients unused for 90 days: Claude registers a new client on every fresh connection.
 
-**Redirect URIs.** Exact match against the registered list, except loopback: `http://localhost` and `http://127.0.0.1` match with the port ignored (RFC 8252 §7.3; Claude Code needs both).
+**Redirect URIs.** Any HTTPS URI on any host, or a loopback URI (`http://localhost`, `http://127.0.0.1`, `http://[::1]`), as the MCP specification allows; nothing else (no plain `http` on other hosts, no custom schemes). Exact match against the registered list, except loopback, which matches with the port ignored (RFC 8252 §7.3; Claude Code needs it for both `localhost` and `127.0.0.1`).
 
 ### 2.3 Authorization and consent
 
@@ -95,11 +104,11 @@ The session cookie is `HttpOnly; Secure; SameSite=Strict`, host-only on `api.pia
 ### 2.4 Tokens
 
 - **Token endpoint** `POST /oauth/token`, `application/x-www-form-urlencoded`, public clients (`client_id` in the body, no secret).
-  - `authorization_code`: checks `code`, `redirect_uri`, `client_id`, `code_verifier` against the S256 challenge, `resource`. Creates the `coach_grant` row (kind `oauth`, `name` = the client name, scopes = granted, `expires_at` = consent date + 365 days), then an access token and a refresh token.
+  - `authorization_code`: checks `code`, `redirect_uri`, `client_id`, `code_verifier` against the S256 challenge, `resource`. Creates the `coach_grant` row (kind `oauth`, `name` = the client name, scopes = granted, `expires_at` = consent date + **365 days, absolute**), then an access token and a refresh token.
   - `refresh_token`: rotation. The used refresh token is marked used and a new pair is returned in the same response. A refresh token used twice means theft: the grant is revoked (all its tokens die) and `invalid_grant` is returned.
   - Errors follow RFC 6749 (`invalid_grant`, `invalid_client`, `invalid_request`), JSON body, `Cache-Control: no-store`.
 - **Access token.** Opaque, stored hashed, **1 hour**, bound to the grant and the resource. Format `pmo_<tokenId>_<secret>` (same shape as `pml_`, its own prefix so the two kinds are told apart and scanners can recognize both).
-- **Refresh token.** Opaque, stored hashed, 60 days, rotated on each use (so an active connection never expires before the grant's 365 days).
+- **Refresh token.** Opaque, stored hashed, 60 days, rotated on each use, never past the grant's expiry: an active connection lasts until the grant's 365 days, then the client gets `invalid_grant` and the user consents again.
 - **Revocation** `POST /oauth/revoke` (RFC 7009) for clients; users revoke on the account page as today.
 - **On `/mcp`.** `GrantAuthenticationFilter` accepts `pml_` (personal) and `pmo_` (OAuth access) tokens. For `pmo_` it checks expiry, the grant (not revoked, not expired) and the audience (`resource` = canonical), then builds the same `GrantPrincipal`.
 
@@ -109,6 +118,26 @@ The session cookie is `HttpOnly; Secure; SameSite=Strict`, host-only on `api.pia
 - OAuth grants and personal tokens have separate limits (5 each), so connecting an application never requires revoking a personal token.
 - The account page lists OAuth grants beside personal tokens: client name, client host, scopes, last use, the same Revoke button. Revoking kills the access and refresh tokens at once.
 - Password reset (when it exists) and account deletion revoke or delete them, as for personal tokens.
+
+### 2.6 Clients hosted anywhere
+
+Where the client runs changes three things: how it is identified, where it is sent back, and whether a browser sits between it and PianoML.
+
+| Client | Identification | Redirect | Browser rules |
+|---|---|---|---|
+| Hosted chat application (Claude apps, ChatGPT) | CIMD or DCR | HTTPS on its domain | none (server-to-server) |
+| Desktop or command-line program (Claude Code, an IDE) | CIMD or DCR | loopback, any port | none |
+| Self-hosted harness on any domain | CIMD or DCR | HTTPS on its domain | none |
+| Web page running the client in the browser (MCP Inspector, a web harness) | CIMD or DCR | HTTPS on its domain, or loopback | **CORS and `Origin`** |
+
+What makes the last row work:
+
+- **`/mcp` accepts any `Origin`.** It reads only a bearer token from the `Authorization` header and never a cookie, so a page on another site cannot act with someone else's credentials: there are no ambient credentials to abuse. The `coach.mcp.allowed-origins` refusal of the coach specification (section 2.3) is removed. The Remote coach WebSocket keeps its own Origin check: only PianoML's pages open it.
+- **CORS without credentials** on `/mcp`, `/oauth/token`, `/oauth/register`, `/oauth/revoke` and the well-known documents: `Access-Control-Allow-Origin: *`, never `Allow-Credentials`; allowed methods `GET, POST, OPTIONS`; allowed headers `Authorization, Content-Type, Accept, Mcp-Protocol-Version, Mcp-Session-Id, Last-Event-ID`; exposed headers `WWW-Authenticate, Mcp-Session-Id`. Preflight `OPTIONS` requests are answered before authentication.
+- **`/oauth/authorize` is a navigation**, not a fetch: no CORS involved, whatever the client.
+- **Rate limits per IP** on unauthenticated endpoints (registration, token) must tolerate many users behind one address (companies, mobile carriers): limits generous enough for that, plus per-client limits once the client is known.
+
+Clients that support neither CIMD nor DCR are registered by hand by the user (section 7, question 1).
 
 ---
 
@@ -135,11 +164,11 @@ Every table is cleaned daily (expired requests and codes, used and expired token
 
 | Endpoint | Chain | Authentication |
 |---|---|---|
-| `/.well-known/oauth-protected-resource`, `…/mcp`, `/.well-known/oauth-authorization-server` | main, explicit `permitAll` GET matchers | none; CORS `*` (browser-based MCP tools read them) |
-| `GET /oauth/authorize` | new OAuth chain | none |
-| `POST /oauth/token`, `POST /oauth/register`, `POST /oauth/revoke` | new OAuth chain | none (public clients); no CSRF (no cookie is read); rate-limited |
-| `GET /oauth/requests/{id}`, `POST /oauth/requests/{id}/decision` | main chain | cookie session; CSRF on the POST |
-| `/mcp/**` | existing `/mcp` chain | `pml_` or `pmo_` bearer; 401 with the challenge |
+| `/.well-known/oauth-protected-resource`, `…/mcp`, `/.well-known/oauth-authorization-server` | main, explicit `permitAll` GET matchers | none; CORS `*` without credentials |
+| `GET /oauth/authorize` | new OAuth chain | none (a browser navigation) |
+| `POST /oauth/token`, `POST /oauth/register`, `POST /oauth/revoke` | new OAuth chain | none (public clients); no CSRF (no cookie is read); CORS `*` without credentials; rate-limited |
+| `GET /oauth/requests/{id}`, `POST /oauth/requests/{id}/decision` | main chain | cookie session; CSRF on the POST; same-site only (PianoML's consent page) |
+| `/mcp/**` | existing `/mcp` chain | `pml_` or `pmo_` bearer; 401 with the challenge; any `Origin`; CORS `*` without credentials |
 
 The OAuth chain (`/oauth/authorize`, `/oauth/token`, `/oauth/register`, `/oauth/revoke`) reads no cookie at all, like the `/mcp` chain: these endpoints must work without the session and must never be turned into a session.
 
@@ -149,22 +178,18 @@ The OAuth chain (`/oauth/authorize`, `/oauth/token`, `/oauth/register`, `/oauth/
 
 ---
 
-## 5. Library: Spring authorization server or purpose-built endpoints
+## 5. Implementation: plain endpoints, no Spring authorization server
 
-Spring Security 7 now contains the former Spring Authorization Server: authorization code with PKCE, opaque (`OAuth2TokenFormat.REFERENCE`) tokens, RFC 7591 registration (disabled by default; open registration needs `setOpenRegistrationAllowed(true)`), RFC 8414 metadata with a customizer, a custom `consentPage`, JDBC stores (`JdbcRegisteredClientRepository`, `JdbcOAuth2AuthorizationService`).
+**Decided:** the protocol is implemented in the backend as plain controllers and services on top of the coach tables. Spring Security's authorization server module is not used. Spring Security keeps its existing role: the filter chains route `/oauth/**`, `/mcp/**` and the rest, and read no cookie where none is expected.
 
-**Recommendation: purpose-built endpoints**, small and on top of the coach tables, for these reasons:
+Why it fits better here:
 
-1. **CIMD is required in practice** (ChatGPT prefers it, Claude uses it when advertised, and avoids a DCR client per connection). The Spring reference does not list it; it would be a custom `RegisteredClientRepository` that fetches documents, which is most of the client work anyway.
-2. **The login and consent step does not fit.** Spring's authorization endpoint expects an authenticated principal when the request arrives and redirects to a login page otherwise. The PianoML session never arrives on that request (section 2.3), and the backend is stateless across several instances. The two-step flow (store the request, consent in the SPA, decision by API) would have to be rebuilt around Spring's filters.
-3. **Two token stores.** Spring keeps its own `oauth2_authorization` and client tables; the coach keeps `coach_grant`, which the account page, the `/mcp` chain and the audit already use. Bridging them adds a mapping layer for no gain.
-4. **Small surface.** Five endpoints, public clients only, one resource, S256 only, opaque tokens: a few hundred lines with thorough tests. RFC 8707 audience binding and RFC 9207 `iss` are explicit in this design; the Spring overview page mentions neither.
+1. **CIMD is needed in practice** (ChatGPT prefers it, Claude uses it when advertised, and it avoids a DCR client per connection); the Spring reference does not list it.
+2. **The login and consent step** must work without the session on the arriving request and across several stateless instances (section 2.3): a stored request and an SPA consent page, which does not match Spring's authorization endpoint.
+3. **One token store**, `coach_grant` and its tables, already used by the account page, the `/mcp` chain and the audit.
+4. **A small surface:** five endpoints, public clients only, one resource, S256 only, opaque tokens, `resource` binding and `iss` explicit.
 
-To check before deciding (a half-day spike): whether Spring 7.x supports RFC 9207 `iss` and RFC 8707 `resource` out of the box, and whether its authorization request can be persisted without an HTTP session. If both are yes, reconsider Spring for the code and token endpoints only, keeping the custom request and consent flow.
-
-Risks of building it: getting PKCE, code single use or refresh rotation wrong. Mitigations: tests per RFC rule, test vectors (RFC 7636 appendix B), and a run of an OAuth conformance tool against staging before release.
-
----
+The risk is getting a protocol rule wrong (PKCE, code single use, refresh rotation, redirect matching). Mitigations: one test per rule of this document, the RFC 7636 test vectors, constant-time comparisons for every secret and hash, and a run of an OAuth conformance tool against staging before release (phase O5).
 
 ## 6. What stays as it is
 
@@ -172,28 +197,24 @@ Scopes, `GrantPrincipal`, the `/mcp` chain rules (no cookie, `Origin` refused un
 
 ---
 
-## 7. Open questions
+## 7. Questions still open
 
-1. **Trust policy for CIMD:** open (any HTTPS client id, recommended) or an allowlist of known hosts?
-2. **Connector directory:** listing PianoML in Claude's directory could use Anthropic-held client credentials (a confidential client). Out of scope here; the public-client design does not prevent it later.
-3. **Consent host:** `www.pianoml.org/coach/authorize`. The SPA must be the same site as the API for the cookie to travel (it is: `*.pianoml.org`).
-4. **Grant lifetime:** 365 days with re-consent, or no absolute limit while refresh tokens keep rotating?
-
----
+1. **Clients without CIMD or DCR** (a "Client ID" field to fill in, nothing automatic: older MCP clients, home-made harnesses on a generic OAuth library). **Decided:** no account-page form for now. Registration is open, so the user registers the client with one `curl` call to `/oauth/register` and pastes the returned `client_id` (recipe in `docs/coach-mcp-setup.md`, phase O5). Such a client must complete its first authorization within the 24-hour cleanup window of 2.2. A "Register an OAuth client" form (a `manual` kind owned by the user, never cleaned up) is added only when a real user needs it. Clients without OAuth at all use a personal access token.
+2. **Connector directory.** Listing PianoML in Claude's directory could also use Anthropic-held client credentials (a confidential client). Out of scope; nothing here prevents it.
 
 ## 8. Implementation plan
 
 Five phases, each one issue and one pull request, in the format of section 7 of the coach specification (common rules apply).
 
-### Phase O1. Discovery and the 401 challenge
+### Phase O1. Discovery, the 401 challenge, clients anywhere
 
-Build: the two metadata documents (2.1) as static JSON from configuration (`coach.oauth.issuer`, `coach.oauth.resource`); the `WWW-Authenticate` challenge on 401 from the `/mcp` chain; CORS `*` on the well-known paths only.
-Tests: documents served at the three paths with every field of 2.1; an anonymous `/mcp` call gets 401 with the exact challenge; a `pml_` token still works; the well-known paths need no authentication and answer without a session; `resource` has no trailing slash.
+Build: the two metadata documents (2.1) as static JSON from configuration (`coach.oauth.issuer`, `coach.oauth.resource`); the `WWW-Authenticate` challenge on 401 from the `/mcp` chain; CORS without credentials on `/mcp` and the well-known documents, with preflight answered before authentication (2.6); remove the `Origin` refusal of `/mcp` and the `coach.mcp.allowed-origins` property, and update section 2.3 of the coach specification and `CoachGrantTest`/`McpOriginFilterTest` accordingly.
+Tests: documents served at the three paths with every field of 2.1; an anonymous `/mcp` call gets 401 with the exact challenge, readable from a browser (`WWW-Authenticate` exposed); a `pml_` token works with and without an `Origin` header from any site; a preflight from any origin gets the CORS headers and no `Allow-Credentials`; a cookie sent to `/mcp` still authenticates nothing; the Remote coach WebSocket still refuses a foreign `Origin`.
 
 ### Phase O2. Clients
 
-Build: `coach_oauth_client`; CIMD fetcher with the SSRF guard and cache; open DCR with its validation and rate limit; daily cleanup.
-Tests: CIMD accepted, cached, refreshed; refused for HTTP, redirects, private and loopback addresses (also after DNS resolution), oversize, timeout, `client_id` mismatch, missing fields; DCR accepted, refused for confidential methods, bad redirect URIs, more than 5, rate limit; loopback port-agnostic match for both `localhost` and `127.0.0.1`; unused clients deleted.
+Build: `coach_oauth_client`; CIMD fetcher with the SSRF guard and cache (any public HTTPS host accepted); open DCR with its validation and rate limit; CORS on `/oauth/register`; daily cleanup.
+Tests: CIMD accepted from any public host, cached, refreshed; refused for HTTP, redirects, private and loopback addresses (also after DNS resolution), oversize, timeout, `client_id` mismatch, missing fields; DCR accepted with HTTPS redirect URIs on any host and with loopback ones, refused for confidential methods, plain-HTTP or custom-scheme redirect URIs, more than 5, rate limit; loopback port-agnostic match for `localhost`, `127.0.0.1` and `[::1]`; unused clients deleted.
 
 ### Phase O3. Authorization and consent
 
@@ -202,11 +223,18 @@ Tests: every validation of 2.3 with the right outcome (page before `redirect_uri
 
 ### Phase O4. Tokens
 
-Build: `POST /oauth/token` (code with PKCE and `resource`, refresh with rotation and reuse detection), `pmo_` access tokens, `coach_oauth_token`, `POST /oauth/revoke`; `GrantAuthenticationFilter` accepts `pmo_`; one live grant per (user, client); account page lists OAuth grants.
-Tests: RFC 7636 test vectors; wrong verifier, wrong redirect URI, wrong client, wrong resource, expired or reused code (the reuse revokes the grant); form-urlencoded only; refresh returns a new pair and the old token dies; a reused refresh token revokes the grant and answers `invalid_grant`; a `pmo_` token works on `/mcp` with the grant's scopes, is refused when expired, revoked or of another audience; revoking on the account page kills the tokens at once; a new consent for the same client replaces the old grant; the endpoints answer well under 10 s on a cold instance.
+Build: `POST /oauth/token` (code with PKCE and `resource`, refresh with rotation and reuse detection, 365-day absolute grant), `pmo_` access tokens, `coach_oauth_token`, `POST /oauth/revoke`, CORS on both; `GrantAuthenticationFilter` accepts `pmo_`; one live grant per (user, client); account page lists OAuth grants.
+Tests: RFC 7636 test vectors; wrong verifier, wrong redirect URI, wrong client, wrong resource, missing resource bound to the canonical one, expired or reused code (the reuse revokes the grant); form-urlencoded only; refresh returns a new pair and the old token dies; a reused refresh token revokes the grant and answers `invalid_grant`; no refresh past the grant's 365 days (`invalid_grant`); a `pmo_` token works on `/mcp` with the grant's scopes, is refused when expired, revoked or of another audience; revoking on the account page kills the tokens at once; a new consent for the same client replaces the old grant; the token endpoint is usable from a browser page on another site; the endpoints answer well under 10 s on a cold instance.
 
-### Phase O5. Real hosts (verification)
+### Phase O5. Real clients, wherever they run (verification)
 
-With a staging deployment: connect the Claude apps (custom connector by URL), Claude Code (CIMD with a loopback redirect), and ChatGPT (developer mode connector), plus the MCP Inspector. For each, record: the client identification it used, the redirect URI, whether `/mcp` requests carry an `Origin` header, the refresh behavior, and the time each endpoint took. Fix what differs from this design without special-casing a host, update the coach specification and `docs/coach-mcp-setup.md` (an "Add PianoML to Claude" and an "Add PianoML to ChatGPT" section), and add the coach prompts check: `coach_start` pasted in each host calls `get_context`.
+With a staging deployment, one client of each kind of section 2.6:
 
-Done when all four hosts connect, use the tools, survive a token refresh, and lose access when the grant is revoked on the account page.
+- **hosted application:** the Claude apps (custom connector by URL) and ChatGPT (developer mode connector);
+- **program on the user's machine:** Claude Code (CIMD with a loopback redirect);
+- **web page in the browser:** the MCP Inspector in a browser, from its own origin;
+- **self-hosted harness on another domain:** a minimal client of the MCP SDK deployed on a throwaway HTTPS host, registering by DCR.
+
+For each, record: the client identification it used, the redirect URI, whether `/mcp` requests carry an `Origin` header, the refresh behavior, and the time each endpoint took. Fix what differs from this design without special-casing a client, run an OAuth conformance tool against staging, update the coach specification and `docs/coach-mcp-setup.md` (sections "Add PianoML to an application that signs in by OAuth", with Claude and ChatGPT as examples, and "Register a client by hand" with the `curl` recipe of section 7, question 1), and check the coach prompts: `coach_start` pasted in each client calls `get_context`.
+
+Done when all five clients connect, use the tools, survive a token refresh, and lose access when the grant is revoked on the account page.

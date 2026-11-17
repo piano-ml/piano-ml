@@ -49,6 +49,7 @@ A grant is the record "user U allows client *name* to use scopes S until date D"
 ### 2.3 Two filter chains
 
 - `/mcp/**` has its own `SecurityFilterChain`, ordered first: stateless, no cookie authentication, no CSRF, no CORS, only `pml_` tokens, authorities `SCOPE_<scope>`. A request with an `Origin` header gets 403 unless the origin is listed in the property `coach.mcp.allowed-origins` (empty by default).
+  *Planned change (`docs/coach-oauth-design.md`, phase O1): clients can be hosted anywhere, browser pages included, so `/mcp` will accept any `Origin` with CORS and no credentials; it reads only the bearer token, never a cookie.*
 - The existing chain ignores any credential starting with `pml_`, in the header or the cookie.
 - Reason: the existing chain accepts the session JWT as a bearer header and skips CSRF when that header is present. A grant token must never act as a session, nor a session JWT as a grant.
 
