@@ -682,6 +682,262 @@
         <source>Delete all sessions</source>
         <target state="translated">删除所有记录</target>
       </trans-unit>
+      <trans-unit id="admin.route.errors" datatype="html">
+        <source>Error reports</source>
+        <target state="translated">错误报告</target>
+      </trans-unit>
+      <trans-unit id="admin.route.errorReport" datatype="html">
+        <source>Report</source>
+        <target state="translated">报告</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">取消</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.back" datatype="html">
+        <source>← Error reports</source>
+        <target state="translated">← 错误报告</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.denied" datatype="html">
+        <source>Access denied: error reports are for administrators only.</source>
+        <target state="translated">拒绝访问：错误报告仅供管理员查看。</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.notFound" datatype="html">
+        <source>This report does not exist, or it has been deleted.</source>
+        <target state="translated">该报告不存在或已被删除。</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.detailFailed" datatype="html">
+        <source>The report could not be loaded.</source>
+        <target state="translated">无法加载该报告。</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">重试</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.loading" datatype="html">
+        <source>Loading…</source>
+        <target state="translated">加载中…</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.source.backend" datatype="html">
+        <source>Backend</source>
+        <target state="translated">后端</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.source.frontend" datatype="html">
+        <source>Browser</source>
+        <target state="translated">浏览器</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.level.warning" datatype="html">
+        <source>Warning</source>
+        <target state="translated">警告</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.level.error" datatype="html">
+        <source>Error</source>
+        <target state="translated">错误</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.occurrences.label" datatype="html">
+        <source>Occurrences</source>
+        <target state="translated">发生记录</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.occurrences" datatype="html">
+        <source>Occurrences</source>
+        <target state="translated">发生次数</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.firstSeen" datatype="html">
+        <source>First seen</source>
+        <target state="translated">首次出现</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.lastSeen" datatype="html">
+        <source>Last seen</source>
+        <target state="translated">最近出现</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.showOccurrences" datatype="html">
+        <source>Show the occurrences</source>
+        <target state="translated">显示发生记录</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.url" datatype="html">
+        <source>URL</source>
+        <target state="translated">URL</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.request" datatype="html">
+        <source>Request</source>
+        <target state="translated">请求</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.userAgent" datatype="html">
+        <source>User agent</source>
+        <target state="translated">用户代理</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.release" datatype="html">
+        <source>Release</source>
+        <target state="translated">版本</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.user" datatype="html">
+        <source>User</source>
+        <target state="translated">用户</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.fingerprint" datatype="html">
+        <source>Fingerprint</source>
+        <target state="translated">指纹</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.stackTrace" datatype="html">
+        <source>Stack trace</source>
+        <target state="translated">堆栈跟踪</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.copied" datatype="html">
+        <source>Copied</source>
+        <target state="translated">已复制</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.copy" datatype="html">
+        <source>Copy</source>
+        <target state="translated">复制</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.context" datatype="html">
+        <source>Context</source>
+        <target state="translated">上下文</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.deleteOne" datatype="html">
+        <source>Delete this report</source>
+        <target state="translated">删除此报告</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.resolveAll" datatype="html">
+        <source>Resolve: delete all occurrences</source>
+        <target state="translated">解决：删除所有发生记录</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupTitle" datatype="html">
+        <source>Resolve this error?</source>
+        <target state="translated">将此错误标记为已解决？</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneTitle" datatype="html">
+        <source>Delete this report?</source>
+        <target state="translated">删除此报告？</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupBody" datatype="html">
+        <source>All <x id="count" equiv-text="this.report()?.count ?? 1"/> occurrences of this error will be deleted. Do it once the bug is fixed.</source>
+        <target state="translated">此错误的全部 <x id="count" equiv-text="this.report()?.count ?? 1"/> 条发生记录将被删除。请在修复问题后再执行。</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneBody" datatype="html">
+        <source>This occurrence will be deleted. Other occurrences of the same error are kept.</source>
+        <target state="translated">将删除这条发生记录。同一错误的其他记录会保留。</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupConfirm" datatype="html">
+        <source>Delete all</source>
+        <target state="translated">全部删除</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneConfirm" datatype="html">
+        <source>Delete</source>
+        <target state="translated">删除</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.title" datatype="html">
+        <source>Error reports</source>
+        <target state="translated">错误报告</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.subtitle" datatype="html">
+        <source>Errors of the backend and of visitors&apos; browsers. Reports are deleted automatically after 3 months.</source>
+        <target state="translated">后端和访客浏览器中的错误。报告会在 3 个月后自动删除。</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.search" datatype="html">
+        <source>Message or URL</source>
+        <target state="translated">消息或 URL</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.source" datatype="html">
+        <source>Source</source>
+        <target state="translated">来源</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.all" datatype="html">
+        <source>All</source>
+        <target state="translated">全部</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.level" datatype="html">
+        <source>Level</source>
+        <target state="translated">级别</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.from" datatype="html">
+        <source>From</source>
+        <target state="translated">从</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.to" datatype="html">
+        <source>To</source>
+        <target state="translated">至</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.apply" datatype="html">
+        <source>Search</source>
+        <target state="translated">搜索</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.label" datatype="html">
+        <source>View</source>
+        <target state="translated">视图</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.grouped" datatype="html">
+        <source>Grouped by error</source>
+        <target state="translated">按错误分组</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.all" datatype="html">
+        <source>All occurrences</source>
+        <target state="translated">所有发生记录</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.oneError" datatype="html">
+        <source>Occurrences of one error</source>
+        <target state="translated">某个错误的所有发生记录</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.showAll" datatype="html">
+        <source>Show all errors</source>
+        <target state="translated">显示所有错误</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.clear" datatype="html">
+        <source>Clear filters</source>
+        <target state="translated">清除筛选</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.failed" datatype="html">
+        <source>The error reports could not be loaded.</source>
+        <target state="translated">无法加载错误报告。</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.empty" datatype="html">
+        <source>No error reports match these filters.</source>
+        <target state="translated">没有符合这些筛选条件的错误报告。</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.time" datatype="html">
+        <source>Time</source>
+        <target state="translated">时间</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.source" datatype="html">
+        <source>Source</source>
+        <target state="translated">来源</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.level" datatype="html">
+        <source>Level</source>
+        <target state="translated">级别</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.message" datatype="html">
+        <source>Message</source>
+        <target state="translated">消息</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.count" datatype="html">
+        <source>Count</source>
+        <target state="translated">次数</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">操作</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.resolve" datatype="html">
+        <source>Resolve</source>
+        <target state="translated">解决</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">删除</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.shown" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ shown().first }}"/>–<x id="INTERPOLATION_1" equiv-text="{{ shown().last }}"/> of <x id="INTERPOLATION_2" equiv-text="{{ shown().total }}"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ shown().first }}"/>–<x id="INTERPOLATION_1" equiv-text="{{ shown().last }}"/> / 共 <x id="INTERPOLATION_2" equiv-text="{{ shown().total }}"/></target>
+      </trans-unit>
+      <trans-unit id="adminErrors.previous" datatype="html">
+        <source>Previous</source>
+        <target state="translated">上一页</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.next" datatype="html">
+        <source>Next</source>
+        <target state="translated">下一页</target>
+      </trans-unit>
       <trans-unit id="playlist.favorites" datatype="html">
         <source>Favorites</source>
         <target state="translated">收藏</target>
@@ -2898,6 +3154,14 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>Go to your account page</source>
         <target state="translated">前往你的账户</target>
       </trans-unit>
+      <trans-unit id="layout.adminErrors.title" datatype="html">
+        <source>Error reports (administrators)</source>
+        <target state="translated">错误报告（管理员）</target>
+      </trans-unit>
+      <trans-unit id="layout.adminErrors" datatype="html">
+        <source>Errors</source>
+        <target state="translated">错误</target>
+      </trans-unit>
       <trans-unit id="layout.login.title" datatype="html">
         <source>Log in to your PianoML account</source>
         <target state="translated">登录你的 PianoML 账户</target>
@@ -3117,6 +3381,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="route.summary" datatype="html">
         <source>Summary</source>
         <target state="translated">简介</target>
+      </trans-unit>
+      <trans-unit id="route.admin" datatype="html">
+        <source>Admin</source>
+        <target state="translated">管理</target>
       </trans-unit>
       <trans-unit id="route.notFound" datatype="html">
         <source>Not found</source>

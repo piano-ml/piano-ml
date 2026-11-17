@@ -1,0 +1,20 @@
+meta {
+  name: admin error_report list
+  type: http
+  seq: 31
+}
+
+get {
+  url: http://localhost:8080/admin/error-report?limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+docs {
+  Admin only: 401 without a token, 403 for a non-admin. Filters: source, level, from, to (ISO date-time), q, fingerprint.
+}

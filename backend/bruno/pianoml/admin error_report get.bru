@@ -1,0 +1,20 @@
+meta {
+  name: admin error_report get
+  type: http
+  seq: 33
+}
+
+get {
+  url: http://localhost:8080/admin/error-report/{{errorReportId}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{token}}
+}
+
+docs {
+  Admin only: 401 without a token, 403 for a non-admin. Set errorReportId to an id from the list.
+}

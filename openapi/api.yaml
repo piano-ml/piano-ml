@@ -11,6 +11,8 @@ servers:
 tags:
   - name: genre_tree
     description: Operations to read and modify the genre tree (parent/child relationships)
+  - name: error_report
+    description: Error reports from the backend and the browser; browsing is admin only
   - name: playlist
     description: Favorites and user playlists (ordered lists of scores)
 
@@ -1331,6 +1333,184 @@ paths:
         '401':
           description: Not logged in
 
+  /error-report:
+    post:
+      operationId: errorReportPost
+      tags:
+        - error_report
+      summary: Report an error that happened in the browser
+      description: >
+        Open to anonymous users and exempt from CSRF (write-only, nothing readable comes back), so it also works
+        with navigator.sendBeacon. The server sets the source (FRONTEND), the time, the user (from the session
+        cookie, if any) and the user agent; sensitive query parameters are removed from the URL. Rate-limited per IP.
+        Reports are deleted automatically after 3 months.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorReportCreate'
+      responses:
+        '202':
+          description: Report accepted
+        '400':
+          description: Invalid report (missing url, field too long...)
+        '429':
+          description: Too many reports from this address, try again later
+
+  /admin/error-report:
+    get:
+      operationId: adminErrorReportsGet
+      tags:
+        - error_report
+      summary: Browse error reports, newest first (admin only)
+      description: >
+        With grouped=true, one item per fingerprint: its latest occurrence, with the number of occurrences and the
+        first and last time it was seen (filters apply to the occurrences counted).
+      parameters:
+        - name: source
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ErrorReportSource'
+        - name: level
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ErrorReportLevel'
+        - name: from
+          in: query
+          required: false
+          description: Reports created at or after this time
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          description: Reports created before this time
+          schema:
+            type: string
+            format: date-time
+        - name: q
+          in: query
+          required: false
+          description: Case-insensitive substring of the message or the URL
+          schema:
+            type: string
+            maxLength: 200
+        - name: fingerprint
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 64
+        - name: grouped
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: A page of reports
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReportPage'
+        '400':
+          description: Invalid parameter
+        '401':
+          description: Not logged in
+        '403':
+          description: Not an admin
+    delete:
+      operationId: adminErrorReportsDelete
+      tags:
+        - error_report
+      summary: Delete every report with this fingerprint (admin only)
+      parameters:
+        - name: fingerprint
+          in: query
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+      responses:
+        '200':
+          description: Number of reports deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReportDeleted'
+        '400':
+          description: Missing fingerprint
+        '401':
+          description: Not logged in
+        '403':
+          description: Not an admin
+
+  /admin/error-report/{id}:
+    get:
+      operationId: adminErrorReportGet
+      tags:
+        - error_report
+      summary: One error report in full (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The report, with the occurrences of its fingerprint
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReportDetail'
+        '401':
+          description: Not logged in
+        '403':
+          description: Not an admin
+        '404':
+          description: No such report
+    delete:
+      operationId: adminErrorReportDelete
+      tags:
+        - error_report
+      summary: Delete one error report (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Deleted (or already gone)
+        '401':
+          description: Not logged in
+        '403':
+          description: Not an admin
+
 
   /playlists:
     get:
@@ -1608,6 +1788,123 @@ paths:
 
 components:
   schemas:
+    ErrorReportSource:
+      type: string
+      enum: [BACKEND, FRONTEND]
+    ErrorReportLevel:
+      type: string
+      enum: [ERROR, WARNING]
+    ErrorReportCreate:
+      type: object
+      description: >
+        An error seen in the browser. Over-long message and stack trace are truncated when stored (2 KB and 32 KB);
+        a context over 8 KB once serialized is dropped.
+      required:
+        - url
+        - message
+      properties:
+        url:
+          type: string
+          minLength: 1
+          maxLength: 4096
+          description: window.location.href where the error happened
+        level:
+          $ref: '#/components/schemas/ErrorReportLevel'
+        message:
+          type: string
+          maxLength: 10000
+        exceptionType:
+          type: string
+          maxLength: 255
+        stackTrace:
+          type: string
+          maxLength: 100000
+        release:
+          type: string
+          maxLength: 100
+          description: App version or git SHA
+        context:
+          type: object
+          additionalProperties: true
+          description: Free-form extra data (route, failing API call...)
+    ErrorReportSummary:
+      type: object
+      required: [id, createdAt, source, level, url, fingerprint]
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        source:
+          $ref: '#/components/schemas/ErrorReportSource'
+        level:
+          $ref: '#/components/schemas/ErrorReportLevel'
+        message:
+          type: string
+        exceptionType:
+          type: string
+        url:
+          type: string
+        httpMethod:
+          type: string
+        httpStatus:
+          type: integer
+        fingerprint:
+          type: string
+        count:
+          type: integer
+          format: int64
+          description: Occurrences of the fingerprint (grouped listing and detail only)
+        firstSeen:
+          type: string
+          format: date-time
+          description: Grouped listing and detail only
+        lastSeen:
+          type: string
+          format: date-time
+          description: Grouped listing and detail only
+    ErrorReportDetail:
+      allOf:
+        - $ref: '#/components/schemas/ErrorReportSummary'
+        - type: object
+          properties:
+            stackTrace:
+              type: string
+            userAgent:
+              type: string
+            release:
+              type: string
+            userId:
+              type: string
+              format: uuid
+            context:
+              type: object
+              additionalProperties: true
+    ErrorReportPage:
+      type: object
+      required: [items, total, offset, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorReportSummary'
+        total:
+          type: integer
+          format: int64
+          description: Reports matching the filters (fingerprints when grouped)
+        offset:
+          type: integer
+        limit:
+          type: integer
+    ErrorReportDeleted:
+      type: object
+      required: [deleted]
+      properties:
+        deleted:
+          type: integer
+          format: int64
     AuthorApiInfo:
       type: object
       properties:
