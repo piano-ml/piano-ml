@@ -18,6 +18,14 @@
         <source>My Scores</source>
         <target state="translated">Mijn stukken</target>
       </trans-unit>
+      <trans-unit id="account.route.playlists" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Mijn afspeellijsten</target>
+      </trans-unit>
+      <trans-unit id="account.route.playlist" datatype="html">
+        <source>Playlist</source>
+        <target state="translated">Afspeellijst</target>
+      </trans-unit>
       <trans-unit id="account.route.editScore" datatype="html">
         <source>Edit Score</source>
         <target state="translated">Stuk bewerken</target>
@@ -310,6 +318,10 @@
         <source>My Scores</source>
         <target state="translated">Mijn stukken</target>
       </trans-unit>
+      <trans-unit id="accountHome.myPlaylists" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Mijn afspeellijsten</target>
+      </trans-unit>
       <trans-unit id="accountHome.deleteAccount" datatype="html">
         <source>Delete account</source>
         <target state="translated">Account verwijderen</target>
@@ -465,6 +477,170 @@
       <trans-unit id="login.error.other" datatype="html">
         <source>An error occurred during login</source>
         <target state="translated">Er is een fout opgetreden bij het inloggen</target>
+      </trans-unit>
+      <trans-unit id="playlist.list.title" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Mijn afspeellijsten</target>
+      </trans-unit>
+      <trans-unit id="playlist.list.subtitle" datatype="html">
+        <source>Your favorites and practice lists</source>
+        <target state="translated">Je favorieten en oefenlijsten</target>
+      </trans-unit>
+      <trans-unit id="playlist.sort.label" datatype="html">
+        <source>Sort</source>
+        <target state="translated">Sorteren</target>
+      </trans-unit>
+      <trans-unit id="playlist.new" datatype="html">
+        <source>New playlist</source>
+        <target state="translated">Nieuwe afspeellijst</target>
+      </trans-unit>
+      <trans-unit id="playlist.field.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Titel</target>
+      </trans-unit>
+      <trans-unit id="playlist.field.description" datatype="html">
+        <source>Description (optional)</source>
+        <target state="translated">Beschrijving (optioneel)</target>
+      </trans-unit>
+      <trans-unit id="favorite.create" datatype="html">
+        <source>Create</source>
+        <target state="translated">Maken</target>
+      </trans-unit>
+      <trans-unit id="playlist.list.error" datatype="html">
+        <source>Your playlists could not be loaded.</source>
+        <target state="translated">Je afspeellijsten konden niet worden geladen.</target>
+      </trans-unit>
+      <trans-unit id="playlist.list.empty" datatype="html">
+        <source>Tap ♡ on any score to save it here</source>
+        <target state="translated">Tik op ♡ bij een partituur om hem hier te bewaren</target>
+      </trans-unit>
+      <trans-unit id="playlist.browseLibrary" datatype="html">
+        <source>Browse the library →</source>
+        <target state="translated">Bladeren in de bibliotheek →</target>
+      </trans-unit>
+      <trans-unit id="playlist.scoreCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =0 {No scores} =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =0 {Geen partituren} =1 {1 partituur} other {<x id="INTERPOLATION"/> partituren}}</target>
+      </trans-unit>
+      <trans-unit id="playlist.updated" datatype="html">
+        <source>updated <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></source>
+        <target state="translated">bijgewerkt <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></target>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Loading...</source>
+        <target state="translated">Laden...</target>
+      </trans-unit>
+      <trans-unit id="browse.loadMore" datatype="html">
+        <source>Load More</source>
+        <target state="translated">Meer laden</target>
+      </trans-unit>
+      <trans-unit id="playlist.shownOfTotal" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ playlists().length }}"/> of <x id="INTERPOLATION_1" equiv-text="{{ total() }}"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ playlists().length }}"/> van <x id="INTERPOLATION_1" equiv-text="{{ total() }}"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.sort.recent" datatype="html">
+        <source>Recently updated</source>
+        <target state="translated">Laatst bijgewerkt</target>
+      </trans-unit>
+      <trans-unit id="playlist.sort.newest" datatype="html">
+        <source>Newest</source>
+        <target state="translated">Nieuwste</target>
+      </trans-unit>
+      <trans-unit id="playlist.sort.title" datatype="html">
+        <source>A–Z</source>
+        <target state="translated">A–Z</target>
+      </trans-unit>
+      <trans-unit id="playlist.sort.size" datatype="html">
+        <source>Most scores</source>
+        <target state="translated">Meeste partituren</target>
+      </trans-unit>
+      <trans-unit id="playlist.back" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Mijn afspeellijsten</target>
+      </trans-unit>
+      <trans-unit id="playlist.notFound" datatype="html">
+        <source>This playlist does not exist, or it is not yours.</source>
+        <target state="translated">Deze afspeellijst bestaat niet of is niet van jou.</target>
+      </trans-unit>
+      <trans-unit id="playlist.created" datatype="html">
+        <source>created <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></source>
+        <target state="translated">gemaakt op <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.delete" datatype="html">
+        <source>Delete playlist</source>
+        <target state="translated">Afspeellijst verwijderen</target>
+      </trans-unit>
+      <trans-unit id="playlist.detail.empty" datatype="html">
+        <source>No scores yet. Use ♡ or &quot;Save to…&quot; on any score page.</source>
+        <target state="translated">Nog geen partituren. Gebruik ♡ of ‘Opslaan in…’ op een partituurpagina.</target>
+      </trans-unit>
+      <trans-unit id="playlist.reorderHint" datatype="html">
+        <source>Drag ⋮⋮ to reorder, or focus a row and press Alt+↑ / Alt+↓.</source>
+        <target state="translated">Sleep ⋮⋮ om de volgorde te wijzigen, of selecteer een rij en druk op Alt+↑ / Alt+↓.</target>
+      </trans-unit>
+      <trans-unit id="playlist.dragHandle" datatype="html">
+        <source>Drag to reorder</source>
+        <target state="translated">Slepen om te herschikken</target>
+      </trans-unit>
+      <trans-unit id="playlist.grade" datatype="html">
+        <source>Grade <x id="INTERPOLATION" equiv-text="{{ item.score.grade }}"/></source>
+        <target state="translated">Niveau <x id="INTERPOLATION" equiv-text="{{ item.score.grade }}"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.added" datatype="html">
+        <source>added <x id="INTERPOLATION" equiv-text="{{ added(item) }}"/></source>
+        <target state="translated">toegevoegd op <x id="INTERPOLATION" equiv-text="{{ added(item) }}"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.moveTop" datatype="html">
+        <source>Move to top</source>
+        <target state="translated">Naar boven</target>
+      </trans-unit>
+      <trans-unit id="playlist.moveUp" datatype="html">
+        <source>Move up</source>
+        <target state="translated">Omhoog</target>
+      </trans-unit>
+      <trans-unit id="playlist.moveDown" datatype="html">
+        <source>Move down</source>
+        <target state="translated">Omlaag</target>
+      </trans-unit>
+      <trans-unit id="playlist.moveBottom" datatype="html">
+        <source>Move to bottom</source>
+        <target state="translated">Naar onderen</target>
+      </trans-unit>
+      <trans-unit id="playlist.remove" datatype="html">
+        <source>Remove from playlist</source>
+        <target state="translated">Uit afspeellijst verwijderen</target>
+      </trans-unit>
+      <trans-unit id="playlist.deleteConfirm.title" datatype="html">
+        <source>Delete &quot;<x id="INTERPOLATION" equiv-text="{{ titleOf(p) }}"/>&quot;?</source>
+        <target state="translated">‘<x id="INTERPOLATION" equiv-text="{{ titleOf(p) }}"/>’ verwijderen?</target>
+      </trans-unit>
+      <trans-unit id="playlist.deleteConfirm.body" datatype="html">
+        <source>{VAR_PLURAL, plural, =0 {The playlist is empty.} =1 {The score itself is not deleted.} other {The <x id="INTERPOLATION"/> scores themselves are not deleted.}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =0 {De afspeellijst is leeg.} =1 {De partituur zelf wordt niet verwijderd.} other {De <x id="INTERPOLATION"/> partituren zelf worden niet verwijderd.}}</target>
+      </trans-unit>
+      <trans-unit id="playlist.deleteConfirm.confirm" datatype="html">
+        <source>Delete playlist</source>
+        <target state="translated">Afspeellijst verwijderen</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.deleted" datatype="html">
+        <source>Deleted &quot;<x id="title" equiv-text="playlistTitle(p)"/>&quot;</source>
+        <target state="translated">‘<x id="title" equiv-text="playlistTitle(p)"/>’ verwijderd</target>
+      </trans-unit>
+      <trans-unit id="playlist.moved" datatype="html">
+        <source><x id="title" equiv-text="title"/> moved to position <x id="position" equiv-text="to + 1"/> of <x id="count" equiv-text="list.length"/></source>
+        <target state="translated"><x id="title" equiv-text="title"/> verplaatst naar positie <x id="position" equiv-text="to + 1"/> van <x id="count" equiv-text="list.length"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.reloaded" datatype="html">
+        <source>This playlist changed elsewhere, reloaded</source>
+        <target state="translated">Deze afspeellijst is elders gewijzigd en opnieuw geladen</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.removedFrom" datatype="html">
+        <source>Removed from &quot;<x id="title" equiv-text="playlistTitle(this.playlist() ?? {})"/>&quot;</source>
+        <target state="translated">Verwijderd uit ‘<x id="title" equiv-text="playlistTitle(this.playlist() ?? {})"/>’</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.undo" datatype="html">
+        <source>Undo</source>
+        <target state="translated">Ongedaan maken</target>
       </trans-unit>
       <trans-unit id="accountHome.practice" datatype="html">
         <source>Practice</source>
@@ -762,6 +938,26 @@
         <source>Next</source>
         <target state="translated">Volgende</target>
       </trans-unit>
+      <trans-unit id="playlist.favorites" datatype="html">
+        <source>Favorites</source>
+        <target state="translated">Favorieten</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.removedFromFavorites" datatype="html">
+        <source>Removed from Favorites</source>
+        <target state="translated">Verwijderd uit favorieten</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.saveFailed" datatype="html">
+        <source>Couldn&apos;t save, try again</source>
+        <target state="translated">Opslaan mislukt, probeer het opnieuw</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.addedToFavorites" datatype="html">
+        <source>Added to Favorites</source>
+        <target state="translated">Toegevoegd aan favorieten</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.view" datatype="html">
+        <source>View</source>
+        <target state="translated">Bekijken</target>
+      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Paginafout</target>
@@ -881,10 +1077,6 @@
       <trans-unit id="slop.repaired" datatype="html">
         <source>The score has been rebuilt. Reload the page to practice the repaired version.</source>
         <target state="translated">De bladmuziek is opnieuw opgebouwd. Laad de pagina opnieuw om de herstelde versie te oefenen.</target>
-      </trans-unit>
-      <trans-unit id="common.loading" datatype="html">
-        <source>Loading...</source>
-        <target state="translated">Laden...</target>
       </trans-unit>
       <trans-unit id="slop.reload" datatype="html">
         <source>Reload</source>
@@ -2294,10 +2486,6 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
         <source>No scores found. Try a different search term.</source>
         <target state="translated">Geen stukken gevonden. Probeer een andere zoekterm.</target>
       </trans-unit>
-      <trans-unit id="browse.loadMore" datatype="html">
-        <source>Load More</source>
-        <target state="translated">Meer laden</target>
-      </trans-unit>
       <trans-unit id="browse.showing" datatype="html">
         <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
         <target state="translated">{VAR_PLURAL, plural, =1 {1 stuk weergegeven} other {<x id="INTERPOLATION"/> stukken weergegeven}}</target>
@@ -2766,6 +2954,10 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
         <source>Free to download and public domain.</source>
         <target state="translated">Gratis te downloaden en publiek domein.</target>
       </trans-unit>
+      <trans-unit id="seo.score.videoDescription" datatype="html">
+        <source>Piano video of <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/>, to watch before practicing it on PianoML.</source>
+        <target state="translated">Pianovideo van <x id="title" equiv-text="title"/> van <x id="artist" equiv-text="author"/>, om te bekijken voordat je het op PianoML oefent.</target>
+      </trans-unit>
       <trans-unit id="reimport.titleNamed" datatype="html">
         <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/> opnieuw importeren</target>
@@ -2902,6 +3094,42 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
         <source>this key</source>
         <target state="translated">deze toonsoort</target>
       </trans-unit>
+      <trans-unit id="favorite.saved" datatype="html">
+        <source>Saved</source>
+        <target state="translated">Bewaard</target>
+      </trans-unit>
+      <trans-unit id="favorite.favorite" datatype="html">
+        <source>Favorite</source>
+        <target state="translated">Favoriet</target>
+      </trans-unit>
+      <trans-unit id="favorite.saveTo" datatype="html">
+        <source>Save to…</source>
+        <target state="translated">Opslaan in…</target>
+      </trans-unit>
+      <trans-unit id="favorite.newPlaylistTitle" datatype="html">
+        <source>New playlist title</source>
+        <target state="translated">Titel van de nieuwe afspeellijst</target>
+      </trans-unit>
+      <trans-unit id="favorite.newPlaylistTitle.placeholder" datatype="html">
+        <source>Title</source>
+        <target state="translated">Titel</target>
+      </trans-unit>
+      <trans-unit id="favorite.newPlaylist" datatype="html">
+        <source>New playlist…</source>
+        <target state="translated">Nieuwe afspeellijst…</target>
+      </trans-unit>
+      <trans-unit id="favorite.remove" datatype="html">
+        <source>Remove from favorites</source>
+        <target state="translated">Verwijderen uit favorieten</target>
+      </trans-unit>
+      <trans-unit id="favorite.add" datatype="html">
+        <source>Add to favorites</source>
+        <target state="translated">Toevoegen aan favorieten</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.addedTo" datatype="html">
+        <source>Added to &quot;<x id="title" equiv-text="title"/>&quot; (#<x id="position" equiv-text="item.position + 1"/>)</source>
+        <target state="translated">Toegevoegd aan ‘<x id="title" equiv-text="title"/>’ (#<x id="position" equiv-text="item.position + 1"/>)</target>
+      </trans-unit>
       <trans-unit id="languageSwitcher.label" datatype="html">
         <source>Language</source>
         <target state="translated">Taal</target>
@@ -2990,6 +3218,10 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
         <source>Import</source>
         <target state="translated">Importeren</target>
       </trans-unit>
+      <trans-unit id="scoreTable.favorite" datatype="html">
+        <source>Favorite</source>
+        <target state="translated">Favoriet</target>
+      </trans-unit>
       <trans-unit id="scoreTable.actions" datatype="html">
         <source> Actions </source>
         <target state="translated"> Acties </target>
@@ -3013,6 +3245,10 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
       <trans-unit id="scoreTable.difficulty" datatype="html">
         <source>Difficulty</source>
         <target state="translated">Moeilijkheid</target>
+      </trans-unit>
+      <trans-unit id="toast.dismiss" datatype="html">
+        <source>Dismiss</source>
+        <target state="translated">Sluiten</target>
       </trans-unit>
       <trans-unit id="nav.home" datatype="html">
         <source>Home</source>

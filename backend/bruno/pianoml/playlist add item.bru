@@ -1,0 +1,23 @@
+meta {
+  name: playlist add item
+  type: http
+  seq: 31
+}
+
+post {
+  url: http://localhost:8080/account/playlist/favorites/items
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "scoreId": "6abea9c2-5e8b-4f3b-b5f0-22452b5175fd"
+  }
+}

@@ -46,4 +46,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/changes/022-create-practice-session.yaml
   - include:
+      file: db/changelog/changes/023-create-playlists.yaml
+  - include:
       file: db/changelog/changes/024-create-error-report.yaml

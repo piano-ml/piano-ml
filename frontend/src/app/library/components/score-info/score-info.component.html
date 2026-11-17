@@ -14,6 +14,7 @@
   <!-- ── Toolbar ────────────────────────────────────────── -->
   <div class="flex flex-wrap items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:justify-end">
     @if (score) {
+    <app-favorite-button [score]="score" size="md" [withMenu]="true" />
     <button (click)="copyUrlToClipboard()" class="btn-primary inline-flex items-center gap-1.5" i18n-title="@@score.copyLink" title="Copy link">
       <ng-icon name="bootstrapClipboard" size="13"></ng-icon>
       <span i18n="@@score.copyLink">Copy link</span>

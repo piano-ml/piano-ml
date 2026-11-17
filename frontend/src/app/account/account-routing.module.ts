@@ -5,12 +5,22 @@ import { AccountHomeComponent } from './components/home/home.component';
 import { CreateAccountComponent } from './components/create-account/create-account.component';
 import { AccountScoresComponent } from './components/account-scores/account-scores.component';
 import { EditScoreComponent } from './components/edit-score/edit-score.component';
+import { AccountPlaylistsComponent } from './components/playlists/account-playlists.component';
+import { PlaylistDetailComponent } from './components/playlists/playlist-detail.component';
 
 const routes: Routes = [
     { path: 'home', component: AccountHomeComponent,     data: { breadcrumb: $localize`:@@account.route.home:Home` } },
   { path: 'login', component: LoginComponent,     data: { breadcrumb: $localize`:@@account.route.login:Login` } },
   { path: 'create', component: CreateAccountComponent,     data: { breadcrumb: $localize`:@@account.route.create:Create` } },
   { path: 'scores', component: AccountScoresComponent,     data: { breadcrumb: $localize`:@@account.route.scores:My Scores` } },
+  {
+    path: 'playlists',
+    data: { breadcrumb: $localize`:@@account.route.playlists:My Playlists` },
+    children: [
+      { path: '', component: AccountPlaylistsComponent },
+      { path: ':slug', component: PlaylistDetailComponent, data: { breadcrumb: $localize`:@@account.route.playlist:Playlist` } },
+    ],
+  },
   { path: 'score/edit/:id', component: EditScoreComponent,     data: { breadcrumb: $localize`:@@account.route.editScore:Edit Score` } },
   { path: '', redirectTo: 'home', pathMatch: 'full' }
 ];

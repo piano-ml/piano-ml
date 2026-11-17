@@ -85,6 +85,20 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(makeFromException(ex), HttpStatus.BAD_REQUEST);
   }
 
+  /** 409: a stale playlist reorder, or deleting the Favorites playlist. */
+  @ExceptionHandler(PlaylistConflictException.class)
+  public ResponseEntity<org.pianoml.backend.model.ErrorApiInfo> handlePlaylistConflict(Exception ex) {
+    log.debug("Playlist conflict: {}", ex.getMessage());
+    return new ResponseEntity<>(makeFromException(ex), HttpStatus.CONFLICT);
+  }
+
+  /** 422: too many playlists, or a full playlist. */
+  @ExceptionHandler(PlaylistLimitException.class)
+  public ResponseEntity<org.pianoml.backend.model.ErrorApiInfo> handlePlaylistLimit(Exception ex) {
+    log.debug("Playlist limit: {}", ex.getMessage());
+    return new ResponseEntity<>(makeFromException(ex), HttpStatus.UNPROCESSABLE_CONTENT);
+  }
+
   private org.pianoml.backend.model.ErrorApiInfo makeFromException(Exception ex) {
     org.pianoml.backend.model.ErrorApiInfo errorApiInfo = new org.pianoml.backend.model.ErrorApiInfo();
     ErrorApiInfoError errorApiInfoError = new ErrorApiInfoError();

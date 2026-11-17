@@ -4,6 +4,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapExclamationTriangleFill, bootstrapLockFill, bootstrapUnlockFill } from '@ng-icons/bootstrap-icons';
 import { ScoreApiInfo } from '../../../core/api';
 import { currentLocale } from '../../i18n';
+import { FavoriteButtonComponent } from '../favorite-button/favorite-button.component';
 
 /** Shown for a value the score does not have. */
 const NOT_AVAILABLE = $localize`:@@scoreTable.notAvailable:N/A`;
@@ -43,7 +44,7 @@ export interface ScoreTableEvent {
 
 @Component({
   selector: 'app-score-table',
-  imports: [CommonModule, NgIcon],
+  imports: [CommonModule, NgIcon, FavoriteButtonComponent],
   viewProviders: [provideIcons({ bootstrapExclamationTriangleFill, bootstrapLockFill, bootstrapUnlockFill })],
   templateUrl: './score-table.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -57,6 +58,8 @@ export class ScoreTableComponent implements OnInit {
   @Input() emptyMessage = $localize`:@@scoreTable.empty:No scores found`;
   @Input() loadingMessage = $localize`:@@common.loading:Loading...`;
   @Input() showRowClick = true;
+  /** Adds a heart column (issue #278): one click adds the score to Favorites without opening it. */
+  @Input() showFavorite = false;
 
   @Output() scoreClick = new EventEmitter<ScoreTableEvent>();
 

@@ -1,0 +1,17 @@
+meta {
+  name: playlist remove item
+  type: http
+  seq: 32
+}
+
+delete {
+  url: http://localhost:8080/account/playlist/favorites/items/6abea9c2-5e8b-4f3b-b5f0-22452b5175fd
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}

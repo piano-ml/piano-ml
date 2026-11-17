@@ -165,7 +165,7 @@
       }
     </h2>
 
-    <app-score-table [scores]="scores" [loading]="loading" [columns]="tableColumns" [actions]="tableActions"
+    <app-score-table [scores]="scores" [loading]="loading" [columns]="tableColumns" [actions]="tableActions" [showFavorite]="true"
       i18n-emptyMessage="@@browse.empty" emptyMessage="No scores found. Try a different search term."
       i18n-loadingMessage="@@common.loading" loadingMessage="Loading..."
       (scoreClick)="onScoreClick($event)">
