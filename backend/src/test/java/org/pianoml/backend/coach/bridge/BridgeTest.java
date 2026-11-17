@@ -47,6 +47,7 @@ class BridgeTest {
   @Autowired private JwtTokenProvider jwtTokenProvider;
   @Autowired private BridgeTicketService tickets;
   @Autowired private PlayerBridge bridge;
+  @Autowired private BridgeWebSocketHandler handler;
   @Autowired private CoachGrantService grants;
 
   private final List<UUID> users = new ArrayList<>();
@@ -164,6 +165,24 @@ class BridgeTest {
   @Test
   void aSocketWithoutHello_isClosedAfterTheTimeout() throws Exception {
     assertThat(connect(null).closeStatus().getCode()).isEqualTo(4408);
+  }
+
+  @Test
+  void aClosedSocket_leavesNoTimerBehind() throws Exception {
+    int before = handler.scheduledTimers();
+    List<TestTab> dropped = new ArrayList<>();
+    for (int i = 0; i < 20; i++) {
+      dropped.add(connect(null));
+    }
+    for (TestTab tab : dropped) {
+      tab.close();
+    }
+    // the server sees the closes asynchronously
+    long deadline = System.currentTimeMillis() + 5000;
+    while (handler.scheduledTimers() > before && System.currentTimeMillis() < deadline) {
+      Thread.sleep(50);
+    }
+    assertThat(handler.scheduledTimers()).isLessThanOrEqualTo(before);
   }
 
   @Test

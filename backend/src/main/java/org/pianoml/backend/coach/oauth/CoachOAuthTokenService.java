@@ -122,6 +122,7 @@ public class CoachOAuthTokenService {
     CoachGrant grant = grants.createOAuth(row.getUserId(), clientId, clientName,
       Set.of(row.getScopes().split(" ")));
     codes.setGrant(hash, grant.getId());
+    clients.touch(clientId);
     return issue(grant, clientId, row.getResource(), now);
   }
 
@@ -139,10 +140,12 @@ public class CoachOAuthTokenService {
     if (!row.getClientId().equals(clientId)) {
       throw new TokenException("invalid_grant", "This refresh token was issued to another client.");
     }
-    if (row.getUsedAt() != null || tokens.markUsed(hash, now) != 1) {
+    if (row.getUsedAt() != null) {
       grants.revokeById(row.getGrantId());
       throw new TokenException("invalid_grant", "This refresh token was already used.");
     }
+    // Every other check comes before the token is spent: a rejected request leaves it usable, so a client that
+    // retries a corrected request is not mistaken for a thief
     if (!row.getExpiresAt().isAfter(now)) {
       throw new TokenException("invalid_grant", "The refresh token has expired.");
     }
@@ -152,6 +155,12 @@ public class CoachOAuthTokenService {
     CoachGrant grant = grantRepository.findById(row.getGrantId())
       .filter(g -> g.getRevokedAt() == null && g.getExpiresAt().isAfter(now))
       .orElseThrow(() -> new TokenException("invalid_grant", "The access was revoked or has expired."));
+    if (tokens.markUsed(hash, now) != 1) {
+      // spent meanwhile by a concurrent request with the same token: a reuse
+      grants.revokeById(row.getGrantId());
+      throw new TokenException("invalid_grant", "This refresh token was already used.");
+    }
+    clients.touch(clientId);
     return issue(grant, clientId, row.getResource(), now);
   }
 

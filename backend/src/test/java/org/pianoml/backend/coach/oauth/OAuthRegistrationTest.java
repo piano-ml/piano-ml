@@ -183,4 +183,19 @@ class OAuthRegistrationTest {
         .content("client_name=x&redirect_uris=https://harness.example/cb"))
       .andExpect(status().isBadRequest());
   }
+
+  @Test
+  void valuesOfTheWrongJsonType_areRefusedCleanly() throws Exception {
+    Map<String, Object> objectName = request(List.of("https://harness.example/cb"));
+    objectName.put("client_name", Map.of("x", 1));
+    Map<String, Object> objectGrant = request(List.of("https://harness.example/cb"));
+    objectGrant.put("grant_types", List.of(Map.of("x", 1)));
+    Map<String, Object> numberMethod = request(List.of("https://harness.example/cb"));
+    numberMethod.put("token_endpoint_auth_method", 3);
+    Map<String, Object> numberRedirect = request(List.of(42));
+    for (Map<String, Object> body : List.of(objectName, objectGrant, numberMethod, numberRedirect)) {
+      register(body).andExpect(status().isBadRequest()).andExpect(jsonPath("$.error").exists());
+    }
+    register("[1, 2]").andExpect(status().isBadRequest()).andExpect(jsonPath("$.error").value("invalid_client_metadata"));
+  }
 }

@@ -28,6 +28,12 @@ public interface CoachOAuthClientRepository extends JpaRepository<CoachOAuthClie
   @Query("UPDATE CoachOAuthClient c SET c.lastUsedAt = :now WHERE c.clientId = :clientId")
   int markUsed(@Param("clientId") String clientId, @Param("now") OffsetDateTime now);
 
+  /** Records a use at most once per {@code before} interval: only when the last recorded use is older. */
+  @Transactional
+  @Modifying
+  @Query("UPDATE CoachOAuthClient c SET c.lastUsedAt = :now WHERE c.clientId = :clientId AND (c.lastUsedAt IS NULL OR c.lastUsedAt < :before)")
+  int touch(@Param("clientId") String clientId, @Param("now") OffsetDateTime now, @Param("before") OffsetDateTime before);
+
   /** Deletes the clients never used and created before {@code neverUsedBefore}, and those last used before {@code unusedBefore}. */
   @Transactional
   @Modifying

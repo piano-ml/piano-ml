@@ -24,16 +24,33 @@ public class OAuthAuthorizeController {
 
   private final CoachOAuthSettings settings;
   private final CoachOAuthAuthorizationService authorization;
+  private final FixedWindowLimiter limiter;
 
-  public OAuthAuthorizeController(CoachOAuthSettings settings, CoachOAuthAuthorizationService authorization) {
+  /**
+   * Unauthenticated and able to make the server fetch a metadata URL and store a request, so limited per client
+   * address ({@code coach.oauth.authorize.per-ip-per-minute}, 30 by default: a person connects a few applications,
+   * not dozens a minute). Failed metadata URLs are also not refetched for 5 minutes (CoachOAuthClientService).
+   */
+  public OAuthAuthorizeController(CoachOAuthSettings settings, CoachOAuthAuthorizationService authorization,
+                                  java.time.Clock clock,
+                                  @org.springframework.beans.factory.annotation.Value("${coach.oauth.authorize.per-ip-per-minute:30}") int perIpPerMinute) {
     this.settings = settings;
     this.authorization = authorization;
+    this.limiter = new FixedWindowLimiter(perIpPerMinute, java.time.Duration.ofMinutes(1), clock);
   }
 
   @GetMapping("/oauth/authorize")
   public ResponseEntity<String> authorize(HttpServletRequest request) {
     if (!settings.enabled()) {
       return ResponseEntity.notFound().build();
+    }
+    if (!limiter.tryAcquire(request.getRemoteAddr())) {
+      return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+        .contentType(new MediaType(MediaType.TEXT_HTML, java.nio.charset.StandardCharsets.UTF_8))
+        .header("Content-Security-Policy", PAGE_CSP)
+        .header("Retry-After", "60")
+        .cacheControl(CacheControl.noStore())
+        .body(page("Too many sign-in attempts from your network. Wait a minute and try again."));
     }
     CoachOAuthAuthorizationService.Outcome outcome = authorization.authorize(request.getParameterMap());
     if (outcome instanceof CoachOAuthAuthorizationService.Outcome.Redirect redirect) {

@@ -450,4 +450,27 @@ class OAuthTokenTest {
       .andExpect(header().doesNotExist("Access-Control-Allow-Credentials"));
     token(codeForm(code())).andExpect(status().isOk());
   }
+
+  @Test
+  void aRejectedRefresh_leavesTheTokenUsable_soACorrectedRetryWorks() throws Exception {
+    JsonNode first = ok(token(codeForm(code())));
+    String refresh = first.get("refresh_token").asString();
+    Map<String, String> wrongResource = refreshForm(refresh);
+    wrongResource.put("resource", RESOURCE + "/");
+    expectError(token(wrongResource), "invalid_target");
+    JsonNode second = ok(token(refreshForm(refresh)));
+    assertThat(mcpStatus(second.get("access_token").asString())).isEqualTo(200);
+    assertThat(mcpStatus(first.get("access_token").asString())).isEqualTo(200); // the grant was not revoked
+  }
+
+  @Test
+  void tokenUse_keepsTheClientAlive_forTheCleanup() throws Exception {
+    JsonNode first = ok(token(codeForm(code())));
+    jdbc.update("UPDATE pianoml.coach_oauth_client SET last_used_at = ? WHERE client_id = ?",
+      OffsetDateTime.now().minusDays(89), clientId);
+    ok(token(refreshForm(first.get("refresh_token").asString())));
+    java.sql.Timestamp lastUsed = jdbc.queryForObject("SELECT last_used_at FROM pianoml.coach_oauth_client WHERE client_id = ?",
+      java.sql.Timestamp.class, clientId);
+    assertThat(lastUsed.toInstant()).isAfter(java.time.Instant.now().minusSeconds(60));
+  }
 }

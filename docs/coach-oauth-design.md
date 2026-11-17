@@ -284,6 +284,15 @@ Tests: every validation of 2.3 with the right outcome (page before `redirect_uri
 Build: `POST /oauth/token` (code with PKCE and `resource`, refresh with rotation and reuse detection, 365-day absolute grant), `pmo_` access tokens, `coach_oauth_token`, `POST /oauth/revoke`, CORS on both; `GrantAuthenticationFilter` accepts `pmo_`; one live grant per (user, client); account page lists OAuth grants.
 Tests: RFC 7636 test vectors; wrong verifier, wrong redirect URI, wrong client, wrong resource, missing resource bound to the canonical one, expired or reused code (the reuse revokes the grant); form-urlencoded only; refresh returns a new pair and the old token dies; a reused refresh token revokes the grant and answers `invalid_grant`; no refresh past the grant's 365 days (`invalid_grant`); a `pmo_` token works on `/mcp` with the grant's scopes, is refused when expired, revoked or of another audience; revoking on the account page kills the tokens at once; a new consent for the same client replaces the old grant; the token endpoint is usable from a browser page on another site; the endpoints answer well under 10 s on a cold instance.
 
+### Review fixes (after O4)
+
+*From a code review of the branch:*
+- *A refresh request is fully checked (expiry, resource, grant) before its token is spent: a rejected request leaves the token usable, so a corrected retry is not taken for a reuse.*
+- *`GET /oauth/authorize` is limited per client address (`coach.oauth.authorize.per-ip-per-minute`, 30), and a metadata URL that failed is not fetched again for 5 minutes (per instance, bounded), so the endpoint cannot be used to make the server fetch URLs in a loop.*
+- *Token exchange and refresh record the client's use (at most once a day), so a client refreshing for months is not deleted as unused after 90 days.*
+- *JSON values of the wrong type in a registration or a metadata document are refused as `invalid_client_metadata` instead of failing with a server error.*
+- *Remote coach sockets cancel their hello and renewal timers when they close (`BridgeWebSocketHandler`), so dropped connections leave nothing scheduled.*
+
 ### Phase O5. Real clients, wherever they run (verification)
 
 With a staging deployment, one client of each kind of section 2.6:

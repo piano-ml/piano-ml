@@ -109,8 +109,9 @@ class CoachOAuthClientServiceTest {
 
   @Test
   void badDocuments_areRefused_andNotCached() throws Exception {
-    String id = clientId();
+    String base = clientId();
     Map<String, Map<String, Object>> cases = new java.util.LinkedHashMap<>();
+    String id = base;
     cases.put("client_id is not its own URL", with(id, "client_id", "https://other.example/meta"));
     cases.put("no client_name", without(id, "client_name"));
     cases.put("redirect_uris", without(id, "redirect_uris"));
@@ -118,13 +119,25 @@ class CoachOAuthClientServiceTest {
     cases.put("custom scheme", with(id, "redirect_uris", List.of("myapp://cb")));
     cases.put("secret", with(id, "client_secret", "s3cret"));
     cases.put("confidential", with(id, "token_endpoint_auth_method", "client_secret_basic"));
+    cases.put("client_id not a string", with(id, "client_id", Map.of("x", 1)));
+    cases.put("client_name not a string", with(id, "client_name", List.of("a")));
+    cases.put("auth method not a string", with(id, "token_endpoint_auth_method", 7));
+    int n = 0;
     for (var c : cases.entrySet()) {
-      serve(id, c.getValue(), null);
-      assertThatThrownBy(() -> clients.resolve(id)).as(c.getKey()).isInstanceOf(ClientMetadataException.class);
+      // each case at its own URL: a failed URL is not fetched again for a while
+      String caseId = base + "-" + n++;
+      Map<String, Object> doc = new java.util.HashMap<>(c.getValue());
+      if (base.equals(doc.get("client_id"))) {
+        doc.put("client_id", caseId);
+      }
+      serve(caseId, doc, null);
+      assertThatThrownBy(() -> clients.resolve(caseId)).as(c.getKey()).isInstanceOf(ClientMetadataException.class);
+      assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM pianoml.coach_oauth_client WHERE client_id = ?", Long.class, caseId))
+        .as(c.getKey()).isZero();
     }
-    when(fetcher.fetch(URI.create(id))).thenReturn(new ClientMetadataFetcher.Fetched("not json", null));
-    assertThatThrownBy(() -> clients.resolve(id)).isInstanceOf(ClientMetadataException.class);
-    assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM pianoml.coach_oauth_client WHERE client_id = ?", Long.class, id)).isZero();
+    String notJson = base + "-json";
+    when(fetcher.fetch(URI.create(notJson))).thenReturn(new ClientMetadataFetcher.Fetched("not json", null));
+    assertThatThrownBy(() -> clients.resolve(notJson)).isInstanceOf(ClientMetadataException.class);
   }
 
   @Test
@@ -189,5 +202,15 @@ class CoachOAuthClientServiceTest {
     Map<String, Object> doc = new java.util.HashMap<>(document(id));
     doc.remove(key);
     return doc;
+  }
+
+  @Test
+  void aFailedUrl_isNotFetchedAgainForAWhile() throws Exception {
+    String id = clientId();
+    when(fetcher.fetch(URI.create(id))).thenThrow(new ClientMetadataException("cannot fetch: HTTP 404"));
+    assertThatThrownBy(() -> clients.resolve(id)).hasMessageContaining("HTTP 404");
+    assertThatThrownBy(() -> clients.resolve(id)).hasMessageContaining("a moment ago");
+    assertThatThrownBy(() -> clients.resolve(id)).hasMessageContaining("a moment ago");
+    verify(fetcher, times(1)).fetch(any());
   }
 }

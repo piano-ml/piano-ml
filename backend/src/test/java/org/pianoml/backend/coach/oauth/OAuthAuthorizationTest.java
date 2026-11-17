@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(properties = {"coach.oauth.enabled=true", "coach.oauth.issuer=https://api.pianoml.org",
-  "coach.oauth.consent-url=https://www.pianoml.org/coach/authorize"})
+  "coach.oauth.consent-url=https://www.pianoml.org/coach/authorize", "coach.oauth.authorize.per-ip-per-minute=30"})
 class OAuthAuthorizationTest {
 
   private static final String REDIRECT = "https://harness.example/callback";
@@ -93,8 +93,20 @@ class OAuthAuthorizationTest {
     return p;
   }
 
+  /** Each call from its own documentation address, so that the tests do not share the per-address limit. */
+  private static final java.util.concurrent.atomic.AtomicInteger NEXT_IP = new java.util.concurrent.atomic.AtomicInteger();
+
   private MvcResult authorize(Map<String, String> params) throws Exception {
-    MockHttpServletRequestBuilder request = get("/oauth/authorize");
+    int n = NEXT_IP.getAndIncrement();
+    String ip = "198.51." + (100 + n / 250 % 100) + "." + (n % 250 + 1);
+    return authorize(params, ip);
+  }
+
+  private MvcResult authorize(Map<String, String> params, String ip) throws Exception {
+    MockHttpServletRequestBuilder request = get("/oauth/authorize").with(r -> {
+      r.setRemoteAddr(ip);
+      return r;
+    });
     params.forEach((k, v) -> {
       if (v != null) {
         request.param(k, v);
@@ -201,7 +213,10 @@ class OAuthAuthorizationTest {
       assertThat(result.getResponse().getHeader("Content-Security-Policy")).contains("frame-ancestors 'none'");
     }
     // A repeated client_id or redirect_uri is refused on the page too
-    mockMvc.perform(get("/oauth/authorize").param("client_id", clientId, clientId).param("redirect_uri", REDIRECT))
+    mockMvc.perform(get("/oauth/authorize").with(r -> {
+        r.setRemoteAddr("203.0.113.199");
+        return r;
+      }).param("client_id", clientId, clientId).param("redirect_uri", REDIRECT))
       .andExpect(status().isBadRequest()).andExpect(header().doesNotExist("Location"));
   }
 
@@ -370,5 +385,17 @@ class OAuthAuthorizationTest {
     p.put("redirect_uri", withQuery);
     String url = redirectUrl(decide(requestId(p), newUser(), Map.of("approve", false)));
     assertThat(url).startsWith(withQuery + "&error=access_denied");
+  }
+
+  @Test
+  void authorize_isLimitedPerAddress() throws Exception {
+    String ip = "203.0.113.200";
+    for (int i = 0; i < 30; i++) {
+      assertThat(authorize(params(), ip).getResponse().getStatus()).isEqualTo(302);
+    }
+    MvcResult refused = authorize(params(), ip);
+    assertThat(refused.getResponse().getStatus()).isEqualTo(429);
+    assertThat(refused.getResponse().getHeader("Location")).isNull();
+    assertThat(authorize(params(), "203.0.113.201").getResponse().getStatus()).isEqualTo(302);
   }
 }

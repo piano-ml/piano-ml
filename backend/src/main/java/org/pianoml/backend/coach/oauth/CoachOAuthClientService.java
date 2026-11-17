@@ -14,13 +14,16 @@ import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * OAuth clients of the coach (issue #414, docs/coach-oauth-design.md 2.2): public clients only, identified by a
@@ -46,6 +49,10 @@ public class CoachOAuthClientService {
   static final Duration KEEP_NEVER_USED = Duration.ofHours(24);
   /** A client not used for this long is deleted. */
   static final Duration KEEP_UNUSED = Duration.ofDays(90);
+  static final Duration TOUCH_INTERVAL = Duration.ofDays(1);
+  /** A metadata URL that could not be fetched or used is not fetched again before this, per instance. */
+  static final Duration FAILURE_CACHE = Duration.ofMinutes(5);
+  private static final int MAX_FAILURES_TRACKED = 10_000;
 
   private static final Set<String> GRANT_TYPES = Set.of("authorization_code", "refresh_token");
 
@@ -85,6 +92,8 @@ public class CoachOAuthClientService {
   private final Clock clock;
   private final ObjectMapper json = new ObjectMapper();
   private final SecureRandom random = new SecureRandom();
+  /** Metadata URLs that failed recently, and until when they are not fetched again. */
+  private final Map<String, Instant> failures = new ConcurrentHashMap<>();
 
   public CoachOAuthClientService(CoachOAuthClientRepository repository, ClientMetadataFetcher fetcher, Clock clock) {
     this.repository = repository;
@@ -113,8 +122,20 @@ public class CoachOAuthClientService {
     if (cached.isPresent()) {
       return cached.map(this::toClient);
     }
-    ClientMetadataFetcher.Fetched fetched = fetcher.fetch(url);
-    Document document = parseDocument(clientId, fetched.body());
+    Instant failedUntil = failures.get(clientId);
+    if (failedUntil != null && failedUntil.isAfter(clock.instant())) {
+      throw new ClientMetadataException("its description could not be fetched or used a moment ago; try again in a few minutes");
+    }
+    ClientMetadataFetcher.Fetched fetched;
+    Document document;
+    try {
+      fetched = fetcher.fetch(url);
+      document = parseDocument(clientId, fetched.body());
+    } catch (ClientMetadataException e) {
+      rememberFailure(clientId);
+      throw e;
+    }
+    failures.remove(clientId);
     storeMetadata(clientId, document, now, now.plus(cacheFor(fetched.maxAge())));
     return Optional.of(new OAuthClient(clientId, CoachOAuthClient.KIND_CIMD, document.name(), document.redirectUris()));
   }
@@ -122,6 +143,15 @@ public class CoachOAuthClientService {
   /** Records that the client completed an authorization: it is then kept 90 days after its last use. */
   public void markUsed(String clientId) {
     repository.markUsed(clientId, OffsetDateTime.now(clock));
+  }
+
+  /**
+   * Records that the client is in use (a token exchange or refresh), at most once a day: a client that keeps
+   * refreshing for months is never mistaken for an unused one by {@link #purgeStale()}.
+   */
+  public void touch(String clientId) {
+    OffsetDateTime now = OffsetDateTime.now(clock);
+    repository.touch(clientId, now, now.minus(TOUCH_INTERVAL));
   }
 
   /**
@@ -168,6 +198,21 @@ public class CoachOAuthClientService {
   }
 
   // --- client metadata documents ---------------------------------------------------------------------------------
+
+  /**
+   * Remembers a failed metadata URL, so that a caller looping on {@code /oauth/authorize} with it does not make this
+   * server fetch it again and again. Bounded: past the limit, expired entries go, then everything.
+   */
+  private void rememberFailure(String clientId) {
+    Instant now = clock.instant();
+    if (failures.size() >= MAX_FAILURES_TRACKED) {
+      failures.values().removeIf(until -> !until.isAfter(now));
+      if (failures.size() >= MAX_FAILURES_TRACKED) {
+        failures.clear();
+      }
+    }
+    failures.put(clientId, now.plus(FAILURE_CACHE));
+  }
 
   private record Document(String name, List<String> redirectUris) {
   }
@@ -218,6 +263,14 @@ public class CoachOAuthClientService {
   }
 
   private Document parseDocument(String clientId, String body) throws ClientMetadataException {
+    try {
+      return parseDocumentFields(clientId, body);
+    } catch (RegistrationException e) {
+      throw new ClientMetadataException(e.getMessage());
+    }
+  }
+
+  private Document parseDocumentFields(String clientId, String body) throws ClientMetadataException {
     JsonNode doc;
     try {
       doc = json.readTree(body);
@@ -236,18 +289,11 @@ public class CoachOAuthClientService {
     if (!acceptsNone(doc)) {
       throw new ClientMetadataException("the client must accept token_endpoint_auth_method \"none\"");
     }
-    String name;
-    List<String> redirects;
-    try {
-      name = name(text(doc, "client_name", null), "invalid_client_metadata");
-      if (name.equals(UNNAMED)) {
-        throw new ClientMetadataException("the document has no client_name");
-      }
-      redirects = redirectUris(doc.get("redirect_uris"), true);
-    } catch (RegistrationException e) {
-      throw new ClientMetadataException(e.getMessage());
+    String name = name(text(doc, "client_name", null), "invalid_client_metadata");
+    if (name.equals(UNNAMED)) {
+      throw new ClientMetadataException("the document has no client_name");
     }
-    return new Document(name, redirects);
+    return new Document(name, redirectUris(doc.get("redirect_uris"), true));
   }
 
   /**
@@ -259,13 +305,16 @@ public class CoachOAuthClientService {
     JsonNode supported = doc.get("token_endpoint_auth_methods_supported");
     if (supported != null && supported.isArray()) {
       for (JsonNode m : supported) {
-        if ("none".equals(m.asString())) {
+        if (m.isString() && "none".equals(m.asString())) {
           return true;
         }
       }
     }
     JsonNode method = doc.get("token_endpoint_auth_method");
-    return (method == null || method.isNull()) ? supported == null : "none".equals(method.asString());
+    if (method == null || method.isNull()) {
+      return supported == null;
+    }
+    return method.isString() && "none".equals(method.asString());
   }
 
   private static Duration cacheFor(Duration maxAge) {
@@ -313,14 +362,24 @@ public class CoachOAuthClientService {
     }
     List<String> values = new ArrayList<>();
     for (JsonNode item : node) {
+      if (!item.isString()) {
+        throw new RegistrationException("invalid_client_metadata", field + " must hold strings.");
+      }
       values.add(item.asString());
     }
     return values;
   }
 
+  /** A string field; its fallback when absent or null; refused when of another JSON type. */
   private static String text(JsonNode node, String field, String fallback) {
     JsonNode value = node.get(field);
-    return value == null || value.isNull() ? fallback : value.asString();
+    if (value == null || value.isNull()) {
+      return fallback;
+    }
+    if (!value.isString()) {
+      throw new RegistrationException("invalid_client_metadata", field + " must be a string.");
+    }
+    return value.asString();
   }
 
   /** The display name: trimmed, control characters removed, at most 80 characters; a default when empty. */

@@ -19,11 +19,12 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,6 +49,7 @@ public class BridgeWebSocketHandler extends TextWebSocketHandler {
   private static final String USER = "coach.userId";
   private static final String TAB = "coach.tabId";
   private static final String SAFE = "coach.safeSession";
+  private static final String TIMERS = "coach.timers";
 
   private final BridgeTicketService tickets;
   private final BridgeSessions sessions;
@@ -57,11 +59,18 @@ public class BridgeWebSocketHandler extends TextWebSocketHandler {
   private final Clock clock;
   private final Duration helloTimeout;
   private final Duration maxAge;
-  private final ScheduledExecutorService timers = Executors.newSingleThreadScheduledExecutor(r -> {
-    Thread thread = new Thread(r, "coach-bridge-timers");
-    thread.setDaemon(true);
-    return thread;
-  });
+  /** Hello timeout and renewal of each socket; cancelled tasks leave the queue (a closed socket keeps nothing). */
+  private final ScheduledThreadPoolExecutor timers = timerExecutor();
+
+  private static ScheduledThreadPoolExecutor timerExecutor() {
+    ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, r -> {
+      Thread thread = new Thread(r, "coach-bridge-timers");
+      thread.setDaemon(true);
+      return thread;
+    });
+    executor.setRemoveOnCancelPolicy(true);
+    return executor;
+  }
 
   public BridgeWebSocketHandler(BridgeTicketService tickets, BridgeSessions sessions, CoachPresenceRepository presence,
                                 CoachCommandRepository commands, ObjectMapper objectMapper, Clock clock,
@@ -89,12 +98,18 @@ public class BridgeWebSocketHandler extends TextWebSocketHandler {
     // Sends may come from the pump, MCP calls and this handler at once
     WebSocketSession session = new ConcurrentWebSocketSessionDecorator(raw, 10_000, 128 * 1024);
     raw.getAttributes().put(SAFE, session);
-    timers.schedule(() -> {
+    ScheduledFuture<?> hello = timers.schedule(() -> {
       if (raw.isOpen() && !raw.getAttributes().containsKey(USER)) {
         close(raw, NO_HELLO);
       }
     }, helloTimeout.toMillis(), TimeUnit.MILLISECONDS);
-    timers.schedule(() -> close(raw, RENEW), maxAge.toMillis(), TimeUnit.MILLISECONDS);
+    ScheduledFuture<?> renew = timers.schedule(() -> close(raw, RENEW), maxAge.toMillis(), TimeUnit.MILLISECONDS);
+    raw.getAttributes().put(TIMERS, List.of(hello, renew));
+  }
+
+  /** Timers still scheduled for this socket: what afterConnectionClosed cancels. For tests. */
+  int scheduledTimers() {
+    return timers.getQueue().size();
   }
 
   @Override
@@ -180,6 +195,9 @@ public class BridgeWebSocketHandler extends TextWebSocketHandler {
 
   @Override
   public void afterConnectionClosed(WebSocketSession raw, CloseStatus status) {
+    if (raw.getAttributes().remove(TIMERS) instanceof List<?> scheduled) {
+      scheduled.forEach(f -> ((ScheduledFuture<?>) f).cancel(false));
+    }
     UUID userId = (UUID) raw.getAttributes().get(USER);
     UUID tabId = (UUID) raw.getAttributes().get(TAB);
     if (userId != null && tabId != null && sessions.remove(tabId, safe(raw))) {
