@@ -324,21 +324,6 @@ class CoachGrantTest {
     }
   }
 
-  @Test
-  void whileOAuthIsOff_theChallengePointsNowhere_andNoOAuthEndpointAnswers() throws Exception {
-    mcp(null).andExpect(status().isUnauthorized())
-      .andExpect(header().string("WWW-Authenticate", "Bearer realm=\"PianoML\""));
-    mcp("Bearer pml_nope").andExpect(status().isUnauthorized())
-      .andExpect(header().string("WWW-Authenticate", "Bearer realm=\"PianoML\", error=\"invalid_token\""));
-    mockMvc.perform(get("/.well-known/oauth-protected-resource/mcp")).andExpect(status().isNotFound());
-    mockMvc.perform(get("/.well-known/oauth-authorization-server")).andExpect(status().isNotFound());
-    mockMvc.perform(post("/oauth/register").contentType(MediaType.APPLICATION_JSON)
-        .content("{\"redirect_uris\":[\"https://harness.example/cb\"]}"))
-      .andExpect(status().isNotFound());
-    mockMvc.perform(get("/oauth/authorize").param("client_id", "pmc_x")).andExpect(status().isNotFound());
-    mockMvc.perform(get("/oauth/requests/{id}", "x").cookie(session(newUser()))).andExpect(status().isNotFound());
-  }
-
   // --- the main chain ignores grant tokens ------------------------------------------------------------------------
 
   @Test

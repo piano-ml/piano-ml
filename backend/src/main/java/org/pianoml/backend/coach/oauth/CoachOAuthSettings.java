@@ -12,9 +12,8 @@ import java.util.List;
  * <p>{@code resource} must equal, character for character, the MCP URL users type into their client: Claude
  * compares the two. No trailing slash, on either value.
  *
- * <p>{@code enabled} stays false until the authorization and token endpoints exist (phases O3 and O4): until
- * then no document is served and the 401 challenge points nowhere, so that no client starts a flow that cannot
- * finish. Personal access tokens work either way.
+ * <p>{@code enabled} (true by default) switches OAuth off: no discovery document, no OAuth endpoint, and a 401
+ * challenge without resource_metadata, so that no client starts a flow. Personal access tokens work either way.
  */
 @Component
 public class CoachOAuthSettings {
@@ -28,7 +27,7 @@ public class CoachOAuthSettings {
   private final String consentUrl;
 
   @Autowired
-  public CoachOAuthSettings(@Value("${coach.oauth.enabled:false}") boolean enabled,
+  public CoachOAuthSettings(@Value("${coach.oauth.enabled:true}") boolean enabled,
                             @Value("${coach.oauth.issuer:https://api.pianoml.org}") String issuer,
                             @Value("${coach.oauth.resource:}") String resource,
                             @Value("${coach.oauth.consent-url:https://www.pianoml.org/coach/authorize}") String consentUrl) {
