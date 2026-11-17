@@ -136,7 +136,7 @@ describe('player tools', () => {
       control.register(wb.handle);
       const loopPass = call('wait_for_take_end', { timeoutSeconds: 30 });
       await vi.advanceTimersByTimeAsync(1000);
-      wb.state.lastTake = { measureStart: 1, measureEnd: 8, completed: true, tempoFactor: 1, hands: 'both', notesExpected: 10, notesHit: 9, notesWrong: 1, onsets: 5, waits: 0, accuracy: 0.9 / 1.1 * 1.1 / 1.1, flow: 1 };
+      wb.state.lastTake = { startedAt: '2026-11-17T10:00:00.000Z', measureStart: 1, measureEnd: 8, completed: true, tempoFactor: 1, hands: 'both', notesExpected: 10, notesHit: 9, notesWrong: 1, onsets: 5, waits: 0, accuracy: 0.9 / 1.1 * 1.1 / 1.1, flow: 1 };
       await vi.advanceTimersByTimeAsync(400);
       expect(await loopPass).toMatchObject({ ok: true, data: { ended: true, state: { playing: true } } });
 
@@ -145,6 +145,19 @@ describe('player tools', () => {
       wb.state.playing = false;
       await vi.advanceTimersByTimeAsync(400);
       expect(await stopped).toMatchObject({ ok: true, data: { ended: true } });
+    });
+
+    it('sees a new take with exactly the same counts as the previous one (a loop)', async () => {
+      vi.useFakeTimers();
+      const take = { startedAt: '2026-11-17T10:00:00.000Z', measureStart: 1, measureEnd: 4, completed: true, tempoFactor: 1, hands: 'listen', notesExpected: 0, notesHit: 0, notesWrong: 0, onsets: 0, waits: 0, accuracy: null, flow: null };
+      const wb = fakeWorkbench({ playing: true });
+      wb.state.lastTake = take;
+      control.register(wb.handle);
+      const next = call('wait_for_take_end', { timeoutSeconds: 30 });
+      await vi.advanceTimersByTimeAsync(1000);
+      wb.state.lastTake = { ...take, startedAt: '2026-11-17T10:00:09.000Z' };
+      await vi.advanceTimersByTimeAsync(400);
+      expect(await next).toMatchObject({ ok: true, data: { ended: true, state: { playing: true } } });
     });
 
     it('says ended false when the time is up', async () => {

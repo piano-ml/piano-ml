@@ -140,7 +140,11 @@ public class CoachGrantService {
     return true;
   }
 
-  /** Revokes every grant of a user: to be called when their password is reset or changed. */
+  /**
+   * Revokes every grant of a user, personal and OAuth: must be called when their password is reset or changed.
+   * Nothing changes a password yet (POST /account/password_reset answers 501): the reset, when it is built, calls
+   * this.
+   */
   public int revokeAll(UUID userId) {
     return repository.revokeAllOf(userId, now());
   }
@@ -183,24 +187,21 @@ public class CoachGrantService {
 
   /**
    * Creates the grant an OAuth authorization produced (phase O4): kind oauth, named after the client, valid
-   * {@link #OAUTH_GRANT_DAYS} days from now, absolute. It replaces the user's previous live grant for the same
-   * client (one connection per application: Claude's web, desktop and mobile apps share one client), and, when
-   * the user already has {@link #MAX_LIVE_GRANTS} live OAuth grants, the least recently used one: connecting an
-   * application never fails for that, and never touches personal access tokens. No secret: OAuth grants are
-   * reached through their tokens only, and a {@code pml_} token can never match one.
+   * {@link #OAUTH_GRANT_DAYS} days from now, absolute.
+   *
+   * <p>Several connections of the same application coexist: one client id can stand for many installations
+   * (Claude Code on two computers shares one metadata URL), and replacing the previous grant would make them
+   * disconnect each other. When the user already has {@link #MAX_LIVE_GRANTS} live OAuth grants, the least
+   * recently used goes: a reconnection leaves an unused older grant behind, which goes first. Connecting never
+   * fails for that, and never touches personal access tokens. No secret: OAuth grants are reached through their
+   * tokens only, and a {@code pml_} token can never match one.
    */
   @Transactional
   public CoachGrant createOAuth(UUID userId, String clientId, String clientName, Set<String> scopes) {
     OffsetDateTime now = now();
-    List<CoachGrant> live = repository.findLiveOAuth(userId, now);
-    for (CoachGrant previous : live) {
-      if (clientId.equals(previous.getClientId())) {
-        repository.revokeById(previous.getId(), now);
-      }
-    }
-    List<CoachGrant> others = live.stream().filter(g -> !clientId.equals(g.getClientId())).toList();
-    for (int i = 0; i <= others.size() - MAX_LIVE_GRANTS; i++) {
-      repository.revokeById(others.get(i).getId(), now);
+    List<CoachGrant> live = repository.findLiveOAuth(userId, now); // least recently used first
+    for (int i = 0; i <= live.size() - MAX_LIVE_GRANTS; i++) {
+      repository.revokeById(live.get(i).getId(), now);
     }
     byte[] unusable = new byte[SECRET_BYTES];
     random.nextBytes(unusable);

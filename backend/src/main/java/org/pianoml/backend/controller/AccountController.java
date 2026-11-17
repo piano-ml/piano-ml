@@ -131,6 +131,8 @@ public class AccountController implements AccountApi {
 
   @Override
   public ResponseEntity<Void> accountPasswordResetPost(AccountPasswordResetPostRequest accountPasswordResetPostRequest) {
+    // Not built yet. When it is: once the new password is set, call coachGrantService.revokeAll(userId), so that
+    // every token of external tools (coach, issue #414) stops working with the old password.
     return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
   }
 

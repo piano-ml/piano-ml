@@ -114,7 +114,7 @@ The session cookie is `HttpOnly; Secure; SameSite=Strict`, host-only on `api.pia
 
 ### 2.5 Grants
 
-- One live OAuth grant per (user, client id). A new consent for the same client revokes the previous grant: the Claude web, Desktop and mobile apps share one client and would otherwise pile up grants.
+- Several OAuth grants may exist for the same (user, client id): one client id can stand for many installations (Claude Code on two computers shares one metadata URL), and replacing the previous grant would make them disconnect each other. At most 5 live OAuth grants per user; a new one replaces the least recently used, so a reconnection's unused older grant goes first. *(Changed after review: the first version kept one grant per client.)*
 - OAuth grants and personal tokens have separate limits (5 each), so connecting an application never requires revoking a personal token.
 - The account page lists OAuth grants beside personal tokens: client name, client host, scopes, last use, the same Revoke button. Revoking kills the access and refresh tokens at once.
 - Password reset (when it exists) and account deletion revoke or delete them, as for personal tokens.
@@ -275,7 +275,7 @@ Tests: every validation of 2.3 with the right outcome (page before `redirect_uri
 *Decisions taken while building it:*
 - *Tokens are `pmo_` (access) and `pmr_` (refresh) followed by 32 random bytes, looked up by hash; no id part is needed.*
 - *Code and refresh token single use are conditional updates: of two concurrent requests with the same value, one wins and the other is treated as a reuse (the grant is revoked), as OAuth 2.1 prescribes.*
-- *A sixth connected application replaces the least recently used OAuth grant rather than failing at the token endpoint, where the user cannot be told why. Personal tokens keep their own limit of 5.*
+- *A sixth OAuth grant (another application, or another installation of the same one) replaces the least recently used rather than failing at the token endpoint, where the user cannot be told why. Personal tokens keep their own limit of 5.*
 - *Revoking a refresh token (RFC 7009) revokes the grant; revoking an access token ends that token only.*
 - *A `pml_` token can never authenticate an OAuth grant (its secret hash is random and the kind is checked).*
 - *`coach.oauth.enabled` stays `false` by default: every endpoint exists, but each environment turns OAuth on explicitly, staging first, for phase O5. Before that, check `server.forward-headers-strategy` (O2) and that `coach.oauth.issuer` and `coach.oauth.consent-url` match the environment.*
@@ -292,6 +292,9 @@ Tests: RFC 7636 test vectors; wrong verifier, wrong redirect URI, wrong client, 
 - *Token exchange and refresh record the client's use (at most once a day), so a client refreshing for months is not deleted as unused after 90 days.*
 - *JSON values of the wrong type in a registration or a metadata document are refused as `invalid_client_metadata` instead of failing with a server error.*
 - *Remote coach sockets cancel their hello and renewal timers when they close (`BridgeWebSocketHandler`), so dropped connections leave nothing scheduled.*
+- *Two installations of the same application no longer disconnect each other (2.5).*
+- *`wait_for_take_end` tells two takes apart by their start time (`lastTake.startedAt`), so a loop whose takes have identical counts (listen mode, for example) is still seen.*
+- *`CoachGrantService.revokeAll` has no caller because nothing changes a password yet (`POST /account/password_reset` answers 501); the reset, when built, must call it. A marker is in `AccountController`.*
 
 ### Phase O5. Real clients, wherever they run (verification)
 

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { PlayerControlService, type Hands, type WorkbenchHandle } from '../../desktop/service/player-control.service';
+import { PlayerControlService, type Hands, type LastTake, type WorkbenchHandle } from '../../desktop/service/player-control.service';
 import { type ToolArgs, ToolError } from './tool';
 import { pollUntil, sleep } from './wait';
 
@@ -90,10 +90,12 @@ export class PlayerTools {
     if (!start.playing) {
       return { ended: true, state: start };
     }
-    const before = JSON.stringify(start.lastTake);
+    // A take ended when playback stopped or a new take was recorded: one that started at another time (two takes of
+    // a loop can have exactly the same counts, so the counts alone cannot tell them apart)
+    const before = start.lastTake;
     const ended = await pollUntil(() => {
       const now = this.control.state();
-      return !now.playing || JSON.stringify(now.lastTake) !== before;
+      return !now.playing || isNewTake(before, now.lastTake);
     }, timeoutMs);
     return { ended, state: this.control.state() };
   }
@@ -109,4 +111,15 @@ export class PlayerTools {
     }
     return handle;
   }
+}
+
+/** Whether {@code now} is another take than {@code before}: a different start, or different content. */
+function isNewTake(before: LastTake | null, now: LastTake | null): boolean {
+  if (now == null) {
+    return false;
+  }
+  if (before == null) {
+    return true;
+  }
+  return now.startedAt !== before.startedAt || JSON.stringify(now) !== JSON.stringify(before);
 }

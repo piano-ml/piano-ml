@@ -369,6 +369,7 @@ interface PlayerState {
   midiInput: 'connected' | 'none' | 'blocked' | 'unknown';
   audioUnlocked: boolean;
   lastTake: null | {
+    startedAt: string; // ISO; tells two takes apart even when every count is the same
     measureStart: number; measureEnd: number; completed: boolean; tempoFactor: number; hands: string;
     notesExpected: number; notesHit: number; notesWrong: number; onsets: number; waits: number;
     accuracy: number | null; flow: number | null;

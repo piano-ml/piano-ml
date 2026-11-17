@@ -357,13 +357,25 @@ class OAuthTokenTest {
   // --- grants ----------------------------------------------------------------------------------------------------
 
   @Test
-  void aNewConsentForTheSameClient_replacesThePreviousGrant() throws Exception {
-    String first = ok(token(codeForm(code()))).get("access_token").asString();
-    String second = ok(token(codeForm(code()))).get("access_token").asString();
-    assertThat(mcpStatus(first)).isEqualTo(401);
-    assertThat(mcpStatus(second)).isEqualTo(200);
+  void twoInstallationsOfTheSameApplication_stayConnectedSideBySide() throws Exception {
+    String laptop = ok(token(codeForm(code()))).get("access_token").asString();
+    String desktop = ok(token(codeForm(code()))).get("access_token").asString();
+    assertThat(mcpStatus(laptop)).isEqualTo(200);
+    assertThat(mcpStatus(desktop)).isEqualTo(200);
     assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM pianoml.coach_grant WHERE user_id = ? AND revoked_at IS NULL",
-      Long.class, user.getId())).isEqualTo(1);
+      Long.class, user.getId())).isEqualTo(2);
+  }
+
+  @Test
+  void reconnectingTheSameApplicationAgainAndAgain_keepsAtMostFiveConnections_droppingTheUnusedOnes() throws Exception {
+    List<String> accessTokens = new ArrayList<>();
+    for (int i = 0; i < 6; i++) {
+      accessTokens.add(ok(token(codeForm(code()))).get("access_token").asString());
+    }
+    assertThat(mcpStatus(accessTokens.get(0))).isEqualTo(401);
+    assertThat(mcpStatus(accessTokens.get(5))).isEqualTo(200);
+    assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM pianoml.coach_grant WHERE user_id = ? AND kind = 'oauth' AND revoked_at IS NULL",
+      Long.class, user.getId())).isEqualTo(5);
   }
 
   @Test

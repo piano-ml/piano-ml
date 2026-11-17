@@ -410,6 +410,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       midiInput: this.midiInputState(),
       audioUnlocked: this.playerAudio.isUnlocked(),
       lastTake: take == null ? null : {
+        startedAt: take.startedAt ?? '',
         measureStart: take.measureStart ?? 0,
         measureEnd: take.measureEnd ?? 0,
         completed: !!take.completed,

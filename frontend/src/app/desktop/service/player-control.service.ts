@@ -13,6 +13,8 @@ export type Hands = 'both' | 'left' | 'right' | 'listen';
 
 /** The take that just ended, before the server has it. */
 export interface LastTake {
+  /** ISO time the take started: tells two takes apart even when every count is the same */
+  startedAt: string;
   measureStart: number;
   measureEnd: number;
   completed: boolean;
