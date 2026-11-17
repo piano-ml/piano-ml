@@ -83,6 +83,12 @@ export const routes: Routes = [
                 path: 'connect',
                 loadComponent: () => import('./coach/connect/connect.component').then(m => m.ConnectComponent),
                 data: { breadcrumb: ROUTE_LABELS.coachConnect, seo: NOINDEX_SEO }
+            },
+            {
+                // Consent page of the coach OAuth server: an application sent the user here to ask for access
+                path: 'authorize',
+                loadComponent: () => import('./coach/authorize/authorize.component').then(m => m.AuthorizeComponent),
+                data: { breadcrumb: ROUTE_LABELS.coachAuthorize, seo: NOINDEX_SEO }
             }
         ]
     },

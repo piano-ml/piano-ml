@@ -79,6 +79,8 @@ public class SecurityConfig {
       .authorizeHttpRequests(authz -> authz
         // Private to the logged-in user (coach access grants, issue #414): must come before the open GET rule.
         .requestMatchers(HttpMethod.GET, "/account/grants").authenticated()
+        // Consent page API of the coach OAuth server (issue #414): the user's own pending requests.
+        .requestMatchers(HttpMethod.GET, "/oauth/requests/**").authenticated()
         // Remote coach WebSocket handshake (issue #414): open, because authentication is the first message on the
         // socket (a one-time ticket from POST /coach/bridge/ticket), never the cookie: browsers send cookies on
         // WebSocket handshakes without any CORS check.

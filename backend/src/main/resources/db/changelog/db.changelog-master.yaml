@@ -53,3 +53,5 @@ databaseChangeLog:
       file: db/changelog/changes/027-create-coach-bridge.yaml
   - include:
       file: db/changelog/changes/028-create-coach-oauth-client.yaml
+  - include:
+      file: db/changelog/changes/029-create-coach-oauth-request-and-code.yaml

@@ -253,7 +253,17 @@ Tests: documents served at the three paths with every field of 2.1; an anonymous
 Build: `coach_oauth_client`; CIMD fetcher with the SSRF guard and cache (any public HTTPS host accepted); open DCR with its validation and rate limit; CORS on `/oauth/register`; daily cleanup.
 Tests: CIMD accepted from any public host, cached, refreshed; refused for HTTP, redirects, private and loopback addresses (also after DNS resolution), oversize, timeout, `client_id` mismatch, missing fields; DCR accepted with HTTPS redirect URIs on any host and with loopback ones, refused for confidential methods, plain-HTTP or custom-scheme redirect URIs, more than 5, rate limit; loopback port-agnostic match for `localhost`, `127.0.0.1` and `[::1]`; unused clients deleted.
 
-### Phase O3. Authorization and consent
+### Phase O3. Authorization and consent (done)
+
+*Implemented: changeset 029 (`coach_oauth_request`, `coach_oauth_code`); `coach/oauth/CoachOAuthAuthorizationService`, `OAuthAuthorizeController` (`GET /oauth/authorize`, the HTML error page), `OAuthSecrets`; `controller/OAuthConsentController` for `GET /oauth/requests/{id}` and `POST /oauth/requests/{id}/decision`, declared in `openapi/api.yaml` (tag `oauth`, so the SPA client is generated); SPA page `coach/authorize` with its route, translations and the SSR headers (`no-frame.ts`: `frame-ancestors 'none'`, `X-Frame-Options: DENY`, in every language). Tests: `OAuthAuthorizationTest`, `CoachGrantTest` (all off by default), `authorize.component.spec.ts`, `no-frame.spec.ts`.*
+
+*Decisions taken while building it:*
+- *`state` is optional (echoed when sent, at most 500 characters): PKCE already protects the flow, and some clients omit it. Every redirect carries `iss`.*
+- *No `scope`, or only `offline_access`, means every scope; the user can still narrow them on the consent page.*
+- *The client's display data (name, verified host, loopback-only) is copied into the request, so the consent page never refetches a metadata document.*
+- *A request belongs to the first logged-in user who opens it; the decision is a conditional update, so two tabs or two users cannot both decide.*
+- *The consent page URL is `coach.oauth.consent-url` (default `https://www.pianoml.org/coach/authorize`). It is the English page: deep links are never redirected by language. A user who reads another language sees it in English until the app offers its language switcher there.*
+- *A code is marked as completing the client's authorization (`last_used_at`), which keeps the client past the 24-hour cleanup.*
 
 Build: `GET /oauth/authorize`, `coach_oauth_request`, the HTML error page, `GET /oauth/requests/{id}`, `POST /oauth/requests/{id}/decision`, `coach_oauth_code`; SPA consent page `/coach/authorize` (lazy, noindex, rendered in the browser, `frame-ancestors 'none'`), login round trip, translations.
 Tests: every validation of 2.3 with the right outcome (page before `redirect_uri` is trusted, redirect after), `iss` and `state` on every redirect; request single use, bound to the deciding user, expiry; refusal gives `access_denied`; narrowed scopes; frontend: renders client host, redirect host and scopes, loopback warning, unverified label, login round trip, approve and refuse navigate to the returned URL.

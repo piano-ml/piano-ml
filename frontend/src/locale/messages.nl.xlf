@@ -674,6 +674,58 @@
         <source>Blog posts</source>
         <target state="translated">Blogartikelen</target>
       </trans-unit>
+      <trans-unit id="coach.authorize.title" datatype="html">
+        <source>An application asks for access to your PianoML account</source>
+        <target state="translated">Een applicatie vraagt toegang tot je PianoML-account</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.gone" datatype="html">
+        <source>This request has expired or was already answered. Go back to your application and connect PianoML again.</source>
+        <target state="translated">Dit verzoek is verlopen of al beantwoord. Ga terug naar je applicatie en verbind PianoML opnieuw.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.error" datatype="html">
+        <source>The request could not be loaded. Try again later.</source>
+        <target state="translated">Het verzoek kon niet worden geladen. Probeer het later opnieuw.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.publishedBy" datatype="html">
+        <source>Published by</source>
+        <target state="translated">Gepubliceerd door</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.unverified" datatype="html">
+        <source>This name was given by the application itself and is not verified.</source>
+        <target state="translated">Deze naam is door de applicatie zelf opgegeven en niet gecontroleerd.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.redirectTo" datatype="html">
+        <source>After your choice, you will be sent to</source>
+        <target state="translated">Na je keuze word je doorgestuurd naar</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.loopback" datatype="html">
+        <source>This application runs on your computer. Any program on this computer could claim to be it: allow it only if you just started the connection yourself.</source>
+        <target state="translated">Deze applicatie draait op je computer. Elk programma op deze computer kan zich ervoor uitgeven: sta het alleen toe als je de verbinding zojuist zelf hebt gestart.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.scopes" datatype="html">
+        <source>It will be able to:</source>
+        <target state="translated">Ze kan dan:</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.privacy" datatype="html">
+        <source>What the application reads is sent to the AI provider it uses. You can revoke this access at any time on your account page.</source>
+        <target state="translated">Wat de applicatie leest, wordt naar de AI-aanbieder gestuurd die ze gebruikt. Je kunt deze toegang op elk moment intrekken op je accountpagina.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.decisionError" datatype="html">
+        <source>Your answer could not be sent. Try again.</source>
+        <target state="translated">Je antwoord kon niet worden verzonden. Probeer het opnieuw.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.refuse" datatype="html">
+        <source>Refuse</source>
+        <target state="translated">Weigeren</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.allow" datatype="html">
+        <source>Allow</source>
+        <target state="translated">Toestaan</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.manage" datatype="html">
+        <source>Manage the applications that have access</source>
+        <target state="translated">Applicaties met toegang beheren</target>
+      </trans-unit>
       <trans-unit id="coach.connect.title" datatype="html">
         <source>Connect an AI coach</source>
         <target state="translated">AI-coach koppelen</target>
@@ -3261,6 +3313,10 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
       <trans-unit id="route.coachConnect" datatype="html">
         <source>Connect an AI coach</source>
         <target state="translated">AI-coach koppelen</target>
+      </trans-unit>
+      <trans-unit id="route.coachAuthorize" datatype="html">
+        <source>Allow an application</source>
+        <target state="translated">Een applicatie toestaan</target>
       </trans-unit>
       <trans-unit id="seo.defaultTitle" datatype="html">
         <source>PianoML: Learn Piano with Smart Sheet Music &amp; Practice Tools</source>

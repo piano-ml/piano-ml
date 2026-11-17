@@ -1325,6 +1325,69 @@ paths:
                 items:
                   $ref: '#/components/schemas/CoachPrompt'
 
+  /oauth/requests/{id}:
+    get:
+      operationId: oauthRequestsIdGet
+      tags:
+        - oauth
+      summary: What an application asks for, to show on the consent page (coach OAuth, issue #414)
+      description: >
+        The pending authorization request {id}, created by GET /oauth/authorize. Requires the cookie session. The
+        first logged-in user who opens it is bound to it: for anyone else it does not exist. 404 once decided or
+        expired (10 minutes), and while OAuth is off.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthRequestView'
+        '401':
+          description: Not logged in
+        '404':
+          description: No such pending request for this user
+  /oauth/requests/{id}/decision:
+    post:
+      operationId: oauthRequestsIdDecisionPost
+      tags:
+        - oauth
+      summary: Approve or refuse an application's request
+      description: >
+        Requires the cookie session and the CSRF header. Once only. The answer is the URL to send the browser to:
+        the application's redirect URI with a one-time code (approved) or error=access_denied (refused), with
+        state and iss.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthDecision'
+      responses:
+        '200':
+          description: Where to send the browser
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthDecisionResult'
+        '400':
+          description: Scopes that were not requested, or none when approving
+        '401':
+          description: Not logged in
+        '404':
+          description: No such pending request for this user
+
   /practice/session/{id}:
     put:
       operationId: practiceSessionPut
@@ -2393,6 +2456,57 @@ components:
         - description
         - arguments
         - text
+    OAuthRequestView:
+      type: object
+      description: An application's pending authorization request, as the consent page shows it.
+      properties:
+        clientName:
+          type: string
+          description: The name the application gives itself. Not verified.
+        clientHost:
+          type: string
+          nullable: true
+          description: >
+            The host of the application's metadata URL: who vouches for it. Null for a dynamically registered
+            application, which nobody vouches for.
+        redirectHost:
+          type: string
+          description: Where the browser goes after the decision.
+        loopbackOnly:
+          type: boolean
+          description: The application only redirects to this computer (localhost), so any local program could claim to be it.
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoachGrantScope'
+        expiresAt:
+          type: string
+          format: date-time
+      required:
+        - clientName
+        - redirectHost
+        - loopbackOnly
+        - scopes
+        - expiresAt
+    OAuthDecision:
+      type: object
+      properties:
+        approve:
+          type: boolean
+        scopes:
+          type: array
+          description: When approving, the scopes granted, among those requested (all of them when absent).
+          items:
+            $ref: '#/components/schemas/CoachGrantScope'
+      required:
+        - approve
+    OAuthDecisionResult:
+      type: object
+      properties:
+        redirectUrl:
+          type: string
+      required:
+        - redirectUrl
     CoachBridgeTicket:
       type: object
       properties:

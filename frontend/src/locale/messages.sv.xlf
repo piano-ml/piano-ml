@@ -674,6 +674,58 @@
         <source>Blog posts</source>
         <target state="translated">Blogginlägg</target>
       </trans-unit>
+      <trans-unit id="coach.authorize.title" datatype="html">
+        <source>An application asks for access to your PianoML account</source>
+        <target state="translated">Ett program begär åtkomst till ditt PianoML-konto</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.gone" datatype="html">
+        <source>This request has expired or was already answered. Go back to your application and connect PianoML again.</source>
+        <target state="translated">Begäran har gått ut eller redan besvarats. Gå tillbaka till ditt program och anslut PianoML igen.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.error" datatype="html">
+        <source>The request could not be loaded. Try again later.</source>
+        <target state="translated">Begäran kunde inte läsas in. Försök igen senare.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.publishedBy" datatype="html">
+        <source>Published by</source>
+        <target state="translated">Publicerat av</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.unverified" datatype="html">
+        <source>This name was given by the application itself and is not verified.</source>
+        <target state="translated">Namnet har angetts av programmet självt och är inte verifierat.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.redirectTo" datatype="html">
+        <source>After your choice, you will be sent to</source>
+        <target state="translated">Efter ditt val skickas du till</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.loopback" datatype="html">
+        <source>This application runs on your computer. Any program on this computer could claim to be it: allow it only if you just started the connection yourself.</source>
+        <target state="translated">Programmet körs på din dator. Vilket program som helst på datorn skulle kunna utge sig för att vara det: tillåt det bara om du själv precis startade anslutningen.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.scopes" datatype="html">
+        <source>It will be able to:</source>
+        <target state="translated">Det kommer att kunna:</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.privacy" datatype="html">
+        <source>What the application reads is sent to the AI provider it uses. You can revoke this access at any time on your account page.</source>
+        <target state="translated">Det som programmet läser skickas till den AI-leverantör som det använder. Du kan när som helst återkalla åtkomsten på din kontosida.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.decisionError" datatype="html">
+        <source>Your answer could not be sent. Try again.</source>
+        <target state="translated">Ditt svar kunde inte skickas. Försök igen.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.refuse" datatype="html">
+        <source>Refuse</source>
+        <target state="translated">Neka</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.allow" datatype="html">
+        <source>Allow</source>
+        <target state="translated">Tillåt</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.manage" datatype="html">
+        <source>Manage the applications that have access</source>
+        <target state="translated">Hantera program med åtkomst</target>
+      </trans-unit>
       <trans-unit id="coach.connect.title" datatype="html">
         <source>Connect an AI coach</source>
         <target state="translated">Anslut en AI-coach</target>
@@ -3261,6 +3313,10 @@ Användning: över mollackord och mollbluessammanhang (i7- / i-centrum) när du 
       <trans-unit id="route.coachConnect" datatype="html">
         <source>Connect an AI coach</source>
         <target state="translated">Anslut en AI-coach</target>
+      </trans-unit>
+      <trans-unit id="route.coachAuthorize" datatype="html">
+        <source>Allow an application</source>
+        <target state="translated">Tillåt ett program</target>
       </trans-unit>
       <trans-unit id="seo.defaultTitle" datatype="html">
         <source>PianoML: Learn Piano with Smart Sheet Music &amp; Practice Tools</source>

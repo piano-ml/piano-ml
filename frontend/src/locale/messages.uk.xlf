@@ -674,6 +674,58 @@
         <source>Blog posts</source>
         <target state="translated">Статті блогу</target>
       </trans-unit>
+      <trans-unit id="coach.authorize.title" datatype="html">
+        <source>An application asks for access to your PianoML account</source>
+        <target state="translated">Застосунок просить доступ до вашого облікового запису PianoML</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.gone" datatype="html">
+        <source>This request has expired or was already answered. Go back to your application and connect PianoML again.</source>
+        <target state="translated">Термін дії цього запиту минув, або на нього вже відповіли. Поверніться до застосунку й підключіть PianoML знову.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.error" datatype="html">
+        <source>The request could not be loaded. Try again later.</source>
+        <target state="translated">Не вдалося завантажити запит. Спробуйте пізніше.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.publishedBy" datatype="html">
+        <source>Published by</source>
+        <target state="translated">Опубліковано</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.unverified" datatype="html">
+        <source>This name was given by the application itself and is not verified.</source>
+        <target state="translated">Цю назву вказав сам застосунок, її не перевірено.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.redirectTo" datatype="html">
+        <source>After your choice, you will be sent to</source>
+        <target state="translated">Після вашого вибору вас буде перенаправлено на</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.loopback" datatype="html">
+        <source>This application runs on your computer. Any program on this computer could claim to be it: allow it only if you just started the connection yourself.</source>
+        <target state="translated">Цей застосунок працює на вашому комп’ютері. Будь-яка програма на цьому комп’ютері може видати себе за нього: дозволяйте, лише якщо ви щойно самі почали підключення.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.scopes" datatype="html">
+        <source>It will be able to:</source>
+        <target state="translated">Він зможе:</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.privacy" datatype="html">
+        <source>What the application reads is sent to the AI provider it uses. You can revoke this access at any time on your account page.</source>
+        <target state="translated">Те, що читає застосунок, надсилається постачальнику ШІ, яким він користується. Ви можете будь-коли відкликати цей доступ на сторінці облікового запису.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.decisionError" datatype="html">
+        <source>Your answer could not be sent. Try again.</source>
+        <target state="translated">Не вдалося надіслати вашу відповідь. Спробуйте ще раз.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.refuse" datatype="html">
+        <source>Refuse</source>
+        <target state="translated">Відхилити</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.allow" datatype="html">
+        <source>Allow</source>
+        <target state="translated">Дозволити</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.manage" datatype="html">
+        <source>Manage the applications that have access</source>
+        <target state="translated">Керувати застосунками з доступом</target>
+      </trans-unit>
       <trans-unit id="coach.connect.title" datatype="html">
         <source>Connect an AI coach</source>
         <target state="translated">Підключити ШІ-тренера</target>
@@ -3261,6 +3313,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="route.coachConnect" datatype="html">
         <source>Connect an AI coach</source>
         <target state="translated">Підключити ШІ-тренера</target>
+      </trans-unit>
+      <trans-unit id="route.coachAuthorize" datatype="html">
+        <source>Allow an application</source>
+        <target state="translated">Дозволити застосунок</target>
       </trans-unit>
       <trans-unit id="seo.defaultTitle" datatype="html">
         <source>PianoML: Learn Piano with Smart Sheet Music &amp; Practice Tools</source>

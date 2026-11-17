@@ -56,7 +56,10 @@ public class OAuthSecurityConfig {
     return new ClientMetadataFetcher(ClientMetadataFetcher.Rules.PRODUCTION);
   }
 
-  /** Deletes OAuth clients never used for 24 hours or unused for 90 days, every day. Idempotent. */
+  /**
+   * Every day: deletes OAuth clients never used for 24 hours or unused for 90 days, and authorization requests
+   * and codes expired more than a day ago. Idempotent.
+   */
   @Slf4j
   @Component
   @Lazy(false) // spring.main.lazy-initialization would otherwise never create it, and never schedule the job
@@ -65,14 +68,17 @@ public class OAuthSecurityConfig {
   public static class CoachOAuthCleanup {
 
     private final CoachOAuthClientService clients;
+    private final CoachOAuthAuthorizationService authorization;
 
-    public CoachOAuthCleanup(CoachOAuthClientService clients) {
+    public CoachOAuthCleanup(CoachOAuthClientService clients, CoachOAuthAuthorizationService authorization) {
       this.clients = clients;
+      this.authorization = authorization;
     }
 
     @Scheduled(cron = "${coach.oauth.cleanup.cron:0 37 3 * * *}", zone = "UTC")
     public void purge() {
       try {
+        authorization.purgeExpired();
         int deleted = clients.purgeStale();
         if (deleted > 0) {
           log.info("Deleted {} unused coach OAuth client(s)", deleted);

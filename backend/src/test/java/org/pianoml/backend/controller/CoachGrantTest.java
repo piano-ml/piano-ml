@@ -335,6 +335,8 @@ class CoachGrantTest {
     mockMvc.perform(post("/oauth/register").contentType(MediaType.APPLICATION_JSON)
         .content("{\"redirect_uris\":[\"https://harness.example/cb\"]}"))
       .andExpect(status().isNotFound());
+    mockMvc.perform(get("/oauth/authorize").param("client_id", "pmc_x")).andExpect(status().isNotFound());
+    mockMvc.perform(get("/oauth/requests/{id}", "x").cookie(session(newUser()))).andExpect(status().isNotFound());
   }
 
   // --- the main chain ignores grant tokens ------------------------------------------------------------------------

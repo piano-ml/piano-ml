@@ -674,6 +674,58 @@
         <source>Blog posts</source>
         <target state="translated">Blogartikel</target>
       </trans-unit>
+      <trans-unit id="coach.authorize.title" datatype="html">
+        <source>An application asks for access to your PianoML account</source>
+        <target state="translated">Eine Anwendung bittet um Zugriff auf Ihr PianoML-Konto</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.gone" datatype="html">
+        <source>This request has expired or was already answered. Go back to your application and connect PianoML again.</source>
+        <target state="translated">Diese Anfrage ist abgelaufen oder wurde bereits beantwortet. Kehren Sie zu Ihrer Anwendung zurück und verbinden Sie PianoML erneut.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.error" datatype="html">
+        <source>The request could not be loaded. Try again later.</source>
+        <target state="translated">Die Anfrage konnte nicht geladen werden. Versuchen Sie es später erneut.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.publishedBy" datatype="html">
+        <source>Published by</source>
+        <target state="translated">Veröffentlicht von</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.unverified" datatype="html">
+        <source>This name was given by the application itself and is not verified.</source>
+        <target state="translated">Diesen Namen hat sich die Anwendung selbst gegeben; er ist nicht überprüft.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.redirectTo" datatype="html">
+        <source>After your choice, you will be sent to</source>
+        <target state="translated">Nach Ihrer Entscheidung werden Sie weitergeleitet zu</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.loopback" datatype="html">
+        <source>This application runs on your computer. Any program on this computer could claim to be it: allow it only if you just started the connection yourself.</source>
+        <target state="translated">Diese Anwendung läuft auf Ihrem Computer. Jedes Programm auf diesem Computer könnte sich als sie ausgeben: Erlauben Sie den Zugriff nur, wenn Sie die Verbindung gerade selbst gestartet haben.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.scopes" datatype="html">
+        <source>It will be able to:</source>
+        <target state="translated">Sie kann dann:</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.privacy" datatype="html">
+        <source>What the application reads is sent to the AI provider it uses. You can revoke this access at any time on your account page.</source>
+        <target state="translated">Was die Anwendung liest, wird an den KI-Anbieter gesendet, den sie nutzt. Sie können diesen Zugriff jederzeit auf Ihrer Kontoseite widerrufen.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.decisionError" datatype="html">
+        <source>Your answer could not be sent. Try again.</source>
+        <target state="translated">Ihre Antwort konnte nicht gesendet werden. Versuchen Sie es erneut.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.refuse" datatype="html">
+        <source>Refuse</source>
+        <target state="translated">Ablehnen</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.allow" datatype="html">
+        <source>Allow</source>
+        <target state="translated">Erlauben</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.manage" datatype="html">
+        <source>Manage the applications that have access</source>
+        <target state="translated">Anwendungen mit Zugriff verwalten</target>
+      </trans-unit>
       <trans-unit id="coach.connect.title" datatype="html">
         <source>Connect an AI coach</source>
         <target state="translated">KI-Coach verbinden</target>
@@ -3261,6 +3313,10 @@ Anwendung: über Mollakkorden und Moll-Blues-Kontexten (i7- bzw. i-Zentren), wen
       <trans-unit id="route.coachConnect" datatype="html">
         <source>Connect an AI coach</source>
         <target state="translated">KI-Coach verbinden</target>
+      </trans-unit>
+      <trans-unit id="route.coachAuthorize" datatype="html">
+        <source>Allow an application</source>
+        <target state="translated">Anwendung erlauben</target>
       </trans-unit>
       <trans-unit id="seo.defaultTitle" datatype="html">
         <source>PianoML: Learn Piano with Smart Sheet Music &amp; Practice Tools</source>

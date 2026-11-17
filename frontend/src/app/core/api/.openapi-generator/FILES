@@ -10,6 +10,7 @@ api/coach.service.ts
 api/genre.service.ts
 api/genreTree.service.ts
 api/musicbrainz.service.ts
+api/oauth.service.ts
 api/practice.service.ts
 api/score.service.ts
 api/workload.service.ts
@@ -45,6 +46,9 @@ model/mbAuthorApiInfo.ts
 model/models.ts
 model/musicBrainzService.ts
 model/musicBrainzServiceLifeSpan.ts
+model/oAuthDecision.ts
+model/oAuthDecisionResult.ts
+model/oAuthRequestView.ts
 model/practiceAccuracyTrend.ts
 model/practiceAccuracyWindow.ts
 model/practiceCounters.ts

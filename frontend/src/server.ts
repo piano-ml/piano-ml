@@ -9,6 +9,7 @@ import compression from 'compression';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HOME_VARY, homeRedirect } from './app/shared/i18n/locale-negotiation';
+import { NO_FRAME_HEADERS, isNoFramePath } from './app/coach/authorize/no-frame';
 
 export function app(): express.Express {
   const server = express();
@@ -25,6 +26,15 @@ export function app(): express.Express {
   });
 
   server.use('/api/**', (req, res) => res.json({ hello: 'foo' }));
+
+  // The OAuth consent page (coach, issue #414) must never be framed: a page on another site could otherwise
+  // overlay it and trick the user into clicking Allow.
+  server.use((req, res, next) => {
+    if (isNoFramePath(req.path)) {
+      for (const [name, value] of Object.entries(NO_FRAME_HEADERS)) res.setHeader(name, value);
+    }
+    next();
+  });
 
   // The only language redirect: `/` goes to the language in the `lang` cookie (set by the switcher), else
   // the best Accept-Language match. English is served at `/` itself. Deep links are never redirected.
