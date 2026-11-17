@@ -232,7 +232,9 @@ Scopes, `GrantPrincipal`, the `/mcp` chain rules (no cookie, `Origin` refused un
 
 Five phases, then one optional phase (O6), each one issue and one pull request, in the format of section 7 of the coach specification (common rules apply).
 
-### Phase O1. Discovery, the 401 challenge, clients anywhere
+### Phase O1. Discovery, the 401 challenge, clients anywhere (done)
+
+*Implemented: `coach/oauth/` (`CoachOAuthSettings`, `OAuthMetadataController`, `McpAuthenticationEntryPoint`, `PublicCors`), tests `CoachOAuthDiscoveryTest`, `CoachOAuthSettingsTest`, `CoachGrantTest`. One addition to the plan: the property `coach.oauth.enabled` (default `false`). While it is off the discovery documents answer 404 and the challenge is a plain `Bearer realm="PianoML"` (with `error="invalid_token"` when a token was sent), so no client starts a flow whose endpoints do not exist yet. Turn it on with phase O4.*
 
 Build: the two metadata documents (2.1) as static JSON from configuration (`coach.oauth.issuer`, `coach.oauth.resource`); the `WWW-Authenticate` challenge on 401 from the `/mcp` chain; CORS without credentials on `/mcp` and the well-known documents, with preflight answered before authentication (2.6); remove the `Origin` refusal of `/mcp` and the `coach.mcp.allowed-origins` property, and update section 2.3 of the coach specification and `CoachGrantTest`/`McpOriginFilterTest` accordingly.
 Tests: documents served at the three paths with every field of 2.1; an anonymous `/mcp` call gets 401 with the exact challenge, readable from a browser (`WWW-Authenticate` exposed); a `pml_` token works with and without an `Origin` header from any site; a preflight from any origin gets the CORS headers and no `Allow-Credentials`; a cookie sent to `/mcp` still authenticates nothing; the Remote coach WebSocket still refuses a foreign `Origin`.

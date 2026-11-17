@@ -12,7 +12,7 @@ The quickest way is the **Connect an AI coach** page of the app (`/coach/connect
 | Transport | Streamable HTTP, stateless (`POST` only) |
 | Authentication | `Authorization: Bearer pml_...` |
 
-Only `pml_` access tokens work on this endpoint. Your login session does not, and a `pml_` token does not work anywhere else in the API. A request carrying an `Origin` header (a web page) is refused unless the origin is listed in the backend property `coach.mcp.allowed-origins`.
+Only `pml_` access tokens work on this endpoint. Your login session does not, and a `pml_` token does not work anywhere else in the API. Clients can run anywhere, a web page included: the endpoint answers any origin, with CORS and never credentials. A missing or invalid token gets `401` with a `WWW-Authenticate: Bearer` challenge.
 
 ## Create a token
 

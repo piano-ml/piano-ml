@@ -1,19 +1,16 @@
 package org.pianoml.backend.config;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.pianoml.backend.coach.oauth.CoachOAuthSettings;
+import org.pianoml.backend.coach.oauth.McpAuthenticationEntryPoint;
+import org.pianoml.backend.coach.oauth.PublicCors;
 import org.pianoml.backend.security.GrantAuthenticationFilter;
 import org.pianoml.backend.service.CoachGrantService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,14 +18,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
  * Security of /mcp/**, the endpoint external AI tools call with an access grant token (coach, issue #414).
@@ -38,57 +29,37 @@ import java.util.stream.Collectors;
  * authenticates nothing ({@link org.pianoml.backend.security.JwtAuthenticationFilter}). The main chain skips
  * CSRF for any request with an Authorization header; a grant token that worked there would be a full session.
  *
- * <p>No CSRF and no CORS: MCP hosts are programs, not browsers. A request carrying an Origin header comes from a
- * browser and is refused unless the origin is listed in {@code coach.mcp.allowed-origins} (empty by default).
+ * <p>Clients can run anywhere, a web page included (docs/coach-oauth-design.md 2.6): any Origin is accepted, with
+ * CORS for any origin and never credentials ({@link PublicCors}); preflight requests are answered before
+ * authentication. No CSRF: no cookie is read here, so a cross-site page has no ambient credential to borrow.
+ *
+ * <p>A missing or invalid token gets 401 with a {@code WWW-Authenticate} challenge
+ * ({@link McpAuthenticationEntryPoint}), which MCP clients start OAuth sign-in from.
  */
 @Configuration
 public class McpSecurityConfig {
 
   @Bean
   @Order(1)
-  public SecurityFilterChain mcpFilterChain(HttpSecurity http, CoachGrantService grants,
-                                            @Value("${coach.mcp.allowed-origins:}") List<String> allowedOrigins)
+  public SecurityFilterChain mcpFilterChain(HttpSecurity http, CoachGrantService grants, CoachOAuthSettings oauth)
     throws Exception {
+    UrlBasedCorsConfigurationSource cors = new UrlBasedCorsConfigurationSource();
+    cors.registerCorsConfiguration("/mcp/**", PublicCors.configuration());
     http
       .securityMatcher("/mcp/**")
       .csrf(csrf -> csrf.disable())
-      .cors(cors -> cors.disable())
+      .cors(c -> c.configurationSource(cors))
       .httpBasic(basic -> basic.disable())
       .formLogin(form -> form.disable())
       .logout(logout -> logout.disable())
       .requestCache(cache -> cache.disable())
       .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .exceptionHandling(exceptions -> exceptions
-        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+        .authenticationEntryPoint(new McpAuthenticationEntryPoint(oauth))
         .accessDeniedHandler(new AccessDeniedHandlerImpl()))
-      .addFilterBefore(new OriginFilter(allowedOrigins), AnonymousAuthenticationFilter.class)
       .addFilterBefore(new GrantAuthenticationFilter(grants), AnonymousAuthenticationFilter.class)
       .authorizeHttpRequests(authz -> authz.anyRequest().authenticated());
     return http.build();
-  }
-
-  /** 403 for a request with an Origin header that is not explicitly allowed. Runs before authentication. */
-  static class OriginFilter extends OncePerRequestFilter {
-
-    private final Set<String> allowed;
-
-    OriginFilter(List<String> allowedOrigins) {
-      this.allowed = allowedOrigins == null ? Set.of() : allowedOrigins.stream()
-        .map(String::strip)
-        .filter(origin -> !origin.isEmpty())
-        .collect(Collectors.toUnmodifiableSet());
-    }
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-      throws ServletException, IOException {
-      String origin = request.getHeader("Origin");
-      if (origin != null && !allowed.contains(origin)) {
-        response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        return;
-      }
-      chain.doFilter(request, response);
-    }
   }
 
   /**

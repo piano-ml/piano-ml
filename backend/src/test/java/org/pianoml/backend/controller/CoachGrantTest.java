@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -312,12 +313,25 @@ class CoachGrantTest {
   }
 
   @Test
-  void requestWithAnOriginHeader_isRefusedOnMcp() throws Exception {
+  void aValidToken_works_fromAPageOnAnySite() throws Exception {
+    // Clients can run anywhere, a web page included (docs/coach-oauth-design.md 2.6): no ambient credential here
     String token = token(newUser());
-    mockMvc.perform(mcpRequest("Bearer " + token).header("Origin", "https://www.pianoml.org"))
-      .andExpect(status().isForbidden());
-    mockMvc.perform(mcpRequest("Bearer " + token).header("Origin", "https://evil.example"))
-      .andExpect(status().isForbidden());
+    for (String origin : List.of("https://www.pianoml.org", "https://harness.example", "http://localhost:6274")) {
+      mockMvc.perform(mcpRequest("Bearer " + token).header("Origin", origin))
+        .andExpect(status().isOk())
+        .andExpect(header().string("Access-Control-Allow-Origin", "*"))
+        .andExpect(header().doesNotExist("Access-Control-Allow-Credentials"));
+    }
+  }
+
+  @Test
+  void whileOAuthIsOff_theChallengePointsNowhere_andNoDiscoveryDocumentIsServed() throws Exception {
+    mcp(null).andExpect(status().isUnauthorized())
+      .andExpect(header().string("WWW-Authenticate", "Bearer realm=\"PianoML\""));
+    mcp("Bearer pml_nope").andExpect(status().isUnauthorized())
+      .andExpect(header().string("WWW-Authenticate", "Bearer realm=\"PianoML\", error=\"invalid_token\""));
+    mockMvc.perform(get("/.well-known/oauth-protected-resource/mcp")).andExpect(status().isNotFound());
+    mockMvc.perform(get("/.well-known/oauth-authorization-server")).andExpect(status().isNotFound());
   }
 
   // --- the main chain ignores grant tokens ------------------------------------------------------------------------

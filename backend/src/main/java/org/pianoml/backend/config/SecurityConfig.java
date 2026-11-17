@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
+import org.pianoml.backend.coach.oauth.PublicCors;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -113,6 +114,9 @@ public class SecurityConfig {
     configuration.setExposedHeaders(List.of("Content-Disposition"));
     configuration.setMaxAge(3600L);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    // OAuth discovery documents (coach, issue #414): read by MCP clients from any site, without credentials.
+    // Registered first: the first matching pattern wins.
+    source.registerCorsConfiguration("/.well-known/**", PublicCors.configuration());
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }
