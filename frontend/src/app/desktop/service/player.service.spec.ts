@@ -8,6 +8,7 @@ import { MidiServiceService } from '../../shared/services/midi-service.service';
 import { SIMPLE_SCORE, renderScore, scoreMidi } from '../../testing/score-fixture';
 import type { PlayConfiguration } from '../model/model';
 import { CursorService } from './cursor.service';
+import { midiToPitch } from './midi-maths';
 import { type LiveStatus, PlayerAssessService } from './player-assess.service';
 import { PlayerAudioService } from './player-audio.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
@@ -336,6 +337,29 @@ describe('PlayerService', () => {
         vi.advanceTimersByTime(1000);
         expect(player.message()).toBe('');
         expect(cfg.midi).toBeDefined();
+      });
+
+      it('in play-along mode too: red note on the score, red key, BAD, as the key is pressed', async () => {
+        load();
+        const rendered = await renderScore(SIMPLE_SCORE);
+        dispose = rendered.dispose;
+        await player.setOsmd(rendered.osmd);
+        rendered.osmd.cursor.reset();
+        vi.spyOn(audio, 'isPlaying').mockReturnValue(true);
+        vi.spyOn(assess, 'playTimed').mockReturnValue({ bad: true });
+        const before = player.wrongNotes();
+        noteListener!(down(73)); // no await: shown synchronously
+        expect(player.message()).toBe('BAD');
+        expect(player.wrongNotes()).toBe(before + 1);
+        expect(rendered.host.querySelectorAll('[fill="#FF0000"]').length).toBeGreaterThan(0);
+        expect(keys.fillKey).toHaveBeenCalledWith(midiToPitch(73), TestBed.inject(PlayerKeyboardService).COLOR_WRONG);
+      });
+
+      it('a right key on the MIDI keyboard is never lit', async () => {
+        load({ waitForRightHand: true });
+        vi.spyOn(assess, 'getNewActual').mockReturnValue(status());
+        await send(down(72));
+        expect(keys.fillKey.mock.calls.filter(([name]) => name === midiToPitch(72))).toEqual([]);
       });
 
       it('clears the marking when playback restarts', async () => {

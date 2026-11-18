@@ -48,6 +48,7 @@ export class PlayerService implements OnDestroy {
   //get measure() { return this.state.measure; }
   get tick() { return this.state.tick; }
   get message() { return this.state.message; }
+  get wrongNotes() { return this.state.wrongNotes.asReadonly(); }
   get elapsedTime() { return this.state.elapsedTime; }
   get duration() { return this.state.duration; }
   get isWaiting() { return this.state.isWaiting; }
@@ -350,7 +351,7 @@ export class PlayerService implements OnDestroy {
       if (midiEvent.type === 'down' && this.audio.isPlaying()) {
         const { bad } = this.assess.playTimed(this.audio.getTransportSeconds(), midiEvent.note);
         if (bad) {
-          this.highlightBadNote(midiEvent.note);
+          this.showWrongNote(midiEvent.note);
         }
       }
       return
@@ -370,7 +371,7 @@ export class PlayerService implements OnDestroy {
         }
       }
       if (liveStatus.bad) {
-        this.highlightBadNote(midiEvent.note);
+        this.showWrongNote(midiEvent.note);
       } else {
         this.keyboard.removeMidiPitchFromKeyboard(midiEvent.note);
       }
@@ -378,8 +379,20 @@ export class PlayerService implements OnDestroy {
     }
   }
 
+  /**
+   * A wrong note, shown the moment it is played (synchronously, from the MIDI listener), in both modes: in red on
+   * the score and on the on-screen keyboard. The keys the user plays right are never lit.
+   */
+  private showWrongNote(pitch: number) {
+    this.highlightBadNote(pitch);
+    this.keyboard.flashWrongKey(pitch);
+    this.message.set("BAD");
+    this.state.wrongNotes.update((count) => count + 1);
+  }
+
   private highlightBadNote(pitch: number) {
-    const cursor = this.cursorService.cursor!;
+    const cursor = this.cursorService.cursor;
+    if (!cursor) return;
     const osmdNotes = cursor.GNotesUnderCursor() as GraphicalNote[];
     let firstSourceNote: any;
     let closest: GraphicalNote | undefined;
@@ -413,8 +426,6 @@ export class PlayerService implements OnDestroy {
       // Tremolo note, skipping highlight
       return;
     }
-
-    this.message.set("BAD");
 
     const delta = (closest.sourceNote.halfTone - pitch + 12);
     closest.setColor("#FF0000", {});

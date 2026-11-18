@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, untracked } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -33,6 +33,11 @@ import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '.
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
+
+/** After a wrong note, the on-screen keyboard is shown this long (even if the user hid it), in both modes. */
+export const WRONG_NOTE_KEYBOARD_VISIBLE_MS = 5000;
+/** How long the arena flashes red after a wrong note. */
+export const WRONG_NOTE_ARENA_FLASH_MS = 500;
 
 /** What to tell the user when a score cannot be loaded for practice. */
 export function scoreLoadErrorMessage(error: unknown): string {
@@ -87,6 +92,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   protected readonly midiBlockedMessage = MIDI_BLOCKED_MESSAGE;
   private midiPermission: PermissionStatus | null = null;
   private midiBlockedChecked = false;
+  /** Wrong notes already reacted to (the player's counter outlives this component). */
+  private seenWrongNotes = 0;
+  private arenaFlashTimer?: ReturnType<typeof setTimeout>;
+  private wrongNoteKeyboardTimer?: ReturnType<typeof setTimeout>;
   /** The popup opens once per visit, whichever check notices first. */
   private midiBlockedShown = false;
 
@@ -260,29 +269,25 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Effect 2: Player messages END / BAD (fires only on player message signal changes)
+    // Effect 2: Player message END (fires only on player message signal changes)
     effect(() => {
       if (!isPlatformBrowser(this.platformId)) return;
 
-      const message = this.playerService.message();
-      if (message === 'END') {
+      if (this.playerService.message() === 'END') {
         this.onPlaybackEnded();
-      } else if (message === 'BAD') {
-        this.arenaClass = 'bad';
-        this.hideKeyboard = false;
-        setTimeout(() => {
-          this.playerService.displayLiveOnKeyboard();
-        }, 0);
-        setTimeout(() => {
-          this.arenaClass = '';
-          this.changeDetector.markForCheck();
-        }, 500);
-        setTimeout(() => {
-          this.arenaClass = '';
-          this.hideKeyboard = this.storedHideKeyboard;
-          this.changeDetector.markForCheck();
-        }, 5000);
-        this.changeDetector.markForCheck();
+      }
+    });
+
+    // Effect 2b: wrong notes. A counter, not the BAD message: two wrong notes in a row are two changes, and each
+    // one restarts the keyboard timer.
+    this.seenWrongNotes = untracked(() => this.playerService.wrongNotes());
+    effect(() => {
+      if (!isPlatformBrowser(this.platformId)) return;
+
+      const wrongNotes = this.playerService.wrongNotes();
+      if (wrongNotes !== this.seenWrongNotes) {
+        this.seenWrongNotes = wrongNotes;
+        this.onWrongNote();
       }
     });
 
@@ -381,6 +386,30 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private openMidiBlockedDialog(): void {
     this.midiBlockedShown = true;
     this.showMidiBlockedDialog = true;
+    this.changeDetector.markForCheck();
+  }
+
+  /**
+   * Flashes the arena and shows the keyboard until WRONG_NOTE_KEYBOARD_VISIBLE_MS after the last wrong note: one
+   * timer, restarted on each, so that an older one cannot hide the keyboard early.
+   */
+  private onWrongNote(): void {
+    this.arenaClass = 'bad';
+    this.hideKeyboard = false;
+    setTimeout(() => {
+      this.playerService.displayLiveOnKeyboard();
+    }, 0);
+    clearTimeout(this.arenaFlashTimer);
+    this.arenaFlashTimer = setTimeout(() => {
+      this.arenaClass = '';
+      this.changeDetector.markForCheck();
+    }, WRONG_NOTE_ARENA_FLASH_MS);
+    clearTimeout(this.wrongNoteKeyboardTimer);
+    this.wrongNoteKeyboardTimer = setTimeout(() => {
+      this.wrongNoteKeyboardTimer = undefined;
+      this.hideKeyboard = this.storedHideKeyboard;
+      this.changeDetector.markForCheck();
+    }, WRONG_NOTE_KEYBOARD_VISIBLE_MS);
     this.changeDetector.markForCheck();
   }
 
@@ -1138,6 +1167,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
     clearTimeout(this.titleTimer);
     this.titleTimer = undefined;
+    clearTimeout(this.arenaFlashTimer);
+    clearTimeout(this.wrongNoteKeyboardTimer);
     this.playerService.releaseScoreSession();
     this.clearData();
     // Remove resize listener

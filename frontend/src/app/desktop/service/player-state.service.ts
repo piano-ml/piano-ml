@@ -18,6 +18,8 @@ export class PlayerStateService {
   // Signals for reactive state
 
   readonly message = signal<string>("");
+  /** Wrong notes played so far: bumped on each one, so that two wrong notes in a row are two changes. */
+  readonly wrongNotes = signal(0);
   readonly elapsedTime = new BehaviorSubject<number>(0);
 
   // Playback state

@@ -18,8 +18,9 @@ import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../.
 import { CursorService } from '../../service/cursor.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { PlayerService } from '../../service/player.service';
+import { PlayerStateService } from '../../service/player-state.service';
 import { PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
-import { WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
+import { WRONG_NOTE_ARENA_FLASH_MS, WRONG_NOTE_KEYBOARD_VISIBLE_MS, WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
 
 const SCORE: ScoreApiInfo = {
   id: 's1', owner_id: 'o1', version: 1, title: 'Happy Birthday', author: 'Mildred J. Hill', tempo: 100,
@@ -356,18 +357,35 @@ describe('WorkbenchComponent', () => {
       expect(setItem).toHaveBeenLastCalledWith({ kind: 'score', scoreId: 's1', title: 'Happy Birthday' }, expect.any(Number));
     });
 
+    const wrongNote = () => {
+      TestBed.inject(PlayerStateService).wrongNotes.update((count) => count + 1);
+      TestBed.tick(); // runs the wrong-note effect
+    };
+
     it('flashes the score on a wrong note and shows the keyboard for a while', async () => {
       await openScore();
       component.setHideKeyboard(true);
       vi.useFakeTimers();
-      player.message.set('BAD');
-      TestBed.tick(); // runs the message effect
+      wrongNote();
       expect(component.arenaClass).toBe('bad');
       expect(component.hideKeyboard).toBe(false);
-      vi.advanceTimersByTime(500);
+      vi.advanceTimersByTime(WRONG_NOTE_ARENA_FLASH_MS);
       expect(component.arenaClass).toBe('');
-      vi.advanceTimersByTime(4500);
+      vi.advanceTimersByTime(WRONG_NOTE_KEYBOARD_VISIBLE_MS - WRONG_NOTE_ARENA_FLASH_MS);
       expect(component.hideKeyboard).toBe(true); // back to the user's choice
+    });
+
+    it('keeps the keyboard visible WRONG_NOTE_KEYBOARD_VISIBLE_MS after the last wrong note', async () => {
+      await openScore();
+      component.setHideKeyboard(true);
+      vi.useFakeTimers();
+      wrongNote();
+      vi.advanceTimersByTime(3000);
+      wrongNote(); // the first timer must not hide the keyboard 2 s from now
+      vi.advanceTimersByTime(WRONG_NOTE_KEYBOARD_VISIBLE_MS - 1);
+      expect(component.hideKeyboard).toBe(false);
+      vi.advanceTimersByTime(1);
+      expect(component.hideKeyboard).toBe(true);
     });
 
     it('moves the bar slider with the cursor', async () => {
