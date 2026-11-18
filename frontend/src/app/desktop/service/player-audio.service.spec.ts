@@ -269,6 +269,22 @@ describe('PlayerAudioService', () => {
       expect(synth.controllerChange).toHaveBeenCalledWith(9, 120, 0, { time: later }); // All Sound Off, after it
     });
 
+    it('resumes a paused transport synchronously only when everything already runs', () => {
+      const context = (audio as unknown as { audioContext: AudioContext }).audioContext;
+      const transport = Tone.getTransport();
+      const start = vi.spyOn(transport, 'start').mockReturnValue(transport);
+      const state = vi.spyOn(transport, 'state', 'get').mockReturnValue('paused');
+      const contextState = vi.spyOn(context, 'state', 'get').mockReturnValue('running');
+      expect(audio.resumeNow()).toBe(true);
+      expect(start).toHaveBeenCalledOnce();
+      contextState.mockReturnValue('suspended');
+      expect(audio.resumeNow()).toBe(false); // start() must resume the context first
+      contextState.mockReturnValue('running');
+      state.mockReturnValue('stopped');
+      expect(audio.resumeNow()).toBe(false); // a first play
+      expect(start).toHaveBeenCalledOnce();
+    });
+
     it('pause has nothing to cut when nothing is queued ahead', () => {
       vi.spyOn(Tone.getTransport(), 'pause').mockReturnValue(Tone.getTransport());
       audio.pause();

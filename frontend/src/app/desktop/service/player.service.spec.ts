@@ -290,10 +290,22 @@ describe('PlayerService', () => {
       expect(playTimed).not.toHaveBeenCalled();
     });
 
+    it('a right note resumes playback at once, in the MIDI listener, when everything runs', () => {
+      load({ waitForRightHand: true });
+      player.isWaiting = true;
+      vi.spyOn(assess, 'getNewActual').mockReturnValue(status());
+      const resumeNow = vi.spyOn(audio, 'resumeNow').mockReturnValue(true);
+      noteListener!(down(72)); // no await
+      expect(resumeNow).toHaveBeenCalledOnce();
+      expect(player.isWaiting).toBe(false);
+      expect(audio.start).not.toHaveBeenCalled();
+    });
+
     it('a right note resumes playback when it was waiting', async () => {
       load({ waitForRightHand: true });
       player.isWaiting = true;
       vi.spyOn(assess, 'getNewActual').mockReturnValue(status());
+      vi.spyOn(audio, 'resumeNow').mockReturnValue(false); // e.g. a suspended context: start() it is
       await send(down(72));
       expect(audio.start).toHaveBeenCalled();
       expect(player.isWaiting).toBe(false);

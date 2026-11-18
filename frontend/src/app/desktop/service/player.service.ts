@@ -372,11 +372,12 @@ export class PlayerService implements OnDestroy {
       if (liveStatus === null) {
         return;
       }
-      if (!liveStatus.shouldPause) {
-        if (this.isWaiting) {
-          console.log("Resuming playback from MIDI event!");
+      if (!liveStatus.shouldPause && this.isWaiting) {
+        // Synchronously, in the MIDI listener: the music goes on with the key. start() and its awaits only when
+        // something has to be started first.
+        this.isWaiting = false;
+        if (!this.audio.resumeNow()) {
           await this.audio.start();
-          this.isWaiting = false;
         }
       }
       if (liveStatus.bad) {

@@ -408,6 +408,20 @@ export class PlayerAudioService implements OnDestroy {
   }
 
   /**
+   * Restarts a paused transport at once, synchronously, when everything is already running (the wait-mode case:
+   * the user just played the awaited note). False when start() is needed: first play, suspended context, sounds
+   * not loaded.
+   */
+  resumeNow(): boolean {
+    const transport = this.transport();
+    if (!this.spessasynth || this.audioContext?.state !== 'running' || transport.state !== 'paused') {
+      return false;
+    }
+    this.ngZone.runOutsideAngular(() => transport.start());
+    return true;
+  }
+
+  /**
    * Met en pause le transport
    */
   pause(): void {
