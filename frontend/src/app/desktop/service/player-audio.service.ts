@@ -1,5 +1,5 @@
 
-import { Injectable, inject, OnDestroy, DestroyRef } from '@angular/core';
+import { Injectable, inject, OnDestroy, DestroyRef, isDevMode } from '@angular/core';
 import * as Tone from "tone";
 import { WorkletSynthesizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
@@ -23,6 +23,12 @@ export function isCompleteRiff(buffer: ArrayBuffer): boolean {
 }
 
 /**
+ * User Timing mark set at the first synth note-on after each start(), in dev builds only: scripts/measure-playback.mjs
+ * reads it to measure the delay between the Play click and the first sound.
+ */
+export const FIRST_SOUND_MARK = 'pianoml:first-sound';
+
+/**
  * Service responsable de la gestion de l'audio, des synthétiseurs et du scheduling des notes
  */
 @Injectable({
@@ -38,6 +44,8 @@ export class PlayerAudioService implements OnDestroy {
   private metronomTimeouts: Set<ReturnType<typeof setTimeout>> = new Set();
   private destroyRef = inject(DestroyRef);
   private soundFontAbortController?: AbortController;
+  /** Set by start() in dev builds: the next note-on sets FIRST_SOUND_MARK. */
+  private firstSoundPending = false;
 
   constructor(
     private assess: PlayerAssessService,
@@ -45,6 +53,15 @@ export class PlayerAudioService implements OnDestroy {
     private midiService: MidiServiceService
   ) { }
 
+
+  /** Every synth note-on goes through here. */
+  private noteOn(channel: number, midi: number, velocity: number): void {
+    if (this.firstSoundPending) {
+      this.firstSoundPending = false;
+      performance.mark(FIRST_SOUND_MARK);
+    }
+    this.spessasynth?.noteOn(channel, midi, velocity);
+  }
 
   getTransportSeconds(): number {
     return Tone.getTransport().seconds;
@@ -130,7 +147,7 @@ export class PlayerAudioService implements OnDestroy {
 
     // Note on
     transport.schedule(() => {
-      this.spessasynth?.noteOn(channel, note.midi, roundedVelocity);
+      this.noteOn(channel, note.midi, roundedVelocity);
     }, noteStart + offset);
 
     // Note off
@@ -205,6 +222,7 @@ export class PlayerAudioService implements OnDestroy {
     }
 
     this.pianoMLShouldPlay = this.midiService.pianoMLShouldPlay();
+    this.firstSoundPending = isDevMode();
 
     this.startPromise = (async () => {
       // Resolves at once when the page already preloaded the soundfont, waits for it otherwise
@@ -361,7 +379,7 @@ export class PlayerAudioService implements OnDestroy {
       if (!isHandAwaited) {
         this.midiService.pressOutput(note.midi, note.velocity);
         if (this.pianoMLShouldPlay) {
-          this.spessasynth?.noteOn(0, note.midi, roundedVelocity);
+          this.noteOn(0, note.midi, roundedVelocity);
         }
       } 
     }, scheduleStartTime);
@@ -414,7 +432,7 @@ export class PlayerAudioService implements OnDestroy {
 
   playMetronomeClick(isStrong: boolean, velocity: number=43): void {
     const note = isStrong ? 34 : 33;   // 34 = Metronome Bell, 33 = Metronome Click
-    this.spessasynth?.noteOn(9, note, velocity);
+    this.noteOn(9, note, velocity);
     this.midiService.pressDrum(note, velocity/127);
     // Short release for crisp click (≈30-50ms)
     const timeoutId = setTimeout(() => {
