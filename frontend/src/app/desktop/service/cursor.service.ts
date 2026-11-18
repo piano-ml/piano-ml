@@ -172,7 +172,9 @@ export class CursorService implements OnDestroy {
     nextNote(note: Note) {
         const link = this.midiTicksToOsmdCursorIndex.get(note.ticks);
         if (link != null) {
-            this.moveCursorToOsmdIndex(this.cursor!, link.osmdIndex);
+            // The iterator first (the notes under the cursor follow it), then the style, then one update()
+            // that draws both
+            const moved = this.stepIterator(this.cursor!, link.osmdIndex);
             if (this.isCursorOk(note)) {
                 this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
                 this.cursor!.CursorOptions.type = 4;
@@ -181,6 +183,9 @@ export class CursorService implements OnDestroy {
                 //    this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
                 //}
                 this.cursor!.CursorOptions.type = 3; // measure rectangle
+            }
+            if (moved) {
+                this.cursor!.update();
             }
             const newOsmdMeasure = link.osmdMeasure;
             if (newOsmdMeasure !== this.measure()) {
@@ -889,17 +894,30 @@ export class CursorService implements OnDestroy {
      * @param targetIndex The target osmd index to move the cursor to.
      */
     moveCursorToOsmdIndex(cursor: Cursor, targetIndex: number): void {
+        if (this.stepIterator(cursor, targetIndex)) {
+            cursor.update();
+        }
+    }
+
+    /**
+     * Steps the cursor's iterator to `targetIndex` without drawing it; true when it moved. cursor.next() /
+     * previous() each run update() (a forced layout and a smooth scrollIntoView), which an onset spanning several
+     * steps, or a seek, paid on every step: the caller draws once.
+     */
+    private stepIterator(cursor: Cursor, targetIndex: number): boolean {
+        const from = this.cursorIndex;
         if (targetIndex < this.cursorIndex) {
             while (this.cursorIndex > targetIndex && !cursor.iterator.FrontReached) {
-                cursor.previous();
+                cursor.iterator.moveToPreviousVisibleVoiceEntry(false);
                 this.cursorIndex--;
             }
         } else if (targetIndex > this.cursorIndex) {
             while (this.cursorIndex < targetIndex && !cursor.iterator.EndReached) {
-                cursor.next();
+                cursor.iterator.moveToNextVisibleVoiceEntry(false);
                 this.cursorIndex++;
             }
         }
+        return this.cursorIndex !== from;
     }
 
     /**

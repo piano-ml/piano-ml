@@ -466,6 +466,11 @@ export function isMidiPermissionError(error: unknown): boolean {
   return name === 'NotAllowedError' || name === 'SecurityError';
 }
 
+/** getMidiInputs() looks for a connected keyboard this often... */
+const MIDI_INPUT_POLL_MS = 1000;
+/** ...for this long, then answers with what it found (maybe nothing). */
+const MIDI_INPUT_WAIT_MS = 2000;
+
 export async function getMidiInputs(): Promise<MIDIInputMap> {
   const result = await navigator.permissions.query({ name: "midi" })
   if (result.state === "denied") {
@@ -475,26 +480,34 @@ export async function getMidiInputs(): Promise<MIDIInputMap> {
   try {
     const midiAccess = await navigator.requestMIDIAccess()
     return new Promise((resolve) => {
+      const inputs = () => midiAccess.inputs as unknown as MIDIInputMap;
+      let settled = false;
+      let poll: ReturnType<typeof setTimeout> | undefined;
+      let deadline: ReturnType<typeof setTimeout> | undefined;
+      // Answers once, and stops looking: the polling used to go on forever without a keyboard (one loop per setup
+      // attempt), waking the page, and Angular's change detection, every second.
+      const finish = () => {
+        settled = true;
+        clearTimeout(poll);
+        clearTimeout(deadline);
+        midiAccess.removeEventListener('statechange', checkDevices);
+        resolve(inputs());
+      };
       const checkDevices = () => {
-        const inputs = midiAccess.inputs as unknown as MIDIInputMap;
-        if (inputs.size > 0) {
-          resolve(inputs);
+        if (settled) return;
+        if (inputs().size > 0) {
+          finish();
         } else {
           // Réessayer après un court délai
-          setTimeout(checkDevices, 1000);
+          clearTimeout(poll);
+          poll = setTimeout(checkDevices, MIDI_INPUT_POLL_MS);
         }
       };
       midiAccess.addEventListener('statechange', checkDevices);
+      deadline = setTimeout(finish, MIDI_INPUT_WAIT_MS);
 
       // Vérifier immédiatement
       checkDevices();
-
-      setTimeout(() => {
-        midiAccess.removeEventListener('statechange', checkDevices);
-        if (result.state !== "denied") {
-          resolve(midiAccess.inputs as unknown as MIDIInputMap);
-        }
-      }, 2000);
     });
 
 

@@ -283,6 +283,21 @@ describe('MidiServiceService', () => {
       vi.useRealTimers();
     });
 
+    it('stops looking for a keyboard once it answered, instead of polling forever', async () => {
+      vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      vi.useFakeTimers();
+      let looks = 0;
+      const none = access.inputs;
+      Object.defineProperty(access, 'inputs', { get: () => { looks++; return none; } });
+      midi.setupMidiDeviceListeners(); // no keyboard: answers empty after 2 s, then retries 3 times
+      await vi.advanceTimersByTimeAsync(20_000);
+      const settled = looks;
+      await vi.advanceTimersByTimeAsync(60_000);
+      expect(looks).toBe(settled); // nobody looks any more
+      vi.useRealTimers();
+    });
+
     it('does nothing during server-side rendering', () => {
       TestBed.resetTestingModule();
       create('server');

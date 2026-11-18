@@ -1,5 +1,5 @@
 
-import { Injectable, inject, OnDestroy, DestroyRef, isDevMode, signal } from '@angular/core';
+import { Injectable, inject, OnDestroy, DestroyRef, NgZone, isDevMode, signal } from '@angular/core';
 import * as Tone from "tone";
 import { WorkletSynthesizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
@@ -29,6 +29,13 @@ export function isCompleteRiff(buffer: ArrayBuffer): boolean {
 export const FIRST_SOUND_MARK = 'pianoml:first-sound';
 
 /**
+ * How far ahead Tone schedules (its default is 0.1 s): the synth plays a note when its callback runs, not at the
+ * scheduled time, so the onsets jittered by up to half the update interval and the sound ran ahead of the visuals.
+ * Tone's updateInterval follows at half this value.
+ */
+export const PLAYBACK_LOOKAHEAD_S = 0.03;
+
+/**
  * Service responsable de la gestion de l'audio, des synthétiseurs et du scheduling des notes
  */
 @Injectable({
@@ -43,6 +50,8 @@ export class PlayerAudioService implements OnDestroy {
   private startPromise?: Promise<void>;
   private metronomTimeouts: Set<ReturnType<typeof setTimeout>> = new Set();
   private destroyRef = inject(DestroyRef);
+  private ngZone = inject(NgZone);
+  private toneReady = false;
   private soundFontAbortController?: AbortController;
   /** Set by start() in dev builds: the next note-on sets FIRST_SOUND_MARK. */
   private firstSoundPending = false;
@@ -56,6 +65,29 @@ export class PlayerAudioService implements OnDestroy {
   ) { }
 
 
+  /**
+   * Tone's context, created on first use outside the Angular zone: its ticker and the Draw animation frames then
+   * no longer run change detection app-wide many times per second. The UI still updates through signals and
+   * markForCheck, which schedule change detection on their own.
+   */
+  private ensureTone(): void {
+    if (this.toneReady) return;
+    this.toneReady = true;
+    this.ngZone.runOutsideAngular(() => {
+      Tone.getContext().lookAhead = PLAYBACK_LOOKAHEAD_S;
+    });
+  }
+
+  private transport() {
+    this.ensureTone();
+    return Tone.getTransport();
+  }
+
+  private draw() {
+    this.ensureTone();
+    return Tone.getDraw();
+  }
+
   /** Every synth note-on goes through here. */
   private noteOn(channel: number, midi: number, velocity: number): void {
     if (this.firstSoundPending) {
@@ -66,7 +98,7 @@ export class PlayerAudioService implements OnDestroy {
   }
 
   getTransportSeconds(): number {
-    return Tone.getTransport().seconds;
+    return this.transport().seconds;
   }
 
   /**
@@ -150,7 +182,7 @@ export class PlayerAudioService implements OnDestroy {
 
     const noteStart = (note.time * timeFactor) - startOffset;
     const noteDuration = note.duration * timeFactor;
-    const transport = Tone.getTransport();
+    const transport = this.transport();
     const roundedVelocity = Math.round(note.velocity * 84); // * 127 * 0.66 to reduce volume 
 
     // Note on
@@ -214,8 +246,8 @@ export class PlayerAudioService implements OnDestroy {
    * Nettoie tous les événements schedulés
    */
   clearSchedule(): void {
-    const transport = Tone.getTransport();
-    const draw = Tone.getDraw();
+    const transport = this.transport();
+    const draw = this.draw();
     transport.cancel();
     draw.cancel();
   }
@@ -240,10 +272,10 @@ export class PlayerAudioService implements OnDestroy {
         await this.audioContext.resume();
       }
 
-      await Tone.start();
-      const transport = Tone.getTransport();
+      const transport = this.transport();
+      await this.ngZone.runOutsideAngular(() => Tone.start());
       if (transport.state !== 'started') {
-        transport.start();
+        this.ngZone.runOutsideAngular(() => transport.start());
       }
     })();
 
@@ -259,15 +291,15 @@ export class PlayerAudioService implements OnDestroy {
    */
   pause(): void {
     this.spessasynth?.stopAll();
-    Tone.getTransport().pause();
+    this.transport().pause();
   }
 
   /**
    * Arrête et réinitialise le transport
    */
   stop(): void {
-    const transport = Tone.getTransport();
-    const draw = Tone.getDraw();
+    const transport = this.transport();
+    const draw = this.draw();
     transport.stop();
     transport.position = 0;
     this.clearSchedule();
@@ -297,7 +329,7 @@ export class PlayerAudioService implements OnDestroy {
    * Schedule la fin de la lecture
    */
   scheduleEnd(endTime: number, onEndCallback: () => void): void {
-    Tone.getTransport().schedule(() => {
+    this.transport().schedule(() => {
       this.spessasynth?.stopAll();
       onEndCallback();
     }, endTime);
@@ -307,28 +339,28 @@ export class PlayerAudioService implements OnDestroy {
    * Obtient le temps actuel du transport
    */
   getCurrentTime(): number {
-    return Tone.getTransport().seconds;
+    return this.transport().seconds;
   }
 
   /**
    * Vérifie si le transport est en cours de lecture
    */
   isPlaying(): boolean {
-    return Tone.getTransport().state === 'started';
+    return this.transport().state === 'started';
   }
 
   /**
    * Schedule une callback à un temps donné
    */
   schedule(callback: (time: number) => void, time: number): void {
-    Tone.getTransport().schedule(callback, time);
+    this.transport().schedule(callback, time);
   }
 
   /**
    * Schedule dans le contexte de dessin (pour les updates UI)
    */
   scheduleDraw(callback: () => void, time: number): void {
-    Tone.getDraw().schedule(callback, time);
+    this.draw().schedule(callback, time);
   }
 
   private isNotHandAwaited(hand: string, midiPitch: number) {
@@ -371,35 +403,26 @@ export class PlayerAudioService implements OnDestroy {
       this.assess.expectTimed(scheduleStartTime, note, hand);
     }
     
-    // Cache transport & draw to avoid repeated accessor calls
-    const transport = Tone.getTransport();
-    const draw = Tone.getDraw();
+    const transport = this.transport();
     const roundedVelocity = Math.round(note.velocity * 127);
 
-    // Schedule note start (UI updates, cursor advance, keyboard light on)
-    transport.schedule((time: number) => {
-      draw.schedule(() => {
-        if (isHandAwaited) {
-          const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), scheduleEndTime, note, hand);
-          callbacks.onNoteStart(time, note, liveStatus);
-        } else {
-          const liveStatus = this.assess.getExpectation();
-          callbacks.onNoteStart(time, note, liveStatus);
-        }
-      }, time);
-    }, scheduleStartTime);
-
-    // Schedule piano audio start
+    // Note start: one transport event for the sound, the assessment and the pause decision. They run here, not in
+    // a Tone.Draw callback, which Draw drops when it is more than its expiration late: a wait-mode expectation
+    // must never be lost. The callback schedules the visual work (cursor, key lights) on Draw itself.
     transport.schedule((time: number) => {
       if (!isHandAwaited) {
         this.midiService.pressOutput(note.midi, note.velocity);
         if (this.pianoMLShouldPlay) {
           this.noteOn(0, note.midi, roundedVelocity);
         }
-      } 
+      }
+      const liveStatus = isHandAwaited
+        ? this.assess.learnExpectation(this.getCurrentTime(), scheduleEndTime, note, hand)
+        : this.assess.getExpectation();
+      callbacks.onNoteStart(time, note, liveStatus);
     }, scheduleStartTime);
 
-    // Schedule note end (keyboard light off, piano audio stop)
+    // Note end (piano audio stop; the callback turns the key light off)
     transport.schedule((time: number) => {
       if (!isHandAwaited) {
         this.midiService.releaseOutput(note.midi);
@@ -407,11 +430,7 @@ export class PlayerAudioService implements OnDestroy {
           this.spessasynth?.noteOff(0, note.midi);
         }
       }
-
-      draw.schedule(() => {
-        const liveStatus = this.assess.getExpectation();
-        callbacks.onNoteEnd(time, note, liveStatus);
-      }, time);
+      callbacks.onNoteEnd(time, note, this.assess.getExpectation());
     }, scheduleEndTime);
 
   }
@@ -486,7 +505,7 @@ export class PlayerAudioService implements OnDestroy {
     const stepSeconds = measureDurationSeconds / beatsPerBar;
 
     // Cache transport to avoid repeated accessor calls in loop
-    const transport = Tone.getTransport();
+    const transport = this.transport();
 
     const totalCountInBeats = beatsPerBar * bar;
     for (let i = 0; i < totalCountInBeats; i++) {
@@ -525,7 +544,7 @@ export class PlayerAudioService implements OnDestroy {
 
     // Stop transport and clear all schedules
     try {
-      const transport = Tone.getTransport();
+      const transport = this.transport();
       if (transport.state === 'started' || transport.state === 'paused') {
         transport.stop();
         transport.position = 0;
@@ -533,7 +552,7 @@ export class PlayerAudioService implements OnDestroy {
       this.clearSchedule();
       // Note: Do NOT call draw.dispose() as Tone.Draw is a global singleton
       // shared with other services. Only cancel pending draws.
-      const draw = Tone.getDraw();
+      const draw = this.draw();
       draw.cancel();
     } catch (e) {
       // Tone may be disposed

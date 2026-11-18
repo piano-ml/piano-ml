@@ -93,6 +93,18 @@ describe('CursorService', () => {
       expect(cursor.CursorOptions.type).toBe(4);
     });
 
+    it('draws the cursor once for a move over several steps, and not at all when it stays', async () => {
+      const { midi } = await setup(SIMPLE_SCORE);
+      const update = vi.spyOn(cursor, 'update');
+      service.nextNote(noteAt(midi, tickOf(1, 2))); // several cursor steps ahead
+      expect(update).toHaveBeenCalledTimes(1);
+      expect(underCursor()).toContain(11);
+      service.nextNote(noteAt(midi, tickOf(1, 2))); // same position
+      expect(update).toHaveBeenCalledTimes(1);
+      service.moveCursorToOsmdIndex(cursor, 0); // a seek back
+      expect(update).toHaveBeenCalledTimes(2);
+    });
+
     it('can go back (seek, repeat)', async () => {
       const { midi } = await setup(SIMPLE_SCORE);
       service.nextNote(noteAt(midi, tickOf(2, 0)));

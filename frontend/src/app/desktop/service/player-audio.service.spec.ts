@@ -1,3 +1,4 @@
+import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type * as Midi from '@tonejs/midi';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
@@ -6,7 +7,7 @@ import * as Tone from 'tone';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import type { PlayConfiguration } from '../model/model';
 import { PlayerAssessService } from './player-assess.service';
-import { PlayerAudioService, isCompleteRiff } from './player-audio.service';
+import { PLAYBACK_LOOKAHEAD_S, PlayerAudioService, isCompleteRiff } from './player-audio.service';
 import { PlayerStateService } from './player-state.service';
 
 /**
@@ -102,7 +103,7 @@ describe('PlayerAudioService', () => {
       audio.pianoMLShouldPlay = true;
       const cb = callbacks();
       audio.scheduleHandNote('rh', note({ time: 1, duration: 0.5, velocity: 0.5 }), 0, 1, 2, cb);
-      expect(new Set(schedule.times())).toEqual(new Set([3, 3.5]));
+      expect(schedule.times()).toEqual([3, 3.5]); // one transport event for the note start, one for its end
       schedule.runAll();
       expect(midi.pressOutput).toHaveBeenCalledWith(60, 0.5);
       expect(synth.noteOn).toHaveBeenCalledWith(0, 60, 64);
@@ -146,6 +147,17 @@ describe('PlayerAudioService', () => {
       expect(synth.noteOn).not.toHaveBeenCalled();
       expect(midi.pressOutput).not.toHaveBeenCalled();
       expect(assess.learnExpectation).toHaveBeenCalledWith(expect.any(Number), 3.5, expect.objectContaining({ midi: 60 }), 'rh');
+      expect(cb.onNoteStart).toHaveBeenCalledWith(3, expect.anything(), { shouldPause: true });
+    });
+
+    it('learns a wait-mode expectation in the transport callback: Tone.Draw cannot drop it', () => {
+      state.playConfiguration.waitForRightHand = true;
+      vi.mocked(Tone.getDraw().schedule).mockImplementation((() => Tone.getDraw()) as never); // frames never come
+      const cb = callbacks();
+      audio.scheduleHandNote('rh', note({ time: 1, duration: 0.5 }), 0, 1, 2, cb);
+      expect(schedule.times()).toHaveLength(2);
+      schedule.runAll();
+      expect(assess.learnExpectation).toHaveBeenCalledOnce();
       expect(cb.onNoteStart).toHaveBeenCalledWith(3, expect.anything(), { shouldPause: true });
     });
 
@@ -274,6 +286,18 @@ describe('PlayerAudioService', () => {
       expect(fn).toHaveBeenCalledOnce(); // draw callbacks run immediately in these tests
     });
     // start() needs a running AudioContext (a user gesture): covered by the acceptance workbench scenario
+  });
+
+  it(`schedules PLAYBACK_LOOKAHEAD_S ahead, with Tone's context created outside the Angular zone`, () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: MidiServiceService, useValue: midi }, { provide: PlayerAssessService, useValue: assess }],
+    });
+    const outside = vi.spyOn(TestBed.inject(NgZone), 'runOutsideAngular');
+    const fresh = TestBed.inject(PlayerAudioService);
+    fresh.isPlaying();
+    expect(outside).toHaveBeenCalled();
+    expect(Tone.getContext().lookAhead).toBe(PLAYBACK_LOOKAHEAD_S);
   });
 
   describe('sounds loading state', () => {

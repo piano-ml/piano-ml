@@ -1,4 +1,4 @@
-import { Injectable, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
@@ -35,6 +35,7 @@ export class PlayerService implements OnDestroy {
 
 
   private platformId = inject(PLATFORM_ID);
+  private ngZone = inject(NgZone);
   private recorder = inject(PracticeSessionRecorder);
   private isBrowser: boolean;
   private timeCounterInterval?: number;
@@ -192,13 +193,15 @@ export class PlayerService implements OnDestroy {
       return;
     }
 
-    // Create an interval that checks the transport state every TIME_COUNTER_TIMESTEP ms
-    this.timeCounterInterval = window.setInterval(() => {
+    // Create an interval that checks the transport state every TIME_COUNTER_TIMESTEP ms. Outside the Angular zone:
+    // in the zone, each tick ran change detection app-wide, 5 times a second, even when the time did not change
+    // (play-along). The async pipe showing the time marks the view itself when it does.
+    this.timeCounterInterval = this.ngZone.runOutsideAngular(() => window.setInterval(() => {
       if (this.audio.isPlaying() && (this.playConfiguration.waitForLeftHand || this.playConfiguration.waitForRightHand)) {
         const currentTime = this.elapsedTime.value + TIME_COUNTER_TIMESTEP;
         this.elapsedTime.next(currentTime);
       }
-    }, TIME_COUNTER_TIMESTEP);
+    }, TIME_COUNTER_TIMESTEP));
   }
 
   setup() {
@@ -316,8 +319,8 @@ export class PlayerService implements OnDestroy {
       offset,
       this.state.getTimeFactor(),
       {
-        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('lh', note, liveStatus),
-        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('lh', note, liveStatus)
+        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('lh', time, note, liveStatus),
+        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('lh', time, note, liveStatus)
       }
     );
   }
@@ -331,8 +334,8 @@ export class PlayerService implements OnDestroy {
       offset,
       this.state.getTimeFactor(),
       {
-        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('rh', note, liveStatus),
-        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('rh', note, liveStatus)
+        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('rh', time, note, liveStatus),
+        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('rh', time, note, liveStatus)
       }
     );
   }
@@ -479,27 +482,38 @@ export class PlayerService implements OnDestroy {
 
 
 
-  private handleNoteStart(hand: string, note: Note, liveStatus?: LiveStatus) {
-    // look for playerhand
-    if (liveStatus?.shouldPause) {
+  /**
+   * A note becomes due, in the transport callback: the pause decision is taken here, at once. The cursor and the
+   * key lights go through Tone.Draw, at the frame the note sounds.
+   */
+  private handleNoteStart(hand: string, time: number, note: Note, liveStatus?: LiveStatus) {
+    const pause = !!liveStatus?.shouldPause;
+    if (pause) {
       this.isWaiting = true;
       this.audio.pause();
-      this.lightExpectedNotesOnKeyboard(liveStatus);
     }
-    // normal operations
     this.recorder.activity();
-    this.cursorMayBeAdvance(note);
-    this.keyboard.lightNoteOnKeyboard(hand, note);
-    //this.setCurrentTick(note);
+    this.audio.scheduleDraw(() => {
+      if (pause) {
+        this.lightExpectedNotesOnKeyboard(liveStatus!);
+      }
+      this.cursorMayBeAdvance(note);
+      this.keyboard.lightNoteOnKeyboard(hand, note);
+    }, time);
   }
 
-  private handleNoteEnd(hand: string, note: Note, liveStatus?: LiveStatus) {
-    this.keyboard.removeMidiNoteFromKeyboard(note);
-    if (liveStatus?.shouldPause) {
+  private handleNoteEnd(hand: string, time: number, note: Note, liveStatus?: LiveStatus) {
+    const pause = !!liveStatus?.shouldPause;
+    if (pause) {
       this.isWaiting = true;
       this.audio.pause();
-      this.lightExpectedNotesOnKeyboard(liveStatus);
     }
+    this.audio.scheduleDraw(() => {
+      this.keyboard.removeMidiNoteFromKeyboard(note);
+      if (pause) {
+        this.lightExpectedNotesOnKeyboard(liveStatus!);
+      }
+    }, time);
   }
 
   private lightExpectedNotesOnKeyboard(liveStatus: LiveStatus) {

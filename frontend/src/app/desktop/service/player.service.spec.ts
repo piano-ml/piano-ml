@@ -76,6 +76,8 @@ describe('PlayerService', () => {
       handTracks.push({ hand, start, end, offset, timeFactor, callbacks });
     });
     vi.spyOn(audio, 'scheduleEnd').mockImplementation((_time, cb) => { onEnd = cb; });
+    // The visual work of a due note runs at once, as if its frame came
+    vi.spyOn(audio, 'scheduleDraw').mockImplementation((cb) => cb());
   });
 
   it('listens for MIDI devices in the browser', () => {
@@ -221,6 +223,21 @@ describe('PlayerService', () => {
       expect(keys.fillKey).toHaveBeenCalledWith('C5', expect.any(String));
       callbacks.onNoteEnd(0, n(480), status());
       expect(keys.clearKey).toHaveBeenCalledWith('C5');
+    });
+
+    it('decides to pause in the transport callback, before the frame that shows it', async () => {
+      vi.spyOn(cursor, 'nextNote').mockImplementation(() => undefined);
+      const frames: (() => void)[] = [];
+      vi.mocked(audio.scheduleDraw).mockImplementation((cb) => { frames.push(cb); });
+      await player.play(load());
+      const waiting = status({ shouldPause: true, expectations: new Map([[1, new Set([{ hand: 'rh', midi: 72 }])]]) });
+      handTracks[0].callbacks.onNoteStart(3, { midi: 72, name: 'C5', ticks: 0, velocity: 1 } as Note, waiting);
+      expect(audio.pause).toHaveBeenCalled(); // no frame yet
+      expect(player.isWaiting).toBe(true);
+      expect(keys.fillKey).not.toHaveBeenCalled();
+      expect(audio.scheduleDraw).toHaveBeenCalledWith(expect.any(Function), 3);
+      frames.forEach((frame) => frame());
+      expect(keys.fillKey).toHaveBeenCalledWith('C5', expect.any(String));
     });
 
     it('pauses and shows the expected notes while the user has to play', async () => {

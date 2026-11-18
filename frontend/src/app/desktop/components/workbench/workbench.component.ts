@@ -1046,6 +1046,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.playConfiguration.currentStave = Math.round(current);
       this.playConfiguration.scoreRange[1] = Math.round(end);
       this.playerService.resetLight(this.playConfiguration);
+      // Hides the tooltips the 'start' handler showed for the drag
+      this.slider.updateOptions({ tooltips: [false, false, false] });
       this.updateSlider();
     });
   }
@@ -1057,14 +1059,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.playConfiguration.currentStave,
       this.playConfiguration.scoreRange[1]
     ];
-    this.slider.updateOptions({
-      start: newValues,
-      tooltips: [
-        false,
-        false,
-        false
-      ],
-    });
+    // set() moves the handles; updateOptions() rebuilt every pip and tooltip, on each new measure while playing.
+    // fireSetEvent false: no 'set' event for a move the code made itself.
+    this.slider.set(newValues, false);
   }
 
 
