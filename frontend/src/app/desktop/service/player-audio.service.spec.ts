@@ -7,7 +7,7 @@ import * as Tone from 'tone';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import type { PlayConfiguration } from '../model/model';
 import { PlayerAssessService } from './player-assess.service';
-import { PLAYBACK_LOOKAHEAD_S, PlayerAudioService, isCompleteRiff } from './player-audio.service';
+import { METRONOME_CLICK_S, PLAYBACK_LOOKAHEAD_S, PlayerAudioService, isCompleteRiff } from './player-audio.service';
 import { PlayerStateService } from './player-state.service';
 
 /**
@@ -46,7 +46,7 @@ const track = (notes: Note[], channel = 0, instrument = 0) => ({ notes, channel,
 describe('PlayerAudioService', () => {
   let audio: PlayerAudioService;
   let state: PlayerStateService;
-  let synth: { noteOn: ReturnType<typeof vi.fn>; noteOff: ReturnType<typeof vi.fn>; stopAll: ReturnType<typeof vi.fn>; programChange: ReturnType<typeof vi.fn> };
+  let synth: { noteOn: ReturnType<typeof vi.fn>; noteOff: ReturnType<typeof vi.fn>; stopAll: ReturnType<typeof vi.fn>; programChange: ReturnType<typeof vi.fn>; controllerChange: ReturnType<typeof vi.fn> };
   type Fn = ReturnType<typeof vi.fn>;
   let midi: { pressOutput: Fn; releaseOutput: Fn; pressDrum: Fn; releaseDrum: Fn; pianoMLShouldPlay: Fn };
   let assess: { learnExpectation: ReturnType<typeof vi.fn>; getExpectation: ReturnType<typeof vi.fn>; expectTimed: ReturnType<typeof vi.fn> };
@@ -61,8 +61,9 @@ describe('PlayerAudioService', () => {
     audio = TestBed.inject(PlayerAudioService);
     state = TestBed.inject(PlayerStateService);
     state.playConfiguration = { waitForRightHand: false, waitForLeftHand: false, useMetronome: false } as PlayConfiguration;
-    synth = { noteOn: vi.fn(), noteOff: vi.fn(), stopAll: vi.fn(), programChange: vi.fn() };
+    synth = { noteOn: vi.fn(), noteOff: vi.fn(), stopAll: vi.fn(), programChange: vi.fn(), controllerChange: vi.fn() };
     audio.spessasynth = synth as never;
+    audio.isPlaying(); // Tone now runs on the page's AudioContext: capture that context's transport
     schedule = captureSchedule();
   });
 
@@ -71,8 +72,9 @@ describe('PlayerAudioService', () => {
       audio.scheduleAccompanimentNote(3, note({ time: 2, duration: 1, velocity: 0.5 }), 0, 0.5, 4);
       expect(schedule.times()).toEqual([1 + 4, 1.5 + 4]);
       schedule.runAll();
-      expect(synth.noteOn).toHaveBeenCalledWith(3, 60, 42); // velocity scaled to 2/3 of 127
-      expect(synth.noteOff).toHaveBeenCalledWith(3, 60);
+      // at the times Tone scheduled them, velocity scaled to 2/3 of 127
+      expect(synth.noteOn).toHaveBeenCalledWith(3, 60, 42, { time: 5 });
+      expect(synth.noteOff).toHaveBeenCalledWith(3, 60, { time: 5.5 });
     });
 
     it('starts relative to the playback start, and skips earlier notes and rests', () => {
@@ -105,10 +107,10 @@ describe('PlayerAudioService', () => {
       audio.scheduleHandNote('rh', note({ time: 1, duration: 0.5, velocity: 0.5 }), 0, 1, 2, cb);
       expect(schedule.times()).toEqual([3, 3.5]); // one transport event for the note start, one for its end
       schedule.runAll();
-      expect(midi.pressOutput).toHaveBeenCalledWith(60, 0.5);
-      expect(synth.noteOn).toHaveBeenCalledWith(0, 60, 64);
-      expect(midi.releaseOutput).toHaveBeenCalledWith(60);
-      expect(synth.noteOff).toHaveBeenCalledWith(0, 60);
+      expect(midi.pressOutput).toHaveBeenCalledWith(60, 0.5, expect.any(Number));
+      expect(synth.noteOn).toHaveBeenCalledWith(0, 60, 64, { time: 3 }); // sample-accurate: at its scheduled time
+      expect(midi.releaseOutput).toHaveBeenCalledWith(60, expect.any(Number));
+      expect(synth.noteOff).toHaveBeenCalledWith(0, 60, { time: 3.5 });
       expect(cb.onNoteStart).toHaveBeenCalledWith(3, expect.objectContaining({ midi: 60 }), { shouldPause: false });
       expect(cb.onNoteEnd).toHaveBeenCalledOnce();
     });
@@ -176,7 +178,7 @@ describe('PlayerAudioService', () => {
       audio.pianoMLShouldPlay = true;
       audio.scheduleHandNote('lh', note({ midi: 30 }), 0, 1, 0, callbacks());
       schedule.runAll();
-      expect(synth.noteOn).toHaveBeenCalledWith(0, 30, 127);
+      expect(synth.noteOn).toHaveBeenCalledWith(0, 30, 127, { time: 1 });
       expect(assess.learnExpectation).not.toHaveBeenCalled();
     });
 
@@ -188,16 +190,14 @@ describe('PlayerAudioService', () => {
   });
 
   describe('metronome', () => {
-    it('clicks on the drum channel, accented on the first beat, for 40 ms', () => {
-      vi.useFakeTimers();
-      audio.playMetronomeClick(true);
-      audio.playMetronomeClick(false);
-      expect(synth.noteOn.mock.calls).toEqual([[9, 34, 43], [9, 33, 43]]);
-      expect(midi.pressDrum).toHaveBeenCalledWith(34, 43 / 127);
-      vi.advanceTimersByTime(40);
-      expect(synth.noteOff.mock.calls).toEqual([[9, 34], [9, 33]]);
-      expect(midi.releaseDrum).toHaveBeenCalledTimes(2);
-      vi.useRealTimers();
+    it('clicks on the drum channel, accented on the first beat, for METRONOME_CLICK_S, all queued at once', () => {
+      audio.playMetronomeClick(true, 43, 10);
+      audio.playMetronomeClick(false, 43, 10.5);
+      expect(synth.noteOn.mock.calls).toEqual([[9, 34, 43, { time: 10 }], [9, 33, 43, { time: 10.5 }]]);
+      expect(synth.noteOff.mock.calls).toEqual([[9, 34, { time: 10 + METRONOME_CLICK_S }], [9, 33, { time: 10.5 + METRONOME_CLICK_S }]]);
+      const [[, , pressAt]] = midi.pressDrum.mock.calls;
+      expect(midi.pressDrum).toHaveBeenCalledWith(34, 43 / 127, expect.any(Number));
+      expect(midi.releaseDrum.mock.calls[0]).toEqual([34, pressAt + METRONOME_CLICK_S * 1000]); // no timer: timestamped
     });
 
     it.each([
@@ -253,16 +253,26 @@ describe('PlayerAudioService', () => {
       expect(pause).toHaveBeenCalled();
     });
 
-    it('stop rewinds and clears everything scheduled, including pending metronome clicks', () => {
-      vi.useFakeTimers();
-      audio.playMetronomeClick(true);
+    it('stop rewinds and clears everything scheduled', () => {
       const cancel = vi.spyOn(Tone.getTransport(), 'cancel');
       audio.stop();
-      vi.advanceTimersByTime(100);
       expect(cancel).toHaveBeenCalled();
       expect(Tone.getTransport().position).toBe('0:0:0');
-      expect(midi.releaseDrum).not.toHaveBeenCalled(); // the click's release timer was cleared
-      vi.useRealTimers();
+    });
+
+    it('pause cuts the notes already queued in the synth for after it, on every channel', () => {
+      vi.spyOn(Tone.getTransport(), 'pause').mockReturnValue(Tone.getTransport());
+      const later = Tone.getContext().currentTime + 10;
+      audio.playMetronomeClick(true, 43, later); // queued: would sound after the pause
+      audio.pause();
+      expect(synth.controllerChange).toHaveBeenCalledTimes(16);
+      expect(synth.controllerChange).toHaveBeenCalledWith(9, 120, 0, { time: later }); // All Sound Off, after it
+    });
+
+    it('pause has nothing to cut when nothing is queued ahead', () => {
+      vi.spyOn(Tone.getTransport(), 'pause').mockReturnValue(Tone.getTransport());
+      audio.pause();
+      expect(synth.controllerChange).not.toHaveBeenCalled();
     });
 
     it('resetSession stops and forgets the PianoML output choice', () => {
@@ -325,13 +335,13 @@ describe('PlayerAudioService', () => {
   });
 
   it('cleans up when destroyed', () => {
-    vi.useFakeTimers();
-    audio.playMetronomeClick(false);
     audio.ngOnDestroy();
-    vi.advanceTimersByTime(100);
-    expect(midi.releaseDrum).not.toHaveBeenCalled();
+    expect(synth.stopAll).toHaveBeenCalled();
     expect(audio.spessasynth).toBeUndefined();
-    vi.useRealTimers();
+  });
+
+  it('runs Tone on the same AudioContext as the synth: one clock', () => {
+    expect(Tone.getContext().rawContext).toBe((audio as unknown as { audioContext: AudioContext }).audioContext);
   });
 });
 

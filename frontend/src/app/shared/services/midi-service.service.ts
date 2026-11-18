@@ -55,46 +55,35 @@ export class MidiServiceService {
   }
 
   /**
-   * Midi out pressing note to connected output devices
-   * @param note 
-   * @param volume 
+   * Midi out pressing note to connected output devices.
+   * `atMs` (performance.now() time) lets the browser send it at that moment instead of right away: the player
+   * schedules a little ahead, like the synth.
    */
-  pressOutput(note: number, volume: number) {
-    const velocity = volume * 127
-    const data = [this.noteChannel, note, velocity]
-    for (const output of this.enabledOutputDevices) {
-      output[1]?.send(data)
-    }
+  pressOutput(note: number, volume: number, atMs?: number) {
+    this.send([this.noteChannel, note, volume * 127], atMs)
   }
 
-  /**
-   * Midi out releasing note to connected output devices
-   * @param note 
-   */
-  releaseOutput(note: number) {
-    for (const output of this.enabledOutputDevices) {
-      const data = [this.noteChannel + MidiServiceService.NOTE_OFF_OFFSET, note, 127]
-      output[1]?.send(data)
-    }
+  /** Midi out releasing note to connected output devices (`atMs`: see pressOutput). */
+  releaseOutput(note: number, atMs?: number) {
+    this.send([this.noteChannel + MidiServiceService.NOTE_OFF_OFFSET, note, 127], atMs)
   }
 
-
-  pressDrum(note: number, volume: number) {
-    const velocity = volume * 127
-    const data = [this.drumChannel, note, velocity]
-    for (const output of this.enabledOutputDevices) {
-      output[1]?.send(data)
-    }
+  pressDrum(note: number, volume: number, atMs?: number) {
+    this.send([this.drumChannel, note, volume * 127], atMs)
   }
 
-  /**
-   * Midi out releasing note to connected output devices
-   * @param note 
-   */
-  releaseDrum(note: number) {
+  /** Midi out releasing a drum (`atMs`: see pressOutput). */
+  releaseDrum(note: number, atMs?: number) {
+    this.send([this.drumChannel + MidiServiceService.NOTE_OFF_OFFSET, note, 127], atMs)
+  }
+
+  private send(data: number[], atMs?: number) {
     for (const output of this.enabledOutputDevices) {
-      const data = [this.drumChannel + MidiServiceService.NOTE_OFF_OFFSET, note, 127]
-      output[1]?.send(data)
+      if (atMs === undefined) {
+        output[1]?.send(data)
+      } else {
+        output[1]?.send(data, atMs)
+      }
     }
   }
 

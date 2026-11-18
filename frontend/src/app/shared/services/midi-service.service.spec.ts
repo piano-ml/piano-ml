@@ -64,6 +64,14 @@ describe('MidiServiceService', () => {
       expect(synth.sent).toEqual([[DRUM_ON, 34, 127], [DRUM_OFF, 34, 127]]);
     });
 
+    it('sends at a given time when asked (the player schedules a little ahead)', () => {
+      const timed: [number[], number | undefined][] = [];
+      synth.send = ((data: number[], at?: number) => { timed.push([[...data], at]); }) as never;
+      midi.pressOutput(60, 1, 1234.5);
+      midi.releaseOutput(60);
+      expect(timed).toEqual([[[NOTE_ON, 60, 127], 1234.5], [[NOTE_OFF, 60, 127], undefined]]);
+    });
+
     it('releases every note of every output between two scores', () => {
       midi.press(60, 100);
       midi.resetSessionOutputs();

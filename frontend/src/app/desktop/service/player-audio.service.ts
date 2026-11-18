@@ -35,6 +35,23 @@ export const FIRST_SOUND_MARK = 'pianoml:first-sound';
  */
 export const PLAYBACK_LOOKAHEAD_S = 0.03;
 
+/** How long a metronome click sounds before its note-off (a crisp click). */
+export const METRONOME_CLICK_S = 0.04;
+/** MIDI controller "All Sound Off": stops every voice of a channel at once. */
+const ALL_SOUND_OFF = 120;
+const MIDI_CHANNELS = 16;
+
+/**
+ * The one AudioContext of the page, shared by Tone (the scheduling clock) and spessasynth (the sound): with a
+ * single clock, a note scheduled at a Tone time sounds at exactly that time. Kept across service instances
+ * (it is a page resource, like Tone's global context).
+ */
+let sharedAudioContext: AudioContext | undefined;
+function audioContextOfThePage(): AudioContext {
+  sharedAudioContext ??= new AudioContext({ latencyHint: 'interactive' });
+  return sharedAudioContext;
+}
+
 /**
  * Service responsable de la gestion de l'audio, des synthétiseurs et du scheduling des notes
  */
@@ -48,10 +65,11 @@ export class PlayerAudioService implements OnDestroy {
   private audioContext?: AudioContext;
   private initSoundFontPromise?: Promise<void>;
   private startPromise?: Promise<void>;
-  private metronomTimeouts: Set<ReturnType<typeof setTimeout>> = new Set();
   private destroyRef = inject(DestroyRef);
   private ngZone = inject(NgZone);
   private toneReady = false;
+  /** Latest time a note-on was queued in the synth for: a pause before it must cancel it (see pause()). */
+  private lastQueuedNoteOn = 0;
   private soundFontAbortController?: AbortController;
   /** Set by start() in dev builds: the next note-on sets FIRST_SOUND_MARK. */
   private firstSoundPending = false;
@@ -73,7 +91,12 @@ export class PlayerAudioService implements OnDestroy {
   private ensureTone(): void {
     if (this.toneReady) return;
     this.toneReady = true;
+    this.audioContext ??= audioContextOfThePage();
+    const audioContext = this.audioContext;
     this.ngZone.runOutsideAngular(() => {
+      if (Tone.getContext().rawContext !== audioContext) {
+        Tone.setContext(audioContext);
+      }
       Tone.getContext().lookAhead = PLAYBACK_LOOKAHEAD_S;
     });
   }
@@ -88,13 +111,30 @@ export class PlayerAudioService implements OnDestroy {
     return Tone.getDraw();
   }
 
-  /** Every synth note-on goes through here. */
-  private noteOn(channel: number, midi: number, velocity: number): void {
+  /**
+   * Every synth note-on goes through here. `time` is the audio context time Tone scheduled it for: the synth plays
+   * it at that sample, instead of whenever the callback ran (up to the lookahead early, with jitter).
+   */
+  private noteOn(channel: number, midi: number, velocity: number, time?: number): void {
     if (this.firstSoundPending) {
       this.firstSoundPending = false;
       performance.mark(FIRST_SOUND_MARK);
     }
-    this.spessasynth?.noteOn(channel, midi, velocity);
+    if (time !== undefined) {
+      this.lastQueuedNoteOn = Math.max(this.lastQueuedNoteOn, time);
+    }
+    this.spessasynth?.noteOn(channel, midi, velocity, time === undefined ? undefined : { time });
+  }
+
+  private noteOff(channel: number, midi: number, time?: number): void {
+    this.spessasynth?.noteOff(channel, midi, time === undefined ? undefined : { time });
+  }
+
+  /** The audio context time `time` as a performance.now() time, for timestamped MIDI output. */
+  contextToPerformanceMs(time: number): number {
+    const context = this.audioContext;
+    if (!context) return performance.now();
+    return performance.now() + (time - context.currentTime) * 1000;
   }
 
   getTransportSeconds(): number {
@@ -121,8 +161,8 @@ export class PlayerAudioService implements OnDestroy {
   }
 
   private async loadSoundFont(): Promise<void> {
-    this.audioContext = this.audioContext ?? new AudioContext();
-    const audioContext = this.audioContext;
+    this.ensureTone(); // creates the page's AudioContext, Tone's clock too
+    const audioContext = this.audioContext!;
 
     // Use AbortController to cancel fetch if service is destroyed
     this.soundFontAbortController = new AbortController();
@@ -186,13 +226,13 @@ export class PlayerAudioService implements OnDestroy {
     const roundedVelocity = Math.round(note.velocity * 84); // * 127 * 0.66 to reduce volume 
 
     // Note on
-    transport.schedule(() => {
-      this.noteOn(channel, note.midi, roundedVelocity);
+    transport.schedule((time: number) => {
+      this.noteOn(channel, note.midi, roundedVelocity, time);
     }, noteStart + offset);
 
     // Note off
-    transport.schedule(() => {
-      this.spessasynth?.noteOff(channel, note.midi);
+    transport.schedule((time: number) => {
+      this.noteOff(channel, note.midi, time);
     }, noteStart + noteDuration + offset);
   }
 
@@ -291,6 +331,15 @@ export class PlayerAudioService implements OnDestroy {
    */
   pause(): void {
     this.spessasynth?.stopAll();
+    // stopAll() does not touch the notes queued in the synth for the next lookahead: they would sound after the
+    // pause, and their note-offs, still on the transport, would wait for the resume. All Sound Off, queued at the
+    // time of the last of them (after them: the synth's queue keeps the order of equal times), cuts them at once.
+    const now = this.audioContext?.currentTime ?? 0;
+    if (this.spessasynth && this.lastQueuedNoteOn > now) {
+      for (let channel = 0; channel < MIDI_CHANNELS; channel++) {
+        this.spessasynth.controllerChange(channel, ALL_SOUND_OFF, 0, { time: this.lastQueuedNoteOn });
+      }
+    }
     this.transport().pause();
   }
 
@@ -303,13 +352,7 @@ export class PlayerAudioService implements OnDestroy {
     transport.stop();
     transport.position = 0;
     this.clearSchedule();
-    
-    // Clear all metronome timeouts
-    for (const timeoutId of this.metronomTimeouts) {
-      clearTimeout(timeoutId);
-    }
-    this.metronomTimeouts.clear();
-    
+
     // Cancel draw
     draw.dispose();
     draw.cancel();
@@ -318,11 +361,7 @@ export class PlayerAudioService implements OnDestroy {
   resetSession(): void {
     this.stop();
     this.pianoMLShouldPlay = false;
-    for (const timeoutId of this.metronomTimeouts) {
-      clearTimeout(timeoutId);
-    }
-    this.metronomTimeouts.clear();
-    this.spessasynth?.stopAll();
+    this.spessasynth?.stopAll(true); // queued clicks and notes too
   }
 
   /**
@@ -411,9 +450,9 @@ export class PlayerAudioService implements OnDestroy {
     // must never be lost. The callback schedules the visual work (cursor, key lights) on Draw itself.
     transport.schedule((time: number) => {
       if (!isHandAwaited) {
-        this.midiService.pressOutput(note.midi, note.velocity);
+        this.midiService.pressOutput(note.midi, note.velocity, this.contextToPerformanceMs(time));
         if (this.pianoMLShouldPlay) {
-          this.noteOn(0, note.midi, roundedVelocity);
+          this.noteOn(0, note.midi, roundedVelocity, time);
         }
       }
       const liveStatus = isHandAwaited
@@ -425,9 +464,9 @@ export class PlayerAudioService implements OnDestroy {
     // Note end (piano audio stop; the callback turns the key light off)
     transport.schedule((time: number) => {
       if (!isHandAwaited) {
-        this.midiService.releaseOutput(note.midi);
+        this.midiService.releaseOutput(note.midi, this.contextToPerformanceMs(time));
         if (this.pianoMLShouldPlay) {
-          this.spessasynth?.noteOff(0, note.midi);
+          this.noteOff(0, note.midi, time);
         }
       }
       callbacks.onNoteEnd(time, note, this.assess.getExpectation());
@@ -464,17 +503,18 @@ export class PlayerAudioService implements OnDestroy {
   }
 
 
-  playMetronomeClick(isStrong: boolean, velocity: number=43): void {
+  /**
+   * A click at audio context `time` (now if omitted). Its note-off is queued in the synth and in the MIDI output
+   * too: no timer on the main thread.
+   */
+  playMetronomeClick(isStrong: boolean, velocity: number = 43, time?: number): void {
     const note = isStrong ? 34 : 33;   // 34 = Metronome Bell, 33 = Metronome Click
-    this.noteOn(9, note, velocity);
-    this.midiService.pressDrum(note, velocity/127);
-    // Short release for crisp click (≈30-50ms)
-    const timeoutId = setTimeout(() => {
-      this.midiService.releaseDrum(note);
-      this.spessasynth?.noteOff(9, note);
-      this.metronomTimeouts.delete(timeoutId);
-    }, 40);
-    this.metronomTimeouts.add(timeoutId);
+    const at = time ?? this.audioContext?.currentTime ?? 0;
+    this.noteOn(9, note, velocity, at);
+    this.noteOff(9, note, at + METRONOME_CLICK_S);
+    const atMs = this.contextToPerformanceMs(at);
+    this.midiService.pressDrum(note, velocity / 127, atMs);
+    this.midiService.releaseDrum(note, atMs + METRONOME_CLICK_S * 1000);
   }
 
 
@@ -511,8 +551,8 @@ export class PlayerAudioService implements OnDestroy {
     for (let i = 0; i < totalCountInBeats; i++) {
       offset = i * stepSeconds;
 
-      transport.scheduleOnce((_time: number) => {
-        this.playMetronomeClick(i % beatsPerBar === 0);
+      transport.scheduleOnce((time: number) => {
+        this.playMetronomeClick(i % beatsPerBar === 0, undefined, time);
       }, `${i * stepSeconds}`);
     }
 
@@ -520,10 +560,10 @@ export class PlayerAudioService implements OnDestroy {
     // metronome all allong
     if (this.state.playConfiguration.useMetronome) {
       let beatInBar = 0;
-      transport.scheduleRepeat((_time: number) => {
+      transport.scheduleRepeat((time: number) => {
         const currentBeat = beatInBar;
         beatInBar = (beatInBar + 1) % beatsPerBar;
-        this.playMetronomeClick(currentBeat === 0);
+        this.playMetronomeClick(currentBeat === 0, undefined, time);
       }, stepSeconds, offset);
     }
     return offset;
@@ -535,12 +575,6 @@ export class PlayerAudioService implements OnDestroy {
       this.soundFontAbortController.abort();
       this.soundFontAbortController = undefined;
     }
-
-    // Clear all metronome timeouts
-    for (const timeoutId of this.metronomTimeouts) {
-      clearTimeout(timeoutId);
-    }
-    this.metronomTimeouts.clear();
 
     // Stop transport and clear all schedules
     try {
@@ -565,9 +599,9 @@ export class PlayerAudioService implements OnDestroy {
     }
     this.initSoundFontPromise = undefined;
 
-    // Close AudioContext
+    // Suspend the page's AudioContext (not closed: Tone's global context uses it, and a next instance resumes it)
     if (this.audioContext) {
-      if (this.audioContext.state !== 'closed') {
+      if (this.audioContext.state === 'running') {
         this.audioContext.suspend().catch(() => {
           // Context already closed or suspended
         });
