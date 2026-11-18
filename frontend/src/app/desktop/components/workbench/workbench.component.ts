@@ -29,7 +29,7 @@ import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
 import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
-import { MIDI_BLOCKED_MESSAGE, queryMidiPermission } from '../../../shared/services/midi-service.service';
+import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
@@ -87,6 +87,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   protected readonly midiBlockedMessage = MIDI_BLOCKED_MESSAGE;
   private midiPermission: PermissionStatus | null = null;
   private midiBlockedChecked = false;
+  /** The popup opens once per visit, whichever check notices first. */
+  private midiBlockedShown = false;
 
 
 
@@ -197,6 +199,13 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   /** The stored exercise this workbench loaded (EXERCICE_INFO_KEY as read): the only one it may clear (#413). */
   private loadedExerciseInfo: string | null = null;
   private routeParamSubscription?: Subscription;
+  private readonly midiService = inject(MidiServiceService);
+  /** MIDI setup gave up on a refused permission (e.g. NotAllowedError, while the Permissions API still says "prompt"). */
+  private readonly midiBlockedEffect = effect(() => {
+    if (this.midiService.midiBlocked() && !this.midiBlockedShown) {
+      this.openMidiBlockedDialog();
+    }
+  });
   private currentLoadId = 0;
   private lastRouteKey: string | null = null;
 
@@ -364,10 +373,15 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
         this.closeMidiBlockedDialog();
       }
     };
-    if (this.midiPermission.state === 'denied') {
-      this.showMidiBlockedDialog = true;
-      this.changeDetector.markForCheck();
+    if (this.midiPermission.state === 'denied' && !this.midiBlockedShown) {
+      this.openMidiBlockedDialog();
     }
+  }
+
+  private openMidiBlockedDialog(): void {
+    this.midiBlockedShown = true;
+    this.showMidiBlockedDialog = true;
+    this.changeDetector.markForCheck();
   }
 
   closeMidiBlockedDialog() {

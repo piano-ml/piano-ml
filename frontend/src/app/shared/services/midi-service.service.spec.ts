@@ -236,6 +236,31 @@ describe('MidiServiceService', () => {
       for (let i = 0; i < 5; i++) await vi.advanceTimersByTimeAsync(600);
       expect(navigator.permissions.query).toHaveBeenCalledTimes(4); // first try + 3 retries
       expect(console.error).toHaveBeenCalledWith('MIDI setup failed after 3 attempts. Stopping retry loop.');
+      expect(midi.midiBlocked()).toBe(true);
+      vi.useRealTimers();
+    });
+
+    it('flags MIDI as blocked when the browser refuses access without reporting "denied"', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      vi.mocked(navigator.requestMIDIAccess).mockRejectedValue(
+        new DOMException('Permission to use Web MIDI API was not granted.', 'NotAllowedError'));
+      vi.useFakeTimers();
+      midi.setupMidiDeviceListeners();
+      expect(midi.midiBlocked()).toBe(false);
+      for (let i = 0; i < 5; i++) await vi.advanceTimersByTimeAsync(600);
+      expect(midi.midiBlocked()).toBe(true);
+      vi.useRealTimers();
+    });
+
+    it('does not flag MIDI as blocked on other setup failures (e.g. no Web MIDI support)', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      vi.mocked(navigator.requestMIDIAccess).mockRejectedValue(new TypeError('requestMIDIAccess is not a function'));
+      vi.useFakeTimers();
+      midi.setupMidiDeviceListeners();
+      for (let i = 0; i < 5; i++) await vi.advanceTimersByTimeAsync(600);
+      expect(midi.midiBlocked()).toBe(false);
       vi.useRealTimers();
     });
 
