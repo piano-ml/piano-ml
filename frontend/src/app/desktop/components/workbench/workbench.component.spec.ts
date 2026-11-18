@@ -109,7 +109,7 @@ describe('WorkbenchComponent', () => {
     vi.spyOn(scores, 'scoreOwnerIdTypeVersionRevisionGet').mockImplementation(((_o: string, _i: string, type: 'midi' | 'musicxml') => downloads[type]) as never);
     vi.spyOn(scores, 'scorePlayStatsPost').mockReturnValue(of({}) as never);
     vi.spyOn(TestBed.inject(SeoService), 'update').mockImplementation(() => undefined);
-    for (const method of ['start', 'pause', 'stop', 'clearSchedule', 'scheduleAccompanimentTracks', 'scheduleHandTrack', 'scheduleEnd'] as const) {
+    for (const method of ['start', 'pause', 'stop', 'clearSchedule', 'scheduleAccompanimentTracks', 'scheduleHandTrack', 'scheduleEnd', 'startRollingSchedule'] as const) {
       vi.spyOn(audio, method).mockImplementation((() => undefined) as never);
     }
     vi.spyOn(audio, 'start').mockResolvedValue();

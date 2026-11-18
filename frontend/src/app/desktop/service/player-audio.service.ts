@@ -4,7 +4,7 @@ import * as Tone from "tone";
 import { WorkletSynthesizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
-import { LiveStatus,  PlayerAssessService } from './player-assess.service';
+import { GOOD_RANGE, LiveStatus, PlayerAssessService } from './player-assess.service';
 import { PlayerStateService } from './player-state.service';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
@@ -37,6 +37,13 @@ export const FIRST_SOUND_MARK = 'pianoml:first-sound';
  * Tone's updateInterval follows at half this value.
  */
 export const PLAYBACK_LOOKAHEAD_S = 0.03;
+
+/**
+ * Notes are put on the transport this far ahead of it, topped up every SCHEDULE_REFILL_S: Play no longer schedules
+ * every event of a long score at once (2 per note, plus Tone's timeline growing with them).
+ */
+export const SCHEDULE_AHEAD_S = 4;
+export const SCHEDULE_REFILL_S = 1;
 
 /** How long a metronome click sounds before its note-off (a crisp click). */
 export const METRONOME_CLICK_S = 0.04;
@@ -73,6 +80,9 @@ export class PlayerAudioService implements OnDestroy {
   private destroyRef = inject(DestroyRef);
   private ngZone = inject(NgZone);
   private toneReady = false;
+  /** Notes waiting to be put on the transport, by start time (see startRollingSchedule()). */
+  private pending: { time: number; schedule: () => void }[] = [];
+  private nextPending = 0;
   /** Latest time a note-on was queued in the synth for: a pause before it must cancel it (see pause()). */
   private lastQueuedNoteOn = 0;
   private soundFontAbortController?: AbortController;
@@ -334,7 +344,10 @@ export class PlayerAudioService implements OnDestroy {
       const noteTime = note.time * timeFactor;
       if (noteTime < startTime) continue;
       if (noteTime >= endCut) break;
-      this.scheduleAccompanimentNote(channel, note, startTime, timeFactor, offset);
+      this.pending.push({
+        time: noteTime - startTime + offset,
+        schedule: () => this.scheduleAccompanimentNote(channel, note, startTime, timeFactor, offset),
+      });
     }
   }
 
@@ -371,6 +384,32 @@ export class PlayerAudioService implements OnDestroy {
     const draw = this.draw();
     transport.cancel();
     draw.cancel();
+    this.pending = [];
+    this.nextPending = 0;
+  }
+
+  /**
+   * Puts the tracks' notes (queued by scheduleHandTrack / scheduleAccompanimentTrack) on the transport as it
+   * plays: those due within SCHEDULE_AHEAD_S of where it (re)starts now, the next ones every SCHEDULE_REFILL_S.
+   * Notes before where it resumes after a Pause are skipped, beyond GOOD_RANGE: they will never play.
+   */
+  startRollingSchedule(): void {
+    const transport = this.transport();
+    this.pending.sort((a, b) => a.time - b.time); // stable: a chord keeps its order
+    const from = transport.seconds;
+    while (this.nextPending < this.pending.length && this.pending[this.nextPending].time < from - GOOD_RANGE) {
+      this.nextPending++;
+    }
+    this.scheduleUpTo(from + SCHEDULE_AHEAD_S);
+    if (this.nextPending < this.pending.length) {
+      transport.scheduleRepeat(() => this.scheduleUpTo(transport.seconds + SCHEDULE_AHEAD_S), SCHEDULE_REFILL_S, from);
+    }
+  }
+
+  private scheduleUpTo(horizon: number): void {
+    for (; this.nextPending < this.pending.length && this.pending[this.nextPending].time < horizon; this.nextPending++) {
+      this.pending[this.nextPending].schedule();
+    }
   }
 
   /**
@@ -594,7 +633,10 @@ export class PlayerAudioService implements OnDestroy {
       const noteTime = note.time * timeFactor;
       if (noteTime < startTime) continue;
       if (noteTime >= endCut) break;
-      this.scheduleHandNote(hand, note, startTime, timeFactor, offset, callbacks);
+      this.pending.push({
+        time: noteTime - startTime + offset,
+        schedule: () => this.scheduleHandNote(hand, note, startTime, timeFactor, offset, callbacks),
+      });
     }
   }
 

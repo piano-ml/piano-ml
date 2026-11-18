@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, untracked } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, untracked, NgZone } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -210,6 +210,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private loadedExerciseInfo: string | null = null;
   private routeParamSubscription?: Subscription;
   private readonly midiService = inject(MidiServiceService);
+  private readonly ngZone = inject(NgZone);
   /** MIDI setup gave up on a refused permission (e.g. NotAllowedError, while the Permissions API still says "prompt"). */
   private readonly midiBlockedEffect = effect(() => {
     if (this.midiService.midiBlocked() && !this.midiBlockedShown) {
@@ -1060,8 +1061,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.playConfiguration.scoreRange[1]
     ];
     // set() moves the handles; updateOptions() rebuilt every pip and tooltip, on each new measure while playing.
-    // fireSetEvent false: no 'set' event for a move the code made itself.
-    this.slider.set(newValues, false);
+    // fireSetEvent false: no 'set' event for a move the code made itself. Outside the zone: noUiSlider's own
+    // class timers would otherwise run change detection app-wide on each new measure.
+    this.ngZone.runOutsideAngular(() => this.slider.set(newValues, false));
   }
 
 

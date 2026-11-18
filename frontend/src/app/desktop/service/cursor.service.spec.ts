@@ -105,6 +105,27 @@ describe('CursorService', () => {
       expect(update).toHaveBeenCalledTimes(2);
     });
 
+    it('reset() draws the cursor once', async () => {
+      await setup(SIMPLE_SCORE);
+      const update = vi.spyOn(cursor, 'update');
+      service.reset(2);
+      expect(update).toHaveBeenCalledOnce();
+    });
+
+    it('when following, scrolls only once the cursor leaves the view', async () => {
+      const { midi } = await setup(SIMPLE_SCORE);
+      service.follow = true;
+      const scroll = vi.spyOn(cursor.cursorElement, 'scrollIntoView').mockImplementation(() => undefined);
+      const rect = vi.spyOn(cursor.cursorElement, 'getBoundingClientRect');
+      const inView = { top: window.innerHeight / 2 - 20, bottom: window.innerHeight / 2 + 20, left: window.innerWidth / 2 - 5, right: window.innerWidth / 2 + 5 };
+      rect.mockReturnValue(inView as DOMRect);
+      service.nextNote(noteAt(midi, tickOf(1, 2)));
+      expect(scroll).not.toHaveBeenCalled();
+      rect.mockReturnValue({ ...inView, top: window.innerHeight - 30, bottom: window.innerHeight + 10 } as DOMRect);
+      service.nextNote(noteAt(midi, tickOf(2, 0)));
+      expect(scroll).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center', inline: 'center' });
+    });
+
     it('can go back (seek, repeat)', async () => {
       const { midi } = await setup(SIMPLE_SCORE);
       service.nextNote(noteAt(midi, tickOf(2, 0)));

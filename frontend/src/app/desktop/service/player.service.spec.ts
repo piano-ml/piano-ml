@@ -76,6 +76,7 @@ describe('PlayerService', () => {
       handTracks.push({ hand, start, end, offset, timeFactor, callbacks });
     });
     vi.spyOn(audio, 'scheduleEnd').mockImplementation((_time, cb) => { onEnd = cb; });
+    vi.spyOn(audio, 'startRollingSchedule').mockImplementation(() => undefined);
     // The visual work of a due note runs at once, as if its frame came
     vi.spyOn(audio, 'scheduleDraw').mockImplementation((cb) => cb());
   });
@@ -180,8 +181,9 @@ describe('PlayerService', () => {
       vi.mocked(audio.scheduleHandTrack).mockImplementation((hand) => { order.push(hand); });
       vi.mocked(audio.scheduleEnd).mockImplementation(() => { order.push('end'); });
       vi.mocked(audio.start).mockImplementation(async () => { order.push('start'); });
+      vi.mocked(audio.startRollingSchedule).mockImplementation(() => { order.push('rolling'); });
       await player.play(load());
-      expect(order).toEqual(['count-in', 'rh', 'lh', 'end', 'start']);
+      expect(order).toEqual(['count-in', 'rh', 'lh', 'rolling', 'end', 'start']);
     });
 
     it('plays only the selected bars', async () => {

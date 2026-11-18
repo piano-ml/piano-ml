@@ -7,7 +7,7 @@ import * as Tone from 'tone';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import type { PlayConfiguration } from '../model/model';
 import { PlayerAssessService } from './player-assess.service';
-import { METRONOME_CLICK_S, PLAYBACK_LOOKAHEAD_S, PlayerAudioService, isCompleteRiff } from './player-audio.service';
+import { METRONOME_CLICK_S, PLAYBACK_LOOKAHEAD_S, PlayerAudioService, SCHEDULE_AHEAD_S, SCHEDULE_REFILL_S, isCompleteRiff } from './player-audio.service';
 import { PlayerStateService } from './player-state.service';
 
 /**
@@ -86,12 +86,14 @@ describe('PlayerAudioService', () => {
 
     it('a track only schedules the notes of the playback window', () => {
       audio.scheduleAccompanimentTrack(2, track([note({ time: 0 }), note({ time: 1 }), note({ time: 2 }), note({ time: 3 })]), 1, 3, 1, 0);
+      audio.startRollingSchedule();
       expect(schedule.times()).toEqual([0, 0.5, 1, 1.5]); // notes at 1 and 2, relative to the start
     });
 
     it('plays each track on its own channel with its instrument, away from the piano channels', () => {
       const file = { tracks: [track([note({ time: 0 })], 0, 24), track([note({ time: 0 })], 1, 40)] } as unknown as Midi.Midi;
       audio.scheduleAccompanimentTracks(file, 0, 10, 1, 0);
+      audio.startRollingSchedule();
       expect(synth.programChange.mock.calls).toEqual([[2, 24], [3, 40]]);
       schedule.runAll();
       expect(synth.noteOn.mock.calls.map(([channel]) => channel)).toEqual([2, 3]);
@@ -185,7 +187,56 @@ describe('PlayerAudioService', () => {
     it('a hand track only schedules the notes of the playback window', () => {
       const spy = vi.spyOn(audio, 'scheduleHandNote');
       audio.scheduleHandTrack('lh', track([note({ time: 0 }), note({ time: 2 }), note({ time: 4 })]), 1, 4, 0, 1, callbacks());
+      audio.startRollingSchedule();
       expect(spy.mock.calls.map(([, n]) => n.time)).toEqual([2]);
+    });
+  });
+
+  describe('rolling schedule', () => {
+    const callbacks = () => ({ onNoteStart: vi.fn(), onNoteEnd: vi.fn() });
+    const notesEvery = (seconds: number, count: number) => Array.from({ length: count }, (_, i) => note({ time: i * seconds }));
+    let position: ReturnType<typeof vi.spyOn>;
+    beforeEach(() => {
+      position = vi.spyOn(Tone.getTransport(), 'seconds', 'get').mockReturnValue(0); // a fresh Play
+    });
+    afterEach(() => position.mockRestore());
+
+    it(`puts the notes on the transport SCHEDULE_AHEAD_S ahead, topped up every SCHEDULE_REFILL_S`, () => {
+      const spy = vi.spyOn(audio, 'scheduleHandNote');
+      audio.scheduleHandTrack('rh', track(notesEvery(1, 20)), 0, 100, 0, 1, callbacks());
+      audio.startRollingSchedule();
+      expect(spy).toHaveBeenCalledTimes(SCHEDULE_AHEAD_S); // notes at 0, 1, 2, 3
+      const refill = schedule.events.find((e) => e.kind === `repeat every ${SCHEDULE_REFILL_S}`)!;
+      position.mockReturnValue(5);
+      refill.fn(0);
+      expect(spy).toHaveBeenCalledTimes(9); // up to 5 + SCHEDULE_AHEAD_S
+    });
+
+    it('merges the hands and the accompaniment in time order', () => {
+      const order: string[] = [];
+      vi.spyOn(audio, 'scheduleHandNote').mockImplementation((hand) => { order.push(hand); });
+      vi.spyOn(audio, 'scheduleAccompanimentNote').mockImplementation(() => { order.push('acc'); });
+      audio.scheduleHandTrack('rh', track([note({ time: 0 }), note({ time: 2 })]), 0, 100, 0, 1, callbacks());
+      audio.scheduleHandTrack('lh', track([note({ time: 1 })]), 0, 100, 0, 1, callbacks());
+      audio.scheduleAccompanimentTrack(2, track([note({ time: 0.5 })]), 0, 100, 1, 0);
+      audio.startRollingSchedule();
+      expect(order).toEqual(['rh', 'acc', 'lh', 'rh']);
+    });
+
+    it('skips the notes before where the transport resumes after a Pause', () => {
+      const spy = vi.spyOn(audio, 'scheduleHandNote');
+      position.mockReturnValue(10);
+      audio.scheduleHandTrack('rh', track(notesEvery(1, 14)), 0, 100, 0, 1, callbacks());
+      audio.startRollingSchedule();
+      expect(spy.mock.calls.map(([, n]) => n.time)).toEqual([10, 11, 12, 13]);
+    });
+
+    it('forgets the queue when the schedule is cleared', () => {
+      const spy = vi.spyOn(audio, 'scheduleHandNote');
+      audio.scheduleHandTrack('rh', track(notesEvery(1, 10)), 0, 100, 0, 1, callbacks());
+      audio.clearSchedule();
+      audio.startRollingSchedule();
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 

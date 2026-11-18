@@ -283,6 +283,8 @@ export class PlayerService implements OnDestroy {
       this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], midiStartTime, midiEndTime, offset);
     }
 
+    // The notes go on the transport a few seconds ahead of it, from where it (re)starts
+    this.audio.startRollingSchedule();
     // Play after Pause resumes the transport where it stopped: the notes before it will never be played
     this.assess.beginTimed(this.audio.getTransportSeconds());
 
@@ -536,6 +538,12 @@ export class PlayerService implements OnDestroy {
     this.state.osmd = osmd;
     // half tone pixel shift calculation
     this.verticalPixelShiftValue = this.state.osmd!.EngravingRules.StaffDistance / 2;
+    // The cursor service keeps the cursor in view itself, scrolling only near the edges: OSMD's follow scrolled on
+    // every step
+    if (osmd.FollowCursor) {
+      this.cursorService.follow = true;
+      osmd.FollowCursor = false;
+    }
     return this.cursorService.setup(osmd.cursor, this.playConfiguration.midi!)
   }
 

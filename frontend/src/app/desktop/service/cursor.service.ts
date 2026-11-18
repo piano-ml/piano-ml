@@ -7,6 +7,21 @@ import { CURSOR_BAD_COLOR, CURSOR_GOOD_COLOR } from "../components/osmd/osmd.con
 import { smithWatermanAlign, smithWatermanAlign2 } from "./smith-waterman";
 import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
 
+/**
+ * The view scrolls (to centre the cursor) once the cursor comes within this fraction of the view's height or width
+ * from an edge. 0: only once part of it is out of view, so a score that fits never scrolls.
+ */
+export const CURSOR_FOLLOW_MARGIN = 0;
+
+/** The nearest ancestor that scrolls, or null for the page itself. */
+function scrollingAncestor(element: HTMLElement): HTMLElement | null {
+    for (let node = element.parentElement; node; node = node.parentElement) {
+        const { overflowY, overflowX } = getComputedStyle(node);
+        if (/(auto|scroll)/.test(overflowY + overflowX)) return node;
+    }
+    return null;
+}
+
 
 
 @Injectable({
@@ -21,6 +36,10 @@ export class CursorService implements OnDestroy {
     private diagnosticMode = this.readDiagnosticModeFromStorage();
     private alignmentAlgorithm: CursorAlignmentAlgorithm = "sw2";
     private cursorIndex = 0;
+    /** Keep the cursor in view while it moves (set from the score's followCursor option, see PlayerService). */
+    follow = false;
+    /** The scrolling container of the cursor element, found once per element. */
+    private scrollerOf?: { element: HTMLElement; scroller: HTMLElement | null };
     private iteratorSize = 0;
     private repetitionInstructions: RepetitionInstruction[] = [];
     private osmdArray: OsmdArrayElement[] | undefined;
@@ -185,7 +204,7 @@ export class CursorService implements OnDestroy {
                 this.cursor!.CursorOptions.type = 3; // measure rectangle
             }
             if (moved) {
-                this.cursor!.update();
+                this.drawCursor(this.cursor!);
             }
             const newOsmdMeasure = link.osmdMeasure;
             if (newOsmdMeasure !== this.measure()) {
@@ -213,11 +232,10 @@ export class CursorService implements OnDestroy {
         }
         const targetMeasure = Math.max(0, Math.trunc(start - 1));
         this.cursorIndex = 0;
-        cursor.reset();
-        const targetCursorIndex = this.findCursorIndexForMeasure(targetMeasure);
-
-
-        this.moveCursorToOsmdIndex(cursor, targetCursorIndex);
+        // The iterator back to the start and on to the target, then one drawing (cursor.reset() drew too)
+        cursor.resetIterator();
+        this.stepIterator(cursor, this.findCursorIndexForMeasure(targetMeasure));
+        this.drawCursor(cursor);
     }
     /**
      * First pass
@@ -895,7 +913,34 @@ export class CursorService implements OnDestroy {
      */
     moveCursorToOsmdIndex(cursor: Cursor, targetIndex: number): void {
         if (this.stepIterator(cursor, targetIndex)) {
-            cursor.update();
+            this.drawCursor(cursor);
+        }
+    }
+
+    /**
+     * Draws the cursor where its iterator is, and keeps it in view. OSMD's own follow (osmd.FollowCursor) ran a
+     * smooth scrollIntoView on every step; this scrolls only when the cursor leaves the view.
+     */
+    private drawCursor(cursor: Cursor): void {
+        cursor.update();
+        if (this.follow) {
+            this.keepInView(cursor.cursorElement);
+        }
+    }
+
+    private keepInView(element: HTMLElement | undefined): void {
+        if (!element?.isConnected) return;
+        if (this.scrollerOf?.element !== element) {
+            this.scrollerOf = { element, scroller: scrollingAncestor(element) };
+        }
+        const view = this.scrollerOf.scroller?.getBoundingClientRect()
+            ?? { top: 0, left: 0, bottom: window.innerHeight, right: window.innerWidth, height: window.innerHeight, width: window.innerWidth };
+        const cursor = element.getBoundingClientRect();
+        const marginY = view.height * CURSOR_FOLLOW_MARGIN;
+        const marginX = view.width * CURSOR_FOLLOW_MARGIN;
+        if (cursor.top < view.top + marginY || cursor.bottom > view.bottom - marginY
+            || cursor.left < view.left + marginX || cursor.right > view.right - marginX) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
         }
     }
 
