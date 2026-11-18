@@ -53,6 +53,16 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
 
+  // Admin pages (issue #410): the admin session lives in the browser too, and they must never be server-rendered
+  {
+    path: 'admin/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'admin',
+    renderMode: RenderMode.Client
+  },
+
   // Toutes les autres routes utilisent le SSR
   {
     path: '**',

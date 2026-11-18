@@ -41,7 +41,7 @@ export function buildScoreSeo({ score, slug, genreName, videos }: ScoreSeoInput)
     description: describe(score, author, title, genre),
     canonical,
     type: 'music.song',
-    structuredData: [composition, ...(videos || []).map(videoStructuredData).filter(Boolean)]
+    structuredData: [composition, ...(videos || []).map(video => videoStructuredData(video, title, author)).filter(Boolean)]
   };
 }
 
@@ -62,20 +62,40 @@ function describe(score: ScoreApiInfo, author: string, title: string, genre: str
   return licence ? `${practice} ${licence}` : practice;
 }
 
-/** The performance videos shown on the page, so they can surface in search. */
-function videoStructuredData(video: YoutubeVideoApiInfo) {
+/**
+ * The performance videos shown on the page, so they can surface in search. Search Console wants a description:
+ * many YouTube videos have none, so one is written from the score.
+ */
+function videoStructuredData(video: YoutubeVideoApiInfo, title: string, author: string) {
   if (!video.videoId || !video.title) return null;
+  const description = (video.description || '').trim()
+    || $localize`:@@seo.score.videoDescription:Piano video of ${title}:title: by ${author}:artist:, to watch before practicing it on PianoML.`;
 
   return {
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
     name: video.title,
-    ...(video.description ? { description: video.description } : {}),
+    description,
     ...(video.thumbnailUrl ? { thumbnailUrl: video.thumbnailUrl } : {}),
     ...(video.publishedAt ? { uploadDate: video.publishedAt } : {}),
-    ...(video.channelTitle ? { creator: { '@type': 'Person', name: video.channelTitle } } : {}),
+    ...creatorOf(video),
     embedUrl: `https://www.youtube.com/embed/${video.videoId}`,
     url: `https://www.youtube.com/watch?v=${video.videoId}`
+  };
+}
+
+/**
+ * The channel that published the video. Search Console wants a url on a creator, so it is left out when the
+ * channel id is unknown (videos cached before the API returned it).
+ */
+function creatorOf(video: YoutubeVideoApiInfo) {
+  if (!video.channelTitle || !video.channelId) return {};
+  return {
+    creator: {
+      '@type': 'Person',
+      name: video.channelTitle,
+      url: `https://www.youtube.com/channel/${encodeURIComponent(video.channelId)}`
+    }
   };
 }
 

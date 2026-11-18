@@ -31,6 +31,10 @@ export interface YoutubeVideoApiInfo {
      */
     channelTitle?: string;
     /**
+     * ID of the YouTube channel (its page is https://www.youtube.com/channel/<channelId>). Absent for videos cached before it was stored. 
+     */
+    channelId?: string;
+    /**
      * Publication date of the video
      */
     publishedAt?: string;

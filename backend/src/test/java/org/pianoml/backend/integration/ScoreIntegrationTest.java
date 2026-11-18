@@ -148,6 +148,24 @@ class ScoreIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
+    void returnsAWholeHarmony_slashChordsIncluded() throws Exception {
+      // issue #415: one entry with a bass used to make the whole harmony disappear
+      Score score = score(owner);
+      score.setHarmony("""
+        [{"measure":1,"beat":1.0,"root":"C","kind":"major"},
+         {"measure":2,"beat":1.0,"root":"G","kind":"dominant","bass":"B"}]
+        """);
+      given(scoreRepository.findById(score.getId())).willReturn(Optional.of(score));
+
+      mockMvc.perform(get("/score/" + score.getId() + "/info"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.harmony.length()").value(2))
+        .andExpect(jsonPath("$.harmony[0].root").value("C"))
+        .andExpect(jsonPath("$.harmony[1].root").value("G"))
+        .andExpect(jsonPath("$.harmony[1].bass").value("B"));
+    }
+
+    @Test
     void answers404ForAnUnknownId_and400ForAMalformedOne() throws Exception {
       given(scoreRepository.findById(any())).willReturn(Optional.empty());
       mockMvc.perform(get("/score/" + UUID.randomUUID() + "/info")).andExpect(status().isNotFound());
@@ -275,6 +293,21 @@ class ScoreIntegrationTest extends IntegrationTestBase {
       assertThat(score.getHasFiles()).isFalse();
       assertThat(score.getPublicDomain()).isTrue(); // Satie died in 1925
       assertThat(List.of(score.getFullKey(), score.getTonic(), score.getMode())).containsExactly("D major", "D", "major");
+    }
+
+    @Test
+    void storesAHarmonyWithASlashChord_soItReadsBack() throws Exception {
+      // issue #415: the bass was written as a JsonNullable object, which could not be read back
+      mockMvc.perform(post("/score").header("Authorization", bearer(owner)).contentType(MediaType.APPLICATION_JSON)
+          .content(body(Map.of("harmony", List.of(
+            Map.of("measure", 1, "beat", 1.0, "root", "C", "kind", "major"),
+            Map.of("measure", 2, "beat", 1.0, "root", "G", "kind", "dominant", "bass", "B"))))))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.harmony[1].bass").value("B"));
+
+      String stored = saved().getHarmony();
+      assertThat(stored).contains("\"bass\":\"B\"").doesNotContain("present").doesNotContain("undefined");
+      assertThat(org.pianoml.backend.mapper.ScoreMapper.harmonyJsonToList(stored).get()).hasSize(2);
     }
 
     @Test

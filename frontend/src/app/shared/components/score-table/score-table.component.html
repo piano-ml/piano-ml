@@ -4,6 +4,9 @@
 
       <thead>
         <tr class="border-b border-neutral-800">
+          @if (showFavorite) {
+            <th class="pb-3 pt-1 w-10"><span class="sr-only" i18n="@@scoreTable.favorite">Favorite</span></th>
+          }
           @for (column of getVisibleColumns(); track column.label; let isFirst = $first, isLast = $last) {
             <th [class]="getHeaderClass(column, isFirst, isLast)">
               {{ column.label }}
@@ -20,6 +23,9 @@
       <tbody>
         @for (score of scores; track score.id) {
           <tr (click)="onRowClick(score, $event)" [class.cursor-pointer]="showRowClick">
+            @if (showFavorite) {
+              <td class="py-1 pl-0 pr-1 w-10"><app-favorite-button [score]="score" size="sm" /></td>
+            }
             @for (column of getVisibleColumns(); track column.label; let isFirst = $first, isLast = $last) {
               <td [class]="getCellClass(column, isFirst, isLast)">
                 @let icon = getCellIcon(score, column);

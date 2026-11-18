@@ -1,0 +1,107 @@
+# Playlists and favorites (issue #278): user-owned ordered lists of scores. "Favorites" is one playlist per user
+# (is_default, reserved slug "favorites"), created on the first favorite.
+# - the slug is made from the title at creation and never changes; it is unique per owner;
+# - playlists go away with their owner, items with their playlist and with their score (ON DELETE CASCADE);
+# - positions are 0-based and kept dense by PlaylistService.
+databaseChangeLog:
+  - changeSet:
+      id: 023-1-create-playlist
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: playlist
+            columns:
+              - column: { name: id, type: UUID, constraints: { nullable: false } }
+              - column: { name: owner_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: title, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: slug, type: VARCHAR(120), constraints: { nullable: false } }
+              - column: { name: description, type: VARCHAR(1000) }
+              - column: { name: is_default, type: BOOLEAN, defaultValueBoolean: false, constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: last_modified, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+        - addPrimaryKey:
+            schemaName: pianoml
+            tableName: playlist
+            columnNames: id
+            constraintName: pk_playlist
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: playlist
+            baseColumnNames: owner_id
+            constraintName: fk_playlist_owner
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addUniqueConstraint:
+            schemaName: pianoml
+            tableName: playlist
+            columnNames: owner_id, slug
+            constraintName: uq_playlist_owner_slug
+        - createIndex:
+            schemaName: pianoml
+            tableName: playlist
+            indexName: idx_playlist_last_modified
+            columns:
+              - column: { name: last_modified, descending: true }
+
+  - changeSet:
+      id: 023-2-playlist-one-default-per-owner
+      author: pianoml
+      dbms: postgresql
+      comment: >
+        At most one Favorites playlist per user. PostgreSQL only (partial index); everywhere the reserved slug
+        "favorites" and uq_playlist_owner_slug already guarantee it.
+      changes:
+        - sql:
+            sql: CREATE UNIQUE INDEX uq_playlist_one_default ON pianoml.playlist (owner_id) WHERE is_default
+
+  - changeSet:
+      id: 023-3-create-playlist-item
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: playlist_item
+            columns:
+              - column: { name: playlist_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: score_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: position, type: INT, constraints: { nullable: false } }
+              - column: { name: added_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+        - addPrimaryKey:
+            schemaName: pianoml
+            tableName: playlist_item
+            columnNames: playlist_id, score_id
+            constraintName: pk_playlist_item
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: playlist_item
+            baseColumnNames: playlist_id
+            constraintName: fk_playlist_item_playlist
+            referencedTableSchemaName: pianoml
+            referencedTableName: playlist
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: playlist_item
+            baseColumnNames: score_id
+            constraintName: fk_playlist_item_score
+            referencedTableSchemaName: pianoml
+            referencedTableName: score
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - createIndex:
+            schemaName: pianoml
+            tableName: playlist_item
+            indexName: idx_playlist_item_position
+            columns:
+              - column: { name: playlist_id }
+              - column: { name: position }
+        - createIndex:
+            schemaName: pianoml
+            tableName: playlist_item
+            indexName: idx_playlist_item_score
+            columns:
+              - column: { name: score_id }

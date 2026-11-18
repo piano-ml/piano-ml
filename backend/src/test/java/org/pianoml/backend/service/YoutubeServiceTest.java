@@ -117,6 +117,7 @@ public class YoutubeServiceTest {
         assertThat(first.getTitle()).isEqualTo("Moonlight Sonata Tutorial");
         assertThat(first.getDescription()).isEqualTo("Great video");
         assertThat(first.getChannelTitle()).isEqualTo("PianoChannel");
+        assertThat(first.getChannelId()).isEqualTo("UC-PianoChannel");
         assertThat(first.getThumbnailUrl()).isEqualTo("https://img1.jpg");
         assertThat(first.getPublishedAt()).isNotNull();
         assertThat(first.getPublishedAt())
@@ -250,6 +251,7 @@ public class YoutubeServiceTest {
         snippet.setTitle(title);
         snippet.setDescription(description);
         snippet.setChannelTitle(channelTitle);
+        snippet.setChannelId("UC-" + channelTitle);
         snippet.setThumbnails(thumbnails);
         if (publishedMillis > 0) {
             snippet.setPublishedAt(new DateTime(publishedMillis));

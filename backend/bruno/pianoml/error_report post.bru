@@ -1,0 +1,27 @@
+meta {
+  name: error_report post
+  type: http
+  seq: 30
+}
+
+post {
+  url: http://localhost:8080/error-report
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "url": "http://localhost:4200/score/some-score?token=removed-before-storing&tab=pdf",
+    "level": "ERROR",
+    "message": "Cannot read properties of undefined (reading 'title')",
+    "exceptionType": "TypeError",
+    "stackTrace": "TypeError: Cannot read properties of undefined (reading 'title')\n    at render (http://localhost:4200/main.js:1:2345)",
+    "release": "dev",
+    "context": { "route": "/score/:slug" }
+  }
+}
