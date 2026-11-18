@@ -79,7 +79,7 @@ describe('WorkbenchComponent', () => {
     localStorage.clear();
     localStorage.setItem('workbench-tour-seen', 'true');
     const midiService = {
-      midiEvent: signal(null), midiBlocked: signal(false), setupMidiDeviceListeners: vi.fn(), resetSessionOutputs: vi.fn(), pianoMLShouldPlay: vi.fn(() => true),
+      midiEvent: signal(null), midiBlocked: signal(false), addNoteListener: vi.fn(() => () => undefined), setupMidiDeviceListeners: vi.fn(), resetSessionOutputs: vi.fn(), pianoMLShouldPlay: vi.fn(() => true),
       pressOutput: vi.fn(), releaseOutput: vi.fn(), press: vi.fn(), release: vi.fn(), pressDrum: vi.fn(), releaseDrum: vi.fn(),
       isInputDeviceSelected: vi.fn(() => false), isOutputDeviceSelected: vi.fn(() => true),
       setInputDeviceEnabled: vi.fn(), setOutputDeviceEnabled: vi.fn(),

@@ -1,4 +1,4 @@
-import { Injectable, effect, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
@@ -37,7 +37,8 @@ export class PlayerService implements OnDestroy {
   private timeCounterInterval?: number;
   private highlightedBadNotes = new Set<GraphicalNote>();
   private badNoteResetTimers = new Map<GraphicalNote, ReturnType<typeof setTimeout>>();
-  private midiEventEffectFn?: any;
+  /** Unsubscribes processMidiEvent from the MIDI service. */
+  private removeNoteListener: () => void;
   private cachedTimeSignatureIndices?: Map<Midi.Header, number[]>;
   verticalPixelShiftValue: number = 1;
   lastBar = 0;
@@ -77,13 +78,9 @@ export class PlayerService implements OnDestroy {
     }
     this.reset = this.reset.bind(this);
 
-    // Effect to process MIDI events via signal
-    this.midiEventEffectFn = effect(() => {
-      const midiEvent = this.midiService.midiEvent();
-      if (midiEvent) {
-        this.processMidiEvent(midiEvent);
-      }
-    });
+    // A listener, not an effect on the midiEvent signal: an effect runs at the next change detection, which
+    // coalesces the notes of a chord arriving in the same frame into the last one and delays every key.
+    this.removeNoteListener = midiService.addNoteListener((event) => void this.processMidiEvent(event));
   }
 
   preconfigurePlayConfiguration(scoreApiInfo: ScoreApiInfo, playConfiguration: PlayConfiguration, midiAll: Midi.Midi): PlayConfiguration {
@@ -334,6 +331,10 @@ export class PlayerService implements OnDestroy {
 
 
   private async processMidiEvent(midiEvent: MidiStateEvent) {
+    if (midiEvent.type === 'down') {
+      // Before any mode check: a key played along the score also makes the session a MIDI one
+      this.recorder.noteOn();
+    }
     if (!this.playConfiguration
       || (this.playConfiguration.waitForLeftHand === false
         && this.playConfiguration.waitForRightHand === false)
@@ -341,8 +342,7 @@ export class PlayerService implements OnDestroy {
       return
     }
 
-    if (midiEvent.type === 'down' as MidiStateEvent['type']) {
-      this.recorder.noteOn();
+    if (midiEvent.type === 'down') {
       midiEvent.time = this.audio.getCurrentTime();
       const liveStatus = this.assess.getNewActual(this.audio.getTransportSeconds(), midiEvent);
       if (liveStatus === null) {
@@ -581,10 +581,7 @@ export class PlayerService implements OnDestroy {
     // Stop audio playback and release score-scoped state
     this.releaseScoreSession();
 
-    // Angular cleans the effect up with the injector; just drop the reference.
-    // Registering a destroyRef callback from inside ngOnDestroy throws NG0205,
-    // because by then the injector is already being destroyed.
-    this.midiEventEffectFn = null;
+    this.removeNoteListener();
   }
 
 }

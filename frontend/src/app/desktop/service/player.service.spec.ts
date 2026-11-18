@@ -28,6 +28,8 @@ describe('PlayerService', () => {
   let keys: { fillKey: ReturnType<typeof vi.fn>; clearKey: ReturnType<typeof vi.fn> };
   let midiEvent: ReturnType<typeof signal<MidiStateEvent | null>>;
   let midiService: Record<'setupMidiDeviceListeners' | 'resetSessionOutputs', ReturnType<typeof vi.fn>> & { midiEvent: typeof midiEvent };
+  /** What the player registered with addNoteListener(); null once it unsubscribed. */
+  let noteListener: ((event: MidiStateEvent) => void) | null;
   let handTracks: { hand: string; start: number; end: number; offset: number; timeFactor: number; callbacks: Callbacks }[];
   let onEnd: (() => void) | undefined;
 
@@ -44,8 +46,13 @@ describe('PlayerService', () => {
   beforeEach(() => {
     localStorage.removeItem('tempo-control-metronome');
     midiEvent = signal<MidiStateEvent | null>(null);
+    noteListener = null;
     midiService = {
       midiEvent, setupMidiDeviceListeners: vi.fn(), resetSessionOutputs: vi.fn(),
+      addNoteListener: vi.fn((listener: (event: MidiStateEvent) => void) => {
+        noteListener = listener;
+        return () => { noteListener = null; };
+      }),
       pianoMLShouldPlay: vi.fn(() => true), pressOutput: vi.fn(), releaseOutput: vi.fn(),
     } as never;
     TestBed.configureTestingModule({ providers: [{ provide: MidiServiceService, useValue: midiService }] });
@@ -220,11 +227,13 @@ describe('PlayerService', () => {
 
   describe('MIDI input', () => {
     const down = (note: number) => ({ type: 'down', note, velocity: 100, time: 0 }) as unknown as MidiStateEvent;
-    /** Delivers a MIDI event and lets the (async) handling finish. */
-    const send = async (event: MidiStateEvent) => {
-      midiEvent.set(event);
-      TestBed.tick();
+    /** Delivers a MIDI event as the MIDI service does (synchronously), and lets the (async) handling finish. */
+    const settle = async () => {
       for (let i = 0; i < 5; i++) await Promise.resolve(); // microtasks only: works with fake timers
+    };
+    const send = async (event: MidiStateEvent) => {
+      noteListener!(event);
+      await settle();
     };
 
     it('is ignored unless the user plays a hand', async () => {
@@ -251,6 +260,36 @@ describe('PlayerService', () => {
       await send(down(72));
       expect(player.isWaiting).toBe(true);
       expect(audio.start).not.toHaveBeenCalled();
+    });
+
+    it('takes every note of a chord played in the same task, and then resumes', async () => {
+      const cfg = load({ waitForRightHand: true });
+      vi.spyOn(cursor, 'nextNote').mockImplementation(() => undefined);
+      cursor.midiTicksToOsmdCursorIndex.set(0, { osmdIndex: 0, osmdMeasure: 0 });
+      await player.play(cfg);
+      player.isWaiting = true;
+      const chord = [60, 64, 67].map((midi) => ({ midi, ticks: 0, bars: 0 }) as Note);
+      for (const note of chord) assess.learnExpectation(1, 2, note, 'rh');
+      vi.mocked(audio.start).mockClear();
+      // Back to back, with no change detection in between: an effect on the signal saw only the last one
+      for (const note of chord) noteListener!(down(note.midi));
+      await settle();
+      expect(assess.snapshot().hit).toBe(3);
+      expect(player.isWaiting).toBe(false);
+      expect(audio.start).toHaveBeenCalledTimes(1);
+    });
+
+    it('marks a play-along session as played on a MIDI keyboard', async () => {
+      const recorder = TestBed.inject(PracticeSessionRecorder);
+      const noteOn = vi.spyOn(recorder, 'noteOn');
+      load();
+      await send(down(60));
+      expect(noteOn).toHaveBeenCalledOnce();
+    });
+
+    it('stops listening when the player is destroyed', () => {
+      player.ngOnDestroy();
+      expect(noteListener).toBeNull();
     });
 
     it('ignores key releases', async () => {

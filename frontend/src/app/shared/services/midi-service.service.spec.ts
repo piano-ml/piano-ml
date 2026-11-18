@@ -117,6 +117,25 @@ describe('MidiServiceService', () => {
       expect(midi.midiEvent()).toMatchObject({ note: 64, type: 'down' });
     });
 
+    it('calls note listeners synchronously, before the signal changes, for every note of a chord', () => {
+      const seen: string[] = [];
+      midi.addNoteListener((event) => seen.push(`${event.type} ${event.note}, signal ${midi.midiEvent()?.note ?? 'none'}`));
+      keyboard.emit([NOTE_ON, 60, 100]);
+      keyboard.emit([NOTE_ON, 64, 100]);
+      keyboard.emit([NOTE_OFF, 60, 0]);
+      expect(seen).toEqual(['down 60, signal none', 'down 64, signal 60', 'up 60, signal 64']);
+    });
+
+    it('stops calling a note listener once it is unsubscribed', () => {
+      const listener = vi.fn();
+      const unsubscribe = midi.addNoteListener(listener);
+      keyboard.emit([NOTE_ON, 60, 100]);
+      unsubscribe();
+      keyboard.emit([NOTE_ON, 62, 100]);
+      expect(listener).toHaveBeenCalledOnce();
+      expect(midi.midiEvent()).toMatchObject({ note: 62 }); // the signal still follows
+    });
+
     it('ignores messages that are not 3 bytes long', () => {
       keyboard.emit([0xf8]); // MIDI clock
       expect(midi.midiEvent()).toBeNull();

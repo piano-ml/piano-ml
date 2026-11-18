@@ -44,6 +44,8 @@ export class MidiServiceService {
 
   // Signal pour émettre les événements MIDI
   public midiEvent = signal<MidiStateEvent | null>(null)
+  /** See addNoteListener(). */
+  private readonly noteListeners = new Set<(event: MidiStateEvent) => void>()
   /** Set when the browser refused MIDI access (permission denied or not granted): pages tell the user how to allow it. */
   public readonly midiBlocked = signal(false)
 
@@ -120,7 +122,7 @@ export class MidiServiceService {
   press(note: number, velocity: number) {
     const time = Date.now()
     this.pressedNotes.set(note, { time, vel: velocity })
-    this.midiEvent.set({ note, velocity, type: 'down', time })
+    this.emit({ note, velocity, type: 'down', time })
   }
 
   /**
@@ -129,7 +131,24 @@ export class MidiServiceService {
    */
   release(note: number) {
     this.pressedNotes.delete(note)
-    this.midiEvent.set({ note, type: 'up', time: Date.now() })
+    this.emit({ note, type: 'up', time: Date.now() })
+  }
+
+  /**
+   * Called synchronously for every key press and release: unlike the midiEvent signal, nothing is coalesced or
+   * delayed to the next change detection. Returns the function that unsubscribes the listener.
+   */
+  addNoteListener(listener: (event: MidiStateEvent) => void): () => void {
+    this.noteListeners.add(listener)
+    return () => this.noteListeners.delete(listener)
+  }
+
+  /** Listeners first, in the same task as the key press; then the signal, for the pages that only display it. */
+  private emit(event: MidiStateEvent): void {
+    for (const listener of this.noteListeners) {
+      listener(event)
+    }
+    this.midiEvent.set(event)
   }
 
 
