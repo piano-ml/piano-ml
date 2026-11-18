@@ -125,6 +125,12 @@
         </div>
       </div>
     </section>
+    @if (!loading && midiInputs.length > 0) {
+    <!-- Tap-along calibration: needs a MIDI keyboard -->
+    <section class="mb-2">
+      <app-latency-calibration />
+    </section>
+    }
     <div class="col-span-2 flex justify-end">
       <button (click)="close()" class="btn-secondary" i18n="@@common.close">Close</button>
     </div>

@@ -95,10 +95,12 @@ export class MidiServiceService {
     }
 
     const { note, velocity } = msg
+    // A fake or replayed message may have no timestamp: now, then
+    const timeStamp = msg.timeStamp > 0 ? msg.timeStamp : performance.now()
     if (msg.type === 'on' && msg.velocity > 0) {
-      this.press(note, velocity)
+      this.press(note, velocity, timeStamp)
     } else {
-      this.release(note)
+      this.release(note, timeStamp)
     }
   }
 
@@ -108,19 +110,19 @@ export class MidiServiceService {
    * @param note 
    * @param velocity 
    */
-  press(note: number, velocity: number) {
+  press(note: number, velocity: number, timeStamp: number = performance.now()) {
     const time = Date.now()
     this.pressedNotes.set(note, { time, vel: velocity })
-    this.emit({ note, velocity, type: 'down', time })
+    this.emit({ note, velocity, type: 'down', time, timeStamp })
   }
 
   /**
    * Midi in event (release) to Angular signal from connected input devices
    * @param note 
    */
-  release(note: number) {
+  release(note: number, timeStamp: number = performance.now()) {
     this.pressedNotes.delete(note)
-    this.emit({ note, type: 'up', time: Date.now() })
+    this.emit({ note, type: 'up', time: Date.now(), timeStamp })
   }
 
   /**

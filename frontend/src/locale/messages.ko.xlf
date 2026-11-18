@@ -982,6 +982,38 @@
         <source>Blog posts</source>
         <target state="translated">블로그 글</target>
       </trans-unit>
+      <trans-unit id="latency.heading" datatype="html">
+        <source>Timing calibration</source>
+        <target state="translated">타이밍 보정</target>
+      </trans-unit>
+      <trans-unit id="latency.hint" datatype="html">
+        <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
+        <target state="translated">클릭마다 MIDI 키보드의 건반을 하나 눌러 주세요. 들리는 소리를 기준으로 연주를 평가합니다(블루투스 헤드폰을 쓸 때 유용합니다).</target>
+      </trans-unit>
+      <trans-unit id="latency.listening" datatype="html">
+        <source>Tap along with the clicks…</source>
+        <target state="translated">클릭에 맞춰 눌러 주세요…</target>
+      </trans-unit>
+      <trans-unit id="latency.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">취소</target>
+      </trans-unit>
+      <trans-unit id="latency.failed" datatype="html">
+        <source>Not enough taps on the beat. Try again.</source>
+        <target state="translated">박자에 맞춘 입력이 부족합니다. 다시 시도해 주세요.</target>
+      </trans-unit>
+      <trans-unit id="latency.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">보정: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/>ms</target>
+      </trans-unit>
+      <trans-unit id="latency.calibrate" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">보정하기</target>
+      </trans-unit>
+      <trans-unit id="latency.reset" datatype="html">
+        <source>Reset</source>
+        <target state="translated">초기화</target>
+      </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
         <target state="translated">작업대 설정</target>

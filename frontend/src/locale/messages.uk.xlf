@@ -982,6 +982,38 @@
         <source>Blog posts</source>
         <target state="translated">Статті блогу</target>
       </trans-unit>
+      <trans-unit id="latency.heading" datatype="html">
+        <source>Timing calibration</source>
+        <target state="translated">Калібрування таймінгу</target>
+      </trans-unit>
+      <trans-unit id="latency.hint" datatype="html">
+        <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
+        <target state="translated">Натискайте клавішу MIDI-клавіатури на кожен клік, щоб вашу гру оцінювали за тим, що ви чуєте (корисно з Bluetooth-навушниками).</target>
+      </trans-unit>
+      <trans-unit id="latency.listening" datatype="html">
+        <source>Tap along with the clicks…</source>
+        <target state="translated">Натискайте в такт клікам…</target>
+      </trans-unit>
+      <trans-unit id="latency.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Скасувати</target>
+      </trans-unit>
+      <trans-unit id="latency.failed" datatype="html">
+        <source>Not enough taps on the beat. Try again.</source>
+        <target state="translated">Замало натискань у такт. Спробуйте ще раз.</target>
+      </trans-unit>
+      <trans-unit id="latency.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">Корекція: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> мс</target>
+      </trans-unit>
+      <trans-unit id="latency.calibrate" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">Калібрувати</target>
+      </trans-unit>
+      <trans-unit id="latency.reset" datatype="html">
+        <source>Reset</source>
+        <target state="translated">Скинути</target>
+      </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
         <target state="translated">Налаштування майстерні</target>

@@ -274,10 +274,11 @@ describe('PlayerService', () => {
     it('in play-along mode, assesses each key press against the notes due around that time', async () => {
       load();
       vi.spyOn(audio, 'isPlaying').mockReturnValue(true);
-      vi.spyOn(audio, 'getTransportSeconds').mockReturnValue(3.1);
+      const heard = vi.spyOn(audio, 'heardTransportSeconds').mockReturnValue(3.1);
       const playTimed = vi.spyOn(assess, 'playTimed');
       assess.expectTimed(3, { midi: 72, bars: 0 } as Note, 'rh');
-      await send(down(72));
+      await send({ ...down(72), timeStamp: 1234 });
+      expect(heard).toHaveBeenCalledWith(1234); // when the key was played, on the clock of what was heard then
       expect(playTimed).toHaveBeenCalledWith(3.1, 72);
       expect(assess.snapshot()).toMatchObject({ hit: 1, wrong: 0, played: 1 });
     });

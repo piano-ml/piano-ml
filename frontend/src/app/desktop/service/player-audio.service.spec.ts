@@ -310,6 +310,60 @@ describe('PlayerAudioService', () => {
     expect(Tone.getContext().lookAhead).toBe(PLAYBACK_LOOKAHEAD_S);
   });
 
+  describe('latency', () => {
+    const context = () => (audio as unknown as { audioContext: AudioContext }).audioContext;
+
+    it('maps a performance time to the context time heard then, with the output timestamp', () => {
+      vi.spyOn(context(), 'getOutputTimestamp').mockReturnValue({ contextTime: 5, performanceTime: 1000 });
+      expect(audio.heardContextTime(1250)).toBeCloseTo(5.25);
+      expect(audio.contextToPerformanceMs(5.5)).toBeCloseTo(performance.now() + (5.5 - audio.heardContextTime()) * 1000, 0);
+    });
+
+    it('without an output timestamp, takes the reported output latency off the current time', () => {
+      vi.spyOn(context(), 'getOutputTimestamp').mockReturnValue({ contextTime: 0, performanceTime: 0 });
+      vi.spyOn(context(), 'outputLatency', 'get').mockReturnValue(0.2);
+      const now = performance.now();
+      expect(audio.heardContextTime(now)).toBeCloseTo(context().currentTime - 0.2, 1);
+    });
+
+    it('scores keys against the score position heard, less the calibration correction', () => {
+      vi.spyOn(context(), 'getOutputTimestamp').mockReturnValue({ contextTime: 5, performanceTime: 1000 });
+      const at = vi.spyOn(Tone.getTransport(), 'getSecondsAtTime').mockImplementation((t) => Number(t));
+      audio.setLatencyCalibration(100);
+      expect(audio.heardTransportSeconds(1000)).toBeCloseTo(4.9);
+      expect(at).toHaveBeenCalledWith(expect.closeTo(4.9, 5));
+      audio.setLatencyCalibration(0);
+    });
+
+    it('draws the cursor and the keys when the sound is heard', () => {
+      vi.spyOn(context(), 'outputLatency', 'get').mockReturnValue(0.15);
+      const draw = vi.spyOn(Tone.getDraw(), 'schedule').mockReturnValue(Tone.getDraw());
+      audio.scheduleDraw(() => undefined, 3);
+      expect(draw).toHaveBeenCalledWith(expect.any(Function), 3.15);
+    });
+
+    it('calibrates from taps on the clicks it plays', async () => {
+      vi.spyOn(audio, 'initSoundFont').mockResolvedValue();
+      vi.spyOn(context(), 'resume').mockResolvedValue(); // no user gesture in tests
+      let listener!: (e: { type: 'down'; note: number; time: number; timeStamp: number }) => void;
+      (midi as unknown as { addNoteListener: unknown }).addNoteListener = vi.fn((l: typeof listener) => { listener = l; return () => undefined; });
+      vi.spyOn(audio, 'playMetronomeClick').mockImplementation(() => undefined);
+      // Each tap lands 70 ms after its click, as heard
+      vi.spyOn(audio, 'heardContextTime').mockImplementation((perfMs?: number) => (perfMs ?? 0) / 1000);
+      vi.useFakeTimers();
+      const done = audio.calibrateLatency();
+      await vi.advanceTimersByTimeAsync(0);
+      const clicks = vi.mocked(audio.playMetronomeClick).mock.calls.map(([, , time]) => time!);
+      expect(clicks).toHaveLength(12);
+      for (const click of clicks) listener({ type: 'down', note: 60, time: 0, timeStamp: (click + 0.07) * 1000 });
+      await vi.advanceTimersByTimeAsync(20_000);
+      expect(await done).toBe(70);
+      expect(audio.latencyCalibrationMs()).toBe(70);
+      vi.useRealTimers();
+      audio.setLatencyCalibration(0);
+    });
+  });
+
   describe('sounds loading state', () => {
     const loader = () => vi.spyOn(audio as unknown as { loadSoundFont(): Promise<void> }, 'loadSoundFont');
 

@@ -8,6 +8,9 @@ import { LiveStatus,  PlayerAssessService } from './player-assess.service';
 import { PlayerStateService } from './player-state.service';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
+import {
+  CALIBRATION_BPM, CALIBRATION_CLICKS, calibrationOffsetMs, readLatencyCalibration, writeLatencyCalibration,
+} from './latency-calibration';
 
 /**
  * True when the buffer holds a whole RIFF file (SF2/SF3): its header declares the payload size, so a
@@ -39,6 +42,8 @@ export const PLAYBACK_LOOKAHEAD_S = 0.03;
 export const METRONOME_CLICK_S = 0.04;
 /** MIDI controller "All Sound Off": stops every voice of a channel at once. */
 const ALL_SOUND_OFF = 120;
+/** The first calibration click comes this long after the user asked for it. */
+const CALIBRATION_LEAD_S = 0.8;
 const MIDI_CHANNELS = 16;
 
 /**
@@ -73,6 +78,11 @@ export class PlayerAudioService implements OnDestroy {
   private soundFontAbortController?: AbortController;
   /** Set by start() in dev builds: the next note-on sets FIRST_SOUND_MARK. */
   private firstSoundPending = false;
+  /**
+   * The tap-along calibration's correction, in ms (see latency-calibration.ts): what the browser's latency figures
+   * miss. Key presses are scored this much earlier.
+   */
+  readonly latencyCalibrationMs = signal(readLatencyCalibration());
   /** The soundfont (about 10 MB) and its synth: Play is only offered once they are 'ready'. */
   readonly soundFontState = signal<'loading' | 'ready' | 'error'>('loading');
 
@@ -130,11 +140,82 @@ export class PlayerAudioService implements OnDestroy {
     this.spessasynth?.noteOff(channel, midi, time === undefined ? undefined : { time });
   }
 
-  /** The audio context time `time` as a performance.now() time, for timestamped MIDI output. */
-  contextToPerformanceMs(time: number): number {
+  /**
+   * Seconds between the context rendering a sample and the user hearing it, as the browser reports it: from a few
+   * ms (wired) to a quarter of a second (Bluetooth headphones).
+   */
+  outputLatency(): number {
     const context = this.audioContext;
-    if (!context) return performance.now();
-    return performance.now() + (time - context.currentTime) * 1000;
+    return context ? (context.outputLatency || context.baseLatency || 0) : 0;
+  }
+
+  /**
+   * The audio context time being heard at `perfMs` (a performance.now() time, like a MIDI event's timeStamp):
+   * the context time minus what is still on its way to the speakers.
+   */
+  heardContextTime(perfMs: number = performance.now()): number {
+    const context = this.audioContext;
+    if (!context) return 0;
+    const stamp = context.getOutputTimestamp?.();
+    if (stamp?.contextTime && stamp.performanceTime) {
+      return stamp.contextTime + (perfMs - stamp.performanceTime) / 1000;
+    }
+    return context.currentTime - this.outputLatency() + (perfMs - performance.now()) / 1000;
+  }
+
+  /** When the audio context time `time` is heard, as a performance.now() time: for timestamped MIDI output. */
+  contextToPerformanceMs(time: number): number {
+    return performance.now() + (time - this.heardContextTime()) * 1000;
+  }
+
+  /**
+   * The score position (transport seconds) the user hears at `perfMs`, less the calibration correction: what a key
+   * pressed then is scored against.
+   */
+  heardTransportSeconds(perfMs: number = performance.now()): number {
+    const context = this.heardContextTime(perfMs) - this.latencyCalibrationMs() / 1000;
+    return this.transport().getSecondsAtTime(Math.max(0, context));
+  }
+
+  setLatencyCalibration(ms: number): void {
+    this.latencyCalibrationMs.set(ms);
+    writeLatencyCalibration(ms);
+  }
+
+  /**
+   * Tap-along calibration: plays CALIBRATION_CLICKS clicks and listens to the MIDI keyboard. Resolves with the
+   * correction (also applied and stored), or null without enough taps on the beat. `signal` cancels it.
+   */
+  async calibrateLatency(signal?: AbortSignal): Promise<number | null> {
+    await this.initSoundFont();
+    const context = this.audioContext!;
+    if (context.state === 'suspended') {
+      await context.resume();
+    }
+    const interval = 60 / CALIBRATION_BPM;
+    const first = context.currentTime + CALIBRATION_LEAD_S;
+    const clicks = Array.from({ length: CALIBRATION_CLICKS }, (_, i) => first + i * interval);
+    clicks.forEach((time, i) => this.playMetronomeClick(i % 4 === 0, undefined, time));
+    const taps: number[] = [];
+    const stopListening = this.midiService.addNoteListener((event) => {
+      if (event.type === 'down') taps.push(this.heardContextTime(event.timeStamp));
+    });
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const done = setTimeout(resolve, (clicks[clicks.length - 1] + interval - context.currentTime) * 1000);
+        signal?.addEventListener('abort', () => {
+          clearTimeout(done);
+          reject(signal.reason);
+        }, { once: true });
+      });
+    } finally {
+      stopListening();
+    }
+    const ms = calibrationOffsetMs(clicks, taps, interval);
+    if (ms !== null) {
+      this.setLatencyCalibration(ms);
+    }
+    return ms;
   }
 
   getTransportSeconds(): number {
@@ -399,7 +480,8 @@ export class PlayerAudioService implements OnDestroy {
    * Schedule dans le contexte de dessin (pour les updates UI)
    */
   scheduleDraw(callback: () => void, time: number): void {
-    this.draw().schedule(callback, time);
+    // When the sound is heard, not when it is rendered: the cursor and the keys no longer run ahead of it
+    this.draw().schedule(callback, time + this.outputLatency());
   }
 
   private isNotHandAwaited(hand: string, midiPitch: number) {

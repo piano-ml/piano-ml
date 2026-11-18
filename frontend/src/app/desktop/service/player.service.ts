@@ -88,9 +88,9 @@ export class PlayerService implements OnDestroy {
     // A listener, not an effect on the midiEvent signal: an effect runs at the next change detection, which
     // coalesces the notes of a chord arriving in the same frame into the last one and delays every key.
     this.removeNoteListener = midiService.addNoteListener((event) => void this.processMidiEvent(event));
-    // Transport.seconds includes Tone's lookahead: it matches when the synth sounds a note, so key presses line
-    // up with what the user hears
-    this.assess.setClock(() => this.audio.getTransportSeconds());
+    // The score position the user hears (output latency and calibration included): key presses are scored
+    // against what they hear, not against what is being scheduled
+    this.assess.setClock(() => this.audio.heardTransportSeconds());
   }
 
   preconfigurePlayConfiguration(scoreApiInfo: ScoreApiInfo, playConfiguration: PlayConfiguration, midiAll: Midi.Midi): PlayConfiguration {
@@ -357,7 +357,8 @@ export class PlayerService implements OnDestroy {
     if (!this.playConfiguration.waitForLeftHand && !this.playConfiguration.waitForRightHand) {
       // Play-along: each key press is matched with the score notes due around that time
       if (midiEvent.type === 'down' && this.audio.isPlaying()) {
-        const { bad } = this.assess.playTimed(this.audio.getTransportSeconds(), midiEvent.note);
+        // When the key was played (the MIDI message's timestamp), on the clock of what the user heard then
+        const { bad } = this.assess.playTimed(this.audio.heardTransportSeconds(midiEvent.timeStamp), midiEvent.note);
         if (bad) {
           this.showWrongNote(midiEvent.note);
         }

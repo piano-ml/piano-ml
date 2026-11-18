@@ -104,6 +104,15 @@ describe('MidiServiceService', () => {
       expect(midi.pressedNotes.get(60)?.vel).toBe(100);
     });
 
+    it("carries the MIDI message's own timestamp, so a busy main thread does not make the user late", () => {
+      const seen: (number | undefined)[] = [];
+      midi.addNoteListener((event) => seen.push(event.timeStamp));
+      midi.onMidiMessage({ data: new Uint8Array([NOTE_ON, 60, 100]), timeStamp: 1234.5 } as unknown as MIDIMessageEvent);
+      keyboard.emit([NOTE_OFF, 60, 0]); // no timestamp: now
+      expect(seen[0]).toBe(1234.5);
+      expect(seen[1]).toBeGreaterThan(0);
+    });
+
     it('turns a note off, or a note on with velocity 0, into an "up" event', () => {
       keyboard.emit([NOTE_ON, 60, 100]);
       keyboard.emit([NOTE_OFF, 60, 64]);

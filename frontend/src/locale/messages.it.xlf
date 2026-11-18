@@ -982,6 +982,38 @@
         <source>Blog posts</source>
         <target state="translated">Articoli del blog</target>
       </trans-unit>
+      <trans-unit id="latency.heading" datatype="html">
+        <source>Timing calibration</source>
+        <target state="translated">Calibrazione del tempo</target>
+      </trans-unit>
+      <trans-unit id="latency.hint" datatype="html">
+        <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
+        <target state="translated">Premi un tasto della tastiera MIDI a ogni clic, così che la tua esecuzione venga valutata in base a ciò che senti (utile con le cuffie Bluetooth).</target>
+      </trans-unit>
+      <trans-unit id="latency.listening" datatype="html">
+        <source>Tap along with the clicks…</source>
+        <target state="translated">Suona a tempo con i clic…</target>
+      </trans-unit>
+      <trans-unit id="latency.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annulla</target>
+      </trans-unit>
+      <trans-unit id="latency.failed" datatype="html">
+        <source>Not enough taps on the beat. Try again.</source>
+        <target state="translated">Troppo pochi tocchi a tempo. Riprova.</target>
+      </trans-unit>
+      <trans-unit id="latency.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">Correzione: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</target>
+      </trans-unit>
+      <trans-unit id="latency.calibrate" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">Calibra</target>
+      </trans-unit>
+      <trans-unit id="latency.reset" datatype="html">
+        <source>Reset</source>
+        <target state="translated">Ripristina</target>
+      </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
         <target state="translated">Impostazioni del laboratorio</target>
