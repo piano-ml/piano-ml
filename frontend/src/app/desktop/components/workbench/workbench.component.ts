@@ -638,6 +638,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     // }, delay);
   }
 
+  private titleTimer?: ReturnType<typeof setTimeout>;
+
   onOsmdLoadingChange(loading: boolean) {
     if (loading) {
       return;
@@ -645,8 +647,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.osmdLoading$.next(loading);
     this.changeDetector.markForCheck();
     this.setupSlider();
-    setTimeout(() => {
-      this.title = `${this.scoreData!.author} - ${this.scoreData!.title}`;
+    clearTimeout(this.titleTimer);
+    this.titleTimer = setTimeout(() => {
+      this.titleTimer = undefined;
+      if (!this.scoreData) return; // left the workbench meanwhile
+      this.title = `${this.scoreData.author} - ${this.scoreData.title}`;
       this.updatePageTitle()
       this.changeDetector.detectChanges();
       this.checkIfScrollNeeded();
@@ -1117,6 +1122,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       }
       this.slider = null;
     }
+    clearTimeout(this.titleTimer);
+    this.titleTimer = undefined;
     this.playerService.releaseScoreSession();
     this.clearData();
     // Remove resize listener

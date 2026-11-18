@@ -46,8 +46,9 @@ describe('ScoreReimportComponent', () => {
     scoreIdReimportPost: ReturnType<typeof vi.fn>;
   };
 
+  // Reading the MIDI blob takes an unknown number of ticks (longer under load): wait for the load to end.
   const settle = async () => {
-    for (let i = 0; i < 5; i++) await new Promise((resolve) => setTimeout(resolve));
+    await vi.waitFor(() => expect(component.loading()).toBe(false));
     fixture.detectChanges();
   };
   async function render() {
