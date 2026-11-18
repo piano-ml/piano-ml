@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { type WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, HttpEventType, HttpResponse, type HttpEvent } from '@angular/common/http';
 import { Router, provideRouter } from '@angular/router';
@@ -79,7 +79,7 @@ describe('WorkbenchComponent', () => {
     localStorage.clear();
     localStorage.setItem('workbench-tour-seen', 'true');
     const midiService = {
-      midiEvent: signal(null), setupMidiDeviceListeners: vi.fn(), resetSessionOutputs: vi.fn(), pianoMLShouldPlay: vi.fn(() => true),
+      midiEvent: signal(null), midiBlocked: signal(false), setupMidiDeviceListeners: vi.fn(), resetSessionOutputs: vi.fn(), pianoMLShouldPlay: vi.fn(() => true),
       pressOutput: vi.fn(), releaseOutput: vi.fn(), press: vi.fn(), release: vi.fn(), pressDrum: vi.fn(), releaseDrum: vi.fn(),
       isInputDeviceSelected: vi.fn(() => false), isOutputDeviceSelected: vi.fn(() => true),
       setInputDeviceEnabled: vi.fn(), setOutputDeviceEnabled: vi.fn(),
@@ -204,6 +204,15 @@ describe('WorkbenchComponent', () => {
       status.onchange?.(new Event('change'));
       render();
       expect(dialog()).toBeNull();
+    });
+
+    it('says so when MIDI setup gave up on a refused permission the Permissions API did not report', async () => {
+      midiPermission('prompt');
+      await openScore();
+      expect(dialog()).toBeNull();
+      (TestBed.inject(MidiServiceService).midiBlocked as WritableSignal<boolean>).set(true);
+      await waitFor(() => { render(); return !!dialog(); });
+      expect(dialog()?.textContent).toContain('MIDI access is blocked by your browser');
     });
 
     it('shows no popup when MIDI is allowed', async () => {

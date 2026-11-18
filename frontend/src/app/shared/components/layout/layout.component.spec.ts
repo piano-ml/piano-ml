@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 import { AuthService } from '../../../account/services/auth.service';
 import { provideTesting } from '../../../testing/test-providers';
@@ -51,8 +52,9 @@ describe('LayoutComponent', () => {
     expect(localStorage.getItem('username')).toBe('Alice');
   });
 
-  it('shows the error reports entry to admins only', () => {
+  it('shows the error reports entry to admins only, on the account home page only', () => {
     loggedIn.next(true);
+    vi.spyOn(TestBed.inject(Router), 'url', 'get').mockReturnValue('/account/home');
     render();
     expect(el.querySelector('[data-admin-errors]')).toBeNull();
 
@@ -61,8 +63,21 @@ describe('LayoutComponent', () => {
     expect(el.querySelector('[data-admin-errors]')?.getAttribute('href')).toBe('/admin/errors');
   });
 
+  it('hides the error reports entry from admins on any other page', () => {
+    loggedIn.next(true);
+    auth.isAdmin.mockReturnValue(true);
+    const url = vi.spyOn(TestBed.inject(Router), 'url', 'get').mockReturnValue('/library');
+    render();
+    expect(el.querySelector('[data-admin-errors]')).toBeNull();
+
+    url.mockReturnValue('/account/home?tab=scores');
+    fixture.detectChanges();
+    expect(el.querySelector('[data-admin-errors]')).toBeTruthy();
+  });
+
   it('hides the error reports entry when logged out, even with a stale admin role', () => {
     auth.isAdmin.mockReturnValue(true);
+    vi.spyOn(TestBed.inject(Router), 'url', 'get').mockReturnValue('/account/home');
     render();
     expect(el.querySelector('[data-admin-errors]')).toBeNull();
   });

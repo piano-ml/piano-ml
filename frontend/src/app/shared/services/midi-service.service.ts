@@ -44,6 +44,8 @@ export class MidiServiceService {
 
   // Signal pour émettre les événements MIDI
   public midiEvent = signal<MidiStateEvent | null>(null)
+  /** Set when the browser refused MIDI access (permission denied or not granted): pages tell the user how to allow it. */
+  public readonly midiBlocked = signal(false)
 
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -179,6 +181,9 @@ export class MidiServiceService {
         }, 500);
       } else {
         console.error(`MIDI setup failed after ${this.maxRetries} attempts. Stopping retry loop.`);
+        if (isMidiPermissionError(error)) {
+          this.midiBlocked.set(true);
+        }
       }
     });
 
@@ -434,6 +439,13 @@ function parseMidiMessage(event: MIDIMessageEvent): MidiEvent | null {
   }
 }
 
+
+/** A refusal of MIDI access by the browser or the user, as opposed to an unsupported browser or a device failure. */
+export function isMidiPermissionError(error: unknown): boolean {
+  if (error instanceof Error && error.message === 'MIDI permission denied') return true;
+  const name = (error as { name?: unknown } | null)?.name;
+  return name === 'NotAllowedError' || name === 'SecurityError';
+}
 
 export async function getMidiInputs(): Promise<MIDIInputMap> {
   const result = await navigator.permissions.query({ name: "midi" })
