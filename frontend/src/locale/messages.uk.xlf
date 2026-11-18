@@ -682,6 +682,26 @@
         <source>Delete all sessions</source>
         <target state="translated">Видалити всі заняття</target>
       </trans-unit>
+      <trans-unit id="playlist.favorites" datatype="html">
+        <source>Favorites</source>
+        <target state="translated">Обране</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.removedFromFavorites" datatype="html">
+        <source>Removed from Favorites</source>
+        <target state="translated">Вилучено з обраного</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.saveFailed" datatype="html">
+        <source>Couldn&apos;t save, try again</source>
+        <target state="translated">Не вдалося зберегти, спробуйте ще раз</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.addedToFavorites" datatype="html">
+        <source>Added to Favorites</source>
+        <target state="translated">Додано до обраного</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.view" datatype="html">
+        <source>View</source>
+        <target state="translated">Переглянути</target>
+      </trans-unit>
       <trans-unit id="admin.route.errors" datatype="html">
         <source>Error reports</source>
         <target state="translated">Звіти про помилки</target>
@@ -938,26 +958,6 @@
         <source>Next</source>
         <target state="translated">Наступна</target>
       </trans-unit>
-      <trans-unit id="playlist.favorites" datatype="html">
-        <source>Favorites</source>
-        <target state="translated">Обране</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.removedFromFavorites" datatype="html">
-        <source>Removed from Favorites</source>
-        <target state="translated">Вилучено з обраного</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.saveFailed" datatype="html">
-        <source>Couldn&apos;t save, try again</source>
-        <target state="translated">Не вдалося зберегти, спробуйте ще раз</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.addedToFavorites" datatype="html">
-        <source>Added to Favorites</source>
-        <target state="translated">Додано до обраного</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.view" datatype="html">
-        <source>View</source>
-        <target state="translated">Переглянути</target>
-      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Помилка сторінки</target>
@@ -1121,6 +1121,18 @@
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">Доступ до MIDI заблоковано</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsLoading" datatype="html">
+        <source>Loading sounds…</source>
+        <target state="translated">Завантаження звуків…</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsError" datatype="html">
+        <source>Sounds could not be loaded</source>
+        <target state="translated">Не вдалося завантажити звуки</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsRetry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Спробувати ще раз</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>

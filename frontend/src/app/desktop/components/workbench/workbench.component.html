@@ -106,6 +106,21 @@
                 </div>
                 }
                 <div id="play-pause">
+                  @switch (soundFontState()) {
+                  @case ('loading') {
+                  <button type="button" class="btn btn-desktop sounds-status m-1" disabled aria-busy="true" data-sounds-loading>
+                    <span class="spinner w-5 h-5 shrink-0" aria-hidden="true"></span>
+                    <span i18n="@@workbench.soundsLoading">Loading sounds…</span>
+                  </button>
+                  }
+                  @case ('error') {
+                  <div class="inline-flex items-center gap-2 m-1" role="alert" data-sounds-error>
+                    <span class="text-sm text-red-300 whitespace-nowrap" i18n="@@workbench.soundsError">Sounds could not be loaded</span>
+                    <button type="button" class="btn btn-desktop sounds-status" (click)="retrySounds()" i18n="@@workbench.soundsRetry">Retry</button>
+                  </div>
+                  }
+                  @default {
+                  <span class="contents" data-sounds-ready>
                   @if (!isPlaying) {
                   <button (click)="start()" class="btn btn-desktop m-1">
                     <ng-icon name="bootstrapPlayFill" class="svg-button" />
@@ -114,6 +129,9 @@
                   <button (click)="stop()" class="btn btn-desktop m-1">
                     <ng-icon name="bootstrapPauseFill" class="svg-button" />
                   </button>
+                  }
+                  </span>
+                  }
                   }
                 </div>
               </div>

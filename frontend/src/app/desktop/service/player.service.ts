@@ -24,6 +24,9 @@ import { PracticeSessionRecorder } from './practice-session-recorder.service';
 
 const TIME_COUNTER_TIMESTEP = 200
 
+/** Bars of count-in before playback (and before the first awaited note in wait mode). */
+export const COUNT_IN_BARS = 2;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -49,6 +52,8 @@ export class PlayerService implements OnDestroy {
   get tick() { return this.state.tick; }
   get message() { return this.state.message; }
   get wrongNotes() { return this.state.wrongNotes.asReadonly(); }
+  /** Play is only offered once the sounds are 'ready'. */
+  get soundFontState() { return this.audio.soundFontState.asReadonly(); }
   get elapsedTime() { return this.state.elapsedTime; }
   get duration() { return this.state.duration; }
   get isWaiting() { return this.state.isWaiting; }
@@ -255,10 +260,8 @@ export class PlayerService implements OnDestroy {
     this.playConfiguration.maxPerformanceStaveCount = this.cursorService.maxMidiMeasure;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
 
-    await this.audio.start();
-
     let offset = this.audio.startCountIn(
-      2,
+      COUNT_IN_BARS,
       this.playConfiguration.midi!.header.timeSignatures[0],
       this.playConfiguration.midi!.header.tempos[0].bpm * this.playConfiguration.tempoFactor
     );
@@ -298,6 +301,8 @@ export class PlayerService implements OnDestroy {
       this.lastMidiEventTime = -1;
     });
 
+    // Last, once everything is scheduled: started earlier, the transport could pass the first click meanwhile
+    await this.audio.start();
   }
 
 

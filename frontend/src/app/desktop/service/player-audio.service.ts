@@ -1,5 +1,5 @@
 
-import { Injectable, inject, OnDestroy, DestroyRef, isDevMode } from '@angular/core';
+import { Injectable, inject, OnDestroy, DestroyRef, isDevMode, signal } from '@angular/core';
 import * as Tone from "tone";
 import { WorkletSynthesizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
@@ -46,6 +46,8 @@ export class PlayerAudioService implements OnDestroy {
   private soundFontAbortController?: AbortController;
   /** Set by start() in dev builds: the next note-on sets FIRST_SOUND_MARK. */
   private firstSoundPending = false;
+  /** The soundfont (about 10 MB) and its synth: Play is only offered once they are 'ready'. */
+  readonly soundFontState = signal<'loading' | 'ready' | 'error'>('loading');
 
   constructor(
     private assess: PlayerAssessService,
@@ -73,10 +75,16 @@ export class PlayerAudioService implements OnDestroy {
    * Concurrent and later calls share the same load; a failed load can be retried.
    */
   initSoundFont(): Promise<void> {
-    this.initSoundFontPromise ??= this.loadSoundFont().catch((error) => {
-      this.initSoundFontPromise = undefined;
-      throw error;
-    });
+    if (!this.initSoundFontPromise) {
+      this.soundFontState.set('loading'); // first load, or a retry after an error
+      this.initSoundFontPromise = this.loadSoundFont().then(() => {
+        this.soundFontState.set('ready'); // the synth is exposed and can play notes
+      }, (error) => {
+        this.initSoundFontPromise = undefined;
+        this.soundFontState.set('error');
+        throw error;
+      });
+    }
     return this.initSoundFontPromise;
   }
 
@@ -352,9 +360,10 @@ export class PlayerAudioService implements OnDestroy {
       && (note.midi >= this.state.leftmostKey && note.midi <= this.state.rightmostKey)
     );
 
-    // Calculate consistent timing: audio & UI both use offset when hand is not awaited
-    const scheduleStartTime = !isHandAwaited ? noteTimeStart + offset : noteTimeStart;
-    const scheduleEndTime = !isHandAwaited ? noteTimeEnd + offset : noteTimeEnd;
+    // Every event is shifted by the count-in, awaited notes included: playback must reach the first one after
+    // the clicks, with the other hand and the accompaniment in step
+    const scheduleStartTime = noteTimeStart + offset;
+    const scheduleEndTime = noteTimeEnd + offset;
 
     // Play-along: the user may play along any note of the keyboard's range, assessed by its due time
     if (!playConfig.waitForLeftHand && !playConfig.waitForRightHand
@@ -371,7 +380,7 @@ export class PlayerAudioService implements OnDestroy {
     transport.schedule((time: number) => {
       draw.schedule(() => {
         if (isHandAwaited) {
-          const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), noteTimeEnd, note, hand);
+          const liveStatus = this.assess.learnExpectation(this.getCurrentTime(), scheduleEndTime, note, hand);
           callbacks.onNoteStart(time, note, liveStatus);
         } else {
           const liveStatus = this.assess.getExpectation();

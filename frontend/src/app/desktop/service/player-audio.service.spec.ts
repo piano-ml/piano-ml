@@ -136,17 +136,26 @@ describe('PlayerAudioService', () => {
       expect(synth.noteOn).not.toHaveBeenCalled();
     });
 
-    it('waits for the user on an awaited hand: no sound, no count-in shift, an expectation instead', () => {
+    it('waits for the user on an awaited hand after the count-in: no sound, an expectation instead', () => {
       state.playConfiguration.waitForRightHand = true;
       audio.pianoMLShouldPlay = true;
       const cb = callbacks();
       audio.scheduleHandNote('rh', note({ time: 1, duration: 0.5 }), 0, 1, 2, cb);
-      expect(new Set(schedule.times())).toEqual(new Set([1, 1.5]));
+      expect(new Set(schedule.times())).toEqual(new Set([3, 3.5])); // shifted by the count-in, like everything else
       schedule.runAll();
       expect(synth.noteOn).not.toHaveBeenCalled();
       expect(midi.pressOutput).not.toHaveBeenCalled();
-      expect(assess.learnExpectation).toHaveBeenCalledWith(expect.any(Number), 1.5, expect.objectContaining({ midi: 60 }), 'rh');
-      expect(cb.onNoteStart).toHaveBeenCalledWith(1, expect.anything(), { shouldPause: true });
+      expect(assess.learnExpectation).toHaveBeenCalledWith(expect.any(Number), 3.5, expect.objectContaining({ midi: 60 }), 'rh');
+      expect(cb.onNoteStart).toHaveBeenCalledWith(3, expect.anything(), { shouldPause: true });
+    });
+
+    it('keeps the awaited hand in step with the hand the app plays', () => {
+      state.playConfiguration.waitForRightHand = true;
+      audio.scheduleHandNote('rh', note({ time: 1, duration: 0.5 }), 0, 1, 2, callbacks()); // awaited
+      const awaited = schedule.times();
+      schedule = captureSchedule();
+      audio.scheduleHandNote('lh', note({ time: 1, duration: 0.5 }), 0, 1, 2, callbacks()); // played by the app
+      expect(new Set(schedule.times())).toEqual(new Set(awaited));
     });
 
     it('plays awaited-hand notes outside the keyboard range itself', () => {
@@ -265,6 +274,30 @@ describe('PlayerAudioService', () => {
       expect(fn).toHaveBeenCalledOnce(); // draw callbacks run immediately in these tests
     });
     // start() needs a running AudioContext (a user gesture): covered by the acceptance workbench scenario
+  });
+
+  describe('sounds loading state', () => {
+    const loader = () => vi.spyOn(audio as unknown as { loadSoundFont(): Promise<void> }, 'loadSoundFont');
+
+    it("is 'loading', then 'ready' once the synth can play", async () => {
+      let loaded!: () => void;
+      loader().mockReturnValue(new Promise<void>((resolve) => { loaded = resolve; }));
+      const init = audio.initSoundFont();
+      expect(audio.soundFontState()).toBe('loading');
+      loaded();
+      await init;
+      expect(audio.soundFontState()).toBe('ready');
+    });
+
+    it("is 'error' when loading fails, and 'loading' again on a retry", async () => {
+      const load = loader().mockRejectedValueOnce(new Error('offline'));
+      await expect(audio.initSoundFont()).rejects.toThrow('offline');
+      expect(audio.soundFontState()).toBe('error');
+      load.mockReturnValue(new Promise<void>(() => undefined));
+      void audio.initSoundFont();
+      expect(audio.soundFontState()).toBe('loading');
+      expect(load).toHaveBeenCalledTimes(2);
+    });
   });
 
   it('cleans up when destroyed', () => {

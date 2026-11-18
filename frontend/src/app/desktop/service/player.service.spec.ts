@@ -12,7 +12,7 @@ import { midiToPitch } from './midi-maths';
 import { type LiveStatus, PlayerAssessService } from './player-assess.service';
 import { PlayerAudioService } from './player-audio.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
-import { PlayerService } from './player.service';
+import { COUNT_IN_BARS, PlayerService } from './player.service';
 import { PracticeSessionRecorder } from './practice-session-recorder.service';
 
 type Callbacks = { onNoteStart: (t: number, n: Note, s: LiveStatus) => void; onNoteEnd: (t: number, n: Note, s: LiveStatus) => void };
@@ -164,12 +164,22 @@ describe('PlayerService', () => {
       const cfg = load();
       await player.play(cfg);
       expect(audio.start).toHaveBeenCalled();
-      expect(audio.startCountIn).toHaveBeenCalledWith(2, cfg.midi!.header.timeSignatures[0], 120);
+      expect(audio.startCountIn).toHaveBeenCalledWith(COUNT_IN_BARS, cfg.midi!.header.timeSignatures[0], 120);
       expect(handTracks.map(({ hand, start, end, offset, timeFactor }) => ({ hand, start, end, offset, timeFactor }))).toEqual([
         { hand: 'rh', start: 0, end: 6 + 2, offset: 2, timeFactor: 1 }, // 3 bars of 2 s, plus the count-in
         { hand: 'lh', start: 0, end: 6 + 2, offset: 2, timeFactor: 1 },
       ]);
       expect(audio.scheduleEnd).toHaveBeenCalledWith(8, expect.any(Function));
+    });
+
+    it('starts the transport only once everything is scheduled', async () => {
+      const order: string[] = [];
+      vi.mocked(audio.startCountIn).mockImplementation(() => { order.push('count-in'); return 2; });
+      vi.mocked(audio.scheduleHandTrack).mockImplementation((hand) => { order.push(hand); });
+      vi.mocked(audio.scheduleEnd).mockImplementation(() => { order.push('end'); });
+      vi.mocked(audio.start).mockImplementation(async () => { order.push('start'); });
+      await player.play(load());
+      expect(order).toEqual(['count-in', 'rh', 'lh', 'end', 'start']);
     });
 
     it('plays only the selected bars', async () => {
@@ -182,7 +192,7 @@ describe('PlayerService', () => {
     it('scales times with the tempo', async () => {
       const cfg = load({ tempoFactor: 2 });
       await player.play(cfg);
-      expect(audio.startCountIn).toHaveBeenCalledWith(2, expect.anything(), 240);
+      expect(audio.startCountIn).toHaveBeenCalledWith(COUNT_IN_BARS, expect.anything(), 240);
       expect(handTracks[0]).toMatchObject({ end: 3 + 2, timeFactor: 0.5 }); // twice as fast: 3 s
     });
 

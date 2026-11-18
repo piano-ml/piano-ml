@@ -115,6 +115,7 @@ describe('WorkbenchComponent', () => {
     vi.spyOn(audio, 'start').mockResolvedValue();
     vi.spyOn(audio, 'startCountIn').mockReturnValue(2);
     vi.spyOn(audio, 'initSoundFont').mockResolvedValue();
+    audio.soundFontState.set('ready');
     navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
     await page.viewport(1400, 900); // desktop: the toolbar stays visible while playing
     harness = await RouterTestingHarness.create();
@@ -312,6 +313,36 @@ describe('WorkbenchComponent', () => {
       clickPlayPause();
       expect(audio.pause).toHaveBeenCalled();
       expect([component.isPlaying, component.toggleToolbar]).toEqual([false, true]);
+    });
+
+    describe('while the sounds load', () => {
+      const playPause = () => el().querySelector('#play-pause') as HTMLElement;
+
+      it('Play is disabled, busy, and says the sounds are loading; a click on the score does nothing', async () => {
+        audio.soundFontState.set('loading');
+        await openScore();
+        const loading = playPause().querySelector('button') as HTMLButtonElement;
+        expect(loading.disabled).toBe(true);
+        expect(loading.getAttribute('aria-busy')).toBe('true');
+        expect(loading.textContent).toContain('Loading sounds…');
+        button('.score-container').click();
+        await component.start();
+        expect(component.isPlaying).toBe(false);
+        expect(audio.start).not.toHaveBeenCalled();
+
+        audio.soundFontState.set('ready');
+        render();
+        expect(playPause().querySelector('[data-sounds-ready] button')).not.toBeNull();
+      });
+
+      it('a failed download offers Retry, which loads the sounds again', async () => {
+        audio.soundFontState.set('error');
+        await openScore();
+        expect(playPause().textContent).toContain('Sounds could not be loaded');
+        vi.mocked(audio.initSoundFont).mockClear();
+        (playPause().querySelector('button') as HTMLButtonElement).click();
+        expect(audio.initSoundFont).toHaveBeenCalledOnce();
+      });
     });
 
     it('a click on the sheet music toggles playback', async () => {

@@ -90,6 +90,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   /** The browser denies MIDI to the site: /work/:slug says so in a popup, as the setup panel does. */
   showMidiBlockedDialog = false;
   protected readonly midiBlockedMessage = MIDI_BLOCKED_MESSAGE;
+  protected get soundFontState() { return this.playerService.soundFontState; }
   private midiPermission: PermissionStatus | null = null;
   private midiBlockedChecked = false;
   /** Wrong notes already reacted to (the player's counter outlives this component). */
@@ -908,7 +909,18 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Playback can only start once the sounds are loaded, by any route (Play, a click on the score). */
+  private soundsReady(): boolean {
+    return this.playerService.soundFontState() === 'ready';
+  }
+
+  /** The Retry button after a failed sound download. */
+  retrySounds(): void {
+    this.playerService.initSoundFont().catch((error) => console.warn('SoundFont load failed again', error));
+  }
+
   async start() {
+    if (!this.soundsReady()) return;
     this.toggleToolbar = this.isSmallScreen() ? false : true;
     this.isPlaying = true;
 
@@ -926,6 +938,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   startStop() {
+    if (!this.soundsReady()) return;
     if (this.isPlaying) {
       this.stop();
     } else {
