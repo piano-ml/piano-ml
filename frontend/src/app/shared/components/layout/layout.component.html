@@ -36,7 +36,7 @@
           <a routerLink="/account/home" class="user-link" i18n-title="@@layout.account.title" title="Go to your account page">
             {{ username$ | async }}
           </a>
-          @if (isAdmin()) {
+          @if (isAdmin() && onAccountHome()) {
             <a routerLink="/admin/errors" class="user-link" data-admin-errors i18n-title="@@layout.adminErrors.title" title="Error reports (administrators)" i18n="@@layout.adminErrors">Errors</a>
           }
         } @else {

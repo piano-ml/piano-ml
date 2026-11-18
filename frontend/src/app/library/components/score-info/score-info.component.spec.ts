@@ -1,5 +1,5 @@
 import { PlaylistStore } from '../../../account/services/playlist-store.service';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
@@ -40,7 +40,7 @@ describe('ScoreInfoComponent', () => {
   let genres: { genreGet: ReturnType<typeof vi.fn> };
   let workloads: { workloadIdGet: ReturnType<typeof vi.fn> };
   /** The heart's state (FavoriteButtonComponent has its own spec) */
-  const favorites = { loggedIn: () => false, isFavorite: () => false, toggleFavorite: vi.fn() };
+  const favorites = { loggedIn: signal(false), isFavorite: () => false, toggleFavorite: vi.fn() };
 
   const SCORE: ScoreApiInfo = {
     id: 'sc1', title: 'Gymnopédie No. 1', author: 'Erik Satie', author_slug: 'satie-erik', genre: 'classical', genre_slug: 'classical',
@@ -71,6 +71,7 @@ describe('ScoreInfoComponent', () => {
   beforeEach(() => {
     slug = 'satie-gymnopedie-1';
     user = { id: null, admin: false };
+    favorites.loggedIn.set(false);
     vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     scores = {
@@ -174,6 +175,14 @@ describe('ScoreInfoComponent', () => {
       expect(navigate).toHaveBeenCalledWith(['/work/satie-gymnopedie-1']);
       button('← Browse').click();
       expect(navigate).toHaveBeenCalledWith(['/library']);
+    });
+
+    it('shows the favorite button to logged-in users only', async () => {
+      await render();
+      expect(el.querySelector('app-favorite-button')).toBeNull();
+      favorites.loggedIn.set(true);
+      fixture.detectChanges();
+      expect(el.querySelector('app-favorite-button')).toBeTruthy();
     });
 
     it('Edit shows for the owner and for admins only', async () => {
