@@ -18,6 +18,14 @@
         <source>My Scores</source>
         <target state="translated">Moje utwory</target>
       </trans-unit>
+      <trans-unit id="account.route.playlists" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Moje playlisty</target>
+      </trans-unit>
+      <trans-unit id="account.route.playlist" datatype="html">
+        <source>Playlist</source>
+        <target state="translated">Playlista</target>
+      </trans-unit>
       <trans-unit id="account.route.editScore" datatype="html">
         <source>Edit Score</source>
         <target state="translated">Edycja utworu</target>
@@ -310,6 +318,10 @@
         <source>My Scores</source>
         <target state="translated">Moje utwory</target>
       </trans-unit>
+      <trans-unit id="accountHome.myPlaylists" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Moje playlisty</target>
+      </trans-unit>
       <trans-unit id="accountHome.deleteAccount" datatype="html">
         <source>Delete account</source>
         <target state="translated">Usuń konto</target>
@@ -466,6 +478,170 @@
         <source>An error occurred during login</source>
         <target state="translated">Wystąpił błąd podczas logowania</target>
       </trans-unit>
+      <trans-unit id="playlist.list.title" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Moje playlisty</target>
+      </trans-unit>
+      <trans-unit id="playlist.list.subtitle" datatype="html">
+        <source>Your favorites and practice lists</source>
+        <target state="translated">Twoje ulubione i listy do ćwiczeń</target>
+      </trans-unit>
+      <trans-unit id="playlist.sort.label" datatype="html">
+        <source>Sort</source>
+        <target state="translated">Sortuj</target>
+      </trans-unit>
+      <trans-unit id="playlist.new" datatype="html">
+        <source>New playlist</source>
+        <target state="translated">Nowa playlista</target>
+      </trans-unit>
+      <trans-unit id="playlist.field.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Tytuł</target>
+      </trans-unit>
+      <trans-unit id="playlist.field.description" datatype="html">
+        <source>Description (optional)</source>
+        <target state="translated">Opis (opcjonalnie)</target>
+      </trans-unit>
+      <trans-unit id="favorite.create" datatype="html">
+        <source>Create</source>
+        <target state="translated">Utwórz</target>
+      </trans-unit>
+      <trans-unit id="playlist.list.error" datatype="html">
+        <source>Your playlists could not be loaded.</source>
+        <target state="translated">Nie udało się wczytać twoich playlist.</target>
+      </trans-unit>
+      <trans-unit id="playlist.list.empty" datatype="html">
+        <source>Tap ♡ on any score to save it here</source>
+        <target state="translated">Stuknij ♡ przy dowolnym utworze, aby zapisać go tutaj</target>
+      </trans-unit>
+      <trans-unit id="playlist.browseLibrary" datatype="html">
+        <source>Browse the library →</source>
+        <target state="translated">Przeglądaj bibliotekę →</target>
+      </trans-unit>
+      <trans-unit id="playlist.scoreCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =0 {No scores} =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =0 {Brak utworów} =1 {1 utwór} few {<x id="INTERPOLATION"/> utwory} many {<x id="INTERPOLATION"/> utworów} other {<x id="INTERPOLATION"/> utworu}}</target>
+      </trans-unit>
+      <trans-unit id="playlist.updated" datatype="html">
+        <source>updated <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></source>
+        <target state="translated">zaktualizowano <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></target>
+      </trans-unit>
+      <trans-unit id="common.loading" datatype="html">
+        <source>Loading...</source>
+        <target state="translated">Ładowanie...</target>
+      </trans-unit>
+      <trans-unit id="browse.loadMore" datatype="html">
+        <source>Load More</source>
+        <target state="translated">Pokaż więcej</target>
+      </trans-unit>
+      <trans-unit id="playlist.shownOfTotal" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ playlists().length }}"/> of <x id="INTERPOLATION_1" equiv-text="{{ total() }}"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ playlists().length }}"/> z <x id="INTERPOLATION_1" equiv-text="{{ total() }}"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.sort.recent" datatype="html">
+        <source>Recently updated</source>
+        <target state="translated">Ostatnio zaktualizowane</target>
+      </trans-unit>
+      <trans-unit id="playlist.sort.newest" datatype="html">
+        <source>Newest</source>
+        <target state="translated">Najnowsze</target>
+      </trans-unit>
+      <trans-unit id="playlist.sort.title" datatype="html">
+        <source>A–Z</source>
+        <target state="translated">A–Z</target>
+      </trans-unit>
+      <trans-unit id="playlist.sort.size" datatype="html">
+        <source>Most scores</source>
+        <target state="translated">Najwięcej utworów</target>
+      </trans-unit>
+      <trans-unit id="playlist.back" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Moje playlisty</target>
+      </trans-unit>
+      <trans-unit id="playlist.notFound" datatype="html">
+        <source>This playlist does not exist, or it is not yours.</source>
+        <target state="translated">Ta playlista nie istnieje lub nie należy do ciebie.</target>
+      </trans-unit>
+      <trans-unit id="playlist.created" datatype="html">
+        <source>created <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></source>
+        <target state="translated">utworzono <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.delete" datatype="html">
+        <source>Delete playlist</source>
+        <target state="translated">Usuń playlistę</target>
+      </trans-unit>
+      <trans-unit id="playlist.detail.empty" datatype="html">
+        <source>No scores yet. Use ♡ or &quot;Save to…&quot; on any score page.</source>
+        <target state="translated">Brak utworów. Użyj ♡ lub „Zapisz w…” na stronie utworu.</target>
+      </trans-unit>
+      <trans-unit id="playlist.reorderHint" datatype="html">
+        <source>Drag ⋮⋮ to reorder, or focus a row and press Alt+↑ / Alt+↓.</source>
+        <target state="translated">Przeciągnij ⋮⋮, aby zmienić kolejność, lub zaznacz wiersz i naciśnij Alt+↑ / Alt+↓.</target>
+      </trans-unit>
+      <trans-unit id="playlist.dragHandle" datatype="html">
+        <source>Drag to reorder</source>
+        <target state="translated">Przeciągnij, aby zmienić kolejność</target>
+      </trans-unit>
+      <trans-unit id="playlist.grade" datatype="html">
+        <source>Grade <x id="INTERPOLATION" equiv-text="{{ item.score.grade }}"/></source>
+        <target state="translated">Poziom <x id="INTERPOLATION" equiv-text="{{ item.score.grade }}"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.added" datatype="html">
+        <source>added <x id="INTERPOLATION" equiv-text="{{ added(item) }}"/></source>
+        <target state="translated">dodano <x id="INTERPOLATION" equiv-text="{{ added(item) }}"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.moveTop" datatype="html">
+        <source>Move to top</source>
+        <target state="translated">Przenieś na początek</target>
+      </trans-unit>
+      <trans-unit id="playlist.moveUp" datatype="html">
+        <source>Move up</source>
+        <target state="translated">Przenieś w górę</target>
+      </trans-unit>
+      <trans-unit id="playlist.moveDown" datatype="html">
+        <source>Move down</source>
+        <target state="translated">Przenieś w dół</target>
+      </trans-unit>
+      <trans-unit id="playlist.moveBottom" datatype="html">
+        <source>Move to bottom</source>
+        <target state="translated">Przenieś na koniec</target>
+      </trans-unit>
+      <trans-unit id="playlist.remove" datatype="html">
+        <source>Remove from playlist</source>
+        <target state="translated">Usuń z playlisty</target>
+      </trans-unit>
+      <trans-unit id="playlist.deleteConfirm.title" datatype="html">
+        <source>Delete &quot;<x id="INTERPOLATION" equiv-text="{{ titleOf(p) }}"/>&quot;?</source>
+        <target state="translated">Usunąć „<x id="INTERPOLATION" equiv-text="{{ titleOf(p) }}"/>”?</target>
+      </trans-unit>
+      <trans-unit id="playlist.deleteConfirm.body" datatype="html">
+        <source>{VAR_PLURAL, plural, =0 {The playlist is empty.} =1 {The score itself is not deleted.} other {The <x id="INTERPOLATION"/> scores themselves are not deleted.}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =0 {Playlista jest pusta.} =1 {Sam utwór nie zostanie usunięty.} few {Same utwory (<x id="INTERPOLATION"/>) nie zostaną usunięte.} many {Same utwory (<x id="INTERPOLATION"/>) nie zostaną usunięte.} other {Same utwory (<x id="INTERPOLATION"/>) nie zostaną usunięte.}}</target>
+      </trans-unit>
+      <trans-unit id="playlist.deleteConfirm.confirm" datatype="html">
+        <source>Delete playlist</source>
+        <target state="translated">Usuń playlistę</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.deleted" datatype="html">
+        <source>Deleted &quot;<x id="title" equiv-text="playlistTitle(p)"/>&quot;</source>
+        <target state="translated">Usunięto „<x id="title" equiv-text="playlistTitle(p)"/>”</target>
+      </trans-unit>
+      <trans-unit id="playlist.moved" datatype="html">
+        <source><x id="title" equiv-text="title"/> moved to position <x id="position" equiv-text="to + 1"/> of <x id="count" equiv-text="list.length"/></source>
+        <target state="translated"><x id="title" equiv-text="title"/> przeniesiono na pozycję <x id="position" equiv-text="to + 1"/> z <x id="count" equiv-text="list.length"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.reloaded" datatype="html">
+        <source>This playlist changed elsewhere, reloaded</source>
+        <target state="translated">Ta playlista zmieniła się gdzie indziej, wczytano ją ponownie</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.removedFrom" datatype="html">
+        <source>Removed from &quot;<x id="title" equiv-text="playlistTitle(this.playlist() ?? {})"/>&quot;</source>
+        <target state="translated">Usunięto z „<x id="title" equiv-text="playlistTitle(this.playlist() ?? {})"/>”</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.undo" datatype="html">
+        <source>Undo</source>
+        <target state="translated">Cofnij</target>
+      </trans-unit>
       <trans-unit id="accountHome.practice" datatype="html">
         <source>Practice</source>
         <target state="translated">Ćwiczenie</target>
@@ -505,6 +681,282 @@
       <trans-unit id="accountHome.practice.confirmDelete" datatype="html">
         <source>Delete all sessions</source>
         <target state="translated">Usuń wszystkie sesje</target>
+      </trans-unit>
+      <trans-unit id="admin.route.errors" datatype="html">
+        <source>Error reports</source>
+        <target state="translated">Raporty błędów</target>
+      </trans-unit>
+      <trans-unit id="admin.route.errorReport" datatype="html">
+        <source>Report</source>
+        <target state="translated">Raport</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Anuluj</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.back" datatype="html">
+        <source>← Error reports</source>
+        <target state="translated">← Raporty błędów</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.denied" datatype="html">
+        <source>Access denied: error reports are for administrators only.</source>
+        <target state="translated">Odmowa dostępu: raporty błędów są tylko dla administratorów.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.notFound" datatype="html">
+        <source>This report does not exist, or it has been deleted.</source>
+        <target state="translated">Ten raport nie istnieje lub został usunięty.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.detailFailed" datatype="html">
+        <source>The report could not be loaded.</source>
+        <target state="translated">Nie udało się wczytać raportu.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.retry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Spróbuj ponownie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.loading" datatype="html">
+        <source>Loading…</source>
+        <target state="translated">Wczytywanie…</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.source.backend" datatype="html">
+        <source>Backend</source>
+        <target state="translated">Backend</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.source.frontend" datatype="html">
+        <source>Browser</source>
+        <target state="translated">Przeglądarka</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.level.warning" datatype="html">
+        <source>Warning</source>
+        <target state="translated">Ostrzeżenie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.level.error" datatype="html">
+        <source>Error</source>
+        <target state="translated">Błąd</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.occurrences.label" datatype="html">
+        <source>Occurrences</source>
+        <target state="translated">Wystąpienia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.occurrences" datatype="html">
+        <source>Occurrences</source>
+        <target state="translated">Wystąpienia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.firstSeen" datatype="html">
+        <source>First seen</source>
+        <target state="translated">Pierwsze wystąpienie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.lastSeen" datatype="html">
+        <source>Last seen</source>
+        <target state="translated">Ostatnie wystąpienie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.showOccurrences" datatype="html">
+        <source>Show the occurrences</source>
+        <target state="translated">Pokaż wystąpienia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.url" datatype="html">
+        <source>URL</source>
+        <target state="translated">URL</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.request" datatype="html">
+        <source>Request</source>
+        <target state="translated">Żądanie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.userAgent" datatype="html">
+        <source>User agent</source>
+        <target state="translated">User agent</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.release" datatype="html">
+        <source>Release</source>
+        <target state="translated">Wersja</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.user" datatype="html">
+        <source>User</source>
+        <target state="translated">Użytkownik</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.fingerprint" datatype="html">
+        <source>Fingerprint</source>
+        <target state="translated">Odcisk</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.stackTrace" datatype="html">
+        <source>Stack trace</source>
+        <target state="translated">Stos wywołań</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.copied" datatype="html">
+        <source>Copied</source>
+        <target state="translated">Skopiowano</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.copy" datatype="html">
+        <source>Copy</source>
+        <target state="translated">Kopiuj</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.context" datatype="html">
+        <source>Context</source>
+        <target state="translated">Kontekst</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.deleteOne" datatype="html">
+        <source>Delete this report</source>
+        <target state="translated">Usuń ten raport</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.resolveAll" datatype="html">
+        <source>Resolve: delete all occurrences</source>
+        <target state="translated">Rozwiąż: usuń wszystkie wystąpienia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupTitle" datatype="html">
+        <source>Resolve this error?</source>
+        <target state="translated">Rozwiązać ten błąd?</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneTitle" datatype="html">
+        <source>Delete this report?</source>
+        <target state="translated">Usunąć ten raport?</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupBody" datatype="html">
+        <source>All <x id="count" equiv-text="this.report()?.count ?? 1"/> occurrences of this error will be deleted. Do it once the bug is fixed.</source>
+        <target state="translated">Wszystkie wystąpienia tego błędu (<x id="count" equiv-text="this.report()?.count ?? 1"/>) zostaną usunięte. Zrób to po naprawieniu błędu.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneBody" datatype="html">
+        <source>This occurrence will be deleted. Other occurrences of the same error are kept.</source>
+        <target state="translated">To wystąpienie zostanie usunięte. Pozostałe wystąpienia tego samego błędu zostaną zachowane.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.groupConfirm" datatype="html">
+        <source>Delete all</source>
+        <target state="translated">Usuń wszystko</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete.oneConfirm" datatype="html">
+        <source>Delete</source>
+        <target state="translated">Usuń</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.title" datatype="html">
+        <source>Error reports</source>
+        <target state="translated">Raporty błędów</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.subtitle" datatype="html">
+        <source>Errors of the backend and of visitors&apos; browsers. Reports are deleted automatically after 3 months.</source>
+        <target state="translated">Błędy backendu i przeglądarek odwiedzających. Raporty są automatycznie usuwane po 3 miesiącach.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.search" datatype="html">
+        <source>Message or URL</source>
+        <target state="translated">Komunikat lub URL</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.source" datatype="html">
+        <source>Source</source>
+        <target state="translated">Źródło</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.all" datatype="html">
+        <source>All</source>
+        <target state="translated">Wszystkie</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.level" datatype="html">
+        <source>Level</source>
+        <target state="translated">Poziom</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.from" datatype="html">
+        <source>From</source>
+        <target state="translated">Od</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.to" datatype="html">
+        <source>To</source>
+        <target state="translated">Do</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.apply" datatype="html">
+        <source>Search</source>
+        <target state="translated">Szukaj</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.label" datatype="html">
+        <source>View</source>
+        <target state="translated">Widok</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.grouped" datatype="html">
+        <source>Grouped by error</source>
+        <target state="translated">Pogrupowane według błędu</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.view.all" datatype="html">
+        <source>All occurrences</source>
+        <target state="translated">Wszystkie wystąpienia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.oneError" datatype="html">
+        <source>Occurrences of one error</source>
+        <target state="translated">Wystąpienia jednego błędu</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.showAll" datatype="html">
+        <source>Show all errors</source>
+        <target state="translated">Pokaż wszystkie błędy</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.filter.clear" datatype="html">
+        <source>Clear filters</source>
+        <target state="translated">Wyczyść filtry</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.failed" datatype="html">
+        <source>The error reports could not be loaded.</source>
+        <target state="translated">Nie udało się wczytać raportów błędów.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.empty" datatype="html">
+        <source>No error reports match these filters.</source>
+        <target state="translated">Brak raportów błędów pasujących do tych filtrów.</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.time" datatype="html">
+        <source>Time</source>
+        <target state="translated">Czas</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.source" datatype="html">
+        <source>Source</source>
+        <target state="translated">Źródło</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.level" datatype="html">
+        <source>Level</source>
+        <target state="translated">Poziom</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.message" datatype="html">
+        <source>Message</source>
+        <target state="translated">Komunikat</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.count" datatype="html">
+        <source>Count</source>
+        <target state="translated">Liczba</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.col.actions" datatype="html">
+        <source>Actions</source>
+        <target state="translated">Działania</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.resolve" datatype="html">
+        <source>Resolve</source>
+        <target state="translated">Rozwiąż</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.delete" datatype="html">
+        <source>Delete</source>
+        <target state="translated">Usuń</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.shown" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ shown().first }}"/>–<x id="INTERPOLATION_1" equiv-text="{{ shown().last }}"/> of <x id="INTERPOLATION_2" equiv-text="{{ shown().total }}"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ shown().first }}"/>–<x id="INTERPOLATION_1" equiv-text="{{ shown().last }}"/> z <x id="INTERPOLATION_2" equiv-text="{{ shown().total }}"/></target>
+      </trans-unit>
+      <trans-unit id="adminErrors.previous" datatype="html">
+        <source>Previous</source>
+        <target state="translated">Poprzednia</target>
+      </trans-unit>
+      <trans-unit id="adminErrors.next" datatype="html">
+        <source>Next</source>
+        <target state="translated">Następna</target>
+      </trans-unit>
+      <trans-unit id="playlist.favorites" datatype="html">
+        <source>Favorites</source>
+        <target state="translated">Ulubione</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.removedFromFavorites" datatype="html">
+        <source>Removed from Favorites</source>
+        <target state="translated">Usunięto z ulubionych</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.saveFailed" datatype="html">
+        <source>Couldn&apos;t save, try again</source>
+        <target state="translated">Nie udało się zapisać, spróbuj ponownie</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.addedToFavorites" datatype="html">
+        <source>Added to Favorites</source>
+        <target state="translated">Dodano do ulubionych</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.view" datatype="html">
+        <source>View</source>
+        <target state="translated">Zobacz</target>
       </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
@@ -625,10 +1077,6 @@
       <trans-unit id="slop.repaired" datatype="html">
         <source>The score has been rebuilt. Reload the page to practice the repaired version.</source>
         <target state="translated">Nuty zostały odbudowane. Odśwież stronę, aby ćwiczyć naprawioną wersję.</target>
-      </trans-unit>
-      <trans-unit id="common.loading" datatype="html">
-        <source>Loading...</source>
-        <target state="translated">Ładowanie...</target>
       </trans-unit>
       <trans-unit id="slop.reload" datatype="html">
         <source>Reload</source>
@@ -2038,10 +2486,6 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source>No scores found. Try a different search term.</source>
         <target state="translated">Nie znaleziono utworów. Spróbuj innego wyszukiwania.</target>
       </trans-unit>
-      <trans-unit id="browse.loadMore" datatype="html">
-        <source>Load More</source>
-        <target state="translated">Pokaż więcej</target>
-      </trans-unit>
       <trans-unit id="browse.showing" datatype="html">
         <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
         <target state="translated">{VAR_PLURAL, plural, =1 {Wyświetlono 1 utwór} few {Wyświetlono <x id="INTERPOLATION"/> utwory} many {Wyświetlono <x id="INTERPOLATION"/> utworów} other {Wyświetlono <x id="INTERPOLATION"/> utworu}}</target>
@@ -2510,6 +2954,10 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source>Free to download and public domain.</source>
         <target state="translated">Do pobrania za darmo, domena publiczna.</target>
       </trans-unit>
+      <trans-unit id="seo.score.videoDescription" datatype="html">
+        <source>Piano video of <x id="title" equiv-text="title"/> by <x id="artist" equiv-text="author"/>, to watch before practicing it on PianoML.</source>
+        <target state="translated">Film fortepianowy: <x id="title" equiv-text="title"/>, <x id="artist" equiv-text="author"/> – do obejrzenia przed ćwiczeniem w PianoML.</target>
+      </trans-unit>
       <trans-unit id="reimport.titleNamed" datatype="html">
         <source>Re-import <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></source>
         <target state="translated">Importuj ponownie: <x id="INTERPOLATION" equiv-text="{{ score()?.title }}"/></target>
@@ -2646,6 +3094,42 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source>this key</source>
         <target state="translated">bieżącej</target>
       </trans-unit>
+      <trans-unit id="favorite.saved" datatype="html">
+        <source>Saved</source>
+        <target state="translated">Zapisano</target>
+      </trans-unit>
+      <trans-unit id="favorite.favorite" datatype="html">
+        <source>Favorite</source>
+        <target state="translated">Ulubione</target>
+      </trans-unit>
+      <trans-unit id="favorite.saveTo" datatype="html">
+        <source>Save to…</source>
+        <target state="translated">Zapisz w…</target>
+      </trans-unit>
+      <trans-unit id="favorite.newPlaylistTitle" datatype="html">
+        <source>New playlist title</source>
+        <target state="translated">Tytuł nowej playlisty</target>
+      </trans-unit>
+      <trans-unit id="favorite.newPlaylistTitle.placeholder" datatype="html">
+        <source>Title</source>
+        <target state="translated">Tytuł</target>
+      </trans-unit>
+      <trans-unit id="favorite.newPlaylist" datatype="html">
+        <source>New playlist…</source>
+        <target state="translated">Nowa playlista…</target>
+      </trans-unit>
+      <trans-unit id="favorite.remove" datatype="html">
+        <source>Remove from favorites</source>
+        <target state="translated">Usuń z ulubionych</target>
+      </trans-unit>
+      <trans-unit id="favorite.add" datatype="html">
+        <source>Add to favorites</source>
+        <target state="translated">Dodaj do ulubionych</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.addedTo" datatype="html">
+        <source>Added to &quot;<x id="title" equiv-text="title"/>&quot; (#<x id="position" equiv-text="item.position + 1"/>)</source>
+        <target state="translated">Dodano do „<x id="title" equiv-text="title"/>” (nr <x id="position" equiv-text="item.position + 1"/>)</target>
+      </trans-unit>
       <trans-unit id="languageSwitcher.label" datatype="html">
         <source>Language</source>
         <target state="translated">Język</target>
@@ -2669,6 +3153,14 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
       <trans-unit id="layout.account.title" datatype="html">
         <source>Go to your account page</source>
         <target state="translated">Przejdź do swojego konta</target>
+      </trans-unit>
+      <trans-unit id="layout.adminErrors.title" datatype="html">
+        <source>Error reports (administrators)</source>
+        <target state="translated">Raporty błędów (administratorzy)</target>
+      </trans-unit>
+      <trans-unit id="layout.adminErrors" datatype="html">
+        <source>Errors</source>
+        <target state="translated">Błędy</target>
       </trans-unit>
       <trans-unit id="layout.login.title" datatype="html">
         <source>Log in to your PianoML account</source>
@@ -2726,6 +3218,10 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source>Import</source>
         <target state="translated">Importuj</target>
       </trans-unit>
+      <trans-unit id="scoreTable.favorite" datatype="html">
+        <source>Favorite</source>
+        <target state="translated">Ulubione</target>
+      </trans-unit>
       <trans-unit id="scoreTable.actions" datatype="html">
         <source> Actions </source>
         <target state="translated"> Akcje </target>
@@ -2749,6 +3245,10 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
       <trans-unit id="scoreTable.difficulty" datatype="html">
         <source>Difficulty</source>
         <target state="translated">Trudność</target>
+      </trans-unit>
+      <trans-unit id="toast.dismiss" datatype="html">
+        <source>Dismiss</source>
+        <target state="translated">Zamknij</target>
       </trans-unit>
       <trans-unit id="nav.home" datatype="html">
         <source>Home</source>
@@ -2881,6 +3381,10 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
       <trans-unit id="route.summary" datatype="html">
         <source>Summary</source>
         <target state="translated">Przegląd</target>
+      </trans-unit>
+      <trans-unit id="route.admin" datatype="html">
+        <source>Admin</source>
+        <target state="translated">Administracja</target>
       </trans-unit>
       <trans-unit id="route.notFound" datatype="html">
         <source>Not found</source>

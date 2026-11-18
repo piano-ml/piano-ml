@@ -1,3 +1,4 @@
+import { PlaylistStore } from '../../../account/services/playlist-store.service';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -38,6 +39,8 @@ describe('ScoreInfoComponent', () => {
   };
   let genres: { genreGet: ReturnType<typeof vi.fn> };
   let workloads: { workloadIdGet: ReturnType<typeof vi.fn> };
+  /** The heart's state (FavoriteButtonComponent has its own spec) */
+  const favorites = { loggedIn: () => false, isFavorite: () => false, toggleFavorite: vi.fn() };
 
   const SCORE: ScoreApiInfo = {
     id: 'sc1', title: 'Gymnopédie No. 1', author: 'Erik Satie', author_slug: 'satie-erik', genre: 'classical', genre_slug: 'classical',
@@ -86,6 +89,7 @@ describe('ScoreInfoComponent', () => {
         { provide: GenreService, useValue: genres },
         { provide: WorkloadService, useValue: workloads },
         { provide: AuthService, useValue: { getUserId: () => user.id, isAdmin: () => user.admin } },
+        { provide: PlaylistStore, useValue: favorites },
         { provide: ActivatedRoute, useValue: { snapshot: { get paramMap() { return convertToParamMap(slug ? { slug } : {}); } } } },
       ],
     });

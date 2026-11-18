@@ -1,0 +1,162 @@
+<article class="main-article">
+  <div class="px-4 sm:px-6 pt-4">
+    <h1 class="page-title" i18n="@@adminErrors.title">Error reports</h1>
+    <p class="page-sub-title" i18n="@@adminErrors.subtitle">Errors of the backend and of visitors' browsers. Reports are deleted automatically after 3 months.</p>
+  </div>
+
+  <hr class="mx-4 sm:mx-6">
+
+  <div class="px-4 sm:px-6 pb-12 flex flex-col gap-5">
+    <!-- ── Filters ─────────────────────────────────────────── -->
+    <form class="flex flex-wrap items-end gap-3" (submit)="onSearch($event, search)" role="search">
+      <label class="flex flex-col gap-1 grow min-w-48">
+        <span class="field-label" i18n="@@adminErrors.filter.search">Message or URL</span>
+        <input #search class="input-field" type="search" name="q" [value]="filters().q" data-filter="q">
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="field-label" i18n="@@adminErrors.filter.source">Source</span>
+        <select class="input-field" name="source" data-filter="source" (change)="apply({ source: $any(value($event)) })">
+          <option value="" [selected]="!filters().source" i18n="@@adminErrors.filter.all">All</option>
+          <option value="FRONTEND" [selected]="filters().source === 'FRONTEND'" i18n="@@adminErrors.source.frontend">Browser</option>
+          <option value="BACKEND" [selected]="filters().source === 'BACKEND'" i18n="@@adminErrors.source.backend">Backend</option>
+        </select>
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="field-label" i18n="@@adminErrors.filter.level">Level</span>
+        <select class="input-field" name="level" data-filter="level" (change)="apply({ level: $any(value($event)) })">
+          <option value="" [selected]="!filters().level" i18n="@@adminErrors.filter.all">All</option>
+          <option value="ERROR" [selected]="filters().level === 'ERROR'" i18n="@@adminErrors.level.error">Error</option>
+          <option value="WARNING" [selected]="filters().level === 'WARNING'" i18n="@@adminErrors.level.warning">Warning</option>
+        </select>
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="field-label" i18n="@@adminErrors.filter.from">From</span>
+        <input class="input-field" type="date" name="from" data-filter="from" [value]="filters().from" (change)="apply({ from: value($event) })">
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="field-label" i18n="@@adminErrors.filter.to">To</span>
+        <input class="input-field" type="date" name="to" data-filter="to" [value]="filters().to" (change)="apply({ to: value($event) })">
+      </label>
+      <button type="submit" class="btn-primary" i18n="@@adminErrors.filter.apply">Search</button>
+    </form>
+
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex rounded-sm border border-neutral-700 overflow-hidden" role="group" i18n-aria-label="@@adminErrors.view.label" aria-label="View">
+        <button type="button" class="px-3 py-1.5 text-sm" data-view="grouped"
+                [class.bg-neutral-700]="filters().grouped" [attr.aria-pressed]="filters().grouped"
+                (click)="apply({ grouped: true })" i18n="@@adminErrors.view.grouped">Grouped by error</button>
+        <button type="button" class="px-3 py-1.5 text-sm" data-view="all"
+                [class.bg-neutral-700]="!filters().grouped" [attr.aria-pressed]="!filters().grouped"
+                (click)="apply({ grouped: false })" i18n="@@adminErrors.view.all">All occurrences</button>
+      </div>
+      @if (filters().fingerprint) {
+        <span class="text-sm text-neutral-400">
+          <span i18n="@@adminErrors.filter.oneError">Occurrences of one error</span>
+          <button type="button" class="link-secondary ml-2" (click)="apply({ fingerprint: '' })" i18n="@@adminErrors.filter.showAll">Show all errors</button>
+        </span>
+      }
+      <button type="button" class="link-secondary text-sm" (click)="clearFilters()" i18n="@@adminErrors.filter.clear">Clear filters</button>
+    </div>
+
+    <!-- ── States ──────────────────────────────────────────── -->
+    @if (error() === 'denied') {
+      <div class="alert-error" role="alert" data-state="denied" i18n="@@adminErrors.denied">Access denied: error reports are for administrators only.</div>
+    } @else if (error() === 'failed') {
+      <div class="alert-error" role="alert" data-state="failed">
+        <span i18n="@@adminErrors.failed">The error reports could not be loaded.</span>
+        <button type="button" class="link-secondary ml-2" (click)="load()" i18n="@@adminErrors.retry">Retry</button>
+      </div>
+    } @else if (loading() && !page()) {
+      <p class="text-neutral-400" i18n="@@adminErrors.loading">Loading…</p>
+    } @else if (page()?.items?.length === 0) {
+      <p class="text-neutral-400" data-state="empty" i18n="@@adminErrors.empty">No error reports match these filters.</p>
+    } @else if (page(); as p) {
+      <!-- ── Table ─────────────────────────────────────────── -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm" [class.opacity-60]="loading()">
+          <thead class="text-left text-xs uppercase tracking-wider text-neutral-500">
+            <tr>
+              <th class="py-2 pr-3" i18n="@@adminErrors.col.time">Time</th>
+              <th class="py-2 pr-3" i18n="@@adminErrors.col.source">Source</th>
+              <th class="py-2 pr-3" i18n="@@adminErrors.col.level">Level</th>
+              <th class="py-2 pr-3" i18n="@@adminErrors.col.message">Message</th>
+              <th class="py-2 pr-3" i18n="@@adminErrors.col.url">URL</th>
+              @if (filters().grouped) {
+                <th class="py-2 pr-3 text-right" i18n="@@adminErrors.col.count">Count</th>
+              }
+              <th class="py-2"><span class="sr-only" i18n="@@adminErrors.col.actions">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of p.items; track item.id) {
+              <tr class="border-t border-neutral-800 align-top" data-row>
+                <td class="py-2 pr-3 whitespace-nowrap text-neutral-400">{{ (filters().grouped ? item.lastSeen : item.createdAt) | date: 'short' }}</td>
+                <td class="py-2 pr-3">
+                  <span class="rounded-sm px-1.5 py-0.5 text-xs font-bold"
+                        [class]="item.source === 'BACKEND' ? 'bg-sky-900/60 text-sky-300' : 'bg-violet-900/60 text-violet-300'">
+                    @if (item.source === 'BACKEND') {
+                      <ng-container i18n="@@adminErrors.source.backend">Backend</ng-container>
+                    } @else {
+                      <ng-container i18n="@@adminErrors.source.frontend">Browser</ng-container>
+                    }
+                  </span>
+                </td>
+                <td class="py-2 pr-3" [class.text-amber-400]="item.level === 'WARNING'" [class.text-red-400]="item.level === 'ERROR'">
+                  @if (item.level === 'WARNING') {
+                    <ng-container i18n="@@adminErrors.level.warning">Warning</ng-container>
+                  } @else {
+                    <ng-container i18n="@@adminErrors.level.error">Error</ng-container>
+                  }
+                </td>
+                <td class="py-2 pr-3 max-w-md">
+                  <a class="link-primary line-clamp-2 break-words" [routerLink]="[item.id]" [title]="item.message ?? ''">
+                    {{ item.message || item.exceptionType || '—' }}
+                  </a>
+                  @if (item.httpStatus) {
+                    <span class="text-xs text-neutral-500">{{ item.httpMethod }} {{ item.httpStatus }}</span>
+                  }
+                </td>
+                <td class="py-2 pr-3 max-w-xs break-all text-neutral-400">
+                  @if (item.source === 'FRONTEND' && linkable(item.url)) {
+                    <a class="link-secondary" [href]="item.url" target="_blank" rel="noopener noreferrer nofollow">{{ item.url }}</a>
+                  } @else {
+                    {{ item.url }}
+                  }
+                </td>
+                @if (filters().grouped) {
+                  <td class="py-2 pr-3 text-right tabular-nums">
+                    <a class="link-secondary" [routerLink]="[]" [queryParams]="{ fingerprint: item.fingerprint, grouped: 'false' }"
+                       i18n-title="@@adminErrors.showOccurrences" title="Show the occurrences">{{ item.count }}</a>
+                  </td>
+                }
+                <td class="py-2 text-right">
+                  <button type="button" class="link-secondary text-xs" data-delete (click)="askDelete(item)">
+                    @if (filters().grouped) {
+                      <ng-container i18n="@@adminErrors.resolve">Resolve</ng-container>
+                    } @else {
+                      <ng-container i18n="@@adminErrors.delete">Delete</ng-container>
+                    }
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Paging ────────────────────────────────────────── -->
+      <div class="flex items-center justify-between gap-3 text-sm text-neutral-400">
+        <span i18n="@@adminErrors.shown">{{ shown().first }}–{{ shown().last }} of {{ shown().total }}</span>
+        <div class="flex gap-2">
+          <button type="button" class="btn-secondary" data-page="prev" [disabled]="p.offset === 0" (click)="goToPage(p.offset - pageSize)" i18n="@@adminErrors.previous">Previous</button>
+          <button type="button" class="btn-secondary" data-page="next" [disabled]="p.offset + p.items.length >= p.total" (click)="goToPage(p.offset + pageSize)" i18n="@@adminErrors.next">Next</button>
+        </div>
+      </div>
+    }
+  </div>
+</article>
+
+@if (pendingDelete(); as item) {
+  <app-confirm-dialog [title]="deleteTitle()" [message]="deleteMessage(item)" [confirmLabel]="deleteLabel()"
+                      [busy]="deleting()" (confirmed)="confirmDelete()" (cancelled)="cancelDelete()" />
+}

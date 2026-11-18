@@ -1,0 +1,57 @@
+# Error reports (issue #408): unhandled backend errors and errors pushed by the browser, browsed by admins.
+# - rows are deleted after 3 months by ErrorReportRetention (index on created_at);
+# - fingerprint groups repeated occurrences of the same error (indexed for the grouped admin listing);
+# - the user is kept as an id only, detached when the account goes away (ON DELETE SET NULL);
+# - context is JSON kept as text, like practice_session.detail, so the schema is the same on PostgreSQL and H2.
+# Numbered 024: 023 is taken by the playlists changeset (#278).
+databaseChangeLog:
+  - changeSet:
+      id: 024-1-create-error-report
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: error_report
+            columns:
+              - column: { name: id, type: UUID, constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: source, type: VARCHAR(16), constraints: { nullable: false } }
+              - column: { name: level, type: VARCHAR(16), constraints: { nullable: false } }
+              - column: { name: message, type: TEXT }
+              - column: { name: exception_type, type: VARCHAR(255) }
+              - column: { name: stack_trace, type: TEXT }
+              - column: { name: url, type: VARCHAR(2048), constraints: { nullable: false } }
+              - column: { name: http_method, type: VARCHAR(16) }
+              - column: { name: http_status, type: INT }
+              - column: { name: user_agent, type: VARCHAR(512) }
+              - column: { name: release, type: VARCHAR(100) }
+              - column: { name: user_id, type: UUID }
+              - column: { name: fingerprint, type: VARCHAR(64), constraints: { nullable: false } }
+              - column: { name: context, type: TEXT }
+        - addPrimaryKey:
+            schemaName: pianoml
+            tableName: error_report
+            columnNames: id
+            constraintName: pk_error_report
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: error_report
+            baseColumnNames: user_id
+            constraintName: fk_error_report_user
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: SET NULL
+        - createIndex:
+            schemaName: pianoml
+            tableName: error_report
+            indexName: idx_error_report_created_at
+            columns:
+              - column: { name: created_at, descending: true }
+        - createIndex:
+            schemaName: pianoml
+            tableName: error_report
+            indexName: idx_error_report_fingerprint_created_at
+            columns:
+              - column: { name: fingerprint }
+              - column: { name: created_at, descending: true }

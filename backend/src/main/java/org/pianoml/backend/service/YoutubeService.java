@@ -154,6 +154,7 @@ public class YoutubeService {
             info.setTitle(item.getSnippet().getTitle());
             info.setDescription(item.getSnippet().getDescription());
             info.setChannelTitle(item.getSnippet().getChannelTitle());
+            info.setChannelId(item.getSnippet().getChannelId());
             if (item.getSnippet().getThumbnails() != null
                     && item.getSnippet().getThumbnails().getMedium() != null) {
                 info.setThumbnailUrl(item.getSnippet().getThumbnails().getMedium().getUrl());

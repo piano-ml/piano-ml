@@ -21,6 +21,8 @@ import { provideNgIconLoader, withCaching } from '@ng-icons/core';
 import { HttpClient, provideHttpClient, withInterceptors, withNoXsrfProtection, withXhr } from '@angular/common/http';
 import { authInterceptor } from './account/interceptors/auth.interceptor';
 import { xsrfInterceptor } from './account/interceptors/xsrf.interceptor';
+import { errorReportInterceptor } from './core/error-reporting/error-report.interceptor';
+import { provideErrorReporting } from './core/error-reporting/provide-error-reporting';
 
 import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
@@ -34,7 +36,9 @@ export const appConfig: ApplicationConfig = {
     // LOCALE_ID comes from the localized build (and from the SSR engine, per request).
     provideI18n(),
     // CSRF: xsrfInterceptor replaces Angular's built-in XSRF support, which skips absolute API URLs.
-    provideHttpClient(withXhr(), withNoXsrfProtection(), withInterceptors([xsrfInterceptor, authInterceptor])),
+    // errorReportInterceptor first: outermost, it sees the final outcome (after the CSRF retry).
+    provideHttpClient(withXhr(), withNoXsrfProtection(), withInterceptors([errorReportInterceptor, xsrfInterceptor, authInterceptor])),
+    provideErrorReporting(),
     provideApi({ basePath: environment.api, withCredentials: true }),
     provideNgIconLoader(name => {
       const http = inject(HttpClient);
