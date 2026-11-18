@@ -4,7 +4,16 @@ import { MidiStateEvent } from "../../shared/model/webmidi";
 import { CursorService } from "./cursor.service";
 
 
-export const GOOD_RANGE = 600 / 1000
+/**
+ * A note played within ±GOOD_RANGE seconds of its due time is in time (a hit): ±120 ms, the end of the
+ * "Okay / Borderline" category below.
+ *
+ * Category           | Timing deviation (absolute value) | What it feels/sounds like                                 | Practical advice for beginners
+ * Perfect            | 0 – 40 ms                         | Feels locked in, very solid                               | Ideal target when practicing slowly with a metronome
+ * Good / Acceptable  | 40 – 80 ms                        | Still sounds “in time” to most listeners                  | Completely fine for beginners; keep practicing toward the perfect range
+ * Okay / Borderline  | 80 – 120 ms                       | Slightly early or late, noticeable if you listen carefully | Workable while learning a piece, but try to tighten it
+ */
+export const GOOD_RANGE = 120 / 1000
 export const PERFECT_RANGE = 200 / 1000
 export const QUANT_RANGE = 100 / 1000
 

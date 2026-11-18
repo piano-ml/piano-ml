@@ -142,11 +142,13 @@ describe('PlayerAssessService', () => {
     });
 
     it('a key press matches the closest unplayed note of its pitch, and a second press the next one', () => {
+      const second = 1 + GOOD_RANGE; // both within reach of a press between them
       assess.expectTimed(1, at(60), 'rh');
-      assess.expectTimed(1.4, at(60), 'rh');
-      expect(assess.playTimed(1.35, 60)).toEqual({ bad: false }); // the one due at 1.4
-      expect(assess.playTimed(1.36, 60)).toEqual({ bad: false }); // then the one due at 1
-      expect(assess.playTimed(1.37, 60)).toEqual({ bad: true }); // none left
+      assess.expectTimed(second, at(60), 'rh');
+      const press = 1 + GOOD_RANGE * 0.75; // closer to the second
+      expect(assess.playTimed(press, 60)).toEqual({ bad: false }); // the one due second
+      expect(assess.playTimed(press, 60)).toEqual({ bad: false }); // then the one due at 1
+      expect(assess.playTimed(press, 60)).toEqual({ bad: true }); // none left
       expect(assess.snapshot()).toMatchObject({ expected: 2, hit: 2, wrong: 1 });
     });
 
@@ -170,9 +172,9 @@ describe('PlayerAssessService', () => {
 
     it('the end of the range misses every note still unplayed, open window or not', () => {
       assess.expectTimed(1, at(60), 'rh');
-      assess.expectTimed(1.2, at(62), 'rh');
-      transport = 1.3;
-      assess.playTimed(1.3, 60);
+      assess.expectTimed(1 + GOOD_RANGE / 2, at(62), 'rh'); // its window still open at the end
+      transport = 1 + GOOD_RANGE / 2;
+      assess.playTimed(transport, 60);
       assess.endTimed();
       expect(assess.snapshot()).toMatchObject({ expected: 2, hit: 1 });
     });
