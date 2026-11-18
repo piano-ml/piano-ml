@@ -69,6 +69,13 @@ describe('WorkbenchComponent', () => {
     render();
   }
 
+  /** What the exercises page writes before opening an exercise (saveExerciseToStorage). */
+  function storeExercise(title: string, kind: 'scale' | 'agility' = 'scale') {
+    localStorage.setItem(MUSIC_XML_STORAGE_KEY, scoreXml(SIMPLE_SCORE));
+    localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(scoreMidi(SIMPLE_SCORE).toJSON()));
+    localStorage.setItem(EXERCICE_INFO_KEY, JSON.stringify({ tonic: title.split(' ')[0], mode: kind === 'scale' ? 'major' : 'maj7', title, kind }));
+  }
+
   beforeEach(async () => {
     localStorage.clear();
     localStorage.setItem('workbench-tour-seen', 'true');
@@ -88,6 +95,7 @@ describe('WorkbenchComponent', () => {
         provideRouter([
           { path: 'work/:slug', component: WorkbenchComponent },
           { path: 'workbench/scale/:scaleKey/:selectedKey/:exerciseKey', component: WorkbenchComponent },
+          { path: 'workbench/agility/:chordKey/:selectedKey/:exerciseKey', component: WorkbenchComponent },
           { path: '**', children: [] },
         ]),
         { provide: MidiServiceService, useValue: midiService },
@@ -550,31 +558,62 @@ describe('WorkbenchComponent', () => {
       expect(start).toHaveBeenCalledWith(WORKBENCH_TOUR); // drawn by <beacon-overlay> in the app shell
     });
 
-    it('releases the session and the exercise data when leaving', async () => {
+    it('releases the session when leaving, and keeps an exercise written meanwhile for the next page (#413)', async () => {
       await openScore();
-      localStorage.setItem(MIDI_STORAGE_KEY, '{}');
+      storeExercise('C major scale');
       const release = vi.spyOn(player, 'releaseScoreSession');
       await harness.navigateByUrl('/elsewhere');
       expect(release).toHaveBeenCalled();
-      expect(localStorage.getItem(MIDI_STORAGE_KEY)).toBeNull();
+      expect(localStorage.getItem(MIDI_STORAGE_KEY)).not.toBeNull();
+      expect(localStorage.getItem(EXERCICE_INFO_KEY)).toContain('C major scale');
     });
   });
 
   describe('exercises (/workbench/scale/...)', () => {
+    async function openExercise(url: string, title: string) {
+      component = await harness.navigateByUrl(url, WorkbenchComponent);
+      await waitFor(() => component.osmdLoading === false && component.scoreData?.title === title
+        && !!el().querySelector('.osmd-container svg'));
+      return component;
+    }
+
     it('plays the exercise prepared in localStorage', async () => {
-      localStorage.setItem(MUSIC_XML_STORAGE_KEY, scoreXml(SIMPLE_SCORE));
-      localStorage.setItem(MIDI_STORAGE_KEY, JSON.stringify(scoreMidi(SIMPLE_SCORE).toJSON()));
-      localStorage.setItem(EXERCICE_INFO_KEY, JSON.stringify({ tonic: 'C', mode: 'major', title: 'C major scale', kind: 'scale' }));
-      component = await harness.navigateByUrl('/workbench/scale/major/C/two_octaves', WorkbenchComponent);
-      await waitFor(() => component.osmdLoading === false && !!el().querySelector('.osmd-container svg'));
+      storeExercise('C major scale');
+      await openExercise('/workbench/scale/major/C/two_octaves', 'C major scale');
       expect(component.scoreData).toMatchObject({ id: 'exercise', author: 'C major', title: 'C major scale' });
       expect(component.playConfiguration.midi?.tracks.length).toBe(2);
     });
 
-    it('goes back to the exercise page when the exercise data is missing', async () => {
+    it('opens an exercise from a score page: the leaving workbench keeps the data (#413)', async () => {
+      await openScore();
+      storeExercise('C major scale');
+      await openExercise('/workbench/scale/major/C/two_octaves', 'C major scale');
+      expect(navigate).not.toHaveBeenCalledWith(expect.arrayContaining(['exercises']), expect.anything());
+    });
+
+    it('opens an agility exercise from a scale exercise, and back (#413)', async () => {
+      storeExercise('C major scale');
+      await openExercise('/workbench/scale/major/C/two_octaves', 'C major scale');
+      storeExercise('C maj7 arpeggio', 'agility');
+      await openExercise('/workbench/agility/maj7/C/arpeggio', 'C maj7 arpeggio');
+      storeExercise('D major scale');
+      await openExercise('/workbench/scale/major/D/two_octaves', 'D major scale');
+      expect(navigate).not.toHaveBeenCalledWith(expect.arrayContaining(['exercises']), expect.anything());
+    });
+
+    it('clears its own exercise when leaving', async () => {
+      storeExercise('C major scale');
+      await openExercise('/workbench/scale/major/C/two_octaves', 'C major scale');
+      await harness.navigateByUrl('/elsewhere');
+      for (const key of [MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, EXERCICE_INFO_KEY]) {
+        expect(localStorage.getItem(key)).toBeNull();
+      }
+    });
+
+    it('goes to the exercise page, parameters in its order, when the exercise data is missing (Back, shared link)', async () => {
       vi.spyOn(console, 'info').mockImplementation(() => undefined);
       await harness.navigateByUrl('/workbench/scale/major/C/two_octaves');
-      expect(navigate).toHaveBeenCalledWith(['', 'exercises', 'scale', 'major', 'C', 'two_octaves']);
+      expect(navigate).toHaveBeenCalledWith(['/', 'exercises', 'scale', 'C', 'major', 'two_octaves'], { replaceUrl: true });
     });
   });
 });

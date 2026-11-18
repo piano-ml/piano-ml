@@ -14,6 +14,7 @@ const SITEMAP_URL = 'https://pianoml.org/sitemap.xml';
 const PRIVATE_PATHS = [
   '/work/',
   '/account/',
+  '/admin/',
   '/desktop/',
   '/workbench/',
   '/import/',

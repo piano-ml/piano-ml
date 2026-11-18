@@ -1,0 +1,23 @@
+meta {
+  name: playlist update
+  type: http
+  seq: 30
+}
+
+patch {
+  url: http://localhost:8080/account/playlist/recital-2027
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "title": "June concert"
+  }
+}

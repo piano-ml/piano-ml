@@ -1,0 +1,17 @@
+meta {
+  name: playlist list all
+  type: http
+  seq: 26
+}
+
+get {
+  url: http://localhost:8080/playlists?offset=0&limit=24&orderBy=lastModified_desc
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}

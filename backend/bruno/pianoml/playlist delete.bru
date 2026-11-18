@@ -1,0 +1,17 @@
+meta {
+  name: playlist delete
+  type: http
+  seq: 36
+}
+
+delete {
+  url: http://localhost:8080/account/playlist/recital-2027
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}

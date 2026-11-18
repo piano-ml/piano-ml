@@ -1,0 +1,23 @@
+meta {
+  name: playlist reorder
+  type: http
+  seq: 33
+}
+
+put {
+  url: http://localhost:8080/account/playlist/recital-2027/items/order
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: */*
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "scoreIds": ["6abea9c2-5e8b-4f3b-b5f0-22452b5175fd"]
+  }
+}

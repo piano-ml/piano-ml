@@ -1,0 +1,109 @@
+<article class="main-article">
+  <div class="px-4 sm:px-6 pt-4">
+    <a routerLink="/admin/errors" class="link-secondary text-sm" i18n="@@adminErrors.back">← Error reports</a>
+  </div>
+
+  <div class="px-4 sm:px-6 pb-12 pt-2 flex flex-col gap-5">
+    @if (error() === 'denied') {
+      <div class="alert-error" role="alert" data-state="denied" i18n="@@adminErrors.denied">Access denied: error reports are for administrators only.</div>
+    } @else if (error() === 'notFound') {
+      <p class="text-neutral-400" data-state="notFound" i18n="@@adminErrors.notFound">This report does not exist, or it has been deleted.</p>
+    } @else if (error() === 'failed') {
+      <div class="alert-error" role="alert" data-state="failed">
+        <span i18n="@@adminErrors.detailFailed">The report could not be loaded.</span>
+        <button type="button" class="link-secondary ml-2" (click)="load()" i18n="@@adminErrors.retry">Retry</button>
+      </div>
+    } @else if (loading()) {
+      <p class="text-neutral-400" i18n="@@adminErrors.loading">Loading…</p>
+    } @else if (report(); as r) {
+      <header class="flex flex-col gap-2">
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <span class="rounded-sm px-1.5 py-0.5 font-bold"
+                [class]="r.source === 'BACKEND' ? 'bg-sky-900/60 text-sky-300' : 'bg-violet-900/60 text-violet-300'">
+            @if (r.source === 'BACKEND') {
+              <ng-container i18n="@@adminErrors.source.backend">Backend</ng-container>
+            } @else {
+              <ng-container i18n="@@adminErrors.source.frontend">Browser</ng-container>
+            }
+          </span>
+          <span [class.text-amber-400]="r.level === 'WARNING'" [class.text-red-400]="r.level === 'ERROR'">
+            @if (r.level === 'WARNING') {
+              <ng-container i18n="@@adminErrors.level.warning">Warning</ng-container>
+            } @else {
+              <ng-container i18n="@@adminErrors.level.error">Error</ng-container>
+            }
+          </span>
+          <span class="text-neutral-400">{{ r.createdAt | date: 'medium' }}</span>
+        </div>
+        <h1 class="text-xl font-bold text-neutral-100 break-words" data-message>{{ r.message || r.exceptionType || '—' }}</h1>
+        @if (r.exceptionType) {
+          <p class="font-mono text-sm text-neutral-400 break-all">{{ r.exceptionType }}</p>
+        }
+      </header>
+
+      <section class="card flex flex-wrap gap-x-8 gap-y-2 text-sm" i18n-aria-label="@@adminErrors.occurrences.label" aria-label="Occurrences">
+        <span><span class="text-neutral-500" i18n="@@adminErrors.occurrences">Occurrences</span> <strong data-count>{{ r.count }}</strong></span>
+        <span><span class="text-neutral-500" i18n="@@adminErrors.firstSeen">First seen</span> {{ r.firstSeen | date: 'medium' }}</span>
+        <span><span class="text-neutral-500" i18n="@@adminErrors.lastSeen">Last seen</span> {{ r.lastSeen | date: 'medium' }}</span>
+        <a class="link-secondary" routerLink="/admin/errors" [queryParams]="{ fingerprint: r.fingerprint, grouped: 'false' }"
+           data-occurrences i18n="@@adminErrors.showOccurrences">Show the occurrences</a>
+      </section>
+
+      <dl class="grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">
+        <dt class="text-neutral-500" i18n="@@adminErrors.col.url">URL</dt>
+        <dd class="break-all" data-url>
+          @if (r.source === 'FRONTEND' && linkable(r.url)) {
+            <a class="link-secondary" [href]="r.url" target="_blank" rel="noopener noreferrer nofollow">{{ r.url }}</a>
+          } @else {
+            {{ r.url }}
+          }
+        </dd>
+        @if (r.httpMethod || r.httpStatus) {
+          <dt class="text-neutral-500" i18n="@@adminErrors.request">Request</dt>
+          <dd>{{ r.httpMethod }} {{ r.httpStatus }}</dd>
+        }
+        <dt class="text-neutral-500" i18n="@@adminErrors.userAgent">User agent</dt>
+        <dd class="break-all">{{ r.userAgent || '—' }}</dd>
+        <dt class="text-neutral-500" i18n="@@adminErrors.release">Release</dt>
+        <dd class="font-mono">{{ r.release || '—' }}</dd>
+        <dt class="text-neutral-500" i18n="@@adminErrors.user">User</dt>
+        <dd class="font-mono">{{ r.userId || '—' }}</dd>
+        <dt class="text-neutral-500" i18n="@@adminErrors.fingerprint">Fingerprint</dt>
+        <dd class="font-mono break-all text-neutral-400">{{ r.fingerprint }}</dd>
+      </dl>
+
+      @if (r.stackTrace) {
+        <section class="flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <h2 class="section-label" i18n="@@adminErrors.stackTrace">Stack trace</h2>
+            <button type="button" class="link-secondary text-xs" data-copy (click)="copyStack()">
+              @if (copied()) {
+                <ng-container i18n="@@adminErrors.copied">Copied</ng-container>
+              } @else {
+                <ng-container i18n="@@adminErrors.copy">Copy</ng-container>
+              }
+            </button>
+          </div>
+          <pre class="max-h-[32rem] overflow-auto rounded-sm bg-black/60 p-3 font-mono text-xs text-neutral-300 select-all" data-stack>{{ r.stackTrace }}</pre>
+        </section>
+      }
+
+      @if (hasContext()) {
+        <section class="flex flex-col gap-2">
+          <h2 class="section-label" i18n="@@adminErrors.context">Context</h2>
+          <pre class="overflow-auto rounded-sm bg-black/60 p-3 font-mono text-xs text-neutral-300" data-context>{{ r.context | json }}</pre>
+        </section>
+      }
+
+      <div class="flex flex-wrap gap-3">
+        <button type="button" class="btn-secondary" data-delete="one" (click)="askDelete('one')" i18n="@@adminErrors.deleteOne">Delete this report</button>
+        <button type="button" class="btn-danger" data-delete="fingerprint" (click)="askDelete('fingerprint')" i18n="@@adminErrors.resolveAll">Resolve: delete all occurrences</button>
+      </div>
+    }
+  </div>
+</article>
+
+@if (pendingDelete(); as kind) {
+  <app-confirm-dialog [title]="deleteTitle(kind)" [message]="deleteMessage(kind)" [confirmLabel]="deleteLabel(kind)"
+                      [busy]="deleting()" (confirmed)="confirmDelete()" (cancelled)="cancelDelete()" />
+}

@@ -3,6 +3,7 @@ import { LayoutComponent } from './shared/components/layout/layout.component';
 import { NAV } from './shared/i18n/app-messages';
 import { ROUTE_LABELS } from './shared/i18n/route-labels';
 import type { SeoData } from './shared/seo';
+import { adminGuard } from './admin/admin.guard';
 
 /** Mirrors the Disallow rules in robots.txt for routes rendered in-app. */
 const NOINDEX_SEO: SeoData = { noindex: true };
@@ -91,6 +92,15 @@ export const routes: Routes = [
                 data: { breadcrumb: ROUTE_LABELS.coachAuthorize, seo: NOINDEX_SEO }
             }
         ]
+    },
+    {
+        // Admins only (issue #410): adminGuard is UX, the backend refuses /admin/** to anyone else
+        component: LayoutComponent,
+        path: 'admin',
+        canActivate: [adminGuard],
+        canActivateChild: [adminGuard],
+        loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES),
+        data: { breadcrumb: ROUTE_LABELS.admin, seo: NOINDEX_SEO }
     },
     {
         component: LayoutComponent,

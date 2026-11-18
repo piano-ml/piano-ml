@@ -67,6 +67,10 @@ public class SecurityConfig {
         .ignoringRequestMatchers("/account/login", "/account/create")
         // Explicit bearer-token clients (scripts, tools): a cross-site page cannot set this header.
         .ignoringRequestMatchers(new RequestHeaderRequestMatcher("Authorization"))
+        // Browser error reports (issue #408): write-only, nothing readable comes back, and open to anonymous
+        // users anyway, so a forged request can do no more than any visitor. Exempt so that errors raised
+        // before the XSRF-TOKEN cookie exists, and navigator.sendBeacon (no custom header) on page exit, get through.
+        .ignoringRequestMatchers("/error-report")
       )
       .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
       .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -77,6 +81,8 @@ public class SecurityConfig {
         .accessDeniedHandler(new CsrfAwareAccessDeniedHandler())
       )
       .authorizeHttpRequests(authz -> authz
+        // Admin only, whatever the method: must come before the open GET rule below (issue #408).
+        .requestMatchers("/admin/**").hasRole("ADMIN")
         // Private to the logged-in user (coach access grants, issue #414): must come before the open GET rule.
         .requestMatchers(HttpMethod.GET, "/account/grants").authenticated()
         // Consent page API of the coach OAuth server (issue #414): the user's own pending requests.
@@ -93,7 +99,9 @@ public class SecurityConfig {
           "/account/create",
           // Clearing the cookie must work even when the JWT has already expired.
           "/account/logout",
-          "/score/play/stats"
+          "/score/play/stats",
+          // Browser error reports, rate-limited per IP (ErrorReportRateLimiter)
+          "/error-report"
         ).permitAll()
         .anyRequest().authenticated()
       );
@@ -110,7 +118,7 @@ public class SecurityConfig {
     // browser, Origin header stripped), so the API never sees a cross-origin request from localhost.
     configuration.setAllowedOriginPatterns(ALLOWED_ORIGINS);
     configuration.setAllowCredentials(true); // necessary for httpOnly cookies
-    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
     // Lets the SPA (another origin in production) read the server-chosen download file name.
     configuration.setExposedHeaders(List.of("Content-Disposition"));

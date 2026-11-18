@@ -15,9 +15,11 @@ import { LanguageSwitcherComponent } from '../language-switcher/language-switche
 
 import versionInfo from '../../../../assets/version.json';
 
+import { ToastHostComponent } from '../toast-host/toast-host.component';
+
 @Component({
   selector: 'app-layout',
-  imports: [RouterModule, CommonModule, NgIcon, LanguageSwitcherComponent],
+  imports: [RouterModule, CommonModule, NgIcon, LanguageSwitcherComponent, ToastHostComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -81,6 +83,11 @@ export class LayoutComponent implements OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.startDonationRoulette(shuffled);
     }
+  }
+
+  /** The admin nav entry (issue #410); the backend still refuses non-admins. */
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
   }
 
   logout() {

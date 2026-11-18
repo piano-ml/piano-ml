@@ -12,7 +12,7 @@ const NO_RETURN_PATHS = [LOGIN_PATH, '/account/create'];
  * Pages that need a session: when it has expired there, the user is sent to login.
  * Everywhere else they stay on the page, logged out.
  */
-const PROTECTED_PATHS = ['/account/home', '/account/scores', '/account/score/edit', '/import/import-work', '/coach/connect', '/coach/authorize'];
+const PROTECTED_PATHS = ['/account/home', '/account/scores', '/account/playlists', '/account/score/edit', '/import/import-work', '/admin', '/coach/connect', '/coach/authorize'];
 
 const pathOf = (url: string) => url.split(/[?#]/)[0];
 

@@ -6,7 +6,7 @@ import * as Tone from 'tone';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import type { PlayConfiguration } from '../model/model';
 import { PlayerAssessService } from './player-assess.service';
-import { PlayerAudioService } from './player-audio.service';
+import { PlayerAudioService, isCompleteRiff } from './player-audio.service';
 import { PlayerStateService } from './player-state.service';
 
 /**
@@ -259,5 +259,29 @@ describe('PlayerAudioService', () => {
     expect(midi.releaseDrum).not.toHaveBeenCalled();
     expect(audio.spessasynth).toBeUndefined();
     vi.useRealTimers();
+  });
+});
+
+describe('isCompleteRiff', () => {
+  /** A RIFF file whose header declares `declared` payload bytes, cut to `actual` total bytes. */
+  function riff(declared: number, actual: number): ArrayBuffer {
+    const buffer = new ArrayBuffer(actual);
+    const view = new DataView(buffer);
+    [0x52, 0x49, 0x46, 0x46].forEach((byte, i) => view.setUint8(i, byte));
+    view.setUint32(4, declared, true);
+    return buffer;
+  }
+
+  it('accepts a file as long as its header declares', () => {
+    expect(isCompleteRiff(riff(100, 108))).toBe(true);
+  });
+
+  it('rejects a truncated file (e.g. a cut download kept in the HTTP cache)', () => {
+    expect(isCompleteRiff(riff(100, 60))).toBe(false);
+  });
+
+  it('rejects an empty or non-RIFF buffer', () => {
+    expect(isCompleteRiff(new ArrayBuffer(0))).toBe(false);
+    expect(isCompleteRiff(new TextEncoder().encode('<!doctype html><html>').buffer as ArrayBuffer)).toBe(false);
   });
 });

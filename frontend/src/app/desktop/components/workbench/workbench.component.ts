@@ -18,6 +18,7 @@ import { TempoControlComponent } from '../tempo-control/tempo-control.component'
 import { PlayerService } from '../../service/player.service';
 import * as Midi from '@tonejs/midi';
 import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
+import { exercisesPageFor, shouldClearStoredExercise } from './exercise-storage';
 import { BeaconService } from 'ng-beacon';
 import { WORKBENCH_TOUR } from './workbench.tour';
 import noUiSlider, { PipsMode } from 'nouislider';
@@ -198,6 +199,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private readonly midiService = inject(MidiServiceService);
   /** Stable identity of the exercise on the stand, for the practice history (null for a score). */
   private exerciseItem: PracticeItem | null = null;
+  /** The stored exercise this workbench loaded (EXERCICE_INFO_KEY as read): the only one it may clear (#413). */
+  private loadedExerciseInfo: string | null = null;
   private routeParamSubscription?: Subscription;
   private currentLoadId = 0;
   private lastRouteKey: string | null = null;
@@ -733,6 +736,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     // }, delay);
   }
 
+  private titleTimer?: ReturnType<typeof setTimeout>;
+
   onOsmdLoadingChange(loading: boolean) {
     if (loading) {
       return;
@@ -740,17 +745,21 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.osmdLoading$.next(loading);
     this.changeDetector.markForCheck();
     this.setupSlider();
-    setTimeout(() => {
-      this.title = `${this.scoreData!.author} - ${this.scoreData!.title}`;
+    clearTimeout(this.titleTimer);
+    this.titleTimer = setTimeout(() => {
+      this.titleTimer = undefined;
+      if (!this.scoreData) return; // left the workbench meanwhile
+      this.title = `${this.scoreData.author} - ${this.scoreData.title}`;
       this.updatePageTitle()
       this.changeDetector.detectChanges();
       this.checkIfScrollNeeded();
     }, 100);
   }
 
+  /** The exercise data is gone (Back to the URL after leaving it, a shared link): its exercises page instead. */
   failOnLocalStorage() {
     // /workbench/scale/major/Eb/left_than_right --> /exercises/scale/Eb/major/left_than_right
-    this.router.navigate(this.router.url.replace('workbench', 'exercises').split('/'));
+    this.router.navigate(exercisesPageFor(this.router.url), { replaceUrl: true });
   }
 
   loadExcerciceFromLocalStorage(): void {
@@ -764,6 +773,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.failOnLocalStorage();
       return;
     }
+    this.loadedExerciseInfo = localStorage.getItem(EXERCICE_INFO_KEY);
     // Load MusicXML from localStorage
     this.musicXml = localStorage.getItem(MUSIC_XML_STORAGE_KEY);
     // Load MIDI from localStorage
@@ -1190,8 +1200,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.playerControl.unregister(this.controlHandle);
-    // Rien à nettoyer, effect() est auto-nettoyé avec DestroyRef
-    if (isPlatformBrowser(this.platformId)) {
+    // The stored exercise goes with the workbench that loaded it; one written for the next workbench stays (#413)
+    if (isPlatformBrowser(this.platformId)
+      && shouldClearStoredExercise(this.loadedExerciseInfo, localStorage.getItem(EXERCICE_INFO_KEY))) {
       localStorage.removeItem(MIDI_STORAGE_KEY);
       localStorage.removeItem(MUSIC_XML_STORAGE_KEY);
       localStorage.removeItem(EXERCICE_INFO_KEY);
@@ -1210,6 +1221,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       }
       this.slider = null;
     }
+    clearTimeout(this.titleTimer);
+    this.titleTimer = undefined;
     this.playerService.releaseScoreSession();
     this.clearData();
     // Remove resize listener

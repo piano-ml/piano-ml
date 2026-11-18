@@ -13,7 +13,11 @@ import { NO_FRAME_HEADERS, isNoFramePath } from './app/coach/authorize/no-frame'
 
 export function app(): express.Express {
   const server = express();
-  server.use(compression());
+  // Soundfonts are sent uncompressed: their samples are already Ogg-compressed, and on-the-fly compression
+  // drops Content-Length, so a download cut mid-stream gets cached as a truncated file for a year (maxAge below).
+  server.use(compression({
+    filter: (req, res) => !/\.sf[23]$/i.test(req.path) && compression.filter(req, res),
+  }));
   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
   const browserDistFolder = resolve(serverDistFolder, '../browser');
 

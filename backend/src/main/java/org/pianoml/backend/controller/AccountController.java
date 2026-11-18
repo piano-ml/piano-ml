@@ -46,6 +46,58 @@ public class AccountController implements AccountApi {
   @Autowired
   private CoachGrantCreationLimiter coachGrantCreationLimiter;
 
+  @Autowired
+  private PlaylistEndpoints playlistEndpoints;
+
+  // --- playlists (issue #278): served by PlaylistEndpoints --------------------------------------------------
+
+  @Override
+  public ResponseEntity<PlaylistPage> accountPlaylistsGet(Integer offset, Integer limit, String orderBy) {
+    return playlistEndpoints.listMine(offset, limit, orderBy);
+  }
+
+  @Override
+  public ResponseEntity<PlaylistSummary> accountPlaylistPost(PlaylistCreate playlistCreate) {
+    return playlistEndpoints.create(playlistCreate);
+  }
+
+  @Override
+  public ResponseEntity<PlaylistSummary> accountPlaylistSlugPatch(String slug, PlaylistUpdate playlistUpdate) {
+    return playlistEndpoints.update(slug, playlistUpdate);
+  }
+
+  @Override
+  public ResponseEntity<Void> accountPlaylistSlugDelete(String slug) {
+    return playlistEndpoints.delete(slug);
+  }
+
+  @Override
+  public ResponseEntity<PlaylistItem> accountPlaylistItemsPost(String slug, PlaylistItemAdd playlistItemAdd) {
+    return playlistEndpoints.addItem(slug, playlistItemAdd);
+  }
+
+  @Override
+  public ResponseEntity<Void> accountPlaylistItemDelete(String slug, java.util.UUID scoreId) {
+    return playlistEndpoints.removeItem(slug, scoreId);
+  }
+
+  @Override
+  public ResponseEntity<PlaylistDetail> accountPlaylistItemsOrderPut(String slug, PlaylistOrder playlistOrder) {
+    return playlistEndpoints.reorder(slug, playlistOrder);
+  }
+
+  @Override
+  public ResponseEntity<java.util.List<java.util.UUID>> accountFavoriteIdsGet() {
+    return playlistEndpoints.favoriteIds();
+  }
+
+  @Override
+  public ResponseEntity<java.util.List<PlaylistMembership>> accountPlaylistsContainingGet(java.util.UUID scoreId) {
+    return playlistEndpoints.membership(scoreId);
+  }
+
+  // --- account ------------------------------------------------------------------------------------------------
+
   @Override
   public ResponseEntity<Void> accountCreatePost(AccountCreatePostRequest accountCreatePostRequest) {
     accountService.createUser(accountCreatePostRequest);
