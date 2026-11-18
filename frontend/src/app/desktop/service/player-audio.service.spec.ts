@@ -48,12 +48,12 @@ describe('PlayerAudioService', () => {
   let synth: { noteOn: ReturnType<typeof vi.fn>; noteOff: ReturnType<typeof vi.fn>; stopAll: ReturnType<typeof vi.fn>; programChange: ReturnType<typeof vi.fn> };
   type Fn = ReturnType<typeof vi.fn>;
   let midi: { pressOutput: Fn; releaseOutput: Fn; pressDrum: Fn; releaseDrum: Fn; pianoMLShouldPlay: Fn };
-  let assess: { learnExpectation: ReturnType<typeof vi.fn>; getExpectation: ReturnType<typeof vi.fn> };
+  let assess: { learnExpectation: ReturnType<typeof vi.fn>; getExpectation: ReturnType<typeof vi.fn>; expectTimed: ReturnType<typeof vi.fn> };
   let schedule: ReturnType<typeof captureSchedule>;
 
   beforeEach(() => {
     midi = { pressOutput: vi.fn(), releaseOutput: vi.fn(), pressDrum: vi.fn(), releaseDrum: vi.fn(), pianoMLShouldPlay: vi.fn(() => true) };
-    assess = { learnExpectation: vi.fn(() => ({ shouldPause: true })), getExpectation: vi.fn(() => ({ shouldPause: false })) };
+    assess = { learnExpectation: vi.fn(() => ({ shouldPause: true })), getExpectation: vi.fn(() => ({ shouldPause: false })), expectTimed: vi.fn() };
     TestBed.configureTestingModule({
       providers: [{ provide: MidiServiceService, useValue: midi }, { provide: PlayerAssessService, useValue: assess }],
     });
@@ -110,6 +110,22 @@ describe('PlayerAudioService', () => {
       expect(synth.noteOff).toHaveBeenCalledWith(0, 60);
       expect(cb.onNoteStart).toHaveBeenCalledWith(3, expect.objectContaining({ midi: 60 }), { shouldPause: false });
       expect(cb.onNoteEnd).toHaveBeenCalledOnce();
+    });
+
+    it('in play-along mode, expects the user may play each note of the keyboard range at its due time', () => {
+      state.leftmostKey = 36;
+      state.rightmostKey = 96;
+      audio.scheduleHandNote('rh', note({ time: 1, midi: 72 }), 0, 1, 2, callbacks());
+      audio.scheduleHandNote('lh', note({ time: 1, midi: 30 }), 0, 1, 2, callbacks()); // off the keyboard
+      expect(assess.expectTimed.mock.calls).toEqual([[3, expect.objectContaining({ midi: 72 }), 'rh']]);
+    });
+
+    it('expects nothing by time once a hand is awaited', () => {
+      state.leftmostKey = 36;
+      state.rightmostKey = 96;
+      state.playConfiguration.waitForLeftHand = true;
+      audio.scheduleHandNote('rh', note({ time: 1, midi: 72 }), 0, 1, 2, callbacks()); // the hand played by the app
+      expect(assess.expectTimed).not.toHaveBeenCalled();
     });
 
     it('sends it to the MIDI output only when PianoML should not play itself', () => {

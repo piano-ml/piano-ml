@@ -355,6 +355,12 @@ export class PlayerAudioService implements OnDestroy {
     // Calculate consistent timing: audio & UI both use offset when hand is not awaited
     const scheduleStartTime = !isHandAwaited ? noteTimeStart + offset : noteTimeStart;
     const scheduleEndTime = !isHandAwaited ? noteTimeEnd + offset : noteTimeEnd;
+
+    // Play-along: the user may play along any note of the keyboard's range, assessed by its due time
+    if (!playConfig.waitForLeftHand && !playConfig.waitForRightHand
+      && note.midi >= this.state.leftmostKey && note.midi <= this.state.rightmostKey) {
+      this.assess.expectTimed(scheduleStartTime, note, hand);
+    }
     
     // Cache transport & draw to avoid repeated accessor calls
     const transport = Tone.getTransport();

@@ -243,6 +243,24 @@ describe('PlayerService', () => {
       expect(getNewActual).not.toHaveBeenCalled();
     });
 
+    it('in play-along mode, assesses each key press against the notes due around that time', async () => {
+      load();
+      vi.spyOn(audio, 'isPlaying').mockReturnValue(true);
+      vi.spyOn(audio, 'getTransportSeconds').mockReturnValue(3.1);
+      const playTimed = vi.spyOn(assess, 'playTimed');
+      assess.expectTimed(3, { midi: 72, bars: 0 } as Note, 'rh');
+      await send(down(72));
+      expect(playTimed).toHaveBeenCalledWith(3.1, 72);
+      expect(assess.snapshot()).toMatchObject({ hit: 1, wrong: 0, played: 1 });
+    });
+
+    it('in play-along mode, ignores keys while playback is stopped', async () => {
+      load();
+      const playTimed = vi.spyOn(assess, 'playTimed');
+      await send(down(72));
+      expect(playTimed).not.toHaveBeenCalled();
+    });
+
     it('a right note resumes playback when it was waiting', async () => {
       load({ waitForRightHand: true });
       player.isWaiting = true;
@@ -354,6 +372,13 @@ describe('PlayerService', () => {
       expect(recorder.takeStarted).toHaveBeenCalledWith(cfg);
     });
 
+    it('Play drops the notes before the position the transport resumes from', async () => {
+      vi.spyOn(audio, 'getTransportSeconds').mockReturnValue(4.5);
+      const beginTimed = vi.spyOn(assess, 'beginTimed');
+      await player.play(load());
+      expect(beginTimed).toHaveBeenCalledWith(4.5);
+    });
+
     it('Pause closes the take', async () => {
       await player.play(load());
       calls = [];
@@ -363,9 +388,10 @@ describe('PlayerService', () => {
 
     it('the end of the range completes the take before the assessment is reset', async () => {
       await player.play(load());
+      vi.spyOn(assess, 'endTimed').mockImplementation(() => { calls.push('notes left missed'); });
       calls = [];
       onEnd!();
-      expect(calls[0]).toBe('completed');
+      expect(calls.slice(0, 2)).toEqual(['notes left missed', 'completed']);
       expect(calls.indexOf('reset')).toBeGreaterThan(0);
     });
 

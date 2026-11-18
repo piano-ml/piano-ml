@@ -25,7 +25,6 @@ export class CursorService implements OnDestroy {
     private repetitionInstructions: RepetitionInstruction[] = [];
     private osmdArray: OsmdArrayElement[] | undefined;
     private midiTicksNoteMap: Map<number, MidiNote[]> = new Map();   // ticks => MidiNote[]    
-    //private audioTimeNoteMapHit: Map<number, { pitch: number, hit: boolean }[]> = new Map();   // audioTime => [{pitch, hit}]
     private osmdCursorIdxNoteMap: Map<number, OSMDNote[]> = new Map();
     private osmdCursorIdxToMeasureMap: Map<number, number> = new Map();
     private osmdMeasureNoteMap: Map<number, OSMDNote[]> = new Map();
@@ -42,7 +41,6 @@ export class CursorService implements OnDestroy {
     osmdMeasureCount = 0;
     feedbackSignal = signal<{ message: string; percentage: number } | null>(null);
     readonly measure = signal<number>(0);
-    audioTimeNoteArray: Array<[number, { pitch: number, hit: boolean }[]]> = [];
     midiTicksToOsmdCursorIndex: Map<number, { osmdIndex: number, osmdMeasure: number }> = new Map();
     osmdMeasureToFirstStepIndex: Map<number, number> = new Map();
     sortedMappedMidiTicks: number[] = [];
@@ -79,7 +77,6 @@ export class CursorService implements OnDestroy {
         this.osmdMeasureSequence = [];
         this.sortedMappedMidiTicks = [];
         this.sortedMidiTicks = [];
-        this.audioTimeNoteArray = [];
 
         if (this.osmdArray) {
             this.osmdArray.clear();
@@ -729,27 +726,6 @@ export class CursorService implements OnDestroy {
         return this.osmdMeasureNoteMap;
     }
 
-    /**
-     * Build a map of audio time (seconds) => MidiNote[] using the osmdArray  midiTime information 
-     * 
-     * @param osmdArray
-     */
-    // buildAudioTimeNoteMap(osmdArray: OsmdArrayElement[]) {
-    //     this.audioTimeNoteMapHit.clear();
-    //     for (const element of osmdArray) {
-    //         if (element.midiTime != null && element.midiPitches != null) {
-    //             const bucket = this.audioTimeNoteMapHit.get(element.midiTime) ?? [];
-    //             for (const pitch of element.midiPitches) {
-    //                 bucket.push({ pitch, hit: false });
-    //             }
-    //             this.audioTimeNoteMapHit.set(element.midiTime, bucket);
-    //         }
-    //     }
-    //     // Génère le tableau trié pour accès rapide par intervalle
-    //     this.audioTimeNoteArray = Array.from(this.audioTimeNoteMapHit.entries()).sort((a, b) => a[0] - b[0]);
-    //     console.log("audioTimeNoteMapHit done");
-    //     return this.audioTimeNoteMapHit;
-    // }
 
 
     /*

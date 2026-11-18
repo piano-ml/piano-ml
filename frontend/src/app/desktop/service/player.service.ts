@@ -81,6 +81,9 @@ export class PlayerService implements OnDestroy {
     // A listener, not an effect on the midiEvent signal: an effect runs at the next change detection, which
     // coalesces the notes of a chord arriving in the same frame into the last one and delays every key.
     this.removeNoteListener = midiService.addNoteListener((event) => void this.processMidiEvent(event));
+    // Transport.seconds includes Tone's lookahead: it matches when the synth sounds a note, so key presses line
+    // up with what the user hears
+    this.assess.setClock(() => this.audio.getTransportSeconds());
   }
 
   preconfigurePlayConfiguration(scoreApiInfo: ScoreApiInfo, playConfiguration: PlayConfiguration, midiAll: Midi.Midi): PlayConfiguration {
@@ -273,6 +276,9 @@ export class PlayerService implements OnDestroy {
       this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], midiStartTime, midiEndTime, offset);
     }
 
+    // Play after Pause resumes the transport where it stopped: the notes before it will never be played
+    this.assess.beginTimed(this.audio.getTransportSeconds());
+
     // Delegate end scheduling
     this.audio.scheduleEnd(midiEndTime - midiStartTime, () => {
       this.message.set('END');
@@ -282,6 +288,7 @@ export class PlayerService implements OnDestroy {
       this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
 
       // The take reached the end of its range; recorded before reset() clears the assessment
+      this.assess.endTimed();
       this.recorder.takeEnded(true);
       this.reset(this.playConfiguration);
       if (this.playConfiguration.isLoop) {
@@ -335,10 +342,17 @@ export class PlayerService implements OnDestroy {
       // Before any mode check: a key played along the score also makes the session a MIDI one
       this.recorder.noteOn();
     }
-    if (!this.playConfiguration
-      || (this.playConfiguration.waitForLeftHand === false
-        && this.playConfiguration.waitForRightHand === false)
-    ) {
+    if (!this.playConfiguration) {
+      return
+    }
+    if (!this.playConfiguration.waitForLeftHand && !this.playConfiguration.waitForRightHand) {
+      // Play-along: each key press is matched with the score notes due around that time
+      if (midiEvent.type === 'down' && this.audio.isPlaying()) {
+        const { bad } = this.assess.playTimed(this.audio.getTransportSeconds(), midiEvent.note);
+        if (bad) {
+          this.highlightBadNote(midiEvent.note);
+        }
+      }
       return
     }
 
@@ -523,16 +537,6 @@ export class PlayerService implements OnDestroy {
 
 
   private calculateEndTime() {
-    // Calculating end time for full score
-    // if (this.playConfiguration.scoreRange[1] === this.playConfiguration.maxStaveCount + 1
-    //   && this.playConfiguration.scoreRange[0] === 0) {
-    //   return this.cursorService.audioTimeNoteArray[this.cursorService.audioTimeNoteArray.length - 1][0]
-    //     + this.calculateStartTimeInMsForMeasure(
-    //       1,
-    //       this.playConfiguration.midi!.header
-    //     ) * this.state.getTimeFactor()
-    // }
-    // Calculating end time for score range
     const endTime = this.calculateStartTimeInMsForMeasure(
       this.playConfiguration.scoreRange[1] - this.playConfiguration.scoreRange[0],
       this.playConfiguration.midi!.header
