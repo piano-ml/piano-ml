@@ -986,6 +986,30 @@
         <source>Timing calibration</source>
         <target state="translated">타이밍 보정</target>
       </trans-unit>
+      <trans-unit id="latency.intro.title" datatype="html">
+        <source>Let&apos;s tune the timing first</source>
+        <target state="translated">먼저 타이밍을 맞춰요</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.why" datatype="html">
+        <source>So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</source>
+        <target state="translated">실제로 들리는 소리를 기준으로 연주를 평가하도록 Piano ML이 스피커의 지연을 측정합니다. 약 20초 걸립니다.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.speakers" datatype="html">
+        <source>Play the sound through your speakers, not headphones, with the volume up.</source>
+        <target state="translated">헤드폰이 아닌 스피커로 소리를 내고 볼륨을 높이세요.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.quiet" datatype="html">
+        <source>Keep the room quiet while the clicks play.</source>
+        <target state="translated">클릭이 나오는 동안 방을 조용히 해 주세요.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.start" datatype="html">
+        <source>Press Calibrate and allow the microphone if your browser asks.</source>
+        <target state="translated">보정하기를 누르고, 브라우저가 물으면 마이크를 허용하세요.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.fallback" datatype="html">
+        <source>No microphone, or using headphones? Choose MIDI keyboard taps instead.</source>
+        <target state="translated">마이크가 없거나 헤드폰을 쓰나요? 대신 MIDI 키보드 탭을 선택하세요.</target>
+      </trans-unit>
       <trans-unit id="latency.mode.loopback" datatype="html">
         <source>Microphone hears the speakers</source>
         <target state="translated">마이크로 스피커 소리 듣기</target>

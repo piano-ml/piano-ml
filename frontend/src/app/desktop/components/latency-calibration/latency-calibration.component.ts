@@ -21,6 +21,17 @@ const MODES: CalibrationMode[] = ['loopback', 'midi'];
       <div class="modal-content" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="latency-calibration-title">
         <div class="card-secondary-title ml-4 mb-2" id="latency-calibration-title" i18n="@@latency.heading">Timing calibration</div>
 
+        <section class="card-secondary mb-2 text-sm" data-calibration-intro>
+          <div class="font-medium mb-1" i18n="@@latency.intro.title">Let's tune the timing first</div>
+          <p class="mb-2" i18n="@@latency.intro.why">So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</p>
+          <ol class="list-decimal ml-5 mb-2 flex flex-col gap-1">
+            <li i18n="@@latency.intro.speakers">Play the sound through your speakers, not headphones, with the volume up.</li>
+            <li i18n="@@latency.intro.quiet">Keep the room quiet while the clicks play.</li>
+            <li i18n="@@latency.intro.start">Press Calibrate and allow the microphone if your browser asks.</li>
+          </ol>
+          <p class="text-xs text-neutral-300" i18n="@@latency.intro.fallback">No microphone, or using headphones? Choose MIDI keyboard taps instead.</p>
+        </section>
+
         <section class="card-secondary mb-2 flex flex-col gap-2 text-sm" data-calibration-modes>
           <label class="flex items-center gap-2" [class.opacity-50]="!microphoneSupported">
             <input type="radio" name="calibration-mode" value="loopback" [checked]="mode() === 'loopback'"

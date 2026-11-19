@@ -986,6 +986,30 @@
         <source>Timing calibration</source>
         <target state="translated">Calibración del tiempo</target>
       </trans-unit>
+      <trans-unit id="latency.intro.title" datatype="html">
+        <source>Let&apos;s tune the timing first</source>
+        <target state="translated">Primero, ajustemos el tiempo</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.why" datatype="html">
+        <source>So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</source>
+        <target state="translated">Para que tu interpretación se evalúe según lo que realmente oyes, Piano ML mide el retardo de tus altavoces. Tarda unos 20 segundos.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.speakers" datatype="html">
+        <source>Play the sound through your speakers, not headphones, with the volume up.</source>
+        <target state="translated">Reproduce el sonido por tus altavoces, no por auriculares, con el volumen alto.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.quiet" datatype="html">
+        <source>Keep the room quiet while the clicks play.</source>
+        <target state="translated">Mantén la habitación en silencio mientras suenan los clics.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.start" datatype="html">
+        <source>Press Calibrate and allow the microphone if your browser asks.</source>
+        <target state="translated">Pulsa Calibrar y permite el micrófono si tu navegador lo pide.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.fallback" datatype="html">
+        <source>No microphone, or using headphones? Choose MIDI keyboard taps instead.</source>
+        <target state="translated">¿Sin micrófono o con auriculares? Elige Pulsaciones en el teclado MIDI.</target>
+      </trans-unit>
       <trans-unit id="latency.mode.loopback" datatype="html">
         <source>Microphone hears the speakers</source>
         <target state="translated">El micrófono oye los altavoces</target>

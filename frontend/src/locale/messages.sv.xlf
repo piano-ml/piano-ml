@@ -986,6 +986,30 @@
         <source>Timing calibration</source>
         <target state="translated">Timingkalibrering</target>
       </trans-unit>
+      <trans-unit id="latency.intro.title" datatype="html">
+        <source>Let&apos;s tune the timing first</source>
+        <target state="translated">Först ställer vi in timingen</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.why" datatype="html">
+        <source>So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</source>
+        <target state="translated">För att ditt spel ska bedömas efter det du faktiskt hör mäter Piano ML fördröjningen i dina högtalare. Det tar ungefär 20 sekunder.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.speakers" datatype="html">
+        <source>Play the sound through your speakers, not headphones, with the volume up.</source>
+        <target state="translated">Spela upp ljudet i högtalarna, inte i hörlurar, med volymen uppe.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.quiet" datatype="html">
+        <source>Keep the room quiet while the clicks play.</source>
+        <target state="translated">Håll rummet tyst medan klicken spelas.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.start" datatype="html">
+        <source>Press Calibrate and allow the microphone if your browser asks.</source>
+        <target state="translated">Tryck på Kalibrera och tillåt mikrofonen om webbläsaren frågar.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.fallback" datatype="html">
+        <source>No microphone, or using headphones? Choose MIDI keyboard taps instead.</source>
+        <target state="translated">Ingen mikrofon, eller hörlurar? Välj Anslag på MIDI-klaviaturen i stället.</target>
+      </trans-unit>
       <trans-unit id="latency.mode.loopback" datatype="html">
         <source>Microphone hears the speakers</source>
         <target state="translated">Mikrofonen hör högtalarna</target>

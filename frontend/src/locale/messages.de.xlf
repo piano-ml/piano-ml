@@ -986,6 +986,30 @@
         <source>Timing calibration</source>
         <target state="translated">Timing-Kalibrierung</target>
       </trans-unit>
+      <trans-unit id="latency.intro.title" datatype="html">
+        <source>Let&apos;s tune the timing first</source>
+        <target state="translated">Zuerst das Timing einstellen</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.why" datatype="html">
+        <source>So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</source>
+        <target state="translated">Damit dein Spiel nach dem bewertet wird, was du wirklich hörst, misst Piano ML die Verzögerung deiner Lautsprecher. Das dauert etwa 20 Sekunden.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.speakers" datatype="html">
+        <source>Play the sound through your speakers, not headphones, with the volume up.</source>
+        <target state="translated">Gib den Ton über deine Lautsprecher aus, nicht über Kopfhörer, mit aufgedrehter Lautstärke.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.quiet" datatype="html">
+        <source>Keep the room quiet while the clicks play.</source>
+        <target state="translated">Halte den Raum still, während die Klicks spielen.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.start" datatype="html">
+        <source>Press Calibrate and allow the microphone if your browser asks.</source>
+        <target state="translated">Drücke Kalibrieren und erlaube das Mikrofon, falls dein Browser fragt.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.fallback" datatype="html">
+        <source>No microphone, or using headphones? Choose MIDI keyboard taps instead.</source>
+        <target state="translated">Kein Mikrofon oder mit Kopfhörern? Wähle stattdessen Anschläge auf dem MIDI-Keyboard.</target>
+      </trans-unit>
       <trans-unit id="latency.mode.loopback" datatype="html">
         <source>Microphone hears the speakers</source>
         <target state="translated">Mikrofon hört die Lautsprecher</target>

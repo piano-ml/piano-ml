@@ -71,6 +71,22 @@ describe('LatencyCalibrationComponent', () => {
     expect(el.textContent?.trim()).toBe('');
   });
 
+  it('explains what to do each time it opens, a calibration made or not', async () => {
+    for (const stored of [null, '70']) {
+      if (stored === null) localStorage.removeItem('audioLatencyCalibrationMs');
+      else localStorage.setItem('audioLatencyCalibrationMs', stored);
+      TestBed.resetTestingModule();
+      create();
+      await open();
+      const intro = el.querySelector('[data-calibration-intro]');
+      expect(intro?.textContent).toContain('Let\'s tune the timing first');
+      expect(intro?.textContent).toContain('not headphones');
+      expect(intro?.textContent).toContain('Keep the room quiet');
+      expect(intro?.textContent).toContain('MIDI keyboard taps');
+    }
+    localStorage.removeItem('audioLatencyCalibrationMs');
+  });
+
   it('calibrates with the microphone hearing the speakers by default', async () => {
     create();
     await open();
