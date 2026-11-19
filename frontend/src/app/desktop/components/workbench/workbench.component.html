@@ -86,7 +86,7 @@
                 <div class="checkbox-input m-1" id="loop">
                   <label class="label svg-label">
                     <input type="checkbox" [disabled]="isPlaying" [checked]="playConfiguration.isLoop"
-                      (change)="playConfiguration.isLoop = !playConfiguration.isLoop" />
+                      (change)="toggleLoop()" />
                     <ng-icon name="bootstrapRepeat" class="svg-button" />
                   </label>
                 </div>
@@ -224,5 +224,7 @@
   <app-tempo-control [isOpen]="isTempoOpen" [tempo]="tempo" [metronome]="playConfiguration.useMetronome"
     (tempoChange)="onTempoChanged($event)" (metronomeStatus)="onMetronomeStatus($event)"
     (closeModal)="closeTempo()"></app-tempo-control>
+
+  <app-latency-calibration [isOpen]="isCalibrationOpen" (closeModal)="isCalibrationOpen = false" />
 
 </div>

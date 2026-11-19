@@ -194,7 +194,8 @@ describe('PlayerService', () => {
     });
 
     it('scales times with the tempo', async () => {
-      const cfg = load({ tempoFactor: 2 });
+      const cfg = load();
+      cfg.tempoFactor = 2; // set after loading, as the workbench does (loading resets it to the score's tempo)
       await player.play(cfg);
       expect(audio.startCountIn).toHaveBeenCalledWith(COUNT_IN_BARS, expect.anything(), 240);
       expect(handTracks[0]).toMatchObject({ end: 3 + 2, timeFactor: 0.5 }); // twice as fast: 3 s
@@ -381,7 +382,7 @@ describe('PlayerService', () => {
         expect(cfg.midi).toBeDefined();
       });
 
-      it('in play-along mode too: red note on the score, red key, BAD, as the key is pressed', async () => {
+      it('in play-along mode too: red note on the score and BAD as the key is pressed, the key not lit', async () => {
         load();
         const rendered = await renderScore(SIMPLE_SCORE);
         dispose = rendered.dispose;
@@ -394,7 +395,7 @@ describe('PlayerService', () => {
         expect(player.message()).toBe('BAD');
         expect(player.wrongNotes()).toBe(before + 1);
         expect(rendered.host.querySelectorAll('[fill="#FF0000"]').length).toBeGreaterThan(0);
-        expect(keys.fillKey).toHaveBeenCalledWith(midiToPitch(73), TestBed.inject(PlayerKeyboardService).COLOR_WRONG);
+        expect(keys.fillKey.mock.calls.filter(([name]) => name === midiToPitch(73))).toEqual([]);
       });
 
       it('a right key on the MIDI keyboard is never lit', async () => {
@@ -519,12 +520,6 @@ describe('PlayerService', () => {
       expect(reset).toHaveBeenCalledWith(2);
       expect(audio.stop).toHaveBeenCalled();
       expect(player.lastMidiEventTime).toBe(-1);
-    });
-
-    it('lights the notes the user is expected to play', () => {
-      vi.spyOn(assess, 'getExpectation').mockReturnValue(status({ expectations: new Map([[2, new Set([{ hand: 'rh', midi: 76 }])], [3, new Set([{ hand: 'rh', midi: 79 }])]]) }));
-      player.displayLiveOnKeyboard();
-      expect(keys.fillKey.mock.calls.map(([name]) => name)).toEqual(['E5']); // the oldest expectation only
     });
 
     it('forwards pause, cursor and soundfont calls', async () => {

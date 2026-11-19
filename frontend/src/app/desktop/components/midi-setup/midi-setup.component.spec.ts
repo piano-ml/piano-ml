@@ -42,6 +42,8 @@ describe('MidiSetupComponent', () => {
     permission = 'granted';
     vi.spyOn(navigator.permissions, 'query').mockImplementation(async () => ({ state: permission }) as PermissionStatus);
     vi.spyOn(navigator, 'requestMIDIAccess').mockImplementation(async () => access as unknown as MIDIAccess);
+    // The calibration dialog lists the microphones when it opens
+    vi.spyOn(navigator.mediaDevices, 'enumerateDevices').mockResolvedValue([]);
     midi = {
       isInputDeviceSelected: vi.fn(() => false),
       isOutputDeviceSelected: vi.fn((d: unknown) => d === null),
@@ -170,6 +172,20 @@ describe('MidiSetupComponent', () => {
       expect(toggle('Toggle keyboard visibility').checked).toBe(true);
       expect(toggle('Toggle lyrics visibility').checked).toBe(true);
       expect(toggle('Toggle fingering visibility').checked).toBe(false);
+    });
+  });
+
+  describe('timing calibration', () => {
+    it('shows the correction and opens the calibration in its own dialog', async () => {
+      await open();
+      expect(el.querySelector('[data-calibration-summary]')?.textContent).toContain('Correction: 0 ms');
+      expect(el.querySelector('app-latency-calibration .modal')).toBeNull();
+      (el.querySelector('[data-calibration-open]') as HTMLButtonElement).click();
+      fixture.detectChanges();
+      expect(el.querySelector('app-latency-calibration .modal')).not.toBeNull();
+      (el.querySelector('[data-calibration-close]') as HTMLButtonElement).click();
+      fixture.detectChanges();
+      expect(el.querySelector('app-latency-calibration .modal')).toBeNull();
     });
   });
 

@@ -2,6 +2,7 @@ import { Injectable, OnDestroy } from "@angular/core";
 import { Note } from "@tonejs/midi/dist/Note";
 import { MidiStateEvent } from "../../shared/model/webmidi";
 import { CursorService } from "./cursor.service";
+import { midiToPitch } from "./midi-maths";
 
 
 /**
@@ -16,6 +17,11 @@ import { CursorService } from "./cursor.service";
 export const GOOD_RANGE = 120 / 1000
 export const PERFECT_RANGE = 200 / 1000
 export const QUANT_RANGE = 100 / 1000
+/** How far from its due time a key press is still reported as that note played too early or too late (seconds). */
+const TIMING_DIAGNOSTIC_RANGE = 1.5
+
+const ms = (seconds: number) => Math.round(seconds * 1000);
+const pitches = (midis: Iterable<number>) => Array.from(new Set(midis)).map(midiToPitch).join(' ') || '-';
 
 export interface NoteKey {
   hand: string;
@@ -206,10 +212,50 @@ export class PlayerAssessService implements OnDestroy {
       }
       best.hit = true;
       this.count('hit', best.measure, 1);
+      const delta = ms(now - best.time);
+      console.log(`[assess] ${midiToPitch(pitch)} good${best.measure === undefined ? '' : ` (measure ${best.measure})`}: `
+        + `${delta === 0 ? 'on time' : `${Math.abs(delta)} ms ${delta < 0 ? 'early' : 'late'}`}, tolerance ±${ms(GOOD_RANGE)} ms`);
       return { bad: false };
     }
-    this.count('wrong', this.nearestTimedMeasure(now) ?? this.lastMeasure, 1);
+    const measure = this.nearestTimedMeasure(now) ?? this.lastMeasure;
+    this.count('wrong', measure, 1);
+    this.logTimedBadNote(now, pitch, measure);
     return { bad: true };
+  }
+
+  /** Console diagnostic of a wrong key press in play-along mode: the right note too early or too late, or a wrong pitch. */
+  private logTimedBadNote(now: number, pitch: number, measure: number | undefined): void {
+    const played = midiToPitch(pitch);
+    const where = measure === undefined ? '' : ` (measure ${measure})`;
+    let samePitch: TimedExpectation | undefined;
+    for (let i = this.lowerBound(now - TIMING_DIAGNOSTIC_RANGE); i < this.timed.length && this.timed[i].time <= now + TIMING_DIAGNOSTIC_RANGE; i++) {
+      const candidate = this.timed[i];
+      if (!candidate.hit && candidate.midi === pitch
+        && (!samePitch || Math.abs(candidate.time - now) < Math.abs(samePitch.time - now))) {
+        samePitch = candidate;
+      }
+    }
+    if (samePitch) {
+      const delta = ms(now - samePitch.time);
+      console.log(`[assess] ${played} too ${delta < 0 ? 'early' : 'late'} by ${Math.abs(delta)} ms${where}: tolerance ±${ms(GOOD_RANGE)} ms, `
+        + `due at ${samePitch.time.toFixed(3)} s, played at ${now.toFixed(3)} s`);
+      return;
+    }
+    const near = this.timed.filter(e => !e.hit && Math.abs(e.time - now) <= GOOD_RANGE);
+    const next = near.length > 0 ? near : this.nearestTimedOnset(now);
+    const due = next.length > 0 ? ` due at ${next[0].time.toFixed(3)} s` : '';
+    console.log(`[assess] wrong note${where}: expected ${pitches(next.map(e => e.midi))}${due}, played ${played} at ${now.toFixed(3)} s`);
+  }
+
+  /** The unplayed score notes of the onset nearest to `time`. */
+  private nearestTimedOnset(time: number): TimedExpectation[] {
+    let nearest: TimedExpectation | undefined;
+    for (const e of this.timed) {
+      if (!e.hit && (!nearest || Math.abs(e.time - time) < Math.abs(nearest.time - time))) {
+        nearest = e;
+      }
+    }
+    return nearest ? this.timed.filter(e => !e.hit && e.time === nearest!.time) : [];
   }
 
   /** Counts as expected (missed so far) every note whose window has closed. */
@@ -311,11 +357,12 @@ export class PlayerAssessService implements OnDestroy {
   getNewActual(audioTime: number, midiEvent: MidiStateEvent): LiveStatus | null {
     this.played += 1;
     this.liveStatus.bad = null;
-    if (!this.maybeRemovePitchFromExpectations(midiEvent.note)) {
+    if (!this.maybeRemovePitchFromExpectations(midiEvent.note, true)) {
       this.liveStatus.bad = midiEvent.note;
       this.liveStatus.badCount += 1;
       const wrongMeasure = this.pendingMeasure();
       this.count('wrong', wrongMeasure, 1);
+      this.logWaitBadNote(midiEvent.note, wrongMeasure);
       let earlySet = this.liveStatus.early.get(midiEvent.time);
       if (!earlySet) {
         earlySet = new Set<NoteKey>();
@@ -332,6 +379,19 @@ export class PlayerAssessService implements OnDestroy {
     }
     this.checkShouldPause();
     return this.liveStatus;
+  }
+
+  /** Console diagnostic of a wrong key press in wait mode: a wrong pitch, or a note played before it is due. */
+  private logWaitBadNote(pitch: number, measure: number | undefined): void {
+    const where = measure === undefined ? '' : ` (measure ${measure})`;
+    const oldest = this.liveStatus.expectations.size > 0
+      ? this.liveStatus.expectations.get(Math.min(...this.liveStatus.expectations.keys()))
+      : undefined;
+    if (!oldest || oldest.size === 0) {
+      console.log(`[assess] ${midiToPitch(pitch)} too early${where}: no note is due yet (counted wrong unless it is the next note due)`);
+      return;
+    }
+    console.log(`[assess] wrong note${where}: expected ${pitches(Array.from(oldest, k => k.midi))}, played ${midiToPitch(pitch)}`);
   }
 
   /** The counters of the current take: everything since the last reset(). */
@@ -399,7 +459,8 @@ export class PlayerAssessService implements OnDestroy {
   }
 
 
-  maybeRemovePitchFromExpectations(pitch: number): boolean {
+  /** `logHit`: a key just pressed (an early note matched afterwards is logged by checkExpectationsInEarly). */
+  maybeRemovePitchFromExpectations(pitch: number, logHit = false): boolean {
     // Use cached oldest key or compute it
     if (this.cachedOldestKey === null && this.liveStatus.expectations.size > 0) {
       this.cachedOldestKey = Math.min(...Array.from(this.liveStatus.expectations.keys()));
@@ -420,7 +481,14 @@ export class PlayerAssessService implements OnDestroy {
 
     if (foundKey) {
       oldestValue.delete(foundKey);
-      this.count('hit', this.measureOfKey.get(foundKey), 1);
+      const measure = this.measureOfKey.get(foundKey);
+      this.count('hit', measure, 1);
+      if (logHit) {
+        const due = this.onsetDueAt.get(this.cachedOldestKey);
+        const waited = due ? ` ${this.now() - due.at} ms after it was due` : '';
+        console.log(`[assess] ${midiToPitch(pitch)} good${measure === undefined ? '' : ` (measure ${measure})`}:${waited || ' played'}`
+          + (oldestValue.size > 0 ? `, still expected ${pitches(Array.from(oldestValue, k => k.midi))}` : ''));
+      }
       if (oldestValue.size === 0) {
         this.liveStatus.expectations.delete(this.cachedOldestKey);
         this.onsetCompleted(this.cachedOldestKey);
@@ -439,6 +507,7 @@ export class PlayerAssessService implements OnDestroy {
           notesToDelete.push(earlyNote);
           // Played ahead of the score, not wrong: take back the wrong note counted when it was played
           this.count('wrong', this.measureOfKey.get(earlyNote), -1);
+          console.log(`[assess] ${midiToPitch(earlyNote.midi)} was played early, ${ms(noteTimeStart - earlyTime)} ms ahead: no longer counted wrong`);
         }
       }
       // Delete collected notes after iteration

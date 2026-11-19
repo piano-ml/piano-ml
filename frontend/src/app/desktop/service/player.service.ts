@@ -102,10 +102,11 @@ export class PlayerService implements OnDestroy {
     } else if (midiAll.tracks.length == 2) {
       study_tracks = [0, 1];
     }
+    // A MIDI file without a tempo of its own (120 bpm, the default) plays at the score's tempo. Set every time: a
+    // tempo chosen for the previous score must not carry over
     const midiAsDefaultTempo = midiAll.header.tempos.every((t) => t.bpm === 120);
-    if (midiAsDefaultTempo && scoreApiInfo?.tempo) {
-      playConfiguration.tempoFactor = (scoreApiInfo?.tempo || 120) / 120;
-    }
+    playConfiguration.tempoFactor = midiAsDefaultTempo && scoreApiInfo?.tempo ? scoreApiInfo.tempo / 120 : 1;
+    playConfiguration.delayFactor = 1;
 
     const metronomeStored = localStorage.getItem('tempo-control-metronome');
     if (metronomeStored !== null) {
@@ -251,6 +252,7 @@ export class PlayerService implements OnDestroy {
   }
 
   async play(playConfigurations: PlayConfiguration) {
+    console.log('=============='); // temporary debug: separates the [assess] logs of each pass (loop mode)
     this.audio.clearSchedule();
     this.unHighlightBadNote();
     this.recorder.takeEnded(false);
@@ -342,11 +344,6 @@ export class PlayerService implements OnDestroy {
     );
   }
 
-  displayLiveOnKeyboard() {
-    const liveStatus = this.assess.getExpectation();
-    this.lightExpectedNotesOnKeyboard(liveStatus)
-  }
-
 
   private async processMidiEvent(midiEvent: MidiStateEvent) {
     if (midiEvent.type === 'down') {
@@ -393,11 +390,10 @@ export class PlayerService implements OnDestroy {
 
   /**
    * A wrong note, shown the moment it is played (synchronously, from the MIDI listener), in both modes: in red on
-   * the score and on the on-screen keyboard. The keys the user plays right are never lit.
+   * the score only. The on-screen keyboard never lights the keys the user plays, right or wrong.
    */
   private showWrongNote(pitch: number) {
     this.highlightBadNote(pitch);
-    this.keyboard.flashWrongKey(pitch);
     this.message.set("BAD");
     this.state.wrongNotes.update((count) => count + 1);
   }

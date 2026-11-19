@@ -43,6 +43,7 @@ export interface PlayConfiguration {
   waitForRightHand: boolean;
   delayFactor: number;
   tempoFactor: number;  
+  /** Measures played: 1-based, end exclusive ([start, end) plays start .. end - 1); a start of 0 also means the first measure. */
   scoreRange: [number, number];
   isLoop: boolean;
   staveAndStaveNotesPair: StaveAndStaveNotesPair[];
