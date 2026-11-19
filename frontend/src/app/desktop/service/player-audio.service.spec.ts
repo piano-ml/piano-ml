@@ -9,6 +9,7 @@ import type { PlayConfiguration } from '../model/model';
 import { MicrophoneService } from './microphone.service';
 import { PlayerAssessService } from './player-assess.service';
 import { METRONOME_CLICK_S, PLAYBACK_LOOKAHEAD_S, PlayerAudioService, SCHEDULE_AHEAD_S, SCHEDULE_REFILL_S, isCompleteRiff } from './player-audio.service';
+import { withListenerParams } from './audio-listener';
 import { PlayerStateService } from './player-state.service';
 
 /**
@@ -544,5 +545,27 @@ describe('isCompleteRiff', () => {
   it('rejects an empty or non-RIFF buffer', () => {
     expect(isCompleteRiff(new ArrayBuffer(0))).toBe(false);
     expect(isCompleteRiff(new TextEncoder().encode('<!doctype html><html>').buffer as ArrayBuffer)).toBe(false);
+  });
+
+  describe('a context for Tone on Firefox', () => {
+    it('gives an AudioListener without positionX... AudioParams real ones, with their default values', () => {
+      const context = new OfflineAudioContext(1, 128, 48000);
+      // Firefox's listener: none of the AudioParams
+      const listener = {};
+      Object.defineProperty(context, 'listener', { value: listener });
+      withListenerParams(context);
+      const params = listener as Record<string, AudioParam>;
+      for (const name of ['positionX', 'positionY', 'positionZ', 'forwardX', 'forwardY', 'forwardZ', 'upX', 'upY', 'upZ']) {
+        expect(params[name]).toBeInstanceOf(AudioParam);
+      }
+      expect([params['forwardZ'].value, params['upY'].value, params['positionX'].value]).toEqual([-1, 1, 0]);
+    });
+
+    it('leaves a listener that has them alone', () => {
+      const context = new OfflineAudioContext(1, 128, 48000);
+      const positionX = context.listener.positionX;
+      withListenerParams(context);
+      expect(context.listener.positionX).toBe(positionX);
+    });
   });
 });

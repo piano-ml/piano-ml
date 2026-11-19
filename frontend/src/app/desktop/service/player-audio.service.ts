@@ -14,6 +14,7 @@ import {
 } from './latency-calibration';
 import { findClickOnsets } from './mic-onsets';
 import { MicrophoneService } from './microphone.service';
+import { withListenerParams } from './audio-listener';
 
 export { isCompleteRiff } from '../../shared/services/soundfont-cache';
 
@@ -70,9 +71,10 @@ const MIDI_CHANNELS = 16;
 let sharedAudioContext: AudioContext | undefined;
 function audioContextOfThePage(): AudioContext {
   // The smallest buffer the device allows (clamped by the browser): the least latency between a key and its sound
-  sharedAudioContext ??= new AudioContext({ latencyHint: 0 });
+  sharedAudioContext ??= withListenerParams(new AudioContext({ latencyHint: 0 }));
   return sharedAudioContext;
 }
+
 
 /**
  * Service responsable de la gestion de l'audio, des synthétiseurs et du scheduling des notes
