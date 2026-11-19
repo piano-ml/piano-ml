@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
 import { CALIBRATION_MAX_MS } from '../../service/latency-calibration';
 import { MicrophoneService } from '../../service/microphone.service';
 import { CalibrationMode, CalibrationTap, PlayerAudioService } from '../../service/player-audio.service';
@@ -104,7 +104,7 @@ const MODES: CalibrationMode[] = ['loopback', 'midi'];
                 <input type="number" class="input-field w-24" step="1" [min]="-maxMs" [max]="maxMs"
                   [value]="audio.latencyCalibrationMs()" (change)="setManually($event)" data-calibration-value>
               </label>
-              <button type="button" class="btn-primary" (click)="calibrate()" data-calibrate i18n="@@latency.calibrate">Calibrate</button>
+              <button type="button" class="btn-primary" (click)="calibrate()" [disabled]="!canCalibrate()" data-calibrate i18n="@@latency.calibrate">Calibrate</button>
               @if (audio.latencyCalibrationMs() !== 0) {
                 <button type="button" class="btn-secondary" (click)="reset()" data-calibration-reset i18n="@@latency.reset">Reset</button>
               }
@@ -148,6 +148,10 @@ export class LatencyCalibrationComponent implements OnChanges, OnDestroy {
   readonly microphones = signal<MediaDeviceInfo[]>([]);
   readonly microphoneNamesKnown = signal(false);
   readonly microphoneDenied = signal(false);
+  /** The microphone was allowed in this page (its names may stay hidden in some browsers). */
+  private readonly microphoneAllowed = signal(false);
+  /** With the microphone, only once it is allowed: the Allow button comes first. */
+  readonly canCalibrate = computed(() => this.mode() !== 'loopback' || this.microphoneNamesKnown() || this.microphoneAllowed());
   /** Each tap (or sound heard) of the last calibration, as it came. */
   readonly taps = signal<CalibrationTap[]>([]);
   private abort?: AbortController;
@@ -214,6 +218,7 @@ export class LatencyCalibrationComponent implements OnChanges, OnDestroy {
     try {
       await this.microphone.requestPermission();
       this.microphoneDenied.set(false);
+      this.microphoneAllowed.set(true);
     } catch {
       this.microphoneDenied.set(true);
     }

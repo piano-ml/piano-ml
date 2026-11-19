@@ -55,7 +55,7 @@ describe('LatencyCalibrationComponent', () => {
       })),
       setLatencyCalibration: vi.fn((ms: number) => audio.latencyCalibrationMs.set(ms)),
     };
-    devices = [];
+    devices = [{ deviceId: 'm-1', label: 'USB Mic' }]; // allowed: its name is known
     microphone = {
       deviceId: signal(''),
       isSupported: () => true,
@@ -100,6 +100,21 @@ describe('LatencyCalibrationComponent', () => {
     finish(null);
     await settle();
     expect(el.querySelector('[data-calibration-failed]')?.textContent).toContain('did not hear the clicks');
+  });
+
+  it('with the microphone, calibrates only once it is allowed', async () => {
+    devices = [{ deviceId: 'm-1', label: '' }]; // not allowed yet: no names
+    create();
+    await open();
+    expect(button('data-calibrate').disabled).toBe(true);
+    radio('midi').click();
+    render();
+    expect(button('data-calibrate').disabled).toBe(false); // MIDI taps need no microphone
+    radio('loopback').click();
+    render();
+    button('data-microphone-allow').click();
+    await settle();
+    expect(button('data-calibrate').disabled).toBe(false);
   });
 
   it('falls back to MIDI taps, remembered, without the microphone choice', async () => {
@@ -237,6 +252,7 @@ describe('LatencyCalibrationComponent', () => {
     });
 
     it('says so when the microphone is refused', async () => {
+      devices = [{ deviceId: 'm-1', label: '' }];
       create();
       await open();
       microphone.requestPermission.mockRejectedValue(new DOMException('no', 'NotAllowedError'));
