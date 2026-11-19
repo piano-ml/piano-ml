@@ -126,6 +126,24 @@ describe('CursorService', () => {
       expect(scroll).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center', inline: 'center' });
     });
 
+    it('scrolls the container that scrolls vertically, not the score wrapper that only scrolls sideways', async () => {
+      // The workbench's layout: a short vertical scroller around a sideways-only wrapper as tall as the score
+      const { midi } = await setup(SIMPLE_SCORE);
+      const vertical = document.createElement('div');
+      vertical.style.cssText = 'position: fixed; top: 0; left: 0; width: 1300px; height: 60px; overflow-y: auto;';
+      const sideways = document.createElement('div');
+      sideways.style.cssText = 'overflow-x: auto; overflow-y: hidden;';
+      document.body.appendChild(vertical);
+      vertical.appendChild(sideways);
+      sideways.appendChild(rendered.host);
+      cursor.show(); // visible, as in the workbench
+      service.follow = true;
+      const scroll = vi.spyOn(cursor.cursorElement, 'scrollIntoView').mockImplementation(() => undefined);
+      service.nextNote(noteAt(midi, tickOf(2, 0))); // the cursor reaches below the 60 px the user sees
+      expect(scroll).toHaveBeenCalled();
+      vertical.remove();
+    });
+
     it('can go back (seek, repeat)', async () => {
       const { midi } = await setup(SIMPLE_SCORE);
       service.nextNote(noteAt(midi, tickOf(2, 0)));

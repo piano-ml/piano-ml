@@ -13,13 +13,26 @@ import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
  */
 export const CURSOR_FOLLOW_MARGIN = 0;
 
-/** The nearest ancestor that scrolls, or null for the page itself. */
-function scrollingAncestor(element: HTMLElement): HTMLElement | null {
+/**
+ * The nearest ancestor that scrolls along `axis`, or null for the page itself. Per axis: the score's own container
+ * scrolls sideways only, and is as tall as the score, so the cursor never left it vertically (regression).
+ */
+function scrollingAncestor(element: HTMLElement, axis: 'x' | 'y'): HTMLElement | null {
     for (let node = element.parentElement; node; node = node.parentElement) {
-        const { overflowY, overflowX } = getComputedStyle(node);
-        if (/(auto|scroll)/.test(overflowY + overflowX)) return node;
+        const style = getComputedStyle(node);
+        if (/(auto|scroll)/.test(axis === 'y' ? style.overflowY : style.overflowX)) return node;
     }
     return null;
+}
+
+/** What the user sees of `scroller` along one axis: its box, clipped to the window. */
+function visibleRange(scroller: HTMLElement | null, axis: 'x' | 'y'): [number, number] {
+    const windowEnd = axis === 'y' ? window.innerHeight : window.innerWidth;
+    if (!scroller) return [0, windowEnd];
+    const box = scroller.getBoundingClientRect();
+    return axis === 'y'
+        ? [Math.max(0, box.top), Math.min(windowEnd, box.bottom)]
+        : [Math.max(0, box.left), Math.min(windowEnd, box.right)];
 }
 
 
@@ -39,7 +52,7 @@ export class CursorService implements OnDestroy {
     /** Keep the cursor in view while it moves (set from the score's followCursor option, see PlayerService). */
     follow = false;
     /** The scrolling container of the cursor element, found once per element. */
-    private scrollerOf?: { element: HTMLElement; scroller: HTMLElement | null };
+    private scrollerOf?: { element: HTMLElement; x: HTMLElement | null; y: HTMLElement | null };
     private iteratorSize = 0;
     private repetitionInstructions: RepetitionInstruction[] = [];
     private osmdArray: OsmdArrayElement[] | undefined;
@@ -931,15 +944,15 @@ export class CursorService implements OnDestroy {
     private keepInView(element: HTMLElement | undefined): void {
         if (!element?.isConnected) return;
         if (this.scrollerOf?.element !== element) {
-            this.scrollerOf = { element, scroller: scrollingAncestor(element) };
+            this.scrollerOf = { element, x: scrollingAncestor(element, 'x'), y: scrollingAncestor(element, 'y') };
         }
-        const view = this.scrollerOf.scroller?.getBoundingClientRect()
-            ?? { top: 0, left: 0, bottom: window.innerHeight, right: window.innerWidth, height: window.innerHeight, width: window.innerWidth };
+        const [top, bottom] = visibleRange(this.scrollerOf.y, 'y');
+        const [left, right] = visibleRange(this.scrollerOf.x, 'x');
         const cursor = element.getBoundingClientRect();
-        const marginY = view.height * CURSOR_FOLLOW_MARGIN;
-        const marginX = view.width * CURSOR_FOLLOW_MARGIN;
-        if (cursor.top < view.top + marginY || cursor.bottom > view.bottom - marginY
-            || cursor.left < view.left + marginX || cursor.right > view.right - marginX) {
+        const marginY = (bottom - top) * CURSOR_FOLLOW_MARGIN;
+        const marginX = (right - left) * CURSOR_FOLLOW_MARGIN;
+        if (cursor.top < top + marginY || cursor.bottom > bottom - marginY
+            || cursor.left < left + marginX || cursor.right > right - marginX) {
             element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
         }
     }
