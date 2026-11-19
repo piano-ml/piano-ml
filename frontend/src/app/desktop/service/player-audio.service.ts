@@ -8,22 +8,12 @@ import { GOOD_RANGE, LiveStatus, PlayerAssessService } from './player-assess.ser
 import { PlayerStateService } from './player-state.service';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
+import { SOUNDFONT_WORKLET_URL, loadSoundFontFile } from '../../shared/services/soundfont-cache';
 import {
   CALIBRATION_BPM, CALIBRATION_CLICKS, calibrationOffsetMs, readLatencyCalibration, writeLatencyCalibration,
 } from './latency-calibration';
 
-/**
- * True when the buffer holds a whole RIFF file (SF2/SF3): its header declares the payload size, so a
- * truncated download is shorter than that.
- */
-export function isCompleteRiff(buffer: ArrayBuffer): boolean {
-  if (buffer.byteLength < 12) {
-    return false;
-  }
-  const view = new DataView(buffer);
-  const isRiff = view.getUint32(0, false) === 0x52494646; // "RIFF"
-  return isRiff && buffer.byteLength >= view.getUint32(4, true) + 8;
-}
+export { isCompleteRiff } from '../../shared/services/soundfont-cache';
 
 /**
  * User Timing mark set at the first synth note-on after each start(), in dev builds only: scripts/measure-playback.mjs
@@ -259,8 +249,9 @@ export class PlayerAudioService implements OnDestroy {
     this.soundFontAbortController = new AbortController();
     // The worklet module and the ~10 MB soundfont download in parallel
     const [, sfont] = await Promise.all([
-      audioContext.audioWorklet.addModule("/assets/soundfonts/spessasynth_processor.min.js"),
-      this.fetchSoundFont("/assets/soundfonts/GeneralUserGS.sf3", this.soundFontAbortController.signal)
+      audioContext.audioWorklet.addModule(SOUNDFONT_WORKLET_URL),
+      // From the Cache API after the first visit (or after a prefetch from the score page)
+      loadSoundFontFile(this.soundFontAbortController.signal)
     ]);
 
     const synth = new WorkletSynthesizer(audioContext);
@@ -272,29 +263,6 @@ export class PlayerAudioService implements OnDestroy {
     console.log('SoundFont initialized successfully');
   }
 
-  /**
-   * Downloads the soundfont and checks it is complete. The browser HTTP cache may hold a truncated copy
-   * (a download cut mid-stream); in that case the file is fetched again once, bypassing the cache.
-   */
-  private async fetchSoundFont(url: string, signal: AbortSignal): Promise<ArrayBuffer> {
-    const download = async (cache: RequestCache): Promise<ArrayBuffer> => {
-      const response = await fetch(url, { signal, cache });
-      if (!response.ok) {
-        throw new Error(`SoundFont download failed: HTTP ${response.status}`);
-      }
-      return response.arrayBuffer();
-    };
-    const buffer = await download('default');
-    if (isCompleteRiff(buffer)) {
-      return buffer;
-    }
-    console.warn(`SoundFont truncated (${buffer.byteLength} bytes), downloading it again`);
-    const retry = await download('reload');
-    if (!isCompleteRiff(retry)) {
-      throw new Error(`SoundFont download incomplete: ${retry.byteLength} bytes`);
-    }
-    return retry;
-  }
 
 
 
