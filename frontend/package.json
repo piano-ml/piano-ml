@@ -13,6 +13,7 @@
     "test": "ng test",
     "test:proxy": "node --test proxy.conf.test.mjs",
     "test:scripts": "node --test proxy.conf.test.mjs scripts/i18n-generators.test.js scripts/i18n-check.test.js ../.github/scripts/coverage-badge.test.mjs",
+    "measure:playback": "node scripts/measure-playback.mjs",
     "acceptance": "npm --prefix acceptance test",
     "generate:api": "openapi-generator-cli generate -i ../openapi/api.yaml -g typescript-angular -o src/app/core/api --additional-properties=ngVersion=17.0.0",
     "prestart": "npm run generate:api && npm run i18n:generate",

@@ -6,7 +6,8 @@ import { provideApi, type PracticeSessionApiInfo } from '../../core/api';
 import type { PlayConfiguration } from '../model/model';
 import { type AssessSnapshot, PlayerAssessService } from './player-assess.service';
 import {
-  CHECKPOINT_MS, IDLE_CUTOFF_MS, OUTBOX_KEY, PracticeSessionRecorder, SESSION_IDLE_MS, type PracticeItem,
+  CHECKPOINT_MS, IDLE_CUTOFF_MS, OUTBOX_KEY, PracticeSessionRecorder, SESSION_IDLE_MS, UNASSESSED_MAX_NOTES_PLAYED,
+  assessedTake, type PracticeItem,
 } from './practice-session-recorder.service';
 
 const SCORE: PracticeItem = { kind: 'score', scoreId: 's1', title: 'Prelude' };
@@ -19,9 +20,10 @@ const config = (overrides: Partial<PlayConfiguration> = {}) => ({
   ...overrides,
 }) as PlayConfiguration;
 
-const counters = (expected: number, hit: number, wrong = 0, waits = 0): AssessSnapshot => ({
+const counters = (expected: number, hit: number, wrong = 0, waits = 0, played = hit + wrong): AssessSnapshot => ({
   expected, hit, wrong, onsets: expected, waits,
   measures: expected ? [{ measure: 1, expected, hit, wrong, onsets: expected, waits }] : [],
+  played,
 });
 
 /**
@@ -104,6 +106,26 @@ describe('PracticeSessionRecorder', () => {
       });
       expect(body.takes).toHaveLength(1);
       expect(body.takes![0]).toMatchObject({ activeSeconds: 60, completed: false, hands: 'both', notesHit: 90 });
+    });
+
+    it('does not assess a take in which no key was pressed, but keeps its time', () => {
+      setup();
+      recorder.setItem(SCORE, 8);
+      recorder.takeStarted(config({ waitForLeftHand: false, waitForRightHand: false }));
+      now += 20_000; // listened for 20 s
+      recorder.activity();
+      snapshot = counters(30, 0, 0, 0, 0); // 30 notes went by, none played
+      recorder.takeEnded(true);
+      const [{ body }] = sent();
+      expect(body).toMatchObject({ activeSeconds: 20, notesExpected: 0, notesHit: 0, notesWrong: 0, onsets: 0, measures: [] });
+      expect(body.takes![0]).toMatchObject({ activeSeconds: 20, notesExpected: 0, notesHit: 0 });
+    });
+
+    it('assesses a take only above UNASSESSED_MAX_NOTES_PLAYED key presses', () => {
+      expect(UNASSESSED_MAX_NOTES_PLAYED).toBe(0);
+      const take = (played: number) => counters(10, played, 0, 0, played);
+      expect(assessedTake(take(3), 3)).toEqual({ expected: 0, hit: 0, wrong: 0, onsets: 0, waits: 0, measures: [], played: 3 });
+      expect(assessedTake(take(4), 3)).toEqual(take(4));
     });
 
     it('the end of the range is a completed take', () => {

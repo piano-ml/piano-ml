@@ -219,6 +219,16 @@ body {
 	border-radius: 0.25rem;
 }
 
+/* Play while the sounds load (or Retry): as tall as the other buttons, as wide as its text */
+.btn-desktop.sounds-status {
+	width: auto;
+	min-width: 64px;
+	gap: 0.5rem;
+	padding: 0 0.75rem;
+	font-size: 0.875rem;
+	white-space: nowrap;
+}
+
 /* ng-icon dans les labels de checkbox/radio */
 .label ng-icon {
 	font-size: 32px;

@@ -18,8 +18,9 @@ import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../.
 import { CursorService } from '../../service/cursor.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { PlayerService } from '../../service/player.service';
+import { PlayerStateService } from '../../service/player-state.service';
 import { PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
-import { WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
+import { WRONG_NOTE_ARENA_FLASH_MS, WRONG_NOTE_KEYBOARD_VISIBLE_MS, WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
 
 const SCORE: ScoreApiInfo = {
   id: 's1', owner_id: 'o1', version: 1, title: 'Happy Birthday', author: 'Mildred J. Hill', tempo: 100,
@@ -79,7 +80,7 @@ describe('WorkbenchComponent', () => {
     localStorage.clear();
     localStorage.setItem('workbench-tour-seen', 'true');
     const midiService = {
-      midiEvent: signal(null), midiBlocked: signal(false), setupMidiDeviceListeners: vi.fn(), resetSessionOutputs: vi.fn(), pianoMLShouldPlay: vi.fn(() => true),
+      midiEvent: signal(null), midiBlocked: signal(false), addNoteListener: vi.fn(() => () => undefined), setupMidiDeviceListeners: vi.fn(), resetSessionOutputs: vi.fn(), pianoMLShouldPlay: vi.fn(() => true),
       pressOutput: vi.fn(), releaseOutput: vi.fn(), press: vi.fn(), release: vi.fn(), pressDrum: vi.fn(), releaseDrum: vi.fn(),
       isInputDeviceSelected: vi.fn(() => false), isOutputDeviceSelected: vi.fn(() => true),
       setInputDeviceEnabled: vi.fn(), setOutputDeviceEnabled: vi.fn(),
@@ -108,12 +109,13 @@ describe('WorkbenchComponent', () => {
     vi.spyOn(scores, 'scoreOwnerIdTypeVersionRevisionGet').mockImplementation(((_o: string, _i: string, type: 'midi' | 'musicxml') => downloads[type]) as never);
     vi.spyOn(scores, 'scorePlayStatsPost').mockReturnValue(of({}) as never);
     vi.spyOn(TestBed.inject(SeoService), 'update').mockImplementation(() => undefined);
-    for (const method of ['start', 'pause', 'stop', 'clearSchedule', 'scheduleAccompanimentTracks', 'scheduleHandTrack', 'scheduleEnd'] as const) {
+    for (const method of ['start', 'pause', 'stop', 'clearSchedule', 'scheduleAccompanimentTracks', 'scheduleHandTrack', 'scheduleEnd', 'startRollingSchedule'] as const) {
       vi.spyOn(audio, method).mockImplementation((() => undefined) as never);
     }
     vi.spyOn(audio, 'start').mockResolvedValue();
     vi.spyOn(audio, 'startCountIn').mockReturnValue(2);
     vi.spyOn(audio, 'initSoundFont').mockResolvedValue();
+    audio.soundFontState.set('ready');
     navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
     await page.viewport(1400, 900); // desktop: the toolbar stays visible while playing
     harness = await RouterTestingHarness.create();
@@ -313,6 +315,36 @@ describe('WorkbenchComponent', () => {
       expect([component.isPlaying, component.toggleToolbar]).toEqual([false, true]);
     });
 
+    describe('while the sounds load', () => {
+      const playPause = () => el().querySelector('#play-pause') as HTMLElement;
+
+      it('Play is disabled, busy, and says the sounds are loading; a click on the score does nothing', async () => {
+        audio.soundFontState.set('loading');
+        await openScore();
+        const loading = playPause().querySelector('button') as HTMLButtonElement;
+        expect(loading.disabled).toBe(true);
+        expect(loading.getAttribute('aria-busy')).toBe('true');
+        expect(loading.textContent).toContain('Loading sounds…');
+        button('.score-container').click();
+        await component.start();
+        expect(component.isPlaying).toBe(false);
+        expect(audio.start).not.toHaveBeenCalled();
+
+        audio.soundFontState.set('ready');
+        render();
+        expect(playPause().querySelector('[data-sounds-ready] button')).not.toBeNull();
+      });
+
+      it('a failed download offers Retry, which loads the sounds again', async () => {
+        audio.soundFontState.set('error');
+        await openScore();
+        expect(playPause().textContent).toContain('Sounds could not be loaded');
+        vi.mocked(audio.initSoundFont).mockClear();
+        (playPause().querySelector('button') as HTMLButtonElement).click();
+        expect(audio.initSoundFont).toHaveBeenCalledOnce();
+      });
+    });
+
     it('a click on the sheet music toggles playback', async () => {
       await openScore();
       button('.score-container').click();
@@ -356,18 +388,35 @@ describe('WorkbenchComponent', () => {
       expect(setItem).toHaveBeenLastCalledWith({ kind: 'score', scoreId: 's1', title: 'Happy Birthday' }, expect.any(Number));
     });
 
+    const wrongNote = () => {
+      TestBed.inject(PlayerStateService).wrongNotes.update((count) => count + 1);
+      TestBed.tick(); // runs the wrong-note effect
+    };
+
     it('flashes the score on a wrong note and shows the keyboard for a while', async () => {
       await openScore();
       component.setHideKeyboard(true);
       vi.useFakeTimers();
-      player.message.set('BAD');
-      TestBed.tick(); // runs the message effect
+      wrongNote();
       expect(component.arenaClass).toBe('bad');
       expect(component.hideKeyboard).toBe(false);
-      vi.advanceTimersByTime(500);
+      vi.advanceTimersByTime(WRONG_NOTE_ARENA_FLASH_MS);
       expect(component.arenaClass).toBe('');
-      vi.advanceTimersByTime(4500);
+      vi.advanceTimersByTime(WRONG_NOTE_KEYBOARD_VISIBLE_MS - WRONG_NOTE_ARENA_FLASH_MS);
       expect(component.hideKeyboard).toBe(true); // back to the user's choice
+    });
+
+    it('keeps the keyboard visible WRONG_NOTE_KEYBOARD_VISIBLE_MS after the last wrong note', async () => {
+      await openScore();
+      component.setHideKeyboard(true);
+      vi.useFakeTimers();
+      wrongNote();
+      vi.advanceTimersByTime(3000);
+      wrongNote(); // the first timer must not hide the keyboard 2 s from now
+      vi.advanceTimersByTime(WRONG_NOTE_KEYBOARD_VISIBLE_MS - 1);
+      expect(component.hideKeyboard).toBe(false);
+      vi.advanceTimersByTime(1);
+      expect(component.hideKeyboard).toBe(true);
     });
 
     it('moves the bar slider with the cursor', async () => {

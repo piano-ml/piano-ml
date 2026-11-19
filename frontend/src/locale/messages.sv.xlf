@@ -682,6 +682,26 @@
         <source>Delete all sessions</source>
         <target state="translated">Ta bort alla pass</target>
       </trans-unit>
+      <trans-unit id="playlist.favorites" datatype="html">
+        <source>Favorites</source>
+        <target state="translated">Favoriter</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.removedFromFavorites" datatype="html">
+        <source>Removed from Favorites</source>
+        <target state="translated">Borttagen från favoriter</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.saveFailed" datatype="html">
+        <source>Couldn&apos;t save, try again</source>
+        <target state="translated">Det gick inte att spara, försök igen</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.addedToFavorites" datatype="html">
+        <source>Added to Favorites</source>
+        <target state="translated">Tillagd i favoriter</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.view" datatype="html">
+        <source>View</source>
+        <target state="translated">Visa</target>
+      </trans-unit>
       <trans-unit id="admin.route.errors" datatype="html">
         <source>Error reports</source>
         <target state="translated">Felrapporter</target>
@@ -938,26 +958,6 @@
         <source>Next</source>
         <target state="translated">Nästa</target>
       </trans-unit>
-      <trans-unit id="playlist.favorites" datatype="html">
-        <source>Favorites</source>
-        <target state="translated">Favoriter</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.removedFromFavorites" datatype="html">
-        <source>Removed from Favorites</source>
-        <target state="translated">Borttagen från favoriter</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.saveFailed" datatype="html">
-        <source>Couldn&apos;t save, try again</source>
-        <target state="translated">Det gick inte att spara, försök igen</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.addedToFavorites" datatype="html">
-        <source>Added to Favorites</source>
-        <target state="translated">Tillagd i favoriter</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.view" datatype="html">
-        <source>View</source>
-        <target state="translated">Visa</target>
-      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Sidfel</target>
@@ -981,6 +981,38 @@
       <trans-unit id="blog.heading" datatype="html">
         <source>Blog posts</source>
         <target state="translated">Blogginlägg</target>
+      </trans-unit>
+      <trans-unit id="latency.heading" datatype="html">
+        <source>Timing calibration</source>
+        <target state="translated">Timingkalibrering</target>
+      </trans-unit>
+      <trans-unit id="latency.hint" datatype="html">
+        <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
+        <target state="translated">Tryck på en tangent på ditt MIDI-keyboard vid varje klick, så att ditt spel bedöms efter det du hör (praktiskt med Bluetooth-hörlurar).</target>
+      </trans-unit>
+      <trans-unit id="latency.listening" datatype="html">
+        <source>Tap along with the clicks…</source>
+        <target state="translated">Tryck i takt med klicken…</target>
+      </trans-unit>
+      <trans-unit id="latency.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Avbryt</target>
+      </trans-unit>
+      <trans-unit id="latency.failed" datatype="html">
+        <source>Not enough taps on the beat. Try again.</source>
+        <target state="translated">För få anslag i takt. Försök igen.</target>
+      </trans-unit>
+      <trans-unit id="latency.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">Korrigering: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</target>
+      </trans-unit>
+      <trans-unit id="latency.calibrate" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">Kalibrera</target>
+      </trans-unit>
+      <trans-unit id="latency.reset" datatype="html">
+        <source>Reset</source>
+        <target state="translated">Återställ</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -1121,6 +1153,18 @@
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">MIDI-åtkomst blockerad</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsLoading" datatype="html">
+        <source>Loading sounds…</source>
+        <target state="translated">Laddar ljud…</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsError" datatype="html">
+        <source>Sounds could not be loaded</source>
+        <target state="translated">Ljuden kunde inte laddas</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsRetry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Försök igen</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>

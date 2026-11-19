@@ -1,11 +1,12 @@
 import { isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, inject } from '@angular/core';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService } from '../../../shared/services/midi-service.service';
+import { LatencyCalibrationComponent } from '../latency-calibration/latency-calibration.component';
 
 @Component({
   selector: 'app-midi-setup',
   standalone: true,
-  imports: [],
+  imports: [LatencyCalibrationComponent],
   templateUrl: './midi-setup.component.html',
   styleUrl: './midi-setup.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

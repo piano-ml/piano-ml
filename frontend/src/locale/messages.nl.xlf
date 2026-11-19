@@ -682,6 +682,26 @@
         <source>Delete all sessions</source>
         <target state="translated">Alle sessies verwijderen</target>
       </trans-unit>
+      <trans-unit id="playlist.favorites" datatype="html">
+        <source>Favorites</source>
+        <target state="translated">Favorieten</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.removedFromFavorites" datatype="html">
+        <source>Removed from Favorites</source>
+        <target state="translated">Verwijderd uit favorieten</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.saveFailed" datatype="html">
+        <source>Couldn&apos;t save, try again</source>
+        <target state="translated">Opslaan mislukt, probeer het opnieuw</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.addedToFavorites" datatype="html">
+        <source>Added to Favorites</source>
+        <target state="translated">Toegevoegd aan favorieten</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.view" datatype="html">
+        <source>View</source>
+        <target state="translated">Bekijken</target>
+      </trans-unit>
       <trans-unit id="admin.route.errors" datatype="html">
         <source>Error reports</source>
         <target state="translated">Foutrapporten</target>
@@ -938,26 +958,6 @@
         <source>Next</source>
         <target state="translated">Volgende</target>
       </trans-unit>
-      <trans-unit id="playlist.favorites" datatype="html">
-        <source>Favorites</source>
-        <target state="translated">Favorieten</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.removedFromFavorites" datatype="html">
-        <source>Removed from Favorites</source>
-        <target state="translated">Verwijderd uit favorieten</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.saveFailed" datatype="html">
-        <source>Couldn&apos;t save, try again</source>
-        <target state="translated">Opslaan mislukt, probeer het opnieuw</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.addedToFavorites" datatype="html">
-        <source>Added to Favorites</source>
-        <target state="translated">Toegevoegd aan favorieten</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.view" datatype="html">
-        <source>View</source>
-        <target state="translated">Bekijken</target>
-      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Paginafout</target>
@@ -981,6 +981,38 @@
       <trans-unit id="blog.heading" datatype="html">
         <source>Blog posts</source>
         <target state="translated">Blogartikelen</target>
+      </trans-unit>
+      <trans-unit id="latency.heading" datatype="html">
+        <source>Timing calibration</source>
+        <target state="translated">Timingkalibratie</target>
+      </trans-unit>
+      <trans-unit id="latency.hint" datatype="html">
+        <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
+        <target state="translated">Tik bij elke klik op een toets van je MIDI-keyboard, zodat je spel wordt beoordeeld op wat je hoort (handig met een Bluetooth-koptelefoon).</target>
+      </trans-unit>
+      <trans-unit id="latency.listening" datatype="html">
+        <source>Tap along with the clicks…</source>
+        <target state="translated">Tik mee met de klikken…</target>
+      </trans-unit>
+      <trans-unit id="latency.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annuleren</target>
+      </trans-unit>
+      <trans-unit id="latency.failed" datatype="html">
+        <source>Not enough taps on the beat. Try again.</source>
+        <target state="translated">Te weinig aanslagen op de tel. Probeer het opnieuw.</target>
+      </trans-unit>
+      <trans-unit id="latency.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">Correctie: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</target>
+      </trans-unit>
+      <trans-unit id="latency.calibrate" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">Kalibreren</target>
+      </trans-unit>
+      <trans-unit id="latency.reset" datatype="html">
+        <source>Reset</source>
+        <target state="translated">Herstellen</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -1121,6 +1153,18 @@
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">MIDI-toegang geblokkeerd</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsLoading" datatype="html">
+        <source>Loading sounds…</source>
+        <target state="translated">Geluiden laden…</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsError" datatype="html">
+        <source>Sounds could not be loaded</source>
+        <target state="translated">De geluiden konden niet worden geladen</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsRetry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Opnieuw proberen</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>

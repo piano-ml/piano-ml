@@ -1,4 +1,4 @@
-import { Injectable, effect, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
@@ -24,6 +24,9 @@ import { PracticeSessionRecorder } from './practice-session-recorder.service';
 
 const TIME_COUNTER_TIMESTEP = 200
 
+/** Bars of count-in before playback (and before the first awaited note in wait mode). */
+export const COUNT_IN_BARS = 2;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -32,12 +35,14 @@ export class PlayerService implements OnDestroy {
 
 
   private platformId = inject(PLATFORM_ID);
+  private ngZone = inject(NgZone);
   private recorder = inject(PracticeSessionRecorder);
   private isBrowser: boolean;
   private timeCounterInterval?: number;
   private highlightedBadNotes = new Set<GraphicalNote>();
   private badNoteResetTimers = new Map<GraphicalNote, ReturnType<typeof setTimeout>>();
-  private midiEventEffectFn?: any;
+  /** Unsubscribes processMidiEvent from the MIDI service. */
+  private removeNoteListener: () => void;
   private cachedTimeSignatureIndices?: Map<Midi.Header, number[]>;
   verticalPixelShiftValue: number = 1;
   lastBar = 0;
@@ -47,6 +52,9 @@ export class PlayerService implements OnDestroy {
   //get measure() { return this.state.measure; }
   get tick() { return this.state.tick; }
   get message() { return this.state.message; }
+  get wrongNotes() { return this.state.wrongNotes.asReadonly(); }
+  /** Play is only offered once the sounds are 'ready'. */
+  get soundFontState() { return this.audio.soundFontState.asReadonly(); }
   get elapsedTime() { return this.state.elapsedTime; }
   get duration() { return this.state.duration; }
   get isWaiting() { return this.state.isWaiting; }
@@ -77,13 +85,12 @@ export class PlayerService implements OnDestroy {
     }
     this.reset = this.reset.bind(this);
 
-    // Effect to process MIDI events via signal
-    this.midiEventEffectFn = effect(() => {
-      const midiEvent = this.midiService.midiEvent();
-      if (midiEvent) {
-        this.processMidiEvent(midiEvent);
-      }
-    });
+    // A listener, not an effect on the midiEvent signal: an effect runs at the next change detection, which
+    // coalesces the notes of a chord arriving in the same frame into the last one and delays every key.
+    this.removeNoteListener = midiService.addNoteListener((event) => void this.processMidiEvent(event));
+    // The score position the user hears (output latency and calibration included): key presses are scored
+    // against what they hear, not against what is being scheduled
+    this.assess.setClock(() => this.audio.heardTransportSeconds());
   }
 
   preconfigurePlayConfiguration(scoreApiInfo: ScoreApiInfo, playConfiguration: PlayConfiguration, midiAll: Midi.Midi): PlayConfiguration {
@@ -186,13 +193,15 @@ export class PlayerService implements OnDestroy {
       return;
     }
 
-    // Create an interval that checks the transport state every TIME_COUNTER_TIMESTEP ms
-    this.timeCounterInterval = window.setInterval(() => {
+    // Create an interval that checks the transport state every TIME_COUNTER_TIMESTEP ms. Outside the Angular zone:
+    // in the zone, each tick ran change detection app-wide, 5 times a second, even when the time did not change
+    // (play-along). The async pipe showing the time marks the view itself when it does.
+    this.timeCounterInterval = this.ngZone.runOutsideAngular(() => window.setInterval(() => {
       if (this.audio.isPlaying() && (this.playConfiguration.waitForLeftHand || this.playConfiguration.waitForRightHand)) {
         const currentTime = this.elapsedTime.value + TIME_COUNTER_TIMESTEP;
         this.elapsedTime.next(currentTime);
       }
-    }, TIME_COUNTER_TIMESTEP);
+    }, TIME_COUNTER_TIMESTEP));
   }
 
   setup() {
@@ -254,10 +263,8 @@ export class PlayerService implements OnDestroy {
     this.playConfiguration.maxPerformanceStaveCount = this.cursorService.maxMidiMeasure;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
 
-    await this.audio.start();
-
     let offset = this.audio.startCountIn(
-      2,
+      COUNT_IN_BARS,
       this.playConfiguration.midi!.header.timeSignatures[0],
       this.playConfiguration.midi!.header.tempos[0].bpm * this.playConfiguration.tempoFactor
     );
@@ -276,6 +283,11 @@ export class PlayerService implements OnDestroy {
       this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], midiStartTime, midiEndTime, offset);
     }
 
+    // The notes go on the transport a few seconds ahead of it, from where it (re)starts
+    this.audio.startRollingSchedule();
+    // Play after Pause resumes the transport where it stopped: the notes before it will never be played
+    this.assess.beginTimed(this.audio.getTransportSeconds());
+
     // Delegate end scheduling
     this.audio.scheduleEnd(midiEndTime - midiStartTime, () => {
       this.message.set('END');
@@ -285,6 +297,7 @@ export class PlayerService implements OnDestroy {
       this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
 
       // The take reached the end of its range; recorded before reset() clears the assessment
+      this.assess.endTimed();
       this.recorder.takeEnded(true);
       this.reset(this.playConfiguration);
       if (this.playConfiguration.isLoop) {
@@ -293,6 +306,8 @@ export class PlayerService implements OnDestroy {
       this.lastMidiEventTime = -1;
     });
 
+    // Last, once everything is scheduled: started earlier, the transport could pass the first click meanwhile
+    await this.audio.start();
   }
 
 
@@ -306,8 +321,8 @@ export class PlayerService implements OnDestroy {
       offset,
       this.state.getTimeFactor(),
       {
-        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('lh', note, liveStatus),
-        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('lh', note, liveStatus)
+        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('lh', time, note, liveStatus),
+        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('lh', time, note, liveStatus)
       }
     );
   }
@@ -321,8 +336,8 @@ export class PlayerService implements OnDestroy {
       offset,
       this.state.getTimeFactor(),
       {
-        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('rh', note, liveStatus),
-        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('rh', note, liveStatus)
+        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('rh', time, note, liveStatus),
+        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('rh', time, note, liveStatus)
       }
     );
   }
@@ -334,29 +349,41 @@ export class PlayerService implements OnDestroy {
 
 
   private async processMidiEvent(midiEvent: MidiStateEvent) {
-    if (!this.playConfiguration
-      || (this.playConfiguration.waitForLeftHand === false
-        && this.playConfiguration.waitForRightHand === false)
-    ) {
+    if (midiEvent.type === 'down') {
+      // Before any mode check: a key played along the score also makes the session a MIDI one
+      this.recorder.noteOn();
+    }
+    if (!this.playConfiguration) {
+      return
+    }
+    if (!this.playConfiguration.waitForLeftHand && !this.playConfiguration.waitForRightHand) {
+      // Play-along: each key press is matched with the score notes due around that time
+      if (midiEvent.type === 'down' && this.audio.isPlaying()) {
+        // When the key was played (the MIDI message's timestamp), on the clock of what the user heard then
+        const { bad } = this.assess.playTimed(this.audio.heardTransportSeconds(midiEvent.timeStamp), midiEvent.note);
+        if (bad) {
+          this.showWrongNote(midiEvent.note);
+        }
+      }
       return
     }
 
-    if (midiEvent.type === 'down' as MidiStateEvent['type']) {
-      this.recorder.noteOn();
+    if (midiEvent.type === 'down') {
       midiEvent.time = this.audio.getCurrentTime();
       const liveStatus = this.assess.getNewActual(this.audio.getTransportSeconds(), midiEvent);
       if (liveStatus === null) {
         return;
       }
-      if (!liveStatus.shouldPause) {
-        if (this.isWaiting) {
-          console.log("Resuming playback from MIDI event!");
+      if (!liveStatus.shouldPause && this.isWaiting) {
+        // Synchronously, in the MIDI listener: the music goes on with the key. start() and its awaits only when
+        // something has to be started first.
+        this.isWaiting = false;
+        if (!this.audio.resumeNow()) {
           await this.audio.start();
-          this.isWaiting = false;
         }
       }
       if (liveStatus.bad) {
-        this.highlightBadNote(midiEvent.note);
+        this.showWrongNote(midiEvent.note);
       } else {
         this.keyboard.removeMidiPitchFromKeyboard(midiEvent.note);
       }
@@ -364,8 +391,20 @@ export class PlayerService implements OnDestroy {
     }
   }
 
+  /**
+   * A wrong note, shown the moment it is played (synchronously, from the MIDI listener), in both modes: in red on
+   * the score and on the on-screen keyboard. The keys the user plays right are never lit.
+   */
+  private showWrongNote(pitch: number) {
+    this.highlightBadNote(pitch);
+    this.keyboard.flashWrongKey(pitch);
+    this.message.set("BAD");
+    this.state.wrongNotes.update((count) => count + 1);
+  }
+
   private highlightBadNote(pitch: number) {
-    const cursor = this.cursorService.cursor!;
+    const cursor = this.cursorService.cursor;
+    if (!cursor) return;
     const osmdNotes = cursor.GNotesUnderCursor() as GraphicalNote[];
     let firstSourceNote: any;
     let closest: GraphicalNote | undefined;
@@ -399,8 +438,6 @@ export class PlayerService implements OnDestroy {
       // Tremolo note, skipping highlight
       return;
     }
-
-    this.message.set("BAD");
 
     const delta = (closest.sourceNote.halfTone - pitch + 12);
     closest.setColor("#FF0000", {});
@@ -449,27 +486,38 @@ export class PlayerService implements OnDestroy {
 
 
 
-  private handleNoteStart(hand: string, note: Note, liveStatus?: LiveStatus) {
-    // look for playerhand
-    if (liveStatus?.shouldPause) {
+  /**
+   * A note becomes due, in the transport callback: the pause decision is taken here, at once. The cursor and the
+   * key lights go through Tone.Draw, at the frame the note sounds.
+   */
+  private handleNoteStart(hand: string, time: number, note: Note, liveStatus?: LiveStatus) {
+    const pause = !!liveStatus?.shouldPause;
+    if (pause) {
       this.isWaiting = true;
       this.audio.pause();
-      this.lightExpectedNotesOnKeyboard(liveStatus);
     }
-    // normal operations
     this.recorder.activity();
-    this.cursorMayBeAdvance(note);
-    this.keyboard.lightNoteOnKeyboard(hand, note);
-    //this.setCurrentTick(note);
+    this.audio.scheduleDraw(() => {
+      if (pause) {
+        this.lightExpectedNotesOnKeyboard(liveStatus!);
+      }
+      this.cursorMayBeAdvance(note);
+      this.keyboard.lightNoteOnKeyboard(hand, note);
+    }, time);
   }
 
-  private handleNoteEnd(hand: string, note: Note, liveStatus?: LiveStatus) {
-    this.keyboard.removeMidiNoteFromKeyboard(note);
-    if (liveStatus?.shouldPause) {
+  private handleNoteEnd(hand: string, time: number, note: Note, liveStatus?: LiveStatus) {
+    const pause = !!liveStatus?.shouldPause;
+    if (pause) {
       this.isWaiting = true;
       this.audio.pause();
-      this.lightExpectedNotesOnKeyboard(liveStatus);
     }
+    this.audio.scheduleDraw(() => {
+      this.keyboard.removeMidiNoteFromKeyboard(note);
+      if (pause) {
+        this.lightExpectedNotesOnKeyboard(liveStatus!);
+      }
+    }, time);
   }
 
   private lightExpectedNotesOnKeyboard(liveStatus: LiveStatus) {
@@ -490,6 +538,12 @@ export class PlayerService implements OnDestroy {
     this.state.osmd = osmd;
     // half tone pixel shift calculation
     this.verticalPixelShiftValue = this.state.osmd!.EngravingRules.StaffDistance / 2;
+    // The cursor service keeps the cursor in view itself, scrolling only near the edges: OSMD's follow scrolled on
+    // every step
+    if (osmd.FollowCursor) {
+      this.cursorService.follow = true;
+      osmd.FollowCursor = false;
+    }
     return this.cursorService.setup(osmd.cursor, this.playConfiguration.midi!)
   }
 
@@ -523,16 +577,6 @@ export class PlayerService implements OnDestroy {
 
 
   private calculateEndTime() {
-    // Calculating end time for full score
-    // if (this.playConfiguration.scoreRange[1] === this.playConfiguration.maxStaveCount + 1
-    //   && this.playConfiguration.scoreRange[0] === 0) {
-    //   return this.cursorService.audioTimeNoteArray[this.cursorService.audioTimeNoteArray.length - 1][0]
-    //     + this.calculateStartTimeInMsForMeasure(
-    //       1,
-    //       this.playConfiguration.midi!.header
-    //     ) * this.state.getTimeFactor()
-    // }
-    // Calculating end time for score range
     const endTime = this.calculateStartTimeInMsForMeasure(
       this.playConfiguration.scoreRange[1] - this.playConfiguration.scoreRange[0],
       this.playConfiguration.midi!.header
@@ -581,10 +625,7 @@ export class PlayerService implements OnDestroy {
     // Stop audio playback and release score-scoped state
     this.releaseScoreSession();
 
-    // Angular cleans the effect up with the injector; just drop the reference.
-    // Registering a destroyRef callback from inside ngOnDestroy throws NG0205,
-    // because by then the injector is already being destroyed.
-    this.midiEventEffectFn = null;
+    this.removeNoteListener();
   }
 
 }
