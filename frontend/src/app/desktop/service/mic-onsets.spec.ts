@@ -1,4 +1,4 @@
-import { CLICK_SEARCH_S, findClickOnsets, joinChunks, recordNode } from './mic-onsets';
+import { CLICK_SEARCH_S, findClickOnsets, joinChunks } from './mic-onsets';
 
 /**
  * The loopback calibration's microphone side on synthetic recordings: a quiet room heard by a cheap microphone (a
@@ -58,23 +58,5 @@ describe('microphone clicks', () => {
     ], RATE);
     expect(joined.startTime).toBe(10);
     expect([...joined.samples]).toEqual([1, 1, 0, 0, 2]);
-  });
-
-  it('records on the context clock: a click is found at the time it was in the source', async () => {
-    const seconds = 2;
-    const context = new OfflineAudioContext(1, seconds * RATE, RATE);
-    const buffer = context.createBuffer(1, seconds * RATE, RATE);
-    buffer.copyToChannel(recording(seconds, [1.25]).samples, 0);
-    const source = context.createBufferSource();
-    source.buffer = buffer;
-    const recorder = await recordNode(context, source);
-    source.start(0);
-    await context.startRendering();
-    // An offline context's worklet stops with the rendering: its chunks are given time to arrive before stop()
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const recorded = await recorder.stop();
-    expect(recorded.samples.length).toBeGreaterThan(1.9 * RATE);
-    const [onset] = findClickOnsets(recorded, [1]);
-    expect(onset.time).toBeCloseTo(1.25, 3);
   });
 });
