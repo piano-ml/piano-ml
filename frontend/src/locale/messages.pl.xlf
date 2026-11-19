@@ -1210,6 +1210,10 @@
         <source>Metronome</source>
         <target state="translated">Metronom</target>
       </trans-unit>
+      <trans-unit id="tempo.countIn" datatype="html">
+        <source>Count-in (bars)</source>
+        <target state="translated">Odliczanie (takty)</target>
+      </trans-unit>
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">Dostęp do MIDI zablokowany</target>

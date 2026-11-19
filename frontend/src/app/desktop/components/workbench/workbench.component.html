@@ -222,6 +222,7 @@
     (closeModal)="closeMidiSetup()"></app-midi-setup>
 
   <app-tempo-control [isOpen]="isTempoOpen" [tempo]="tempo" [metronome]="playConfiguration.useMetronome"
+    [countIn]="playConfiguration.countInBars ?? 2" (countInChange)="onCountInChange($event)"
     (tempoChange)="onTempoChanged($event)" (metronomeStatus)="onMetronomeStatus($event)"
     (closeModal)="closeTempo()"></app-tempo-control>
 

@@ -50,6 +50,8 @@ export interface PlayConfiguration {
   accompaniment: Midi.Midi | null;
   midi: Midi.Midi | null;
   useMetronome: boolean;
+  /** Bars of count-in before playback (COUNT_IN_BARS when not set): a setting of the metronome dialog. */
+  countInBars?: number;
 }
 
 

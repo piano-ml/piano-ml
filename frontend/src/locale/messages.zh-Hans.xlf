@@ -1210,6 +1210,10 @@
         <source>Metronome</source>
         <target state="translated">节拍器</target>
       </trans-unit>
+      <trans-unit id="tempo.countIn" datatype="html">
+        <source>Count-in (bars)</source>
+        <target state="translated">预备拍（小节）</target>
+      </trans-unit>
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">MIDI 访问已被阻止</target>

@@ -184,6 +184,11 @@ export class PlayerAudioService implements OnDestroy {
     return context.currentTime - this.outputLatency() + (perfMs - performance.now()) / 1000;
   }
 
+  /** How far what is heard lags the context time now, in seconds, as the scoring sees it (see heardContextTime()). */
+  getContextTimeLag(): number {
+    return this.audioContext ? this.audioContext.currentTime - this.heardContextTime() : 0;
+  }
+
   /** When the audio context time `time` is heard, as a performance.now() time: for timestamped MIDI output. */
   contextToPerformanceMs(time: number): number {
     return performance.now() + (time - this.heardContextTime()) * 1000;
@@ -247,7 +252,7 @@ export class PlayerAudioService implements OnDestroy {
       // the browser says.
       const recorder = await this.microphone.record(context);
       const lags: number[] = [];
-      const sampleLag = setInterval(() => lags.push(context.currentTime - this.heardContextTime()), 50);
+      const sampleLag = setInterval(() => lags.push(this.getContextTimeLag()), 50);
       stopListening = async () => {
         clearInterval(sampleLag);
         const recording = await recorder.stop();

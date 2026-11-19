@@ -2,6 +2,7 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgIcon } from '@ng-icons/core';
+import { COUNT_IN_MAX_BARS, COUNT_IN_STORAGE_KEY, readCountInBars } from '../../service/player.service';
 
 @Component({
   selector: 'app-tempo-control',
@@ -18,6 +19,10 @@ export class TempoControlComponent {
   @Input() isOpen = false;
   @Input() tempo = 120;
   @Input() metronome = false;
+  /** Bars of clicks before playback starts (0: none). */
+  @Input() countIn = readCountInBars();
+  @Output() countInChange = new EventEmitter<number>();
+  protected readonly countInMax = COUNT_IN_MAX_BARS;
   @Output() tempoChange = new EventEmitter<number>();
   @Output() closeModal = new EventEmitter<void>();
   @Output() metronomeStatus = new EventEmitter<boolean>();
@@ -36,6 +41,25 @@ export class TempoControlComponent {
     this.metronome = value;
     localStorage.setItem(this.metronomeStorageKey, JSON.stringify(value));
     this.metronomeStatus.emit(value);
+    this.cdr.markForCheck();
+  }
+
+  /** A count-in typed or stepped: whole bars from 0 to COUNT_IN_MAX_BARS, kept for the next visits. */
+  onCountInChange(input: HTMLInputElement) {
+    const n = Number(input.value);
+    if (input.value !== '' && Number.isFinite(n)) {
+      const bars = Math.round(Math.min(COUNT_IN_MAX_BARS, Math.max(0, n)));
+      if (bars !== this.countIn) {
+        this.countIn = bars;
+        try {
+          localStorage.setItem(COUNT_IN_STORAGE_KEY, String(bars));
+        } catch {
+          // storage unavailable: the choice lasts for this visit
+        }
+        this.countInChange.emit(bars);
+      }
+    }
+    input.value = String(this.countIn);
     this.cdr.markForCheck();
   }
 

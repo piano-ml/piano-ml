@@ -1210,6 +1210,10 @@
         <source>Metronome</source>
         <target state="translated">메트로놈</target>
       </trans-unit>
+      <trans-unit id="tempo.countIn" datatype="html">
+        <source>Count-in (bars)</source>
+        <target state="translated">카운트인 (마디)</target>
+      </trans-unit>
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">MIDI 접근 차단됨</target>

@@ -617,6 +617,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.changeDetector.markForCheck();
   }
 
+  onCountInChange(bars: number) {
+    this.playConfiguration.countInBars = bars;
+    this.changeDetector.markForCheck();
+  }
+
   onTempoChanged(newTempo: number) {
     this.tempo = newTempo;
     this.setSpeed(this.tempo / this.midiFileTempo);

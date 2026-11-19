@@ -1210,6 +1210,10 @@
         <source>Metronome</source>
         <target state="translated">เครื่องเคาะจังหวะ</target>
       </trans-unit>
+      <trans-unit id="tempo.countIn" datatype="html">
+        <source>Count-in (bars)</source>
+        <target state="translated">นับนำ (ห้อง)</target>
+      </trans-unit>
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">การเข้าถึง MIDI ถูกบล็อก</target>
