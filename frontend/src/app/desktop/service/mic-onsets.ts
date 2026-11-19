@@ -1,7 +1,8 @@
 /**
  * The microphone side of the loopback calibration: the microphone is recorded while the clicks play, then each
  * click is looked for in the recording, in the window where its sound can arrive. Knowing when each click was
- * played makes the search independent of the microphone's level: in a quiet room, a click is its window's peak.
+ * played makes the search independent of the microphone's level: a click is its window's peak, and starts where,
+ * walking back from it, the sound falls back to the room's level.
  */
 
 /** A recording on the audio context's clock. */
@@ -24,10 +25,14 @@ export interface ClickOnset {
 
 /** A click's sound is looked for from its scheduled time up to this much later (output + input latency). */
 export const CLICK_SEARCH_S = 0.6;
-/** Heard: its peak is this many times the window's background amplitude (4: 12 dB)... */
+/** A click is heard when its peak amplitude is this many times the window's median amplitude (4: 12 dB). */
 const HEARD_RATIO = 4;
-/** ...and it starts at the first sample reaching this fraction of its peak (the room assumed quiet). */
-const ONSET_FRACTION = 0.1;
+/** It starts at the earliest sample, walking back from its peak, above this fraction of the peak... */
+const ONSET_FRACTION = 0.2;
+/** ...or above this many times the median amplitude when that is higher (noise rarely reaches it)... */
+const ONSET_NOISE_RATIO = 5;
+/** ...with no gap longer than this between two such samples (a click's own zero crossings are shorter). */
+const ONSET_GAP_S = 0.001;
 
 const PROCESSOR = 'piano-ml-recorder';
 /** The worklet sends the samples by chunks of this many seconds. */
@@ -138,24 +143,30 @@ export function joinChunks(chunks: { time: number; samples: Float32Array }[], sa
 
 /**
  * Looks for each click (scheduled at context times `clicks`) in `recording`, in the window from its time to
- * CLICK_SEARCH_S later. The room is assumed quiet: the click is the window's peak, and starts at the first sample
- * reaching a fraction of it. The window's mean is taken off first (a cheap microphone's DC offset).
+ * CLICK_SEARCH_S later: the peak, heard when well above the median, and its start walking back from it.
  */
 export function findClickOnsets(recording: Recording, clicks: number[]): ClickOnset[] {
   const { samples, sampleRate, startTime } = recording;
   const indexOf = (time: number) => Math.round((time - startTime) * sampleRate);
+  const gap = Math.max(1, Math.round(ONSET_GAP_S * sampleRate));
   return clicks.map((clickTime, click) => {
     const from = Math.max(0, indexOf(clickTime));
     const to = Math.min(samples.length, indexOf(clickTime + CLICK_SEARCH_S));
     if (to - from < sampleRate * 0.05) return { click, time: null, levelDb: 0 };
     const window = samples.subarray(from, to);
-    const mean = window.reduce((sum, x) => sum + x, 0) / window.length;
+    const mean = window.reduce((sum, x) => sum + x, 0) / window.length; // a DC offset
     const amplitude = Float32Array.from(window, (x) => Math.abs(x - mean));
-    const peak = amplitude.reduce((max, x) => Math.max(max, x), 0);
-    const background = Math.max(Float32Array.from(amplitude).sort()[amplitude.length >> 1], 1e-6);
-    const levelDb = Math.round(20 * Math.log10(peak / background));
-    if (peak < background * HEARD_RATIO) return { click, time: null, levelDb };
-    const onset = amplitude.findIndex((x) => x >= peak * ONSET_FRACTION);
+    let peakAt = 0;
+    for (let i = 1; i < amplitude.length; i++) if (amplitude[i] > amplitude[peakAt]) peakAt = i;
+    const peak = amplitude[peakAt];
+    const median = Math.max(Float32Array.from(amplitude).sort()[amplitude.length >> 1], 1e-6);
+    const levelDb = Math.round(20 * Math.log10(peak / median));
+    if (peak < median * HEARD_RATIO) return { click, time: null, levelDb };
+    const threshold = Math.min(peak / 2, Math.max(peak * ONSET_FRACTION, median * ONSET_NOISE_RATIO));
+    let onset = peakAt;
+    for (let i = peakAt - 1; i >= 0 && onset - i <= gap; i--) {
+      if (amplitude[i] >= threshold) onset = i;
+    }
     return { click, time: startTime + (from + onset) / sampleRate, levelDb };
   });
 }

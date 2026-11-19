@@ -41,6 +41,25 @@ describe('microphone clicks', () => {
     expect(onsets.map((o) => o.time === null ? null : Math.round((o.time - clicks[o.click]) * 1000))).toEqual([100, 100, 100, 100, 100]);
   });
 
+  it('in a noisier room, finds the click where it starts, not at the start of its window', () => {
+    // The click only a few times louder than the noise: 10 % of its peak is within the noise
+    const onsets = findClickOnsets(recording(4.5, clicks.map((c) => c + 0.15), { noise: 0.004, click: 0.03 }), clicks);
+    expect(onsets.map((o) => o.time === null ? null : Math.round((o.time - clicks[o.click]) * 1000))).toEqual([150, 150, 150, 150, 150]);
+  });
+
+  it('hears a click a few times louder than the room, and finds where it starts', () => {
+    // About 6 times the room's typical amplitude: what a laptop microphone hears from its speakers
+    const onsets = findClickOnsets(recording(4.5, clicks.map((c) => c + 0.15), { noise: 0.004, click: 0.012 }), clicks);
+    expect(onsets.map((o) => o.time === null ? null : Math.round((o.time - clicks[o.click]) * 1000))).toEqual([150, 150, 150, 150, 150]);
+  });
+
+  it('is not fooled by a noise earlier in the window', () => {
+    const rec = recording(2, [1.2]);
+    rec.samples[Math.round(1.05 * RATE)] += 0.15; // a short crack, 50 ms after the click was played, half as loud
+    const [onset] = findClickOnsets(rec, [1]);
+    expect(Math.round((onset.time! - 1) * 1000)).toBe(200);
+  });
+
   it('says a click was not heard rather than taking the background for it', () => {
     const onsets = findClickOnsets(recording(4.5, [clicks[0] + 0.2, clicks[2] + 0.2]), clicks);
     expect(onsets.map((o) => o.time !== null)).toEqual([true, false, true, false, false]);
