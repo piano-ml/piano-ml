@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, untracked, NgZone } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -35,6 +35,11 @@ import { type Hands, type PlayerState, PlayerControlService, type WorkbenchHandl
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
+
+/** After a wrong note, the on-screen keyboard is shown this long (even if the user hid it), in both modes. */
+export const WRONG_NOTE_KEYBOARD_VISIBLE_MS = 5000;
+/** How long the arena flashes red after a wrong note. */
+export const WRONG_NOTE_ARENA_FLASH_MS = 500;
 
 /** What to tell the user when a score cannot be loaded for practice. */
 export function scoreLoadErrorMessage(error: unknown): string {
@@ -87,8 +92,15 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   /** The browser denies MIDI to the site: /work/:slug says so in a popup, as the setup panel does. */
   showMidiBlockedDialog = false;
   protected readonly midiBlockedMessage = MIDI_BLOCKED_MESSAGE;
+  protected get soundFontState() { return this.playerService.soundFontState; }
   private midiPermission: PermissionStatus | null = null;
   private midiBlockedChecked = false;
+  /** Wrong notes already reacted to (the player's counter outlives this component). */
+  private seenWrongNotes = 0;
+  private arenaFlashTimer?: ReturnType<typeof setTimeout>;
+  private wrongNoteKeyboardTimer?: ReturnType<typeof setTimeout>;
+  /** The popup opens once per visit, whichever check notices first. */
+  private midiBlockedShown = false;
 
 
 
@@ -202,6 +214,13 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   /** The stored exercise this workbench loaded (EXERCICE_INFO_KEY as read): the only one it may clear (#413). */
   private loadedExerciseInfo: string | null = null;
   private routeParamSubscription?: Subscription;
+  private readonly ngZone = inject(NgZone);
+  /** MIDI setup gave up on a refused permission (e.g. NotAllowedError, while the Permissions API still says "prompt"). */
+  private readonly midiBlockedEffect = effect(() => {
+    if (this.midiService.midiBlocked() && !this.midiBlockedShown) {
+      this.openMidiBlockedDialog();
+    }
+  });
   private currentLoadId = 0;
   private lastRouteKey: string | null = null;
 
@@ -256,29 +275,25 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Effect 2: Player messages END / BAD (fires only on player message signal changes)
+    // Effect 2: Player message END (fires only on player message signal changes)
     effect(() => {
       if (!isPlatformBrowser(this.platformId)) return;
 
-      const message = this.playerService.message();
-      if (message === 'END') {
+      if (this.playerService.message() === 'END') {
         this.onPlaybackEnded();
-      } else if (message === 'BAD') {
-        this.arenaClass = 'bad';
-        this.hideKeyboard = false;
-        setTimeout(() => {
-          this.playerService.displayLiveOnKeyboard();
-        }, 0);
-        setTimeout(() => {
-          this.arenaClass = '';
-          this.changeDetector.markForCheck();
-        }, 500);
-        setTimeout(() => {
-          this.arenaClass = '';
-          this.hideKeyboard = this.storedHideKeyboard;
-          this.changeDetector.markForCheck();
-        }, 5000);
-        this.changeDetector.markForCheck();
+      }
+    });
+
+    // Effect 2b: wrong notes. A counter, not the BAD message: two wrong notes in a row are two changes, and each
+    // one restarts the keyboard timer.
+    this.seenWrongNotes = untracked(() => this.playerService.wrongNotes());
+    effect(() => {
+      if (!isPlatformBrowser(this.platformId)) return;
+
+      const wrongNotes = this.playerService.wrongNotes();
+      if (wrongNotes !== this.seenWrongNotes) {
+        this.seenWrongNotes = wrongNotes;
+        this.onWrongNote();
       }
     });
 
@@ -370,6 +385,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
         this.updateSlider();
       }
       this.changeDetector.markForCheck();
+      // start() does nothing until the sounds are loaded (Play is disabled meanwhile): a remote play waits for them
+      await this.playerService.initSoundFont();
       await this.start();
       this.changeDetector.markForCheck();
     },
@@ -462,10 +479,39 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
         this.closeMidiBlockedDialog();
       }
     };
-    if (this.midiPermission.state === 'denied') {
-      this.showMidiBlockedDialog = true;
-      this.changeDetector.markForCheck();
+    if (this.midiPermission.state === 'denied' && !this.midiBlockedShown) {
+      this.openMidiBlockedDialog();
     }
+  }
+
+  private openMidiBlockedDialog(): void {
+    this.midiBlockedShown = true;
+    this.showMidiBlockedDialog = true;
+    this.changeDetector.markForCheck();
+  }
+
+  /**
+   * Flashes the arena and shows the keyboard until WRONG_NOTE_KEYBOARD_VISIBLE_MS after the last wrong note: one
+   * timer, restarted on each, so that an older one cannot hide the keyboard early.
+   */
+  private onWrongNote(): void {
+    this.arenaClass = 'bad';
+    this.hideKeyboard = false;
+    setTimeout(() => {
+      this.playerService.displayLiveOnKeyboard();
+    }, 0);
+    clearTimeout(this.arenaFlashTimer);
+    this.arenaFlashTimer = setTimeout(() => {
+      this.arenaClass = '';
+      this.changeDetector.markForCheck();
+    }, WRONG_NOTE_ARENA_FLASH_MS);
+    clearTimeout(this.wrongNoteKeyboardTimer);
+    this.wrongNoteKeyboardTimer = setTimeout(() => {
+      this.wrongNoteKeyboardTimer = undefined;
+      this.hideKeyboard = this.storedHideKeyboard;
+      this.changeDetector.markForCheck();
+    }, WRONG_NOTE_KEYBOARD_VISIBLE_MS);
+    this.changeDetector.markForCheck();
   }
 
   closeMidiBlockedDialog() {
@@ -963,7 +1009,18 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Playback can only start once the sounds are loaded, by any route (Play, a click on the score). */
+  private soundsReady(): boolean {
+    return this.playerService.soundFontState() === 'ready';
+  }
+
+  /** The Retry button after a failed sound download. */
+  retrySounds(): void {
+    this.playerService.initSoundFont().catch((error) => console.warn('SoundFont load failed again', error));
+  }
+
   async start() {
+    if (!this.soundsReady()) return;
     this.toggleToolbar = this.isSmallScreen() ? false : true;
     this.isPlaying = true;
 
@@ -981,6 +1038,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   startStop() {
+    if (!this.soundsReady()) return;
     if (this.isPlaying) {
       this.stop();
     } else {
@@ -1088,6 +1146,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.playConfiguration.currentStave = Math.round(current);
       this.playConfiguration.scoreRange[1] = Math.round(end);
       this.playerService.resetLight(this.playConfiguration);
+      // Hides the tooltips the 'start' handler showed for the drag
+      this.slider.updateOptions({ tooltips: [false, false, false] });
       this.updateSlider();
     });
   }
@@ -1099,14 +1159,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.playConfiguration.currentStave,
       this.playConfiguration.scoreRange[1]
     ];
-    this.slider.updateOptions({
-      start: newValues,
-      tooltips: [
-        false,
-        false,
-        false
-      ],
-    });
+    // set() moves the handles; updateOptions() rebuilt every pip and tooltip, on each new measure while playing.
+    // fireSetEvent false: no 'set' event for a move the code made itself. Outside the zone: noUiSlider's own
+    // class timers would otherwise run change detection app-wide on each new measure.
+    this.ngZone.runOutsideAngular(() => this.slider.set(newValues, false));
   }
 
 
@@ -1223,6 +1279,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
     clearTimeout(this.titleTimer);
     this.titleTimer = undefined;
+    clearTimeout(this.arenaFlashTimer);
+    clearTimeout(this.wrongNoteKeyboardTimer);
     this.playerService.releaseScoreSession();
     this.clearData();
     // Remove resize listener

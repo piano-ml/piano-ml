@@ -10,7 +10,7 @@
   <!-- ── Toolbar ─────────────────────────────────────── -->
   <div class="flex items-center justify-between">
     <p class="page-sub-title">{{ selectedKey | noteName }} · {{ selectedChord.name }} · {{ selectedExcercice.title }}</p>
-    <button (click)="load()" class="btn-hero" i18n="@@exercises.start">Start</button>
+    <button (click)="load()" (pointerenter)="prefetchSounds()" (focus)="prefetchSounds()" (touchstart)="prefetchSounds()" class="btn-hero" i18n="@@exercises.start">Start</button>
   </div>
 
   <div class="exercise-body">

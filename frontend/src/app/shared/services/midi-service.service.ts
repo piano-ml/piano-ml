@@ -44,6 +44,10 @@ export class MidiServiceService {
 
   // Signal pour émettre les événements MIDI
   public midiEvent = signal<MidiStateEvent | null>(null)
+  /** See addNoteListener(). */
+  private readonly noteListeners = new Set<(event: MidiStateEvent) => void>()
+  /** Set when the browser refused MIDI access (permission denied or not granted): pages tell the user how to allow it. */
+  public readonly midiBlocked = signal(false)
 
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -51,46 +55,35 @@ export class MidiServiceService {
   }
 
   /**
-   * Midi out pressing note to connected output devices
-   * @param note 
-   * @param volume 
+   * Midi out pressing note to connected output devices.
+   * `atMs` (performance.now() time) lets the browser send it at that moment instead of right away: the player
+   * schedules a little ahead, like the synth.
    */
-  pressOutput(note: number, volume: number) {
-    const velocity = volume * 127
-    const data = [this.noteChannel, note, velocity]
-    for (const output of this.enabledOutputDevices) {
-      output[1]?.send(data)
-    }
+  pressOutput(note: number, volume: number, atMs?: number) {
+    this.send([this.noteChannel, note, volume * 127], atMs)
   }
 
-  /**
-   * Midi out releasing note to connected output devices
-   * @param note 
-   */
-  releaseOutput(note: number) {
-    for (const output of this.enabledOutputDevices) {
-      const data = [this.noteChannel + MidiServiceService.NOTE_OFF_OFFSET, note, 127]
-      output[1]?.send(data)
-    }
+  /** Midi out releasing note to connected output devices (`atMs`: see pressOutput). */
+  releaseOutput(note: number, atMs?: number) {
+    this.send([this.noteChannel + MidiServiceService.NOTE_OFF_OFFSET, note, 127], atMs)
   }
 
-
-  pressDrum(note: number, volume: number) {
-    const velocity = volume * 127
-    const data = [this.drumChannel, note, velocity]
-    for (const output of this.enabledOutputDevices) {
-      output[1]?.send(data)
-    }
+  pressDrum(note: number, volume: number, atMs?: number) {
+    this.send([this.drumChannel, note, volume * 127], atMs)
   }
 
-  /**
-   * Midi out releasing note to connected output devices
-   * @param note 
-   */
-  releaseDrum(note: number) {
+  /** Midi out releasing a drum (`atMs`: see pressOutput). */
+  releaseDrum(note: number, atMs?: number) {
+    this.send([this.drumChannel + MidiServiceService.NOTE_OFF_OFFSET, note, 127], atMs)
+  }
+
+  private send(data: number[], atMs?: number) {
     for (const output of this.enabledOutputDevices) {
-      const data = [this.drumChannel + MidiServiceService.NOTE_OFF_OFFSET, note, 127]
-      output[1]?.send(data)
+      if (atMs === undefined) {
+        output[1]?.send(data)
+      } else {
+        output[1]?.send(data, atMs)
+      }
     }
   }
 
@@ -102,10 +95,12 @@ export class MidiServiceService {
     }
 
     const { note, velocity } = msg
+    // A fake or replayed message may have no timestamp: now, then
+    const timeStamp = msg.timeStamp > 0 ? msg.timeStamp : performance.now()
     if (msg.type === 'on' && msg.velocity > 0) {
-      this.press(note, velocity)
+      this.press(note, velocity, timeStamp)
     } else {
-      this.release(note)
+      this.release(note, timeStamp)
     }
   }
 
@@ -115,19 +110,36 @@ export class MidiServiceService {
    * @param note 
    * @param velocity 
    */
-  press(note: number, velocity: number) {
+  press(note: number, velocity: number, timeStamp: number = performance.now()) {
     const time = Date.now()
     this.pressedNotes.set(note, { time, vel: velocity })
-    this.midiEvent.set({ note, velocity, type: 'down', time })
+    this.emit({ note, velocity, type: 'down', time, timeStamp })
   }
 
   /**
    * Midi in event (release) to Angular signal from connected input devices
    * @param note 
    */
-  release(note: number) {
+  release(note: number, timeStamp: number = performance.now()) {
     this.pressedNotes.delete(note)
-    this.midiEvent.set({ note, type: 'up', time: Date.now() })
+    this.emit({ note, type: 'up', time: Date.now(), timeStamp })
+  }
+
+  /**
+   * Called synchronously for every key press and release: unlike the midiEvent signal, nothing is coalesced or
+   * delayed to the next change detection. Returns the function that unsubscribes the listener.
+   */
+  addNoteListener(listener: (event: MidiStateEvent) => void): () => void {
+    this.noteListeners.add(listener)
+    return () => this.noteListeners.delete(listener)
+  }
+
+  /** Listeners first, in the same task as the key press; then the signal, for the pages that only display it. */
+  private emit(event: MidiStateEvent): void {
+    for (const listener of this.noteListeners) {
+      listener(event)
+    }
+    this.midiEvent.set(event)
   }
 
 
@@ -179,6 +191,9 @@ export class MidiServiceService {
         }, 500);
       } else {
         console.error(`MIDI setup failed after ${this.maxRetries} attempts. Stopping retry loop.`);
+        if (isMidiPermissionError(error)) {
+          this.midiBlocked.set(true);
+        }
       }
     });
 
@@ -435,6 +450,18 @@ function parseMidiMessage(event: MIDIMessageEvent): MidiEvent | null {
 }
 
 
+/** A refusal of MIDI access by the browser or the user, as opposed to an unsupported browser or a device failure. */
+export function isMidiPermissionError(error: unknown): boolean {
+  if (error instanceof Error && error.message === 'MIDI permission denied') return true;
+  const name = (error as { name?: unknown } | null)?.name;
+  return name === 'NotAllowedError' || name === 'SecurityError';
+}
+
+/** getMidiInputs() looks for a connected keyboard this often... */
+const MIDI_INPUT_POLL_MS = 1000;
+/** ...for this long, then answers with what it found (maybe nothing). */
+const MIDI_INPUT_WAIT_MS = 2000;
+
 export async function getMidiInputs(): Promise<MIDIInputMap> {
   const result = await navigator.permissions.query({ name: "midi" })
   if (result.state === "denied") {
@@ -444,26 +471,34 @@ export async function getMidiInputs(): Promise<MIDIInputMap> {
   try {
     const midiAccess = await navigator.requestMIDIAccess()
     return new Promise((resolve) => {
+      const inputs = () => midiAccess.inputs as unknown as MIDIInputMap;
+      let settled = false;
+      let poll: ReturnType<typeof setTimeout> | undefined;
+      let deadline: ReturnType<typeof setTimeout> | undefined;
+      // Answers once, and stops looking: the polling used to go on forever without a keyboard (one loop per setup
+      // attempt), waking the page, and Angular's change detection, every second.
+      const finish = () => {
+        settled = true;
+        clearTimeout(poll);
+        clearTimeout(deadline);
+        midiAccess.removeEventListener('statechange', checkDevices);
+        resolve(inputs());
+      };
       const checkDevices = () => {
-        const inputs = midiAccess.inputs as unknown as MIDIInputMap;
-        if (inputs.size > 0) {
-          resolve(inputs);
+        if (settled) return;
+        if (inputs().size > 0) {
+          finish();
         } else {
           // Réessayer après un court délai
-          setTimeout(checkDevices, 1000);
+          clearTimeout(poll);
+          poll = setTimeout(checkDevices, MIDI_INPUT_POLL_MS);
         }
       };
       midiAccess.addEventListener('statechange', checkDevices);
+      deadline = setTimeout(finish, MIDI_INPUT_WAIT_MS);
 
       // Vérifier immédiatement
       checkDevices();
-
-      setTimeout(() => {
-        midiAccess.removeEventListener('statechange', checkDevices);
-        if (result.state !== "denied") {
-          resolve(midiAccess.inputs as unknown as MIDIInputMap);
-        }
-      }, 2000);
     });
 
 

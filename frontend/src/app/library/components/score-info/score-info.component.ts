@@ -1,8 +1,10 @@
 import { Component, OnInit, ChangeDetectorRef, PLATFORM_ID, inject, ChangeDetectionStrategy } from '@angular/core';
+import { prefetchSoundFont } from '../../../shared/services/soundfont-cache';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo, YoutubeVideoApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
+import { PlaylistStore } from '../../../account/services/playlist-store.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapArrowRepeat, bootstrapClipboard, bootstrapDownload, bootstrapPencil } from '@ng-icons/bootstrap-icons';
 import { ScoreBasicInfoComponent } from '../score-basic-info/score-basic-info.component';
@@ -74,6 +76,8 @@ export class ScoreInfoComponent implements OnInit {
   }
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
+  /** Favorites need an account: the heart only shows to logged-in users. */
+  protected readonly loggedIn = inject(PlaylistStore).loggedIn;
 
   constructor(
     private route: ActivatedRoute,
@@ -93,6 +97,9 @@ export class ScoreInfoComponent implements OnInit {
       this.siteUrl = 'https://pianoml.org';
     }
   }
+
+  /** The workbench's sounds start downloading as the user points at the button that opens it. */
+  protected readonly prefetchSounds = prefetchSoundFont;
 
   ngOnInit() {
     this.slug = this.route.snapshot.paramMap.get('slug');
