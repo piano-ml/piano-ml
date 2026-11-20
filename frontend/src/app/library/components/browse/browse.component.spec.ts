@@ -384,6 +384,33 @@ describe('BrowseComponent', () => {
     });
   });
 
+  describe('the search field focus', () => {
+    const pointer = (fine: boolean) => vi.spyOn(window, 'matchMedia').mockImplementation(
+      (query: string) => ({ matches: query === '(pointer: fine)' ? fine : false, media: query }) as MediaQueryList);
+    const search = () => el.querySelector('#browse-search-keyword');
+
+    it('with a mouse, is ready for typing when the library opens, and stays where it is when a filter changes', async () => {
+      pointer(true);
+      await render('popular');
+      await settle();
+      expect(document.activeElement).toBe(search());
+      const [oneHand] = [...el.querySelectorAll('#browse-handedness input')] as HTMLInputElement[];
+      oneHand.focus();
+      oneHand.click();
+      fixture.detectChanges();
+      await settle();
+      expect(lastSearch().tracks).toEqual([1]);
+      expect(document.activeElement).toBe(oneHand);
+    });
+
+    it('on a touch screen, is never focused: that would bring up the on-screen keyboard', async () => {
+      pointer(false);
+      await render('popular');
+      await settle();
+      expect(document.activeElement).not.toBe(search());
+    });
+  });
+
   describe('the guided tour', () => {
     it('Help starts it', async () => {
       await render('popular');
