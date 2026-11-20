@@ -1090,6 +1090,22 @@
         <source>Microphone</source>
         <target state="translated">마이크</target>
       </trans-unit>
+      <trans-unit id="latency.tour.loopback.title" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">마이크로 스피커 소리 듣기</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.content" datatype="html">
+        <source>Your speakers or headphones always sound a little after a note is played. To score your playing against what you really hear, Piano ML plays a few clicks and listens to them with your microphone. That tells it how late the sound arrives.</source>
+        <target state="translated">스피커나 헤드폰은 항상 음을 연주한 뒤 조금 늦게 소리를 냅니다. 실제로 들리는 소리에 맞춰 연주를 평가하기 위해 Piano ML이 클릭음을 몇 번 재생하고 마이크로 듣습니다. 이를 통해 소리가 얼마나 늦게 도착하는지 알 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.title" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">보정하기</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.content" datatype="html">
+        <source>Best done now, before you play: allow the microphone, then press Calibrate. It takes about 20 seconds.</source>
+        <target state="translated">연주하기 전에 지금 하는 것이 좋습니다. 마이크를 허용한 다음 보정하기를 누르세요. 약 20초 걸립니다.</target>
+      </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
         <target state="translated">작업대 설정</target>

@@ -116,6 +116,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   midiOriginalTempo: number = 120;
   /** The timing calibration dialog, offered when a score opens and none was ever made. */
   isCalibrationOpen = false;
+  /** The tour started on this score's first visit: the calibration is offered once it ends. */
+  private calibrationAfterTour = false;
   /** The MIDI file's own tempo (bpm): what the playback speed factor is relative to. */
   private midiFileTempo = 120;
   /** The measure range is set once per score loaded, not on each re-render (it would undo the user's choice). */
@@ -257,6 +259,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
       if (this.beaconService.finished() || this.beaconService.dismissed()) {
         localStorage.setItem(this.tourSeenKey, 'true');
+        if (this.calibrationAfterTour) {
+          this.calibrationAfterTour = false;
+          this.offerCalibration();
+        }
       }
 
       const currentStep = this.beaconService.currentStep();
@@ -543,12 +549,20 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
     // Auto-start tour if never seen
     if (isPlatformBrowser(this.platformId) && !localStorage.getItem(this.tourSeenKey)) {
+      this.calibrationAfterTour = true;
       setTimeout(() => {
         this.startTour();
       }, 1000);
-    } else if (isPlatformBrowser(this.platformId) && this.scoreData?.id !== 'exercise' && !hasLatencyCalibration()) {
-      // A score opened without a timing calibration ever made: it is offered (after the tour, on a first visit)
+    } else if (isPlatformBrowser(this.platformId)) {
+      this.offerCalibration();
+    }
+  }
+
+  /** A score opened without a timing calibration ever made: the calibration is offered (after the tour, on a first visit). */
+  private offerCalibration(): void {
+    if (this.scoreData?.id !== 'exercise' && !hasLatencyCalibration()) {
       this.isCalibrationOpen = true;
+      this.changeDetector.markForCheck();
     }
   }
 

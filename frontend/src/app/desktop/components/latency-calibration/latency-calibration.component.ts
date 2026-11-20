@@ -1,11 +1,15 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
+import { BeaconService } from 'ng-beacon';
 import { CALIBRATION_MAX_MS } from '../../service/latency-calibration';
 import { MicrophoneService } from '../../service/microphone.service';
 import { CalibrationMode, CalibrationTap, PlayerAudioService } from '../../service/player-audio.service';
+import { CALIBRATION_TOUR } from './latency-calibration.tour';
 
 /** Where the chosen calibration mode is kept between visits. */
 export const CALIBRATION_MODE_KEY = 'latencyCalibrationMode';
 const MODES: CalibrationMode[] = ['loopback', 'midi'];
+/** Set once the guided tour of the dialog was shown (the first time the dialog opens). */
+export const CALIBRATION_TOUR_SEEN_KEY = 'calibration-tour-seen';
 
 /**
  * The timing calibration dialog (opened from the workbench setup): the app plays clicks and measures when they are
@@ -33,7 +37,7 @@ const MODES: CalibrationMode[] = ['loopback', 'midi'];
         </section>
 
         <section class="card-secondary mb-2 flex flex-col gap-2 text-sm" data-calibration-modes>
-          <label class="flex items-center gap-2" [class.opacity-50]="!microphoneSupported">
+          <label class="flex items-center gap-2" id="calibration-loopback" [class.opacity-50]="!microphoneSupported">
             <input type="radio" name="calibration-mode" value="loopback" [checked]="mode() === 'loopback'"
               [disabled]="!microphoneSupported || state() === 'listening'" (change)="setMode('loopback')" data-calibration-mode="loopback">
             <span i18n="@@latency.mode.loopback">Microphone hears the speakers</span>
@@ -60,7 +64,7 @@ const MODES: CalibrationMode[] = ['loopback', 'midi'];
             <div class="text-red-300" data-microphone-denied i18n="@@midiSetup.microphone.denied">Microphone access was refused. Allow it in the browser's site settings.</div>
             }
             @if (!microphoneNamesKnown()) {
-            <button type="button" class="btn-secondary" (click)="allowMicrophone()" data-microphone-allow i18n="@@midiSetup.microphone.allow">Allow the microphone</button>
+            <button type="button" class="btn-danger" (click)="allowMicrophone()" data-microphone-allow i18n="@@midiSetup.microphone.allow">Allow the microphone</button>
             }
             <select class="w-full input-field" (change)="selectMicrophone($any($event.target).value)" [disabled]="state() === 'listening'" data-microphone-select>
               <option value="" [selected]="!microphone.deviceId()" i18n="@@midiSetup.microphone.default">Default microphone</option>
@@ -104,7 +108,7 @@ const MODES: CalibrationMode[] = ['loopback', 'midi'];
                 <input type="number" class="input-field w-24" step="1" [min]="-maxMs" [max]="maxMs"
                   [value]="audio.latencyCalibrationMs()" (change)="setManually($event)" data-calibration-value>
               </label>
-              <button type="button" class="btn-primary" (click)="calibrate()" [disabled]="!canCalibrate()" data-calibrate i18n="@@latency.calibrate">Calibrate</button>
+              <button type="button" class="btn-primary" id="calibration-calibrate" (click)="calibrate()" [disabled]="!canCalibrate()" data-calibrate i18n="@@latency.calibrate">Calibrate</button>
               @if (audio.latencyCalibrationMs() !== 0) {
                 <button type="button" class="btn-secondary" (click)="reset()" data-calibration-reset i18n="@@latency.reset">Reset</button>
               }
@@ -135,6 +139,7 @@ const MODES: CalibrationMode[] = ['loopback', 'midi'];
 export class LatencyCalibrationComponent implements OnChanges, OnDestroy {
   protected readonly audio = inject(PlayerAudioService);
   protected readonly microphone = inject(MicrophoneService);
+  private readonly beacon = inject(BeaconService);
   protected readonly microphoneSupported = this.microphone.isSupported();
   protected readonly microphoneLabel = $localize`:@@midiSetup.microphoneFallback:Microphone`;
   protected readonly maxMs = CALIBRATION_MAX_MS;
@@ -160,9 +165,31 @@ export class LatencyCalibrationComponent implements OnChanges, OnDestroy {
     if (changes['isOpen']?.currentValue) {
       this.state.set('idle');
       this.loadMicrophones();
+      this.startTourOnFirstOpen();
     } else if (changes['isOpen'] && !changes['isOpen'].firstChange) {
       this.cancel();
+      this.stopTour();
     }
+  }
+
+  /** The first time, a short tour: what the microphone calibration does, then Calibrate. */
+  private startTourOnFirstOpen(): void {
+    if (!this.microphoneSupported || this.mode() !== 'loopback') return;
+    try {
+      if (localStorage.getItem(CALIBRATION_TOUR_SEEN_KEY)) return;
+      localStorage.setItem(CALIBRATION_TOUR_SEEN_KEY, 'true');
+    } catch {
+      return; // storage unavailable: not shown, rather than on every open
+    }
+    // Once the dialog is drawn, for the tour to find its buttons
+    setTimeout(() => {
+      if (this.isOpen && !this.beacon.isActive()) this.beacon.start(CALIBRATION_TOUR);
+    }, 300);
+  }
+
+  private stopTour(): void {
+    const step = this.beacon.currentStep();
+    if (step && CALIBRATION_TOUR.some((s) => s.id === step.id)) this.beacon.stop();
   }
 
   async calibrate(): Promise<void> {
@@ -246,6 +273,7 @@ export class LatencyCalibrationComponent implements OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.cancel();
+    this.stopTour();
   }
 
   private async loadMicrophones(): Promise<void> {

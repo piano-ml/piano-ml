@@ -1090,6 +1090,22 @@
         <source>Microphone</source>
         <target state="translated">Mikrofon</target>
       </trans-unit>
+      <trans-unit id="latency.tour.loopback.title" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">Mikrofon hört die Lautsprecher</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.content" datatype="html">
+        <source>Your speakers or headphones always sound a little after a note is played. To score your playing against what you really hear, Piano ML plays a few clicks and listens to them with your microphone. That tells it how late the sound arrives.</source>
+        <target state="translated">Deine Lautsprecher oder Kopfhörer klingen immer etwas später, als eine Note gespielt wird. Damit dein Spiel an dem gemessen wird, was du wirklich hörst, spielt Piano ML ein paar Klicks und hört sie mit deinem Mikrofon. So erfährt es, wie spät der Klang ankommt.</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.title" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">Kalibrieren</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.content" datatype="html">
+        <source>Best done now, before you play: allow the microphone, then press Calibrate. It takes about 20 seconds.</source>
+        <target state="translated">Am besten jetzt, bevor du spielst: Erlaube das Mikrofon und drücke dann auf Kalibrieren. Es dauert etwa 20 Sekunden.</target>
+      </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
         <target state="translated">Einstellungen der Werkstatt</target>

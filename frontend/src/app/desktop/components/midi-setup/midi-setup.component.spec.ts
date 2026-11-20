@@ -1,3 +1,4 @@
+import { provideBeacon } from 'ng-beacon';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
 import { MidiSetupComponent } from './midi-setup.component';
@@ -53,7 +54,7 @@ describe('MidiSetupComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [MidiSetupComponent],
-      providers: [{ provide: MidiServiceService, useValue: midi }],
+      providers: [{ provide: MidiServiceService, useValue: midi }, provideBeacon()],
     }).compileComponents();
     fixture = TestBed.createComponent(MidiSetupComponent);
     component = fixture.componentInstance;

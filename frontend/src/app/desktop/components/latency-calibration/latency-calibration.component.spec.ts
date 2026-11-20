@@ -1,8 +1,10 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BeaconService, provideBeacon } from 'ng-beacon';
 import { MicrophoneService } from '../../service/microphone.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
-import { CALIBRATION_MODE_KEY, LatencyCalibrationComponent } from './latency-calibration.component';
+import { CALIBRATION_MODE_KEY, CALIBRATION_TOUR_SEEN_KEY, LatencyCalibrationComponent } from './latency-calibration.component';
+import { CALIBRATION_TOUR } from './latency-calibration.tour';
 
 describe('LatencyCalibrationComponent', () => {
   let audio: { latencyCalibrationMs: ReturnType<typeof signal<number>>; calibrateLatency: ReturnType<typeof vi.fn>; setLatencyCalibration: ReturnType<typeof vi.fn> };
@@ -33,6 +35,7 @@ describe('LatencyCalibrationComponent', () => {
       providers: [
         { provide: PlayerAudioService, useValue: audio },
         { provide: MicrophoneService, useValue: { ...microphone, isSupported: () => microphoneSupported } },
+        provideBeacon(),
       ],
     });
     fixture = TestBed.createComponent(LatencyCalibrationComponent);
@@ -47,6 +50,7 @@ describe('LatencyCalibrationComponent', () => {
 
   beforeEach(() => {
     localStorage.removeItem(CALIBRATION_MODE_KEY);
+    localStorage.setItem(CALIBRATION_TOUR_SEEN_KEY, 'true'); // the first-open tour has its own tests
     audio = {
       latencyCalibrationMs: signal(0),
       calibrateLatency: vi.fn((signal: AbortSignal) => new Promise((resolve, reject) => {
@@ -64,7 +68,11 @@ describe('LatencyCalibrationComponent', () => {
       select: vi.fn((id: string) => microphone.deviceId.set(id)),
     };
   });
-  afterEach(() => localStorage.removeItem(CALIBRATION_MODE_KEY));
+  afterEach(() => {
+    TestBed.inject(BeaconService).stop();
+    localStorage.removeItem(CALIBRATION_MODE_KEY);
+    localStorage.removeItem(CALIBRATION_TOUR_SEEN_KEY);
+  });
 
   it('renders nothing while closed', () => {
     create();
@@ -227,6 +235,50 @@ describe('LatencyCalibrationComponent', () => {
     expect(closed).toBe(2);
   });
 
+  describe('first-open tour', () => {
+    const tourStarted = async (beacon: BeaconService) => {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      return beacon.isActive() && beacon.currentStep()?.id === CALIBRATION_TOUR[0].id;
+    };
+
+    it('the first time, shows the microphone mode, then Calibrate, once only', async () => {
+      localStorage.removeItem(CALIBRATION_TOUR_SEEN_KEY);
+      create();
+      const beacon = TestBed.inject(BeaconService);
+      await open();
+      expect(await tourStarted(beacon)).toBe(true);
+      expect(CALIBRATION_TOUR.map((step) => step.selector)).toEqual(['#calibration-loopback', '#calibration-calibrate']);
+      for (const step of CALIBRATION_TOUR) expect(el.querySelector(step.selector!)).not.toBeNull();
+      expect(CALIBRATION_TOUR[1].content).toContain('allow the microphone');
+      beacon.stop();
+      fixture.componentRef.setInput('isOpen', false);
+      render();
+      await open();
+      expect(await tourStarted(beacon)).toBe(false);
+    });
+
+    it('ends with the dialog', async () => {
+      localStorage.removeItem(CALIBRATION_TOUR_SEEN_KEY);
+      create();
+      const beacon = TestBed.inject(BeaconService);
+      await open();
+      expect(await tourStarted(beacon)).toBe(true);
+      button('data-calibration-close').click();
+      fixture.componentRef.setInput('isOpen', false);
+      render();
+      expect(beacon.isActive()).toBe(false);
+    });
+
+    it('is not shown with MIDI taps', async () => {
+      localStorage.removeItem(CALIBRATION_TOUR_SEEN_KEY);
+      localStorage.setItem(CALIBRATION_MODE_KEY, 'midi');
+      create();
+      await open();
+      expect(await tourStarted(TestBed.inject(BeaconService))).toBe(false);
+      expect(localStorage.getItem(CALIBRATION_TOUR_SEEN_KEY)).toBeNull(); // still shown once the microphone is chosen
+    });
+  });
+
   describe('microphone choice', () => {
     const micSelect = () => el.querySelector('[data-microphone-select]') as HTMLSelectElement;
 
@@ -235,6 +287,7 @@ describe('LatencyCalibrationComponent', () => {
       create();
       await open();
       expect(options(micSelect())).toEqual(['Default microphone', 'Microphone 1']);
+      expect(button('data-microphone-allow').classList).toContain('btn-danger'); // in red: the step to take first
       microphone.requestPermission.mockImplementation(async () => { devices = [{ deviceId: 'm-1', label: 'USB Mic' }]; });
       button('data-microphone-allow').click();
       await settle();

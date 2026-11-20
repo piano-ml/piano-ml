@@ -472,6 +472,17 @@ describe('WorkbenchComponent', () => {
       expect(el().querySelector('app-latency-calibration .modal')).toBeNull();
     });
 
+    it('on a first visit, offers it once the guided tour ends', async () => {
+      localStorage.removeItem('workbench-tour-seen');
+      const beacon = TestBed.inject(BeaconService);
+      await openScore();
+      await waitFor(() => beacon.isActive());
+      render();
+      expect(el().querySelector('app-latency-calibration .modal')).toBeNull(); // not over the tour
+      beacon.stop();
+      await waitFor(() => { render(); return !!el().querySelector('app-latency-calibration .modal'); });
+    });
+
     it('does not offer it again once a correction is stored, 0 included', async () => {
       localStorage.setItem('workbench-tour-seen', 'true');
       localStorage.setItem('audioLatencyCalibrationMs', '0');
