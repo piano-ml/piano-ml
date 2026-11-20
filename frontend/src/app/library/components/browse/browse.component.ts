@@ -294,8 +294,12 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.waitForTourTargetsAndStart(attempt + 1), 200);
   }
 
+  /**
+   * The search field ready for typing when the library opens (or its tour ends), not after each filter change, and
+   * only with a mouse: on a touch screen, focusing it brings up the on-screen keyboard over the results.
+   */
   private focusSearchInputSoon(delayMs = 0) {
-    if (!isPlatformBrowser(this.platformId)) {
+    if (!isPlatformBrowser(this.platformId) || !window.matchMedia?.('(pointer: fine)').matches) {
       return;
     }
 
@@ -452,7 +456,6 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
         this.hasMore = data.length === this.pageSize;
         this.currentPage++;
         this.loading = false;
-        this.focusSearchInputSoon();
         this.changeDetector.detectChanges();
       },
       error: (error) => {
@@ -580,7 +583,6 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
         this.hasMore = data.length === this.pageSize;
         this.currentPage++;
         this.loading = false;
-        this.focusSearchInputSoon();
         this.changeDetector.detectChanges();
       },
       error: (error) => {
@@ -653,7 +655,6 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
         this.hasMore = data.length === this.pageSize;
         this.currentPage++;
         this.loading = false;
-        this.focusSearchInputSoon();
         this.changeDetector.detectChanges();
       },
       error: (error) => {
