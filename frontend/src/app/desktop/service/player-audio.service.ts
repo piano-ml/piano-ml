@@ -261,15 +261,12 @@ export class PlayerAudioService implements OnDestroy {
         if (signal?.aborted) return;
         // currentTime moves by whole buffers: the median of the samples
         const lag = lags.length > 0 ? lags.sort((a, b) => a - b)[lags.length >> 1] : this.outputLatency();
-        console.log(`[calibration] reported output latency (as scored) ${Math.round(lag * 1000)} ms, input latency ${Math.round(recorder.inputLatency * 1000)} ms`);
         for (const onset of findClickOnsets(recording, clicks)) {
-          console.log(`[calibration] click ${onset.click + 1}: ${onset.time === null ? 'not heard' : `captured ${Math.round((onset.time - clicks[onset.click]) * 1000)} ms after it was played`}, ${onset.levelDb} dB above the background`);
           if (onset.time !== null) tap(onset.time - recorder.inputLatency - lag, onset.click);
         }
       };
     }
     const first = context.currentTime + (mode === 'loopback' ? CALIBRATION_MIC_LEAD_S : CALIBRATION_LEAD_S);
-    console.log(`[calibration] ${mode}: base latency ${Math.round(context.baseLatency * 1000)} ms, output latency ${Math.round((context.outputLatency || 0) * 1000)} ms, sample rate ${context.sampleRate} Hz`);
     clicks = Array.from({ length: CALIBRATION_CLICKS }, (_, i) => first + i * interval);
     clicks.forEach((time, i) => this.playMetronomeClick(i % 4 === 0, METRONOME_FULL_VELOCITY, time));
     try {
