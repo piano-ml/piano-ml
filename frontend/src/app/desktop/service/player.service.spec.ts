@@ -8,10 +8,11 @@ import { MidiServiceService } from '../../shared/services/midi-service.service';
 import { SIMPLE_SCORE, renderScore, scoreMidi } from '../../testing/score-fixture';
 import type { PlayConfiguration } from '../model/model';
 import { CursorService } from './cursor.service';
+import { midiToPitch } from './midi-maths';
 import { type LiveStatus, PlayerAssessService } from './player-assess.service';
 import { PlayerAudioService } from './player-audio.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
-import { PlayerService } from './player.service';
+import { COUNT_IN_BARS, PlayerService } from './player.service';
 import { PracticeSessionRecorder } from './practice-session-recorder.service';
 
 type Callbacks = { onNoteStart: (t: number, n: Note, s: LiveStatus) => void; onNoteEnd: (t: number, n: Note, s: LiveStatus) => void };
@@ -28,6 +29,8 @@ describe('PlayerService', () => {
   let keys: { fillKey: ReturnType<typeof vi.fn>; clearKey: ReturnType<typeof vi.fn> };
   let midiEvent: ReturnType<typeof signal<MidiStateEvent | null>>;
   let midiService: Record<'setupMidiDeviceListeners' | 'resetSessionOutputs', ReturnType<typeof vi.fn>> & { midiEvent: typeof midiEvent };
+  /** What the player registered with addNoteListener(); null once it unsubscribed. */
+  let noteListener: ((event: MidiStateEvent) => void) | null;
   let handTracks: { hand: string; start: number; end: number; offset: number; timeFactor: number; callbacks: Callbacks }[];
   let onEnd: (() => void) | undefined;
 
@@ -44,8 +47,13 @@ describe('PlayerService', () => {
   beforeEach(() => {
     localStorage.removeItem('tempo-control-metronome');
     midiEvent = signal<MidiStateEvent | null>(null);
+    noteListener = null;
     midiService = {
       midiEvent, setupMidiDeviceListeners: vi.fn(), resetSessionOutputs: vi.fn(),
+      addNoteListener: vi.fn((listener: (event: MidiStateEvent) => void) => {
+        noteListener = listener;
+        return () => { noteListener = null; };
+      }),
       pianoMLShouldPlay: vi.fn(() => true), pressOutput: vi.fn(), releaseOutput: vi.fn(),
     } as never;
     TestBed.configureTestingModule({ providers: [{ provide: MidiServiceService, useValue: midiService }] });
@@ -68,6 +76,9 @@ describe('PlayerService', () => {
       handTracks.push({ hand, start, end, offset, timeFactor, callbacks });
     });
     vi.spyOn(audio, 'scheduleEnd').mockImplementation((_time, cb) => { onEnd = cb; });
+    vi.spyOn(audio, 'startRollingSchedule').mockImplementation(() => undefined);
+    // The visual work of a due note runs at once, as if its frame came
+    vi.spyOn(audio, 'scheduleDraw').mockImplementation((cb) => cb());
   });
 
   it('listens for MIDI devices in the browser', () => {
@@ -156,12 +167,23 @@ describe('PlayerService', () => {
       const cfg = load();
       await player.play(cfg);
       expect(audio.start).toHaveBeenCalled();
-      expect(audio.startCountIn).toHaveBeenCalledWith(2, cfg.midi!.header.timeSignatures[0], 120);
+      expect(audio.startCountIn).toHaveBeenCalledWith(COUNT_IN_BARS, cfg.midi!.header.timeSignatures[0], 120);
       expect(handTracks.map(({ hand, start, end, offset, timeFactor }) => ({ hand, start, end, offset, timeFactor }))).toEqual([
         { hand: 'rh', start: 0, end: 6 + 2, offset: 2, timeFactor: 1 }, // 3 bars of 2 s, plus the count-in
         { hand: 'lh', start: 0, end: 6 + 2, offset: 2, timeFactor: 1 },
       ]);
       expect(audio.scheduleEnd).toHaveBeenCalledWith(8, expect.any(Function));
+    });
+
+    it('starts the transport only once everything is scheduled', async () => {
+      const order: string[] = [];
+      vi.mocked(audio.startCountIn).mockImplementation(() => { order.push('count-in'); return 2; });
+      vi.mocked(audio.scheduleHandTrack).mockImplementation((hand) => { order.push(hand); });
+      vi.mocked(audio.scheduleEnd).mockImplementation(() => { order.push('end'); });
+      vi.mocked(audio.start).mockImplementation(async () => { order.push('start'); });
+      vi.mocked(audio.startRollingSchedule).mockImplementation(() => { order.push('rolling'); });
+      await player.play(load());
+      expect(order).toEqual(['count-in', 'rh', 'lh', 'rolling', 'end', 'start']);
     });
 
     it('plays only the selected bars', async () => {
@@ -171,10 +193,21 @@ describe('PlayerService', () => {
       expect(handTracks[0]).toMatchObject({ start: 2, end: 2 + 2 + 2 }); // from bar 2, one bar, plus the count-in
     });
 
-    it('scales times with the tempo', async () => {
-      const cfg = load({ tempoFactor: 2 });
+    it('counts in the bars chosen in the metronome dialog, 2 by default', async () => {
+      localStorage.setItem('tempo-control-count-in', '0');
+      const cfg = load();
+      expect(cfg.countInBars).toBe(0);
       await player.play(cfg);
-      expect(audio.startCountIn).toHaveBeenCalledWith(2, expect.anything(), 240);
+      expect(audio.startCountIn).toHaveBeenLastCalledWith(0, expect.anything(), expect.any(Number));
+      localStorage.removeItem('tempo-control-count-in');
+      expect(load().countInBars).toBe(COUNT_IN_BARS);
+    });
+
+    it('scales times with the tempo', async () => {
+      const cfg = load();
+      cfg.tempoFactor = 2; // set after loading, as the workbench does (loading resets it to the score's tempo)
+      await player.play(cfg);
+      expect(audio.startCountIn).toHaveBeenCalledWith(COUNT_IN_BARS, expect.anything(), 240);
       expect(handTracks[0]).toMatchObject({ end: 3 + 2, timeFactor: 0.5 }); // twice as fast: 3 s
     });
 
@@ -205,6 +238,21 @@ describe('PlayerService', () => {
       expect(keys.clearKey).toHaveBeenCalledWith('C5');
     });
 
+    it('decides to pause in the transport callback, before the frame that shows it', async () => {
+      vi.spyOn(cursor, 'nextNote').mockImplementation(() => undefined);
+      const frames: (() => void)[] = [];
+      vi.mocked(audio.scheduleDraw).mockImplementation((cb) => { frames.push(cb); });
+      await player.play(load());
+      const waiting = status({ shouldPause: true, expectations: new Map([[1, new Set([{ hand: 'rh', midi: 72 }])]]) });
+      handTracks[0].callbacks.onNoteStart(3, { midi: 72, name: 'C5', ticks: 0, velocity: 1 } as Note, waiting);
+      expect(audio.pause).toHaveBeenCalled(); // no frame yet
+      expect(player.isWaiting).toBe(true);
+      expect(keys.fillKey).not.toHaveBeenCalled();
+      expect(audio.scheduleDraw).toHaveBeenCalledWith(expect.any(Function), 3);
+      frames.forEach((frame) => frame());
+      expect(keys.fillKey).toHaveBeenCalledWith('C5', expect.any(String));
+    });
+
     it('pauses and shows the expected notes while the user has to play', async () => {
       vi.spyOn(cursor, 'nextNote').mockImplementation(() => undefined);
       await player.play(load());
@@ -220,11 +268,13 @@ describe('PlayerService', () => {
 
   describe('MIDI input', () => {
     const down = (note: number) => ({ type: 'down', note, velocity: 100, time: 0 }) as unknown as MidiStateEvent;
-    /** Delivers a MIDI event and lets the (async) handling finish. */
-    const send = async (event: MidiStateEvent) => {
-      midiEvent.set(event);
-      TestBed.tick();
+    /** Delivers a MIDI event as the MIDI service does (synchronously), and lets the (async) handling finish. */
+    const settle = async () => {
       for (let i = 0; i < 5; i++) await Promise.resolve(); // microtasks only: works with fake timers
+    };
+    const send = async (event: MidiStateEvent) => {
+      noteListener!(event);
+      await settle();
     };
 
     it('is ignored unless the user plays a hand', async () => {
@@ -234,10 +284,41 @@ describe('PlayerService', () => {
       expect(getNewActual).not.toHaveBeenCalled();
     });
 
+    it('in play-along mode, assesses each key press against the notes due around that time', async () => {
+      load();
+      vi.spyOn(audio, 'isPlaying').mockReturnValue(true);
+      const heard = vi.spyOn(audio, 'heardTransportSeconds').mockReturnValue(3.1);
+      const playTimed = vi.spyOn(assess, 'playTimed');
+      assess.expectTimed(3, { midi: 72, bars: 0 } as Note, 'rh');
+      await send({ ...down(72), timeStamp: 1234 });
+      expect(heard).toHaveBeenCalledWith(1234); // when the key was played, on the clock of what was heard then
+      expect(playTimed).toHaveBeenCalledWith(3.1, 72);
+      expect(assess.snapshot()).toMatchObject({ hit: 1, wrong: 0, played: 1 });
+    });
+
+    it('in play-along mode, ignores keys while playback is stopped', async () => {
+      load();
+      const playTimed = vi.spyOn(assess, 'playTimed');
+      await send(down(72));
+      expect(playTimed).not.toHaveBeenCalled();
+    });
+
+    it('a right note resumes playback at once, in the MIDI listener, when everything runs', () => {
+      load({ waitForRightHand: true });
+      player.isWaiting = true;
+      vi.spyOn(assess, 'getNewActual').mockReturnValue(status());
+      const resumeNow = vi.spyOn(audio, 'resumeNow').mockReturnValue(true);
+      noteListener!(down(72)); // no await
+      expect(resumeNow).toHaveBeenCalledOnce();
+      expect(player.isWaiting).toBe(false);
+      expect(audio.start).not.toHaveBeenCalled();
+    });
+
     it('a right note resumes playback when it was waiting', async () => {
       load({ waitForRightHand: true });
       player.isWaiting = true;
       vi.spyOn(assess, 'getNewActual').mockReturnValue(status());
+      vi.spyOn(audio, 'resumeNow').mockReturnValue(false); // e.g. a suspended context: start() it is
       await send(down(72));
       expect(audio.start).toHaveBeenCalled();
       expect(player.isWaiting).toBe(false);
@@ -253,6 +334,36 @@ describe('PlayerService', () => {
       expect(audio.start).not.toHaveBeenCalled();
     });
 
+    it('takes every note of a chord played in the same task, and then resumes', async () => {
+      const cfg = load({ waitForRightHand: true });
+      vi.spyOn(cursor, 'nextNote').mockImplementation(() => undefined);
+      cursor.midiTicksToOsmdCursorIndex.set(0, { osmdIndex: 0, osmdMeasure: 0 });
+      await player.play(cfg);
+      player.isWaiting = true;
+      const chord = [60, 64, 67].map((midi) => ({ midi, ticks: 0, bars: 0 }) as Note);
+      for (const note of chord) assess.learnExpectation(1, 2, note, 'rh');
+      vi.mocked(audio.start).mockClear();
+      // Back to back, with no change detection in between: an effect on the signal saw only the last one
+      for (const note of chord) noteListener!(down(note.midi));
+      await settle();
+      expect(assess.snapshot().hit).toBe(3);
+      expect(player.isWaiting).toBe(false);
+      expect(audio.start).toHaveBeenCalledTimes(1);
+    });
+
+    it('marks a play-along session as played on a MIDI keyboard', async () => {
+      const recorder = TestBed.inject(PracticeSessionRecorder);
+      const noteOn = vi.spyOn(recorder, 'noteOn');
+      load();
+      await send(down(60));
+      expect(noteOn).toHaveBeenCalledOnce();
+    });
+
+    it('stops listening when the player is destroyed', () => {
+      player.ngOnDestroy();
+      expect(noteListener).toBeNull();
+    });
+
     it('ignores key releases', async () => {
       load({ waitForRightHand: true });
       const getNewActual = vi.spyOn(assess, 'getNewActual');
@@ -264,8 +375,10 @@ describe('PlayerService', () => {
       let dispose: () => void;
       afterEach(() => { vi.useRealTimers(); dispose?.(); });
 
-      it('shows BAD and marks the closest note under the cursor in red for a second', async () => {
-        const cfg = load({ waitForRightHand: true });
+      const red = (host: HTMLElement) => host.querySelectorAll('[fill="#FF0000"]').length;
+
+      it('shows BAD for a second, and the note on the score only once the playing is stopped', async () => {
+        load({ waitForRightHand: true });
         const rendered = await renderScore(SIMPLE_SCORE);
         dispose = rendered.dispose;
         await player.setOsmd(rendered.osmd);
@@ -274,14 +387,65 @@ describe('PlayerService', () => {
         vi.spyOn(assess, 'getNewActual').mockReturnValue(status({ bad: 73 }));
         await send(down(73));
         expect(player.message()).toBe('BAD');
-        const red = rendered.host.querySelectorAll('[fill="#FF0000"]');
-        expect(red.length).toBeGreaterThan(0);
+        expect(red(rendered.host)).toBe(0); // not while playing
         vi.advanceTimersByTime(1000);
         expect(player.message()).toBe('');
-        expect(cfg.midi).toBeDefined();
+        player.pause();
+        expect(red(rendered.host)).toBeGreaterThan(0);
       });
 
-      it('clears the marking when playback restarts', async () => {
+      it('in play-along mode: the wrong notes of a pass shown at its end, until the next count-in is over', async () => {
+        const cfg = load({ isLoop: true });
+        const rendered = await renderScore(SIMPLE_SCORE);
+        dispose = rendered.dispose;
+        await player.setOsmd(rendered.osmd);
+        let countInOver: ((time: number) => void) | undefined;
+        vi.spyOn(audio, 'schedule').mockImplementation((cb, time) => { if (time === 2) countInOver = cb; });
+        await player.play(cfg);
+        rendered.osmd.cursor.reset();
+        vi.spyOn(audio, 'isPlaying').mockReturnValue(true);
+        vi.spyOn(assess, 'playTimed').mockReturnValue({ bad: true });
+        const before = player.wrongNotes();
+        noteListener!(down(73)); // synchronous: BAD and the count at once
+        expect(player.message()).toBe('BAD');
+        expect(player.wrongNotes()).toBe(before + 1);
+        expect(red(rendered.host)).toBe(0);
+        expect(keys.fillKey.mock.calls.filter(([name]) => name === midiToPitch(73))).toEqual([]);
+        countInOver = undefined;
+        onEnd!(); // the end of the pass: shown, and the loop starts again with its count-in
+        expect(red(rendered.host)).toBeGreaterThan(0);
+        await Promise.resolve();
+        expect(countInOver).toBeDefined();
+        expect(red(rendered.host)).toBeGreaterThan(0); // still during the count-in
+        countInOver!(0);
+        expect(red(rendered.host)).toBe(0);
+      });
+
+      it('without a count-in, clears them as the pass starts again', async () => {
+        vi.mocked(audio.startCountIn).mockReturnValue(0);
+        const cfg = load({ isLoop: true });
+        const rendered = await renderScore(SIMPLE_SCORE);
+        dispose = rendered.dispose;
+        await player.setOsmd(rendered.osmd);
+        await player.play(cfg);
+        rendered.osmd.cursor.reset();
+        vi.spyOn(audio, 'isPlaying').mockReturnValue(true);
+        vi.spyOn(assess, 'playTimed').mockReturnValue({ bad: true });
+        noteListener!(down(73));
+        player.pause();
+        expect(red(rendered.host)).toBeGreaterThan(0);
+        await player.play(cfg);
+        expect(red(rendered.host)).toBe(0);
+      });
+
+      it('a right key on the MIDI keyboard is never lit', async () => {
+        load({ waitForRightHand: true });
+        vi.spyOn(assess, 'getNewActual').mockReturnValue(status());
+        await send(down(72));
+        expect(keys.fillKey.mock.calls.filter(([name]) => name === midiToPitch(72))).toEqual([]);
+      });
+
+      it('clears the wrong notes shown when the measures change', async () => {
         const cfg = load({ waitForRightHand: true });
         const rendered = await renderScore(SIMPLE_SCORE);
         dispose = rendered.dispose;
@@ -289,8 +453,10 @@ describe('PlayerService', () => {
         rendered.osmd.cursor.reset();
         vi.spyOn(assess, 'getNewActual').mockReturnValue(status({ bad: 73 }));
         await send(down(73));
+        player.pause();
+        expect(red(rendered.host)).toBeGreaterThan(0);
         player.resetLight(cfg);
-        expect(player.message()).toBe('');
+        expect(red(rendered.host)).toBe(0);
       });
     });
   });
@@ -315,6 +481,13 @@ describe('PlayerService', () => {
       expect(recorder.takeStarted).toHaveBeenCalledWith(cfg);
     });
 
+    it('Play drops the notes before the position the transport resumes from', async () => {
+      vi.spyOn(audio, 'getTransportSeconds').mockReturnValue(4.5);
+      const beginTimed = vi.spyOn(assess, 'beginTimed');
+      await player.play(load());
+      expect(beginTimed).toHaveBeenCalledWith(4.5);
+    });
+
     it('Pause closes the take', async () => {
       await player.play(load());
       calls = [];
@@ -324,9 +497,10 @@ describe('PlayerService', () => {
 
     it('the end of the range completes the take before the assessment is reset', async () => {
       await player.play(load());
+      vi.spyOn(assess, 'endTimed').mockImplementation(() => { calls.push('notes left missed'); });
       calls = [];
       onEnd!();
-      expect(calls[0]).toBe('completed');
+      expect(calls.slice(0, 2)).toEqual(['notes left missed', 'completed']);
       expect(calls.indexOf('reset')).toBeGreaterThan(0);
     });
 
@@ -388,12 +562,6 @@ describe('PlayerService', () => {
       expect(reset).toHaveBeenCalledWith(2);
       expect(audio.stop).toHaveBeenCalled();
       expect(player.lastMidiEventTime).toBe(-1);
-    });
-
-    it('lights the notes the user is expected to play', () => {
-      vi.spyOn(assess, 'getExpectation').mockReturnValue(status({ expectations: new Map([[2, new Set([{ hand: 'rh', midi: 76 }])], [3, new Set([{ hand: 'rh', midi: 79 }])]]) }));
-      player.displayLiveOnKeyboard();
-      expect(keys.fillKey.mock.calls.map(([name]) => name)).toEqual(['E5']); // the oldest expectation only
     });
 
     it('forwards pause, cursor and soundfont calls', async () => {

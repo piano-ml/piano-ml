@@ -10,14 +10,14 @@ import { GOOD_RANGE, PlayerAssessService } from './player-assess.service';
  */
 describe('PlayerAssessService', () => {
   let assess: PlayerAssessService;
-  let cursor: { audioTimeNoteArray: Map<number, { pitch: number; hit: boolean }[]>; midiTicksToOsmdCursorIndex: Map<number, number> };
+  let cursor: { midiTicksToOsmdCursorIndex: Map<number, number> };
 
   /** A score note at `ticks` (only notes the cursor knows can be expected). */
   const note = (midi: number, ticks = 0) => ({ midi, ticks }) as Note;
   const played = (midi: number, time = 0) => ({ note: midi, time, type: 'down' }) as unknown as MidiStateEvent;
 
   beforeEach(() => {
-    cursor = { audioTimeNoteArray: new Map(), midiTicksToOsmdCursorIndex: new Map([[0, 0], [480, 1], [960, 2]]) };
+    cursor = { midiTicksToOsmdCursorIndex: new Map([[0, 0], [480, 1], [960, 2]]) };
     TestBed.configureTestingModule({ providers: [{ provide: CursorService, useValue: cursor }] });
     assess = TestBed.inject(PlayerAssessService);
     assess.reset();
@@ -110,32 +110,108 @@ describe('PlayerAssessService', () => {
     });
   });
 
-  describe('timing window (isNoteInTime)', () => {
+  describe('play-along (timed expectations)', () => {
+    let transport: number;
+    /** A score note in the 1-based `measure`. */
+    const at = (midi: number, measure = 1) => ({ midi, ticks: 0, bars: measure - 1 }) as Note;
+
     beforeEach(() => {
-      cursor.audioTimeNoteArray = new Map([
-        [1, [{ pitch: 60, hit: false }]],
-        [2, [{ pitch: 62, hit: false }, { pitch: 65, hit: true }]],
-        [5, [{ pitch: 67, hit: false }]],
+      transport = 0;
+      assess.setClock(() => transport);
+    });
+
+    it('a right pitch within ±GOOD_RANGE is a hit, early or late', () => {
+      assess.expectTimed(2, at(60), 'rh');
+      assess.expectTimed(3, at(62), 'rh');
+      expect(assess.playTimed(2 - GOOD_RANGE + 0.01, 60)).toEqual({ bad: false });
+      expect(assess.playTimed(3 + GOOD_RANGE - 0.01, 62)).toEqual({ bad: false });
+      expect(assess.snapshot()).toMatchObject({ expected: 2, hit: 2, wrong: 0, onsets: 2, waits: 0, played: 2 });
+    });
+
+    it('the right pitch outside the window, or a pitch not in the score, is wrong', () => {
+      assess.expectTimed(2, at(60, 1), 'rh');
+      assess.expectTimed(5, at(64, 3), 'rh');
+      expect(assess.playTimed(2 + GOOD_RANGE + 0.01, 60)).toEqual({ bad: true });
+      expect(assess.playTimed(5, 61)).toEqual({ bad: true });
+      const snapshot = assess.snapshot();
+      expect(snapshot).toMatchObject({ hit: 0, wrong: 2, played: 2 });
+      // Each wrong note goes to the measure of the score note due nearest to it
+      expect(snapshot.measures.map(({ measure, wrong }) => ({ measure, wrong }))).toEqual([
+        { measure: 1, wrong: 1 }, { measure: 3, wrong: 1 },
       ]);
+    });
+
+    it('a key press matches the closest unplayed note of its pitch, and a second press the next one', () => {
+      const second = 1 + GOOD_RANGE; // both within reach of a press between them
+      assess.expectTimed(1, at(60), 'rh');
+      assess.expectTimed(second, at(60), 'rh');
+      const press = 1 + GOOD_RANGE * 0.75; // closer to the second
+      expect(assess.playTimed(press, 60)).toEqual({ bad: false }); // the one due second
+      expect(assess.playTimed(press, 60)).toEqual({ bad: false }); // then the one due at 1
+      expect(assess.playTimed(press, 60)).toEqual({ bad: true }); // none left
+      expect(assess.snapshot()).toMatchObject({ expected: 2, hit: 2, wrong: 1 });
+    });
+
+    it('counts a chord as one onset, both hands included', () => {
+      assess.expectTimed(1, at(60), 'rh');
+      assess.expectTimed(1, at(48), 'lh');
+      assess.playTimed(1, 60);
+      assess.playTimed(1, 48);
+      expect(assess.snapshot()).toMatchObject({ expected: 2, hit: 2, onsets: 1 });
+    });
+
+    it('an unplayed note is missed once its window has closed, in a snapshot taken mid-take', () => {
+      assess.expectTimed(1, at(60), 'rh');
+      assess.expectTimed(4, at(62), 'rh');
+      transport = 1 + GOOD_RANGE - 0.01;
+      expect(assess.snapshot()).toMatchObject({ expected: 0, hit: 0 }); // still playable
+      transport = 1 + GOOD_RANGE + 0.01;
+      expect(assess.snapshot()).toMatchObject({ expected: 1, hit: 0, onsets: 1 });
+      expect(assess.snapshot()).toMatchObject({ expected: 1 }); // counted once
+    });
+
+    it('the end of the range misses every note still unplayed, open window or not', () => {
+      assess.expectTimed(1, at(60), 'rh');
+      assess.expectTimed(1 + GOOD_RANGE / 2, at(62), 'rh'); // its window still open at the end
+      transport = 1 + GOOD_RANGE / 2;
+      assess.playTimed(transport, 60);
+      assess.endTimed();
+      expect(assess.snapshot()).toMatchObject({ expected: 2, hit: 1 });
+    });
+
+    it('sorts the hands scheduled one after the other', () => {
+      assess.expectTimed(1, at(72), 'rh');
+      assess.expectTimed(3, at(74), 'rh');
+      assess.expectTimed(2, at(48), 'lh');
+      transport = 2 + GOOD_RANGE + 0.01;
+      expect(assess.snapshot()).toMatchObject({ expected: 2 }); // the notes at 1 and 2, not the one at 3
+    });
+
+    it('after Pause then Play, the notes before the resume position are not counted', () => {
+      assess.expectTimed(1, at(60), 'rh');
+      assess.expectTimed(5, at(62), 'rh');
+      assess.expectTimed(6, at(64), 'rh');
+      assess.beginTimed(5); // the transport resumes at 5 s
+      transport = 10;
+      expect(assess.snapshot()).toMatchObject({ expected: 2, hit: 0 }); // 5 and 6 missed, 1 dropped
+    });
+
+    it('counts the keys played in both modes', () => {
+      assess.expectTimed(1, at(60), 'rh');
+      assess.playTimed(1, 60);
+      assess.learnExpectation(2, 3, note(62), 'rh');
+      assess.getNewActual(2, played(62));
+      assess.getNewActual(2, played(63));
+      expect(assess.snapshot().played).toBe(3);
+    });
+
+    it('reset() forgets the timed expectations', () => {
+      assess.expectTimed(1, at(60), 'rh');
+      assess.playTimed(1, 60);
       assess.reset();
-    });
-
-    it('lists the unplayed notes due within the window', () => {
-      expect(assess.getNotesInRange(1.5, GOOD_RANGE).map((n) => n.pitch)).toEqual([60, 62]);
-      expect(assess.getNotesInRange(5, 0.1).map((n) => n.pitch)).toEqual([67]);
-      expect(assess.getNotesInRange(3.5, 0.5)).toEqual([]);
-    });
-
-    it('accepts a note played within the window, once', () => {
-      expect(assess.isNoteInTime(played(60), 1.2)).toBe(true);
-      expect(assess.isNoteInTime(played(60), 1.2)).toBe(false); // already hit
-      expect(assess.getNotesInRange(1, 0.1)).toEqual([]);
-    });
-
-    it('rejects a note outside the window or not in the score', () => {
-      expect(assess.isNoteInTime(played(67), 1)).toBe(false); // due at 5
-      expect(assess.isNoteInTime(played(61), 1)).toBe(false);
-      expect(assess.isNoteInTime(played(65), 2)).toBe(false); // already hit before
+      transport = 10;
+      expect(assess.snapshot()).toMatchObject({ expected: 0, hit: 0, played: 0 });
+      expect(assess.playTimed(1, 60)).toEqual({ bad: true });
     });
   });
 
@@ -167,7 +243,7 @@ describe('PlayerAssessService', () => {
     });
 
     it('starts empty', () => {
-      expect(assess.snapshot()).toEqual({ expected: 0, hit: 0, wrong: 0, onsets: 0, waits: 0, measures: [] });
+      expect(assess.snapshot()).toEqual({ expected: 0, hit: 0, wrong: 0, onsets: 0, waits: 0, measures: [], played: 0 });
     });
 
     it('a perfect take: every expected note hit, no wrong note, no wait', () => {
@@ -179,7 +255,7 @@ describe('PlayerAssessService', () => {
       assess.getNewActual(2, played(62));
 
       expect(assess.snapshot()).toEqual({
-        expected: 3, hit: 3, wrong: 0, onsets: 2, waits: 0,
+        expected: 3, hit: 3, wrong: 0, onsets: 2, waits: 0, played: 3,
         measures: [
           { measure: 1, expected: 2, hit: 2, wrong: 0, onsets: 1, waits: 0 },
           { measure: 2, expected: 1, hit: 1, wrong: 0, onsets: 1, waits: 0 },
@@ -236,7 +312,7 @@ describe('PlayerAssessService', () => {
       expect(before.hit).toBe(0);
 
       assess.reset();
-      expect(assess.snapshot()).toEqual({ expected: 0, hit: 0, wrong: 0, onsets: 0, waits: 0, measures: [] });
+      expect(assess.snapshot()).toEqual({ expected: 0, hit: 0, wrong: 0, onsets: 0, waits: 0, measures: [], played: 0 });
     });
   });
 });

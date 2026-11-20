@@ -30,4 +30,9 @@ export type MidiEvent = {
     velocity?: number
     type: 'down' | 'up'
     time: number
+    /**
+     * When the key was played, as a performance.now() time: the MIDI message's own timestamp, so that the main
+     * thread being busy does not make the user late.
+     */
+    timeStamp?: number
   }

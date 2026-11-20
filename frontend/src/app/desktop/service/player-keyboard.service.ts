@@ -38,14 +38,37 @@ export class PlayerKeyboardService {
     '#0051a8',
     '#004390'  // bleu plus profond
   ];
-  COLOR_WRONG = '#FF0000';
+  /** Colour of each lit key (undefined: the keyboard's default fill), to light it again on a new keyboard. */
+  private readonly keyColors = new Map<string, string | undefined>();
 
   /**
-   * Set the proper PianoKeys instance to be used by the service for DOM manipulation
+   * Set the proper PianoKeys instance to be used by the service for DOM manipulation. A keyboard shown again
+   * is a new instance: the keys lit meanwhile are lit on it.
    * @param pianoKeys 
    */
   setPianoKeys(pianoKeys: PianoKeys.Keyboard): void {
     this.pianoKeys = pianoKeys;
+    for (const [name, color] of this.keyColors) {
+      this.fill(name, color);
+    }
+  }
+
+  private fill(name: string, color: string | undefined): void {
+    if (color === undefined) {
+      this.pianoKeys?.fillKey(name);
+    } else {
+      this.pianoKeys?.fillKey(name, color);
+    }
+  }
+
+  private lit(name: string, color: string | undefined): void {
+    this.keyPressed.add(name);
+    this.keyColors.set(name, color);
+  }
+
+  private unlit(name: string): void {
+    this.keyPressed.delete(name);
+    this.keyColors.delete(name);
   }
 
   /**
@@ -54,7 +77,7 @@ export class PlayerKeyboardService {
    * @param note The MIDI note number (e.g., 60 for C4)
    */
   press(name: string, note: number) {
-    this.keyPressed.add(name); // Track the note as currently pressed
+    this.lit(name, undefined); // Track the note as currently pressed
     this.pianoKeys?.fillKey(name);
   }
 
@@ -64,7 +87,7 @@ export class PlayerKeyboardService {
    * @param note The MIDI note number (e.g., 60 for C4)
    */
   release(name: string, note: number) {
-    this.keyPressed.delete(name); // Track the note as currently pressed
+    this.unlit(name);
     this.pianoKeys?.clearKey(name);
   }
 
@@ -78,8 +101,8 @@ export class PlayerKeyboardService {
       note.name = midiToPitch(note.midi);
     }
     const velocityUI = Math.round(Math.min(Math.max(note.velocity * 10, 1), 10));
-    this.keyPressed.add(note.name); // Track the note as currently pressed
     const color = hand === 'rh' ? this.COLOR_RIGHT[velocityUI - 1] : this.COLOR_LEFT[velocityUI - 1];
+    this.lit(note.name, color); // Track the note as currently lit
     this.pianoKeys?.fillKey(note.name, color);
   }
 
@@ -89,7 +112,7 @@ export class PlayerKeyboardService {
    */
   removeMidiPitchFromKeyboard(midi: number): void {
     const noteName = midiToPitch(midi);
-    this.keyPressed.delete(noteName);
+    this.unlit(noteName);
     this.pianoKeys?.clearKey(noteName);
   }
 
@@ -98,7 +121,7 @@ export class PlayerKeyboardService {
    * @param note The MIDI note to turn off
    */
   removeMidiNoteFromKeyboard(note: Note): void {
-    this.keyPressed.delete(note.name);
+    this.unlit(note.name);
     this.pianoKeys?.clearKey(note.name);
   }
 
@@ -111,6 +134,7 @@ export class PlayerKeyboardService {
        this.pianoKeys?.clearKey(noteName);
      });
      this.keyPressed.clear();
+     this.keyColors.clear();
   }
 
 }

@@ -7,6 +7,34 @@ import { CURSOR_BAD_COLOR, CURSOR_GOOD_COLOR } from "../components/osmd/osmd.con
 import { smithWatermanAlign, smithWatermanAlign2 } from "./smith-waterman";
 import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
 
+/**
+ * The view scrolls (to centre the cursor) once the cursor comes within this fraction of the view's height or width
+ * from an edge. 0: only once part of it is out of view, so a score that fits never scrolls.
+ */
+export const CURSOR_FOLLOW_MARGIN = 0;
+
+/**
+ * The nearest ancestor that scrolls along `axis`, or null for the page itself. Per axis: the score's own container
+ * scrolls sideways only, and is as tall as the score, so the cursor never left it vertically (regression).
+ */
+function scrollingAncestor(element: HTMLElement, axis: 'x' | 'y'): HTMLElement | null {
+    for (let node = element.parentElement; node; node = node.parentElement) {
+        const style = getComputedStyle(node);
+        if (/(auto|scroll)/.test(axis === 'y' ? style.overflowY : style.overflowX)) return node;
+    }
+    return null;
+}
+
+/** What the user sees of `scroller` along one axis: its box, clipped to the window. */
+function visibleRange(scroller: HTMLElement | null, axis: 'x' | 'y'): [number, number] {
+    const windowEnd = axis === 'y' ? window.innerHeight : window.innerWidth;
+    if (!scroller) return [0, windowEnd];
+    const box = scroller.getBoundingClientRect();
+    return axis === 'y'
+        ? [Math.max(0, box.top), Math.min(windowEnd, box.bottom)]
+        : [Math.max(0, box.left), Math.min(windowEnd, box.right)];
+}
+
 
 
 @Injectable({
@@ -21,11 +49,14 @@ export class CursorService implements OnDestroy {
     private diagnosticMode = this.readDiagnosticModeFromStorage();
     private alignmentAlgorithm: CursorAlignmentAlgorithm = "sw2";
     private cursorIndex = 0;
+    /** Keep the cursor in view while it moves (set from the score's followCursor option, see PlayerService). */
+    follow = false;
+    /** The scrolling container of the cursor element, found once per element. */
+    private scrollerOf?: { element: HTMLElement; x: HTMLElement | null; y: HTMLElement | null };
     private iteratorSize = 0;
     private repetitionInstructions: RepetitionInstruction[] = [];
     private osmdArray: OsmdArrayElement[] | undefined;
     private midiTicksNoteMap: Map<number, MidiNote[]> = new Map();   // ticks => MidiNote[]    
-    //private audioTimeNoteMapHit: Map<number, { pitch: number, hit: boolean }[]> = new Map();   // audioTime => [{pitch, hit}]
     private osmdCursorIdxNoteMap: Map<number, OSMDNote[]> = new Map();
     private osmdCursorIdxToMeasureMap: Map<number, number> = new Map();
     private osmdMeasureNoteMap: Map<number, OSMDNote[]> = new Map();
@@ -39,10 +70,10 @@ export class CursorService implements OnDestroy {
 
 
     cursor: Cursor | undefined;
+    /** Measures in the rendered score (0 before one is mapped). */
     osmdMeasureCount = 0;
     feedbackSignal = signal<{ message: string; percentage: number } | null>(null);
     readonly measure = signal<number>(0);
-    audioTimeNoteArray: Array<[number, { pitch: number, hit: boolean }[]]> = [];
     midiTicksToOsmdCursorIndex: Map<number, { osmdIndex: number, osmdMeasure: number }> = new Map();
     osmdMeasureToFirstStepIndex: Map<number, number> = new Map();
     sortedMappedMidiTicks: number[] = [];
@@ -79,7 +110,6 @@ export class CursorService implements OnDestroy {
         this.osmdMeasureSequence = [];
         this.sortedMappedMidiTicks = [];
         this.sortedMidiTicks = [];
-        this.audioTimeNoteArray = [];
 
         if (this.osmdArray) {
             this.osmdArray.clear();
@@ -175,7 +205,9 @@ export class CursorService implements OnDestroy {
     nextNote(note: Note) {
         const link = this.midiTicksToOsmdCursorIndex.get(note.ticks);
         if (link != null) {
-            this.moveCursorToOsmdIndex(this.cursor!, link.osmdIndex);
+            // The iterator first (the notes under the cursor follow it), then the style, then one update()
+            // that draws both
+            const moved = this.stepIterator(this.cursor!, link.osmdIndex);
             if (this.isCursorOk(note)) {
                 this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
                 this.cursor!.CursorOptions.type = 4;
@@ -184,6 +216,9 @@ export class CursorService implements OnDestroy {
                 //    this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
                 //}
                 this.cursor!.CursorOptions.type = 3; // measure rectangle
+            }
+            if (moved) {
+                this.drawCursor(this.cursor!);
             }
             const newOsmdMeasure = link.osmdMeasure;
             if (newOsmdMeasure !== this.measure()) {
@@ -211,11 +246,10 @@ export class CursorService implements OnDestroy {
         }
         const targetMeasure = Math.max(0, Math.trunc(start - 1));
         this.cursorIndex = 0;
-        cursor.reset();
-        const targetCursorIndex = this.findCursorIndexForMeasure(targetMeasure);
-
-
-        this.moveCursorToOsmdIndex(cursor, targetCursorIndex);
+        // The iterator back to the start and on to the target, then one drawing (cursor.reset() drew too)
+        cursor.resetIterator();
+        this.stepIterator(cursor, this.findCursorIndexForMeasure(targetMeasure));
+        this.drawCursor(cursor);
     }
     /**
      * First pass
@@ -701,7 +735,7 @@ export class CursorService implements OnDestroy {
         const feedbackMessage = $localize`:@@workbench.progress.measures:Building the measures`;
         this.feedback(feedbackMessage, 0);
         this.osmdMeasureNoteMap.clear();
-        let maxMeasureNumberXml = 0;
+        let maxMeasureNumberXml = -1;
         const totalSteps = Math.max(1, this.iteratorSize);
         const feedbackStep = Math.max(1, Math.floor(totalSteps / 100));
         let step = 0;
@@ -723,33 +757,13 @@ export class CursorService implements OnDestroy {
                 this.feedback(feedbackMessage, (step / totalSteps) * 100);
             }
         }
-        this.osmdMeasureCount = maxMeasureNumberXml;
+        // The highest measure index is 0-based: one more measure than it says
+        this.osmdMeasureCount = maxMeasureNumberXml + 1;
         this.feedback(feedbackMessage, 100);
         cursor.reset();
         return this.osmdMeasureNoteMap;
     }
 
-    /**
-     * Build a map of audio time (seconds) => MidiNote[] using the osmdArray  midiTime information 
-     * 
-     * @param osmdArray
-     */
-    // buildAudioTimeNoteMap(osmdArray: OsmdArrayElement[]) {
-    //     this.audioTimeNoteMapHit.clear();
-    //     for (const element of osmdArray) {
-    //         if (element.midiTime != null && element.midiPitches != null) {
-    //             const bucket = this.audioTimeNoteMapHit.get(element.midiTime) ?? [];
-    //             for (const pitch of element.midiPitches) {
-    //                 bucket.push({ pitch, hit: false });
-    //             }
-    //             this.audioTimeNoteMapHit.set(element.midiTime, bucket);
-    //         }
-    //     }
-    //     // Génère le tableau trié pour accès rapide par intervalle
-    //     this.audioTimeNoteArray = Array.from(this.audioTimeNoteMapHit.entries()).sort((a, b) => a[0] - b[0]);
-    //     console.log("audioTimeNoteMapHit done");
-    //     return this.audioTimeNoteMapHit;
-    // }
 
 
     /*
@@ -913,17 +927,57 @@ export class CursorService implements OnDestroy {
      * @param targetIndex The target osmd index to move the cursor to.
      */
     moveCursorToOsmdIndex(cursor: Cursor, targetIndex: number): void {
+        if (this.stepIterator(cursor, targetIndex)) {
+            this.drawCursor(cursor);
+        }
+    }
+
+    /**
+     * Draws the cursor where its iterator is, and keeps it in view. OSMD's own follow (osmd.FollowCursor) ran a
+     * smooth scrollIntoView on every step; this scrolls only when the cursor leaves the view.
+     */
+    private drawCursor(cursor: Cursor): void {
+        cursor.update();
+        if (this.follow) {
+            this.keepInView(cursor.cursorElement);
+        }
+    }
+
+    private keepInView(element: HTMLElement | undefined): void {
+        if (!element?.isConnected) return;
+        if (this.scrollerOf?.element !== element) {
+            this.scrollerOf = { element, x: scrollingAncestor(element, 'x'), y: scrollingAncestor(element, 'y') };
+        }
+        const [top, bottom] = visibleRange(this.scrollerOf.y, 'y');
+        const [left, right] = visibleRange(this.scrollerOf.x, 'x');
+        const cursor = element.getBoundingClientRect();
+        const marginY = (bottom - top) * CURSOR_FOLLOW_MARGIN;
+        const marginX = (right - left) * CURSOR_FOLLOW_MARGIN;
+        if (cursor.top < top + marginY || cursor.bottom > bottom - marginY
+            || cursor.left < left + marginX || cursor.right > right - marginX) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }
+    }
+
+    /**
+     * Steps the cursor's iterator to `targetIndex` without drawing it; true when it moved. cursor.next() /
+     * previous() each run update() (a forced layout and a smooth scrollIntoView), which an onset spanning several
+     * steps, or a seek, paid on every step: the caller draws once.
+     */
+    private stepIterator(cursor: Cursor, targetIndex: number): boolean {
+        const from = this.cursorIndex;
         if (targetIndex < this.cursorIndex) {
             while (this.cursorIndex > targetIndex && !cursor.iterator.FrontReached) {
-                cursor.previous();
+                cursor.iterator.moveToPreviousVisibleVoiceEntry(false);
                 this.cursorIndex--;
             }
         } else if (targetIndex > this.cursorIndex) {
             while (this.cursorIndex < targetIndex && !cursor.iterator.EndReached) {
-                cursor.next();
+                cursor.iterator.moveToNextVisibleVoiceEntry(false);
                 this.cursorIndex++;
             }
         }
+        return this.cursorIndex !== from;
     }
 
     /**

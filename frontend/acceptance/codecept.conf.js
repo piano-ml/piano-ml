@@ -25,7 +25,9 @@ export const config = {
       show: process.env.HEADLESS === 'false',
       windowSize: '1366x900',
       // Same rendering everywhere (dates in "Score information" depend on locale and timezone).
-      emulate: { locale: 'en-US', timezoneId: 'UTC' },
+      // MIDI allowed, as a visitor who said yes: without it, recent Chromium blocks Web MIDI and the workbench
+      // covers the page with "MIDI access blocked".
+      emulate: { locale: 'en-US', timezoneId: 'UTC', permissions: ['midi', 'midi-sysex'] },
       // The site keeps long-lived requests open, so the "load" event can take very long:
       // consider a navigation done at DOMContentLoaded and wait for visible elements instead.
       waitForNavigation: 'domcontentloaded',

@@ -69,7 +69,7 @@
       <span>{{ file.label }}</span>
     </button>
     }
-    <button (click)="playScore()" class="btn-hero w-full sm:w-auto justify-center inline-flex items-center gap-1.5">
+    <button (click)="playScore()" (pointerenter)="prefetchSounds()" (focus)="prefetchSounds()" (touchstart)="prefetchSounds()" class="btn-hero w-full sm:w-auto justify-center inline-flex items-center gap-1.5">
       <span aria-hidden="true">🎹</span>
       <span i18n="@@score.practice">Practice</span>
     </button>

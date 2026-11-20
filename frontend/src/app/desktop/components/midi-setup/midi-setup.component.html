@@ -125,9 +125,23 @@
         </div>
       </div>
     </section>
+    <!-- Timing calibration: its own dialog -->
+    <section class="mb-2">
+      <div class="card-secondary grid grid-cols-3 gap-2">
+        <div>
+          <div class="font-medium" i18n="@@latency.heading">Timing calibration</div>
+          <div class="text-xs text-neutral-300" i18n="@@midiSetup.calibration.hint">Measures the delay of your speakers or headphones, so that your playing is scored against what you hear.</div>
+        </div>
+        <div class="col-span-2 flex flex-wrap items-center justify-end gap-2 text-sm">
+          <span data-calibration-summary i18n="@@midiSetup.calibration.value">Correction: {{ audio.latencyCalibrationMs() }} ms</span>
+          <button type="button" class="btn-primary" (click)="calibrationOpen = true" data-calibration-open i18n="@@midiSetup.calibration.open">Calibrate…</button>
+        </div>
+      </div>
+    </section>
     <div class="col-span-2 flex justify-end">
       <button (click)="close()" class="btn-secondary" i18n="@@common.close">Close</button>
     </div>
   </div>
 </div>
+<app-latency-calibration [isOpen]="calibrationOpen" (closeModal)="calibrationOpen = false" />
 }

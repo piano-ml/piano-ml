@@ -1,11 +1,13 @@
 import { isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, inject } from '@angular/core';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService } from '../../../shared/services/midi-service.service';
+import { PlayerAudioService } from '../../service/player-audio.service';
+import { LatencyCalibrationComponent } from '../latency-calibration/latency-calibration.component';
 
 @Component({
   selector: 'app-midi-setup',
   standalone: true,
-  imports: [],
+  imports: [LatencyCalibrationComponent],
   templateUrl: './midi-setup.component.html',
   styleUrl: './midi-setup.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -14,6 +16,7 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
   protected readonly midiInputLabel = $localize`:@@midiSetup.inputFallback:MIDI Input`;
   protected readonly midiOutputLabel = $localize`:@@midiSetup.outputFallback:MIDI Output`;
   protected readonly unknownLabel = $localize`:@@midiSetup.unknownManufacturer:Unknown`;
+  protected readonly audio = inject(PlayerAudioService);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
   private midiAccess?: MIDIAccess;
@@ -34,6 +37,8 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
   error: string | null = null;
   midiInputs: MIDIInput[] = [];
   midiOutputs: MIDIOutput[] = [];
+  /** The timing calibration dialog, over this one. */
+  calibrationOpen = false;
 
 
 
@@ -45,6 +50,8 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen']?.currentValue) {
       this.loadDevices();
+    } else if (changes['isOpen']) {
+      this.calibrationOpen = false;
     }
   }
 
