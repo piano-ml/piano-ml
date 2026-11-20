@@ -3,9 +3,6 @@ import type { Note } from '@tonejs/midi/dist/Note';
 import PianoKeys from '@jesperdj/pianokeys';
 import { midiToPitch } from './midi-maths';
 
-/** How long a wrong key stays red on the on-screen keyboard. */
-export const WRONG_KEY_FLASH_MS = 400;
-
 /**
  * Service responsible for managing the visual keyboard (DOM manipulation and highlighting)
  */
@@ -41,16 +38,12 @@ export class PlayerKeyboardService {
     '#0051a8',
     '#004390'  // bleu plus profond
   ];
-  COLOR_WRONG = '#FF0000';
-
-  /** Colour of each lit key (undefined: the keyboard's default fill), so a wrong-key flash can restore it. */
+  /** Colour of each lit key (undefined: the keyboard's default fill), to light it again on a new keyboard. */
   private readonly keyColors = new Map<string, string | undefined>();
-  /** Keys flashing red, with the timer that ends the flash. */
-  private readonly wrongKeyTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   /**
    * Set the proper PianoKeys instance to be used by the service for DOM manipulation. A keyboard shown again
-   * (e.g. after a wrong note while it was hidden) is a new instance: the keys lit meanwhile are lit on it.
+   * is a new instance: the keys lit meanwhile are lit on it.
    * @param pianoKeys 
    */
   setPianoKeys(pianoKeys: PianoKeys.Keyboard): void {
@@ -58,30 +51,6 @@ export class PlayerKeyboardService {
     for (const [name, color] of this.keyColors) {
       this.fill(name, color);
     }
-    for (const name of this.wrongKeyTimers.keys()) {
-      this.pianoKeys.fillKey(name, this.COLOR_WRONG);
-    }
-  }
-
-  /**
-   * Fills the key of `midi` in red for WRONG_KEY_FLASH_MS, then gives it back the colour it has then (lit) or
-   * clears it. A repeated wrong press restarts the flash.
-   */
-  flashWrongKey(midi: number): void {
-    const name = midiToPitch(midi);
-    const running = this.wrongKeyTimers.get(name);
-    if (running) {
-      clearTimeout(running);
-    }
-    this.pianoKeys?.fillKey(name, this.COLOR_WRONG);
-    this.wrongKeyTimers.set(name, setTimeout(() => {
-      this.wrongKeyTimers.delete(name);
-      if (this.keyColors.has(name)) {
-        this.fill(name, this.keyColors.get(name));
-      } else {
-        this.pianoKeys?.clearKey(name);
-      }
-    }, WRONG_KEY_FLASH_MS));
   }
 
   private fill(name: string, color: string | undefined): void {
@@ -166,11 +135,6 @@ export class PlayerKeyboardService {
      });
      this.keyPressed.clear();
      this.keyColors.clear();
-     for (const [noteName, timer] of this.wrongKeyTimers) {
-       clearTimeout(timer);
-       this.pianoKeys?.clearKey(noteName);
-     }
-     this.wrongKeyTimers.clear();
   }
 
 }

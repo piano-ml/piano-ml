@@ -21,6 +21,7 @@ describe('TempoControlComponent', () => {
 
   beforeEach(async () => {
     localStorage.removeItem('tempo-control-metronome');
+    localStorage.removeItem('tempo-control-count-in');
     await TestBed.configureTestingModule({ imports: [TempoControlComponent] }).compileComponents();
     fixture = TestBed.createComponent(TempoControlComponent);
     component = fixture.componentInstance;
@@ -113,5 +114,31 @@ describe('TempoControlComponent', () => {
       .find(button => button.textContent?.trim() === 'Close')!;
     close.click();
     expect(closed).toHaveBeenCalledOnce();
+  });
+
+  describe('count-in', () => {
+    const countIn = () => fixture.nativeElement.querySelector('[data-count-in]') as HTMLInputElement;
+    const set = (value: string) => {
+      countIn().value = value;
+      countIn().dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+    };
+
+    it('is 2 bars unless chosen otherwise', () => {
+      expect(countIn().value).toBe('2');
+    });
+
+    it('is chosen in whole bars from 0 to 4, kept for the next visits', () => {
+      const bars: number[] = [];
+      component.countInChange.subscribe((value) => bars.push(value));
+      set('0');
+      set('9');
+      set('2.6');
+      expect(bars).toEqual([0, 4, 3]);
+      expect(countIn().value).toBe('3');
+      expect(localStorage.getItem('tempo-control-count-in')).toBe('3');
+      set('');
+      expect(countIn().value).toBe('3'); // an emptied field shows the count-in again
+    });
   });
 });

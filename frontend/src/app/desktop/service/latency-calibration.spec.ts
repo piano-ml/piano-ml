@@ -1,6 +1,6 @@
 import {
   CALIBRATION_MAX_MS, CALIBRATION_MIN_TAPS, CALIBRATION_WARMUP_CLICKS, LATENCY_CALIBRATION_KEY, calibrationOffsetMs,
-  readLatencyCalibration, writeLatencyCalibration,
+  hasLatencyCalibration, readLatencyCalibration, writeLatencyCalibration,
 } from './latency-calibration';
 
 /** The tap-along calibration: the median gap between the clicks heard and the keys played. */
@@ -40,7 +40,10 @@ describe('latency calibration', () => {
     expect(localStorage.getItem(LATENCY_CALIBRATION_KEY)).toBe('120');
     expect(readLatencyCalibration()).toBe(120);
     writeLatencyCalibration(0);
-    expect(localStorage.getItem(LATENCY_CALIBRATION_KEY)).toBeNull();
+    expect(localStorage.getItem(LATENCY_CALIBRATION_KEY)).toBe('0'); // kept: the user went through it
+    expect(hasLatencyCalibration()).toBe(true);
+    localStorage.removeItem(LATENCY_CALIBRATION_KEY);
+    expect(hasLatencyCalibration()).toBe(false);
     localStorage.setItem(LATENCY_CALIBRATION_KEY, 'nonsense');
     expect(readLatencyCalibration()).toBe(0);
     localStorage.removeItem(LATENCY_CALIBRATION_KEY);

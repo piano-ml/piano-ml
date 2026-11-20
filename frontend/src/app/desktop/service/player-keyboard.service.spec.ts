@@ -1,8 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type PianoKeys from '@jesperdj/pianokeys';
 import type { Note } from '@tonejs/midi/dist/Note';
-import { midiToPitch } from './midi-maths';
-import { PlayerKeyboardService, WRONG_KEY_FLASH_MS } from './player-keyboard.service';
+import { PlayerKeyboardService } from './player-keyboard.service';
 
 describe('PlayerKeyboardService', () => {
   let keyboard: PlayerKeyboardService;
@@ -78,63 +77,10 @@ describe('PlayerKeyboardService', () => {
       keyboard.removeAllNotesFromKeyboard();
     }).not.toThrow();
   });
-  describe('wrong keys', () => {
-    const WRONG = midiToPitch(61);
-    beforeEach(() => vi.useFakeTimers());
-    afterEach(() => vi.useRealTimers());
-
-    it('flash red, then turn off', () => {
-      keyboard.flashWrongKey(61);
-      expect(keys.fillKey).toHaveBeenLastCalledWith(WRONG, keyboard.COLOR_WRONG);
-      vi.advanceTimersByTime(WRONG_KEY_FLASH_MS - 1);
-      expect(keys.clearKey).not.toHaveBeenCalled();
-      vi.advanceTimersByTime(1);
-      expect(keys.clearKey).toHaveBeenCalledWith(WRONG);
-    });
-
-    it('get back the colour of an expected-note highlight', () => {
-      keyboard.lightNoteOnKeyboard('lh', note({ midi: 48, name: 'C3', velocity: 0.5 }));
-      keyboard.flashWrongKey(48);
-      vi.advanceTimersByTime(WRONG_KEY_FLASH_MS);
-      expect(keys.fillKey).toHaveBeenLastCalledWith('C3', keyboard.COLOR_LEFT[4]);
-      expect(keys.clearKey).not.toHaveBeenCalled();
-    });
-
-    it('get the colour the key has when the flash ends', () => {
-      keyboard.lightNoteOnKeyboard('rh', note({ midi: 64, name: 'E4' }));
-      keyboard.flashWrongKey(64);
-      keyboard.removeMidiPitchFromKeyboard(64); // turned off meanwhile
-      vi.advanceTimersByTime(WRONG_KEY_FLASH_MS);
-      expect(keys.fillKey).toHaveBeenLastCalledWith('E4', keyboard.COLOR_WRONG); // not lit again
-      expect(keys.clearKey).toHaveBeenLastCalledWith('E4');
-    });
-
-    it('restart the flash on a repeated wrong press', () => {
-      keyboard.flashWrongKey(61);
-      vi.advanceTimersByTime(WRONG_KEY_FLASH_MS - 100);
-      keyboard.flashWrongKey(61);
-      vi.advanceTimersByTime(WRONG_KEY_FLASH_MS - 1);
-      expect(keys.clearKey).not.toHaveBeenCalled();
-      vi.advanceTimersByTime(1);
-      expect(keys.clearKey).toHaveBeenCalledOnce();
-    });
-
-    it('are cleared with every other key', () => {
-      keyboard.flashWrongKey(61);
-      keyboard.removeAllNotesFromKeyboard();
-      expect(keys.clearKey).toHaveBeenCalledWith(WRONG);
-      keys.clearKey.mockClear();
-      vi.advanceTimersByTime(WRONG_KEY_FLASH_MS);
-      expect(keys.clearKey).not.toHaveBeenCalled(); // the timer went too
-    });
-
-    it('stay lit, with the expected notes, on a keyboard shown again', () => {
-      keyboard.lightNoteOnKeyboard('rh', note({ midi: 64, name: 'E4', velocity: 0.5 }));
-      keyboard.flashWrongKey(61);
-      const shownAgain = { fillKey: vi.fn(), clearKey: vi.fn() };
-      keyboard.setPianoKeys(shownAgain as unknown as PianoKeys.Keyboard);
-      expect(shownAgain.fillKey).toHaveBeenCalledWith('E4', keyboard.COLOR_RIGHT[4]);
-      expect(shownAgain.fillKey).toHaveBeenCalledWith(WRONG, keyboard.COLOR_WRONG);
-    });
+  it('lights the keys lit meanwhile on a keyboard shown again', () => {
+    keyboard.lightNoteOnKeyboard('rh', note({ midi: 64, name: 'E4', velocity: 0.5 }));
+    const shownAgain = { fillKey: vi.fn(), clearKey: vi.fn() };
+    keyboard.setPianoKeys(shownAgain as unknown as PianoKeys.Keyboard);
+    expect(shownAgain.fillKey).toHaveBeenCalledWith('E4', keyboard.COLOR_RIGHT[4]);
   });
 });

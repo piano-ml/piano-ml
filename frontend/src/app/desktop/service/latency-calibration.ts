@@ -4,8 +4,8 @@
  * headphones, a slow MIDI interface, a habit of playing early or late).
  */
 
-/** Clicks played for a calibration. */
-export const CALIBRATION_CLICKS = 12;
+/** Clicks played for a calibration: 6 bars of 4. */
+export const CALIBRATION_CLICKS = 24;
 /** The first clicks are not measured: the user is finding the beat. */
 export const CALIBRATION_WARMUP_CLICKS = 4;
 /** Tempo of the clicks: slow enough to tap each one comfortably. */
@@ -55,13 +55,19 @@ export function readLatencyCalibration(): number {
   }
 }
 
+/** Whether a correction was ever stored (0 included: a calibration, or Reset, is a choice made). */
+export function hasLatencyCalibration(): boolean {
+  try {
+    return localStorage.getItem(LATENCY_CALIBRATION_KEY) !== null;
+  } catch {
+    return true; // storage unavailable: nothing to offer each time
+  }
+}
+
+/** Stores the correction, 0 too: a stored value tells hasLatencyCalibration() the user went through it. */
 export function writeLatencyCalibration(ms: number): void {
   try {
-    if (ms === 0) {
-      localStorage.removeItem(LATENCY_CALIBRATION_KEY);
-    } else {
-      localStorage.setItem(LATENCY_CALIBRATION_KEY, String(ms));
-    }
+    localStorage.setItem(LATENCY_CALIBRATION_KEY, String(ms));
   } catch {
     // storage unavailable: the correction lasts for this visit
   }

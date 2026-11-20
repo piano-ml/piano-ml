@@ -43,12 +43,15 @@ export interface PlayConfiguration {
   waitForRightHand: boolean;
   delayFactor: number;
   tempoFactor: number;  
+  /** Measures played: 1-based, end exclusive ([start, end) plays start .. end - 1); a start of 0 also means the first measure. */
   scoreRange: [number, number];
   isLoop: boolean;
   staveAndStaveNotesPair: StaveAndStaveNotesPair[];
   accompaniment: Midi.Midi | null;
   midi: Midi.Midi | null;
   useMetronome: boolean;
+  /** Bars of count-in before playback (COUNT_IN_BARS when not set): a setting of the metronome dialog. */
+  countInBars?: number;
 }
 
 

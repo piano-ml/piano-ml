@@ -193,8 +193,19 @@ describe('PlayerService', () => {
       expect(handTracks[0]).toMatchObject({ start: 2, end: 2 + 2 + 2 }); // from bar 2, one bar, plus the count-in
     });
 
+    it('counts in the bars chosen in the metronome dialog, 2 by default', async () => {
+      localStorage.setItem('tempo-control-count-in', '0');
+      const cfg = load();
+      expect(cfg.countInBars).toBe(0);
+      await player.play(cfg);
+      expect(audio.startCountIn).toHaveBeenLastCalledWith(0, expect.anything(), expect.any(Number));
+      localStorage.removeItem('tempo-control-count-in');
+      expect(load().countInBars).toBe(COUNT_IN_BARS);
+    });
+
     it('scales times with the tempo', async () => {
-      const cfg = load({ tempoFactor: 2 });
+      const cfg = load();
+      cfg.tempoFactor = 2; // set after loading, as the workbench does (loading resets it to the score's tempo)
       await player.play(cfg);
       expect(audio.startCountIn).toHaveBeenCalledWith(COUNT_IN_BARS, expect.anything(), 240);
       expect(handTracks[0]).toMatchObject({ end: 3 + 2, timeFactor: 0.5 }); // twice as fast: 3 s
@@ -364,8 +375,10 @@ describe('PlayerService', () => {
       let dispose: () => void;
       afterEach(() => { vi.useRealTimers(); dispose?.(); });
 
-      it('shows BAD and marks the closest note under the cursor in red for a second', async () => {
-        const cfg = load({ waitForRightHand: true });
+      const red = (host: HTMLElement) => host.querySelectorAll('[fill="#FF0000"]').length;
+
+      it('shows BAD for a second, and the note on the score only once the playing is stopped', async () => {
+        load({ waitForRightHand: true });
         const rendered = await renderScore(SIMPLE_SCORE);
         dispose = rendered.dispose;
         await player.setOsmd(rendered.osmd);
@@ -374,27 +387,55 @@ describe('PlayerService', () => {
         vi.spyOn(assess, 'getNewActual').mockReturnValue(status({ bad: 73 }));
         await send(down(73));
         expect(player.message()).toBe('BAD');
-        const red = rendered.host.querySelectorAll('[fill="#FF0000"]');
-        expect(red.length).toBeGreaterThan(0);
+        expect(red(rendered.host)).toBe(0); // not while playing
         vi.advanceTimersByTime(1000);
         expect(player.message()).toBe('');
-        expect(cfg.midi).toBeDefined();
+        player.pause();
+        expect(red(rendered.host)).toBeGreaterThan(0);
       });
 
-      it('in play-along mode too: red note on the score, red key, BAD, as the key is pressed', async () => {
-        load();
+      it('in play-along mode: the wrong notes of a pass shown at its end, until the next count-in is over', async () => {
+        const cfg = load({ isLoop: true });
         const rendered = await renderScore(SIMPLE_SCORE);
         dispose = rendered.dispose;
         await player.setOsmd(rendered.osmd);
+        let countInOver: ((time: number) => void) | undefined;
+        vi.spyOn(audio, 'schedule').mockImplementation((cb, time) => { if (time === 2) countInOver = cb; });
+        await player.play(cfg);
         rendered.osmd.cursor.reset();
         vi.spyOn(audio, 'isPlaying').mockReturnValue(true);
         vi.spyOn(assess, 'playTimed').mockReturnValue({ bad: true });
         const before = player.wrongNotes();
-        noteListener!(down(73)); // no await: shown synchronously
+        noteListener!(down(73)); // synchronous: BAD and the count at once
         expect(player.message()).toBe('BAD');
         expect(player.wrongNotes()).toBe(before + 1);
-        expect(rendered.host.querySelectorAll('[fill="#FF0000"]').length).toBeGreaterThan(0);
-        expect(keys.fillKey).toHaveBeenCalledWith(midiToPitch(73), TestBed.inject(PlayerKeyboardService).COLOR_WRONG);
+        expect(red(rendered.host)).toBe(0);
+        expect(keys.fillKey.mock.calls.filter(([name]) => name === midiToPitch(73))).toEqual([]);
+        countInOver = undefined;
+        onEnd!(); // the end of the pass: shown, and the loop starts again with its count-in
+        expect(red(rendered.host)).toBeGreaterThan(0);
+        await Promise.resolve();
+        expect(countInOver).toBeDefined();
+        expect(red(rendered.host)).toBeGreaterThan(0); // still during the count-in
+        countInOver!(0);
+        expect(red(rendered.host)).toBe(0);
+      });
+
+      it('without a count-in, clears them as the pass starts again', async () => {
+        vi.mocked(audio.startCountIn).mockReturnValue(0);
+        const cfg = load({ isLoop: true });
+        const rendered = await renderScore(SIMPLE_SCORE);
+        dispose = rendered.dispose;
+        await player.setOsmd(rendered.osmd);
+        await player.play(cfg);
+        rendered.osmd.cursor.reset();
+        vi.spyOn(audio, 'isPlaying').mockReturnValue(true);
+        vi.spyOn(assess, 'playTimed').mockReturnValue({ bad: true });
+        noteListener!(down(73));
+        player.pause();
+        expect(red(rendered.host)).toBeGreaterThan(0);
+        await player.play(cfg);
+        expect(red(rendered.host)).toBe(0);
       });
 
       it('a right key on the MIDI keyboard is never lit', async () => {
@@ -404,7 +445,7 @@ describe('PlayerService', () => {
         expect(keys.fillKey.mock.calls.filter(([name]) => name === midiToPitch(72))).toEqual([]);
       });
 
-      it('clears the marking when playback restarts', async () => {
+      it('clears the wrong notes shown when the measures change', async () => {
         const cfg = load({ waitForRightHand: true });
         const rendered = await renderScore(SIMPLE_SCORE);
         dispose = rendered.dispose;
@@ -412,8 +453,10 @@ describe('PlayerService', () => {
         rendered.osmd.cursor.reset();
         vi.spyOn(assess, 'getNewActual').mockReturnValue(status({ bad: 73 }));
         await send(down(73));
+        player.pause();
+        expect(red(rendered.host)).toBeGreaterThan(0);
         player.resetLight(cfg);
-        expect(player.message()).toBe('');
+        expect(red(rendered.host)).toBe(0);
       });
     });
   });
@@ -519,12 +562,6 @@ describe('PlayerService', () => {
       expect(reset).toHaveBeenCalledWith(2);
       expect(audio.stop).toHaveBeenCalled();
       expect(player.lastMidiEventTime).toBe(-1);
-    });
-
-    it('lights the notes the user is expected to play', () => {
-      vi.spyOn(assess, 'getExpectation').mockReturnValue(status({ expectations: new Map([[2, new Set([{ hand: 'rh', midi: 76 }])], [3, new Set([{ hand: 'rh', midi: 79 }])]]) }));
-      player.displayLiveOnKeyboard();
-      expect(keys.fillKey.mock.calls.map(([name]) => name)).toEqual(['E5']); // the oldest expectation only
     });
 
     it('forwards pause, cursor and soundfont calls', async () => {

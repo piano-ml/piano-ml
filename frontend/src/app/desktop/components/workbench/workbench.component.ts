@@ -15,6 +15,8 @@ import { FormsModule } from '@angular/forms';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
 import { MidiSetupComponent } from '../midi-setup/midi-setup.component';
 import { TempoControlComponent } from '../tempo-control/tempo-control.component';
+import { LatencyCalibrationComponent } from '../latency-calibration/latency-calibration.component';
+import { hasLatencyCalibration } from '../../service/latency-calibration';
 import { PlayerService } from '../../service/player.service';
 import * as Midi from '@tonejs/midi';
 import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY, PlayConfiguration } from '../../model/model';
@@ -34,8 +36,6 @@ import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '.
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
 
-/** After a wrong note, the on-screen keyboard is shown this long (even if the user hid it), in both modes. */
-export const WRONG_NOTE_KEYBOARD_VISIBLE_MS = 5000;
 /** How long the arena flashes red after a wrong note. */
 export const WRONG_NOTE_ARENA_FLASH_MS = 500;
 
@@ -58,7 +58,7 @@ export function scoreLoadErrorMessage(error: unknown): string {
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, TempoControlComponent, ElapsedTimePipe, SlopDialogComponent],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, SlopDialogComponent],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -96,7 +96,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   /** Wrong notes already reacted to (the player's counter outlives this component). */
   private seenWrongNotes = 0;
   private arenaFlashTimer?: ReturnType<typeof setTimeout>;
-  private wrongNoteKeyboardTimer?: ReturnType<typeof setTimeout>;
   /** The popup opens once per visit, whichever check notices first. */
   private midiBlockedShown = false;
 
@@ -113,7 +112,16 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   scoreData: ScoreApiInfo | null = null;
   // Expose loading as an observable to use `async` pipe with OnPush change detection
   loading$ = new BehaviorSubject<boolean>(true);
+  /** The tempo the score plays at by default (bpm): the one a different tempo in the URL is compared with. */
   midiOriginalTempo: number = 120;
+  /** The timing calibration dialog, offered when a score opens and none was ever made. */
+  isCalibrationOpen = false;
+  /** The tour started on this score's first visit: the calibration is offered once it ends. */
+  private calibrationAfterTour = false;
+  /** The MIDI file's own tempo (bpm): what the playback speed factor is relative to. */
+  private midiFileTempo = 120;
+  /** The measure range is set once per score loaded, not on each re-render (it would undo the user's choice). */
+  private measureRangeSet = false;
 
 
   get loading() { return this.loading$.value; }
@@ -142,7 +150,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   // Reusable decoder
   private static readonly textDecoder = new TextDecoder();
 
-  storedHideKeyboard: boolean = false;
   private readonly tourSeenKey = 'workbench-tour-seen';
   private lastHighlightedElement: HTMLElement | null = null;
 
@@ -243,7 +250,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.hideFingering = this.parseBooleanStorage(this.hideFingeringStorageKey);
     this.hideLyrics = this.parseBooleanStorage(this.hideLyricsStorageKey);
     this.hideFingeringAndHarmony = this.parseBooleanStorage(this.hideFingeringAndHarmonyStorageKey);
-    this.storedHideKeyboard = this.hideKeyboard;
     this.playConfiguration.waitForLeftHand = this.parseBooleanStorage(this.waitForLeftHandStorageKey);
     this.playConfiguration.waitForRightHand = this.parseBooleanStorage(this.waitForRightHandStorageKey);
 
@@ -253,6 +259,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
       if (this.beaconService.finished() || this.beaconService.dismissed()) {
         localStorage.setItem(this.tourSeenKey, 'true');
+        if (this.calibrationAfterTour) {
+          this.calibrationAfterTour = false;
+          this.offerCalibration();
+        }
       }
 
       const currentStep = this.beaconService.currentStep();
@@ -392,26 +402,15 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Flashes the arena and shows the keyboard until WRONG_NOTE_KEYBOARD_VISIBLE_MS after the last wrong note: one
-   * timer, restarted on each, so that an older one cannot hide the keyboard early.
+   * Flashes the arena (the wrong note itself is shown on the score; the on-screen keyboard is left as it is).
    */
   private onWrongNote(): void {
     this.arenaClass = 'bad';
-    this.hideKeyboard = false;
-    setTimeout(() => {
-      this.playerService.displayLiveOnKeyboard();
-    }, 0);
     clearTimeout(this.arenaFlashTimer);
     this.arenaFlashTimer = setTimeout(() => {
       this.arenaClass = '';
       this.changeDetector.markForCheck();
     }, WRONG_NOTE_ARENA_FLASH_MS);
-    clearTimeout(this.wrongNoteKeyboardTimer);
-    this.wrongNoteKeyboardTimer = setTimeout(() => {
-      this.wrongNoteKeyboardTimer = undefined;
-      this.hideKeyboard = this.storedHideKeyboard;
-      this.changeDetector.markForCheck();
-    }, WRONG_NOTE_KEYBOARD_VISIBLE_MS);
     this.changeDetector.markForCheck();
   }
 
@@ -535,17 +534,35 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
 
   onLoaded() {
-    this.tempo = Math.round(this.scoreData?.tempo || this.midi?.header.tempos[0]?.bpm || 120);
-    this.midiOriginalTempo = this.tempo;
+    // The default: the MIDI file's tempo, scaled by preconfigurePlayConfiguration() when the score sets its own
+    this.midiFileTempo = this.midi?.header.tempos[0]?.bpm || 120;
+    this.midiOriginalTempo = Math.round(this.midiFileTempo * this.playConfiguration.tempoFactor);
+    this.tempo = this.midiOriginalTempo;
+    this.applyTempoFromUrl();
+    this.measureRangeSet = false;
+    // ?loop=1 (a deep link): the score plays in a loop
+    const loop = this.route.snapshot.queryParamMap.get('loop');
+    this.playConfiguration.isLoop = loop === '1' || loop === 'true';
     this.loadingFeedBack$.next({ message: $localize`:@@workbench.progress.configuration:Building the configuration`, percentage: 30 });
     this.loading$.next(false);
     this.changeDetector.markForCheck();
 
     // Auto-start tour if never seen
     if (isPlatformBrowser(this.platformId) && !localStorage.getItem(this.tourSeenKey)) {
+      this.calibrationAfterTour = true;
       setTimeout(() => {
         this.startTour();
       }, 1000);
+    } else if (isPlatformBrowser(this.platformId)) {
+      this.offerCalibration();
+    }
+  }
+
+  /** A score opened without a timing calibration ever made: the calibration is offered (after the tour, on a first visit). */
+  private offerCalibration(): void {
+    if (this.scoreData?.id !== 'exercise' && !hasLatencyCalibration()) {
+      this.isCalibrationOpen = true;
+      this.changeDetector.markForCheck();
     }
   }
 
@@ -614,16 +631,95 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.changeDetector.markForCheck();
   }
 
+  onCountInChange(bars: number) {
+    this.playConfiguration.countInBars = bars;
+    this.changeDetector.markForCheck();
+  }
+
   onTempoChanged(newTempo: number) {
     this.tempo = newTempo;
-    this.setSpeed(this.tempo / this.midiOriginalTempo)
+    this.setSpeed(this.tempo / this.midiFileTempo);
+    this.writeUrlState();
     this.changeDetector.markForCheck();
+  }
+
+  /** A score opened with ?tempo=N (a deep link) plays at N bpm: any whole tempo the tempo control accepts. */
+  private applyTempoFromUrl(): void {
+    const param = this.route.snapshot.queryParamMap.get('tempo');
+    const tempo = param === null || param.trim() === '' ? NaN : Number(param);
+    if (Number.isInteger(tempo) && tempo >= TempoControlComponent.MIN && tempo <= TempoControlComponent.MAX && tempo !== this.midiOriginalTempo) {
+      this.tempo = tempo;
+      this.setSpeed(tempo / this.midiFileTempo);
+    }
+  }
+
+  /** The loop button: the score starts again at the end of its range, and the URL says so (loop=1). */
+  toggleLoop(): void {
+    this.playConfiguration.isLoop = !this.playConfiguration.isLoop;
+    this.writeUrlState();
+    this.changeDetector.markForCheck();
+  }
+
+  /** Measures in the score, as the slider counts them. */
+  private measureCount(): number {
+    return this.cursorService.osmdMeasureCount || this.playConfiguration.maxStaveCount;
+  }
+
+  /** The range on the whole score: measures 1 to the last one (the end is exclusive). */
+  private setWholeScore(): void {
+    this.playConfiguration.scoreRange[0] = 1;
+    this.playConfiguration.scoreRange[1] = this.measureCount() + 1;
+  }
+
+  /**
+   * Once the score is rendered (its measures counted): the whole score, or the measures of the link when it was
+   * opened with ?measureStart=A&measureEnd=B (a deep link), A to B as the slider shows them (1-based, B
+   * included). Either can be left out (the first or the last measure); measures out of the score are ignored.
+   */
+  private applyMeasureRange(): void {
+    const count = this.measureCount();
+    if (this.measureRangeSet || count < 1) return;
+    this.measureRangeSet = true;
+    // The range preconfigurePlayConfiguration() set comes from the MIDI notes, before the measures were counted
+    this.setWholeScore();
+    this.playConfiguration.currentStave = 1;
+    const read = (name: string, fallback: number) => {
+      const param = this.route.snapshot.queryParamMap.get(name);
+      const value = param === null || param.trim() === '' ? fallback : Number(param);
+      return Number.isInteger(value) ? value : NaN;
+    };
+    const first = read('measureStart', 1);
+    const last = read('measureEnd', count);
+    if (!(first >= 1 && first <= last && last <= count) || (first === 1 && last === count)) return;
+    this.playConfiguration.scoreRange[0] = first;
+    this.playConfiguration.scoreRange[1] = last + 1;
+    this.playConfiguration.currentStave = first;
+    this.playerService.resetLight(this.playConfiguration);
+  }
+
+  /**
+   * What makes the score worth sharing as it is, in the URL (other parameters kept): a tempo other than the
+   * score's own, measures other than the whole score (as the slider shows them), the loop. Out of the URL otherwise.
+   */
+  private writeUrlState(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const [start, end] = this.playConfiguration.scoreRange;
+    const first = Math.max(1, start);
+    const last = Math.min(end - 1, this.measureCount());
+    const wholeScore = first <= 1 && last >= this.measureCount();
+    const wanted: Record<string, string | null> = {
+      tempo: this.tempo === this.midiOriginalTempo ? null : String(this.tempo),
+      measureStart: wholeScore ? null : String(first),
+      measureEnd: wholeScore ? null : String(last),
+      loop: this.playConfiguration.isLoop ? '1' : null,
+    };
+    const current = this.route.snapshot.queryParamMap;
+    if (Object.entries(wanted).every(([name, value]) => current.get(name) === value)) return;
+    this.router.navigate([], { relativeTo: this.route, queryParams: wanted, queryParamsHandling: 'merge', replaceUrl: true });
   }
 
   setHideKeyboard(value: boolean) {
     this.hideKeyboard = value;
-    // What the keyboard returns to after a wrong note briefly shows it (it used to keep the value read at load)
-    this.storedHideKeyboard = value;
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(this.hideKeyboardStorageKey, JSON.stringify(value));
     }
@@ -691,6 +787,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
     this.osmdLoading$.next(loading);
     this.changeDetector.markForCheck();
+    this.applyMeasureRange();
     this.setupSlider();
     clearTimeout(this.titleTimer);
     this.titleTimer = setTimeout(() => {
@@ -874,18 +971,21 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   reset() {
     this.setSliderState(true);
     if (this.playConfiguration.currentStave === this.playConfiguration.scoreRange[0]) {
-      this.playConfiguration.scoreRange[0] = 0;
-      this.playConfiguration.scoreRange[1] = this.playConfiguration.maxStaveCount + 1;
+      this.setWholeScore();
     }
     this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
     this.playerService.reset(this.playConfiguration);
     this.isPlaying = false;
 
     this.updateSlider();
+    this.writeUrlState();
   }
 
+  /** Plays at `speed` times the MIDI file's tempo (the notes and the count-in alike). */
   setSpeed(speed: number) {
-    this.playConfiguration.delayFactor = 1 / speed;
+    // delayFactor stays 1: the time factor is 1 / (tempoFactor / delayFactor), and setting it to 1 / speed too made
+    // the notes play at speed² (a 50 bpm choice on a 100 bpm score played at 25, the count-in at 50)
+    this.playConfiguration.delayFactor = 1;
     this.playConfiguration.tempoFactor = speed;
     this.playerService.resetLight(this.playConfiguration);
   }
@@ -926,9 +1026,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.isPlaying = true;
 
     this.setSliderState(false);
-    // Count a play when it starts from the first bar. The range is 0-based since the cursor engine rework
-    // (it was 1-based when this check was written, so plays stopped being counted).
-    if (this.scoreData?.id && this.scoreData.id !== 'exercise' && this.playConfiguration.scoreRange[0] === 0) {
+    // Count a play when it starts from the first bar. scoreRange[0] is 1-based, with 0 (the default before the
+    // slider is touched) also meaning the first bar.
+    if (this.scoreData?.id && this.scoreData.id !== 'exercise' && this.playConfiguration.scoreRange[0] <= 1) {
       const request: ScorePlayStatsPostRequest = { id: this.scoreData.id };
       this.scoreService.scorePlayStatsPost(request).subscribe({
         next: () => { },
@@ -1016,40 +1116,35 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     });
 
     this.slider.on('end', (values: (string | number)[]) => {
-      // Convert once and reuse
+      // The handles show 1-based measures and the end handle is the last measure played (inclusive),
+      // while scoreRange[1] is exclusive: the player plays measures scoreRange[0] .. scoreRange[1] - 1.
       const numValues = values.map(v => Math.round(Number(v)));
-      let [start, current, end] = numValues;
-      let [oldStart, oldCurrent, oldEnd] = [
+      let [start, current, last] = numValues;
+      const [oldStart, oldCurrent, oldLast] = [
         this.playConfiguration.scoreRange[0],
         this.playConfiguration.currentStave,
-        this.playConfiguration.scoreRange[1]
+        this.playConfiguration.scoreRange[1] - 1
       ];
-      // detect what changed
+      // detect what changed; a single measure (start === last) is a valid range
       if (current != oldCurrent) {
-        if (current === end) {
-          current--;
-        }
+        current = Math.min(current, last);
         start = current;
       } else if (start != oldStart) {
-        if (start === end) {
-          start--;
-        }
+        start = Math.min(start, last);
         current = start;
-      } else if (end != oldEnd) {
-        if (end === start) {
-          end++;
-        }
-
+      } else if (last != oldLast) {
+        last = Math.max(last, start);
         current = start;
       }
 
-      this.playConfiguration.scoreRange[0] = Math.round(start);
-      this.playConfiguration.currentStave = Math.round(current);
-      this.playConfiguration.scoreRange[1] = Math.round(end);
+      this.playConfiguration.scoreRange[0] = start;
+      this.playConfiguration.currentStave = current;
+      this.playConfiguration.scoreRange[1] = last + 1;
       this.playerService.resetLight(this.playConfiguration);
       // Hides the tooltips the 'start' handler showed for the drag
       this.slider.updateOptions({ tooltips: [false, false, false] });
       this.updateSlider();
+      this.writeUrlState();
     });
   }
 
@@ -1058,7 +1153,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     const newValues = [
       this.playConfiguration.scoreRange[0],
       this.playConfiguration.currentStave,
-      this.playConfiguration.scoreRange[1]
+      this.playConfiguration.scoreRange[1] - 1 // the end handle shows the last measure played
     ];
     // set() moves the handles; updateOptions() rebuilt every pip and tooltip, on each new measure while playing.
     // fireSetEvent false: no 'set' event for a move the code made itself. Outside the zone: noUiSlider's own
@@ -1072,12 +1167,14 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       behaviour: 'unconstrained' as const,
       range: {
         'min': 0,
-        'max': this.cursorService.osmdMeasureCount + 1
+        // Internal values are 0-based (the format shows them + 1): the last handle position is the last measure
+        'max': Math.max(0, this.measureCount() - 1)
       },
+      // Formatted values (format.from applies): the end handle is the last measure played, inclusive
       start: [
         this.playConfiguration.scoreRange[0],
         this.playConfiguration.currentStave,
-        this.playConfiguration.scoreRange[1] + 1
+        this.playConfiguration.scoreRange[1] - 1
       ]
     };
     return sliderConfig;
@@ -1180,7 +1277,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     clearTimeout(this.titleTimer);
     this.titleTimer = undefined;
     clearTimeout(this.arenaFlashTimer);
-    clearTimeout(this.wrongNoteKeyboardTimer);
     this.playerService.releaseScoreSession();
     this.clearData();
     // Remove resize listener

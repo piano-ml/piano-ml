@@ -986,9 +986,65 @@
         <source>Timing calibration</source>
         <target state="translated">节奏校准</target>
       </trans-unit>
+      <trans-unit id="latency.intro.title" datatype="html">
+        <source>Let&apos;s tune the timing first</source>
+        <target state="translated">先来校准节奏</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.why" datatype="html">
+        <source>So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</source>
+        <target state="translated">为了按你真正听到的声音来评估你的演奏，Piano ML 会测量扬声器的延迟。大约需要 20 秒。</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.speakers" datatype="html">
+        <source>Play the sound through your speakers, not headphones, with the volume up.</source>
+        <target state="translated">用扬声器播放声音，不要用耳机，并调高音量。</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.quiet" datatype="html">
+        <source>Keep the room quiet while the clicks play.</source>
+        <target state="translated">咔嗒声播放时请保持房间安静。</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.start" datatype="html">
+        <source>Press Calibrate and allow the microphone if your browser asks.</source>
+        <target state="translated">按下“校准”，如果浏览器询问，请允许使用麦克风。</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.fallback" datatype="html">
+        <source>No microphone, or using headphones? Choose MIDI keyboard taps instead.</source>
+        <target state="translated">没有麦克风，或在用耳机？请改选“在 MIDI 键盘上敲击”。</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.loopback" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">麦克风收听扬声器</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.midi" datatype="html">
+        <source>MIDI keyboard taps</source>
+        <target state="translated">在 MIDI 键盘上敲击</target>
+      </trans-unit>
+      <trans-unit id="latency.hint.loopback" datatype="html">
+        <source>Play through the speakers, volume up, and stay quiet: the microphone hears the clicks and measures the delay of your speakers.</source>
+        <target state="translated">通过扬声器播放，调高音量并保持安静：麦克风会听到咔嗒声并测量扬声器的延迟。</target>
+      </trans-unit>
       <trans-unit id="latency.hint" datatype="html">
         <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
         <target state="translated">每次听到咔嗒声时按一下 MIDI 键盘上的任意键，这样会按照你听到的声音来评估演奏（使用蓝牙耳机时很有用）。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">麦克风</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.denied" datatype="html">
+        <source>Microphone access was refused. Allow it in the browser&apos;s site settings.</source>
+        <target state="translated">麦克风访问被拒绝。请在浏览器的网站设置中允许。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.allow" datatype="html">
+        <source>Allow the microphone</source>
+        <target state="translated">允许使用麦克风</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.default" datatype="html">
+        <source>Default microphone</source>
+        <target state="translated">默认麦克风</target>
+      </trans-unit>
+      <trans-unit id="latency.listening.loopback" datatype="html">
+        <source>Listening to the clicks…</source>
+        <target state="translated">正在聆听咔嗒声…</target>
       </trans-unit>
       <trans-unit id="latency.listening" datatype="html">
         <source>Tap along with the clicks…</source>
@@ -998,13 +1054,21 @@
         <source>Cancel</source>
         <target state="translated">取消</target>
       </trans-unit>
+      <trans-unit id="latency.failed.loopback" datatype="html">
+        <source>The microphone did not hear the clicks. Turn the volume up and try again.</source>
+        <target state="translated">麦克风没有听到咔嗒声。请调高音量后重试。</target>
+      </trans-unit>
       <trans-unit id="latency.failed" datatype="html">
         <source>Not enough taps on the beat. Try again.</source>
         <target state="translated">按在节拍上的次数不够，请再试一次。</target>
       </trans-unit>
-      <trans-unit id="latency.value" datatype="html">
-        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
-        <target state="translated">校正：<x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> 毫秒</target>
+      <trans-unit id="latency.micError" datatype="html">
+        <source>The microphone could not be opened. Allow it for this site and check the microphone chosen above.</source>
+        <target state="translated">无法打开麦克风。请为此网站允许麦克风，并检查上方选择的麦克风。</target>
+      </trans-unit>
+      <trans-unit id="latency.manual" datatype="html">
+        <source>Correction (ms)</source>
+        <target state="translated">校正（毫秒）</target>
       </trans-unit>
       <trans-unit id="latency.calibrate" datatype="html">
         <source>Calibrate</source>
@@ -1013,6 +1077,34 @@
       <trans-unit id="latency.reset" datatype="html">
         <source>Reset</source>
         <target state="translated">重置</target>
+      </trans-unit>
+      <trans-unit id="latency.taps" datatype="html">
+        <source>Delay after each click, in ms (faded: not counted)</source>
+        <target state="translated">每次咔嗒声后的延迟，单位毫秒（淡色：不计入）</target>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">关闭</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphoneFallback" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">麦克风</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.title" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">麦克风收听扬声器</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.content" datatype="html">
+        <source>Your speakers or headphones always sound a little after a note is played. To score your playing against what you really hear, Piano ML plays a few clicks and listens to them with your microphone. That tells it how late the sound arrives.</source>
+        <target state="translated">扬声器或耳机发出的声音总是比弹奏音符稍晚一点。为了按照你实际听到的声音来评判你的演奏，Piano ML 会播放几下咔嗒声并用麦克风收听，从而知道声音晚到了多少。</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.title" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">校准</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.content" datatype="html">
+        <source>Best done now, before you play: allow the microphone, then press Calibrate. It takes about 20 seconds.</source>
+        <target state="translated">最好现在就做，在弹奏之前：允许使用麦克风，然后点击“校准”。大约需要 20 秒。</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -1074,9 +1166,17 @@
         <source>Toggle fingering and harmony visibility</source>
         <target state="translated">显示或隐藏指法与和声</target>
       </trans-unit>
-      <trans-unit id="common.close" datatype="html">
-        <source>Close</source>
-        <target state="translated">关闭</target>
+      <trans-unit id="midiSetup.calibration.hint" datatype="html">
+        <source>Measures the delay of your speakers or headphones, so that your playing is scored against what you hear.</source>
+        <target state="translated">测量扬声器或耳机的延迟，从而按你听到的声音来评估你的演奏。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">校正：<x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> 毫秒</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.open" datatype="html">
+        <source>Calibrate…</source>
+        <target state="translated">校准…</target>
       </trans-unit>
       <trans-unit id="midiSetup.inputFallback" datatype="html">
         <source>MIDI Input</source>
@@ -1149,6 +1249,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">节拍器</target>
+      </trans-unit>
+      <trans-unit id="tempo.countIn" datatype="html">
+        <source>Count-in (bars)</source>
+        <target state="translated">预备拍（小节）</target>
       </trans-unit>
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
