@@ -270,9 +270,6 @@ export class PlayerService implements OnDestroy {
   }
 
   async play(playConfigurations: PlayConfiguration) {
-    // temporary debug: separates the [assess] logs of each pass (loop mode), with what shifts the key presses scored
-    console.log(`============== correction ${this.audio.latencyCalibrationMs()} ms (a key press is scored this much earlier), `
-      + `output latency ${Math.round((this.audio.getContextTimeLag()) * 1000)} ms`);
     this.audio.clearSchedule();
     this.pendingBadNotes.clear(); // the new pass collects its own
     this.recorder.takeEnded(false);
