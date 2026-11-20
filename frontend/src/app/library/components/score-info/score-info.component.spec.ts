@@ -439,11 +439,13 @@ describe('ScoreInfoComponent', () => {
       expect(cards[1].textContent).toContain('Second take');
     });
 
-    it('shows a video API error', async () => {
-      scores.scoreIdVideoGet.mockReturnValue(throwError(() => ({ message: 'quota exceeded' })));
+    it('shows no videos and no error when they cannot be loaded', async () => {
+      scores.scoreIdVideoGet.mockReturnValue(throwError(() => ({ status: 502, message: 'Http failure response: 502 Bad Gateway' })));
       await render();
-      expect(el.textContent).toContain('Video API error: quota exceeded');
+      expect(el.textContent).not.toContain('502');
+      expect(el.querySelector('.video-lessons-section .alert-error')).toBeNull();
       expect(el.querySelector('app-video-carousel')).toBeNull();
+      expect(el.querySelector('.video-lessons-section [role="status"]')).toBeNull(); // not loading forever either
     });
 
     it('does not ask for videos of a score without id', async () => {

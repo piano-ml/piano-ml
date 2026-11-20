@@ -174,13 +174,7 @@
       </div>
       }
 
-      @if (videosError) {
-      <div class="alert-error">
-        <strong i18n="@@score.videos.errorLabel">Video API error:</strong> {{ videosError }}
-      </div>
-      }
-
-      @if (!loadingVideos && !videosError && videos.length > 0) {
+      @if (!loadingVideos && videos.length > 0) {
       <app-video-carousel [videos]="videos" (selectVideo)="openVideoPlayer($event)"></app-video-carousel>
       }
     </section>

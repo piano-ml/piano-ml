@@ -135,8 +135,9 @@ public class ScoreController implements ScoreApi {
       List<YoutubeVideoApiInfo> videos = youtubeService.searchVideos(scoreId, score.getTitle(), score.getAuthor());
       return ResponseEntity.ok(videos);
     } catch (YoutubeService.YoutubeApiException e) {
-      log.error("YouTube API error for score {}: {}", id, e.getMessage());
-      return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+      // YouTube unavailable (quota, outage): the page shows no videos, nothing is wrong on our side
+      log.info("No videos for score {}: YouTube API unavailable ({})", id, e.getMessage());
+      return ResponseEntity.ok(List.of());
     }
   }
 
