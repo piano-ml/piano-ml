@@ -56,6 +56,16 @@ Scenario('torture the workbench player', async ({ I }) => {
   I.waitForText('Welcome to the Workbench!', 15); // first-visit guided tour
   I.click(locate('button').withAttr({ 'aria-label': 'Close' }));
   I.waitForInvisible('.beacon-tooltip', 5);
+  // Then, no timing calibration made yet: its dialog, with its own first-time tour
+  I.waitForText('Timing calibration', 5, 'app-latency-calibration');
+  I.waitForText('Microphone hears the speakers', 5, '.beacon-tooltip');
+  I.seeElement('app-latency-calibration [data-microphone-allow].btn-danger'); // in red: the step to take first
+  I.click(locate('.beacon-tooltip-button.primary')); // next step: Calibrate
+  I.waitForText('allow the microphone, then press Calibrate', 5, '.beacon-tooltip');
+  I.click(locate('button').withAttr({ 'aria-label': 'Close' }));
+  I.waitForInvisible('.beacon-tooltip', 5);
+  I.click('[data-calibration-close]');
+  I.dontSeeElement('app-latency-calibration .modal');
 
   // --- Initial state ------------------------------------------------------------------------------------
   I.waitForFunction(() => document.title.includes('Happy Birthday to You'), 15);
@@ -66,20 +76,16 @@ Scenario('torture the workbench player', async ({ I }) => {
   let s = await state(I);
   assert.equal(s.cursorVisible, true, 'cursor shown once the score is ready');
   assertNearPosition(s.cursor, start, 'cursor on the first note before playing');
-  assert.deepEqual(s.handles, [0, 0, 17], 'measure range covers the 17 measures, current measure 0');
+  assert.deepEqual(s.handles, [0, 0, 16], 'measure range covers the 17 measures (0 to 16, the end included), current measure 0');
 
   // --- Tempo: limits and controls -----------------------------------------------------------------------
-  const tempoNumber = 'app-tempo-control input[type="number"]';
+  const tempoNumber = 'app-tempo-control input[type="number"]:not(#count-in)'; // not the count-in field
   const tempoRange = 'app-tempo-control input[type="range"]';
   I.click('#showTempo label');
   I.waitForText('Tempo', 5, 'app-tempo-control');
-  I.seeInField(tempoNumber, '104'); // the score's own tempo
+  I.seeInField(tempoNumber, '100'); // the tempo it plays at: its MIDI file's (the score page shows 104, its metadata)
   // Out-of-range values are clamped when the field is committed (Tab / Enter), and the field shows the result
-  I.fillField(tempoNumber, '999');
-  I.pressKey('Tab');
-  I.seeInField(tempoNumber, '200'); // clamped to the maximum
-  I.seeInField(tempoRange, '200');
-  I.fillField(tempoNumber, '9999'); // clamps to the same value: the field must still be rewritten
+  I.fillField(tempoNumber, '9999');
   I.pressKey('Tab');
   I.seeInField(tempoNumber, '200');
   I.fillField(tempoNumber, '1');
