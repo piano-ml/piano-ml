@@ -682,6 +682,26 @@
         <source>Delete all sessions</source>
         <target state="translated">Supprimer toutes les séances</target>
       </trans-unit>
+      <trans-unit id="playlist.favorites" datatype="html">
+        <source>Favorites</source>
+        <target state="translated">Favoris</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.removedFromFavorites" datatype="html">
+        <source>Removed from Favorites</source>
+        <target state="translated">Retirée des favoris</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.saveFailed" datatype="html">
+        <source>Couldn&apos;t save, try again</source>
+        <target state="translated">Enregistrement impossible, réessayez</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.addedToFavorites" datatype="html">
+        <source>Added to Favorites</source>
+        <target state="translated">Ajoutée aux favoris</target>
+      </trans-unit>
+      <trans-unit id="playlist.toast.view" datatype="html">
+        <source>View</source>
+        <target state="translated">Voir</target>
+      </trans-unit>
       <trans-unit id="admin.route.errors" datatype="html">
         <source>Error reports</source>
         <target state="translated">Rapports d’erreurs</target>
@@ -938,26 +958,6 @@
         <source>Next</source>
         <target state="translated">Suivant</target>
       </trans-unit>
-      <trans-unit id="playlist.favorites" datatype="html">
-        <source>Favorites</source>
-        <target state="translated">Favoris</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.removedFromFavorites" datatype="html">
-        <source>Removed from Favorites</source>
-        <target state="translated">Retirée des favoris</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.saveFailed" datatype="html">
-        <source>Couldn&apos;t save, try again</source>
-        <target state="translated">Enregistrement impossible, réessayez</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.addedToFavorites" datatype="html">
-        <source>Added to Favorites</source>
-        <target state="translated">Ajoutée aux favoris</target>
-      </trans-unit>
-      <trans-unit id="playlist.toast.view" datatype="html">
-        <source>View</source>
-        <target state="translated">Voir</target>
-      </trans-unit>
       <trans-unit id="route.error.title" datatype="html">
         <source>Page Error</source>
         <target state="translated">Erreur de la page</target>
@@ -981,6 +981,130 @@
       <trans-unit id="blog.heading" datatype="html">
         <source>Blog posts</source>
         <target state="translated">Articles du blog</target>
+      </trans-unit>
+      <trans-unit id="latency.heading" datatype="html">
+        <source>Timing calibration</source>
+        <target state="translated">Calibrage du timing</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.title" datatype="html">
+        <source>Let&apos;s tune the timing first</source>
+        <target state="translated">Réglons d'abord le timing</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.why" datatype="html">
+        <source>So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</source>
+        <target state="translated">Pour que votre jeu soit évalué d'après ce que vous entendez vraiment, Piano ML mesure le délai de vos haut-parleurs. Cela prend environ 20 secondes.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.speakers" datatype="html">
+        <source>Play the sound through your speakers, not headphones, with the volume up.</source>
+        <target state="translated">Jouez le son sur vos haut-parleurs, pas au casque, volume monté.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.quiet" datatype="html">
+        <source>Keep the room quiet while the clicks play.</source>
+        <target state="translated">Gardez la pièce silencieuse pendant les clics.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.start" datatype="html">
+        <source>Press Calibrate and allow the microphone if your browser asks.</source>
+        <target state="translated">Appuyez sur Calibrer et autorisez le micro si votre navigateur le demande.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.fallback" datatype="html">
+        <source>No microphone, or using headphones? Choose MIDI keyboard taps instead.</source>
+        <target state="translated">Pas de micro, ou au casque ? Choisissez plutôt Frappes au clavier MIDI.</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.loopback" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">Le micro écoute les haut-parleurs</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.midi" datatype="html">
+        <source>MIDI keyboard taps</source>
+        <target state="translated">Frappes au clavier MIDI</target>
+      </trans-unit>
+      <trans-unit id="latency.hint.loopback" datatype="html">
+        <source>Play through the speakers, volume up, and stay quiet: the microphone hears the clicks and measures the delay of your speakers.</source>
+        <target state="translated">Jouez sur les haut-parleurs, volume monté, sans faire de bruit : le micro entend les clics et mesure le délai de vos haut-parleurs.</target>
+      </trans-unit>
+      <trans-unit id="latency.hint" datatype="html">
+        <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
+        <target state="translated">Appuyez sur une touche de votre clavier MIDI à chaque clic, pour que votre jeu soit évalué d’après ce que vous entendez (utile avec un casque Bluetooth).</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">Micro</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.denied" datatype="html">
+        <source>Microphone access was refused. Allow it in the browser&apos;s site settings.</source>
+        <target state="translated">L'accès au micro a été refusé. Autorisez-le dans les paramètres du site du navigateur.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.allow" datatype="html">
+        <source>Allow the microphone</source>
+        <target state="translated">Autoriser le micro</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.default" datatype="html">
+        <source>Default microphone</source>
+        <target state="translated">Micro par défaut</target>
+      </trans-unit>
+      <trans-unit id="latency.listening.loopback" datatype="html">
+        <source>Listening to the clicks…</source>
+        <target state="translated">Écoute des clics…</target>
+      </trans-unit>
+      <trans-unit id="latency.listening" datatype="html">
+        <source>Tap along with the clicks…</source>
+        <target state="translated">Jouez en rythme avec les clics…</target>
+      </trans-unit>
+      <trans-unit id="latency.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annuler</target>
+      </trans-unit>
+      <trans-unit id="latency.failed.loopback" datatype="html">
+        <source>The microphone did not hear the clicks. Turn the volume up and try again.</source>
+        <target state="translated">Le micro n'a pas entendu les clics. Montez le volume et réessayez.</target>
+      </trans-unit>
+      <trans-unit id="latency.failed" datatype="html">
+        <source>Not enough taps on the beat. Try again.</source>
+        <target state="translated">Pas assez de touches dans le temps. Réessayez.</target>
+      </trans-unit>
+      <trans-unit id="latency.micError" datatype="html">
+        <source>The microphone could not be opened. Allow it for this site and check the microphone chosen above.</source>
+        <target state="translated">Impossible d'ouvrir le micro. Autorisez-le pour ce site et vérifiez le micro choisi plus haut.</target>
+      </trans-unit>
+      <trans-unit id="latency.manual" datatype="html">
+        <source>Correction (ms)</source>
+        <target state="translated">Correction (ms)</target>
+      </trans-unit>
+      <trans-unit id="latency.calibrate" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">Calibrer</target>
+      </trans-unit>
+      <trans-unit id="latency.reset" datatype="html">
+        <source>Reset</source>
+        <target state="translated">Réinitialiser</target>
+      </trans-unit>
+      <trans-unit id="latency.taps" datatype="html">
+        <source>Delay after each click, in ms (faded: not counted)</source>
+        <target state="translated">Délai après chaque clic, en ms (estompé : non compté)</target>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">Fermer</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphoneFallback" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">Micro</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.title" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">Le micro écoute les haut-parleurs</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.content" datatype="html">
+        <source>Your speakers or headphones always sound a little after a note is played. To score your playing against what you really hear, Piano ML plays a few clicks and listens to them with your microphone. That tells it how late the sound arrives.</source>
+        <target state="translated">Vos haut-parleurs ou votre casque sonnent toujours un peu après qu'une note est jouée. Pour juger votre jeu d'après ce que vous entendez vraiment, Piano ML joue quelques clics et les écoute avec votre micro. Il sait ainsi avec quel retard le son arrive.</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.title" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">Calibrer</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.content" datatype="html">
+        <source>Best done now, before you play: allow the microphone, then press Calibrate. It takes about 20 seconds.</source>
+        <target state="translated">À faire maintenant, avant de jouer : autorisez le micro, puis appuyez sur Calibrer. Cela prend environ 20 secondes.</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -1042,9 +1166,17 @@
         <source>Toggle fingering and harmony visibility</source>
         <target state="translated">Afficher ou masquer le doigté et l'harmonie</target>
       </trans-unit>
-      <trans-unit id="common.close" datatype="html">
-        <source>Close</source>
-        <target state="translated">Fermer</target>
+      <trans-unit id="midiSetup.calibration.hint" datatype="html">
+        <source>Measures the delay of your speakers or headphones, so that your playing is scored against what you hear.</source>
+        <target state="translated">Mesure le délai de vos haut-parleurs ou de votre casque, pour que votre jeu soit évalué d'après ce que vous entendez.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">Correction : <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.open" datatype="html">
+        <source>Calibrate…</source>
+        <target state="translated">Calibrer…</target>
       </trans-unit>
       <trans-unit id="midiSetup.inputFallback" datatype="html">
         <source>MIDI Input</source>
@@ -1118,9 +1250,25 @@
         <source>Metronome</source>
         <target state="translated">Métronome</target>
       </trans-unit>
+      <trans-unit id="tempo.countIn" datatype="html">
+        <source>Count-in (bars)</source>
+        <target state="translated">Décompte (mesures)</target>
+      </trans-unit>
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">Accès MIDI bloqué</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsLoading" datatype="html">
+        <source>Loading sounds…</source>
+        <target state="translated">Chargement des sons…</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsError" datatype="html">
+        <source>Sounds could not be loaded</source>
+        <target state="translated">Impossible de charger les sons</target>
+      </trans-unit>
+      <trans-unit id="workbench.soundsRetry" datatype="html">
+        <source>Retry</source>
+        <target state="translated">Réessayer</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
         <source>Back to the score</source>

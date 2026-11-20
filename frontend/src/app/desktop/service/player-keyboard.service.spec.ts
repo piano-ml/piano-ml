@@ -77,4 +77,10 @@ describe('PlayerKeyboardService', () => {
       keyboard.removeAllNotesFromKeyboard();
     }).not.toThrow();
   });
+  it('lights the keys lit meanwhile on a keyboard shown again', () => {
+    keyboard.lightNoteOnKeyboard('rh', note({ midi: 64, name: 'E4', velocity: 0.5 }));
+    const shownAgain = { fillKey: vi.fn(), clearKey: vi.fn() };
+    keyboard.setPianoKeys(shownAgain as unknown as PianoKeys.Keyboard);
+    expect(shownAgain.fillKey).toHaveBeenCalledWith('E4', keyboard.COLOR_RIGHT[4]);
+  });
 });

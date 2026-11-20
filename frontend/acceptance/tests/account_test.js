@@ -64,7 +64,7 @@ async function searchMusicBrainz(I, results, attempts = 3) {
   throw new Error(`MusicBrainz search still failing after ${attempts} attempts`);
 }
 
-/** Closes the workbench guided tour if it shows up (it only opens on the first visit). */
+/** Closes a guided tour if it shows up (they only open on the first visit). */
 async function closeTourIfShown(I, seconds = 5) {
   const shown = await I.executeScript(timeout => new Promise(resolve => {
     const started = Date.now();
@@ -79,6 +79,26 @@ async function closeTourIfShown(I, seconds = 5) {
     I.click(locate('button').withAttr({ 'aria-label': 'Close' }));
     I.waitForInvisible('.beacon-tooltip', 5);
   }
+}
+
+/**
+ * Closes the timing calibration dialog if it shows up (offered on each score while none was made, after the
+ * workbench tour on a first visit), and its own tour the first time.
+ */
+async function closeCalibrationIfShown(I, seconds = 5) {
+  const shown = await I.executeScript(timeout => new Promise(resolve => {
+    const started = Date.now();
+    const poll = () => {
+      if (document.querySelector('app-latency-calibration .modal')) return resolve(true);
+      if (Date.now() - started > timeout) return resolve(false);
+      setTimeout(poll, 200);
+    };
+    poll();
+  }), seconds * 1000);
+  if (!shown) return;
+  await closeTourIfShown(I, 2);
+  I.click('[data-calibration-close]');
+  I.waitForInvisible('app-latency-calibration .modal', 5);
 }
 
 /** Unticks "Enable automatic fingering" through its label, as a user would, and checks it is unticked. */
@@ -161,6 +181,7 @@ async function checkPlayable(I, title) {
   I.waitInUrl('/work/');
   I.waitForElement('#osmdSvgPage1', 30); // sheet music rendered
   await closeTourIfShown(I);
+  await closeCalibrationIfShown(I);
   const before = await I.executeScript(() => {
     const c = document.getElementById('cursorImg-0');
     return c ? { left: c.style.left, top: c.style.top } : null;

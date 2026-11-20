@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { prefetchSoundFont } from '../../shared/services/soundfont-cache';
 import { majorKeys, minorKeys, Scale, scales } from '../../desktop/service/music-theory';
 import { exercises } from './pattern';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -91,6 +92,9 @@ export class ScalesComponent implements OnInit {
       this.updatePageTitle();
     });
   }
+
+  /** The workbench's sounds start downloading as the user points at the button that opens it. */
+  protected readonly prefetchSounds = prefetchSoundFont;
 
   load() {
     loadExercice(this.router, this.selectedExcercice, this.selectedScale, this.selectedKey)

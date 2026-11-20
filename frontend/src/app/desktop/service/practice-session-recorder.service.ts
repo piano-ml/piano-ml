@@ -32,6 +32,8 @@ export const MIN_ACTIVE_SECONDS = 10;
 /** While playing, the session is saved this often: a crash or a dead battery loses little. */
 export const CHECKPOINT_MS = 30_000;
 export const OUTBOX_KEY = 'practiceOutbox';
+/** A take in which the user played this many notes or fewer is not assessed: its time is recorded, its counters are not. */
+export const UNASSESSED_MAX_NOTES_PLAYED = 0;
 const OUTBOX_MAX_ENTRIES = 20;
 /** The backend refuses older sessions. */
 const OUTBOX_MAX_AGE_MS = 7 * 24 * 3600_000;
@@ -83,6 +85,10 @@ function addCounters(into: AssessCounters, from: AssessCounters): void {
   into.onsets += from.onsets;
   into.waits += from.waits;
 }
+
+/** The take's counters, or none when the user played too little for the take to say anything about them. */
+export const assessedTake = (snapshot: AssessSnapshot, maxNotesPlayed = UNASSESSED_MAX_NOTES_PLAYED): AssessSnapshot =>
+  snapshot.played <= maxNotesPlayed ? { ...emptyCounters(), measures: [], played: snapshot.played } : snapshot;
 
 const toApiCounters = (c: AssessCounters) => ({
   notesExpected: c.expected, notesHit: c.hit, notesWrong: c.wrong, onsets: c.onsets, waits: c.waits,
@@ -163,15 +169,16 @@ export class PracticeSessionRecorder implements OnDestroy {
         midiInput: false,
       };
     }
-    // scoreRange is 0-based with an exclusive end, and can run one past the last measure
-    const measureStart = config.scoreRange[0] + 1;
-    const lastMeasure = this.measureTotal && this.measureTotal > 0 ? this.measureTotal : config.scoreRange[1];
+    // scoreRange is 1-based with an exclusive end (the player plays measures scoreRange[0] .. scoreRange[1] - 1);
+    // 0 also means the first measure, and the end can run past the last measure
+    const measureStart = Math.max(1, config.scoreRange[0]);
+    const lastMeasure = this.measureTotal && this.measureTotal > 0 ? this.measureTotal : config.scoreRange[1] - 1;
     this.take = {
       startedAt: now,
       lastActivityAt: now,
       activeMs: 0,
       measureStart,
-      measureEnd: Math.max(measureStart, Math.min(config.scoreRange[1], lastMeasure)),
+      measureEnd: Math.max(measureStart, Math.min(config.scoreRange[1] - 1, lastMeasure)),
       hands: config.waitForLeftHand && config.waitForRightHand ? 'both'
         : config.waitForLeftHand ? 'left'
           : config.waitForRightHand ? 'right' : 'listen',
@@ -212,7 +219,7 @@ export class PracticeSessionRecorder implements OnDestroy {
       return;
     }
     this.activity();
-    const snapshot = this.assess.snapshot();
+    const snapshot = assessedTake(this.assess.snapshot());
     this.take = null;
     this.stopCheckpoints();
 
@@ -329,7 +336,7 @@ export class PracticeSessionRecorder implements OnDestroy {
       // Work on a copy: the open take is merged again, with fresh counters, at the next flush
       const now = this.now();
       const activeMs = take.activeMs + Math.min(now - take.lastActivityAt, IDLE_CUTOFF_MS);
-      const snapshot = this.assess.snapshot();
+      const snapshot = assessedTake(this.assess.snapshot());
       session = {
         ...closed,
         activeMs: closed.activeMs + activeMs,

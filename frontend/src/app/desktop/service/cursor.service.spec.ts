@@ -93,6 +93,57 @@ describe('CursorService', () => {
       expect(cursor.CursorOptions.type).toBe(4);
     });
 
+    it('draws the cursor once for a move over several steps, and not at all when it stays', async () => {
+      const { midi } = await setup(SIMPLE_SCORE);
+      const update = vi.spyOn(cursor, 'update');
+      service.nextNote(noteAt(midi, tickOf(1, 2))); // several cursor steps ahead
+      expect(update).toHaveBeenCalledTimes(1);
+      expect(underCursor()).toContain(11);
+      service.nextNote(noteAt(midi, tickOf(1, 2))); // same position
+      expect(update).toHaveBeenCalledTimes(1);
+      service.moveCursorToOsmdIndex(cursor, 0); // a seek back
+      expect(update).toHaveBeenCalledTimes(2);
+    });
+
+    it('reset() draws the cursor once', async () => {
+      await setup(SIMPLE_SCORE);
+      const update = vi.spyOn(cursor, 'update');
+      service.reset(2);
+      expect(update).toHaveBeenCalledOnce();
+    });
+
+    it('when following, scrolls only once the cursor leaves the view', async () => {
+      const { midi } = await setup(SIMPLE_SCORE);
+      service.follow = true;
+      const scroll = vi.spyOn(cursor.cursorElement, 'scrollIntoView').mockImplementation(() => undefined);
+      const rect = vi.spyOn(cursor.cursorElement, 'getBoundingClientRect');
+      const inView = { top: window.innerHeight / 2 - 20, bottom: window.innerHeight / 2 + 20, left: window.innerWidth / 2 - 5, right: window.innerWidth / 2 + 5 };
+      rect.mockReturnValue(inView as DOMRect);
+      service.nextNote(noteAt(midi, tickOf(1, 2)));
+      expect(scroll).not.toHaveBeenCalled();
+      rect.mockReturnValue({ ...inView, top: window.innerHeight - 30, bottom: window.innerHeight + 10 } as DOMRect);
+      service.nextNote(noteAt(midi, tickOf(2, 0)));
+      expect(scroll).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center', inline: 'center' });
+    });
+
+    it('scrolls the container that scrolls vertically, not the score wrapper that only scrolls sideways', async () => {
+      // The workbench's layout: a short vertical scroller around a sideways-only wrapper as tall as the score
+      const { midi } = await setup(SIMPLE_SCORE);
+      const vertical = document.createElement('div');
+      vertical.style.cssText = 'position: fixed; top: 0; left: 0; width: 1300px; height: 60px; overflow-y: auto;';
+      const sideways = document.createElement('div');
+      sideways.style.cssText = 'overflow-x: auto; overflow-y: hidden;';
+      document.body.appendChild(vertical);
+      vertical.appendChild(sideways);
+      sideways.appendChild(rendered.host);
+      cursor.show(); // visible, as in the workbench
+      service.follow = true;
+      const scroll = vi.spyOn(cursor.cursorElement, 'scrollIntoView').mockImplementation(() => undefined);
+      service.nextNote(noteAt(midi, tickOf(2, 0))); // the cursor reaches below the 60 px the user sees
+      expect(scroll).toHaveBeenCalled();
+      vertical.remove();
+    });
+
     it('can go back (seek, repeat)', async () => {
       const { midi } = await setup(SIMPLE_SCORE);
       service.nextNote(noteAt(midi, tickOf(2, 0)));

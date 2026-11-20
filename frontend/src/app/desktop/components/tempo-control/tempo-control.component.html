@@ -29,6 +29,12 @@
         <label for="metronome" i18n="@@tempo.metronome">Metronome</label>
       </div>
 
+      <div class="flex items-center gap-2 p-3">
+        <label for="count-in" i18n="@@tempo.countIn">Count-in (bars)</label>
+        <input type="number" id="count-in" min="0" [max]="countInMax" step="1" class="w-20 text-center input-field"
+          [value]="countIn" (change)="onCountInChange($any($event.target))" data-count-in />
+      </div>
+
     <div class="flex justify-end mt-4">
       <button (click)="close()" class="btn-secondary" i18n="@@common.close">Close</button>
     </div>

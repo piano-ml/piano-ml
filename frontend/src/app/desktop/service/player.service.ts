@@ -1,4 +1,4 @@
-import { Injectable, effect, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import * as Midi from '@tonejs/midi';
@@ -24,6 +24,22 @@ import { PracticeSessionRecorder } from './practice-session-recorder.service';
 
 const TIME_COUNTER_TIMESTEP = 200
 
+/** Bars of count-in before playback (and before the first awaited note in wait mode). */
+export const COUNT_IN_BARS = 2;
+/** The count-in bars the metronome dialog offers, and where the choice is kept. */
+export const COUNT_IN_MAX_BARS = 4;
+export const COUNT_IN_STORAGE_KEY = 'tempo-control-count-in';
+
+/** The count-in chosen in the metronome dialog, COUNT_IN_BARS when none was or storage is unavailable. */
+export function readCountInBars(): number {
+  try {
+    const value = Number(localStorage.getItem(COUNT_IN_STORAGE_KEY) ?? NaN);
+    return Number.isInteger(value) && value >= 0 && value <= COUNT_IN_MAX_BARS ? value : COUNT_IN_BARS;
+  } catch {
+    return COUNT_IN_BARS;
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -32,12 +48,17 @@ export class PlayerService implements OnDestroy {
 
 
   private platformId = inject(PLATFORM_ID);
+  private ngZone = inject(NgZone);
   private recorder = inject(PracticeSessionRecorder);
   private isBrowser: boolean;
   private timeCounterInterval?: number;
+  /** Wrong notes shown on the score: the previous pass's, until the count-in of the next one ends. */
   private highlightedBadNotes = new Set<GraphicalNote>();
-  private badNoteResetTimers = new Map<GraphicalNote, ReturnType<typeof setTimeout>>();
-  private midiEventEffectFn?: any;
+  /** Wrong notes of the pass in progress: shown when it ends (or is stopped), each with its offset in half tones. */
+  private pendingBadNotes = new Map<GraphicalNote, number>();
+  private badMessageTimer?: ReturnType<typeof setTimeout>;
+  /** Unsubscribes processMidiEvent from the MIDI service. */
+  private removeNoteListener: () => void;
   private cachedTimeSignatureIndices?: Map<Midi.Header, number[]>;
   verticalPixelShiftValue: number = 1;
   lastBar = 0;
@@ -47,6 +68,9 @@ export class PlayerService implements OnDestroy {
   //get measure() { return this.state.measure; }
   get tick() { return this.state.tick; }
   get message() { return this.state.message; }
+  get wrongNotes() { return this.state.wrongNotes.asReadonly(); }
+  /** Play is only offered once the sounds are 'ready'. */
+  get soundFontState() { return this.audio.soundFontState.asReadonly(); }
   get elapsedTime() { return this.state.elapsedTime; }
   get duration() { return this.state.duration; }
   get isWaiting() { return this.state.isWaiting; }
@@ -77,13 +101,12 @@ export class PlayerService implements OnDestroy {
     }
     this.reset = this.reset.bind(this);
 
-    // Effect to process MIDI events via signal
-    this.midiEventEffectFn = effect(() => {
-      const midiEvent = this.midiService.midiEvent();
-      if (midiEvent) {
-        this.processMidiEvent(midiEvent);
-      }
-    });
+    // A listener, not an effect on the midiEvent signal: an effect runs at the next change detection, which
+    // coalesces the notes of a chord arriving in the same frame into the last one and delays every key.
+    this.removeNoteListener = midiService.addNoteListener((event) => void this.processMidiEvent(event));
+    // The score position the user hears (output latency and calibration included): key presses are scored
+    // against what they hear, not against what is being scheduled
+    this.assess.setClock(() => this.audio.heardTransportSeconds());
   }
 
   preconfigurePlayConfiguration(scoreApiInfo: ScoreApiInfo, playConfiguration: PlayConfiguration, midiAll: Midi.Midi): PlayConfiguration {
@@ -95,15 +118,17 @@ export class PlayerService implements OnDestroy {
     } else if (midiAll.tracks.length == 2) {
       study_tracks = [0, 1];
     }
+    // A MIDI file without a tempo of its own (120 bpm, the default) plays at the score's tempo. Set every time: a
+    // tempo chosen for the previous score must not carry over
     const midiAsDefaultTempo = midiAll.header.tempos.every((t) => t.bpm === 120);
-    if (midiAsDefaultTempo && scoreApiInfo?.tempo) {
-      playConfiguration.tempoFactor = (scoreApiInfo?.tempo || 120) / 120;
-    }
+    playConfiguration.tempoFactor = midiAsDefaultTempo && scoreApiInfo?.tempo ? scoreApiInfo.tempo / 120 : 1;
+    playConfiguration.delayFactor = 1;
 
     const metronomeStored = localStorage.getItem('tempo-control-metronome');
     if (metronomeStored !== null) {
       playConfiguration.useMetronome = JSON.parse(metronomeStored);
     }
+    playConfiguration.countInBars = readCountInBars();
 
     const midiSplit = this.splitMidi(midiAll.toJSON(), study_tracks);
     playConfiguration.accompaniment = midiSplit.other;
@@ -186,13 +211,15 @@ export class PlayerService implements OnDestroy {
       return;
     }
 
-    // Create an interval that checks the transport state every TIME_COUNTER_TIMESTEP ms
-    this.timeCounterInterval = window.setInterval(() => {
+    // Create an interval that checks the transport state every TIME_COUNTER_TIMESTEP ms. Outside the Angular zone:
+    // in the zone, each tick ran change detection app-wide, 5 times a second, even when the time did not change
+    // (play-along). The async pipe showing the time marks the view itself when it does.
+    this.timeCounterInterval = this.ngZone.runOutsideAngular(() => window.setInterval(() => {
       if (this.audio.isPlaying() && (this.playConfiguration.waitForLeftHand || this.playConfiguration.waitForRightHand)) {
         const currentTime = this.elapsedTime.value + TIME_COUNTER_TIMESTEP;
         this.elapsedTime.next(currentTime);
       }
-    }, TIME_COUNTER_TIMESTEP);
+    }, TIME_COUNTER_TIMESTEP));
   }
 
   setup() {
@@ -220,6 +247,7 @@ export class PlayerService implements OnDestroy {
   pause() {
     this.audio.pause();
     this.recorder.takeEnded(false);
+    this.revealBadNotes(); // stopped: the wrong notes of what was played
   }
 
   async reset(playConfiguration: PlayConfiguration) {
@@ -243,7 +271,7 @@ export class PlayerService implements OnDestroy {
 
   async play(playConfigurations: PlayConfiguration) {
     this.audio.clearSchedule();
-    this.unHighlightBadNote();
+    this.pendingBadNotes.clear(); // the new pass collects its own
     this.recorder.takeEnded(false);
     this.assess.reset();
     this.recorder.takeStarted(playConfigurations);
@@ -254,14 +282,18 @@ export class PlayerService implements OnDestroy {
     this.playConfiguration.maxPerformanceStaveCount = this.cursorService.maxMidiMeasure;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
 
-    await this.audio.start();
-
     let offset = this.audio.startCountIn(
-      2,
+      this.playConfiguration.countInBars ?? COUNT_IN_BARS,
       this.playConfiguration.midi!.header.timeSignatures[0],
       this.playConfiguration.midi!.header.tempos[0].bpm * this.playConfiguration.tempoFactor
     );
     midiEndTime = midiEndTime + offset;
+    // The previous pass's wrong notes stay on the score during the count-in, and go when the playing starts again
+    if (offset > 0) {
+      this.audio.schedule((time) => this.audio.scheduleDraw(() => this.unHighlightBadNote(), time), offset);
+    } else {
+      this.unHighlightBadNote();
+    }
     // Delegate accompaniment scheduling to the audio service
     this.audio.scheduleAccompanimentTracks(
       this.playConfiguration.accompaniment!,
@@ -276,6 +308,11 @@ export class PlayerService implements OnDestroy {
       this.scheduleLeftHand(this.playConfiguration.midi!.tracks[1], midiStartTime, midiEndTime, offset);
     }
 
+    // The notes go on the transport a few seconds ahead of it, from where it (re)starts
+    this.audio.startRollingSchedule();
+    // Play after Pause resumes the transport where it stopped: the notes before it will never be played
+    this.assess.beginTimed(this.audio.getTransportSeconds());
+
     // Delegate end scheduling
     this.audio.scheduleEnd(midiEndTime - midiStartTime, () => {
       this.message.set('END');
@@ -285,6 +322,8 @@ export class PlayerService implements OnDestroy {
       this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
 
       // The take reached the end of its range; recorded before reset() clears the assessment
+      this.assess.endTimed();
+      this.revealBadNotes();
       this.recorder.takeEnded(true);
       this.reset(this.playConfiguration);
       if (this.playConfiguration.isLoop) {
@@ -293,6 +332,8 @@ export class PlayerService implements OnDestroy {
       this.lastMidiEventTime = -1;
     });
 
+    // Last, once everything is scheduled: started earlier, the transport could pass the first click meanwhile
+    await this.audio.start();
   }
 
 
@@ -306,8 +347,8 @@ export class PlayerService implements OnDestroy {
       offset,
       this.state.getTimeFactor(),
       {
-        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('lh', note, liveStatus),
-        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('lh', note, liveStatus)
+        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('lh', time, note, liveStatus),
+        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('lh', time, note, liveStatus)
       }
     );
   }
@@ -321,42 +362,49 @@ export class PlayerService implements OnDestroy {
       offset,
       this.state.getTimeFactor(),
       {
-        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('rh', note, liveStatus),
-        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('rh', note, liveStatus)
+        onNoteStart: (time, note, liveStatus) => this.handleNoteStart('rh', time, note, liveStatus),
+        onNoteEnd: (time, note, liveStatus) => this.handleNoteEnd('rh', time, note, liveStatus)
       }
     );
   }
 
-  displayLiveOnKeyboard() {
-    const liveStatus = this.assess.getExpectation();
-    this.lightExpectedNotesOnKeyboard(liveStatus)
-  }
-
 
   private async processMidiEvent(midiEvent: MidiStateEvent) {
-    if (!this.playConfiguration
-      || (this.playConfiguration.waitForLeftHand === false
-        && this.playConfiguration.waitForRightHand === false)
-    ) {
+    if (midiEvent.type === 'down') {
+      // Before any mode check: a key played along the score also makes the session a MIDI one
+      this.recorder.noteOn();
+    }
+    if (!this.playConfiguration) {
+      return
+    }
+    if (!this.playConfiguration.waitForLeftHand && !this.playConfiguration.waitForRightHand) {
+      // Play-along: each key press is matched with the score notes due around that time
+      if (midiEvent.type === 'down' && this.audio.isPlaying()) {
+        // When the key was played (the MIDI message's timestamp), on the clock of what the user heard then
+        const { bad } = this.assess.playTimed(this.audio.heardTransportSeconds(midiEvent.timeStamp), midiEvent.note);
+        if (bad) {
+          this.showWrongNote(midiEvent.note);
+        }
+      }
       return
     }
 
-    if (midiEvent.type === 'down' as MidiStateEvent['type']) {
-      this.recorder.noteOn();
+    if (midiEvent.type === 'down') {
       midiEvent.time = this.audio.getCurrentTime();
       const liveStatus = this.assess.getNewActual(this.audio.getTransportSeconds(), midiEvent);
       if (liveStatus === null) {
         return;
       }
-      if (!liveStatus.shouldPause) {
-        if (this.isWaiting) {
-          console.log("Resuming playback from MIDI event!");
+      if (!liveStatus.shouldPause && this.isWaiting) {
+        // Synchronously, in the MIDI listener: the music goes on with the key. start() and its awaits only when
+        // something has to be started first.
+        this.isWaiting = false;
+        if (!this.audio.resumeNow()) {
           await this.audio.start();
-          this.isWaiting = false;
         }
       }
       if (liveStatus.bad) {
-        this.highlightBadNote(midiEvent.note);
+        this.showWrongNote(midiEvent.note);
       } else {
         this.keyboard.removeMidiPitchFromKeyboard(midiEvent.note);
       }
@@ -364,8 +412,23 @@ export class PlayerService implements OnDestroy {
     }
   }
 
-  private highlightBadNote(pitch: number) {
-    const cursor = this.cursorService.cursor!;
+  /**
+   * A wrong note, as it is played (synchronously, from the MIDI listener), in both modes: BAD and the count at once,
+   * the note on the score only when the pass ends (see revealBadNotes()), not to distract while playing. The
+   * on-screen keyboard never lights the keys the user plays, right or wrong.
+   */
+  private showWrongNote(pitch: number) {
+    this.collectBadNote(pitch);
+    this.message.set("BAD");
+    clearTimeout(this.badMessageTimer);
+    this.badMessageTimer = setTimeout(() => this.message.set(""), 1000);
+    this.state.wrongNotes.update((count) => count + 1);
+  }
+
+  /** Remembers the score note under the cursor closest to `pitch`, and how far from it the key was (half tones). */
+  private collectBadNote(pitch: number) {
+    const cursor = this.cursorService.cursor;
+    if (!cursor) return;
     const osmdNotes = cursor.GNotesUnderCursor() as GraphicalNote[];
     let firstSourceNote: any;
     let closest: GraphicalNote | undefined;
@@ -373,19 +436,13 @@ export class PlayerService implements OnDestroy {
     const targetPitch = pitch - 12;
 
     for (const note of osmdNotes) {
-      if (!note) {
-        continue;
-      }
-
-      const sourceNote = (note as any).sourceNote;
+      const sourceNote = (note as any)?.sourceNote;
       if (!sourceNote) {
         continue;
       }
-
       if (!firstSourceNote) {
         firstSourceNote = sourceNote;
       }
-
       const halfTone = sourceNote.Pitch?.getHalfTone() || 0;
       const diff = Math.abs(halfTone - targetPitch);
       if (diff < closestDiff) {
@@ -394,34 +451,22 @@ export class PlayerService implements OnDestroy {
       }
     }
 
-    if (!closest) return;
-    if (firstSourceNote?.TremoloInfo != null) {
-      // Tremolo note, skipping highlight
-      return;
+    if (!closest || firstSourceNote?.TremoloInfo != null) return; // tremolo notes are not marked
+    this.pendingBadNotes.set(closest, closest.sourceNote.halfTone - pitch + 12);
+  }
+
+  /** The pass ended or was stopped: its wrong notes in red on the score, each moved by how far off the key was. */
+  private revealBadNotes() {
+    for (const [note, delta] of this.pendingBadNotes) {
+      try {
+        note.setColor("#FF0000", {});
+        (note as VexFlowGraphicalNote).getSVGGElement().style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
+        this.highlightedBadNotes.add(note);
+      } catch {
+        // a note no longer rendered
+      }
     }
-
-    this.message.set("BAD");
-
-    const delta = (closest.sourceNote.halfTone - pitch + 12);
-    closest.setColor("#FF0000", {});
-    this.highlightedBadNotes.add(closest);
-    const closestVexFlowNote = (closest as VexFlowGraphicalNote);
-    const svgElement = closestVexFlowNote.getSVGGElement();
-    svgElement.style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
-
-    const existingTimeout = this.badNoteResetTimers.get(closest);
-    if (existingTimeout) {
-      clearTimeout(existingTimeout);
-    }
-
-    const timeoutId = setTimeout(() => {
-      svgElement.style.transform = "";
-      this.message.set("");
-      closest.setColor("black", {});
-      this.highlightedBadNotes.delete(closest);
-      this.badNoteResetTimers.delete(closest);
-    }, 1000);
-    this.badNoteResetTimers.set(closest, timeoutId);
+    this.pendingBadNotes.clear();
   }
 
   private unHighlightBadNote() {
@@ -429,12 +474,6 @@ export class PlayerService implements OnDestroy {
 
     for (const graphicalNote of this.highlightedBadNotes) {
       try {
-        const timeoutId = this.badNoteResetTimers.get(graphicalNote);
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          this.badNoteResetTimers.delete(graphicalNote);
-        }
-
         graphicalNote.setColor("black", {});
         (graphicalNote as VexFlowGraphicalNote).getSVGGElement().style.transform = "";
       } catch (e) {
@@ -442,34 +481,43 @@ export class PlayerService implements OnDestroy {
       }
     }
 
-    this.badNoteResetTimers.clear();
     this.highlightedBadNotes.clear();
-    this.message.set("");
   }
 
 
 
-  private handleNoteStart(hand: string, note: Note, liveStatus?: LiveStatus) {
-    // look for playerhand
-    if (liveStatus?.shouldPause) {
+  /**
+   * A note becomes due, in the transport callback: the pause decision is taken here, at once. The cursor and the
+   * key lights go through Tone.Draw, at the frame the note sounds.
+   */
+  private handleNoteStart(hand: string, time: number, note: Note, liveStatus?: LiveStatus) {
+    const pause = !!liveStatus?.shouldPause;
+    if (pause) {
       this.isWaiting = true;
       this.audio.pause();
-      this.lightExpectedNotesOnKeyboard(liveStatus);
     }
-    // normal operations
     this.recorder.activity();
-    this.cursorMayBeAdvance(note);
-    this.keyboard.lightNoteOnKeyboard(hand, note);
-    //this.setCurrentTick(note);
+    this.audio.scheduleDraw(() => {
+      if (pause) {
+        this.lightExpectedNotesOnKeyboard(liveStatus!);
+      }
+      this.cursorMayBeAdvance(note);
+      this.keyboard.lightNoteOnKeyboard(hand, note);
+    }, time);
   }
 
-  private handleNoteEnd(hand: string, note: Note, liveStatus?: LiveStatus) {
-    this.keyboard.removeMidiNoteFromKeyboard(note);
-    if (liveStatus?.shouldPause) {
+  private handleNoteEnd(hand: string, time: number, note: Note, liveStatus?: LiveStatus) {
+    const pause = !!liveStatus?.shouldPause;
+    if (pause) {
       this.isWaiting = true;
       this.audio.pause();
-      this.lightExpectedNotesOnKeyboard(liveStatus);
     }
+    this.audio.scheduleDraw(() => {
+      this.keyboard.removeMidiNoteFromKeyboard(note);
+      if (pause) {
+        this.lightExpectedNotesOnKeyboard(liveStatus!);
+      }
+    }, time);
   }
 
   private lightExpectedNotesOnKeyboard(liveStatus: LiveStatus) {
@@ -490,6 +538,12 @@ export class PlayerService implements OnDestroy {
     this.state.osmd = osmd;
     // half tone pixel shift calculation
     this.verticalPixelShiftValue = this.state.osmd!.EngravingRules.StaffDistance / 2;
+    // The cursor service keeps the cursor in view itself, scrolling only near the edges: OSMD's follow scrolled on
+    // every step
+    if (osmd.FollowCursor) {
+      this.cursorService.follow = true;
+      osmd.FollowCursor = false;
+    }
     return this.cursorService.setup(osmd.cursor, this.playConfiguration.midi!)
   }
 
@@ -523,16 +577,6 @@ export class PlayerService implements OnDestroy {
 
 
   private calculateEndTime() {
-    // Calculating end time for full score
-    // if (this.playConfiguration.scoreRange[1] === this.playConfiguration.maxStaveCount + 1
-    //   && this.playConfiguration.scoreRange[0] === 0) {
-    //   return this.cursorService.audioTimeNoteArray[this.cursorService.audioTimeNoteArray.length - 1][0]
-    //     + this.calculateStartTimeInMsForMeasure(
-    //       1,
-    //       this.playConfiguration.midi!.header
-    //     ) * this.state.getTimeFactor()
-    // }
-    // Calculating end time for score range
     const endTime = this.calculateStartTimeInMsForMeasure(
       this.playConfiguration.scoreRange[1] - this.playConfiguration.scoreRange[0],
       this.playConfiguration.midi!.header
@@ -571,20 +615,15 @@ export class PlayerService implements OnDestroy {
       this.timeCounterInterval = undefined;
     }
 
-    // Clean up all bad note highlight timers
-    for (const timeoutId of this.badNoteResetTimers.values()) {
-      clearTimeout(timeoutId);
-    }
-    this.badNoteResetTimers.clear();
+    // Wrong notes: the BAD message timer, those collected and those shown
+    clearTimeout(this.badMessageTimer);
+    this.pendingBadNotes.clear();
     this.highlightedBadNotes.clear();
 
     // Stop audio playback and release score-scoped state
     this.releaseScoreSession();
 
-    // Angular cleans the effect up with the injector; just drop the reference.
-    // Registering a destroyRef callback from inside ngOnDestroy throws NG0205,
-    // because by then the injector is already being destroyed.
-    this.midiEventEffectFn = null;
+    this.removeNoteListener();
   }
 
 }

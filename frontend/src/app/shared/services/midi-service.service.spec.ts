@@ -64,6 +64,14 @@ describe('MidiServiceService', () => {
       expect(synth.sent).toEqual([[DRUM_ON, 34, 127], [DRUM_OFF, 34, 127]]);
     });
 
+    it('sends at a given time when asked (the player schedules a little ahead)', () => {
+      const timed: [number[], number | undefined][] = [];
+      synth.send = ((data: number[], at?: number) => { timed.push([[...data], at]); }) as never;
+      midi.pressOutput(60, 1, 1234.5);
+      midi.releaseOutput(60);
+      expect(timed).toEqual([[[NOTE_ON, 60, 127], 1234.5], [[NOTE_OFF, 60, 127], undefined]]);
+    });
+
     it('releases every note of every output between two scores', () => {
       midi.press(60, 100);
       midi.resetSessionOutputs();
@@ -96,6 +104,15 @@ describe('MidiServiceService', () => {
       expect(midi.pressedNotes.get(60)?.vel).toBe(100);
     });
 
+    it("carries the MIDI message's own timestamp, so a busy main thread does not make the user late", () => {
+      const seen: (number | undefined)[] = [];
+      midi.addNoteListener((event) => seen.push(event.timeStamp));
+      midi.onMidiMessage({ data: new Uint8Array([NOTE_ON, 60, 100]), timeStamp: 1234.5 } as unknown as MIDIMessageEvent);
+      keyboard.emit([NOTE_OFF, 60, 0]); // no timestamp: now
+      expect(seen[0]).toBe(1234.5);
+      expect(seen[1]).toBeGreaterThan(0);
+    });
+
     it('turns a note off, or a note on with velocity 0, into an "up" event', () => {
       keyboard.emit([NOTE_ON, 60, 100]);
       keyboard.emit([NOTE_OFF, 60, 64]);
@@ -115,6 +132,25 @@ describe('MidiServiceService', () => {
       keyboard.emit(message);
       expect(midi.pressedNotes.has(64)).toBe(true);
       expect(midi.midiEvent()).toMatchObject({ note: 64, type: 'down' });
+    });
+
+    it('calls note listeners synchronously, before the signal changes, for every note of a chord', () => {
+      const seen: string[] = [];
+      midi.addNoteListener((event) => seen.push(`${event.type} ${event.note}, signal ${midi.midiEvent()?.note ?? 'none'}`));
+      keyboard.emit([NOTE_ON, 60, 100]);
+      keyboard.emit([NOTE_ON, 64, 100]);
+      keyboard.emit([NOTE_OFF, 60, 0]);
+      expect(seen).toEqual(['down 60, signal none', 'down 64, signal 60', 'up 60, signal 64']);
+    });
+
+    it('stops calling a note listener once it is unsubscribed', () => {
+      const listener = vi.fn();
+      const unsubscribe = midi.addNoteListener(listener);
+      keyboard.emit([NOTE_ON, 60, 100]);
+      unsubscribe();
+      keyboard.emit([NOTE_ON, 62, 100]);
+      expect(listener).toHaveBeenCalledOnce();
+      expect(midi.midiEvent()).toMatchObject({ note: 62 }); // the signal still follows
     });
 
     it('ignores messages that are not 3 bytes long', () => {
@@ -261,6 +297,21 @@ describe('MidiServiceService', () => {
       midi.setupMidiDeviceListeners();
       for (let i = 0; i < 5; i++) await vi.advanceTimersByTimeAsync(600);
       expect(midi.midiBlocked()).toBe(false);
+      vi.useRealTimers();
+    });
+
+    it('stops looking for a keyboard once it answered, instead of polling forever', async () => {
+      vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      vi.useFakeTimers();
+      let looks = 0;
+      const none = access.inputs;
+      Object.defineProperty(access, 'inputs', { get: () => { looks++; return none; } });
+      midi.setupMidiDeviceListeners(); // no keyboard: answers empty after 2 s, then retries 3 times
+      await vi.advanceTimersByTimeAsync(20_000);
+      const settled = looks;
+      await vi.advanceTimersByTimeAsync(60_000);
+      expect(looks).toBe(settled); // nobody looks any more
       vi.useRealTimers();
     });
 
