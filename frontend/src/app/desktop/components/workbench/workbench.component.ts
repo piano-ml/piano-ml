@@ -202,6 +202,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   scoreRange = [0, 0, 100];
 
   @ViewChild('range') range!: ElementRef<HTMLDivElement>;
+  /** The score's drawing: the settings dialog's display options are applied to it in place. */
+  @ViewChild(OsmdComponent) osmdComponent?: OsmdComponent;
   @ViewChild('titleContainer', { static: false }) titleContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('titleText', { static: false }) titleText!: ElementRef<HTMLDivElement>;
   slider: any;
@@ -708,10 +710,15 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.isMidiSetupOpen = true;
   }
 
+  /**
+   * The settings take effect at once, without reloading the page: the display options are drawn again in place
+   * (OsmdComponent.applyDisplayOptions), the keyboard follows hideKeyboard, the MIDI devices and the calibration are
+   * read live by the player.
+   */
   closeMidiSetup() {
     this.isMidiSetupOpen = false;
-    //window.location.reload();
-    this.reloadOsmd(50);
+    this.osmdComponent?.applyDisplayOptions();
+    this.changeDetector.markForCheck();
   }
 
   openTempo() {
@@ -870,14 +877,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
 
-  reloadOsmd(delay = 50) {
-    window.location.reload(); // can do bertter
-    // this.changeDetector.markForCheck();
-    // setTimeout(() => {
-    //   this.showOsmd = true;
-    //     this.changeDetector.markForCheck();
-    // }, delay);
-  }
 
   private titleTimer?: ReturnType<typeof setTimeout>;
 

@@ -688,6 +688,36 @@ describe('WorkbenchComponent', () => {
       expect(localStorage.getItem(key)).toBe('true');
     });
 
+    it('applies the display settings when the settings close, in place, without reloading the page', async () => {
+      await openScore();
+      const drawing = component.osmdComponent!;
+      const osmd = drawing.osmd!;
+      const setOptions = vi.spyOn(osmd, 'setOptions');
+      const draw = vi.spyOn(osmd, 'render');
+      button('#midi-setup input').click();
+      component.setHideFingering(true);
+      component.setHideLyrics(true);
+      component.closeMidiSetup();
+      render();
+      expect(component.isMidiSetupOpen).toBe(false);
+      expect(component.osmdComponent).toBe(drawing); // the same drawing: nothing was reloaded
+      expect(setOptions).toHaveBeenCalledWith(expect.objectContaining({ drawFingerings: false, drawLyrics: false }));
+      expect(draw).toHaveBeenCalledOnce();
+
+      component.closeMidiSetup(); // nothing changed: not drawn again
+      expect(draw).toHaveBeenCalledOnce();
+    });
+
+    it('hides the fingering and harmony texts without drawing the score again', async () => {
+      await openScore();
+      const draw = vi.spyOn(component.osmdComponent!.osmd!, 'render');
+      component.setHideFingeringAndHarmony(true);
+      component.closeMidiSetup();
+      expect(draw).not.toHaveBeenCalled();
+      const texts = [...el().querySelectorAll<HTMLElement>('.osmd-container .vf-text')];
+      expect(texts.every((t) => t.style.display === 'none')).toBe(true);
+    });
+
     it('opens the MIDI setup and the tempo dialogs', async () => {
       await openScore();
       button('#midi-setup input').click();
