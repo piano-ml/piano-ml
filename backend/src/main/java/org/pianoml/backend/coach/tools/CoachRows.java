@@ -84,6 +84,8 @@ public class CoachRows {
     row.put("genre", score.getGenre());
     row.put("genreSlug", score.getGenreSlug());
     row.put("handSeparated", score.getHandSeparated());
+    // 1 track: usually the right hand only; 2 tracks: right hand then left hand (as the player plays them)
+    row.put("tracksCount", score.getTracksCount());
     row.put("hasLyrics", score.getHasLyrics());
     row.put("playCount", score.getPlayCount());
     row.put("url", scoreUrl(slug));
