@@ -384,7 +384,7 @@ body {
 
 #measure-range .noUi-pips-horizontal {
 	padding-top: 6px;
-	height: 32px;
+	height: 36px;
 }
 
 /* Bold marks, centred on their measure: noUiSlider places a mark by its left edge */
@@ -403,9 +403,12 @@ body {
 	background: var(--color-neutral-500);
 }
 
+/* The measure numbers look like the score's fingering numbers: OSMD draws them 15 px high (1.5 units of 10 px) in
+   its default font */
 #measure-range .noUi-value-horizontal {
 	transform: translate(-50%, 60%);
-	font-size: 11px;
+	font-family: "Times New Roman", Times, serif;
+	font-size: 15px;
 	font-weight: 700;
 	color: var(--color-neutral-400);
 }
