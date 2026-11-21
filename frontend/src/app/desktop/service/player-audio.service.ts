@@ -14,6 +14,8 @@ import {
 } from './latency-calibration';
 import { findClickOnsets } from './mic-onsets';
 import { MicrophoneService } from './microphone.service';
+import { PlayGuideService, type GuideHand } from './play-guide.service';
+import { handModeOfNote, isListening } from '../model/hand-mode';
 import { withListenerParams } from './audio-listener';
 
 export { isCompleteRiff } from '../../shared/services/soundfont-cache';
@@ -113,6 +115,7 @@ export class PlayerAudioService implements OnDestroy {
     private state: PlayerStateService,
     private midiService: MidiServiceService,
     private microphone: MicrophoneService,
+    private guide: PlayGuideService,
   ) { }
 
 
@@ -532,6 +535,7 @@ export class PlayerAudioService implements OnDestroy {
   stop(): void {
     const transport = this.transport();
     const draw = this.draw();
+    this.guide.allOff();
     transport.stop();
     transport.position = 0;
     this.clearSchedule();
@@ -553,6 +557,7 @@ export class PlayerAudioService implements OnDestroy {
   scheduleEnd(endTime: number, onEndCallback: () => void): void {
     this.transport().schedule(() => {
       this.spessasynth?.stopAll();
+      this.guide.allOff();
       onEndCallback();
     }, endTime);
   }
@@ -586,15 +591,15 @@ export class PlayerAudioService implements OnDestroy {
     this.draw().schedule(callback, time + this.outputLatency());
   }
 
-  private isNotHandAwaited(hand: string, midiPitch: number) {
-    return (((hand === 'rh' && this.state.playConfiguration.waitForRightHand)
-      || (hand === 'lh' && this.state.playConfiguration.waitForLeftHand))
-      && (midiPitch >= this.state.leftmostKey && midiPitch <= this.state.rightmostKey)
-    );
-  }
-
   /**
-   * Schedule une note de main (gauche ou droite) avec tous ses événements
+   * Schedule une note de main (gauche ou droite) avec tous ses événements.
+   *
+   * Where the note goes depends on the mode of its hand (hand-mode.ts), for the notes within the keyboard's range
+   * (the others, which the student cannot play, are always played by the app):
+   * - `app`: the sound (the PianoML synth when chosen, and the MIDI outputs);
+   * - `wait`: the play guide, and the wait-mode assessment (playback pauses for it);
+   * - `along`: the play guide, and the play-along assessment by due time. Never the sound: not even the MIDI
+   *   outputs, which may be a keyboard that would play it aloud.
    */
   scheduleHandNote(
     hand: string,
@@ -610,22 +615,22 @@ export class PlayerAudioService implements OnDestroy {
     const noteTimeStart = (note.time * timeFactor) - startTime;
     const noteTimeEnd = noteTimeStart + (note.duration * timeFactor);
     const playConfig = this.state.playConfiguration;
-    const isHandAwaited = (((hand === 'rh' && playConfig.waitForRightHand)
-      || (hand === 'lh' && playConfig.waitForLeftHand))
-      && (note.midi >= this.state.leftmostKey && note.midi <= this.state.rightmostKey)
-    );
+    const playable = note.midi >= this.state.leftmostKey && note.midi <= this.state.rightmostKey;
+    const mode = playable ? handModeOfNote(playConfig, hand) : 'app';
+    const isHandAwaited = mode === 'wait';
+    const guideHand: GuideHand = hand === 'lh' ? 'lh' : 'rh';
 
     // Every event is shifted by the count-in, awaited notes included: playback must reach the first one after
     // the clicks, with the other hand and the accompaniment in step
     const scheduleStartTime = noteTimeStart + offset;
     const scheduleEndTime = noteTimeEnd + offset;
 
-    // Play-along: the user may play along any note of the keyboard's range, assessed by its due time
-    if (!playConfig.waitForLeftHand && !playConfig.waitForRightHand
-      && note.midi >= this.state.leftmostKey && note.midi <= this.state.rightmostKey) {
+    // Play-along: the notes of a hand played along are assessed by their due time. While listening (the app plays
+    // both hands), a student who plays along anyway is assessed the same way, on every playable note.
+    if (mode === 'along' || (playable && isListening(playConfig))) {
       this.assess.expectTimed(scheduleStartTime, note, hand);
     }
-    
+
     const transport = this.transport();
     const roundedVelocity = Math.round(note.velocity * 127);
 
@@ -633,11 +638,10 @@ export class PlayerAudioService implements OnDestroy {
     // a Tone.Draw callback, which Draw drops when it is more than its expiration late: a wait-mode expectation
     // must never be lost. The callback schedules the visual work (cursor, key lights) on Draw itself.
     transport.schedule((time: number) => {
-      if (!isHandAwaited) {
-        this.midiService.pressOutput(note.midi, note.velocity, this.contextToPerformanceMs(time));
-        if (this.pianoMLShouldPlay) {
-          this.noteOn(0, note.midi, roundedVelocity, time);
-        }
+      if (mode === 'app') {
+        this.soundOn(note.midi, note.velocity, roundedVelocity, time);
+      } else {
+        this.guide.noteOn(note.midi, note.velocity, guideHand, this.contextToPerformanceMs(time));
       }
       const liveStatus = isHandAwaited
         ? this.assess.learnExpectation(this.getCurrentTime(), scheduleEndTime, note, hand)
@@ -647,15 +651,28 @@ export class PlayerAudioService implements OnDestroy {
 
     // Note end (piano audio stop; the callback turns the key light off)
     transport.schedule((time: number) => {
-      if (!isHandAwaited) {
-        this.midiService.releaseOutput(note.midi, this.contextToPerformanceMs(time));
-        if (this.pianoMLShouldPlay) {
-          this.noteOff(0, note.midi, time);
-        }
+      if (mode === 'app') {
+        this.soundOff(note.midi, time);
+      } else {
+        this.guide.noteOff(note.midi, guideHand, this.contextToPerformanceMs(time));
       }
       callbacks.onNoteEnd(time, note, this.assess.getExpectation());
     }, scheduleEndTime);
+  }
 
+  /** A note the app plays: to the MIDI outputs, and to the PianoML synth when it is chosen. */
+  private soundOn(midi: number, velocity: number, roundedVelocity: number, time: number): void {
+    this.midiService.pressOutput(midi, velocity, this.contextToPerformanceMs(time));
+    if (this.pianoMLShouldPlay) {
+      this.noteOn(0, midi, roundedVelocity, time);
+    }
+  }
+
+  private soundOff(midi: number, time: number): void {
+    this.midiService.releaseOutput(midi, this.contextToPerformanceMs(time));
+    if (this.pianoMLShouldPlay) {
+      this.noteOff(0, midi, time);
+    }
   }
 
 

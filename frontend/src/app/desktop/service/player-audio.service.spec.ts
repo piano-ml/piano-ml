@@ -1,5 +1,6 @@
 import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { PlayGuideService, type PlayGuideOutput } from './play-guide.service';
 import type * as Midi from '@tonejs/midi';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import type { Note } from '@tonejs/midi/dist/Note';
@@ -174,6 +175,69 @@ describe('PlayerAudioService', () => {
       schedule = captureSchedule();
       audio.scheduleHandNote('lh', note({ time: 1, duration: 0.5 }), 0, 1, 2, callbacks()); // played by the app
       expect(new Set(schedule.times())).toEqual(new Set(awaited));
+    });
+
+    describe('play along (hand-mode.ts)', () => {
+      let guide: { [K in keyof PlayGuideOutput]: ReturnType<typeof vi.fn> };
+
+      beforeEach(() => {
+        guide = { noteOn: vi.fn(), noteOff: vi.fn(), allOff: vi.fn() };
+        TestBed.inject(PlayGuideService).register(guide as unknown as PlayGuideOutput);
+        state.leftmostKey = 36;
+        state.rightmostKey = 96;
+        audio.pianoMLShouldPlay = true;
+      });
+
+      it('is silent for a hand played along: no synth, no MIDI output; the note goes to the guide and is assessed by time', () => {
+        state.playConfiguration.alongRightHand = true;
+        audio.scheduleHandNote('rh', note({ time: 1, duration: 0.5, midi: 72, velocity: 0.5 }), 0, 1, 2, callbacks());
+        schedule.runAll();
+        expect(synth.noteOn).not.toHaveBeenCalled();
+        expect(midi.pressOutput).not.toHaveBeenCalled();
+        expect(midi.releaseOutput).not.toHaveBeenCalled();
+        expect(guide.noteOn).toHaveBeenCalledWith(72, 0.5, 'rh', expect.any(Number));
+        expect(guide.noteOff).toHaveBeenCalledWith(72, 'rh', expect.any(Number));
+        expect(assess.expectTimed.mock.calls).toEqual([[3, expect.objectContaining({ midi: 72 }), 'rh']]);
+        expect(assess.learnExpectation).not.toHaveBeenCalled();
+      });
+
+      it('still plays the other hand, which is not assessed', () => {
+        state.playConfiguration.alongRightHand = true;
+        audio.scheduleHandNote('lh', note({ time: 1, midi: 48 }), 0, 1, 2, callbacks());
+        schedule.runAll();
+        expect(synth.noteOn).toHaveBeenCalledWith(0, 48, expect.any(Number), { time: 3 });
+        expect(midi.pressOutput).toHaveBeenCalled();
+        expect(guide.noteOn).not.toHaveBeenCalled();
+        expect(assess.expectTimed).not.toHaveBeenCalled();
+      });
+
+      it('plays the notes of a hand played along that the keyboard cannot reach', () => {
+        state.playConfiguration.alongLeftHand = true;
+        audio.scheduleHandNote('lh', note({ midi: 30 }), 0, 1, 0, callbacks());
+        schedule.runAll();
+        expect(synth.noteOn).toHaveBeenCalledWith(0, 30, 127, { time: 1 });
+        expect(guide.noteOn).not.toHaveBeenCalled();
+      });
+
+      it('sends the notes of an awaited hand to the guide too', () => {
+        state.playConfiguration.waitForRightHand = true;
+        audio.scheduleHandNote('rh', note({ time: 1, midi: 72 }), 0, 1, 2, callbacks());
+        schedule.runAll();
+        expect(guide.noteOn).toHaveBeenCalledWith(72, expect.any(Number), 'rh', expect.any(Number));
+        expect(synth.noteOn).not.toHaveBeenCalled();
+      });
+
+      it('sends nothing to the guide while listening (the app plays both hands)', () => {
+        audio.scheduleHandNote('rh', note({ time: 1, midi: 72 }), 0, 1, 2, callbacks());
+        schedule.runAll();
+        expect(guide.noteOn).not.toHaveBeenCalled();
+        expect(synth.noteOn).toHaveBeenCalled();
+      });
+
+      it('turns the guide off when playback stops', () => {
+        audio.stop();
+        expect(guide.allOff).toHaveBeenCalled();
+      });
     });
 
     it('plays awaited-hand notes outside the keyboard range itself', () => {
