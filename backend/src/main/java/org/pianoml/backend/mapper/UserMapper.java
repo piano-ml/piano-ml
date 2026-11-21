@@ -18,5 +18,7 @@ public interface UserMapper {
   @Mapping(target = "image", ignore = true)
   // Roles are server-assigned (AccountService sets the default) and never taken from API input.
   @Mapping(target = "roles", ignore = true)
+  // Resolved by AccountService against the supported languages, never stored as sent.
+  @Mapping(target = "locale", ignore = true)
   User toUser(AccountCreatePostRequest accountCreatePostRequest);
 }

@@ -49,6 +49,23 @@ class AccountIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
+    void storesTheLanguageTheUserSignsUpIn_orElseTheBrowserOne_orElseEnglish() throws Exception {
+      given(userRepository.findByEmail("new@example.com")).willReturn(Optional.empty());
+      String inGerman = "{\"email\":\"new@example.com\",\"password\":\"s3cret-pass\",\"name\":\"Newbie\",\"locale\":\"de\"}";
+
+      mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(inGerman)
+        .header("Accept-Language", "es-ES")).andExpect(status().isCreated());
+      mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(signup)
+        .header("Accept-Language", "es-ES,en;q=0.5")).andExpect(status().isCreated());
+      mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(signup))
+        .andExpect(status().isCreated());
+
+      ArgumentCaptor<User> saved = ArgumentCaptor.forClass(User.class);
+      verify(userRepository, org.mockito.Mockito.times(3)).save(saved.capture());
+      assertThat(saved.getAllValues()).extracting(User::getLocale).containsExactly("de", "es", "en");
+    }
+
+    @Test
     void refusesAnEmailAlreadyRegistered() throws Exception {
       given(userRepository.findByEmail("new@example.com")).willReturn(Optional.of(user("Existing", "USER")));
 

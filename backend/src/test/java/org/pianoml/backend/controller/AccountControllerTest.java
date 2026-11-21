@@ -53,14 +53,22 @@ class AccountControllerTest {
   void createAccount_returns201() throws Exception {
     mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(SIGNUP))
       .andExpect(status().isCreated());
-    verify(accountService).createUser(any(AccountCreatePostRequest.class));
+    verify(accountService).createUser(any(AccountCreatePostRequest.class), any());
+  }
+
+  @Test
+  void createAccount_passesTheAcceptLanguageHeader() throws Exception {
+    mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(SIGNUP)
+        .header("Accept-Language", "fr-CA,fr;q=0.9"))
+      .andExpect(status().isCreated());
+    verify(accountService).createUser(any(AccountCreatePostRequest.class), eq("fr-CA,fr;q=0.9"));
   }
 
   @Test
   void createAccount_existingEmail_returns409_viaRestExceptionHandler() throws Exception {
     willThrow(new UserAlreadyExistsException(UserAlreadyExistsException.Field.EMAIL,
       "User with email a@example.com already exists."))
-      .given(accountService).createUser(any(AccountCreatePostRequest.class));
+      .given(accountService).createUser(any(AccountCreatePostRequest.class), any());
 
     mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(SIGNUP))
       .andExpect(status().isConflict())
@@ -71,7 +79,7 @@ class AccountControllerTest {
   @Test
   void createAccount_existingName_returns409_withNameField() throws Exception {
     willThrow(new UserAlreadyExistsException(UserAlreadyExistsException.Field.NAME, "User with name a already exists."))
-      .given(accountService).createUser(any(AccountCreatePostRequest.class));
+      .given(accountService).createUser(any(AccountCreatePostRequest.class), any());
 
     mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(SIGNUP))
       .andExpect(status().isConflict())

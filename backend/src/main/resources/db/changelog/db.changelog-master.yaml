@@ -49,3 +49,5 @@ databaseChangeLog:
       file: db/changelog/changes/023-create-playlists.yaml
   - include:
       file: db/changelog/changes/024-create-error-report.yaml
+  - include:
+      file: db/changelog/changes/030-add-user-locale.yaml

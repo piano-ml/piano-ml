@@ -5,6 +5,7 @@ import { Observable, tap } from 'rxjs';
 import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService, UserApiInfo } from '../../core/api';
 import { SessionStorageService } from './session-storage.service';
 import { LOGIN_PATH, loginQueryParams, requiresLogin } from './return-url';
+import { currentLocale } from '../../shared/i18n';
 
 @Injectable({
   providedIn: 'root'
@@ -69,8 +70,9 @@ export class AuthService {
     return this.accountService.accountDeletePost();
   }
 
+  /** Creates the account in the language the user signs up in, which becomes the account's language. */
   register(user: AccountCreatePostRequest) {
-    return this.accountService.accountCreatePost(user);
+    return this.accountService.accountCreatePost({ ...user, locale: currentLocale() });
   }
   
   getUserInfo() {

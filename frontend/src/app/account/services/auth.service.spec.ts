@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 import { AuthService } from './auth.service';
 import { SessionStorageService } from './session-storage.service';
 import { AccountService } from '../../core/api';
+import { setCurrentLocale } from '../../shared/i18n';
 
 describe('AuthService', () => {
   let api: Record<string, ReturnType<typeof vi.fn>>;
@@ -165,9 +166,19 @@ describe('AuthService', () => {
     service.register(user).subscribe();
     service.getUserInfo().subscribe();
     service.updateUserInfo({ name: 'b' }).subscribe();
-    expect(api['accountCreatePost']).toHaveBeenCalledWith(user);
+    expect(api['accountCreatePost']).toHaveBeenCalledWith({ ...user, locale: 'en' });
     expect(api['accountUserinfoGet']).toHaveBeenCalledOnce();
     expect(api['accountUserinfoPut']).toHaveBeenCalledWith({ name: 'b' });
+  });
+
+  it('register sends the language the user signs up in', () => {
+    setCurrentLocale('fr');
+    try {
+      create('server').register({ email: 'a@example.com', password: 'pw', name: 'a' }).subscribe();
+      expect(api['accountCreatePost']).toHaveBeenCalledWith({ email: 'a@example.com', password: 'pw', name: 'a', locale: 'fr' });
+    } finally {
+      setCurrentLocale(undefined);
+    }
   });
 
   it('handleUnauthorized clears the session and redirects to login from a protected page, remembering it', () => {

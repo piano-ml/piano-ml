@@ -52,6 +52,9 @@ public class AccountService {
   @Autowired
   private ScoreService scoreService;
 
+  @Autowired
+  private SupportedLocales supportedLocales;
+
   /**
    * Accounts whose scores are deleted with them instead of being kept under the junk user: the acceptance test
    * account, so its leftovers (a run that failed midway) never pile up under junk. Comma-separated emails.
@@ -105,8 +108,10 @@ public class AccountService {
    * Creates an account. An email or a name already taken is a {@link UserAlreadyExistsException} (409), also when
    * another sign-up takes it between the check and the insert: the unique constraint then fails, and is told apart
    * by checking again which field is now taken.
+   * <p>The account's language is the one the user signs up in ({@code locale} of the request) when the site has
+   * it, else the best match of the browser's {@code Accept-Language}, else English.
    */
-  public User createUser(AccountCreatePostRequest accountCreatePostRequest) {
+  public User createUser(AccountCreatePostRequest accountCreatePostRequest, String acceptLanguage) {
     String email = accountCreatePostRequest.getEmail();
     String name = accountCreatePostRequest.getName();
     checkNotTaken(email, name);
@@ -114,6 +119,7 @@ public class AccountService {
     User user = userMapper.toUser(accountCreatePostRequest);
     user.setPassword(passwordEncoder.encode(accountCreatePostRequest.getPassword()));
     user.setRoles("USER"); // Default role for new users
+    user.setLocale(supportedLocales.resolve(accountCreatePostRequest.getLocale(), acceptLanguage));
     try {
       return userRepository.save(user);
     } catch (DataIntegrityViolationException e) {

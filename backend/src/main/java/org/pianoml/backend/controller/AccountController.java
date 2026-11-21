@@ -84,7 +84,9 @@ public class AccountController implements AccountApi {
 
   @Override
   public ResponseEntity<Void> accountCreatePost(AccountCreatePostRequest accountCreatePostRequest) {
-    accountService.createUser(accountCreatePostRequest);
+    ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    String acceptLanguage = attrs == null ? null : attrs.getRequest().getHeader(HttpHeaders.ACCEPT_LANGUAGE);
+    accountService.createUser(accountCreatePostRequest, acceptLanguage);
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 

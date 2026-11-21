@@ -1,0 +1,13 @@
+# The language of each account (#442): a code of the site's languages (angular.json i18n: en, fr, zh-Hans...),
+# set at sign-up from the language the user signs up in. Nullable: accounts created before have none.
+# Numbered 030: 025 to 029 are taken by the coach changesets (#414).
+databaseChangeLog:
+  - changeSet:
+      id: 030-1-add-user-locale
+      author: pianoml
+      changes:
+        - addColumn:
+            schemaName: pianoml
+            tableName: user
+            columns:
+              - column: { name: locale, type: VARCHAR(16) }

@@ -80,6 +80,12 @@ paths:
                   format: password
                 name:
                   type: string
+                locale:
+                  type: string
+                  maxLength: 35
+                  description: >-
+                    The language the user signs up in (en, fr, zh-Hans...). Stored as the account's language when
+                    the site has it, else the best match of Accept-Language, else en.
               required:
                 - email
                 - password
