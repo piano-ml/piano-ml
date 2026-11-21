@@ -1742,6 +1742,38 @@
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">MIDI 접근에 실패했습니다. 권한을 거부했다면 브라우저 설정에서 이 사이트의 권한을 초기화하고 MIDI를 허용한 다음 페이지를 새로 고치세요.</target>
       </trans-unit>
+      <trans-unit id="mixer.title" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">믹서</target>
+      </trans-unit>
+      <trans-unit id="mixer.reset" datatype="html">
+        <source>Reset</source>
+        <target state="translated">초기화</target>
+      </trans-unit>
+      <trans-unit id="mixer.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">악보</target>
+      </trans-unit>
+      <trans-unit id="mixer.score.hint" datatype="html">
+        <source>The notes the app plays</source>
+        <target state="translated">앱이 연주하는 음</target>
+      </trans-unit>
+      <trans-unit id="mixer.accompaniment" datatype="html">
+        <source>Accompaniment</source>
+        <target state="translated">반주</target>
+      </trans-unit>
+      <trans-unit id="mixer.accompaniment.hint" datatype="html">
+        <source>The other instruments of the piece</source>
+        <target state="translated">곡의 다른 악기</target>
+      </trans-unit>
+      <trans-unit id="mixer.metronome" datatype="html">
+        <source>Metronome</source>
+        <target state="translated">메트로놈</target>
+      </trans-unit>
+      <trans-unit id="mixer.metronome.hint" datatype="html">
+        <source>The count-in always plays at full volume</source>
+        <target state="translated">카운트인은 항상 최대 볼륨으로 재생됩니다</target>
+      </trans-unit>
       <trans-unit id="osmd.error" datatype="html">
         <source>Error Loading Score</source>
         <target state="translated">악보를 불러오는 중 오류 발생</target>
@@ -1805,6 +1837,10 @@
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">MIDI 접근 차단됨</target>
+      </trans-unit>
+      <trans-unit id="mixer.open" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">믹서</target>
       </trans-unit>
       <trans-unit id="workbench.soundsLoading" datatype="html">
         <source>Loading sounds…</source>

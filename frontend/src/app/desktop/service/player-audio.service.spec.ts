@@ -1,7 +1,7 @@
 import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PlayGuideService, type PlayGuideOutput } from './play-guide.service';
-import { AudioMixerService } from './audio-mixer.service';
+import { AudioMixerService, MIXER_BUSES, MIXER_STORAGE_KEY } from './audio-mixer.service';
 import type * as Midi from '@tonejs/midi';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import type { Note } from '@tonejs/midi/dist/Note';
@@ -63,6 +63,10 @@ describe('PlayerAudioService', () => {
       providers: [{ provide: MidiServiceService, useValue: midi }, { provide: PlayerAssessService, useValue: assess }],
     });
     audio = TestBed.inject(PlayerAudioService);
+    // Every bus at its full level: the velocities below are the score's own (the mixer is tested on its own)
+    const fullMixer = TestBed.inject(AudioMixerService);
+    MIXER_BUSES.forEach((bus) => fullMixer.setLevel(bus, 1));
+    localStorage.removeItem(MIXER_STORAGE_KEY);
     state = TestBed.inject(PlayerStateService);
     state.playConfiguration = { waitForRightHand: false, waitForLeftHand: false, useMetronome: false } as PlayConfiguration;
     synth = { noteOn: vi.fn(), noteOff: vi.fn(), stopAll: vi.fn(), programChange: vi.fn(), controllerChange: vi.fn() };
@@ -379,13 +383,21 @@ describe('PlayerAudioService', () => {
       expect(click.mock.calls.map(([strong]) => strong)).toEqual([true, false, false, true, false, false]);
     });
 
-    it('plays the count-in at full volume, then the metronome at its usual volume', () => {
+    it('plays the count-in at full volume whatever the mixer, then the metronome at the mixer\'s level', () => {
       state.playConfiguration.useMetronome = true;
       const click = vi.spyOn(audio, 'playMetronomeClick').mockImplementation(() => undefined);
       audio.startCountIn(1, { timeSignature: [2, 4] } as TimeSignatureEvent, 120);
       schedule.events.filter((e) => !e.kind.startsWith('repeat')).forEach((e) => e.fn(0));
       schedule.events.find((e) => e.kind.startsWith('repeat'))!.fn(0);
-      expect(click.mock.calls.map(([, velocity]) => velocity)).toEqual([127, 127, 43]);
+      // [velocity, bus]: the count-in on no bus, the metronome on its bus
+      expect(click.mock.calls.map(([, velocity, , bus]) => [velocity, bus])).toEqual([[127, null], [127, null], [127, undefined]]);
+    });
+
+    it('clicks at the metronome level of the mixer: 30 % by default', () => {
+      TestBed.inject(AudioMixerService).reset();
+      audio.playMetronomeClick(true, undefined, 10);
+      expect(synth.noteOn).toHaveBeenCalledWith(9, 34, 38, { time: 10 }); // 127 * 0.3
+      localStorage.removeItem(MIXER_STORAGE_KEY);
     });
 
     it('keeps clicking during playback when the metronome is on', () => {

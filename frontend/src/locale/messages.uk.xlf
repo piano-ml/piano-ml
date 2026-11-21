@@ -1742,6 +1742,38 @@
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">Не вдалося отримати доступ до MIDI. Якщо ви відхилили дозвіл, відкрийте налаштування браузера, скиньте дозволи цього сайту, дозвольте MIDI та перезавантажте сторінку.</target>
       </trans-unit>
+      <trans-unit id="mixer.title" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">Мікшер</target>
+      </trans-unit>
+      <trans-unit id="mixer.reset" datatype="html">
+        <source>Reset</source>
+        <target state="translated">Скинути</target>
+      </trans-unit>
+      <trans-unit id="mixer.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">Ноти</target>
+      </trans-unit>
+      <trans-unit id="mixer.score.hint" datatype="html">
+        <source>The notes the app plays</source>
+        <target state="translated">Ноти, які грає застосунок</target>
+      </trans-unit>
+      <trans-unit id="mixer.accompaniment" datatype="html">
+        <source>Accompaniment</source>
+        <target state="translated">Акомпанемент</target>
+      </trans-unit>
+      <trans-unit id="mixer.accompaniment.hint" datatype="html">
+        <source>The other instruments of the piece</source>
+        <target state="translated">Інші інструменти твору</target>
+      </trans-unit>
+      <trans-unit id="mixer.metronome" datatype="html">
+        <source>Metronome</source>
+        <target state="translated">Метроном</target>
+      </trans-unit>
+      <trans-unit id="mixer.metronome.hint" datatype="html">
+        <source>The count-in always plays at full volume</source>
+        <target state="translated">Відлік завжди звучить на повній гучності</target>
+      </trans-unit>
       <trans-unit id="osmd.error" datatype="html">
         <source>Error Loading Score</source>
         <target state="translated">Помилка завантаження нот</target>
@@ -1805,6 +1837,10 @@
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">Доступ до MIDI заблоковано</target>
+      </trans-unit>
+      <trans-unit id="mixer.open" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">Мікшер</target>
       </trans-unit>
       <trans-unit id="workbench.soundsLoading" datatype="html">
         <source>Loading sounds…</source>

@@ -83,6 +83,10 @@
                     <ng-icon name="bootstrapSpeedometer2" class="svg-button" />
                   </label>
                 </div>
+                <button type="button" (click)="openMixer()" class="btn btn-desktop m-1" id="mixer"
+                  i18n-aria-label="@@mixer.open" aria-label="Mixer" i18n-title="@@mixer.open" title="Mixer">
+                  <ng-icon name="bootstrapSliders" class="svg-button" />
+                </button>
                 <div class="checkbox-input m-1" id="loop">
                   <label class="label svg-label">
                     <input type="checkbox" [disabled]="isPlaying" [checked]="playConfiguration.isLoop"
@@ -235,6 +239,7 @@
     (hideFingeringAndHarmonyChange)="setHideFingeringAndHarmony($event)" (hideLyricsChange)="setHideLyrics($event)"
     (closeModal)="closeMidiSetup()"></app-midi-setup>
 
+  <app-mixer-dialog [isOpen]="isMixerOpen" [hasAccompaniment]="hasAccompaniment()" (closeModal)="closeMixer()" />
   <app-tempo-control [isOpen]="isTempoOpen" [tempo]="tempo" [metronome]="playConfiguration.useMetronome"
     [countIn]="playConfiguration.countInBars ?? 2" (countInChange)="onCountInChange($event)"
     (tempoChange)="onTempoChanged($event)" (metronomeStatus)="onMetronomeStatus($event)"

@@ -733,6 +733,15 @@ describe('WorkbenchComponent', () => {
       expect(el().querySelector('app-keyboard')).toBeNull();
     });
 
+    it('opens the mixer from the toolbar, between the metronome and the loop', async () => {
+      await openScore();
+      const tools = [...el().querySelectorAll('#showTempo, #mixer, #loop')].map((t) => t.id);
+      expect(tools).toEqual(['showTempo', 'mixer', 'loop']);
+      button('#mixer').click();
+      render();
+      expect(el().querySelector('app-mixer-dialog [data-mixer-channel="score"]')).not.toBeNull();
+    });
+
     it('the loop switch loops playback', async () => {
       await openScore();
       button('#loop input').dispatchEvent(new Event('change'));

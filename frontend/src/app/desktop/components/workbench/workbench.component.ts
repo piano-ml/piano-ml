@@ -2,7 +2,7 @@ import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef,
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapQuestionCircle, bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapDash, bootstrapPlus } from '@ng-icons/bootstrap-icons';
+import { bootstrapQuestionCircle, bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapDash, bootstrapPlus, bootstrapSliders } from '@ng-icons/bootstrap-icons';
 import { lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -30,6 +30,7 @@ import { midiToPitch } from '../../service/midi-maths';
 import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
 import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
+import { MixerDialogComponent } from '../mixer-dialog/mixer-dialog.component';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
@@ -61,7 +62,7 @@ export function scoreLoadErrorMessage(error: unknown): string {
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, SlopDialogComponent],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, SlopDialogComponent, MixerDialogComponent],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -87,6 +88,7 @@ export function scoreLoadErrorMessage(error: unknown): string {
       bootstrapSpeedometer2,
       bootstrapDash,
       bootstrapPlus,
+      bootstrapSliders,
       lefthand: lefthand.data,
       righthand: righthand.data
     })
@@ -204,6 +206,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   isMidiSetupOpen = false;
   // Tempo modal state
   isTempoOpen = false;
+  /** The mixer dialog (score, accompaniment, metronome levels). */
+  isMixerOpen = false;
   showTempo = false;
   // Control whether the `app-osmd` component is present in the DOM.
   showOsmd = true;
@@ -738,6 +742,21 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.isTempoOpen = false;
     this.showTempo = false;
     this.changeDetector.markForCheck();
+  }
+
+  openMixer(): void {
+    this.isMixerOpen = true;
+    this.changeDetector.markForCheck();
+  }
+
+  closeMixer(): void {
+    this.isMixerOpen = false;
+    this.changeDetector.markForCheck();
+  }
+
+  /** Whether the score has accompaniment tracks (the mixer shows their channel only then). */
+  hasAccompaniment(): boolean {
+    return (this.playConfiguration.accompaniment?.tracks.length ?? 0) > 0;
   }
 
   onMetronomeStatus(value: boolean) {

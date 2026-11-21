@@ -1742,6 +1742,38 @@
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">การเข้าถึง MIDI ล้มเหลว หากคุณปฏิเสธสิทธิ์ไว้ โปรดเปิดการตั้งค่าเบราว์เซอร์ รีเซ็ตสิทธิ์ของเว็บไซต์นี้ อนุญาต MIDI แล้วโหลดหน้าใหม่</target>
       </trans-unit>
+      <trans-unit id="mixer.title" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">มิกเซอร์</target>
+      </trans-unit>
+      <trans-unit id="mixer.reset" datatype="html">
+        <source>Reset</source>
+        <target state="translated">รีเซ็ต</target>
+      </trans-unit>
+      <trans-unit id="mixer.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">โน้ต</target>
+      </trans-unit>
+      <trans-unit id="mixer.score.hint" datatype="html">
+        <source>The notes the app plays</source>
+        <target state="translated">โน้ตที่แอปเล่น</target>
+      </trans-unit>
+      <trans-unit id="mixer.accompaniment" datatype="html">
+        <source>Accompaniment</source>
+        <target state="translated">ดนตรีประกอบ</target>
+      </trans-unit>
+      <trans-unit id="mixer.accompaniment.hint" datatype="html">
+        <source>The other instruments of the piece</source>
+        <target state="translated">เครื่องดนตรีอื่นๆ ในเพลง</target>
+      </trans-unit>
+      <trans-unit id="mixer.metronome" datatype="html">
+        <source>Metronome</source>
+        <target state="translated">เมโทรนอม</target>
+      </trans-unit>
+      <trans-unit id="mixer.metronome.hint" datatype="html">
+        <source>The count-in always plays at full volume</source>
+        <target state="translated">การนับจังหวะก่อนเริ่มจะเล่นเต็มระดับเสียงเสมอ</target>
+      </trans-unit>
       <trans-unit id="osmd.error" datatype="html">
         <source>Error Loading Score</source>
         <target state="translated">โหลดโน้ตเพลงไม่สำเร็จ</target>
@@ -1805,6 +1837,10 @@
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">การเข้าถึง MIDI ถูกบล็อก</target>
+      </trans-unit>
+      <trans-unit id="mixer.open" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">มิกเซอร์</target>
       </trans-unit>
       <trans-unit id="workbench.soundsLoading" datatype="html">
         <source>Loading sounds…</source>

@@ -41,9 +41,10 @@ export const PLAYBACK_LOOKAHEAD_S = 0.03;
 export const SCHEDULE_AHEAD_S = 4;
 export const SCHEDULE_REFILL_S = 1;
 
-/** Velocity of the metronome clicks while the score plays. */
-export const METRONOME_VELOCITY = 43;
-/** Velocity of the count-in and calibration clicks: full volume, the user has to catch the beat from them. */
+/**
+ * Velocity of a click at full volume. The metronome's clicks while the score plays are at the mixer's `metronome`
+ * level of it; the count-in and calibration clicks always at full volume: the user has to catch the beat from them.
+ */
 export const METRONOME_FULL_VELOCITY = 127;
 /** How the timing calibration hears the user (see PlayerAudioService.calibrateLatency()). */
 export type CalibrationMode = 'loopback' | 'midi';
@@ -726,10 +727,10 @@ export class PlayerAudioService implements OnDestroy {
 
   /**
    * A click at audio context `time` (now if omitted), on the `metronome` bus of the mixer (`bus` null: at full
-   * volume whatever the mixer, for the timing calibration). Its note-off is queued in the synth and in the MIDI
-   * output too: no timer on the main thread.
+   * volume whatever the mixer, for the count-in and the timing calibration). Its note-off is queued in the synth
+   * and in the MIDI output too: no timer on the main thread.
    */
-  playMetronomeClick(isStrong: boolean, velocity: number = METRONOME_VELOCITY, time?: number, bus: MixerBus | null = 'metronome'): void {
+  playMetronomeClick(isStrong: boolean, velocity: number = METRONOME_FULL_VELOCITY, time?: number, bus: MixerBus | null = 'metronome'): void {
     const mixed = this.mixer.velocity(bus, velocity);
     if (mixed === 0) return;
     const note = isStrong ? 34 : 33;   // 34 = Metronome Bell, 33 = Metronome Click
@@ -776,7 +777,7 @@ export class PlayerAudioService implements OnDestroy {
       offset = i * stepSeconds;
 
       transport.scheduleOnce((time: number) => {
-        this.playMetronomeClick(i % beatsPerBar === 0, METRONOME_FULL_VELOCITY, time);
+        this.playMetronomeClick(i % beatsPerBar === 0, METRONOME_FULL_VELOCITY, time, null); // the count-in: not mixed
       }, `${i * stepSeconds}`);
     }
 
@@ -787,7 +788,7 @@ export class PlayerAudioService implements OnDestroy {
       transport.scheduleRepeat((time: number) => {
         const currentBeat = beatInBar;
         beatInBar = (beatInBar + 1) % beatsPerBar;
-        this.playMetronomeClick(currentBeat === 0, METRONOME_VELOCITY, time);
+        this.playMetronomeClick(currentBeat === 0, METRONOME_FULL_VELOCITY, time); // at the metronome's level
       }, stepSeconds, offset);
     }
     return offset;
