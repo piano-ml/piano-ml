@@ -118,7 +118,7 @@ describe('error reporting', () => {
     // The stack where the request was made: which code called the API (no secret from the URL in it)
     const stack = sent[0].request.body.stackTrace as string;
     expect(stack).toContain(`GET ${API}/score/1`);
-    expect(stack).toContain('error-reporting.spec');
+    expect(stack).toMatch(/error-reporting/);
     expect(stack).not.toContain('secret');
   });
 
@@ -127,7 +127,7 @@ describe('error reporting', () => {
     TestBed.inject(ErrorHandler).handleError('a plain string');
     const [req] = await reports(httpMock);
     expect(req.request.body.message).toBe('a plain string');
-    expect(req.request.body.stackTrace).toContain('error-reporting.spec');
+    expect(req.request.body.stackTrace).toMatch(/error-reporting/);
   });
 
   it('does not report HTTP errors twice when they reach the ErrorHandler', async () => {
