@@ -383,23 +383,29 @@ body {
 
 #measure-range .noUi-pips-horizontal {
 	padding-top: 6px;
-	height: 26px;
+	height: 32px;
 }
 
+/* Bold marks, centred on their measure: noUiSlider places a mark by its left edge */
 #measure-range .noUi-marker-horizontal.noUi-marker {
-	width: 1px;
-	height: 3px;
+	width: 3px;
+	height: 5px;
+	margin-left: -1.5px;
+	border-radius: 1px;
 	background: var(--color-neutral-600);
 }
 
 #measure-range .noUi-marker-horizontal.noUi-marker-large {
-	height: 6px;
+	width: 4px;
+	height: 9px;
+	margin-left: -2px;
 	background: var(--color-neutral-500);
 }
 
 #measure-range .noUi-value-horizontal {
-	transform: translate(-50%, 40%);
-	font-size: 10px;
+	transform: translate(-50%, 60%);
+	font-size: 11px;
+	font-weight: 700;
 	color: var(--color-neutral-400);
 }
 
