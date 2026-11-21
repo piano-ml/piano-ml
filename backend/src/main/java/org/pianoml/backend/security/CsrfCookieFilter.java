@@ -23,6 +23,7 @@ public class CsrfCookieFilter extends OncePerRequestFilter {
     if (csrfToken != null) {
       csrfToken.getToken();
     }
+    OriginAwareCsrfTokenRepository.expireStaleHostOnlyCookie(request, response);
     filterChain.doFilter(request, response);
   }
 }
