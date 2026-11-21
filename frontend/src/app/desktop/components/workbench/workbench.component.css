@@ -387,6 +387,12 @@ body {
 	height: 40px;
 }
 
+/* noUiSlider draws the marks and numbers below the slider's box, over the top of the score: the slider is drawn
+   above .score-container, whose faded top (its mask) would otherwise veil them */
+#measure-range.noUi-target {
+	z-index: 20;
+}
+
 /* Bold marks, centred on their measure: noUiSlider places a mark by its left edge */
 #measure-range .noUi-marker-horizontal.noUi-marker {
 	width: 3px;
@@ -403,21 +409,18 @@ body {
 	background: var(--color-neutral-500);
 }
 
-/* The measure numbers in the font of the score's fingering numbers (OSMD's default font), a little bigger */
 #measure-range .noUi-value-horizontal {
 	transform: translate(-50%, 60%);
 }
 
 /* Every measure number, whatever class noUiSlider gives it (noUi-value-large, or noUi-value-sub which its own CSS
-   draws grey at 10 px): black and bold */
+   draws grey at 10 px): black, lean, in the app's font */
 #measure-range .noUi-value,
 #measure-range .noUi-value.noUi-value-sub,
 #measure-range .noUi-value.noUi-value-large {
-	font-family: "Times New Roman", Times, serif;
+	font-family: inherit;
 	font-size: 17px;
-	font-weight: 900;
-	/* Times has no face bolder than bold: a thin outline in the text colour thickens the strokes a little more */
-	-webkit-text-stroke: 0.4px currentColor;
+	font-weight: 400;
 	color: #000;
 }
 
