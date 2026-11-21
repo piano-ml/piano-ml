@@ -182,6 +182,55 @@ class CsrfProtectionTest {
   }
 
   @Test
+  void get_onTheApiHostWithoutOrigin_sharesXsrfCookieWithSubdomains() throws Exception {
+    // A page opened on api.pianoml.org, an image or a download link: no Origin. A host-only cookie there would
+    // never be readable by the SPA, and would shadow the shared one.
+    MvcResult result = mockMvc.perform(get("/author/search/{q}", "x").with(onApiHost())).andReturn();
+    assertThat(xsrfCookie(result).getDomain()).isEqualTo("pianoml.org");
+  }
+
+  @Test
+  void twoXsrfCookies_theOneEchoedInTheHeaderIsAccepted_andTheStaleHostOnlyOneExpired() throws Exception {
+    given(authorService.updateAuthor(any(), any(AuthorApiInfo.class), anyBoolean()))
+      .willReturn(Optional.of(new AuthorApiInfo()));
+    Cookie staleHostOnly = new Cookie("XSRF-TOKEN", UUID.randomUUID().toString());
+    Cookie shared = new Cookie("XSRF-TOKEN", UUID.randomUUID().toString());
+
+    // The stale cookie comes first, as in the browsers that failed with CSRF_TOKEN_INVALID
+    MvcResult result = mockMvc.perform(put("/author/{id}", UUID.randomUUID()).with(onApiHost())
+        .header("Origin", "https://www.pianoml.org")
+        .cookie(new Cookie("Authorization", jwtForNewUser()), staleHostOnly, shared)
+        .header("X-XSRF-TOKEN", shared.getValue())
+        .contentType(MediaType.APPLICATION_JSON).content(BODY))
+      .andExpect(status().isOk())
+      .andReturn();
+
+    assertThat(result.getResponse().getHeaders("Set-Cookie"))
+      .anySatisfy(h -> assertThat(h).startsWith("XSRF-TOKEN=;").contains("Max-Age=0", "Secure").doesNotContain("Domain="));
+  }
+
+  @Test
+  void twoXsrfCookies_aHeaderMatchingNeitherIsStillRejected() throws Exception {
+    mockMvc.perform(put("/author/{id}", UUID.randomUUID()).with(onApiHost())
+        .header("Origin", "https://www.pianoml.org")
+        .cookie(new Cookie("Authorization", jwtForNewUser()), new Cookie("XSRF-TOKEN", "a"), new Cookie("XSRF-TOKEN", "b"))
+        .header("X-XSRF-TOKEN", "forged")
+        .contentType(MediaType.APPLICATION_JSON).content(BODY))
+      .andExpect(status().isForbidden());
+  }
+
+  /** The request reaches api.pianoml.org, as in production (MockMvc defaults to localhost). */
+  private static org.springframework.test.web.servlet.request.RequestPostProcessor onApiHost() {
+    return request -> {
+      request.setServerName("api.pianoml.org");
+      request.setScheme("https");
+      request.setSecure(true);
+      request.setServerPort(443);
+      return request;
+    };
+  }
+
+  @Test
   void cookieAuthenticatedPut_withWrongToken_isRejected() throws Exception {
     Cookie xsrf = xsrfCookieFromAGet(null);
     mockMvc.perform(put("/author/{id}", UUID.randomUUID())
