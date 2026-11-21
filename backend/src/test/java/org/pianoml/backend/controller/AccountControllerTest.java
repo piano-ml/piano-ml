@@ -90,7 +90,7 @@ class AccountControllerTest {
 
   @Test
   void login_withoutTokenFromService_returns500_andSetsNoAuthCookie() throws Exception {
-    given(accountService.loginUser(any(AccountLoginPostRequest.class))).willReturn(new AccountLoginPost200Response());
+    given(accountService.loginUser(any(AccountLoginPostRequest.class), any())).willReturn(new AccountLoginPost200Response());
 
     mockMvc.perform(post("/account/login").contentType(MediaType.APPLICATION_JSON).content(LOGIN))
       .andExpect(status().isInternalServerError())
@@ -102,7 +102,7 @@ class AccountControllerTest {
   void login_withBlankTokenFromService_returns500() throws Exception {
     AccountLoginPost200Response blank = new AccountLoginPost200Response();
     blank.setToken("  ");
-    given(accountService.loginUser(any(AccountLoginPostRequest.class))).willReturn(blank);
+    given(accountService.loginUser(any(AccountLoginPostRequest.class), any())).willReturn(blank);
 
     mockMvc.perform(post("/account/login").contentType(MediaType.APPLICATION_JSON).content(LOGIN))
       .andExpect(status().isInternalServerError());

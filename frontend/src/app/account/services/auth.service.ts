@@ -38,8 +38,9 @@ export class AuthService {
   }
 
 
+  /** Logs in, sending the current language: it becomes the account's language if the account has none yet. */
   login(user: AccountLoginPostRequest) {
-    return this.accountService.accountLoginPost(user).pipe(
+    return this.accountService.accountLoginPost({ ...user, locale: currentLocale() }).pipe(
       tap(response => {
         this.sessionStorage.persistSessionData({
           userId: response.userId ?? null,

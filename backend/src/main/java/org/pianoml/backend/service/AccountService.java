@@ -137,7 +137,12 @@ public class AccountService {
     }
   }
 
-  public org.pianoml.backend.model.AccountLoginPost200Response loginUser(AccountLoginPostRequest accountLoginPostRequest) {
+  /**
+   * Logs in. An account without a language (created before accounts had one) gets the one the user logs in from,
+   * resolved like at sign-up; a language already set is never changed here.
+   */
+  public org.pianoml.backend.model.AccountLoginPost200Response loginUser(AccountLoginPostRequest accountLoginPostRequest,
+                                                                         String acceptLanguage) {
     Authentication authentication = authenticationManager.authenticate(
       new UsernamePasswordAuthenticationToken(
         accountLoginPostRequest.getEmail(),
@@ -149,6 +154,10 @@ public class AccountService {
 
     org.springframework.security.core.userdetails.User userDetails = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
     User user = userRepository.findByEmail(userDetails.getUsername()).get();
+    if (user.getLocale() == null) {
+      user.setLocale(supportedLocales.resolve(accountLoginPostRequest.getLocale(), acceptLanguage));
+      userRepository.save(user);
+    }
     org.pianoml.backend.model.AccountLoginPost200Response response = new org.pianoml.backend.model.AccountLoginPost200Response();
     response.setToken(tokenProvider.generateToken(user));
     response.setUserId(user.getId().toString());

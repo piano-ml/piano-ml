@@ -84,16 +84,14 @@ public class AccountController implements AccountApi {
 
   @Override
   public ResponseEntity<Void> accountCreatePost(AccountCreatePostRequest accountCreatePostRequest) {
-    ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-    String acceptLanguage = attrs == null ? null : attrs.getRequest().getHeader(HttpHeaders.ACCEPT_LANGUAGE);
-    accountService.createUser(accountCreatePostRequest, acceptLanguage);
+    accountService.createUser(accountCreatePostRequest, acceptLanguage());
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
   @Override
   public ResponseEntity<AccountLoginPost200Response> accountLoginPost(AccountLoginPostRequest accountLoginPostRequest) {
     // Perform login and obtain token
-    AccountLoginPost200Response response = accountService.loginUser(accountLoginPostRequest);
+    AccountLoginPost200Response response = accountService.loginUser(accountLoginPostRequest, acceptLanguage());
     String token = response.getToken();
 
     // Guard: ensure token is present before setting cookie. If missing, return 500 to avoid setting invalid cookie.
@@ -156,6 +154,12 @@ public class AccountController implements AccountApi {
    * on login and logout so a stale shared cookie cannot shadow the host-only one. Safe to remove once every
    * such cookie has expired (one JWT lifetime after this change is deployed).
    */
+  /** The request's {@code Accept-Language} header; null without one, or outside a request. */
+  private static String acceptLanguage() {
+    ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    return attrs == null ? null : attrs.getRequest().getHeader(HttpHeaders.ACCEPT_LANGUAGE);
+  }
+
   static ResponseCookie expireLegacySharedAuthCookie() {
     return ResponseCookie.from("Authorization", "")
       .httpOnly(true)

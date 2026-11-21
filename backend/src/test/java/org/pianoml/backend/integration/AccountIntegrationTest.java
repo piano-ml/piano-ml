@@ -122,6 +122,57 @@ class AccountIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
+    void lastsThirtyDays_theTokenAndItsCookie() throws Exception {
+      storedWithPassword("right-password");
+
+      MvcResult result = mockMvc.perform(post("/account/login").contentType(MediaType.APPLICATION_JSON).content(loginBody("right-password")))
+        .andExpect(status().isOk())
+        .andReturn();
+
+      String token = objectMapper.readTree(result.getResponse().getContentAsString()).get("token").asText();
+      java.time.Duration lifetime = java.time.Duration.between(
+        com.auth0.jwt.JWT.decode(token).getIssuedAtAsInstant(), com.auth0.jwt.JWT.decode(token).getExpiresAtAsInstant());
+      assertThat(lifetime).isEqualTo(java.time.Duration.ofDays(30));
+      assertThat(result.getResponse().getHeaders("Set-Cookie"))
+        .anySatisfy(cookie -> assertThat(cookie).startsWith("Authorization=" + token).contains("Max-Age=2592000"));
+    }
+
+    @Test
+    void givesAnAccountWithoutALanguageTheOneTheUserLogsInFrom() throws Exception {
+      storedWithPassword("right-password");
+      String body = json(Map.of("email", "alice@example.com", "password", "right-password", "locale", "it"));
+
+      mockMvc.perform(post("/account/login").contentType(MediaType.APPLICATION_JSON).content(body)
+        .header("Accept-Language", "fr")).andExpect(status().isOk());
+
+      assertThat(alice.getLocale()).isEqualTo("it");
+      verify(userRepository).save(alice);
+    }
+
+    @Test
+    void neverChangesALanguageAlreadySet() throws Exception {
+      storedWithPassword("right-password");
+      alice.setLocale("fr");
+      String body = json(Map.of("email", "alice@example.com", "password", "right-password", "locale", "de"));
+
+      mockMvc.perform(post("/account/login").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isOk());
+
+      assertThat(alice.getLocale()).isEqualTo("fr");
+      verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void aFailedLoginStoresNoLanguage() throws Exception {
+      storedWithPassword("right-password");
+
+      mockMvc.perform(post("/account/login").contentType(MediaType.APPLICATION_JSON).content(loginBody("wrong")))
+        .andExpect(status().isForbidden());
+
+      assertThat(alice.getLocale()).isNull();
+      verify(userRepository, never()).save(any());
+    }
+
+    @Test
     void refusesAWrongPassword() throws Exception {
       storedWithPassword("right-password");
 

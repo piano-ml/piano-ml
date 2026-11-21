@@ -51,7 +51,7 @@ class AccountControllerNoRequestContextTest {
   void login_withoutResponse_refusesToSilentlyDropTheCookie() {
     AccountLoginPost200Response response = new AccountLoginPost200Response();
     response.setToken("jwt");
-    when(accountService.loginUser(any(AccountLoginPostRequest.class))).thenReturn(response);
+    when(accountService.loginUser(any(AccountLoginPostRequest.class), any())).thenReturn(response);
 
     IllegalStateException ex = assertThrows(IllegalStateException.class,
       () -> controller.accountLoginPost(new AccountLoginPostRequest()));
@@ -63,7 +63,7 @@ class AccountControllerNoRequestContextTest {
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     AccountLoginPost200Response response = new AccountLoginPost200Response();
     response.setToken("jwt");
-    when(accountService.loginUser(any(AccountLoginPostRequest.class))).thenReturn(response);
+    when(accountService.loginUser(any(AccountLoginPostRequest.class), any())).thenReturn(response);
 
     assertThrows(IllegalStateException.class, () -> controller.accountLoginPost(new AccountLoginPostRequest()));
   }

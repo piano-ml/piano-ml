@@ -120,6 +120,17 @@ describe('AuthService', () => {
       expect(session.persistSessionData).toHaveBeenCalledWith({ userId: null, username: null, roles: null });
       expect(api['accountUserinfoGet']).not.toHaveBeenCalled();
     });
+
+    it('sends the language the user logs in from', () => {
+      api['accountLoginPost'].mockReturnValue(of({}));
+      setCurrentLocale('zh-Hans');
+      try {
+        create('server', null).login({ email: 'a@example.com', password: 'pw' }).subscribe();
+        expect(api['accountLoginPost']).toHaveBeenCalledWith({ email: 'a@example.com', password: 'pw', locale: 'zh-Hans' });
+      } finally {
+        setCurrentLocale(undefined);
+      }
+    });
   });
 
   describe('logout', () => {
