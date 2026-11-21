@@ -53,6 +53,9 @@ class PasswordResetFlowTest {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
+  @Autowired
+  private org.pianoml.backend.service.CoachGrantService coachGrantService;
+
   @MockitoBean
   private MailSender mailSender;
 
@@ -135,6 +138,18 @@ class PasswordResetFlowTest {
     assertThat(userRepository.findById(user.getId()).orElseThrow().isVerified()).isTrue();
     assertThat(validTokensOf(user)).isZero();
     reset(token, "another-password").andExpect(status().isBadRequest()).andExpect(jsonPath("$.error").value("invalid_token"));
+  }
+
+  @Test
+  void aResetRevokesTheCoachTokensOfTheAccount() throws Exception {
+    User user = newUser("en");
+    String coachToken = coachGrantService.create(user, "my coach", List.of("practice:read"), null).token();
+    assertThat(coachGrantService.authenticate(coachToken)).isPresent();
+    forgot(user.getEmail(), null).andExpect(status().isNoContent());
+
+    reset(sentLink(user.getEmail())[1], "new-password").andExpect(status().isNoContent());
+
+    assertThat(coachGrantService.authenticate(coachToken)).isEmpty();
   }
 
   @Test

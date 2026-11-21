@@ -1,0 +1,78 @@
+<article class="main-article">
+  <div class="px-4 sm:px-6 pt-4">
+    <h1 class="page-title" i18n="@@coach.authorize.title">An application asks for access to your PianoML account</h1>
+  </div>
+
+  <hr class="mx-4 sm:mx-6">
+
+  <div class="px-4 sm:px-6 pb-12 flex flex-col gap-6 max-w-2xl mt-6">
+    @switch (state()) {
+      @case ('loading') {
+        <p class="text-sm text-neutral-400" data-testid="authorize-loading" aria-live="polite">…</p>
+      }
+      @case ('gone') {
+        <p class="text-sm text-neutral-300" data-testid="authorize-gone" i18n="@@coach.authorize.gone">This request has expired or was already answered. Go back to your application and connect PianoML again.</p>
+      }
+      @case ('error') {
+        <p class="text-sm text-error" data-testid="authorize-error" i18n="@@coach.authorize.error">The request could not be loaded. Try again later.</p>
+      }
+      @default {
+        @if (request(); as r) {
+          <section class="exercise-desc-card" data-testid="authorize-client">
+            <div class="exercise-desc-section flex flex-col gap-2">
+              <p class="text-lg font-semibold break-words" data-testid="authorize-client-name">{{ r.clientName }}</p>
+              @if (r.clientHost) {
+                <p class="text-sm text-neutral-300" data-testid="authorize-client-host">
+                  <ng-container i18n="@@coach.authorize.publishedBy">Published by</ng-container> <span class="font-mono font-semibold">{{ r.clientHost }}</span>
+                </p>
+              } @else {
+                <p class="text-sm text-warning" data-testid="authorize-unverified" i18n="@@coach.authorize.unverified">This name was given by the application itself and is not verified.</p>
+              }
+              <p class="text-sm text-neutral-300" data-testid="authorize-redirect-host">
+                <ng-container i18n="@@coach.authorize.redirectTo">After your choice, you will be sent to</ng-container> <span class="font-mono font-semibold">{{ r.redirectHost }}</span>
+              </p>
+              @if (r.loopbackOnly) {
+                <p class="text-sm text-warning" role="alert" data-testid="authorize-loopback" i18n="@@coach.authorize.loopback">This application runs on your computer. Any program on this computer could claim to be it: allow it only if you just started the connection yourself.</p>
+              }
+            </div>
+          </section>
+
+          <section>
+            <p class="section-label mb-3" i18n="@@coach.authorize.scopes">It will be able to:</p>
+            <ul class="flex flex-col gap-3" data-testid="authorize-scopes">
+              @for (scope of scopes(); track scope) {
+                <li>
+                  <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" class="mt-1 w-4 h-4" [checked]="isChosen(scope)" (change)="toggle(scope)"
+                      [attr.data-testid]="'authorize-scope-' + scope">
+                    <span>
+                      <span class="text-sm font-semibold">{{ scopeLabels[scope] }}</span>
+                      <span class="block text-xs text-neutral-400">{{ scopeHints[scope] }}</span>
+                    </span>
+                  </label>
+                </li>
+              }
+            </ul>
+          </section>
+
+          <p class="text-xs text-neutral-400" i18n="@@coach.authorize.privacy">What the application reads is sent to the AI provider it uses. You can revoke this access at any time on your account page.</p>
+
+          @if (decisionFailed()) {
+            <p class="text-sm text-error" role="alert" data-testid="authorize-decision-error" i18n="@@coach.authorize.decisionError">Your answer could not be sent. Try again.</p>
+          }
+
+          <div class="flex flex-wrap justify-end gap-3">
+            <button type="button" class="btn-secondary" data-testid="authorize-refuse" [disabled]="state() !== 'ready'" (click)="refuse()"
+              i18n="@@coach.authorize.refuse">Refuse</button>
+            <button type="button" class="btn-primary" data-testid="authorize-allow" [disabled]="!canAllow()" (click)="allow()"
+              i18n="@@coach.authorize.allow">Allow</button>
+          </div>
+
+          <p class="text-xs text-neutral-500">
+            <a routerLink="/account/home" class="link-primary" i18n="@@coach.authorize.manage">Manage the applications that have access</a>
+          </p>
+        }
+      }
+    }
+  </div>
+</article>

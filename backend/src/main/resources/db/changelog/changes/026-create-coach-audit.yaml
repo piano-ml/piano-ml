@@ -1,0 +1,25 @@
+# Audit of the coach's MCP tool calls (issue #414): who (user, grant), which tool, the outcome code and the
+# duration. Never the argument values. Kept 3 months (coach.audit.retention). No foreign keys: the audit of a
+# deleted user or grant stays until it expires.
+databaseChangeLog:
+  - changeSet:
+      id: 026-1-create-coach-audit
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: coach_audit
+            columns:
+              - column: { name: id, type: BIGINT, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_coach_audit, nullable: false } }
+              - column: { name: at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: grant_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: tool, type: VARCHAR(40), constraints: { nullable: false } }
+              - column: { name: outcome, type: VARCHAR(32), constraints: { nullable: false } }
+              - column: { name: duration_ms, type: INT, constraints: { nullable: false } }
+        - createIndex:
+            schemaName: pianoml
+            tableName: coach_audit
+            indexName: idx_coach_audit_at
+            columns:
+              - column: { name: at }

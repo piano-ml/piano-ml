@@ -1,5 +1,15 @@
 package org.pianoml.backend.controller;
 
+import org.pianoml.backend.entity.CoachGrant;
+import org.pianoml.backend.entity.User;
+import org.pianoml.backend.model.CoachGrantApiInfo;
+import org.pianoml.backend.model.CoachGrantCreate;
+import org.pianoml.backend.model.CoachGrantCreated;
+import org.pianoml.backend.model.CoachGrantScope;
+import org.pianoml.backend.service.CoachGrantCreationLimiter;
+import org.pianoml.backend.service.CoachGrantService;
+import java.util.List;
+import java.util.UUID;
 import org.pianoml.backend.security.OriginAwareCsrfTokenRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +40,12 @@ public class AccountController implements AccountApi {
 
   @Autowired
   private JwtTokenProvider jwtTokenProvider;
+
+  @Autowired
+  private CoachGrantService coachGrantService;
+
+  @Autowired
+  private CoachGrantCreationLimiter coachGrantCreationLimiter;
 
   @Autowired
   private PlaylistEndpoints playlistEndpoints;
@@ -217,6 +233,78 @@ public class AccountController implements AccountApi {
   public ResponseEntity<UserApiInfo> accountUserinfoPut(UserApiInfo userApiInfo) {
     accountService.updateUserInfo(userApiInfo);
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  // --- access grants for external tools (coach, issue #414) -----------------------------------------------------
+
+  @Override
+  public ResponseEntity<List<CoachGrantApiInfo>> accountGrantsGet() {
+    User user = currentUser();
+    return ResponseEntity.ok(coachGrantService.list(user).stream().map(AccountController::toApiInfo).toList());
+  }
+
+  @Override
+  public ResponseEntity<CoachGrantCreated> accountGrantsPost(CoachGrantCreate body) {
+    User user = currentUser();
+    if (!coachGrantCreationLimiter.tryAcquire(user.getId())) {
+      return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+    }
+    CoachGrantService.Created created;
+    try {
+      List<String> scopes = body.getScopes() == null ? List.of()
+        : body.getScopes().stream().map(CoachGrantScope::getValue).toList();
+      created = coachGrantService.create(user, body.getName(), scopes, body.getExpiresInDays());
+    } catch (CoachGrantService.TooManyGrantsException e) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+    CoachGrantApiInfo info = toApiInfo(created.grant());
+    CoachGrantCreated response = new CoachGrantCreated()
+      .id(info.getId())
+      .name(info.getName())
+      .kind(CoachGrantCreated.KindEnum.fromValue(info.getKind().getValue()))
+      .scopes(info.getScopes())
+      .createdAt(info.getCreatedAt())
+      .expiresAt(info.getExpiresAt())
+      .token(created.token());
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @Override
+  public ResponseEntity<Void> accountGrantsIdDelete(UUID id) {
+    User user = currentUser();
+    return coachGrantService.revoke(user, id)
+      ? ResponseEntity.noContent().build()
+      : ResponseEntity.notFound().build();
+  }
+
+  private static CoachGrantApiInfo toApiInfo(CoachGrant grant) {
+    return new CoachGrantApiInfo()
+      .id(grant.getId())
+      .name(grant.getName())
+      .kind(CoachGrantApiInfo.KindEnum.fromValue(grant.getKind()))
+      .clientHost(clientHost(grant.getClientId()))
+      .scopes(CoachGrantService.scopesOf(grant).stream().sorted().map(CoachGrantScope::fromValue).toList())
+      .createdAt(grant.getCreatedAt())
+      .expiresAt(grant.getExpiresAt())
+      .lastUsedAt(grant.getLastUsedAt())
+      .revokedAt(grant.getRevokedAt());
+  }
+
+  /** The host of an OAuth client id that is a metadata URL; null otherwise (dynamic registration, personal token). */
+  private static String clientHost(String clientId) {
+    if (clientId == null || !clientId.startsWith("https://")) {
+      return null;
+    }
+    try {
+      return java.net.URI.create(clientId).getHost();
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+  /** @throws org.pianoml.backend.exception.UserNotLoggedInException (401) for an anonymous request */
+  private User currentUser() {
+    return accountService.getUserFromAuthentication(SecurityContextHolder.getContext().getAuthentication());
   }
 
   /**

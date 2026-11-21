@@ -47,6 +47,11 @@ export const serverRoutes: ServerRoute[] = [
     path: 'import',
     renderMode: RenderMode.Client
   },
+  // Connecting an AI assistant (coach, issue #414) needs the session: same reason as the account pages
+  {
+    path: 'coach/**',
+    renderMode: RenderMode.Client
+  },
   // Re-importing a score is for its owner and admins only: same reason as the account pages
   {
     path: 'score/*/reimport',

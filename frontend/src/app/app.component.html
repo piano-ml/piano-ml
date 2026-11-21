@@ -1,5 +1,7 @@
 <router-outlet />
 <app-loading-spinner />
+<!-- Remote coach (issue #414): stays across navigation, the workbench included -->
+<app-remote-coach />
 
 @if (beaconService.isActive()) {
   <beacon-overlay />

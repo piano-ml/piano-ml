@@ -1,0 +1,46 @@
+# Access grants for external AI tools (coach, issue #414): "user U allows client <name> to use scopes S until
+# date D". A grant authenticates only on /mcp/** (McpSecurityConfig), never as a browser session.
+# - the token is pml_<grantId>_<secret>; only SHA-256(secret), hex, is stored (secret_hash);
+# - scopes: space-separated (practice:read scores:read player:control);
+# - kind: pat (personal access token created in the app) or oauth;
+# - rows go away with their user (ON DELETE CASCADE).
+# Number 025: 023 and 024 are used by open branches (playlists #278, error reports #408).
+databaseChangeLog:
+  - changeSet:
+      id: 025-1-create-coach-grant
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: coach_grant
+            columns:
+              - column: { name: id, type: UUID, constraints: { nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: name, type: VARCHAR(80), constraints: { nullable: false } }
+              - column: { name: kind, type: VARCHAR(16), constraints: { nullable: false } }
+              - column: { name: secret_hash, type: CHAR(64), constraints: { nullable: false } }
+              - column: { name: scopes, type: VARCHAR(200), constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: expires_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: last_used_at, type: TIMESTAMP WITH TIME ZONE }
+              - column: { name: revoked_at, type: TIMESTAMP WITH TIME ZONE }
+        - addPrimaryKey:
+            schemaName: pianoml
+            tableName: coach_grant
+            columnNames: id
+            constraintName: pk_coach_grant
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: coach_grant
+            baseColumnNames: user_id
+            constraintName: fk_coach_grant_user
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - createIndex:
+            schemaName: pianoml
+            tableName: coach_grant
+            indexName: idx_coach_grant_user
+            columns:
+              - column: { name: user_id }

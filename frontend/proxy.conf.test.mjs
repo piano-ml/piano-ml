@@ -40,9 +40,17 @@ test('strips the Origin header and rewrites cookies through the configure hook',
   handlers.proxyReq({ removeHeader: (name) => removed.push(name) });
   assert.deepEqual(removed, ['origin']);
 
+  const removedOnUpgrade = [];
+  handlers.proxyReqWs({ removeHeader: (name) => removedOnUpgrade.push(name) });
+  assert.deepEqual(removedOnUpgrade, ['origin']);
+
   const proxyRes = { headers: { 'set-cookie': ['XSRF-TOKEN=t; Path=/; Secure'] } };
   handlers.proxyRes(proxyRes);
   assert.deepEqual(proxyRes.headers['set-cookie'], ['XSRF-TOKEN=t; Path=/']);
+});
+
+test('proxies WebSocket upgrades (Remote coach socket)', () => {
+  assert.equal(proxy['/api'].ws, true);
 });
 
 test('targets the remote API by default', () => {
