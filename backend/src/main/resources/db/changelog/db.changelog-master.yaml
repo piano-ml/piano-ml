@@ -61,3 +61,7 @@ databaseChangeLog:
       file: db/changelog/changes/029-create-coach-oauth-request-and-code.yaml
   - include:
       file: db/changelog/changes/030-create-coach-oauth-token.yaml
+  - include:
+      file: db/changelog/changes/030-add-user-locale.yaml
+  - include:
+      file: db/changelog/changes/031-create-password-reset-token.yaml

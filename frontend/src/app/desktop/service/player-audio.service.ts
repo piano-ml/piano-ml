@@ -10,8 +10,11 @@ import { MidiServiceService } from '../../shared/services/midi-service.service';
 import { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import { SOUNDFONT_WORKLET_URL, loadSoundFontFile } from '../../shared/services/soundfont-cache';
 import {
-  CALIBRATION_BPM, CALIBRATION_CLICKS, calibrationOffsetMs, readLatencyCalibration, writeLatencyCalibration,
+  CALIBRATION_BPM, CALIBRATION_CLICKS, CALIBRATION_WARMUP_CLICKS, calibrationOffsetMs, readLatencyCalibration, writeLatencyCalibration,
 } from './latency-calibration';
+import { findClickOnsets } from './mic-onsets';
+import { MicrophoneService } from './microphone.service';
+import { withListenerParams } from './audio-listener';
 
 export { isCompleteRiff } from '../../shared/services/soundfont-cache';
 
@@ -35,12 +38,29 @@ export const PLAYBACK_LOOKAHEAD_S = 0.03;
 export const SCHEDULE_AHEAD_S = 4;
 export const SCHEDULE_REFILL_S = 1;
 
+/** Velocity of the metronome clicks while the score plays. */
+export const METRONOME_VELOCITY = 43;
+/** Velocity of the count-in and calibration clicks: full volume, the user has to catch the beat from them. */
+export const METRONOME_FULL_VELOCITY = 127;
+/** How the timing calibration hears the user (see PlayerAudioService.calibrateLatency()). */
+export type CalibrationMode = 'loopback' | 'midi';
+/** One tap (or sound heard) during a calibration, as it comes: for the dialog to show. */
+export interface CalibrationTap {
+  /** The nearest click, 0-based. */
+  click: number;
+  /** How long after that click it was heard (negative: before). */
+  ms: number;
+  /** Whether it counts: not a warm-up click, and close enough to its click. */
+  measured: boolean;
+}
 /** How long a metronome click sounds before its note-off (a crisp click). */
 export const METRONOME_CLICK_S = 0.04;
 /** MIDI controller "All Sound Off": stops every voice of a channel at once. */
 const ALL_SOUND_OFF = 120;
-/** The first calibration click comes this long after the user asked for it. */
+/** The first calibration click comes this long after the user asked for it... */
 const CALIBRATION_LEAD_S = 0.8;
+/** ...and later with the microphone, which takes a moment to start recording. */
+const CALIBRATION_MIC_LEAD_S = 1;
 const MIDI_CHANNELS = 16;
 
 /**
@@ -50,9 +70,11 @@ const MIDI_CHANNELS = 16;
  */
 let sharedAudioContext: AudioContext | undefined;
 function audioContextOfThePage(): AudioContext {
-  sharedAudioContext ??= new AudioContext({ latencyHint: 'interactive' });
+  // The smallest buffer the device allows (clamped by the browser): the least latency between a key and its sound
+  sharedAudioContext ??= withListenerParams(new AudioContext({ latencyHint: 0 }));
   return sharedAudioContext;
 }
+
 
 /**
  * Service responsable de la gestion de l'audio, des synthétiseurs et du scheduling des notes
@@ -89,7 +111,8 @@ export class PlayerAudioService implements OnDestroy {
   constructor(
     private assess: PlayerAssessService,
     private state: PlayerStateService,
-    private midiService: MidiServiceService
+    private midiService: MidiServiceService,
+    private microphone: MicrophoneService,
   ) { }
 
 
@@ -163,6 +186,11 @@ export class PlayerAudioService implements OnDestroy {
     return context.currentTime - this.outputLatency() + (perfMs - performance.now()) / 1000;
   }
 
+  /** How far what is heard lags the context time now, in seconds, as the scoring sees it (see heardContextTime()). */
+  getContextTimeLag(): number {
+    return this.audioContext ? this.audioContext.currentTime - this.heardContextTime() : 0;
+  }
+
   /** When the audio context time `time` is heard, as a performance.now() time: for timestamped MIDI output. */
   contextToPerformanceMs(time: number): number {
     return performance.now() + (time - this.heardContextTime()) * 1000;
@@ -183,25 +211,70 @@ export class PlayerAudioService implements OnDestroy {
   }
 
   /**
-   * Tap-along calibration: plays CALIBRATION_CLICKS clicks and listens to the MIDI keyboard. Resolves with the
-   * correction (also applied and stored), or null without enough taps on the beat. `signal` cancels it.
+   * Timing calibration: plays CALIBRATION_CLICKS clicks and collects when each one was answered, then resolves with
+   * the correction (also applied and stored), or null without enough answers on the beat. `signal` cancels it.
+   * - 'loopback' (the default in the dialog): no one taps, the microphone hears the clicks from the speakers (what
+   *   the speakers add to the latency the browser reports); rejects when it cannot be opened (permission, no device);
+   * - 'midi': the user taps a key of their MIDI keyboard on each click (the keyboard's own delay included).
    */
-  async calibrateLatency(signal?: AbortSignal): Promise<number | null> {
+  async calibrateLatency(signal?: AbortSignal, mode: CalibrationMode = 'midi', onTap?: (tap: CalibrationTap) => void): Promise<number | null> {
     await this.initSoundFont();
     const context = this.audioContext!;
     if (context.state === 'suspended') {
       await context.resume();
     }
-    const interval = 60 / CALIBRATION_BPM;
-    const first = context.currentTime + CALIBRATION_LEAD_S;
-    const clicks = Array.from({ length: CALIBRATION_CLICKS }, (_, i) => first + i * interval);
-    clicks.forEach((time, i) => this.playMetronomeClick(i % 4 === 0, undefined, time));
     const taps: number[] = [];
-    const stopListening = this.midiService.addNoteListener((event) => {
-      if (event.type === 'down') taps.push(this.heardContextTime(event.timeStamp));
-    });
+    const interval = 60 / CALIBRATION_BPM;
+    const warmup = mode === 'loopback' ? 0 : CALIBRATION_WARMUP_CLICKS; // nobody has to find the beat in loopback
+    let clicks: number[] = [];
+    /** A tap (or a click heard), as heard: kept, and reported against its click (the nearest one if not known). */
+    const tap = (heardAt: number, knownClick?: number) => {
+      // Nothing to measure before the first click or after the last one (a noise, a late key)
+      if (clicks.length === 0 || heardAt < clicks[0] - interval / 2 || heardAt > clicks[clicks.length - 1] + interval / 2) return;
+      taps.push(heardAt);
+      if (!onTap) return;
+      const click = knownClick ?? Math.max(0, Math.min(clicks.length - 1, Math.round((heardAt - clicks[0]) / interval)));
+      const ms = Math.round((heardAt - clicks[click]) * 1000);
+      onTap({ click, ms, measured: click >= warmup && Math.abs(ms) < interval * 500 });
+    };
+    let stopListening: () => void | Promise<void>;
+    if (mode === 'midi') {
+      stopListening = this.midiService.addNoteListener((event) => {
+        if (event.type === 'down') tap(this.heardContextTime(event.timeStamp));
+      });
+    } else {
+      // Before the clicks are scheduled: the browser may ask for the microphone first. A sound captured at context
+      // time t was heard at t - the input latency, which the app takes for context time t - input latency - output
+      // latency (as heardContextTime() does for a key press).
+      // The microphone is recorded during the clicks, then each click is looked for in the recording. A click
+      // played at context time c and captured at t went out, was heard, and came back in: t - c is the real output
+      // latency plus the input latency. What the scoring believes is heard lags the context time by the browser's
+      // reported output latency, measured here the way heardContextTime() sees it, so that the correction is in
+      // the scoring's own terms: (t - input latency - that lag) - c, positive when the sound is heard later than
+      // the browser says.
+      const recorder = await this.microphone.record(context);
+      const lags: number[] = [];
+      const sampleLag = setInterval(() => lags.push(this.getContextTimeLag()), 50);
+      stopListening = async () => {
+        clearInterval(sampleLag);
+        const recording = await recorder.stop();
+        if (signal?.aborted) return;
+        // currentTime moves by whole buffers: the median of the samples
+        const lag = lags.length > 0 ? lags.sort((a, b) => a - b)[lags.length >> 1] : this.outputLatency();
+        for (const onset of findClickOnsets(recording, clicks)) {
+          if (onset.time !== null) tap(onset.time - recorder.inputLatency - lag, onset.click);
+        }
+      };
+    }
+    const first = context.currentTime + (mode === 'loopback' ? CALIBRATION_MIC_LEAD_S : CALIBRATION_LEAD_S);
+    clicks = Array.from({ length: CALIBRATION_CLICKS }, (_, i) => first + i * interval);
+    clicks.forEach((time, i) => this.playMetronomeClick(i % 4 === 0, METRONOME_FULL_VELOCITY, time));
     try {
       await new Promise<void>((resolve, reject) => {
+        if (signal?.aborted) {
+          reject(signal.reason);
+          return;
+        }
         const done = setTimeout(resolve, (clicks[clicks.length - 1] + interval - context.currentTime) * 1000);
         signal?.addEventListener('abort', () => {
           clearTimeout(done);
@@ -209,9 +282,9 @@ export class PlayerAudioService implements OnDestroy {
         }, { once: true });
       });
     } finally {
-      stopListening();
+      await stopListening();
     }
-    const ms = calibrationOffsetMs(clicks, taps, interval);
+    const ms = calibrationOffsetMs(clicks, taps, interval, warmup);
     if (ms !== null) {
       this.setLatencyCalibration(ms);
     }
@@ -621,7 +694,7 @@ export class PlayerAudioService implements OnDestroy {
    * A click at audio context `time` (now if omitted). Its note-off is queued in the synth and in the MIDI output
    * too: no timer on the main thread.
    */
-  playMetronomeClick(isStrong: boolean, velocity: number = 43, time?: number): void {
+  playMetronomeClick(isStrong: boolean, velocity: number = METRONOME_VELOCITY, time?: number): void {
     const note = isStrong ? 34 : 33;   // 34 = Metronome Bell, 33 = Metronome Click
     const at = time ?? this.audioContext?.currentTime ?? 0;
     this.noteOn(9, note, velocity, at);
@@ -666,7 +739,7 @@ export class PlayerAudioService implements OnDestroy {
       offset = i * stepSeconds;
 
       transport.scheduleOnce((time: number) => {
-        this.playMetronomeClick(i % beatsPerBar === 0, undefined, time);
+        this.playMetronomeClick(i % beatsPerBar === 0, METRONOME_FULL_VELOCITY, time);
       }, `${i * stepSeconds}`);
     }
 
@@ -677,7 +750,7 @@ export class PlayerAudioService implements OnDestroy {
       transport.scheduleRepeat((time: number) => {
         const currentBeat = beatInBar;
         beatInBar = (beatInBar + 1) % beatsPerBar;
-        this.playMetronomeClick(currentBeat === 0, undefined, time);
+        this.playMetronomeClick(currentBeat === 0, METRONOME_VELOCITY, time);
       }, stepSeconds, offset);
     }
     return offset;

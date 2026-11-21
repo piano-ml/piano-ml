@@ -14,6 +14,14 @@
         <source>Create</source>
         <target state="translated">Erstellen</target>
       </trans-unit>
+      <trans-unit id="account.route.forgotPassword" datatype="html">
+        <source>Forgot password</source>
+        <target state="translated">Passwort vergessen</target>
+      </trans-unit>
+      <trans-unit id="account.route.resetPassword" datatype="html">
+        <source>New password</source>
+        <target state="translated">Neues Passwort</target>
+      </trans-unit>
       <trans-unit id="account.route.scores" datatype="html">
         <source>My Scores</source>
         <target state="translated">Meine Stücke</target>
@@ -159,8 +167,12 @@
         <target state="translated">Gib deinen Namen ein</target>
       </trans-unit>
       <trans-unit id="createAccount.nameIsRequired" datatype="html">
-        <source> name is required. </source>
+        <source>name is required.</source>
         <target state="translated">Name ist erforderlich.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsTaken" datatype="html">
+        <source>This name is already taken. Please choose another one.</source>
+        <target state="translated">Dieser Name ist bereits vergeben. Bitte wähle einen anderen.</target>
       </trans-unit>
       <trans-unit id="createAccount.email" datatype="html">
         <source>Email</source>
@@ -177,6 +189,10 @@
       <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
         <source>Invalid email format.</source>
         <target state="translated">Ungültiges E-Mail-Format.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsTaken" datatype="html">
+        <source>An account already uses this email. Log in instead, or use another email.</source>
+        <target state="translated">Diese E-Mail-Adresse wird bereits von einem Konto verwendet. Melde dich an oder verwende eine andere E-Mail-Adresse.</target>
       </trans-unit>
       <trans-unit id="createAccount.password" datatype="html">
         <source>Password</source>
@@ -462,6 +478,10 @@
         <source> Password is required. </source>
         <target state="translated">Passwort ist erforderlich.</target>
       </trans-unit>
+      <trans-unit id="login.forgotPassword" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">Passwort vergessen?</target>
+      </trans-unit>
       <trans-unit id="login.loggingIn" datatype="html">
         <source>Logging in...</source>
         <target state="translated">Anmeldung läuft...</target>
@@ -477,6 +497,106 @@
       <trans-unit id="login.error.other" datatype="html">
         <source>An error occurred during login</source>
         <target state="translated">Bei der Anmeldung ist ein Fehler aufgetreten</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.title" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">Passwort vergessen?</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sentTitle" datatype="html">
+        <source>Check your email</source>
+        <target state="translated">Sieh in deinen E-Mails nach</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sent" datatype="html">
+        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for a limited time.</source>
+        <target state="translated">Wenn ein Konto <x id="INTERPOLATION" equiv-text="{{ email }}"/> verwendet, haben wir dorthin einen Link geschickt, mit dem du ein neues Passwort wählen kannst. Der Link ist nur für begrenzte Zeit gültig.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.spam" datatype="html">
+        <source>Nothing after a few minutes? Check your spam folder, or ask again.</source>
+        <target state="translated">Nach ein paar Minuten noch nichts da? Sieh im Spam-Ordner nach oder fordere den Link erneut an.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.backToLogin" datatype="html">
+        <source>Back to login</source>
+        <target state="translated">Zurück zur Anmeldung</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.heading" datatype="html">
+        <source>Reset your password</source>
+        <target state="translated">Passwort zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.intro" datatype="html">
+        <source>Enter the email of your account: we will send you a link to choose a new password.</source>
+        <target state="translated">Gib die E-Mail-Adresse deines Kontos ein: Wir schicken dir einen Link, mit dem du ein neues Passwort wählen kannst.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.failed" datatype="html">
+        <source>The email could not be sent. Please try again in a moment.</source>
+        <target state="translated">Die E-Mail konnte nicht gesendet werden. Bitte versuche es gleich noch einmal.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">E-Mail</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">Gib deine E-Mail-Adresse ein</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.emailInvalid" datatype="html">
+        <source>Please enter a valid email.</source>
+        <target state="translated">Bitte gib eine gültige E-Mail-Adresse ein.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sending" datatype="html">
+        <source>Sending...</source>
+        <target state="translated">Wird gesendet...</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.send" datatype="html">
+        <source>Send me a link</source>
+        <target state="translated">Link senden</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.title" datatype="html">
+        <source>Choose a new password</source>
+        <target state="translated">Neues Passwort wählen</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.done" datatype="html">
+        <source>Your password has been changed. You can now log in with it.</source>
+        <target state="translated">Dein Passwort wurde geändert. Du kannst dich jetzt damit anmelden.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.login" datatype="html">
+        <source>Log in</source>
+        <target state="translated">Anmelden</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.invalid" datatype="html">
+        <source>This link is invalid or has expired: each link works only once, for a limited time.</source>
+        <target state="translated">Dieser Link ist ungültig oder abgelaufen: Jeder Link funktioniert nur einmal und nur für begrenzte Zeit.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.askAgain" datatype="html">
+        <source>Get a new link</source>
+        <target state="translated">Neuen Link anfordern</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.failed" datatype="html">
+        <source>The password could not be changed. Please try again in a moment.</source>
+        <target state="translated">Das Passwort konnte nicht geändert werden. Bitte versuche es gleich noch einmal.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.password" datatype="html">
+        <source>New password</source>
+        <target state="translated">Neues Passwort</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.tooShort" datatype="html">
+        <source>Password must be at least 8 characters long.</source>
+        <target state="translated">Das Passwort muss mindestens 8 Zeichen lang sein.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.confirm" datatype="html">
+        <source>Confirm the new password</source>
+        <target state="translated">Neues Passwort bestätigen</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.mismatch" datatype="html">
+        <source>Passwords do not match.</source>
+        <target state="translated">Die Passwörter stimmen nicht überein.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.saving" datatype="html">
+        <source>Saving...</source>
+        <target state="translated">Wird gespeichert...</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.save" datatype="html">
+        <source>Change my password</source>
+        <target state="translated">Passwort ändern</target>
       </trans-unit>
       <trans-unit id="playlist.list.title" datatype="html">
         <source>My Playlists</source>
@@ -986,9 +1106,65 @@
         <source>Timing calibration</source>
         <target state="translated">Timing-Kalibrierung</target>
       </trans-unit>
+      <trans-unit id="latency.intro.title" datatype="html">
+        <source>Let&apos;s tune the timing first</source>
+        <target state="translated">Zuerst das Timing einstellen</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.why" datatype="html">
+        <source>So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</source>
+        <target state="translated">Damit dein Spiel nach dem bewertet wird, was du wirklich hörst, misst Piano ML die Verzögerung deiner Lautsprecher. Das dauert etwa 20 Sekunden.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.speakers" datatype="html">
+        <source>Play the sound through your speakers, not headphones, with the volume up.</source>
+        <target state="translated">Gib den Ton über deine Lautsprecher aus, nicht über Kopfhörer, mit aufgedrehter Lautstärke.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.quiet" datatype="html">
+        <source>Keep the room quiet while the clicks play.</source>
+        <target state="translated">Halte den Raum still, während die Klicks spielen.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.start" datatype="html">
+        <source>Press Calibrate and allow the microphone if your browser asks.</source>
+        <target state="translated">Drücke Kalibrieren und erlaube das Mikrofon, falls dein Browser fragt.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.fallback" datatype="html">
+        <source>No microphone, or using headphones? Choose MIDI keyboard taps instead.</source>
+        <target state="translated">Kein Mikrofon oder mit Kopfhörern? Wähle stattdessen Anschläge auf dem MIDI-Keyboard.</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.loopback" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">Mikrofon hört die Lautsprecher</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.midi" datatype="html">
+        <source>MIDI keyboard taps</source>
+        <target state="translated">Anschläge auf dem MIDI-Keyboard</target>
+      </trans-unit>
+      <trans-unit id="latency.hint.loopback" datatype="html">
+        <source>Play through the speakers, volume up, and stay quiet: the microphone hears the clicks and measures the delay of your speakers.</source>
+        <target state="translated">Spiele über die Lautsprecher, Lautstärke hoch, und sei leise: Das Mikrofon hört die Klicks und misst die Verzögerung deiner Lautsprecher.</target>
+      </trans-unit>
       <trans-unit id="latency.hint" datatype="html">
         <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
         <target state="translated">Tippe bei jedem Klick eine Taste deines MIDI-Keyboards an, damit dein Spiel nach dem bewertet wird, was du hörst (nützlich mit Bluetooth-Kopfhörern).</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">Mikrofon</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.denied" datatype="html">
+        <source>Microphone access was refused. Allow it in the browser&apos;s site settings.</source>
+        <target state="translated">Der Zugriff auf das Mikrofon wurde verweigert. Erlaube ihn in den Website-Einstellungen des Browsers.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.allow" datatype="html">
+        <source>Allow the microphone</source>
+        <target state="translated">Mikrofon erlauben</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.default" datatype="html">
+        <source>Default microphone</source>
+        <target state="translated">Standardmikrofon</target>
+      </trans-unit>
+      <trans-unit id="latency.listening.loopback" datatype="html">
+        <source>Listening to the clicks…</source>
+        <target state="translated">Höre die Klicks…</target>
       </trans-unit>
       <trans-unit id="latency.listening" datatype="html">
         <source>Tap along with the clicks…</source>
@@ -998,13 +1174,21 @@
         <source>Cancel</source>
         <target state="translated">Abbrechen</target>
       </trans-unit>
+      <trans-unit id="latency.failed.loopback" datatype="html">
+        <source>The microphone did not hear the clicks. Turn the volume up and try again.</source>
+        <target state="translated">Das Mikrofon hat die Klicks nicht gehört. Erhöhe die Lautstärke und versuche es erneut.</target>
+      </trans-unit>
       <trans-unit id="latency.failed" datatype="html">
         <source>Not enough taps on the beat. Try again.</source>
         <target state="translated">Nicht genug Anschläge im Takt. Versuche es noch einmal.</target>
       </trans-unit>
-      <trans-unit id="latency.value" datatype="html">
-        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
-        <target state="translated">Korrektur: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</target>
+      <trans-unit id="latency.micError" datatype="html">
+        <source>The microphone could not be opened. Allow it for this site and check the microphone chosen above.</source>
+        <target state="translated">Das Mikrofon konnte nicht geöffnet werden. Erlaube es für diese Seite und prüfe das oben gewählte Mikrofon.</target>
+      </trans-unit>
+      <trans-unit id="latency.manual" datatype="html">
+        <source>Correction (ms)</source>
+        <target state="translated">Korrektur (ms)</target>
       </trans-unit>
       <trans-unit id="latency.calibrate" datatype="html">
         <source>Calibrate</source>
@@ -1013,6 +1197,34 @@
       <trans-unit id="latency.reset" datatype="html">
         <source>Reset</source>
         <target state="translated">Zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="latency.taps" datatype="html">
+        <source>Delay after each click, in ms (faded: not counted)</source>
+        <target state="translated">Verzögerung nach jedem Klick, in ms (blass: nicht gezählt)</target>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">Schließen</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphoneFallback" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">Mikrofon</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.title" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">Mikrofon hört die Lautsprecher</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.content" datatype="html">
+        <source>Your speakers or headphones always sound a little after a note is played. To score your playing against what you really hear, Piano ML plays a few clicks and listens to them with your microphone. That tells it how late the sound arrives.</source>
+        <target state="translated">Deine Lautsprecher oder Kopfhörer klingen immer etwas später, als eine Note gespielt wird. Damit dein Spiel an dem gemessen wird, was du wirklich hörst, spielt Piano ML ein paar Klicks und hört sie mit deinem Mikrofon. So erfährt es, wie spät der Klang ankommt.</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.title" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">Kalibrieren</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.content" datatype="html">
+        <source>Best done now, before you play: allow the microphone, then press Calibrate. It takes about 20 seconds.</source>
+        <target state="translated">Am besten jetzt, bevor du spielst: Erlaube das Mikrofon und drücke dann auf Kalibrieren. Es dauert etwa 20 Sekunden.</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -1074,9 +1286,17 @@
         <source>Toggle fingering and harmony visibility</source>
         <target state="translated">Fingersatz und Harmonik ein- oder ausblenden</target>
       </trans-unit>
-      <trans-unit id="common.close" datatype="html">
-        <source>Close</source>
-        <target state="translated">Schließen</target>
+      <trans-unit id="midiSetup.calibration.hint" datatype="html">
+        <source>Measures the delay of your speakers or headphones, so that your playing is scored against what you hear.</source>
+        <target state="translated">Misst die Verzögerung deiner Lautsprecher oder Kopfhörer, damit dein Spiel nach dem bewertet wird, was du hörst.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">Korrektur: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.open" datatype="html">
+        <source>Calibrate…</source>
+        <target state="translated">Kalibrieren…</target>
       </trans-unit>
       <trans-unit id="midiSetup.inputFallback" datatype="html">
         <source>MIDI Input</source>
@@ -1149,6 +1369,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">Metronom</target>
+      </trans-unit>
+      <trans-unit id="tempo.countIn" datatype="html">
+        <source>Count-in (bars)</source>
+        <target state="translated">Einzähler (Takte)</target>
       </trans-unit>
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
@@ -2930,10 +3154,6 @@ Anwendung: über Mollakkorden und Moll-Blues-Kontexten (i7- bzw. i-Zentren), wen
         <source>Loading related videos…</source>
         <target state="translated">Passende Videos werden geladen…</target>
       </trans-unit>
-      <trans-unit id="score.videos.errorLabel" datatype="html">
-        <source>Video API error:</source>
-        <target state="translated">Fehler der Video-API:</target>
-      </trans-unit>
       <trans-unit id="score.download.originalFile" datatype="html">
         <source>original file</source>
         <target state="translated">Originaldatei</target>
@@ -2965,10 +3185,6 @@ Anwendung: über Mollakkorden und Moll-Blues-Kontexten (i7- bzw. i-Zentren), wen
       <trans-unit id="score.error.noSlug" datatype="html">
         <source>No score slug provided</source>
         <target state="translated">Kein Stück angegeben</target>
-      </trans-unit>
-      <trans-unit id="score.videos.error" datatype="html">
-        <source>Failed to load videos</source>
-        <target state="translated">Videos konnten nicht geladen werden</target>
       </trans-unit>
       <trans-unit id="score.download.error.missingInfo" datatype="html">
         <source>Could not download the <x id="file" equiv-text="label"/>: this score is missing information.</source>

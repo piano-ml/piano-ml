@@ -20,9 +20,12 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/accountCreatePost409Response.ts
 model/accountCreatePostRequest.ts
 model/accountLoginPost200Response.ts
 model/accountLoginPostRequest.ts
+model/accountPasswordForgotPostRequest.ts
+model/accountPasswordResetPost400Response.ts
 model/accountPasswordResetPostRequest.ts
 model/accountTokenRenewGet200Response.ts
 model/allWorksApiInfo.ts

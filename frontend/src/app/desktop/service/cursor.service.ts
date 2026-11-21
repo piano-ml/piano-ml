@@ -70,6 +70,7 @@ export class CursorService implements OnDestroy {
 
 
     cursor: Cursor | undefined;
+    /** Measures in the rendered score (0 before one is mapped). */
     osmdMeasureCount = 0;
     feedbackSignal = signal<{ message: string; percentage: number } | null>(null);
     readonly measure = signal<number>(0);
@@ -734,7 +735,7 @@ export class CursorService implements OnDestroy {
         const feedbackMessage = $localize`:@@workbench.progress.measures:Building the measures`;
         this.feedback(feedbackMessage, 0);
         this.osmdMeasureNoteMap.clear();
-        let maxMeasureNumberXml = 0;
+        let maxMeasureNumberXml = -1;
         const totalSteps = Math.max(1, this.iteratorSize);
         const feedbackStep = Math.max(1, Math.floor(totalSteps / 100));
         let step = 0;
@@ -756,7 +757,8 @@ export class CursorService implements OnDestroy {
                 this.feedback(feedbackMessage, (step / totalSteps) * 100);
             }
         }
-        this.osmdMeasureCount = maxMeasureNumberXml;
+        // The highest measure index is 0-based: one more measure than it says
+        this.osmdMeasureCount = maxMeasureNumberXml + 1;
         this.feedback(feedbackMessage, 100);
         cursor.reset();
         return this.osmdMeasureNoteMap;

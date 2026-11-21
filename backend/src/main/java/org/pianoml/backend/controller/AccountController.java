@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.api.AccountApi;
 import org.pianoml.backend.model.*;
 import org.pianoml.backend.service.AccountService;
+import org.pianoml.backend.service.PasswordResetService;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -48,6 +49,9 @@ public class AccountController implements AccountApi {
 
   @Autowired
   private PlaylistEndpoints playlistEndpoints;
+
+  @Autowired
+  private PasswordResetService passwordResetService;
 
   // --- playlists (issue #278): served by PlaylistEndpoints --------------------------------------------------
 
@@ -100,14 +104,26 @@ public class AccountController implements AccountApi {
 
   @Override
   public ResponseEntity<Void> accountCreatePost(AccountCreatePostRequest accountCreatePostRequest) {
-    accountService.createUser(accountCreatePostRequest);
+    accountService.createUser(accountCreatePostRequest, acceptLanguage());
     return new ResponseEntity<>(HttpStatus.CREATED);
+  }
+
+  @Override
+  public ResponseEntity<Void> accountPasswordForgotPost(AccountPasswordForgotPostRequest request) {
+    passwordResetService.requestReset(request.getEmail(), request.getLocale(), acceptLanguage());
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  public ResponseEntity<Void> accountPasswordResetPost(AccountPasswordResetPostRequest request) {
+    passwordResetService.resetPassword(request.getToken(), request.getPassword());
+    return ResponseEntity.noContent().build();
   }
 
   @Override
   public ResponseEntity<AccountLoginPost200Response> accountLoginPost(AccountLoginPostRequest accountLoginPostRequest) {
     // Perform login and obtain token
-    AccountLoginPost200Response response = accountService.loginUser(accountLoginPostRequest);
+    AccountLoginPost200Response response = accountService.loginUser(accountLoginPostRequest, acceptLanguage());
     String token = response.getToken();
 
     // Guard: ensure token is present before setting cookie. If missing, return 500 to avoid setting invalid cookie.
@@ -117,7 +133,7 @@ public class AccountController implements AccountApi {
 
     ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     appendSetCookie(attrs, expireLegacySharedAuthCookie());
-    ResponseCookie cookie = authCookie(token, jwtTokenProvider.getJwtExpirationInMs() / 1000);
+    ResponseCookie cookie = authCookie(token, jwtTokenProvider.getJwtExpiration().toSeconds());
     appendSetCookie(attrs, cookie);
     return ResponseEntity.ok().body(response);
   }
@@ -170,6 +186,12 @@ public class AccountController implements AccountApi {
    * on login and logout so a stale shared cookie cannot shadow the host-only one. Safe to remove once every
    * such cookie has expired (one JWT lifetime after this change is deployed).
    */
+  /** The request's {@code Accept-Language} header; null without one, or outside a request. */
+  private static String acceptLanguage() {
+    ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    return attrs == null ? null : attrs.getRequest().getHeader(HttpHeaders.ACCEPT_LANGUAGE);
+  }
+
   static ResponseCookie expireLegacySharedAuthCookie() {
     return ResponseCookie.from("Authorization", "")
       .httpOnly(true)
@@ -179,13 +201,6 @@ public class AccountController implements AccountApi {
       .path("/")
       .maxAge(0)
       .build();
-  }
-
-  @Override
-  public ResponseEntity<Void> accountPasswordResetPost(AccountPasswordResetPostRequest accountPasswordResetPostRequest) {
-    // Not built yet. When it is: once the new password is set, call coachGrantService.revokeAll(userId), so that
-    // every token of external tools (coach, issue #414) stops working with the old password.
-    return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
   }
 
   @Override

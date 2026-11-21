@@ -14,6 +14,14 @@
         <source>Create</source>
         <target state="translated">만들기</target>
       </trans-unit>
+      <trans-unit id="account.route.forgotPassword" datatype="html">
+        <source>Forgot password</source>
+        <target state="translated">비밀번호 찾기</target>
+      </trans-unit>
+      <trans-unit id="account.route.resetPassword" datatype="html">
+        <source>New password</source>
+        <target state="translated">새 비밀번호</target>
+      </trans-unit>
       <trans-unit id="account.route.scores" datatype="html">
         <source>My Scores</source>
         <target state="translated">내 악보</target>
@@ -159,8 +167,12 @@
         <target state="translated">이름을 입력하세요</target>
       </trans-unit>
       <trans-unit id="createAccount.nameIsRequired" datatype="html">
-        <source> name is required. </source>
+        <source>name is required.</source>
         <target state="translated">이름은 필수입니다.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsTaken" datatype="html">
+        <source>This name is already taken. Please choose another one.</source>
+        <target state="translated">이미 사용 중인 이름입니다. 다른 이름을 선택해 주세요.</target>
       </trans-unit>
       <trans-unit id="createAccount.email" datatype="html">
         <source>Email</source>
@@ -177,6 +189,10 @@
       <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
         <source>Invalid email format.</source>
         <target state="translated">이메일 형식이 올바르지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsTaken" datatype="html">
+        <source>An account already uses this email. Log in instead, or use another email.</source>
+        <target state="translated">이 이메일을 사용하는 계정이 이미 있습니다. 로그인하거나 다른 이메일을 사용해 주세요.</target>
       </trans-unit>
       <trans-unit id="createAccount.password" datatype="html">
         <source>Password</source>
@@ -462,6 +478,10 @@
         <source> Password is required. </source>
         <target state="translated">비밀번호는 필수입니다.</target>
       </trans-unit>
+      <trans-unit id="login.forgotPassword" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">비밀번호를 잊으셨나요?</target>
+      </trans-unit>
       <trans-unit id="login.loggingIn" datatype="html">
         <source>Logging in...</source>
         <target state="translated">로그인하는 중...</target>
@@ -477,6 +497,106 @@
       <trans-unit id="login.error.other" datatype="html">
         <source>An error occurred during login</source>
         <target state="translated">로그인 중 오류가 발생했습니다</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.title" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">비밀번호를 잊으셨나요?</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sentTitle" datatype="html">
+        <source>Check your email</source>
+        <target state="translated">이메일을 확인하세요</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sent" datatype="html">
+        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for a limited time.</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ email }}"/>을(를) 사용하는 계정이 있다면 새 비밀번호를 설정할 수 있는 링크를 보냈습니다. 링크는 제한된 시간 동안만 유효합니다.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.spam" datatype="html">
+        <source>Nothing after a few minutes? Check your spam folder, or ask again.</source>
+        <target state="translated">몇 분이 지나도 오지 않나요? 스팸함을 확인하거나 다시 요청하세요.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.backToLogin" datatype="html">
+        <source>Back to login</source>
+        <target state="translated">로그인으로 돌아가기</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.heading" datatype="html">
+        <source>Reset your password</source>
+        <target state="translated">비밀번호 재설정</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.intro" datatype="html">
+        <source>Enter the email of your account: we will send you a link to choose a new password.</source>
+        <target state="translated">계정의 이메일을 입력하세요. 새 비밀번호를 설정할 수 있는 링크를 보내 드립니다.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.failed" datatype="html">
+        <source>The email could not be sent. Please try again in a moment.</source>
+        <target state="translated">이메일을 보내지 못했습니다. 잠시 후 다시 시도해 주세요.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">이메일</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">이메일을 입력하세요</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.emailInvalid" datatype="html">
+        <source>Please enter a valid email.</source>
+        <target state="translated">올바른 이메일을 입력해 주세요.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sending" datatype="html">
+        <source>Sending...</source>
+        <target state="translated">보내는 중...</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.send" datatype="html">
+        <source>Send me a link</source>
+        <target state="translated">링크 보내기</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.title" datatype="html">
+        <source>Choose a new password</source>
+        <target state="translated">새 비밀번호 설정</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.done" datatype="html">
+        <source>Your password has been changed. You can now log in with it.</source>
+        <target state="translated">비밀번호가 변경되었습니다. 이제 새 비밀번호로 로그인할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.login" datatype="html">
+        <source>Log in</source>
+        <target state="translated">로그인</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.invalid" datatype="html">
+        <source>This link is invalid or has expired: each link works only once, for a limited time.</source>
+        <target state="translated">이 링크는 유효하지 않거나 만료되었습니다. 각 링크는 제한된 시간 동안 한 번만 사용할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.askAgain" datatype="html">
+        <source>Get a new link</source>
+        <target state="translated">새 링크 받기</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.failed" datatype="html">
+        <source>The password could not be changed. Please try again in a moment.</source>
+        <target state="translated">비밀번호를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.password" datatype="html">
+        <source>New password</source>
+        <target state="translated">새 비밀번호</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.tooShort" datatype="html">
+        <source>Password must be at least 8 characters long.</source>
+        <target state="translated">비밀번호는 8자 이상이어야 합니다.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.confirm" datatype="html">
+        <source>Confirm the new password</source>
+        <target state="translated">새 비밀번호 확인</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.mismatch" datatype="html">
+        <source>Passwords do not match.</source>
+        <target state="translated">비밀번호가 일치하지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.saving" datatype="html">
+        <source>Saving...</source>
+        <target state="translated">저장 중...</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.save" datatype="html">
+        <source>Change my password</source>
+        <target state="translated">비밀번호 변경</target>
       </trans-unit>
       <trans-unit id="playlist.list.title" datatype="html">
         <source>My Playlists</source>
@@ -986,9 +1106,65 @@
         <source>Timing calibration</source>
         <target state="translated">타이밍 보정</target>
       </trans-unit>
+      <trans-unit id="latency.intro.title" datatype="html">
+        <source>Let&apos;s tune the timing first</source>
+        <target state="translated">먼저 타이밍을 맞춰요</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.why" datatype="html">
+        <source>So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</source>
+        <target state="translated">실제로 들리는 소리를 기준으로 연주를 평가하도록 Piano ML이 스피커의 지연을 측정합니다. 약 20초 걸립니다.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.speakers" datatype="html">
+        <source>Play the sound through your speakers, not headphones, with the volume up.</source>
+        <target state="translated">헤드폰이 아닌 스피커로 소리를 내고 볼륨을 높이세요.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.quiet" datatype="html">
+        <source>Keep the room quiet while the clicks play.</source>
+        <target state="translated">클릭이 나오는 동안 방을 조용히 해 주세요.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.start" datatype="html">
+        <source>Press Calibrate and allow the microphone if your browser asks.</source>
+        <target state="translated">보정하기를 누르고, 브라우저가 물으면 마이크를 허용하세요.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.fallback" datatype="html">
+        <source>No microphone, or using headphones? Choose MIDI keyboard taps instead.</source>
+        <target state="translated">마이크가 없거나 헤드폰을 쓰나요? 대신 MIDI 키보드 탭을 선택하세요.</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.loopback" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">마이크로 스피커 소리 듣기</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.midi" datatype="html">
+        <source>MIDI keyboard taps</source>
+        <target state="translated">MIDI 키보드 탭</target>
+      </trans-unit>
+      <trans-unit id="latency.hint.loopback" datatype="html">
+        <source>Play through the speakers, volume up, and stay quiet: the microphone hears the clicks and measures the delay of your speakers.</source>
+        <target state="translated">스피커로 소리를 내고 볼륨을 높인 뒤 조용히 계세요. 마이크가 클릭을 듣고 스피커의 지연을 측정합니다.</target>
+      </trans-unit>
       <trans-unit id="latency.hint" datatype="html">
         <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
         <target state="translated">클릭마다 MIDI 키보드의 건반을 하나 눌러 주세요. 들리는 소리를 기준으로 연주를 평가합니다(블루투스 헤드폰을 쓸 때 유용합니다).</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">마이크</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.denied" datatype="html">
+        <source>Microphone access was refused. Allow it in the browser&apos;s site settings.</source>
+        <target state="translated">마이크 접근이 거부되었습니다. 브라우저의 사이트 설정에서 허용하세요.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.allow" datatype="html">
+        <source>Allow the microphone</source>
+        <target state="translated">마이크 허용</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.default" datatype="html">
+        <source>Default microphone</source>
+        <target state="translated">기본 마이크</target>
+      </trans-unit>
+      <trans-unit id="latency.listening.loopback" datatype="html">
+        <source>Listening to the clicks…</source>
+        <target state="translated">클릭을 듣는 중…</target>
       </trans-unit>
       <trans-unit id="latency.listening" datatype="html">
         <source>Tap along with the clicks…</source>
@@ -998,13 +1174,21 @@
         <source>Cancel</source>
         <target state="translated">취소</target>
       </trans-unit>
+      <trans-unit id="latency.failed.loopback" datatype="html">
+        <source>The microphone did not hear the clicks. Turn the volume up and try again.</source>
+        <target state="translated">마이크가 클릭을 듣지 못했습니다. 볼륨을 높이고 다시 시도하세요.</target>
+      </trans-unit>
       <trans-unit id="latency.failed" datatype="html">
         <source>Not enough taps on the beat. Try again.</source>
         <target state="translated">박자에 맞춘 입력이 부족합니다. 다시 시도해 주세요.</target>
       </trans-unit>
-      <trans-unit id="latency.value" datatype="html">
-        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
-        <target state="translated">보정: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/>ms</target>
+      <trans-unit id="latency.micError" datatype="html">
+        <source>The microphone could not be opened. Allow it for this site and check the microphone chosen above.</source>
+        <target state="translated">마이크를 열 수 없습니다. 이 사이트에서 마이크를 허용하고 위에서 선택한 마이크를 확인하세요.</target>
+      </trans-unit>
+      <trans-unit id="latency.manual" datatype="html">
+        <source>Correction (ms)</source>
+        <target state="translated">보정 (ms)</target>
       </trans-unit>
       <trans-unit id="latency.calibrate" datatype="html">
         <source>Calibrate</source>
@@ -1013,6 +1197,34 @@
       <trans-unit id="latency.reset" datatype="html">
         <source>Reset</source>
         <target state="translated">초기화</target>
+      </trans-unit>
+      <trans-unit id="latency.taps" datatype="html">
+        <source>Delay after each click, in ms (faded: not counted)</source>
+        <target state="translated">클릭마다의 지연 (ms, 흐리게 표시: 계산에서 제외)</target>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">닫기</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphoneFallback" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">마이크</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.title" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">마이크로 스피커 소리 듣기</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.content" datatype="html">
+        <source>Your speakers or headphones always sound a little after a note is played. To score your playing against what you really hear, Piano ML plays a few clicks and listens to them with your microphone. That tells it how late the sound arrives.</source>
+        <target state="translated">스피커나 헤드폰은 항상 음을 연주한 뒤 조금 늦게 소리를 냅니다. 실제로 들리는 소리에 맞춰 연주를 평가하기 위해 Piano ML이 클릭음을 몇 번 재생하고 마이크로 듣습니다. 이를 통해 소리가 얼마나 늦게 도착하는지 알 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.title" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">보정하기</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.content" datatype="html">
+        <source>Best done now, before you play: allow the microphone, then press Calibrate. It takes about 20 seconds.</source>
+        <target state="translated">연주하기 전에 지금 하는 것이 좋습니다. 마이크를 허용한 다음 보정하기를 누르세요. 약 20초 걸립니다.</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -1074,9 +1286,17 @@
         <source>Toggle fingering and harmony visibility</source>
         <target state="translated">운지 및 화성 표시/숨기기</target>
       </trans-unit>
-      <trans-unit id="common.close" datatype="html">
-        <source>Close</source>
-        <target state="translated">닫기</target>
+      <trans-unit id="midiSetup.calibration.hint" datatype="html">
+        <source>Measures the delay of your speakers or headphones, so that your playing is scored against what you hear.</source>
+        <target state="translated">스피커나 헤드폰의 지연을 측정해, 들리는 소리를 기준으로 연주를 평가합니다.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">보정: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/>ms</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.open" datatype="html">
+        <source>Calibrate…</source>
+        <target state="translated">보정…</target>
       </trans-unit>
       <trans-unit id="midiSetup.inputFallback" datatype="html">
         <source>MIDI Input</source>
@@ -1149,6 +1369,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">메트로놈</target>
+      </trans-unit>
+      <trans-unit id="tempo.countIn" datatype="html">
+        <source>Count-in (bars)</source>
+        <target state="translated">카운트인 (마디)</target>
       </trans-unit>
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
@@ -2930,10 +3154,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>Loading related videos…</source>
         <target state="translated">관련 동영상을 불러오는 중…</target>
       </trans-unit>
-      <trans-unit id="score.videos.errorLabel" datatype="html">
-        <source>Video API error:</source>
-        <target state="translated">동영상 API 오류:</target>
-      </trans-unit>
       <trans-unit id="score.download.originalFile" datatype="html">
         <source>original file</source>
         <target state="translated">원본 파일</target>
@@ -2965,10 +3185,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="score.error.noSlug" datatype="html">
         <source>No score slug provided</source>
         <target state="translated">악보가 지정되지 않았습니다</target>
-      </trans-unit>
-      <trans-unit id="score.videos.error" datatype="html">
-        <source>Failed to load videos</source>
-        <target state="translated">동영상을 불러올 수 없습니다</target>
       </trans-unit>
       <trans-unit id="score.download.error.missingInfo" datatype="html">
         <source>Could not download the <x id="file" equiv-text="label"/>: this score is missing information.</source>

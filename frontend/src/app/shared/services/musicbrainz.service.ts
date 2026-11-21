@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { Observable, throwError, timer } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
 
 // Interfaces pour les réponses de l'API MusicBrainz
 export interface MusicBrainzWork {
@@ -112,6 +112,34 @@ export function luceneQuote(value: string): string {
   return `"${value.replace(/[\\"]/g, '\\$&')}"`;
 }
 
+/**
+ * MusicBrainz answers 503 to more than about one request per second from an address (and many visitors, or CI
+ * runners, can share one): such answers, a 429, a gateway error or a network failure are retried after 1, 2, 4
+ * and 8 seconds (a little random spread, so that clients do not retry in step), or after the Retry-After the
+ * server asks for when it is longer, up to MAX_MS.
+ */
+export const MUSICBRAINZ_RETRY = { retries: 4, baseMs: 1000, maxMs: 10_000, jitter: 0.2 };
+const RETRYABLE_STATUS = new Set([0, 429, 502, 503, 504]);
+
+/** How long before retry number `attempt` (1-based) after `error`, or null when it is not worth retrying. */
+export function musicBrainzRetryDelay(error: unknown, attempt: number, random: () => number = Math.random): number | null {
+  if (!(error instanceof HttpErrorResponse) || !RETRYABLE_STATUS.has(error.status)) return null;
+  const backoff = MUSICBRAINZ_RETRY.baseMs * 2 ** (attempt - 1) * (1 + MUSICBRAINZ_RETRY.jitter * random());
+  const retryAfter = Number(error.headers?.get('Retry-After')) * 1000;
+  return Math.round(Math.min(MUSICBRAINZ_RETRY.maxMs, Math.max(backoff, Number.isFinite(retryAfter) ? retryAfter : 0)));
+}
+
+/** Retries a MusicBrainz request with exponential backoff (see MUSICBRAINZ_RETRY). */
+function retryWithBackoff<T>() {
+  return retry<T>({
+    count: MUSICBRAINZ_RETRY.retries,
+    delay: (error, attempt) => {
+      const ms = musicBrainzRetryDelay(error, attempt);
+      return ms === null ? throwError(() => error) : timer(ms);
+    },
+  });
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -142,6 +170,7 @@ export class MusicbrainzService {
       params,
       headers
     }).pipe(
+      retryWithBackoff(),
       catchError(this.handleError<MusicBrainzWorksResponse>('searchWorks'))
     );
   }
@@ -191,6 +220,7 @@ export class MusicbrainzService {
       params,
       headers
     }).pipe(
+      retryWithBackoff(),
       catchError(this.handleError<MusicBrainzArtistsResponse>('searchArtists'))
     );
   }

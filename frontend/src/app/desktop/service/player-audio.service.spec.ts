@@ -6,8 +6,10 @@ import type { Note } from '@tonejs/midi/dist/Note';
 import * as Tone from 'tone';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import type { PlayConfiguration } from '../model/model';
+import { MicrophoneService } from './microphone.service';
 import { PlayerAssessService } from './player-assess.service';
 import { METRONOME_CLICK_S, PLAYBACK_LOOKAHEAD_S, PlayerAudioService, SCHEDULE_AHEAD_S, SCHEDULE_REFILL_S, isCompleteRiff } from './player-audio.service';
+import { withListenerParams } from './audio-listener';
 import { PlayerStateService } from './player-state.service';
 
 /**
@@ -271,6 +273,15 @@ describe('PlayerAudioService', () => {
       expect(click.mock.calls.map(([strong]) => strong)).toEqual([true, false, false, true, false, false]);
     });
 
+    it('plays the count-in at full volume, then the metronome at its usual volume', () => {
+      state.playConfiguration.useMetronome = true;
+      const click = vi.spyOn(audio, 'playMetronomeClick').mockImplementation(() => undefined);
+      audio.startCountIn(1, { timeSignature: [2, 4] } as TimeSignatureEvent, 120);
+      schedule.events.filter((e) => !e.kind.startsWith('repeat')).forEach((e) => e.fn(0));
+      schedule.events.find((e) => e.kind.startsWith('repeat'))!.fn(0);
+      expect(click.mock.calls.map(([, velocity]) => velocity)).toEqual([127, 127, 43]);
+    });
+
     it('keeps clicking during playback when the metronome is on', () => {
       state.playConfiguration.useMetronome = true;
       const click = vi.spyOn(audio, 'playMetronomeClick').mockImplementation(() => undefined);
@@ -421,13 +432,60 @@ describe('PlayerAudioService', () => {
       const done = audio.calibrateLatency();
       await vi.advanceTimersByTimeAsync(0);
       const clicks = vi.mocked(audio.playMetronomeClick).mock.calls.map(([, , time]) => time!);
-      expect(clicks).toHaveLength(12);
+      expect(clicks).toHaveLength(24);
+      expect(new Set(vi.mocked(audio.playMetronomeClick).mock.calls.map(([, velocity]) => velocity))).toEqual(new Set([127]));
       for (const click of clicks) listener({ type: 'down', note: 60, time: 0, timeStamp: (click + 0.07) * 1000 });
       await vi.advanceTimersByTimeAsync(20_000);
       expect(await done).toBe(70);
       expect(audio.latencyCalibrationMs()).toBe(70);
       vi.useRealTimers();
       audio.setLatencyCalibration(0);
+    });
+
+    it('in loopback, calibrates from the clicks the microphone recorded, in the scoring\'s terms', async () => {
+      vi.spyOn(audio, 'initSoundFont').mockResolvedValue();
+      vi.spyOn(context(), 'resume').mockResolvedValue();
+      // What the scoring takes for heard lags the context time by 150 ms; the outputLatency property says otherwise
+      vi.spyOn(audio, 'heardContextTime').mockImplementation(() => context().currentTime - 0.15);
+      vi.spyOn(context(), 'outputLatency', 'get').mockReturnValue(0.4);
+      vi.spyOn(audio, 'playMetronomeClick').mockImplementation(() => undefined);
+      const clicks = () => vi.mocked(audio.playMetronomeClick).mock.calls.map(([, , time]) => time!);
+      // The recording: each click captured 250 ms after it was played (a 3 kHz burst over a quiet background)
+      const RATE = 16000;
+      const stop = vi.fn(async () => {
+        const start = clicks()[0] - 0.5;
+        const samples = new Float32Array(Math.round((clicks()[23] + 1 - start) * RATE));
+        for (const click of clicks()) {
+          const at = Math.round((click + 0.25 - start) * RATE);
+          for (let i = 0; i < 0.03 * RATE; i++) samples[at + i] = 0.3 * Math.exp(-i / (0.008 * RATE)) * Math.sin(2 * Math.PI * 3000 * i / RATE);
+        }
+        for (let i = 0; i < samples.length; i++) samples[i] += 0.001 * Math.sin(i * 1.7);
+        return { samples, sampleRate: RATE, startTime: start };
+      });
+      vi.spyOn(TestBed.inject(MicrophoneService), 'record').mockResolvedValue({ inputLatency: 0.03, stop });
+      vi.useFakeTimers();
+      const onTap = vi.fn();
+      const done = audio.calibrateLatency(undefined, 'loopback', onTap);
+      await vi.advanceTimersByTimeAsync(0);
+      expect(clicks()).toHaveLength(24);
+      await vi.advanceTimersByTimeAsync(20_000);
+      // 250 ms: 30 ms of input latency, 150 ms of output latency the scoring accounts for, 70 ms it misses
+      expect(await done).toBe(70);
+      expect(stop).toHaveBeenCalledOnce();
+      expect(onTap).toHaveBeenCalledTimes(24);
+      expect(onTap).toHaveBeenNthCalledWith(1, { click: 0, ms: 70, measured: true });
+      expect(onTap).toHaveBeenLastCalledWith({ click: 23, ms: 70, measured: true });
+      vi.useRealTimers();
+      audio.setLatencyCalibration(0);
+    });
+
+    it('rejects without playing a click when the microphone cannot be opened', async () => {
+      vi.spyOn(audio, 'initSoundFont').mockResolvedValue();
+      vi.spyOn(context(), 'resume').mockResolvedValue();
+      vi.spyOn(TestBed.inject(MicrophoneService), 'record').mockRejectedValue(new DOMException('denied', 'NotAllowedError'));
+      const click = vi.spyOn(audio, 'playMetronomeClick').mockImplementation(() => undefined);
+      await expect(audio.calibrateLatency(undefined, 'loopback')).rejects.toThrow('denied');
+      expect(click).not.toHaveBeenCalled();
     });
   });
 
@@ -487,5 +545,27 @@ describe('isCompleteRiff', () => {
   it('rejects an empty or non-RIFF buffer', () => {
     expect(isCompleteRiff(new ArrayBuffer(0))).toBe(false);
     expect(isCompleteRiff(new TextEncoder().encode('<!doctype html><html>').buffer as ArrayBuffer)).toBe(false);
+  });
+
+  describe('a context for Tone on Firefox', () => {
+    it('gives an AudioListener without positionX... AudioParams real ones, with their default values', () => {
+      const context = new OfflineAudioContext(1, 128, 48000);
+      // Firefox's listener: none of the AudioParams
+      const listener = {};
+      Object.defineProperty(context, 'listener', { value: listener });
+      withListenerParams(context);
+      const params = listener as Record<string, AudioParam>;
+      for (const name of ['positionX', 'positionY', 'positionZ', 'forwardX', 'forwardY', 'forwardZ', 'upX', 'upY', 'upZ']) {
+        expect(params[name]).toBeInstanceOf(AudioParam);
+      }
+      expect([params['forwardZ'].value, params['upY'].value, params['positionX'].value]).toEqual([-1, 1, 0]);
+    });
+
+    it('leaves a listener that has them alone', () => {
+      const context = new OfflineAudioContext(1, 128, 48000);
+      const positionX = context.listener.positionX;
+      withListenerParams(context);
+      expect(context.listener.positionX).toBe(positionX);
+    });
   });
 });

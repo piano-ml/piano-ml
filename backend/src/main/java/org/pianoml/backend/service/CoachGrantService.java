@@ -141,9 +141,8 @@ public class CoachGrantService {
   }
 
   /**
-   * Revokes every grant of a user, personal and OAuth: must be called when their password is reset or changed.
-   * Nothing changes a password yet (POST /account/password_reset answers 501): the reset, when it is built, calls
-   * this.
+   * Revokes every grant of a user, personal and OAuth: must be called when their password is reset or changed
+   * (PasswordResetService.resetPassword does).
    */
   public int revokeAll(UUID userId) {
     return repository.revokeAllOf(userId, now());

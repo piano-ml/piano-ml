@@ -21,7 +21,7 @@ import { PlayerService } from '../../service/player.service';
 import { PlayerStateService } from '../../service/player-state.service';
 import { PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { PlayerControlService } from '../../service/player-control.service';
-import { WRONG_NOTE_ARENA_FLASH_MS, WRONG_NOTE_KEYBOARD_VISIBLE_MS, WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
+import { WRONG_NOTE_ARENA_FLASH_MS, WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
 
 const SCORE: ScoreApiInfo = {
   id: 's1', owner_id: 'o1', version: 1, title: 'Happy Birthday', author: 'Mildred J. Hill', tempo: 100,
@@ -301,6 +301,13 @@ describe('WorkbenchComponent', () => {
       expect(scores.scorePlayStatsPost).toHaveBeenCalledWith({ id: 's1' });
     });
 
+    it('counts a play from the first bar once the measure slider was touched', async () => {
+      await openScore();
+      component.playConfiguration.scoreRange[0] = 1; // the slider stores the first bar as 1
+      clickPlayPause();
+      expect(scores.scorePlayStatsPost).toHaveBeenCalledWith({ id: 's1' });
+    });
+
     it('does not count a play started later in the score', async () => {
       await openScore();
       component.playConfiguration.scoreRange[0] = 2;
@@ -364,13 +371,143 @@ describe('WorkbenchComponent', () => {
       expect(component.isPlaying).toBe(false);
     });
 
-    it('a new tempo changes the playback speed', async () => {
+    /** The tempo the notes play at: the MIDI file's, times the speed factor (see PlayerStateService.getTimeFactor()). */
+    const playedTempo = () => {
+      const { tempoFactor, delayFactor } = component.playConfiguration;
+      return (component.midi?.header.tempos[0]?.bpm ?? 120) * tempoFactor / delayFactor;
+    };
+    const urlTempo = () => new URL(TestBed.inject(Router).url, 'http://x').searchParams.get('tempo');
+
+    it('a new tempo is the tempo the notes play at', async () => {
       await openScore();
+      expect(playedTempo()).toBeCloseTo(100); // the score's tempo
       const resetLight = vi.spyOn(player, 'resetLight');
-      component.onTempoChanged(50); // the score is at 100
-      expect(component.playConfiguration.tempoFactor).toBe(0.5);
-      expect(component.playConfiguration.delayFactor).toBe(2);
+      component.onTempoChanged(50);
+      expect(playedTempo()).toBeCloseTo(50); // it used to be 25: the speed was applied twice
       expect(resetLight).toHaveBeenCalled();
+      component.onTempoChanged(150);
+      expect(playedTempo()).toBeCloseTo(150);
+    });
+
+    it('puts a tempo other than the score\'s in the URL, and takes it out back at the score\'s', async () => {
+      await openScore();
+      expect(urlTempo()).toBeNull();
+      component.onTempoChanged(90);
+      await harness.fixture.whenStable();
+      expect(urlTempo()).toBe('90');
+      component.onTempoChanged(100);
+      await harness.fixture.whenStable();
+      expect(urlTempo()).toBeNull();
+    });
+
+    /** Opens a link to the 3-bar test score and waits until it is rendered. */
+    async function openLink(query: string) {
+      component = await harness.navigateByUrl(`/work/hill-happy-birthday?${query}`, WorkbenchComponent);
+      serveFiles();
+      await waitFor(() => component.osmdLoading === false && !!el().querySelector('.osmd-container svg'));
+    }
+    const urlParams = () => Object.fromEntries(new URL(TestBed.inject(Router).url, 'http://x').searchParams);
+
+    it('the slider goes from the first measure to the last one', async () => {
+      await openScore();
+      expect(component.slider.options.range).toEqual({ min: 0, max: 2 }); // shown as 1 to 3
+      expect(component.slider.get()).toEqual(['1', '1', '3']);
+    });
+
+    it('opens a score on the measures of its link, at its tempo', async () => {
+      await openLink('measureStart=2&measureEnd=3&tempo=90');
+      expect(component.playConfiguration.scoreRange).toEqual([2, 4]); // measures 2 and 3 (the end is exclusive)
+      expect(component.playConfiguration.currentStave).toBe(2);
+      expect(component.tempo).toBe(90);
+      expect(component.slider.get()).toEqual(['2', '2', '3']); // start, cursor, last measure, as shown
+    });
+
+    it('takes a missing end of the link for the last measure', async () => {
+      await openLink('measureStart=2');
+      expect(component.playConfiguration.scoreRange).toEqual([2, 4]);
+    });
+
+    it('ignores measures in the link that are not in the score', async () => {
+      for (const query of ['measureStart=3&measureEnd=2', 'measureEnd=9', 'measureStart=0', 'measureStart=x']) {
+        await openLink(query);
+        expect(component.playConfiguration.scoreRange).toEqual([1, 4]); // the whole score
+      }
+    });
+
+    it('puts the measures worked on in the URL, keeping its other parameters, and takes them out for the whole score', async () => {
+      await openLink('tempo=90');
+      component.playConfiguration.scoreRange = [2, 3]; // what the slider sets for measure 2 alone
+      (component as unknown as { writeUrlState(): void }).writeUrlState();
+      await harness.fixture.whenStable();
+      expect(urlParams()).toEqual({ tempo: '90', measureStart: '2', measureEnd: '2' });
+      component.playConfiguration.currentStave = 2;
+      component.reset(); // at the start of the range: back to the whole score
+      await harness.fixture.whenStable();
+      expect(urlParams()).toEqual({ tempo: '90' });
+    });
+
+    it('puts the loop in the URL when it is on, with the other parameters', async () => {
+      await openLink('tempo=90&measureStart=2');
+      component.toggleLoop();
+      await harness.fixture.whenStable();
+      expect(component.playConfiguration.isLoop).toBe(true);
+      expect(urlParams()).toEqual({ tempo: '90', measureStart: '2', measureEnd: '3', loop: '1' });
+      component.toggleLoop();
+      await harness.fixture.whenStable();
+      expect(urlParams()).toEqual({ tempo: '90', measureStart: '2', measureEnd: '3' });
+    });
+
+    it('opens a score in a loop from its link', async () => {
+      await openLink('loop=1');
+      expect(component.playConfiguration.isLoop).toBe(true);
+      expect(urlParams()).toEqual({ loop: '1' });
+    });
+
+    it('offers the timing calibration when a score opens and none was ever made', async () => {
+      localStorage.setItem('workbench-tour-seen', 'true'); // not on a first visit: the tour comes first
+      await openScore();
+      render();
+      expect(el().querySelector('app-latency-calibration .modal')).not.toBeNull();
+      (el().querySelector('[data-calibration-close]') as HTMLButtonElement).click();
+      render();
+      expect(el().querySelector('app-latency-calibration .modal')).toBeNull();
+    });
+
+    it('on a first visit, offers it once the guided tour ends', async () => {
+      localStorage.removeItem('workbench-tour-seen');
+      const beacon = TestBed.inject(BeaconService);
+      await openScore();
+      await waitFor(() => beacon.isActive());
+      render();
+      expect(el().querySelector('app-latency-calibration .modal')).toBeNull(); // not over the tour
+      beacon.stop();
+      await waitFor(() => { render(); return !!el().querySelector('app-latency-calibration .modal'); });
+    });
+
+    it('does not offer it again once a correction is stored, 0 included', async () => {
+      localStorage.setItem('workbench-tour-seen', 'true');
+      localStorage.setItem('audioLatencyCalibrationMs', '0');
+      await openScore();
+      render();
+      expect(el().querySelector('app-latency-calibration .modal')).toBeNull();
+    });
+
+    it('opens a score at the tempo of its link', async () => {
+      component = await harness.navigateByUrl('/work/hill-happy-birthday?tempo=90', WorkbenchComponent);
+      serveFiles();
+      await waitFor(() => component.osmdLoading === false && !!el().querySelector('.osmd-container svg'));
+      expect(component.tempo).toBe(90);
+      expect(playedTempo()).toBeCloseTo(90);
+    });
+
+    it('ignores a tempo in the link the tempo control would not accept', async () => {
+      for (const tempo of ['abc', '500', '12.5']) {
+        component = await harness.navigateByUrl(`/work/hill-happy-birthday?tempo=${tempo}`, WorkbenchComponent);
+        serveFiles();
+        await waitFor(() => component.osmdLoading === false && !!el().querySelector('.osmd-container svg'));
+        expect(component.tempo).toBe(100);
+        expect(playedTempo()).toBeCloseTo(100);
+      }
     });
 
     it('at the end, returns to the stopped state without counting the play a second time', async () => {
@@ -394,30 +531,15 @@ describe('WorkbenchComponent', () => {
       TestBed.tick(); // runs the wrong-note effect
     };
 
-    it('flashes the score on a wrong note and shows the keyboard for a while', async () => {
+    it('flashes the score on a wrong note, and leaves a hidden keyboard hidden', async () => {
       await openScore();
       component.setHideKeyboard(true);
       vi.useFakeTimers();
       wrongNote();
       expect(component.arenaClass).toBe('bad');
-      expect(component.hideKeyboard).toBe(false);
+      expect(component.hideKeyboard).toBe(true);
       vi.advanceTimersByTime(WRONG_NOTE_ARENA_FLASH_MS);
       expect(component.arenaClass).toBe('');
-      vi.advanceTimersByTime(WRONG_NOTE_KEYBOARD_VISIBLE_MS - WRONG_NOTE_ARENA_FLASH_MS);
-      expect(component.hideKeyboard).toBe(true); // back to the user's choice
-    });
-
-    it('keeps the keyboard visible WRONG_NOTE_KEYBOARD_VISIBLE_MS after the last wrong note', async () => {
-      await openScore();
-      component.setHideKeyboard(true);
-      vi.useFakeTimers();
-      wrongNote();
-      vi.advanceTimersByTime(3000);
-      wrongNote(); // the first timer must not hide the keyboard 2 s from now
-      vi.advanceTimersByTime(WRONG_NOTE_KEYBOARD_VISIBLE_MS - 1);
-      expect(component.hideKeyboard).toBe(false);
-      vi.advanceTimersByTime(1);
-      expect(component.hideKeyboard).toBe(true);
     });
 
     it('moves the bar slider with the cursor', async () => {
@@ -443,7 +565,8 @@ describe('WorkbenchComponent', () => {
         item: { kind: 'score', scoreId: 's1', slug: 'hill-happy-birthday', title: 'Happy Birthday' },
         range: { fromMeasure: 1 }, loop: false,
       });
-      expect(state.measureTotal).toBe(component.playConfiguration.maxStaveCount);
+      // The measures as the slider counts them: the whole-score range ends after the last one
+      expect(state.measureTotal).toBe(component.playConfiguration.scoreRange[1] - 1);
       expect(state.range.toMeasure).toBe(state.measureTotal);
 
       await harness.navigateByUrl('/elsewhere');
@@ -453,15 +576,17 @@ describe('WorkbenchComponent', () => {
     it('sets a 1-based inclusive range as the slider does', async () => {
       await openScore();
       const resetLight = vi.spyOn(player, 'resetLight');
-      // The fixture score has 2 measures
+      // scoreRange is 1-based with an exclusive end: measure 2 alone is [2, 3]
       control().handle()!.setRange(2, 2);
-      expect(component.playConfiguration.scoreRange).toEqual([1, 2]);
-      expect(component.playConfiguration.currentStave).toBe(1);
+      expect(component.playConfiguration.scoreRange).toEqual([2, 3]);
+      expect(component.playConfiguration.currentStave).toBe(2);
       expect(resetLight).toHaveBeenCalledWith(component.playConfiguration);
       expect(control().state().range).toEqual({ fromMeasure: 2, toMeasure: 2 });
 
       control().handle()!.setWholeScore();
-      expect(component.playConfiguration.scoreRange).toEqual([0, component.playConfiguration.maxStaveCount + 1]);
+      const total = control().state().measureTotal;
+      expect(component.playConfiguration.scoreRange).toEqual([1, total + 1]);
+      expect(control().state().range).toEqual({ fromMeasure: 1, toMeasure: total });
     });
 
     it('sets tempo (clamped), loop, hands, metronome and keyboard', async () => {
@@ -488,7 +613,7 @@ describe('WorkbenchComponent', () => {
       await handle.play(true);
       expect(reset).toHaveBeenCalled();
       expect(play).toHaveBeenCalled();
-      expect(component.playConfiguration.scoreRange).toEqual([1, 2]);
+      expect(component.playConfiguration.scoreRange).toEqual([2, 3]);
       expect(control().state().playing).toBe(true);
 
       handle.stop();
@@ -498,7 +623,7 @@ describe('WorkbenchComponent', () => {
       reset.mockClear();
       await handle.play(false);
       expect(reset).not.toHaveBeenCalled();
-      expect(component.playConfiguration.scoreRange).toEqual([1, 2]);
+      expect(component.playConfiguration.scoreRange).toEqual([2, 3]);
     });
 
     it('a remote play sent while the sounds load waits for them instead of doing nothing', async () => {

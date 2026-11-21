@@ -14,6 +14,14 @@
         <source>Create</source>
         <target state="translated">创建</target>
       </trans-unit>
+      <trans-unit id="account.route.forgotPassword" datatype="html">
+        <source>Forgot password</source>
+        <target state="translated">忘记密码</target>
+      </trans-unit>
+      <trans-unit id="account.route.resetPassword" datatype="html">
+        <source>New password</source>
+        <target state="translated">新密码</target>
+      </trans-unit>
       <trans-unit id="account.route.scores" datatype="html">
         <source>My Scores</source>
         <target state="translated">我的乐谱</target>
@@ -159,8 +167,12 @@
         <target state="translated">输入你的名字</target>
       </trans-unit>
       <trans-unit id="createAccount.nameIsRequired" datatype="html">
-        <source> name is required. </source>
+        <source>name is required.</source>
         <target state="translated">请填写名字。</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsTaken" datatype="html">
+        <source>This name is already taken. Please choose another one.</source>
+        <target state="translated">该名字已被使用，请换一个。</target>
       </trans-unit>
       <trans-unit id="createAccount.email" datatype="html">
         <source>Email</source>
@@ -177,6 +189,10 @@
       <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
         <source>Invalid email format.</source>
         <target state="translated">电子邮箱格式无效。</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsTaken" datatype="html">
+        <source>An account already uses this email. Log in instead, or use another email.</source>
+        <target state="translated">已有账户使用此邮箱。请直接登录，或使用其他邮箱。</target>
       </trans-unit>
       <trans-unit id="createAccount.password" datatype="html">
         <source>Password</source>
@@ -462,6 +478,10 @@
         <source> Password is required. </source>
         <target state="translated">请填写密码。</target>
       </trans-unit>
+      <trans-unit id="login.forgotPassword" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">忘记密码？</target>
+      </trans-unit>
       <trans-unit id="login.loggingIn" datatype="html">
         <source>Logging in...</source>
         <target state="translated">正在登录……</target>
@@ -477,6 +497,106 @@
       <trans-unit id="login.error.other" datatype="html">
         <source>An error occurred during login</source>
         <target state="translated">登录时出错</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.title" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">忘记密码？</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sentTitle" datatype="html">
+        <source>Check your email</source>
+        <target state="translated">请查收邮件</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sent" datatype="html">
+        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for a limited time.</source>
+        <target state="translated">如果有账户使用 <x id="INTERPOLATION" equiv-text="{{ email }}"/>，我们已向该邮箱发送了设置新密码的链接。链接在限定时间内有效。</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.spam" datatype="html">
+        <source>Nothing after a few minutes? Check your spam folder, or ask again.</source>
+        <target state="translated">几分钟后仍未收到？请检查垃圾邮件文件夹，或重新申请。</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.backToLogin" datatype="html">
+        <source>Back to login</source>
+        <target state="translated">返回登录</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.heading" datatype="html">
+        <source>Reset your password</source>
+        <target state="translated">重置密码</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.intro" datatype="html">
+        <source>Enter the email of your account: we will send you a link to choose a new password.</source>
+        <target state="translated">请输入你账户的邮箱，我们会发送一个设置新密码的链接。</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.failed" datatype="html">
+        <source>The email could not be sent. Please try again in a moment.</source>
+        <target state="translated">邮件发送失败，请稍后重试。</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">邮箱</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">请输入你的邮箱</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.emailInvalid" datatype="html">
+        <source>Please enter a valid email.</source>
+        <target state="translated">请输入有效的邮箱。</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sending" datatype="html">
+        <source>Sending...</source>
+        <target state="translated">正在发送...</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.send" datatype="html">
+        <source>Send me a link</source>
+        <target state="translated">发送链接</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.title" datatype="html">
+        <source>Choose a new password</source>
+        <target state="translated">设置新密码</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.done" datatype="html">
+        <source>Your password has been changed. You can now log in with it.</source>
+        <target state="translated">密码已修改，现在可以用新密码登录了。</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.login" datatype="html">
+        <source>Log in</source>
+        <target state="translated">登录</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.invalid" datatype="html">
+        <source>This link is invalid or has expired: each link works only once, for a limited time.</source>
+        <target state="translated">此链接无效或已过期：每个链接仅可使用一次，且在限定时间内有效。</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.askAgain" datatype="html">
+        <source>Get a new link</source>
+        <target state="translated">获取新链接</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.failed" datatype="html">
+        <source>The password could not be changed. Please try again in a moment.</source>
+        <target state="translated">密码修改失败，请稍后重试。</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.password" datatype="html">
+        <source>New password</source>
+        <target state="translated">新密码</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.tooShort" datatype="html">
+        <source>Password must be at least 8 characters long.</source>
+        <target state="translated">密码至少需要 8 个字符。</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.confirm" datatype="html">
+        <source>Confirm the new password</source>
+        <target state="translated">确认新密码</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.mismatch" datatype="html">
+        <source>Passwords do not match.</source>
+        <target state="translated">两次输入的密码不一致。</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.saving" datatype="html">
+        <source>Saving...</source>
+        <target state="translated">正在保存...</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.save" datatype="html">
+        <source>Change my password</source>
+        <target state="translated">修改密码</target>
       </trans-unit>
       <trans-unit id="playlist.list.title" datatype="html">
         <source>My Playlists</source>
@@ -986,9 +1106,65 @@
         <source>Timing calibration</source>
         <target state="translated">节奏校准</target>
       </trans-unit>
+      <trans-unit id="latency.intro.title" datatype="html">
+        <source>Let&apos;s tune the timing first</source>
+        <target state="translated">先来校准节奏</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.why" datatype="html">
+        <source>So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</source>
+        <target state="translated">为了按你真正听到的声音来评估你的演奏，Piano ML 会测量扬声器的延迟。大约需要 20 秒。</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.speakers" datatype="html">
+        <source>Play the sound through your speakers, not headphones, with the volume up.</source>
+        <target state="translated">用扬声器播放声音，不要用耳机，并调高音量。</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.quiet" datatype="html">
+        <source>Keep the room quiet while the clicks play.</source>
+        <target state="translated">咔嗒声播放时请保持房间安静。</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.start" datatype="html">
+        <source>Press Calibrate and allow the microphone if your browser asks.</source>
+        <target state="translated">按下“校准”，如果浏览器询问，请允许使用麦克风。</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.fallback" datatype="html">
+        <source>No microphone, or using headphones? Choose MIDI keyboard taps instead.</source>
+        <target state="translated">没有麦克风，或在用耳机？请改选“在 MIDI 键盘上敲击”。</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.loopback" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">麦克风收听扬声器</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.midi" datatype="html">
+        <source>MIDI keyboard taps</source>
+        <target state="translated">在 MIDI 键盘上敲击</target>
+      </trans-unit>
+      <trans-unit id="latency.hint.loopback" datatype="html">
+        <source>Play through the speakers, volume up, and stay quiet: the microphone hears the clicks and measures the delay of your speakers.</source>
+        <target state="translated">通过扬声器播放，调高音量并保持安静：麦克风会听到咔嗒声并测量扬声器的延迟。</target>
+      </trans-unit>
       <trans-unit id="latency.hint" datatype="html">
         <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
         <target state="translated">每次听到咔嗒声时按一下 MIDI 键盘上的任意键，这样会按照你听到的声音来评估演奏（使用蓝牙耳机时很有用）。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">麦克风</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.denied" datatype="html">
+        <source>Microphone access was refused. Allow it in the browser&apos;s site settings.</source>
+        <target state="translated">麦克风访问被拒绝。请在浏览器的网站设置中允许。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.allow" datatype="html">
+        <source>Allow the microphone</source>
+        <target state="translated">允许使用麦克风</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.default" datatype="html">
+        <source>Default microphone</source>
+        <target state="translated">默认麦克风</target>
+      </trans-unit>
+      <trans-unit id="latency.listening.loopback" datatype="html">
+        <source>Listening to the clicks…</source>
+        <target state="translated">正在聆听咔嗒声…</target>
       </trans-unit>
       <trans-unit id="latency.listening" datatype="html">
         <source>Tap along with the clicks…</source>
@@ -998,13 +1174,21 @@
         <source>Cancel</source>
         <target state="translated">取消</target>
       </trans-unit>
+      <trans-unit id="latency.failed.loopback" datatype="html">
+        <source>The microphone did not hear the clicks. Turn the volume up and try again.</source>
+        <target state="translated">麦克风没有听到咔嗒声。请调高音量后重试。</target>
+      </trans-unit>
       <trans-unit id="latency.failed" datatype="html">
         <source>Not enough taps on the beat. Try again.</source>
         <target state="translated">按在节拍上的次数不够，请再试一次。</target>
       </trans-unit>
-      <trans-unit id="latency.value" datatype="html">
-        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
-        <target state="translated">校正：<x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> 毫秒</target>
+      <trans-unit id="latency.micError" datatype="html">
+        <source>The microphone could not be opened. Allow it for this site and check the microphone chosen above.</source>
+        <target state="translated">无法打开麦克风。请为此网站允许麦克风，并检查上方选择的麦克风。</target>
+      </trans-unit>
+      <trans-unit id="latency.manual" datatype="html">
+        <source>Correction (ms)</source>
+        <target state="translated">校正（毫秒）</target>
       </trans-unit>
       <trans-unit id="latency.calibrate" datatype="html">
         <source>Calibrate</source>
@@ -1013,6 +1197,34 @@
       <trans-unit id="latency.reset" datatype="html">
         <source>Reset</source>
         <target state="translated">重置</target>
+      </trans-unit>
+      <trans-unit id="latency.taps" datatype="html">
+        <source>Delay after each click, in ms (faded: not counted)</source>
+        <target state="translated">每次咔嗒声后的延迟，单位毫秒（淡色：不计入）</target>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">关闭</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphoneFallback" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">麦克风</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.title" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">麦克风收听扬声器</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.content" datatype="html">
+        <source>Your speakers or headphones always sound a little after a note is played. To score your playing against what you really hear, Piano ML plays a few clicks and listens to them with your microphone. That tells it how late the sound arrives.</source>
+        <target state="translated">扬声器或耳机发出的声音总是比弹奏音符稍晚一点。为了按照你实际听到的声音来评判你的演奏，Piano ML 会播放几下咔嗒声并用麦克风收听，从而知道声音晚到了多少。</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.title" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">校准</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.content" datatype="html">
+        <source>Best done now, before you play: allow the microphone, then press Calibrate. It takes about 20 seconds.</source>
+        <target state="translated">最好现在就做，在弹奏之前：允许使用麦克风，然后点击“校准”。大约需要 20 秒。</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -1074,9 +1286,17 @@
         <source>Toggle fingering and harmony visibility</source>
         <target state="translated">显示或隐藏指法与和声</target>
       </trans-unit>
-      <trans-unit id="common.close" datatype="html">
-        <source>Close</source>
-        <target state="translated">关闭</target>
+      <trans-unit id="midiSetup.calibration.hint" datatype="html">
+        <source>Measures the delay of your speakers or headphones, so that your playing is scored against what you hear.</source>
+        <target state="translated">测量扬声器或耳机的延迟，从而按你听到的声音来评估你的演奏。</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">校正：<x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> 毫秒</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.open" datatype="html">
+        <source>Calibrate…</source>
+        <target state="translated">校准…</target>
       </trans-unit>
       <trans-unit id="midiSetup.inputFallback" datatype="html">
         <source>MIDI Input</source>
@@ -1149,6 +1369,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">节拍器</target>
+      </trans-unit>
+      <trans-unit id="tempo.countIn" datatype="html">
+        <source>Count-in (bars)</source>
+        <target state="translated">预备拍（小节）</target>
       </trans-unit>
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
@@ -2930,10 +3154,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>Loading related videos…</source>
         <target state="translated">正在加载相关视频……</target>
       </trans-unit>
-      <trans-unit id="score.videos.errorLabel" datatype="html">
-        <source>Video API error:</source>
-        <target state="translated">视频接口错误：</target>
-      </trans-unit>
       <trans-unit id="score.download.originalFile" datatype="html">
         <source>original file</source>
         <target state="translated">原始文件</target>
@@ -2965,10 +3185,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="score.error.noSlug" datatype="html">
         <source>No score slug provided</source>
         <target state="translated">未指定乐谱</target>
-      </trans-unit>
-      <trans-unit id="score.videos.error" datatype="html">
-        <source>Failed to load videos</source>
-        <target state="translated">无法加载视频</target>
       </trans-unit>
       <trans-unit id="score.download.error.missingInfo" datatype="html">
         <source>Could not download the <x id="file" equiv-text="label"/>: this score is missing information.</source>

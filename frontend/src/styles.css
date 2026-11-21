@@ -170,6 +170,10 @@
 		@apply bg-red-100 border border-red-400 text-red-700 p-3 rounded-lg;
 	}
 
+	.alert-success {
+		@apply bg-emerald-100 border border-emerald-400 text-emerald-800 p-3 rounded-lg;
+	}
+
 	.bg-strength-weak {
 		@apply bg-red-500;
 	}

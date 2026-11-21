@@ -37,4 +37,8 @@ public class User {
 
   @Column
   private String roles;
+
+  /** The account's language, a code of {@code i18n.locales} (en, fr, zh-Hans...); null for older accounts. */
+  @Column(length = 16)
+  private String locale;
 }

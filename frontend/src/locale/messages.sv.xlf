@@ -14,6 +14,14 @@
         <source>Create</source>
         <target state="translated">Skapa</target>
       </trans-unit>
+      <trans-unit id="account.route.forgotPassword" datatype="html">
+        <source>Forgot password</source>
+        <target state="translated">Glömt lösenord</target>
+      </trans-unit>
+      <trans-unit id="account.route.resetPassword" datatype="html">
+        <source>New password</source>
+        <target state="translated">Nytt lösenord</target>
+      </trans-unit>
       <trans-unit id="account.route.scores" datatype="html">
         <source>My Scores</source>
         <target state="translated">Mina stycken</target>
@@ -159,8 +167,12 @@
         <target state="translated">Ange ditt namn</target>
       </trans-unit>
       <trans-unit id="createAccount.nameIsRequired" datatype="html">
-        <source> name is required. </source>
+        <source>name is required.</source>
         <target state="translated">Namn krävs.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsTaken" datatype="html">
+        <source>This name is already taken. Please choose another one.</source>
+        <target state="translated">Det här namnet är redan upptaget. Välj ett annat.</target>
       </trans-unit>
       <trans-unit id="createAccount.email" datatype="html">
         <source>Email</source>
@@ -177,6 +189,10 @@
       <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
         <source>Invalid email format.</source>
         <target state="translated">Ogiltigt e-postformat.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsTaken" datatype="html">
+        <source>An account already uses this email. Log in instead, or use another email.</source>
+        <target state="translated">Ett konto använder redan den här e-postadressen. Logga in, eller använd en annan e-postadress.</target>
       </trans-unit>
       <trans-unit id="createAccount.password" datatype="html">
         <source>Password</source>
@@ -462,6 +478,10 @@
         <source> Password is required. </source>
         <target state="translated">Lösenord krävs.</target>
       </trans-unit>
+      <trans-unit id="login.forgotPassword" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">Glömt lösenordet?</target>
+      </trans-unit>
       <trans-unit id="login.loggingIn" datatype="html">
         <source>Logging in...</source>
         <target state="translated">Loggar in...</target>
@@ -477,6 +497,106 @@
       <trans-unit id="login.error.other" datatype="html">
         <source>An error occurred during login</source>
         <target state="translated">Ett fel uppstod vid inloggningen</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.title" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">Glömt lösenordet?</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sentTitle" datatype="html">
+        <source>Check your email</source>
+        <target state="translated">Kolla din e-post</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sent" datatype="html">
+        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for a limited time.</source>
+        <target state="translated">Om ett konto använder <x id="INTERPOLATION" equiv-text="{{ email }}"/> har vi skickat en länk dit för att välja ett nytt lösenord. Länken fungerar under begränsad tid.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.spam" datatype="html">
+        <source>Nothing after a few minutes? Check your spam folder, or ask again.</source>
+        <target state="translated">Inget efter några minuter? Titta i skräpposten, eller be om en ny länk.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.backToLogin" datatype="html">
+        <source>Back to login</source>
+        <target state="translated">Tillbaka till inloggningen</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.heading" datatype="html">
+        <source>Reset your password</source>
+        <target state="translated">Återställ ditt lösenord</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.intro" datatype="html">
+        <source>Enter the email of your account: we will send you a link to choose a new password.</source>
+        <target state="translated">Ange e-postadressen för ditt konto: vi skickar en länk där du väljer ett nytt lösenord.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.failed" datatype="html">
+        <source>The email could not be sent. Please try again in a moment.</source>
+        <target state="translated">Mejlet kunde inte skickas. Försök igen om en stund.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">E-post</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">Ange din e-postadress</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.emailInvalid" datatype="html">
+        <source>Please enter a valid email.</source>
+        <target state="translated">Ange en giltig e-postadress.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sending" datatype="html">
+        <source>Sending...</source>
+        <target state="translated">Skickar...</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.send" datatype="html">
+        <source>Send me a link</source>
+        <target state="translated">Skicka mig en länk</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.title" datatype="html">
+        <source>Choose a new password</source>
+        <target state="translated">Välj ett nytt lösenord</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.done" datatype="html">
+        <source>Your password has been changed. You can now log in with it.</source>
+        <target state="translated">Ditt lösenord har ändrats. Du kan nu logga in med det.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.login" datatype="html">
+        <source>Log in</source>
+        <target state="translated">Logga in</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.invalid" datatype="html">
+        <source>This link is invalid or has expired: each link works only once, for a limited time.</source>
+        <target state="translated">Länken är ogiltig eller har gått ut: varje länk fungerar bara en gång, under begränsad tid.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.askAgain" datatype="html">
+        <source>Get a new link</source>
+        <target state="translated">Få en ny länk</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.failed" datatype="html">
+        <source>The password could not be changed. Please try again in a moment.</source>
+        <target state="translated">Lösenordet kunde inte ändras. Försök igen om en stund.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.password" datatype="html">
+        <source>New password</source>
+        <target state="translated">Nytt lösenord</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.tooShort" datatype="html">
+        <source>Password must be at least 8 characters long.</source>
+        <target state="translated">Lösenordet måste vara minst 8 tecken långt.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.confirm" datatype="html">
+        <source>Confirm the new password</source>
+        <target state="translated">Bekräfta det nya lösenordet</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.mismatch" datatype="html">
+        <source>Passwords do not match.</source>
+        <target state="translated">Lösenorden matchar inte.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.saving" datatype="html">
+        <source>Saving...</source>
+        <target state="translated">Sparar...</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.save" datatype="html">
+        <source>Change my password</source>
+        <target state="translated">Byt mitt lösenord</target>
       </trans-unit>
       <trans-unit id="playlist.list.title" datatype="html">
         <source>My Playlists</source>
@@ -986,9 +1106,65 @@
         <source>Timing calibration</source>
         <target state="translated">Timingkalibrering</target>
       </trans-unit>
+      <trans-unit id="latency.intro.title" datatype="html">
+        <source>Let&apos;s tune the timing first</source>
+        <target state="translated">Först ställer vi in timingen</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.why" datatype="html">
+        <source>So that your playing is scored against what you actually hear, Piano ML measures the delay of your speakers. It takes about 20 seconds.</source>
+        <target state="translated">För att ditt spel ska bedömas efter det du faktiskt hör mäter Piano ML fördröjningen i dina högtalare. Det tar ungefär 20 sekunder.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.speakers" datatype="html">
+        <source>Play the sound through your speakers, not headphones, with the volume up.</source>
+        <target state="translated">Spela upp ljudet i högtalarna, inte i hörlurar, med volymen uppe.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.quiet" datatype="html">
+        <source>Keep the room quiet while the clicks play.</source>
+        <target state="translated">Håll rummet tyst medan klicken spelas.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.start" datatype="html">
+        <source>Press Calibrate and allow the microphone if your browser asks.</source>
+        <target state="translated">Tryck på Kalibrera och tillåt mikrofonen om webbläsaren frågar.</target>
+      </trans-unit>
+      <trans-unit id="latency.intro.fallback" datatype="html">
+        <source>No microphone, or using headphones? Choose MIDI keyboard taps instead.</source>
+        <target state="translated">Ingen mikrofon, eller hörlurar? Välj Anslag på MIDI-klaviaturen i stället.</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.loopback" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">Mikrofonen hör högtalarna</target>
+      </trans-unit>
+      <trans-unit id="latency.mode.midi" datatype="html">
+        <source>MIDI keyboard taps</source>
+        <target state="translated">Anslag på MIDI-klaviaturen</target>
+      </trans-unit>
+      <trans-unit id="latency.hint.loopback" datatype="html">
+        <source>Play through the speakers, volume up, and stay quiet: the microphone hears the clicks and measures the delay of your speakers.</source>
+        <target state="translated">Spela genom högtalarna, med volymen uppe, och var tyst: mikrofonen hör klicken och mäter högtalarnas fördröjning.</target>
+      </trans-unit>
       <trans-unit id="latency.hint" datatype="html">
         <source>Tap a key of your MIDI keyboard on each click, so that your playing is scored against what you hear (useful with Bluetooth headphones).</source>
         <target state="translated">Tryck på en tangent på ditt MIDI-keyboard vid varje klick, så att ditt spel bedöms efter det du hör (praktiskt med Bluetooth-hörlurar).</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">Mikrofon</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.denied" datatype="html">
+        <source>Microphone access was refused. Allow it in the browser&apos;s site settings.</source>
+        <target state="translated">Åtkomst till mikrofonen nekades. Tillåt den i webbläsarens webbplatsinställningar.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.allow" datatype="html">
+        <source>Allow the microphone</source>
+        <target state="translated">Tillåt mikrofonen</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphone.default" datatype="html">
+        <source>Default microphone</source>
+        <target state="translated">Standardmikrofon</target>
+      </trans-unit>
+      <trans-unit id="latency.listening.loopback" datatype="html">
+        <source>Listening to the clicks…</source>
+        <target state="translated">Lyssnar på klicken…</target>
       </trans-unit>
       <trans-unit id="latency.listening" datatype="html">
         <source>Tap along with the clicks…</source>
@@ -998,13 +1174,21 @@
         <source>Cancel</source>
         <target state="translated">Avbryt</target>
       </trans-unit>
+      <trans-unit id="latency.failed.loopback" datatype="html">
+        <source>The microphone did not hear the clicks. Turn the volume up and try again.</source>
+        <target state="translated">Mikrofonen hörde inte klicken. Höj volymen och försök igen.</target>
+      </trans-unit>
       <trans-unit id="latency.failed" datatype="html">
         <source>Not enough taps on the beat. Try again.</source>
         <target state="translated">För få anslag i takt. Försök igen.</target>
       </trans-unit>
-      <trans-unit id="latency.value" datatype="html">
-        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
-        <target state="translated">Korrigering: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</target>
+      <trans-unit id="latency.micError" datatype="html">
+        <source>The microphone could not be opened. Allow it for this site and check the microphone chosen above.</source>
+        <target state="translated">Mikrofonen kunde inte öppnas. Tillåt den för den här webbplatsen och kontrollera mikrofonen som valts ovan.</target>
+      </trans-unit>
+      <trans-unit id="latency.manual" datatype="html">
+        <source>Correction (ms)</source>
+        <target state="translated">Korrigering (ms)</target>
       </trans-unit>
       <trans-unit id="latency.calibrate" datatype="html">
         <source>Calibrate</source>
@@ -1013,6 +1197,34 @@
       <trans-unit id="latency.reset" datatype="html">
         <source>Reset</source>
         <target state="translated">Återställ</target>
+      </trans-unit>
+      <trans-unit id="latency.taps" datatype="html">
+        <source>Delay after each click, in ms (faded: not counted)</source>
+        <target state="translated">Fördröjning efter varje klick, i ms (tonat: räknas inte)</target>
+      </trans-unit>
+      <trans-unit id="common.close" datatype="html">
+        <source>Close</source>
+        <target state="translated">Stäng</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.microphoneFallback" datatype="html">
+        <source>Microphone</source>
+        <target state="translated">Mikrofon</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.title" datatype="html">
+        <source>Microphone hears the speakers</source>
+        <target state="translated">Mikrofonen hör högtalarna</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.loopback.content" datatype="html">
+        <source>Your speakers or headphones always sound a little after a note is played. To score your playing against what you really hear, Piano ML plays a few clicks and listens to them with your microphone. That tells it how late the sound arrives.</source>
+        <target state="translated">Dina högtalare eller hörlurar låter alltid lite efter att en ton har spelats. För att bedöma ditt spel efter det du faktiskt hör spelar Piano ML några klick och lyssnar på dem med din mikrofon. Så vet den hur sent ljudet kommer fram.</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.title" datatype="html">
+        <source>Calibrate</source>
+        <target state="translated">Kalibrera</target>
+      </trans-unit>
+      <trans-unit id="latency.tour.calibrate.content" datatype="html">
+        <source>Best done now, before you play: allow the microphone, then press Calibrate. It takes about 20 seconds.</source>
+        <target state="translated">Bäst att göra det nu, innan du spelar: tillåt mikrofonen och tryck sedan på Kalibrera. Det tar ungefär 20 sekunder.</target>
       </trans-unit>
       <trans-unit id="midiSetup.heading" datatype="html">
         <source> Workbench Setup </source>
@@ -1074,9 +1286,17 @@
         <source>Toggle fingering and harmony visibility</source>
         <target state="translated">Visa eller dölj fingersättning och harmonik</target>
       </trans-unit>
-      <trans-unit id="common.close" datatype="html">
-        <source>Close</source>
-        <target state="translated">Stäng</target>
+      <trans-unit id="midiSetup.calibration.hint" datatype="html">
+        <source>Measures the delay of your speakers or headphones, so that your playing is scored against what you hear.</source>
+        <target state="translated">Mäter fördröjningen i dina högtalare eller hörlurar, så att ditt spel bedöms efter det du hör.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.value" datatype="html">
+        <source>Correction: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</source>
+        <target state="translated">Korrigering: <x id="INTERPOLATION" equiv-text="{{ audio.latencyCalibrationMs() }}"/> ms</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.calibration.open" datatype="html">
+        <source>Calibrate…</source>
+        <target state="translated">Kalibrera…</target>
       </trans-unit>
       <trans-unit id="midiSetup.inputFallback" datatype="html">
         <source>MIDI Input</source>
@@ -1149,6 +1369,10 @@
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
         <target state="translated">Metronom</target>
+      </trans-unit>
+      <trans-unit id="tempo.countIn" datatype="html">
+        <source>Count-in (bars)</source>
+        <target state="translated">Inräkning (takter)</target>
       </trans-unit>
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
@@ -2930,10 +3154,6 @@ Användning: över mollackord och mollbluessammanhang (i7- / i-centrum) när du 
         <source>Loading related videos…</source>
         <target state="translated">Laddar relaterade videor…</target>
       </trans-unit>
-      <trans-unit id="score.videos.errorLabel" datatype="html">
-        <source>Video API error:</source>
-        <target state="translated">Fel i video-API:et:</target>
-      </trans-unit>
       <trans-unit id="score.download.originalFile" datatype="html">
         <source>original file</source>
         <target state="translated">originalfil</target>
@@ -2965,10 +3185,6 @@ Användning: över mollackord och mollbluessammanhang (i7- / i-centrum) när du 
       <trans-unit id="score.error.noSlug" datatype="html">
         <source>No score slug provided</source>
         <target state="translated">Inget stycke angivet</target>
-      </trans-unit>
-      <trans-unit id="score.videos.error" datatype="html">
-        <source>Failed to load videos</source>
-        <target state="translated">Det gick inte att läsa in videorna</target>
       </trans-unit>
       <trans-unit id="score.download.error.missingInfo" datatype="html">
         <source>Could not download the <x id="file" equiv-text="label"/>: this score is missing information.</source>

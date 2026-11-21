@@ -99,7 +99,7 @@ describe('PracticeSessionRecorder', () => {
         kind: 'score', scoreId: 's1', title: 'Prelude',
         startedAt: '2026-11-15T10:00:00.000Z', endedAt: '2026-11-15T10:01:00.000Z',
         activeSeconds: 60, takeCount: 1, completedCount: 0,
-        measureStart: 3, measureEnd: 5, measureTotal: 8,
+        measureStart: 2, measureEnd: 4, measureTotal: 8,
         hands: 'both', tempoFactor: 0.8, metronome: true, loop: false, input: 'midi', endReason: 'stopped',
         notesExpected: 100, notesHit: 90, notesWrong: 10, onsets: 100, waits: 5,
         measures: [{ measure: 1, notesExpected: 100, notesHit: 90, notesWrong: 10, onsets: 100, waits: 5 }],
@@ -410,7 +410,7 @@ describe('PracticeSessionRecorder', () => {
       setup();
       recorder.setItem(SCORE, 8);
       expect(recorder.lastTake()).toBeNull();
-      recorder.takeStarted(config({ scoreRange: [2, 5], tempoFactor: 0.8, waitForLeftHand: false }));
+      recorder.takeStarted(config({ scoreRange: [3, 6], tempoFactor: 0.8, waitForLeftHand: false })); // measures 3 to 5
       snapshot = counters(20, 15, 5, 2);
       play(30);
       recorder.takeEnded(true);

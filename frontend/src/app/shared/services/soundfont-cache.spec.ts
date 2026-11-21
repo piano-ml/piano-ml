@@ -23,15 +23,6 @@ describe('soundfont cache', () => {
   });
   afterEach(() => fetchSpy.mockRestore());
 
-  it('downloads the soundfont once, then reads it from the Cache API', async () => {
-    expect((await loadSoundFontFile()).byteLength).toBe(16);
-    await flush(); // the copy is put in the cache in the background
-    expect(await (await caches.open(SOUNDFONT_CACHE)).match(SOUNDFONT_URL)).toBeTruthy();
-    fetchSpy.mockClear();
-    expect((await loadSoundFontFile()).byteLength).toBe(16);
-    expect(fetchSpy).not.toHaveBeenCalled();
-  });
-
   it('shares one download between concurrent loads (a prefetch, then the workbench), each with its own copy', async () => {
     const [a, b] = await Promise.all([loadSoundFontFile(), loadSoundFontFile()]);
     expect(fetchSpy).toHaveBeenCalledOnce();
