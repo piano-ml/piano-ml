@@ -384,7 +384,7 @@ body {
 
 #measure-range .noUi-pips-horizontal {
 	padding-top: 6px;
-	height: 36px;
+	height: 40px;
 }
 
 /* Bold marks, centred on their measure: noUiSlider places a mark by its left edge */
@@ -403,8 +403,7 @@ body {
 	background: var(--color-neutral-500);
 }
 
-/* The measure numbers look like the score's fingering numbers: OSMD draws them 15 px high (1.5 units of 10 px) in
-   its default font */
+/* The measure numbers in the font of the score's fingering numbers (OSMD's default font), a little bigger */
 #measure-range .noUi-value-horizontal {
 	transform: translate(-50%, 60%);
 }
@@ -415,8 +414,10 @@ body {
 #measure-range .noUi-value.noUi-value-sub,
 #measure-range .noUi-value.noUi-value-large {
 	font-family: "Times New Roman", Times, serif;
-	font-size: 15px;
-	font-weight: 700;
+	font-size: 17px;
+	font-weight: 900;
+	/* Times has no face bolder than bold: a thin outline in the text colour thickens the strokes a little more */
+	-webkit-text-stroke: 0.4px currentColor;
 	color: #000;
 }
 
