@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
+import org.pianoml.backend.coach.oauth.PublicCors;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -30,6 +31,13 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+  /** The sites allowed to call the API from a browser: CORS, and the Remote coach WebSocket handshake. */
+  public static final List<String> ALLOWED_ORIGINS = List.of(
+    "https://pianoml.org",
+    "https://www.pianoml.org",
+    "https://staging.pianoml.org"
+  );
 
   @Autowired
   private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -75,6 +83,16 @@ public class SecurityConfig {
       .authorizeHttpRequests(authz -> authz
         // Admin only, whatever the method: must come before the open GET rule below (issue #408).
         .requestMatchers("/admin/**").hasRole("ADMIN")
+        // Private to the logged-in user (coach access grants, issue #414): must come before the open GET rule.
+        .requestMatchers(HttpMethod.GET, "/account/grants").authenticated()
+        // Consent page API of the coach OAuth server (issue #414): the user's own pending requests.
+        .requestMatchers(HttpMethod.GET, "/oauth/requests/**").authenticated()
+        // Remote coach WebSocket handshake (issue #414): open, because authentication is the first message on the
+        // socket (a one-time ticket from POST /coach/bridge/ticket), never the cookie: browsers send cookies on
+        // WebSocket handshakes without any CORS check.
+        .requestMatchers(HttpMethod.GET, "/coach/ws").permitAll()
+        // Coach prompt catalog (issue #414): public on purpose, it holds no user data.
+        .requestMatchers(HttpMethod.GET, "/coach/prompts").permitAll()
         .requestMatchers(HttpMethod.GET, "/**").permitAll()
         .requestMatchers(HttpMethod.POST,
           "/account/login",
@@ -101,11 +119,7 @@ public class SecurityConfig {
     CorsConfiguration configuration = new CorsConfiguration();
     // No localhost: local development calls the API through the frontend dev proxy (same-origin for the
     // browser, Origin header stripped), so the API never sees a cross-origin request from localhost.
-    configuration.setAllowedOriginPatterns(List.of(
-      "https://pianoml.org",
-      "https://www.pianoml.org",
-      "https://staging.pianoml.org"
-    ));
+    configuration.setAllowedOriginPatterns(ALLOWED_ORIGINS);
     configuration.setAllowCredentials(true); // necessary for httpOnly cookies
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
@@ -113,6 +127,9 @@ public class SecurityConfig {
     configuration.setExposedHeaders(List.of("Content-Disposition"));
     configuration.setMaxAge(3600L);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    // OAuth discovery documents (coach, issue #414): read by MCP clients from any site, without credentials.
+    // Registered first: the first matching pattern wins.
+    source.registerCorsConfiguration("/.well-known/**", PublicCors.configuration());
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }

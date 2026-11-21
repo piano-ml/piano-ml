@@ -32,6 +32,8 @@ import { Note } from '@tonejs/midi/dist/Note';
 import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
+import { PlayerAudioService } from '../../service/player-audio.service';
+import { type Hands, type PlayerState, PlayerControlService, type WorkbenchHandle, handsOf, lastTakeOf, waitFor } from '../../service/player-control.service';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
@@ -211,12 +213,14 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   private readonly beaconService = inject(BeaconService);
   private readonly practiceRecorder = inject(PracticeSessionRecorder);
+  private readonly playerControl = inject(PlayerControlService);
+  private readonly playerAudio = inject(PlayerAudioService);
+  private readonly midiService = inject(MidiServiceService);
   /** Stable identity of the exercise on the stand, for the practice history (null for a score). */
   private exerciseItem: PracticeItem | null = null;
   /** The stored exercise this workbench loaded (EXERCICE_INFO_KEY as read): the only one it may clear (#413). */
   private loadedExerciseInfo: string | null = null;
   private routeParamSubscription?: Subscription;
-  private readonly midiService = inject(MidiServiceService);
   private readonly ngZone = inject(NgZone);
   /** MIDI setup gave up on a refused permission (e.g. NotAllowedError, while the Permissions API still says "prompt"). */
   private readonly midiBlockedEffect = effect(() => {
@@ -353,6 +357,102 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.routeParamSubscription = this.route.paramMap.subscribe(() => {
       void this.loadRouteContent();
     });
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.playerControl.register(this.controlHandle);
+    }
+  }
+
+  // --- remote control (coach, issue #414) --------------------------------------------------------------------
+  // The same code paths as the toolbar and the slider, so the view, the slider and the practice recorder stay in
+  // sync. Measures are 1-based and inclusive here; scoreRange is 1-based with an exclusive end (0 also means the
+  // first measure), and currentStave is 1-based.
+
+  private readonly controlHandle: WorkbenchHandle = {
+    getState: () => this.controlState(),
+    isReady: () => !this.loading && !this.osmdLoading && !this.loadError && this.scoreData != null,
+    getLoadError: () => this.loadError,
+    setRange: (from, to) => this.controlSetRange(from, to + 1),
+    setWholeScore: () => this.controlSetRange(1, this.measureCount() + 1),
+    setTempoBpm: (bpm) => {
+      this.onTempoChanged(Math.round(Math.min(TempoControlComponent.MAX, Math.max(TempoControlComponent.MIN, bpm))));
+    },
+    setLoop: (value) => {
+      this.playConfiguration.isLoop = value;
+      this.changeDetector.markForCheck();
+    },
+    setHands: (value: Hands) => {
+      const hands = waitFor(value);
+      this.setWaitForLeftHand(hands.left);
+      this.setWaitForRightHand(hands.right);
+    },
+    setMetronome: (value) => this.onMetronomeStatus(value),
+    setKeyboardVisible: (value) => this.setHideKeyboard(!value),
+    play: async (restart) => {
+      if (restart) {
+        // Not this.reset(): at the range start it widens the range to the whole score
+        this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
+        await this.playerService.reset(this.playConfiguration);
+        this.updateSlider();
+      }
+      this.changeDetector.markForCheck();
+      // start() does nothing until the sounds are loaded (Play is disabled meanwhile): a remote play waits for them
+      await this.playerService.initSoundFont();
+      await this.start();
+      this.changeDetector.markForCheck();
+    },
+    stop: () => {
+      this.stop();
+      this.changeDetector.markForCheck();
+    },
+  };
+
+  /** What the slider's 'end' handler does, for a range given as scoreRange values. */
+  private controlSetRange(start: number, end: number): void {
+    this.playConfiguration.scoreRange[0] = start;
+    this.playConfiguration.scoreRange[1] = end;
+    this.playConfiguration.currentStave = start;
+    this.playerService.resetLight(this.playConfiguration);
+    this.updateSlider();
+    this.changeDetector.markForCheck();
+  }
+
+  private controlState(): PlayerState {
+    const config = this.playConfiguration;
+    const score = this.scoreData;
+    const take = this.practiceRecorder.lastTake();
+    const original = this.midiOriginalTempo || this.tempo || 120;
+    return {
+      loaded: !this.loading && !this.osmdLoading && !this.loadError && score != null,
+      loading: this.loading || (this.osmdLoading && !this.loadError),
+      page: this.router.url,
+      item: score == null ? null : score.id === 'exercise'
+        ? { kind: 'exercise', title: score.title ?? '', author: score.author, tonic: score.tonic, mode: score.mode }
+        : { kind: 'score', scoreId: score.id, slug: score.immutableSlug || score.mutableSlug, title: score.title ?? '', author: score.author, tonic: score.tonic, mode: score.mode },
+      measureTotal: this.measureCount(),
+      playing: this.isPlaying,
+      currentMeasure: Math.max(1, config.currentStave),
+      range: { fromMeasure: Math.max(1, config.scoreRange[0]), toMeasure: Math.min(config.scoreRange[1] - 1, this.measureCount()) },
+      tempo: { bpm: this.tempo, originalBpm: original, percent: Math.round((100 * this.tempo) / original) },
+      loop: config.isLoop,
+      hands: handsOf(config.waitForLeftHand, config.waitForRightHand),
+      metronome: config.useMetronome,
+      showKeyboard: !this.hideKeyboard,
+      midiInput: this.midiInputState(),
+      audioUnlocked: this.playerAudio.isUnlocked(),
+      lastTake: take == null ? null : lastTakeOf(take),
+    };
+  }
+
+  private midiInputState(): PlayerState['midiInput'] {
+    if (this.midiPermission?.state === 'denied') {
+      return 'blocked';
+    }
+    const enabled = this.midiService.enabledInputDevices;
+    if (!enabled) {
+      return 'unknown';
+    }
+    return [...enabled.values()].some(device => device.state === 'connected') ? 'connected' : 'none';
   }
 
   private async loadRouteContent(): Promise<void> {
@@ -1253,6 +1353,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy() {
+    this.playerControl.unregister(this.controlHandle);
     // The stored exercise goes with the workbench that loaded it; one written for the next workbench stays (#413)
     if (isPlatformBrowser(this.platformId)
       && shouldClearStoredExercise(this.loadedExerciseInfo, localStorage.getItem(EXERCICE_INFO_KEY))) {

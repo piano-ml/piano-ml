@@ -76,7 +76,8 @@ export function saveExerciseToStorage(exercice: Exercise, scaleOrChord: Scale | 
   return midi;
 }
 
-function normalizeKey(value: string): string {
+/** Stable key of a name: what the practice history stores for scales, chords and exercises. */
+export function normalizeKey(value: string): string {
   return value
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')

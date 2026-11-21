@@ -3662,6 +3662,442 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
         <target state="translated">브라우저가 MIDI 접근을 차단했습니다. 브라우저 설정에서 MIDI 사이트 권한을 찾아 이 사이트의 접근을 허용한 다음 페이지를 새로 고치세요.</target>
       </trans-unit>
+      <trans-unit id="coach.grants.title" datatype="html">
+        <source>Access for external tools</source>
+        <target state="translated">외부 도구용 접근 권한</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.connectLink" datatype="html">
+        <source>Connect an AI coach →</source>
+        <target state="translated">AI 코치 연결 →</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.new" datatype="html">
+        <source>New access →</source>
+        <target state="translated">새 접근 권한 →</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.notice" datatype="html">
+        <source>A tool using this access can read your practice history and the score library, and control the player in a tab where you turned on Remote coach. What it reads is sent to the AI provider used by that tool.</source>
+        <target state="translated">이 접근 권한을 가진 도구는 연습 기록과 악보 라이브러리를 읽을 수 있고, 원격 코치를 켠 탭에서 플레이어를 제어할 수 있습니다. 도구가 읽은 내용은 그 도구가 사용하는 AI 제공업체로 전송됩니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.title" datatype="html">
+        <source>Your token</source>
+        <target state="translated">토큰</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.warning" datatype="html">
+        <source>Copy it now and paste it in your tool: it will not be shown again.</source>
+        <target state="translated">지금 복사해서 도구에 붙여 넣으세요. 다시 표시되지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.label" datatype="html">
+        <source>Access token</source>
+        <target state="translated">접근 토큰</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copied" datatype="html">
+        <source>Copied</source>
+        <target state="translated">복사됨</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copy" datatype="html">
+        <source>Copy</source>
+        <target state="translated">복사</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copyFailed" datatype="html">
+        <source>Copy failed: select the token and copy it manually.</source>
+        <target state="translated">복사하지 못했습니다. 토큰을 선택해 직접 복사하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.done" datatype="html">
+        <source>Done</source>
+        <target state="translated">완료</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.name" datatype="html">
+        <source>Name of the tool</source>
+        <target state="translated">도구 이름</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.name.placeholder" datatype="html">
+        <source>For example: assistant on my laptop</source>
+        <target state="translated">예: 내 노트북의 어시스턴트</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scopes" datatype="html">
+        <source>What it can do</source>
+        <target state="translated">허용할 작업</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.expiry" datatype="html">
+        <source>Expires after</source>
+        <target state="translated">만료 기간</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.days" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ days }}"/> days</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ days }}"/>일</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.create" datatype="html">
+        <source>Create</source>
+        <target state="translated">만들기</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">취소</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.empty" datatype="html">
+        <source>No access created yet.</source>
+        <target state="translated">아직 만든 접근 권한이 없습니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.status.revoked" datatype="html">
+        <source>Revoked</source>
+        <target state="translated">취소됨</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.status.expired" datatype="html">
+        <source>Expired</source>
+        <target state="translated">만료됨</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.revoke.confirm" datatype="html">
+        <source>The tool will stop working at once.</source>
+        <target state="translated">도구가 즉시 작동을 멈춥니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.revoke" datatype="html">
+        <source>Revoke</source>
+        <target state="translated">취소하기</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.kind.oauth" datatype="html">
+        <source>Connected application</source>
+        <target state="translated">연결된 애플리케이션</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.expires" datatype="html">
+        <source>Expires <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/>에 만료</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.lastUsed" datatype="html">
+        <source>Last used <x id="INTERPOLATION" equiv-text="{{ date(grant.lastUsedAt) }}"/></source>
+        <target state="translated">마지막 사용: <x id="INTERPOLATION" equiv-text="{{ date(grant.lastUsedAt) }}"/></target>
+      </trans-unit>
+      <trans-unit id="coach.grants.neverUsed" datatype="html">
+        <source>Never used</source>
+        <target state="translated">사용한 적 없음</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.practice" datatype="html">
+        <source>Practice history</source>
+        <target state="translated">연습 기록</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.scores" datatype="html">
+        <source>Score library</source>
+        <target state="translated">악보 라이브러리</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.player" datatype="html">
+        <source>Player</source>
+        <target state="translated">플레이어</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.practice.hint" datatype="html">
+        <source>Read your sessions, accuracy, streaks and level.</source>
+        <target state="translated">연습 세션, 정확도, 연속 기록, 레벨을 읽습니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.scores.hint" datatype="html">
+        <source>Search and read the scores of the library.</source>
+        <target state="translated">라이브러리의 악보를 검색하고 읽습니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.player.hint" datatype="html">
+        <source>Open scores and start or stop the player in a tab where you turned on Remote coach.</source>
+        <target state="translated">원격 코치를 켠 탭에서 악보를 열고 플레이어를 시작하거나 멈춥니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.tooMany" datatype="html">
+        <source>You already have 5 active accesses. Revoke one first.</source>
+        <target state="translated">이미 활성 접근 권한이 5개 있습니다. 먼저 하나를 취소하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.rateLimited" datatype="html">
+        <source>Too many accesses created in the last hour. Try again later.</source>
+        <target state="translated">지난 1시간 동안 너무 많은 접근 권한을 만들었습니다. 나중에 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.create" datatype="html">
+        <source>The access could not be created. Try again later.</source>
+        <target state="translated">접근 권한을 만들지 못했습니다. 나중에 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.revoke" datatype="html">
+        <source>The access could not be revoked. Try again later.</source>
+        <target state="translated">접근 권한을 취소하지 못했습니다. 나중에 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.title" datatype="html">
+        <source>An application asks for access to your PianoML account</source>
+        <target state="translated">애플리케이션이 PianoML 계정에 대한 접근을 요청합니다</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.gone" datatype="html">
+        <source>This request has expired or was already answered. Go back to your application and connect PianoML again.</source>
+        <target state="translated">이 요청은 만료되었거나 이미 응답되었습니다. 애플리케이션으로 돌아가 PianoML을 다시 연결하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.error" datatype="html">
+        <source>The request could not be loaded. Try again later.</source>
+        <target state="translated">요청을 불러오지 못했습니다. 나중에 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.publishedBy" datatype="html">
+        <source>Published by</source>
+        <target state="translated">게시자</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.unverified" datatype="html">
+        <source>This name was given by the application itself and is not verified.</source>
+        <target state="translated">이 이름은 애플리케이션이 스스로 정한 것이며 확인되지 않았습니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.redirectTo" datatype="html">
+        <source>After your choice, you will be sent to</source>
+        <target state="translated">선택 후 이동할 곳:</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.loopback" datatype="html">
+        <source>This application runs on your computer. Any program on this computer could claim to be it: allow it only if you just started the connection yourself.</source>
+        <target state="translated">이 애플리케이션은 사용자의 컴퓨터에서 실행됩니다. 이 컴퓨터의 어떤 프로그램이든 이 애플리케이션인 척할 수 있으니, 방금 직접 연결을 시작한 경우에만 허용하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.scopes" datatype="html">
+        <source>It will be able to:</source>
+        <target state="translated">다음 작업을 할 수 있게 됩니다:</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.privacy" datatype="html">
+        <source>What the application reads is sent to the AI provider it uses. You can revoke this access at any time on your account page.</source>
+        <target state="translated">애플리케이션이 읽은 내용은 그 애플리케이션이 사용하는 AI 제공업체로 전송됩니다. 이 접근 권한은 계정 페이지에서 언제든지 취소할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.decisionError" datatype="html">
+        <source>Your answer could not be sent. Try again.</source>
+        <target state="translated">응답을 보내지 못했습니다. 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.refuse" datatype="html">
+        <source>Refuse</source>
+        <target state="translated">거부</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.allow" datatype="html">
+        <source>Allow</source>
+        <target state="translated">허용</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.manage" datatype="html">
+        <source>Manage the applications that have access</source>
+        <target state="translated">접근 권한이 있는 애플리케이션 관리</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.title" datatype="html">
+        <source>Connect an AI coach</source>
+        <target state="translated">AI 코치 연결</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.subtitle" datatype="html">
+        <source>Use your own AI assistant as your piano coach</source>
+        <target state="translated">나만의 AI 어시스턴트를 피아노 코치로</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.intro" datatype="html">
+        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history, suggests pieces and drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
+        <target state="translated">나만의 AI 어시스턴트가 피아노 코치가 될 수 있습니다. PianoML에 연결하면 연습 기록을 읽고, 곡을 추천하고, 플레이어를 제어합니다. 어시스턴트가 읽은 내용은 PianoML이 아니라 그 어시스턴트의 AI 제공업체로 전송됩니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step1" datatype="html">
+        <source>1. Connect your assistant</source>
+        <target state="translated">1. 어시스턴트 연결</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.url" datatype="html">
+        <source>Server URL</source>
+        <target state="translated">서버 URL</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tokenHint" datatype="html">
+        <source>Then create an access below: its token goes in your assistant&apos;s configuration.</source>
+        <target state="translated">그다음 아래에서 접근 권한을 만드세요. 그 토큰을 어시스턴트 설정에 넣습니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.snippets" datatype="html">
+        <source>Configuration</source>
+        <target state="translated">설정</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.placeholder" datatype="html">
+        <source>Replace &lt;your token&gt; with the token of an access, or create one above: it then appears here.</source>
+        <target state="translated">&lt;your token&gt;을 접근 권한의 토큰으로 바꾸거나 위에서 새로 만드세요. 그러면 여기에 표시됩니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.copyFailed" datatype="html">
+        <source>Copy failed: select the text and copy it manually.</source>
+        <target state="translated">복사하지 못했습니다. 텍스트를 선택해 직접 복사하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step2" datatype="html">
+        <source>2. Start the coach</source>
+        <target state="translated">2. 코치 시작</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptsHint" datatype="html">
+        <source>Paste one of these messages in your assistant. They tell it how to coach you with PianoML; it will answer in your language.</source>
+        <target state="translated">이 메시지 중 하나를 어시스턴트에 붙여 넣으세요. PianoML로 코칭하는 방법을 알려 주며, 어시스턴트는 사용자의 언어로 답합니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptsError" datatype="html">
+        <source>The prompts could not be loaded. Try again later.</source>
+        <target state="translated">메시지를 불러오지 못했습니다. 나중에 다시 시도하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptText" datatype="html">
+        <source>Message to paste</source>
+        <target state="translated">붙여 넣을 메시지</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step3" datatype="html">
+        <source>3. Play</source>
+        <target state="translated">3. 연주</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.playText" datatype="html">
+        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch stays at the bottom right of every page; turn it off at any time.</source>
+        <target state="translated">PianoML 탭에서 원격 코치를 켜세요. 그러면 어시스턴트가 그 탭에서 악보와 연습곡을 열고, 연습을 설정하고, 플레이어를 시작하거나 멈출 수 있습니다. 스위치는 모든 페이지의 오른쪽 아래에 있으며 언제든지 끌 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.playHint" datatype="html">
+        <source>Your browser asks for one click before the first sound: press Start playback when it shows up.</source>
+        <target state="translated">브라우저는 첫 소리 전에 한 번의 클릭을 요구합니다. 재생 시작 버튼이 나타나면 누르세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.turnOn" datatype="html">
+        <source>Turn on Remote coach</source>
+        <target state="translated">원격 코치 켜기</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.coach_start.title" datatype="html">
+        <source>Start a coaching session</source>
+        <target state="translated">코칭 세션 시작</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.coach_start.description" datatype="html">
+        <source>Where you stand, and one thing to practice today.</source>
+        <target state="translated">현재 수준과 오늘 연습할 한 가지.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.review_progress.title" datatype="html">
+        <source>Review my progress</source>
+        <target state="translated">내 진행 상황 돌아보기</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.review_progress.description" datatype="html">
+        <source>A review of your last days of practice, without practicing.</source>
+        <target state="translated">최근 연습한 날들을 연주 없이 돌아봅니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.practice_piece.title" datatype="html">
+        <source>Practice a piece</source>
+        <target state="translated">곡 연습</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.practice_piece.description" datatype="html">
+        <source>Work on one piece, its weakest passage first.</source>
+        <target state="translated">한 곡을 가장 약한 부분부터 연습합니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.warm_up.title" datatype="html">
+        <source>Warm up</source>
+        <target state="translated">워밍업</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.warm_up.description" datatype="html">
+        <source>Scales and arpeggios suited to your level and your pieces.</source>
+        <target state="translated">레벨과 연습 중인 곡에 맞춘 스케일과 아르페지오.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.find_new_piece.title" datatype="html">
+        <source>Find a new piece</source>
+        <target state="translated">새 곡 찾기</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.find_new_piece.description" datatype="html">
+        <source>Three suggestions at the right level, then the chosen one opens.</source>
+        <target state="translated">알맞은 레벨의 곡 세 개를 추천하고, 고른 곡을 엽니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.days" datatype="html">
+        <source>Number of days</source>
+        <target state="translated">일수</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.piece" datatype="html">
+        <source>Piece (title, composer or both)</source>
+        <target state="translated">곡 (제목, 작곡가 또는 둘 다)</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.minutes" datatype="html">
+        <source>Minutes</source>
+        <target state="translated">분</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.wish" datatype="html">
+        <source>What you would like</source>
+        <target state="translated">원하는 것</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.generic" datatype="html">
+        <source>Any MCP host</source>
+        <target state="translated">모든 MCP 호스트</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.generic.note" datatype="html">
+        <source>For any assistant with a setting to add a remote MCP server by URL and header.</source>
+        <target state="translated">URL과 헤더로 원격 MCP 서버를 추가할 수 있는 모든 어시스턴트용.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.json" datatype="html">
+        <source>JSON configuration</source>
+        <target state="translated">JSON 설정</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.json.note" datatype="html">
+        <source>For assistants configured with an mcpServers file, for example Claude Code, Cursor or Cline. Some hosts do not use &quot;type&quot;, or name the keys differently: check their documentation.</source>
+        <target state="translated">mcpServers 파일로 설정하는 어시스턴트용입니다(예: Claude Code, Cursor, Cline). 일부 호스트는 &quot;type&quot;을 쓰지 않거나 키 이름이 다릅니다. 해당 문서를 확인하세요.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.bridge" datatype="html">
+        <source>Command-line bridge</source>
+        <target state="translated">명령줄 브리지</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.bridge.note" datatype="html">
+        <source>For assistants that can only start local servers, for example the Claude Desktop configuration file. Needs Node.js.</source>
+        <target state="translated">로컬 서버만 실행할 수 있는 어시스턴트용입니다(예: Claude Desktop 설정 파일). Node.js가 필요합니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.startPlayback" datatype="html">
+        <source>Start playback</source>
+        <target state="translated">재생 시작</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.controlledBy" datatype="html">
+        <source>Controlled by <x id="INTERPOLATION" equiv-text="{{ client }}"/></source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ client }}"/>이(가) 제어 중</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.waiting" datatype="html">
+        <source>Remote coach on</source>
+        <target state="translated">원격 코치 켜짐</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.connecting" datatype="html">
+        <source>Connecting…</source>
+        <target state="translated">연결 중…</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.error" datatype="html">
+        <source>Remote coach could not connect</source>
+        <target state="translated">원격 코치를 연결하지 못했습니다</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.label" datatype="html">
+        <source>Remote coach</source>
+        <target state="translated">원격 코치</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.activity" datatype="html">
+        <source>Activity</source>
+        <target state="translated">활동</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.confirm.title" datatype="html">
+        <source>Turn on Remote coach?</source>
+        <target state="translated">원격 코치를 켤까요?</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.confirm.text" datatype="html">
+        <source>External tools you gave access to will be able to open scores and start or stop the player in this tab until you turn this off or close the tab.</source>
+        <target state="translated">접근 권한을 준 외부 도구가 이 탭에서 악보를 열고 플레이어를 시작하거나 멈출 수 있습니다. 끄거나 탭을 닫을 때까지 유지됩니다.</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.confirm.yes" datatype="html">
+        <source>Turn on</source>
+        <target state="translated">켜기</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.get_player_state" datatype="html">
+        <source>Checked the player</source>
+        <target state="translated">플레이어 확인</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.list_exercises" datatype="html">
+        <source>Looked at the exercises</source>
+        <target state="translated">연습곡 확인</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.open_score" datatype="html">
+        <source>Opened a score</source>
+        <target state="translated">악보 열기</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.open_exercise" datatype="html">
+        <source>Opened an exercise</source>
+        <target state="translated">연습곡 열기</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.configure_practice" datatype="html">
+        <source>Set up the practice</source>
+        <target state="translated">연습 설정</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.play" datatype="html">
+        <source>Started playback</source>
+        <target state="translated">재생 시작</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.stop" datatype="html">
+        <source>Stopped playback</source>
+        <target state="translated">재생 정지</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.wait_for_take_end" datatype="html">
+        <source>Waited for the end of the take</source>
+        <target state="translated">연주 끝까지 대기</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.get_current_session" datatype="html">
+        <source>Read the current session</source>
+        <target state="translated">현재 세션 읽기</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.navigate" datatype="html">
+        <source>Showed a page</source>
+        <target state="translated">페이지 표시</target>
+      </trans-unit>
+      <trans-unit id="route.coachConnect" datatype="html">
+        <source>Connect an AI coach</source>
+        <target state="translated">AI 코치 연결</target>
+      </trans-unit>
+      <trans-unit id="route.coachAuthorize" datatype="html">
+        <source>Allow an application</source>
+        <target state="translated">애플리케이션 허용</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

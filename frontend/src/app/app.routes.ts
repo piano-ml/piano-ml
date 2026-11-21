@@ -76,6 +76,24 @@ export const routes: Routes = [
 
     },
     {
+        // Connect an external AI assistant (coach, issue #414): logged-in users only, no SEO value
+        component: LayoutComponent,
+        path: 'coach',
+        children: [
+            {
+                path: 'connect',
+                loadComponent: () => import('./coach/connect/connect.component').then(m => m.ConnectComponent),
+                data: { breadcrumb: ROUTE_LABELS.coachConnect, seo: NOINDEX_SEO }
+            },
+            {
+                // Consent page of the coach OAuth server: an application sent the user here to ask for access
+                path: 'authorize',
+                loadComponent: () => import('./coach/authorize/authorize.component').then(m => m.AuthorizeComponent),
+                data: { breadcrumb: ROUTE_LABELS.coachAuthorize, seo: NOINDEX_SEO }
+            }
+        ]
+    },
+    {
         // Admins only (issue #410): adminGuard is UX, the backend refuses /admin/** to anyone else
         component: LayoutComponent,
         path: 'admin',

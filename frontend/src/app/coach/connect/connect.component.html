@@ -1,0 +1,116 @@
+<article class="main-article">
+  <div class="px-4 sm:px-6 pt-4">
+    <h1 class="page-title" i18n="@@coach.connect.title">Connect an AI coach</h1>
+    <p class="page-sub-title" i18n="@@coach.connect.subtitle">Use your own AI assistant as your piano coach</p>
+  </div>
+
+  <hr class="mx-4 sm:mx-6">
+
+  <div class="px-4 sm:px-6 pb-12 flex flex-col gap-8 max-w-3xl mt-6">
+
+    <section data-testid="connect-intro">
+      <p class="text-sm text-neutral-300" i18n="@@coach.connect.intro">Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history, suggests pieces and drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</p>
+    </section>
+
+    <!-- Step 1: connect -->
+    <section>
+      <p class="section-label mb-3" i18n="@@coach.connect.step1">1. Connect your assistant</p>
+      <div class="exercise-desc-card">
+        <div class="exercise-desc-section flex flex-col gap-2">
+          <p class="field-label" i18n="@@coach.connect.url">Server URL</p>
+          <div class="flex gap-2">
+            <input type="text" readonly class="input-field flex-1 font-mono text-xs" [value]="url()" data-testid="connect-url"
+              i18n-aria-label="@@coach.connect.url" aria-label="Server URL">
+            <button type="button" class="btn-primary shrink-0" data-testid="connect-url-copy" (click)="copy('url', url())">
+              @if (isCopied('url')) { <ng-container i18n="@@coach.grants.copied">Copied</ng-container> } @else { <ng-container i18n="@@coach.grants.copy">Copy</ng-container> }
+            </button>
+          </div>
+          <p class="text-xs text-neutral-400" i18n="@@coach.connect.tokenHint">Then create an access below: its token goes in your assistant's configuration.</p>
+        </div>
+      </div>
+    </section>
+
+    <app-coach-grants [showConnectLink]="false" (created)="token.set($event)"></app-coach-grants>
+
+    <!-- Configuration snippets -->
+    <section>
+      <p class="section-label mb-3" i18n="@@coach.connect.snippets">Configuration</p>
+      <div class="exercise-desc-card">
+        <div class="exercise-desc-section flex flex-col gap-3">
+          <div class="flex flex-wrap gap-2" role="tablist">
+            @for (t of tabs; track t.kind) {
+              <button type="button" role="tab" [attr.aria-selected]="tab() === t.kind" [attr.data-testid]="'connect-tab-' + t.kind"
+                [class]="tab() === t.kind ? 'btn-primary' : 'btn-secondary'" (click)="tab.set(t.kind)">{{ t.label }}</button>
+            }
+          </div>
+          <p class="text-xs text-neutral-400" data-testid="connect-note">{{ currentNote() }}</p>
+          <pre class="input-field font-mono text-xs whitespace-pre-wrap break-all" data-testid="connect-snippet">{{ currentSnippet() }}</pre>
+          @if (!token()) {
+            <p class="text-xs text-neutral-400" i18n="@@coach.connect.placeholder">Replace &lt;your token&gt; with the token of an access, or create one above: it then appears here.</p>
+          }
+          <div class="flex justify-end">
+            <button type="button" class="btn-primary" data-testid="connect-snippet-copy" (click)="copy('snippet', currentSnippet())">
+              @if (isCopied('snippet')) { <ng-container i18n="@@coach.grants.copied">Copied</ng-container> } @else { <ng-container i18n="@@coach.grants.copy">Copy</ng-container> }
+            </button>
+          </div>
+          @if (copyFailed('snippet') || copyFailed('url')) {
+            <p class="text-error text-xs" i18n="@@coach.connect.copyFailed">Copy failed: select the text and copy it manually.</p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 2: start -->
+    <section>
+      <p class="section-label mb-3" i18n="@@coach.connect.step2">2. Start the coach</p>
+      <p class="text-xs text-neutral-400 mb-3" i18n="@@coach.connect.promptsHint">Paste one of these messages in your assistant. They tell it how to coach you with PianoML; it will answer in your language.</p>
+      @if (promptsFailed()) {
+        <p class="text-error text-xs" data-testid="connect-prompts-error" i18n="@@coach.connect.promptsError">The prompts could not be loaded. Try again later.</p>
+      }
+      <div class="flex flex-col gap-4">
+        @for (prompt of prompts(); track prompt.id) {
+          <div class="exercise-desc-card" data-testid="connect-prompt">
+            <div class="exercise-desc-section flex flex-col gap-3">
+              <div>
+                <p class="text-sm text-neutral-200" data-testid="connect-prompt-title">{{ title(prompt) }}</p>
+                <p class="text-xs text-neutral-400">{{ description(prompt) }}</p>
+              </div>
+              @for (argument of prompt.arguments; track argument.name) {
+                <label class="flex flex-col gap-1.5">
+                  <span class="field-label">{{ argumentLabel(argument.name, argument.description) }}</span>
+                  <input type="text" class="input-field" maxlength="200" [value]="value(prompt.id, argument.name)"
+                    [placeholder]="argument['default'] ?? ''" [attr.data-testid]="'connect-argument-' + prompt.id + '-' + argument.name"
+                    (input)="setValue(prompt.id, argument.name, $any($event.target).value)">
+                </label>
+              }
+              <textarea readonly rows="6" class="input-field font-mono text-xs" [value]="text(prompt)"
+                [attr.data-testid]="'connect-prompt-text-' + prompt.id" i18n-aria-label="@@coach.connect.promptText" aria-label="Message to paste"></textarea>
+              <div class="flex items-center justify-end gap-3">
+                @if (copyFailed(prompt.id)) {
+                  <span class="text-error text-xs" i18n="@@coach.connect.copyFailed">Copy failed: select the text and copy it manually.</span>
+                }
+                <button type="button" class="btn-primary" [attr.data-testid]="'connect-prompt-copy-' + prompt.id" (click)="copy(prompt.id, text(prompt))">
+                  @if (isCopied(prompt.id)) { <ng-container i18n="@@coach.grants.copied">Copied</ng-container> } @else { <ng-container i18n="@@coach.grants.copy">Copy</ng-container> }
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Step 3: play -->
+    <section data-testid="connect-play">
+      <p class="section-label mb-3" i18n="@@coach.connect.step3">3. Play</p>
+      <div class="exercise-desc-card">
+        <div class="exercise-desc-section flex flex-col gap-3">
+          <p class="text-sm text-neutral-300" i18n="@@coach.connect.playText">Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch stays at the bottom right of every page; turn it off at any time.</p>
+          <p class="text-xs text-neutral-400" i18n="@@coach.connect.playHint">Your browser asks for one click before the first sound: press Start playback when it shows up.</p>
+          <div>
+            <a routerLink="." [queryParams]="{ remoteCoach: 1 }" class="btn-primary" data-testid="connect-remote-coach" i18n="@@coach.connect.turnOn">Turn on Remote coach</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</article>

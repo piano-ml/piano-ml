@@ -1,0 +1,78 @@
+# OAuth authorization of the coach (issue #414, docs/coach-oauth-design.md 2.3, phase O3).
+# coach_oauth_request: a validated GET /oauth/authorize waiting for the user's decision on the consent page.
+#   id_hash is the hex SHA-256 of the random request id in the consent URL; 10 minutes; bound to the first
+#   logged-in user who opens it (user_id); decided_at makes it single use. The client's display data is copied
+#   at creation, so the consent page never refetches a metadata document.
+# coach_oauth_code: the authorization code given on approval. code_hash is the hex SHA-256 of the code;
+#   60 seconds; single use (used_at); bound to client, redirect URI, PKCE challenge, resource, scopes and user;
+#   grant_id is the grant it produced (phase O4), revoked if the code is used again.
+databaseChangeLog:
+  - changeSet:
+      id: 029-1-create-coach-oauth-request
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: coach_oauth_request
+            columns:
+              - column: { name: id_hash, type: CHAR(64), constraints: { nullable: false } }
+              - column: { name: client_id, type: VARCHAR(500), constraints: { nullable: false } }
+              - column: { name: client_name, type: VARCHAR(80), constraints: { nullable: false } }
+              - column: { name: client_host, type: VARCHAR(255) }
+              - column: { name: loopback_only, type: BOOLEAN, constraints: { nullable: false } }
+              - column: { name: redirect_uri, type: VARCHAR(500), constraints: { nullable: false } }
+              - column: { name: code_challenge, type: VARCHAR(128), constraints: { nullable: false } }
+              - column: { name: scopes, type: VARCHAR(200), constraints: { nullable: false } }
+              - column: { name: resource, type: VARCHAR(500), constraints: { nullable: false } }
+              - column: { name: state, type: VARCHAR(500) }
+              - column: { name: user_id, type: UUID }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: expires_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: decided_at, type: TIMESTAMP WITH TIME ZONE }
+        - addPrimaryKey:
+            schemaName: pianoml
+            tableName: coach_oauth_request
+            columnNames: id_hash
+            constraintName: pk_coach_oauth_request
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: coach_oauth_request
+            baseColumnNames: user_id
+            constraintName: fk_coach_oauth_request_user
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: CASCADE
+  - changeSet:
+      id: 029-2-create-coach-oauth-code
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: coach_oauth_code
+            columns:
+              - column: { name: code_hash, type: CHAR(64), constraints: { nullable: false } }
+              - column: { name: client_id, type: VARCHAR(500), constraints: { nullable: false } }
+              - column: { name: redirect_uri, type: VARCHAR(500), constraints: { nullable: false } }
+              - column: { name: code_challenge, type: VARCHAR(128), constraints: { nullable: false } }
+              - column: { name: scopes, type: VARCHAR(200), constraints: { nullable: false } }
+              - column: { name: resource, type: VARCHAR(500), constraints: { nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: expires_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: used_at, type: TIMESTAMP WITH TIME ZONE }
+              - column: { name: grant_id, type: UUID }
+        - addPrimaryKey:
+            schemaName: pianoml
+            tableName: coach_oauth_code
+            columnNames: code_hash
+            constraintName: pk_coach_oauth_code
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: coach_oauth_code
+            baseColumnNames: user_id
+            constraintName: fk_coach_oauth_code_user
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: CASCADE

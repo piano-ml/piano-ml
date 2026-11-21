@@ -27,10 +27,14 @@ export default {
     secure: true,
     changeOrigin: true,
     pathRewrite: { '^/api': '' },
+    // WebSocket upgrades too: the Remote coach socket /api/coach/ws (issue #414)
+    ws: true,
     configure: (proxy) => {
       // The browser sends Origin: http://localhost:4200 on POST/PUT/DELETE. Forwarded as-is, the API would
       // treat the call as cross-origin and reject it (localhost is not an allowed CORS origin).
       proxy.on('proxyReq', (proxyReq) => proxyReq.removeHeader('origin'));
+      // Same for the WebSocket handshake, which the API refuses with an Origin it does not allow
+      proxy.on('proxyReqWs', (proxyReq) => proxyReq.removeHeader('origin'));
       proxy.on('proxyRes', (proxyRes) => {
         const setCookie = proxyRes.headers['set-cookie'];
         if (setCookie) {

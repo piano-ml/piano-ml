@@ -4,9 +4,10 @@ import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loa
 import { RouteLoadingService } from './shared/services/route-loading.service';
 import { BeaconOverlay, BeaconService } from 'ng-beacon';
 
+import { RemoteCoachComponent } from './coach/remote/remote-coach.component';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LoadingSpinnerComponent, BeaconOverlay],
+  imports: [RouterOutlet, LoadingSpinnerComponent, BeaconOverlay, RemoteCoachComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

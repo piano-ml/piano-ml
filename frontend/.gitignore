@@ -13,3 +13,6 @@ deno.lock
 /src/manifest.*.webmanifest
 # Per-language sitemaps, only written when sitemap.xml becomes an index (generate-sitemap.js)
 /src/sitemap-*.xml.gz
+
+# Copied from openapi/coach-tools.json (npm run coach:tools)
+/src/app/coach/tools/tools.generated.json

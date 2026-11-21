@@ -1,0 +1,140 @@
+<section data-testid="coach-grants">
+  <div class="flex items-center justify-between mb-3">
+    <p class="section-label" i18n="@@coach.grants.title">Access for external tools</p>
+    <span class="flex items-center gap-4">
+      @if (showConnectLink()) {
+        <a routerLink="/coach/connect" class="link-primary text-xs" data-testid="coach-grant-connect" i18n="@@coach.grants.connectLink">Connect an AI coach →</a>
+      }
+      @if (!formOpen() && !createdToken()) {
+        <button type="button" class="link-primary text-xs" data-testid="coach-grant-new" (click)="openForm()" i18n="@@coach.grants.new">New access →</button>
+      }
+    </span>
+  </div>
+
+  <div class="exercise-desc-card">
+    <div class="exercise-desc-section">
+      <p class="text-xs text-neutral-400" data-testid="coach-grant-notice" i18n="@@coach.grants.notice">A tool using this access can read your practice history and the score library, and control the player in a tab where you turned on Remote coach. What it reads is sent to the AI provider used by that tool.</p>
+    </div>
+
+    @if (error(); as message) {
+      <div class="exercise-desc-section">
+        <p class="text-error text-xs" role="alert" data-testid="coach-grant-error">{{ message }}</p>
+      </div>
+    }
+
+    @if (createdToken(); as token) {
+      <div class="exercise-desc-section flex flex-col gap-3" data-testid="coach-grant-token-panel">
+        <p class="field-label" i18n="@@coach.grants.token.title">Your token</p>
+        <p class="text-xs text-warning" i18n="@@coach.grants.token.warning">Copy it now and paste it in your tool: it will not be shown again.</p>
+        <div class="flex gap-2">
+          <input type="text" readonly class="input-field flex-1 font-mono text-xs" [value]="token" data-testid="coach-grant-token"
+            i18n-aria-label="@@coach.grants.token.label" aria-label="Access token" (focus)="$any($event.target).select()">
+          <button type="button" class="btn-primary shrink-0" data-testid="coach-grant-copy" (click)="copyToken()">
+            @if (copyState() === 'copied') {
+              <ng-container i18n="@@coach.grants.copied">Copied</ng-container>
+            } @else {
+              <ng-container i18n="@@coach.grants.copy">Copy</ng-container>
+            }
+          </button>
+        </div>
+        @if (copyState() === 'failed') {
+          <p class="text-error text-xs" i18n="@@coach.grants.copyFailed">Copy failed: select the token and copy it manually.</p>
+        }
+        <div class="flex justify-end">
+          <button type="button" class="btn-secondary" data-testid="coach-grant-token-done" (click)="closeToken()" i18n="@@coach.grants.done">Done</button>
+        </div>
+      </div>
+    }
+
+    @if (formOpen()) {
+      <div class="exercise-desc-section">
+        <form [formGroup]="form" (ngSubmit)="create()" class="flex flex-col gap-4" data-testid="coach-grant-form">
+          <div class="flex flex-col gap-1.5">
+            <label class="field-label" for="coach-grant-name" i18n="@@coach.grants.name">Name of the tool</label>
+            <input type="text" id="coach-grant-name" formControlName="name" maxlength="80" class="input-field" data-testid="coach-grant-name"
+              i18n-placeholder="@@coach.grants.name.placeholder" placeholder="For example: assistant on my laptop">
+          </div>
+
+          <fieldset class="flex flex-col gap-2">
+            <legend class="field-label mb-1" i18n="@@coach.grants.scopes">What it can do</legend>
+            @for (scope of scopes; track scope) {
+              <label class="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" [formControlName]="scope" class="w-4 h-4 mt-0.5 rounded cursor-pointer" [attr.data-testid]="'coach-grant-scope-' + scope">
+                <span class="flex flex-col">
+                  <span class="text-sm text-neutral-200">{{ scopeLabels[scope] }}</span>
+                  <span class="text-xs text-neutral-400">{{ scopeHints[scope] }}</span>
+                </span>
+              </label>
+            }
+          </fieldset>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="field-label" for="coach-grant-expiry" i18n="@@coach.grants.expiry">Expires after</label>
+            <select id="coach-grant-expiry" formControlName="expiresInDays" class="input-field" data-testid="coach-grant-expiry">
+              @for (days of expiryDays; track days) {
+                <option [ngValue]="days" i18n="@@coach.grants.days">{{ days }} days</option>
+              }
+            </select>
+          </div>
+
+          <div class="flex gap-3">
+            <button type="submit" class="btn-success" [disabled]="!canSubmit()" data-testid="coach-grant-submit" i18n="@@coach.grants.create">Create</button>
+            <button type="button" class="btn-secondary" (click)="formOpen.set(false)" i18n="@@coach.grants.cancel">Cancel</button>
+          </div>
+        </form>
+      </div>
+    }
+
+    @if (loaded()) {
+      <div class="exercise-desc-section">
+        @if (grants().length === 0) {
+          <p class="text-sm text-neutral-400" data-testid="coach-grant-empty" i18n="@@coach.grants.empty">No access created yet.</p>
+        } @else {
+          <ul class="flex flex-col gap-3">
+            @for (grant of grants(); track grant.id) {
+              <li class="flex flex-col gap-1" data-testid="coach-grant">
+                <div class="flex items-baseline justify-between gap-4">
+                  <span class="min-w-0 truncate text-sm text-neutral-200">{{ grant.name }}</span>
+                  @switch (status(grant)) {
+                    @case ('revoked') {
+                      <span class="shrink-0 text-xs text-neutral-500" data-testid="coach-grant-status" i18n="@@coach.grants.status.revoked">Revoked</span>
+                    }
+                    @case ('expired') {
+                      <span class="shrink-0 text-xs text-neutral-500" data-testid="coach-grant-status" i18n="@@coach.grants.status.expired">Expired</span>
+                    }
+                    @default {
+                      @if (confirmingRevoke() === grant.id) {
+                        <span class="shrink-0 flex items-center gap-2">
+                          <span class="text-xs text-neutral-400" i18n="@@coach.grants.revoke.confirm">The tool will stop working at once.</span>
+                          <button type="button" class="link-primary text-xs" data-testid="coach-grant-revoke-confirm" (click)="revoke(grant.id)" i18n="@@coach.grants.revoke">Revoke</button>
+                          <button type="button" class="link-primary text-xs" (click)="confirmingRevoke.set(null)" i18n="@@coach.grants.cancel">Cancel</button>
+                        </span>
+                      } @else {
+                        <button type="button" class="shrink-0 link-primary text-xs" data-testid="coach-grant-revoke" (click)="confirmingRevoke.set(grant.id)" i18n="@@coach.grants.revoke">Revoke</button>
+                      }
+                    }
+                  }
+                </div>
+                @if (grant.kind === 'oauth') {
+                  <span class="text-xs text-neutral-400" data-testid="coach-grant-oauth">
+                    <ng-container i18n="@@coach.grants.kind.oauth">Connected application</ng-container>@if (grant.clientHost) { · <span class="font-mono">{{ grant.clientHost }}</span> }
+                  </span>
+                }
+                <span class="text-xs text-neutral-400">{{ scopeList(grant) }}</span>
+                <span class="text-xs text-neutral-500">
+                  <ng-container i18n="@@coach.grants.expires">Expires {{ date(grant.expiresAt) }}</ng-container>
+                  ·
+                  @if (grant.lastUsedAt) {
+                    <ng-container i18n="@@coach.grants.lastUsed">Last used {{ date(grant.lastUsedAt) }}</ng-container>
+                  } @else {
+                    <ng-container i18n="@@coach.grants.neverUsed">Never used</ng-container>
+                  }
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </div>
+</section>
