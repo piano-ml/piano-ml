@@ -1903,8 +1903,8 @@
         <target state="translated">La partitura espera a que toques cada nota.</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.along.hint" datatype="html">
-        <source>The score keeps the tempo, and the app does not play these notes.</source>
-        <target state="translated">La partitura mantiene el tempo y la app no toca estas notas.</target>
+        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
+        <target state="translated">La partitura mantiene el tempo y toca estas notas contigo; cada nota que tocas se evalúa por su precisión rítmica.</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.app.hint" datatype="html">
         <source>The app plays these notes.</source>
@@ -1931,8 +1931,8 @@
         <target state="translated">Práctica de la mano derecha</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and the app stays silent for these notes) or App plays.</source>
-        <target state="translated">Elige cómo tocas la mano derecha: Esperarme (la partitura espera cada una de tus notas, ideal para aprender la melodía a tu ritmo), Tocar a la par (la partitura mantiene el tempo y la app no suena en estas notas) o La app toca.</target>
+        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
+        <target state="translated">Elige cómo tocas la mano derecha: Esperarme (la partitura espera cada una de tus notas, ideal para aprender la melodía a tu ritmo), Tocar a la par (la partitura mantiene el tempo y toca estas notas contigo) o La app toca.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>

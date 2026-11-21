@@ -753,7 +753,7 @@
       "player:control"
     ],
     "timeoutSeconds": 10,
-    "description": "Set up how the loaded piece is practiced: the range of measures (1-based, inclusive), the tempo (percent of the original, or beats per minute), looping, which hand the student plays (left, right, both; 'listen' means the app plays and nothing is measured; a score with 1 track usually has the right hand only, so choose right or listen there) and how (handsMode: 'wait', the score waits for each note, or 'along', the score keeps the tempo and the app stays silent for those notes, measured by timing), the metronome and the on-screen keyboard. Only the given settings change. Stops playback first if the range or loop changes.",
+    "description": "Set up how the loaded piece is practiced: the range of measures (1-based, inclusive), the tempo (percent of the original, or beats per minute), looping, which hand the student plays (left, right, both; 'listen' means the app plays and nothing is measured; a score with 1 track usually has the right hand only, so choose right or listen there) and how (handsMode: 'wait', the score waits for each note, or 'along', the score keeps the tempo and plays those notes with the student, measured by timing), the metronome and the on-screen keyboard. Only the given settings change. Stops playback first if the range or loop changes.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -799,7 +799,7 @@
             "wait",
             "along"
           ],
-          "description": "How the student plays the hands: wait (default: the score waits for each note) or along (at tempo, the app silent for those notes). Applies to hands, or to the current hands when hands is not given; not with listen"
+          "description": "How the student plays the hands: wait (default: the score waits for each note) or along (at tempo, the app playing them too, measured by timing). Applies to hands, or to the current hands when hands is not given; not with listen"
         },
         "metronome": {
           "type": "boolean"

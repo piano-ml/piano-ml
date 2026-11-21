@@ -1903,8 +1903,8 @@
         <target state="translated">乐谱会等你弹出每个音。</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.along.hint" datatype="html">
-        <source>The score keeps the tempo, and the app does not play these notes.</source>
-        <target state="translated">乐谱保持速度，应用不演奏这些音。</target>
+        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
+        <target state="translated">乐谱保持速度，并和你一起演奏这些音；你弹的每个音都按时机评分。</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.app.hint" datatype="html">
         <source>The app plays these notes.</source>
@@ -1931,8 +1931,8 @@
         <target state="translated">右手练习</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and the app stays silent for these notes) or App plays.</source>
-        <target state="translated">选择右手的弹法：等我（乐谱会等你弹出每个音，适合按自己的节奏学习旋律）、跟着弹（乐谱保持速度，应用对这些音保持静音）或应用演奏。</target>
+        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
+        <target state="translated">选择右手的弹法：等我（乐谱会等你弹出每个音，适合按自己的节奏学习旋律）、跟着弹（乐谱保持速度，并和你一起演奏这些音）或应用演奏。</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>

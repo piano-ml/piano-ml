@@ -1903,8 +1903,8 @@
         <target state="translated">Die Noten warten, bis du jede Note spielst.</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.along.hint" datatype="html">
-        <source>The score keeps the tempo, and the app does not play these notes.</source>
-        <target state="translated">Die Noten halten das Tempo, und die App spielt diese Noten nicht.</target>
+        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
+        <target state="translated">Die Noten halten das Tempo und spielen diese Noten mit dir; jede Note, die du spielst, wird nach ihrem Timing bewertet.</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.app.hint" datatype="html">
         <source>The app plays these notes.</source>
@@ -1931,8 +1931,8 @@
         <target state="translated">Rechte Hand üben</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and the app stays silent for these notes) or App plays.</source>
-        <target state="translated">Wähle, wie du die rechte Hand spielst: Auf mich warten (die Noten warten auf jede deiner Noten, ideal, um die Melodie in deinem Tempo zu lernen), Mitspielen (die Noten halten das Tempo, und die App bleibt bei diesen Noten stumm) oder App spielt.</target>
+        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
+        <target state="translated">Wähle, wie du die rechte Hand spielst: Auf mich warten (die Noten warten auf jede deiner Noten, ideal, um die Melodie in deinem Tempo zu lernen), Mitspielen (die Noten halten das Tempo und spielen diese Noten mit dir) oder App spielt.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>

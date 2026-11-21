@@ -935,7 +935,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   handModeHint(mode: HandMode): string {
     switch (mode) {
       case 'wait': return $localize`:@@workbench.handMode.wait.hint:The score waits until you play each note.`;
-      case 'along': return $localize`:@@workbench.handMode.along.hint:The score keeps the tempo, and the app does not play these notes.`;
+      case 'along': return $localize`:@@workbench.handMode.along.hint:The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.`;
       case 'app': return $localize`:@@workbench.handMode.app.hint:The app plays these notes.`;
     }
   }

@@ -15,6 +15,7 @@ import {
 import { findClickOnsets } from './mic-onsets';
 import { MicrophoneService } from './microphone.service';
 import { PlayGuideService, type GuideHand } from './play-guide.service';
+import { AudioMixerService, type MixerBus } from './audio-mixer.service';
 import { handModeOfNote, isListening } from '../model/hand-mode';
 import { withListenerParams } from './audio-listener';
 
@@ -55,6 +56,12 @@ export interface CalibrationTap {
   /** Whether it counts: not a warm-up click, and close enough to its click. */
   measured: boolean;
 }
+/** The synth channel of the score's hands (bus `score`); the accompaniment uses its own channels (bus `accompaniment`). */
+export const SCORE_CHANNEL = 0;
+/** The General MIDI percussion channel: the metronome clicks (bus `metronome`). */
+export const METRONOME_CHANNEL = 9;
+/** The accompaniment plays below the score: 66 % of its velocities, before the mixer's level. */
+export const ACCOMPANIMENT_VELOCITY_FACTOR = 0.66;
 /** How long a metronome click sounds before its note-off (a crisp click). */
 export const METRONOME_CLICK_S = 0.04;
 /** MIDI controller "All Sound Off": stops every voice of a channel at once. */
@@ -116,6 +123,7 @@ export class PlayerAudioService implements OnDestroy {
     private midiService: MidiServiceService,
     private microphone: MicrophoneService,
     private guide: PlayGuideService,
+    private mixer: AudioMixerService,
   ) { }
 
 
@@ -271,7 +279,7 @@ export class PlayerAudioService implements OnDestroy {
     }
     const first = context.currentTime + (mode === 'loopback' ? CALIBRATION_MIC_LEAD_S : CALIBRATION_LEAD_S);
     clicks = Array.from({ length: CALIBRATION_CLICKS }, (_, i) => first + i * interval);
-    clicks.forEach((time, i) => this.playMetronomeClick(i % 4 === 0, METRONOME_FULL_VELOCITY, time));
+    clicks.forEach((time, i) => this.playMetronomeClick(i % 4 === 0, METRONOME_FULL_VELOCITY, time, null)); // not mixed
     try {
       await new Promise<void>((resolve, reject) => {
         if (signal?.aborted) {
@@ -358,17 +366,9 @@ export class PlayerAudioService implements OnDestroy {
     const noteStart = (note.time * timeFactor) - startOffset;
     const noteDuration = note.duration * timeFactor;
     const transport = this.transport();
-    const roundedVelocity = Math.round(note.velocity * 84); // * 127 * 0.66 to reduce volume 
 
-    // Note on
-    transport.schedule((time: number) => {
-      this.noteOn(channel, note.midi, roundedVelocity, time);
-    }, noteStart + offset);
-
-    // Note off
-    transport.schedule((time: number) => {
-      this.noteOff(channel, note.midi, time);
-    }, noteStart + noteDuration + offset);
+    transport.schedule((time: number) => this.accompanimentNoteOn(channel, note.midi, note.velocity, time), noteStart + offset);
+    transport.schedule((time: number) => this.noteOff(channel, note.midi, time), noteStart + noteDuration + offset);
   }
 
   /**
@@ -596,10 +596,9 @@ export class PlayerAudioService implements OnDestroy {
    *
    * Where the note goes depends on the mode of its hand (hand-mode.ts), for the notes within the keyboard's range
    * (the others, which the student cannot play, are always played by the app):
-   * - `app`: the sound (the PianoML synth when chosen, and the MIDI outputs);
-   * - `wait`: the play guide, and the wait-mode assessment (playback pauses for it);
-   * - `along`: the play guide, and the play-along assessment by due time. Never the sound: not even the MIDI
-   *   outputs, which may be a keyboard that would play it aloud.
+   * - `app`: the sound (the `score` bus of the mixer);
+   * - `along`: the sound too, the play guide, and the play-along assessment by due time;
+   * - `wait`: the play guide and the wait-mode assessment (playback pauses for it); no sound, the student plays it.
    */
   scheduleHandNote(
     hand: string,
@@ -618,6 +617,8 @@ export class PlayerAudioService implements OnDestroy {
     const playable = note.midi >= this.state.leftmostKey && note.midi <= this.state.rightmostKey;
     const mode = playable ? handModeOfNote(playConfig, hand) : 'app';
     const isHandAwaited = mode === 'wait';
+    const sounds = mode !== 'wait';
+    const guides = mode !== 'app';
     const guideHand: GuideHand = hand === 'lh' ? 'lh' : 'rh';
 
     // Every event is shifted by the count-in, awaited notes included: playback must reach the first one after
@@ -632,15 +633,15 @@ export class PlayerAudioService implements OnDestroy {
     }
 
     const transport = this.transport();
-    const roundedVelocity = Math.round(note.velocity * 127);
 
     // Note start: one transport event for the sound, the assessment and the pause decision. They run here, not in
     // a Tone.Draw callback, which Draw drops when it is more than its expiration late: a wait-mode expectation
     // must never be lost. The callback schedules the visual work (cursor, key lights) on Draw itself.
     transport.schedule((time: number) => {
-      if (mode === 'app') {
-        this.soundOn(note.midi, note.velocity, roundedVelocity, time);
-      } else {
+      if (sounds) {
+        this.scoreNoteOn(note.midi, note.velocity, time);
+      }
+      if (guides) {
         this.guide.noteOn(note.midi, note.velocity, guideHand, this.contextToPerformanceMs(time));
       }
       const liveStatus = isHandAwaited
@@ -651,28 +652,44 @@ export class PlayerAudioService implements OnDestroy {
 
     // Note end (piano audio stop; the callback turns the key light off)
     transport.schedule((time: number) => {
-      if (mode === 'app') {
-        this.soundOff(note.midi, time);
-      } else {
+      if (sounds) {
+        this.scoreNoteOff(note.midi, time);
+      }
+      if (guides) {
         this.guide.noteOff(note.midi, guideHand, this.contextToPerformanceMs(time));
       }
       callbacks.onNoteEnd(time, note, this.assess.getExpectation());
     }, scheduleEndTime);
   }
 
-  /** A note the app plays: to the MIDI outputs, and to the PianoML synth when it is chosen. */
-  private soundOn(midi: number, velocity: number, roundedVelocity: number, time: number): void {
-    this.midiService.pressOutput(midi, velocity, this.contextToPerformanceMs(time));
+  // --- sound, by mixer bus (audio-mixer.service.ts) ------------------------------------------------------------
+
+  /**
+   * A note of the score the app plays (bus `score`): to the MIDI outputs, and to the PianoML synth when it is
+   * chosen. `velocity` is 0..1, as in the MIDI file.
+   */
+  private scoreNoteOn(midi: number, velocity: number, time: number): void {
+    const mixed = this.mixer.velocity('score', velocity * 127);
+    if (mixed === 0) return;
+    this.midiService.pressOutput(midi, mixed / 127, this.contextToPerformanceMs(time));
     if (this.pianoMLShouldPlay) {
-      this.noteOn(0, midi, roundedVelocity, time);
+      this.noteOn(SCORE_CHANNEL, midi, mixed, time);
     }
   }
 
-  private soundOff(midi: number, time: number): void {
+  /** Always sent, even when the bus is silent: a level lowered while a note sounds must not leave it hanging. */
+  private scoreNoteOff(midi: number, time: number): void {
     this.midiService.releaseOutput(midi, this.contextToPerformanceMs(time));
     if (this.pianoMLShouldPlay) {
-      this.noteOff(0, midi, time);
+      this.noteOff(SCORE_CHANNEL, midi, time);
     }
+  }
+
+  /** A note of an accompaniment track (bus `accompaniment`), on its own synth channel. `velocity` is 0..1. */
+  private accompanimentNoteOn(channel: number, midi: number, velocity: number, time: number): void {
+    const mixed = this.mixer.velocity('accompaniment', velocity * 127 * ACCOMPANIMENT_VELOCITY_FACTOR);
+    if (mixed === 0) return;
+    this.noteOn(channel, midi, mixed, time);
   }
 
 
@@ -708,16 +725,19 @@ export class PlayerAudioService implements OnDestroy {
 
 
   /**
-   * A click at audio context `time` (now if omitted). Its note-off is queued in the synth and in the MIDI output
-   * too: no timer on the main thread.
+   * A click at audio context `time` (now if omitted), on the `metronome` bus of the mixer (`bus` null: at full
+   * volume whatever the mixer, for the timing calibration). Its note-off is queued in the synth and in the MIDI
+   * output too: no timer on the main thread.
    */
-  playMetronomeClick(isStrong: boolean, velocity: number = METRONOME_VELOCITY, time?: number): void {
+  playMetronomeClick(isStrong: boolean, velocity: number = METRONOME_VELOCITY, time?: number, bus: MixerBus | null = 'metronome'): void {
+    const mixed = this.mixer.velocity(bus, velocity);
+    if (mixed === 0) return;
     const note = isStrong ? 34 : 33;   // 34 = Metronome Bell, 33 = Metronome Click
     const at = time ?? this.audioContext?.currentTime ?? 0;
-    this.noteOn(9, note, velocity, at);
-    this.noteOff(9, note, at + METRONOME_CLICK_S);
+    this.noteOn(METRONOME_CHANNEL, note, mixed, at);
+    this.noteOff(METRONOME_CHANNEL, note, at + METRONOME_CLICK_S);
     const atMs = this.contextToPerformanceMs(at);
-    this.midiService.pressDrum(note, velocity / 127, atMs);
+    this.midiService.pressDrum(note, mixed / 127, atMs);
     this.midiService.releaseDrum(note, atMs + METRONOME_CLICK_S * 1000);
   }
 

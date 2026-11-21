@@ -3,13 +3,13 @@ import type { PlayConfiguration } from './model';
 /**
  * What happens with the notes of one hand while the score plays:
  * - `wait`: playback waits until the student plays each note (wait mode); the app does not play them;
- * - `along`: playback keeps the tempo and the student plays along; the app does not play them either (silent),
- *   each key press is assessed by its time;
+ * - `along`: playback keeps the tempo and the student plays along with the app, which plays them too; each key
+ *   press is assessed by its time;
  * - `app`: the app plays them (listening, or the other hand of the student).
  *
  * The notes of a `wait` or `along` hand are the ones the student plays: they go to the play guide (keyboard
- * lights, a MIDI output for lights) and never to the sound. Wait and along do not mix: waiting pauses the
- * playback that play-along assesses against.
+ * lights, a MIDI output for lights). The sound (the mixer's `score` bus) gets the `app` and `along` ones. Wait
+ * and along do not mix: waiting pauses the playback that play-along assesses against.
  */
 export type HandMode = 'wait' | 'along' | 'app';
 

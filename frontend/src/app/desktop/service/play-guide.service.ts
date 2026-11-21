@@ -5,8 +5,8 @@ export type GuideHand = 'lh' | 'rh';
 
 /**
  * Something that shows the student which notes to play: keyboard lights (an LED strip), or a MIDI output dedicated
- * to lights. It gets the notes of the hands the student plays (wait and play-along modes), never the ones the app
- * plays. Times are on the performance.now() clock, like Web MIDI's send(): an output can schedule them exactly,
+ * to lights. It gets the notes of the hands the student plays (wait and play-along modes), not the hands the app
+ * plays alone. Times are on the performance.now() clock, like Web MIDI's send(): an output can schedule them exactly,
  * as they come a little ahead of time (the player's lookahead).
  */
 export interface PlayGuideOutput {

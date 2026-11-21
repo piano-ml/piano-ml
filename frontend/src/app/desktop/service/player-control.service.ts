@@ -11,7 +11,7 @@ import { PracticeSessionRecorder } from './practice-session-recorder.service';
 
 export type Hands = 'both' | 'left' | 'right' | 'listen';
 
-/** How the student plays the hands they play (hand-mode.ts): waited for, or along at tempo with the app silent. */
+/** How the student plays the hands they play (hand-mode.ts): waited for, or along with the app at tempo. */
 export type HandsMode = 'wait' | 'along';
 
 /** The take that just ended, before the server has it. */
@@ -59,7 +59,7 @@ export interface PlayerState {
   tempo: { bpm: number; originalBpm: number; percent: number };
   loop: boolean;
   hands: Hands;
-  /** How the student plays the hands: waited for, or played along (at tempo, the app silent); null when listening. */
+  /** How the student plays the hands: waited for, or played along with the app at tempo; null when listening. */
   handsMode: HandsMode | null;
   metronome: boolean;
   showKeyboard: boolean;

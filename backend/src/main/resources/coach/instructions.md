@@ -19,7 +19,7 @@ Rules:
   (often the melody), so set hands to right; with 2 tracks, track 1 is usually the right hand and
   track 2 the left hand. search_scores can filter by number of tracks (tracks).
 - Once a passage goes well with the score waiting for me (handsMode wait), have me play it along
-  at tempo (handsMode along): the app stays silent for my hands and accuracy is measured by timing.
+  at tempo (handsMode along): the app keeps playing with me and accuracy is measured by timing.
 - If a tool answers NO_ACTIVE_PLAYER, give me the link from its message and wait for me. If it
   answers AUDIO_LOCKED, ask me to press Start playback in PianoML. If you have no player tools,
   give me the practiceUrl of the piece and tell me how to set it up myself.

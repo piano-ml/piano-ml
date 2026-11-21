@@ -41,9 +41,9 @@ export interface PlayConfiguration {
   doSound: boolean;
   waitForLeftHand: boolean;
   waitForRightHand: boolean;
-  /** The student plays the left hand along, at tempo, and the app stays silent for it (see hand-mode.ts). */
+  /** The student plays the left hand along with the app, at tempo, assessed by timing (see hand-mode.ts). */
   alongLeftHand?: boolean;
-  /** The student plays the right hand along, at tempo, and the app stays silent for it (see hand-mode.ts). */
+  /** The student plays the right hand along with the app, at tempo, assessed by timing (see hand-mode.ts). */
   alongRightHand?: boolean;
   delayFactor: number;
   tempoFactor: number;  

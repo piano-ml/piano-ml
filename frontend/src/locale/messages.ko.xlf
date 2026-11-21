@@ -1903,8 +1903,8 @@
         <target state="translated">악보가 각 음을 칠 때까지 기다립니다.</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.along.hint" datatype="html">
-        <source>The score keeps the tempo, and the app does not play these notes.</source>
-        <target state="translated">악보가 템포를 유지하고, 앱은 이 음들을 연주하지 않습니다.</target>
+        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
+        <target state="translated">악보가 템포를 유지하며 이 음들을 함께 연주합니다. 내가 친 음은 타이밍으로 평가됩니다.</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.app.hint" datatype="html">
         <source>The app plays these notes.</source>
@@ -1931,8 +1931,8 @@
         <target state="translated">오른손 연습</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and the app stays silent for these notes) or App plays.</source>
-        <target state="translated">오른손을 어떻게 칠지 선택하세요: 나를 기다리기(악보가 음마다 기다려 주어 내 속도로 멜로디를 익히기 좋아요), 따라 치기(악보가 템포를 유지하고 앱은 이 음들을 연주하지 않아요) 또는 앱이 연주.</target>
+        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
+        <target state="translated">오른손을 어떻게 칠지 선택하세요: 나를 기다리기(악보가 음마다 기다려 주어 내 속도로 멜로디를 익히기 좋아요), 따라 치기(악보가 템포를 유지하며 이 음들을 함께 연주해요) 또는 앱이 연주.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>

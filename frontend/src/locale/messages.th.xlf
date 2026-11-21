@@ -1903,8 +1903,8 @@
         <target state="translated">โน้ตจะรอจนกว่าคุณจะเล่นแต่ละโน้ต</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.along.hint" datatype="html">
-        <source>The score keeps the tempo, and the app does not play these notes.</source>
-        <target state="translated">โน้ตจะเดินตามจังหวะ และแอปจะไม่เล่นโน้ตเหล่านี้</target>
+        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
+        <target state="translated">โน้ตจะเดินตามจังหวะและเล่นโน้ตเหล่านี้ไปพร้อมกับคุณ โน้ตที่คุณเล่นแต่ละตัวจะได้รับการประเมินตามจังหวะ</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.app.hint" datatype="html">
         <source>The app plays these notes.</source>
@@ -1931,8 +1931,8 @@
         <target state="translated">ฝึกมือขวา</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and the app stays silent for these notes) or App plays.</source>
-        <target state="translated">เลือกวิธีเล่นมือขวา: รอฉัน (โน้ตจะรอทุกโน้ตที่คุณเล่น เหมาะสำหรับฝึกทำนองตามจังหวะของคุณเอง) เล่นตาม (โน้ตเดินตามจังหวะ และแอปจะเงียบสำหรับโน้ตเหล่านี้) หรือ แอปเล่นให้</target>
+        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
+        <target state="translated">เลือกวิธีเล่นมือขวา: รอฉัน (โน้ตจะรอทุกโน้ตที่คุณเล่น เหมาะสำหรับฝึกทำนองตามจังหวะของคุณเอง) เล่นตาม (โน้ตเดินตามจังหวะและเล่นโน้ตเหล่านี้ไปพร้อมกับคุณ) หรือ แอปเล่นให้</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>

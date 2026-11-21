@@ -1903,8 +1903,8 @@
         <target state="translated">Lo spartito aspetta che tu suoni ogni nota.</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.along.hint" datatype="html">
-        <source>The score keeps the tempo, and the app does not play these notes.</source>
-        <target state="translated">Lo spartito mantiene il tempo e l'app non suona queste note.</target>
+        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
+        <target state="translated">Lo spartito mantiene il tempo e suona queste note con te; ogni nota che suoni viene valutata in base al tempo.</target>
       </trans-unit>
       <trans-unit id="workbench.handMode.app.hint" datatype="html">
         <source>The app plays these notes.</source>
@@ -1931,8 +1931,8 @@
         <target state="translated">Mano destra</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and the app stays silent for these notes) or App plays.</source>
-        <target state="translated">Scegli come suoni la mano destra: Aspettami (lo spartito aspetta ogni tua nota, ideale per imparare la melodia con calma), Suona insieme (lo spartito mantiene il tempo e l'app resta in silenzio su queste note) o Suona l'app.</target>
+        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
+        <target state="translated">Scegli come suoni la mano destra: Aspettami (lo spartito aspetta ogni tua nota, ideale per imparare la melodia con calma), Suona insieme (lo spartito mantiene il tempo e suona queste note con te) o Suona l'app.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>
