@@ -33,8 +33,8 @@ import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
-import { type Hands, type PlayerState, PlayerControlService, type WorkbenchHandle, lastTakeOf, waitFor } from '../../service/player-control.service';
-import { type HandMode, type HandSide, handModeOf, studentHands, withHandMode } from '../../model/hand-mode';
+import { type Hands, type HandsMode, type PlayerState, PlayerControlService, type WorkbenchHandle, lastTakeOf, waitFor } from '../../service/player-control.service';
+import { type HandMode, type HandSide, handModeOf, handsModeOf, studentHands, withHandMode } from '../../model/hand-mode';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
@@ -393,11 +393,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.playConfiguration.isLoop = value;
       this.changeDetector.markForCheck();
     },
-    setHands: (value: Hands) => {
-      // The coach's hands are the ones to wait for (play-along is not one of its settings)
+    setHands: (value: Hands, mode: HandsMode = 'wait') => {
+      // The hands the student plays, all in the same mode (wait and play-along do not mix); the app plays the others
       const hands = waitFor(value);
-      this.setHandMode('left', hands.left ? 'wait' : 'app');
-      this.setHandMode('right', hands.right ? 'wait' : 'app');
+      this.setHandMode('left', hands.left ? mode : 'app');
+      this.setHandMode('right', hands.right ? mode : 'app');
     },
     setMetronome: (value) => this.onMetronomeStatus(value),
     setKeyboardVisible: (value) => this.setHideKeyboard(!value),
@@ -449,6 +449,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       tempo: { bpm: this.tempo, originalBpm: original, percent: Math.round((100 * this.tempo) / original) },
       loop: config.isLoop,
       hands: studentHands(config),
+      handsMode: handsModeOf(config),
       metronome: config.useMetronome,
       showKeyboard: !this.hideKeyboard,
       midiInput: this.midiInputState(),

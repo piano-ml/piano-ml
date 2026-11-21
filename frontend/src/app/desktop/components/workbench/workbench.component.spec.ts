@@ -589,6 +589,17 @@ describe('WorkbenchComponent', () => {
       expect(control().state().range).toEqual({ fromMeasure: 1, toMeasure: total });
     });
 
+    it('lets the coach set a hand played along, and reports it', async () => {
+      await openScore();
+      const handle = control().handle()!;
+      handle.setHands('right', 'along');
+      expect(component.playConfiguration.alongRightHand).toBe(true);
+      expect(component.playConfiguration.waitForRightHand).toBe(false);
+      expect(control().state()).toMatchObject({ hands: 'right', handsMode: 'along' });
+      handle.setHands('listen');
+      expect(control().state()).toMatchObject({ hands: 'listen', handsMode: null });
+    });
+
     it('sets tempo (clamped), loop, hands, metronome and keyboard', async () => {
       await openScore();
       const handle = control().handle()!;

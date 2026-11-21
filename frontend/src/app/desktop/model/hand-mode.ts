@@ -72,6 +72,13 @@ export function studentHands(config: HandFlags): 'both' | 'left' | 'right' | 'li
   return left && right ? 'both' : left ? 'left' : right ? 'right' : 'listen';
 }
 
+/** How the student plays their hands: 'wait' or 'along' (they never mix); null when the app plays both (listening). */
+export function handsModeOf(config: HandFlags): 'wait' | 'along' | null {
+  if (config.waitForLeftHand || config.waitForRightHand) return 'wait';
+  if (config.alongLeftHand || config.alongRightHand) return 'along';
+  return null;
+}
+
 /** True when no hand waits: playback keeps the tempo, and key presses are assessed by their time. */
 export function isTimed(config: HandFlags): boolean {
   return !config.waitForLeftHand && !config.waitForRightHand;
