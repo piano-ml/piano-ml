@@ -102,7 +102,7 @@ public class ScoreControllerYoutubeApiTest {
   }
 
   @Test
-  void videoGet_youtubeThrowsException_returns502() throws Exception {
+  void videoGet_youtubeThrowsException_returnsNoVideos() throws Exception {
     UUID scoreId = UUID.randomUUID();
 
     ScoreApiInfo scoreApiInfo = new ScoreApiInfo();
@@ -114,7 +114,8 @@ public class ScoreControllerYoutubeApiTest {
         .thenThrow(new YoutubeService.YoutubeApiException("API error", new RuntimeException()));
 
     mockMvc.perform(get("/score/{id}/video", scoreId))
-        .andExpect(status().isBadGateway());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isEmpty());
   }
 
   // ─────────────────────────────────────────────────────────────────────────
