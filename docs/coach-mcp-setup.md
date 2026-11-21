@@ -1,6 +1,6 @@
 # Connecting an AI assistant to PianoML (MCP)
 
-PianoML exposes an MCP server that any MCP host (desktop assistant, coding assistant, chat application) can use to read your practice history and, in later versions, drive the player. Specification: `docs/coach-external-harness.md` (issue #414).
+PianoML exposes an MCP server that any MCP host (desktop assistant, coding assistant, chat application) can use to read your practice history, search the score library and drive the player. Specification: `docs/coach-external-harness.md` (issue #414).
 
 The quickest way is the **Connect an AI coach** page of the app (`/coach/connect`, linked from the account page): it shows the server URL, creates a token, fills configuration snippets with it, and offers ready-made prompts to paste. The user guide, with Claude, ChatGPT and other assistants, is [`coach-getting-started.md`](coach-getting-started.md). This document is the reference for developers.
 

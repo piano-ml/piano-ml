@@ -3871,8 +3871,8 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <target state="translated">让你自己的 AI 助手成为钢琴教练</target>
       </trans-unit>
       <trans-unit id="coach.connect.intro" datatype="html">
-        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history and, soon, drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
-        <target state="translated">你自己的 AI 助手可以成为你的钢琴教练。连接 PianoML 后，它会读取你的练习记录，并即将可以控制播放器。它读取的内容会发送给该助手的 AI 服务商，而不是 PianoML。</target>
+        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history, suggests pieces and drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
+        <target state="translated">你自己的 AI 助手可以成为你的钢琴教练。连接 PianoML 后，它会读取你的练习记录、为你推荐曲目，并控制播放器。它读取的内容会发送给该助手的 AI 服务商，而不是 PianoML。</target>
       </trans-unit>
       <trans-unit id="coach.connect.step1" datatype="html">
         <source>1. Connect your assistant</source>

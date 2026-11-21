@@ -3871,8 +3871,8 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <target state="translated">Twój własny asystent AI jako trener gry na pianinie</target>
       </trans-unit>
       <trans-unit id="coach.connect.intro" datatype="html">
-        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history and, soon, drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
-        <target state="translated">Twój własny asystent AI może zostać Twoim trenerem gry na pianinie. Połączony z PianoML czyta Twoją historię ćwiczeń, a wkrótce będzie sterować odtwarzaczem. To, co odczyta, trafia do dostawcy AI tego asystenta, a nie do PianoML.</target>
+        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history, suggests pieces and drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
+        <target state="translated">Twój własny asystent AI może zostać Twoim trenerem gry na pianinie. Połączony z PianoML czyta Twoją historię ćwiczeń, proponuje utwory i steruje odtwarzaczem. To, co odczyta, trafia do dostawcy AI tego asystenta, a nie do PianoML.</target>
       </trans-unit>
       <trans-unit id="coach.connect.step1" datatype="html">
         <source>1. Connect your assistant</source>

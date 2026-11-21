@@ -3871,8 +3871,8 @@ Användning: över mollackord och mollbluessammanhang (i7- / i-centrum) när du 
         <target state="translated">Använd din egen AI-assistent som pianocoach</target>
       </trans-unit>
       <trans-unit id="coach.connect.intro" datatype="html">
-        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history and, soon, drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
-        <target state="translated">Din egen AI-assistent kan bli din pianocoach. Ansluten till PianoML läser den din övningshistorik och styr snart spelaren. Det den läser skickas till assistentens AI-leverantör, inte till PianoML.</target>
+        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history, suggests pieces and drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
+        <target state="translated">Din egen AI-assistent kan bli din pianocoach. Ansluten till PianoML läser den din övningshistorik, föreslår stycken och styr spelaren. Det den läser skickas till assistentens AI-leverantör, inte till PianoML.</target>
       </trans-unit>
       <trans-unit id="coach.connect.step1" datatype="html">
         <source>1. Connect your assistant</source>

@@ -3871,8 +3871,8 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
         <target state="translated">Gebruik je eigen AI-assistent als pianocoach</target>
       </trans-unit>
       <trans-unit id="coach.connect.intro" datatype="html">
-        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history and, soon, drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
-        <target state="translated">Je eigen AI-assistent kan je pianocoach worden. Gekoppeld aan PianoML leest hij je oefengeschiedenis en bedient hij binnenkort de speler. Wat hij leest gaat naar de AI-aanbieder van die assistent, niet naar PianoML.</target>
+        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history, suggests pieces and drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
+        <target state="translated">Je eigen AI-assistent kan je pianocoach worden. Gekoppeld aan PianoML leest hij je oefengeschiedenis, stelt hij stukken voor en bedient hij de speler. Wat hij leest gaat naar de AI-aanbieder van die assistent, niet naar PianoML.</target>
       </trans-unit>
       <trans-unit id="coach.connect.step1" datatype="html">
         <source>1. Connect your assistant</source>

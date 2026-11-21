@@ -3871,8 +3871,8 @@ Anwendung: über Mollakkorden und Moll-Blues-Kontexten (i7- bzw. i-Zentren), wen
         <target state="translated">Mach deinen eigenen KI-Assistenten zu deinem Klavier-Coach</target>
       </trans-unit>
       <trans-unit id="coach.connect.intro" datatype="html">
-        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history and, soon, drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
-        <target state="translated">Dein eigener KI-Assistent kann dein Klavier-Coach werden. Mit PianoML verbunden, liest er deinen Übungsverlauf und steuert bald den Player. Was er liest, geht an den KI-Anbieter dieses Assistenten, nicht an PianoML.</target>
+        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history, suggests pieces and drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
+        <target state="translated">Dein eigener KI-Assistent kann dein Klavier-Coach werden. Mit PianoML verbunden, liest er deinen Übungsverlauf, schlägt dir Stücke vor und steuert den Player. Was er liest, geht an den KI-Anbieter dieses Assistenten, nicht an PianoML.</target>
       </trans-unit>
       <trans-unit id="coach.connect.step1" datatype="html">
         <source>1. Connect your assistant</source>

@@ -3871,8 +3871,8 @@ Uso: sobre acordes menores y contextos de blues menor (centros i7 / i) cuando qu
         <target state="translated">Usa tu propio asistente de IA como coach de piano</target>
       </trans-unit>
       <trans-unit id="coach.connect.intro" datatype="html">
-        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history and, soon, drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
-        <target state="translated">Tu propio asistente de IA puede convertirse en tu coach de piano. Conectado a PianoML, lee tu historial de práctica y pronto controlará el reproductor. Lo que lee se envía al proveedor de IA de ese asistente, no a PianoML.</target>
+        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history, suggests pieces and drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
+        <target state="translated">Tu propio asistente de IA puede convertirse en tu coach de piano. Conectado a PianoML, lee tu historial de práctica, te sugiere piezas y controla el reproductor. Lo que lee se envía al proveedor de IA de ese asistente, no a PianoML.</target>
       </trans-unit>
       <trans-unit id="coach.connect.step1" datatype="html">
         <source>1. Connect your assistant</source>
