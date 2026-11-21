@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
 import { ErrorReportCreate, provideApi } from '../api';
 import { ErrorReporter } from './error-reporter.service';
 import { errorReportInterceptor } from './error-report.interceptor';
-import { ERROR_REPORTING_CONFIG, sanitizeUrl } from './error-reporting.config';
+import { ERROR_REPORTING_CONFIG, isCrawler, sanitizeUrl } from './error-reporting.config';
 import { provideErrorReporting } from './provide-error-reporting';
 
 const API = environment.api;
@@ -184,6 +184,18 @@ describe('error reporting', () => {
     expect(await reports(httpMock)).toHaveLength(0);
   });
 
+  it('reports nothing from a crawler (Googlebot), neither errors nor API failures', async () => {
+    const userAgent = vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue(
+      'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) '
+      + 'Chrome/157.0.8103.78 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)');
+    const { http, httpMock } = setup();
+    TestBed.inject(ErrorHandler).handleError(new TypeError('Failed to fetch dynamically imported module'));
+    http.get(`${API}/score/1`).subscribe({ error: () => undefined });
+    httpMock.expectOne(`${API}/score/1`).error(new ProgressEvent('error'));
+    expect(await reports(httpMock)).toHaveLength(0);
+    userAgent.mockRestore();
+  });
+
   it('does nothing on the server', async () => {
     const { http, httpMock } = setup({ platform: 'server' });
     TestBed.inject(ErrorHandler).handleError(new Error('ssr'));
@@ -199,5 +211,31 @@ describe('sanitizeUrl', () => {
     expect(sanitizeUrl('https://bob:pw@pianoml.org/verify?token=abc&lang=fr&Password=x&code=1#access_token=z'))
       .toBe('https://pianoml.org/verify?lang=fr');
     expect(sanitizeUrl('/api/score/1?reset_token=a&tab=pdf')).toBe('/api/score/1?tab=pdf');
+  });
+});
+
+describe('isCrawler', () => {
+  it.each([
+    'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.8103.78 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+    'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
+    'Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)',
+    'Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)',
+    'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)',
+    'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+    'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Mobile Safari/537.36 (compatible; Google-InspectionTool/1.0)',
+  ])('is a crawler: %s', (userAgent) => {
+    expect(isCrawler(userAgent)).toBe(true);
+  });
+
+  it.each([
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) GSA/420.4.909430193 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (Linux; Android 11; CUBOT X50) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15',
+    '',
+    null,
+    undefined,
+  ])('is not a crawler: %s', (userAgent) => {
+    expect(isCrawler(userAgent)).toBe(false);
   });
 });
