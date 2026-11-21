@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, InjectionToken, Injecto
 import { isPlatformBrowser } from '@angular/common';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs';
+import { distinctUntilChanged, filter } from 'rxjs';
 import { SessionStorageService } from '../../account/services/session-storage.service';
 import { LOGIN_PATH, loginQueryParams } from '../../account/services/return-url';
 import type { BridgeState, RemoteBridgeService } from './remote-bridge.service';
@@ -71,7 +71,9 @@ export class RemoteCoachComponent {
     if (!this.isBrowser) {
       return;
     }
-    this.session.isLoggedIn.pipe(takeUntilDestroyed()).subscribe(loggedIn => {
+    // The login state is announced again whenever the session is refreshed (on every page load, from the stored
+    // session then from the server): only a change asks for the grants.
+    this.session.isLoggedIn.pipe(distinctUntilChanged(), takeUntilDestroyed()).subscribe(loggedIn => {
       if (loggedIn) {
         this.grants.refresh();
       } else {

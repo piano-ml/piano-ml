@@ -146,6 +146,17 @@ describe('RemoteCoachComponent', () => {
     expect(q('remote-coach')).toBeNull();
   });
 
+  it('asks for the grants once per login, not each time the session is refreshed', async () => {
+    await create({ hasGrant: false });
+    loggedIn.next(true); // the session refreshed from the server, still logged in
+    loggedIn.next(true);
+    expect(presence.refresh).toHaveBeenCalledOnce();
+
+    loggedIn.next(false);
+    loggedIn.next(true); // logged in again
+    expect(presence.refresh).toHaveBeenCalledTimes(2);
+  });
+
   it('appears once a grant shows up, and hides again on logout', async () => {
     await create({ hasGrant: false });
     presence.hasPlayerGrant.set(true);
