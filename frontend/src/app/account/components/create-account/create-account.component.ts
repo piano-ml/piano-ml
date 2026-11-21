@@ -1,8 +1,10 @@
 
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AccountCreatePost409Response } from '../../../core/api';
 
 @Component({
   selector: 'app-create-account',
@@ -64,7 +66,8 @@ export class CreateAccountComponent {
             this.router.navigate(['/account/login'], { queryParamsHandling: 'preserve' });
           },
           error: (err) => {
-            this.router.navigate(['/error']);            
+            if (this.showTaken(err)) return;
+            this.router.navigate(['/error']);
             console.error(err);
           }
         });
@@ -72,5 +75,22 @@ export class CreateAccountComponent {
       //  // show password too weak error
       //}
     }
+  }
+
+  /**
+   * A 409 tells which field another account already has (email or name): shown under that field, which stays
+   * invalid until the user changes it, instead of leaving the form for the error page.
+   * @returns whether the error was such a conflict
+   */
+  private showTaken(err: unknown): boolean {
+    const conflict = err instanceof HttpErrorResponse && err.status === 409
+      ? err.error as Partial<AccountCreatePost409Response> | null : null;
+    const fields: readonly string[] = Object.values(AccountCreatePost409Response.FieldEnum);
+    const field = conflict?.field;
+    const control = field && fields.includes(field) ? this.createAccountForm.get(field) : null;
+    if (!control) return false;
+    control.setErrors({ ...control.errors, taken: true });
+    control.markAsTouched();
+    return true;
   }
 }

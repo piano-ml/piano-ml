@@ -35,6 +35,12 @@ paths:
                 password:
                   type: string
                   format: password
+                locale:
+                  type: string
+                  maxLength: 35
+                  description: >-
+                    The language the user logs in from (en, fr, zh-Hans...). Stored as the account's language only
+                    when the account has none yet (accounts created before languages were stored).
               required:
                 - email
                 - password
@@ -80,6 +86,12 @@ paths:
                   format: password
                 name:
                   type: string
+                locale:
+                  type: string
+                  maxLength: 35
+                  description: >-
+                    The language the user signs up in (en, fr, zh-Hans...). Stored as the account's language when
+                    the site has it, else the best match of Accept-Language, else en.
               required:
                 - email
                 - password
@@ -89,8 +101,92 @@ paths:
           description: Account created successfully
         '400':
           description: Bad request
-        '403':
-          description: User already exists
+        '409':
+          description: An account already has this email or this name
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    enum: [email, name]
+                    description: The field already taken
+                  message:
+                    type: string
+                required:
+                  - field
+                  - message
+  /account/password/forgot:
+    post:
+      operationId: accountPasswordForgotPost
+      tags:
+        - account
+      summary: Ask for a password reset link by email
+      description: >-
+        Emails a single-use link to choose a new password, valid for one hour, when an account uses this email.
+        Always answers 204, so the answer does not tell whether an account exists.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                locale:
+                  type: string
+                  maxLength: 35
+                  description: >-
+                    The language the user asks from (en, fr, zh-Hans...): the email's language when the account
+                    has none.
+              required:
+                - email
+      responses:
+        '204':
+          description: Request taken (an email is sent only when an account uses this email)
+        '400':
+          description: Bad request
+  /account/password/reset:
+    post:
+      operationId: accountPasswordResetPost
+      tags:
+        - account
+      summary: Choose a new password with the token of a reset link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  maxLength: 200
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+              required:
+                - token
+                - password
+      responses:
+        '204':
+          description: Password changed; the link no longer works
+        '400':
+          description: The link is invalid, already used or expired (error "invalid_token"), or the password too short
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    enum: [invalid_token]
+                required:
+                  - error
   /account/userinfo:
     get:
       operationId: accountUserinfoGet
@@ -126,29 +222,6 @@ paths:
                 $ref: '#/components/schemas/UserApiInfo'
         '401':
           description: Unauthorized
-  /account/password_reset:
-    post:
-      operationId: accountPasswordResetPost
-      tags:
-        - account
-      summary: Reset account password
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-              required:
-                - email
-      responses:
-        '200':
-          description: Password reset email sent
-        '400':
-          description: Bad request
   /account/create/{token}/confirm:
     get:
       operationId: accountCreateTokenConfirmGet

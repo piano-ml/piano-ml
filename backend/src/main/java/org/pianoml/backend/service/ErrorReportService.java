@@ -147,11 +147,17 @@ public class ErrorReportService {
     }
   }
 
-  /** A report pushed by the browser: source, time, user and user agent come from the server, not the body. */
+  /**
+   * A report pushed by the browser: source, time, user and user agent come from the server, not the body.
+   * Reports from crawlers are dropped: older bundles cached by crawlers still send them.
+   */
   public void ingest(ErrorReportCreate body, HttpServletRequest request) {
     String url = body.getUrl();
     if (url == null || url.isBlank()) {
       throw new IllegalArgumentException("url is required");
+    }
+    if (CrawlerUserAgents.isCrawler(request.getHeader("User-Agent"))) {
+      return;
     }
     ErrorReport report = new ErrorReport();
     report.setCreatedAt(now());

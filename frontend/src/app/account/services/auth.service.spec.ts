@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 import { AuthService } from './auth.service';
 import { SessionStorageService } from './session-storage.service';
 import { AccountService } from '../../core/api';
+import { setCurrentLocale } from '../../shared/i18n';
 
 describe('AuthService', () => {
   let api: Record<string, ReturnType<typeof vi.fn>>;
@@ -39,6 +40,8 @@ describe('AuthService', () => {
       accountLogoutPost: vi.fn(() => of(undefined)),
       accountDeletePost: vi.fn(() => of(undefined)),
       accountCreatePost: vi.fn(() => of(undefined)),
+      accountPasswordForgotPost: vi.fn(() => of(undefined)),
+      accountPasswordResetPost: vi.fn(() => of(undefined)),
       accountUserinfoGet: vi.fn(() => of({ id: 'u1', name: 'Alice' })),
       accountUserinfoPut: vi.fn(() => of(undefined)),
     };
@@ -119,6 +122,17 @@ describe('AuthService', () => {
       expect(session.persistSessionData).toHaveBeenCalledWith({ userId: null, username: null, roles: null });
       expect(api['accountUserinfoGet']).not.toHaveBeenCalled();
     });
+
+    it('sends the language the user logs in from', () => {
+      api['accountLoginPost'].mockReturnValue(of({}));
+      setCurrentLocale('zh-Hans');
+      try {
+        create('server', null).login({ email: 'a@example.com', password: 'pw' }).subscribe();
+        expect(api['accountLoginPost']).toHaveBeenCalledWith({ email: 'a@example.com', password: 'pw', locale: 'zh-Hans' });
+      } finally {
+        setCurrentLocale(undefined);
+      }
+    });
   });
 
   describe('logout', () => {
@@ -165,9 +179,32 @@ describe('AuthService', () => {
     service.register(user).subscribe();
     service.getUserInfo().subscribe();
     service.updateUserInfo({ name: 'b' }).subscribe();
-    expect(api['accountCreatePost']).toHaveBeenCalledWith(user);
+    expect(api['accountCreatePost']).toHaveBeenCalledWith({ ...user, locale: 'en' });
     expect(api['accountUserinfoGet']).toHaveBeenCalledOnce();
     expect(api['accountUserinfoPut']).toHaveBeenCalledWith({ name: 'b' });
+  });
+
+  it('asks for a password reset link in the current language, and resets with the token', () => {
+    setCurrentLocale('fr');
+    try {
+      const service = create('server');
+      service.requestPasswordReset('a@example.com').subscribe();
+      service.resetPassword('tok', 'new-password').subscribe();
+      expect(api['accountPasswordForgotPost']).toHaveBeenCalledWith({ email: 'a@example.com', locale: 'fr' });
+      expect(api['accountPasswordResetPost']).toHaveBeenCalledWith({ token: 'tok', password: 'new-password' });
+    } finally {
+      setCurrentLocale(undefined);
+    }
+  });
+
+  it('register sends the language the user signs up in', () => {
+    setCurrentLocale('fr');
+    try {
+      create('server').register({ email: 'a@example.com', password: 'pw', name: 'a' }).subscribe();
+      expect(api['accountCreatePost']).toHaveBeenCalledWith({ email: 'a@example.com', password: 'pw', name: 'a', locale: 'fr' });
+    } finally {
+      setCurrentLocale(undefined);
+    }
   });
 
   it('handleUnauthorized clears the session and redirects to login from a protected page, remembering it', () => {

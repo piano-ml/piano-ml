@@ -53,24 +53,44 @@ class AccountControllerTest {
   void createAccount_returns201() throws Exception {
     mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(SIGNUP))
       .andExpect(status().isCreated());
-    verify(accountService).createUser(any(AccountCreatePostRequest.class));
+    verify(accountService).createUser(any(AccountCreatePostRequest.class), any());
+  }
+
+  @Test
+  void createAccount_passesTheAcceptLanguageHeader() throws Exception {
+    mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(SIGNUP)
+        .header("Accept-Language", "fr-CA,fr;q=0.9"))
+      .andExpect(status().isCreated());
+    verify(accountService).createUser(any(AccountCreatePostRequest.class), eq("fr-CA,fr;q=0.9"));
   }
 
   @Test
   void createAccount_existingEmail_returns409_viaRestExceptionHandler() throws Exception {
-    willThrow(new UserAlreadyExistsException("User with email a@example.com already exists."))
-      .given(accountService).createUser(any(AccountCreatePostRequest.class));
+    willThrow(new UserAlreadyExistsException(UserAlreadyExistsException.Field.EMAIL,
+      "User with email a@example.com already exists."))
+      .given(accountService).createUser(any(AccountCreatePostRequest.class), any());
 
     mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(SIGNUP))
       .andExpect(status().isConflict())
-      .andExpect(content().string("User with email a@example.com already exists."));
+      .andExpect(jsonPath("$.field").value("email"))
+      .andExpect(jsonPath("$.message").value("User with email a@example.com already exists."));
+  }
+
+  @Test
+  void createAccount_existingName_returns409_withNameField() throws Exception {
+    willThrow(new UserAlreadyExistsException(UserAlreadyExistsException.Field.NAME, "User with name a already exists."))
+      .given(accountService).createUser(any(AccountCreatePostRequest.class), any());
+
+    mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(SIGNUP))
+      .andExpect(status().isConflict())
+      .andExpect(jsonPath("$.field").value("name"));
   }
 
   // --- login ----------------------------------------------------------------------------------------------
 
   @Test
   void login_withoutTokenFromService_returns500_andSetsNoAuthCookie() throws Exception {
-    given(accountService.loginUser(any(AccountLoginPostRequest.class))).willReturn(new AccountLoginPost200Response());
+    given(accountService.loginUser(any(AccountLoginPostRequest.class), any())).willReturn(new AccountLoginPost200Response());
 
     mockMvc.perform(post("/account/login").contentType(MediaType.APPLICATION_JSON).content(LOGIN))
       .andExpect(status().isInternalServerError())
@@ -82,7 +102,7 @@ class AccountControllerTest {
   void login_withBlankTokenFromService_returns500() throws Exception {
     AccountLoginPost200Response blank = new AccountLoginPost200Response();
     blank.setToken("  ");
-    given(accountService.loginUser(any(AccountLoginPostRequest.class))).willReturn(blank);
+    given(accountService.loginUser(any(AccountLoginPostRequest.class), any())).willReturn(blank);
 
     mockMvc.perform(post("/account/login").contentType(MediaType.APPLICATION_JSON).content(LOGIN))
       .andExpect(status().isInternalServerError());
@@ -93,13 +113,6 @@ class AccountControllerTest {
   @Test
   void confirmAccountToken_isNotImplemented() throws Exception {
     mockMvc.perform(get("/account/create/{token}/confirm", "abc"))
-      .andExpect(status().isNotImplemented());
-  }
-
-  @Test
-  void passwordReset_isNotImplemented() throws Exception {
-    mockMvc.perform(post("/account/password_reset").with(user("u")).with(csrf())
-        .contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"a@example.com\"}"))
       .andExpect(status().isNotImplemented());
   }
 

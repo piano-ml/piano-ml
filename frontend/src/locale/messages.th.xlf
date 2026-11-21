@@ -14,6 +14,14 @@
         <source>Create</source>
         <target state="translated">สร้าง</target>
       </trans-unit>
+      <trans-unit id="account.route.forgotPassword" datatype="html">
+        <source>Forgot password</source>
+        <target state="translated">ลืมรหัสผ่าน</target>
+      </trans-unit>
+      <trans-unit id="account.route.resetPassword" datatype="html">
+        <source>New password</source>
+        <target state="translated">รหัสผ่านใหม่</target>
+      </trans-unit>
       <trans-unit id="account.route.scores" datatype="html">
         <source>My Scores</source>
         <target state="translated">โน้ตเพลงของฉัน</target>
@@ -159,8 +167,12 @@
         <target state="translated">กรอกชื่อของคุณ</target>
       </trans-unit>
       <trans-unit id="createAccount.nameIsRequired" datatype="html">
-        <source> name is required. </source>
+        <source>name is required.</source>
         <target state="translated">ต้องกรอกชื่อ</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsTaken" datatype="html">
+        <source>This name is already taken. Please choose another one.</source>
+        <target state="translated">ชื่อนี้มีผู้ใช้แล้ว กรุณาเลือกชื่ออื่น</target>
       </trans-unit>
       <trans-unit id="createAccount.email" datatype="html">
         <source>Email</source>
@@ -177,6 +189,10 @@
       <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
         <source>Invalid email format.</source>
         <target state="translated">รูปแบบอีเมลไม่ถูกต้อง</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsTaken" datatype="html">
+        <source>An account already uses this email. Log in instead, or use another email.</source>
+        <target state="translated">มีบัญชีที่ใช้อีเมลนี้อยู่แล้ว กรุณาเข้าสู่ระบบ หรือใช้อีเมลอื่น</target>
       </trans-unit>
       <trans-unit id="createAccount.password" datatype="html">
         <source>Password</source>
@@ -462,6 +478,10 @@
         <source> Password is required. </source>
         <target state="translated">ต้องกรอกรหัสผ่าน</target>
       </trans-unit>
+      <trans-unit id="login.forgotPassword" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">ลืมรหัสผ่านใช่ไหม</target>
+      </trans-unit>
       <trans-unit id="login.loggingIn" datatype="html">
         <source>Logging in...</source>
         <target state="translated">กำลังเข้าสู่ระบบ...</target>
@@ -477,6 +497,106 @@
       <trans-unit id="login.error.other" datatype="html">
         <source>An error occurred during login</source>
         <target state="translated">เกิดข้อผิดพลาดขณะเข้าสู่ระบบ</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.title" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">ลืมรหัสผ่านใช่ไหม</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sentTitle" datatype="html">
+        <source>Check your email</source>
+        <target state="translated">ตรวจสอบอีเมลของคุณ</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sent" datatype="html">
+        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for a limited time.</source>
+        <target state="translated">หากมีบัญชีที่ใช้ <x id="INTERPOLATION" equiv-text="{{ email }}"/> เราได้ส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ไปแล้ว ลิงก์นี้ใช้ได้ภายในระยะเวลาที่จำกัด</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.spam" datatype="html">
+        <source>Nothing after a few minutes? Check your spam folder, or ask again.</source>
+        <target state="translated">ผ่านไปสองสามนาทีแล้วยังไม่ได้รับใช่ไหม โปรดตรวจสอบโฟลเดอร์สแปม หรือขอลิงก์ใหม่อีกครั้ง</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.backToLogin" datatype="html">
+        <source>Back to login</source>
+        <target state="translated">กลับไปหน้าเข้าสู่ระบบ</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.heading" datatype="html">
+        <source>Reset your password</source>
+        <target state="translated">รีเซ็ตรหัสผ่าน</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.intro" datatype="html">
+        <source>Enter the email of your account: we will send you a link to choose a new password.</source>
+        <target state="translated">กรอกอีเมลของบัญชีของคุณ แล้วเราจะส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ให้</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.failed" datatype="html">
+        <source>The email could not be sent. Please try again in a moment.</source>
+        <target state="translated">ส่งอีเมลไม่สำเร็จ โปรดลองอีกครั้งในอีกสักครู่</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">อีเมล</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">กรอกอีเมลของคุณ</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.emailInvalid" datatype="html">
+        <source>Please enter a valid email.</source>
+        <target state="translated">โปรดกรอกอีเมลที่ถูกต้อง</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sending" datatype="html">
+        <source>Sending...</source>
+        <target state="translated">กำลังส่ง...</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.send" datatype="html">
+        <source>Send me a link</source>
+        <target state="translated">ส่งลิงก์ให้ฉัน</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.title" datatype="html">
+        <source>Choose a new password</source>
+        <target state="translated">ตั้งรหัสผ่านใหม่</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.done" datatype="html">
+        <source>Your password has been changed. You can now log in with it.</source>
+        <target state="translated">เปลี่ยนรหัสผ่านเรียบร้อยแล้ว คุณสามารถเข้าสู่ระบบด้วยรหัสผ่านใหม่ได้เลย</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.login" datatype="html">
+        <source>Log in</source>
+        <target state="translated">เข้าสู่ระบบ</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.invalid" datatype="html">
+        <source>This link is invalid or has expired: each link works only once, for a limited time.</source>
+        <target state="translated">ลิงก์นี้ไม่ถูกต้องหรือหมดอายุแล้ว แต่ละลิงก์ใช้ได้เพียงครั้งเดียว ภายในระยะเวลาที่จำกัด</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.askAgain" datatype="html">
+        <source>Get a new link</source>
+        <target state="translated">ขอลิงก์ใหม่</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.failed" datatype="html">
+        <source>The password could not be changed. Please try again in a moment.</source>
+        <target state="translated">เปลี่ยนรหัสผ่านไม่สำเร็จ โปรดลองอีกครั้งในอีกสักครู่</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.password" datatype="html">
+        <source>New password</source>
+        <target state="translated">รหัสผ่านใหม่</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.tooShort" datatype="html">
+        <source>Password must be at least 8 characters long.</source>
+        <target state="translated">รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.confirm" datatype="html">
+        <source>Confirm the new password</source>
+        <target state="translated">ยืนยันรหัสผ่านใหม่</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.mismatch" datatype="html">
+        <source>Passwords do not match.</source>
+        <target state="translated">รหัสผ่านไม่ตรงกัน</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.saving" datatype="html">
+        <source>Saving...</source>
+        <target state="translated">กำลังบันทึก...</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.save" datatype="html">
+        <source>Change my password</source>
+        <target state="translated">เปลี่ยนรหัสผ่าน</target>
       </trans-unit>
       <trans-unit id="playlist.list.title" datatype="html">
         <source>My Playlists</source>

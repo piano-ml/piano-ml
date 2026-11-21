@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { provideTesting } from '../../../testing/test-providers';
@@ -115,9 +116,44 @@ describe('CreateAccountComponent', () => {
 
     it('goes to the error page when the registration fails', () => {
       vi.spyOn(console, 'error').mockImplementation(() => undefined);
-      register.mockReturnValue(throwError(() => new Error('email taken')) as never);
+      register.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })) as never);
       fill();
       submitButton().click();
+      expect(navigate).toHaveBeenCalledWith(['/error']);
+    });
+
+    /** The registration answers 409 with the field another account already has. */
+    function conflict(field: string) {
+      register.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { field } })) as never);
+      fill();
+      submitButton().click();
+      fixture.detectChanges();
+    }
+
+    it('stays on the form and says when the name is already taken, until it is changed', () => {
+      conflict('name');
+      expect(navigate).not.toHaveBeenCalled();
+      expect(errors()).toContain('This name is already taken. Please choose another one.');
+      expect(submitButton().disabled).toBe(true);
+
+      type('name', 'Alice2');
+      expect(errors()).toEqual([]);
+      expect(submitButton().disabled).toBe(false);
+    });
+
+    it('stays on the form and says when the email is already used, until it is changed', () => {
+      conflict('email');
+      expect(navigate).not.toHaveBeenCalled();
+      expect(errors()).toContain('An account already uses this email. Log in instead, or use another email.');
+      expect(submitButton().disabled).toBe(true);
+
+      type('email', 'alice2@example.com');
+      expect(errors()).toEqual([]);
+    });
+
+    it('goes to the error page on a 409 without a known field', () => {
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      conflict('other');
       expect(navigate).toHaveBeenCalledWith(['/error']);
     });
 
