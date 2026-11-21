@@ -707,7 +707,9 @@ describe('WorkbenchComponent', () => {
       const play = playPause();
       expect(bar - play).toBeCloseTo(12, 0); // the toolbar's margin, as on the left
       component.isPlaying = true; // the other tools, help included, are hidden while playing
+      (component as unknown as { changeDetector: { markForCheck(): void } }).changeDetector.markForCheck();
       render();
+      expect(el().querySelector('#play-pause ng-icon[name="bootstrapPauseFill"]')).not.toBeNull();
       expect(playPause()).toBeCloseTo(play, 0);
       expect(el().querySelector('#help-tour')).toBeNull();
     });
