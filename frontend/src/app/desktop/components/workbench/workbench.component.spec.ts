@@ -714,6 +714,15 @@ describe('WorkbenchComponent', () => {
       expect(el().querySelector('#help-tour')).toBeNull();
     });
 
+    it('lines the score up with the home button on the left (osmd.config page margins)', async () => {
+      await openScore();
+      const svg = el().querySelector<SVGSVGElement>('.osmd-container svg')!;
+      const box = svg.getBoundingClientRect();
+      const drawnLeft = box.left + svg.getBBox().x * (box.width / svg.width.baseVal.value); // the brace of the grand staff
+      const home = el().querySelector<HTMLElement>('button .svg-button')!.closest('button')!.getBoundingClientRect();
+      expect(drawnLeft).toBeCloseTo(home.left, 0);
+    });
+
     it('opens the MIDI setup and the tempo dialogs', async () => {
       await openScore();
       button('#midi-setup input').click();

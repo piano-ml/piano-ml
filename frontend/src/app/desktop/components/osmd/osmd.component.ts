@@ -4,7 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { PlayerService } from '../../service/player.service';
-import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
+import { DEFAULT_OSMD_OPTIONS, PAGE_LEFT_MARGIN, PAGE_RIGHT_MARGIN, SHEET_MAXIMUM_WIDTH } from './osmd.config';
 
 @Component({
     selector: 'app-osmd',
@@ -99,6 +99,8 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
         this.osmd.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
+        this.osmd.EngravingRules.PageLeftMargin = PAGE_LEFT_MARGIN;
+        this.osmd.EngravingRules.PageRightMargin = PAGE_RIGHT_MARGIN;
 
         this.osmd.setOptions({
             ...DEFAULT_OSMD_OPTIONS,
