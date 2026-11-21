@@ -407,10 +407,17 @@ body {
    its default font */
 #measure-range .noUi-value-horizontal {
 	transform: translate(-50%, 60%);
+}
+
+/* Every measure number, whatever class noUiSlider gives it (noUi-value-large, or noUi-value-sub which its own CSS
+   draws grey at 10 px): black and bold */
+#measure-range .noUi-value,
+#measure-range .noUi-value.noUi-value-sub,
+#measure-range .noUi-value.noUi-value-large {
 	font-family: "Times New Roman", Times, serif;
 	font-size: 15px;
 	font-weight: 700;
-	color: var(--color-neutral-400);
+	color: #000;
 }
 
 #measure-range .noUi-tooltip {
@@ -434,14 +441,6 @@ body {
 	background: var(--color-neutral-100);
 }
 
-#measure-range .noUi-value-horizontal.is-in-range {
-	color: var(--color-neutral-100);
-}
-
 #measure-range .noUi-marker-horizontal.noUi-marker.is-elapsed {
 	background: var(--color-emerald-500);
-}
-
-#measure-range .noUi-value-horizontal.is-elapsed {
-	color: var(--color-emerald-400);
 }
