@@ -111,10 +111,14 @@ class ErrorReportControllerTest {
 
   /** The last X-Forwarded-For entry is the client address; earlier ones are client-supplied and ignored. */
   private MockHttpServletRequestBuilder report(String json, String ip) {
+    return report(json, ip, "Mozilla/5.0 (Test)");
+  }
+
+  private MockHttpServletRequestBuilder report(String json, String ip, String userAgent) {
     return post("/error-report")
       .contentType(MediaType.APPLICATION_JSON)
       .header("X-Forwarded-For", "203.0.113.9, " + ip)
-      .header("User-Agent", "Mozilla/5.0 (Test)")
+      .header("User-Agent", userAgent)
       .content(json);
   }
 
@@ -194,6 +198,16 @@ class ErrorReportControllerTest {
       OffsetDateTime.class, "%" + marker + "%")).getYear()).isGreaterThan(2001);
     assertThat(row.get("url")).isEqualTo("https://pianoml.org/score/abc?" + marker + "=1");
     assertThat((String) row.get("context")).contains("\"route\":\"/score/:slug\"");
+  }
+
+  @Test
+  void reportsFromCrawlersAreAcceptedButNotStored() throws Exception {
+    mockMvc.perform(report(reportJson(), "10.250.0.1",
+        "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) "
+          + "Chrome/157.0.8103.78 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"))
+      .andExpect(status().isAccepted());
+
+    assertThat(rows()).isEmpty();
   }
 
   @Test

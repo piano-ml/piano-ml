@@ -3,7 +3,7 @@ import { Injectable, Injector, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { ErrorReportCreate, ErrorReportLevel, ErrorReportService } from '../api';
-import { ERROR_REPORTING_CONFIG, SKIP_ERROR_REPORT, sanitizeUrl } from './error-reporting.config';
+import { ERROR_REPORTING_CONFIG, SKIP_ERROR_REPORT, isCrawler, sanitizeUrl } from './error-reporting.config';
 
 /** What the app knows about an error; the reporter adds url, route and release. */
 export interface ErrorReportInput {
@@ -22,7 +22,7 @@ const MAX_STACK = 100_000;
  * <p>
  * The error path must never make things worse: every method swallows its own failures, identical reports
  * within a few seconds are dropped, and a page load sends a bounded number of reports.
- * The user is not sent: the backend reads it from the session cookie.
+ * The user is not sent: the backend reads it from the session cookie. Crawlers (Googlebot...) report nothing.
  */
 @Injectable({ providedIn: 'root' })
 export class ErrorReporter {
@@ -57,7 +57,7 @@ export class ErrorReporter {
 
   report(input: ErrorReportInput): void {
     try {
-      if (!this.isBrowser || !this.config.enabled || this.sent >= this.config.maxPerPage) {
+      if (!this.isBrowser || !this.config.enabled || this.sent >= this.config.maxPerPage || isCrawler(navigator.userAgent)) {
         return;
       }
       const route = this.routePath();

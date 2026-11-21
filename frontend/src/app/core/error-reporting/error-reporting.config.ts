@@ -15,6 +15,21 @@ export const ERROR_REPORTING_CONFIG = new InjectionToken<ErrorReportingConfig>('
   factory: () => ({ enabled: environment.errorReporting, maxPerPage: 20, dedupMs: 10_000 }),
 });
 
+/**
+ * "Xbot/1.0" or "Xbot;", the usual crawler words, a few crawlers without them, and the contact URL crawlers put in
+ * their User-Agent ("+http://www.google.com/bot.html"). Not a bare "bot": phones like the CUBOT X50 have one.
+ * The same rule as the backend's CrawlerUserAgents.
+ */
+const CRAWLER = /bot[/;]|crawler|spider|slurp|mediapartners|facebookexternalhit|google-inspectiontool|bingpreview|\+https?:\/\//i;
+
+/**
+ * Whether a User-Agent is a crawler (Googlebot, Bingbot...): crawlers render pages with tight time and request
+ * budgets, so their failed fetches are noise, not errors users meet. Their errors are not reported.
+ */
+export function isCrawler(userAgent: string | null | undefined): boolean {
+  return !!userAgent && CRAWLER.test(userAgent);
+}
+
 /** Set on requests whose failure must not be reported: the reports themselves, the admin error pages. */
 export const SKIP_ERROR_REPORT = new HttpContextToken<boolean>(() => false);
 
