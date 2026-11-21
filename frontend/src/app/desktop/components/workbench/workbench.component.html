@@ -51,10 +51,10 @@
           <div id="tools">
             <div class="flex flex-col md:flex-row w-full md:items-center md:justify-end">
               <div class="flex flex-row flex-wrap md:flex-nowrap w-full md:w-auto md:space-x-0">
+                @if (!isPlaying) {
                 <button (click)="startTour()" class="btn btn-desktop m-1" id="help-tour">
                   <ng-icon name="bootstrapQuestionCircle" class="svg-button" />
                 </button>
-                @if (!isPlaying) {
                 <div class="checkbox-input m-1" id="fullscreen">
                   <label class="label svg-label">
                     <input type="checkbox" [checked]="isFullscreen" (change)="toggleFullscreen()" />

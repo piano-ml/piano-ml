@@ -706,9 +706,10 @@ describe('WorkbenchComponent', () => {
       const bar = el().querySelector<HTMLElement>('.bg-black')!.getBoundingClientRect().right;
       const play = playPause();
       expect(bar - play).toBeCloseTo(12, 0); // the toolbar's margin, as on the left
-      component.isPlaying = true; // the other tools are hidden while playing
+      component.isPlaying = true; // the other tools, help included, are hidden while playing
       render();
       expect(playPause()).toBeCloseTo(play, 0);
+      expect(el().querySelector('#help-tour')).toBeNull();
     });
 
     it('opens the MIDI setup and the tempo dialogs', async () => {
