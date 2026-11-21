@@ -383,13 +383,14 @@ body {
 }
 
 #measure-range .noUi-pips-horizontal {
-	padding-top: 6px;
-	height: 40px;
+	padding-top: 2px;
+	height: 32px;
 }
 
 /* noUiSlider draws the marks and numbers below the slider's box, over the top of the score: the slider is drawn
    above .score-container, whose faded top (its mask) would otherwise veil them */
 #measure-range.noUi-target {
+	position: relative; /* as noUiSlider's own CSS has it: z-index needs it */
 	z-index: 20;
 }
 
@@ -409,8 +410,10 @@ body {
 	background: var(--color-neutral-500);
 }
 
+/* Just under the marks: no extra line height, nudged down by about the height of the tallest mark */
 #measure-range .noUi-value-horizontal {
-	transform: translate(-50%, 60%);
+	line-height: 1;
+	transform: translate(-50%, 65%);
 }
 
 /* Every measure number, whatever class noUiSlider gives it (noUi-value-large, or noUi-value-sub which its own CSS
