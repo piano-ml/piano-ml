@@ -49,6 +49,9 @@ public class AccountServiceTest {
   @Spy
   private UserMapper userMapper = realUserMapper();
 
+  @Spy
+  private SupportedLocales supportedLocales = new SupportedLocales(java.util.List.of("en", "fr", "zh-Hans"));
+
   private static UserMapper realUserMapper() {
     UserMapperImpl impl = new UserMapperImpl();
     ReflectionTestUtils.setField(impl, "uriMapper", new UriMapper());
@@ -98,6 +101,36 @@ public class AccountServiceTest {
     verify(tokenProvider).generateToken(user);
   }
 
+  /** A sign-up that goes through: the email and the name are free. */
+  private AccountCreatePostRequest freeSignup(String locale) {
+    AccountCreatePostRequest request = new AccountCreatePostRequest();
+    request.setEmail("bob@example.com");
+    request.setName("bob");
+    request.setPassword("pw");
+    request.setLocale(locale);
+    when(userRepository.findByEmail("bob@example.com")).thenReturn(Optional.empty());
+    when(passwordEncoder.encode("pw")).thenReturn("hashed");
+    when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+    return request;
+  }
+
+  @Test
+  public void createUser_storesTheLanguageTheUserSignsUpIn() {
+    assertEquals("fr", accountService.createUser(freeSignup("fr"), "zh-CN,zh;q=0.9").getLocale());
+  }
+
+  @Test
+  public void createUser_withoutASupportedLanguage_usesTheBrowserLanguage() {
+    assertEquals("zh-Hans", accountService.createUser(freeSignup(null), "zh-CN,zh;q=0.9").getLocale());
+    assertEquals("zh-Hans", accountService.createUser(freeSignup("klingon"), "ja;q=0.9,zh-TW;q=0.5").getLocale());
+  }
+
+  @Test
+  public void createUser_withNoLanguageTheSiteHas_fallsBackToEnglish() {
+    assertEquals("en", accountService.createUser(freeSignup(null), null).getLocale());
+    assertEquals("en", accountService.createUser(freeSignup("ja"), "ja-JP,hi;q=0.8").getLocale());
+  }
+
   @Test
   public void createUser_alwaysAssignsDefaultUserRole() {
     AccountCreatePostRequest request = new AccountCreatePostRequest();
@@ -108,7 +141,7 @@ public class AccountServiceTest {
     when(passwordEncoder.encode("pw")).thenReturn("hashed");
     when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    User created = accountService.createUser(request);
+    User created = accountService.createUser(request, null);
 
     assertEquals("USER", created.getRoles());
   }
@@ -272,8 +305,56 @@ public class AccountServiceTest {
     request.setEmail("taken@example.com");
     when(userRepository.findByEmail("taken@example.com")).thenReturn(Optional.of(new User()));
 
-    assertThrows(org.pianoml.backend.exception.UserAlreadyExistsException.class, () -> accountService.createUser(request));
+    var e = assertThrows(org.pianoml.backend.exception.UserAlreadyExistsException.class,
+      () -> accountService.createUser(request, null));
+    assertEquals(org.pianoml.backend.exception.UserAlreadyExistsException.Field.EMAIL, e.getField());
     verify(userRepository, never()).save(any());
+  }
+
+  @Test
+  public void createUser_existingName_isRejected() {
+    AccountCreatePostRequest request = new AccountCreatePostRequest();
+    request.setEmail("new@example.com");
+    request.setName("lily");
+    when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
+    when(userRepository.existsByName("lily")).thenReturn(true);
+
+    var e = assertThrows(org.pianoml.backend.exception.UserAlreadyExistsException.class,
+      () -> accountService.createUser(request, null));
+    assertEquals(org.pianoml.backend.exception.UserAlreadyExistsException.Field.NAME, e.getField());
+    verify(userRepository, never()).save(any());
+  }
+
+  @Test
+  public void createUser_nameTakenBetweenCheckAndInsert_isRejectedAsConflict() {
+    AccountCreatePostRequest request = new AccountCreatePostRequest();
+    request.setEmail("new@example.com");
+    request.setName("lily");
+    request.setPassword("pw");
+    when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
+    when(userRepository.existsByName("lily")).thenReturn(false, true);
+    when(passwordEncoder.encode("pw")).thenReturn("hashed");
+    when(userRepository.save(any(User.class)))
+      .thenThrow(new org.springframework.dao.DataIntegrityViolationException("user_name_key"));
+
+    var e = assertThrows(org.pianoml.backend.exception.UserAlreadyExistsException.class,
+      () -> accountService.createUser(request, null));
+    assertEquals(org.pianoml.backend.exception.UserAlreadyExistsException.Field.NAME, e.getField());
+  }
+
+  @Test
+  public void createUser_otherIntegrityViolation_isRethrown() {
+    AccountCreatePostRequest request = new AccountCreatePostRequest();
+    request.setEmail("new@example.com");
+    request.setName("lily");
+    request.setPassword("pw");
+    when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
+    when(userRepository.existsByName("lily")).thenReturn(false);
+    when(passwordEncoder.encode("pw")).thenReturn("hashed");
+    when(userRepository.save(any(User.class)))
+      .thenThrow(new org.springframework.dao.DataIntegrityViolationException("other"));
+
+    assertThrows(org.springframework.dao.DataIntegrityViolationException.class, () -> accountService.createUser(request, null));
   }
 
   @Test

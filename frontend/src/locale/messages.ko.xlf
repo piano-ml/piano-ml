@@ -14,6 +14,14 @@
         <source>Create</source>
         <target state="translated">만들기</target>
       </trans-unit>
+      <trans-unit id="account.route.forgotPassword" datatype="html">
+        <source>Forgot password</source>
+        <target state="translated">비밀번호 찾기</target>
+      </trans-unit>
+      <trans-unit id="account.route.resetPassword" datatype="html">
+        <source>New password</source>
+        <target state="translated">새 비밀번호</target>
+      </trans-unit>
       <trans-unit id="account.route.scores" datatype="html">
         <source>My Scores</source>
         <target state="translated">내 악보</target>
@@ -159,8 +167,12 @@
         <target state="translated">이름을 입력하세요</target>
       </trans-unit>
       <trans-unit id="createAccount.nameIsRequired" datatype="html">
-        <source> name is required. </source>
+        <source>name is required.</source>
         <target state="translated">이름은 필수입니다.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsTaken" datatype="html">
+        <source>This name is already taken. Please choose another one.</source>
+        <target state="translated">이미 사용 중인 이름입니다. 다른 이름을 선택해 주세요.</target>
       </trans-unit>
       <trans-unit id="createAccount.email" datatype="html">
         <source>Email</source>
@@ -177,6 +189,10 @@
       <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
         <source>Invalid email format.</source>
         <target state="translated">이메일 형식이 올바르지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsTaken" datatype="html">
+        <source>An account already uses this email. Log in instead, or use another email.</source>
+        <target state="translated">이 이메일을 사용하는 계정이 이미 있습니다. 로그인하거나 다른 이메일을 사용해 주세요.</target>
       </trans-unit>
       <trans-unit id="createAccount.password" datatype="html">
         <source>Password</source>
@@ -462,6 +478,10 @@
         <source> Password is required. </source>
         <target state="translated">비밀번호는 필수입니다.</target>
       </trans-unit>
+      <trans-unit id="login.forgotPassword" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">비밀번호를 잊으셨나요?</target>
+      </trans-unit>
       <trans-unit id="login.loggingIn" datatype="html">
         <source>Logging in...</source>
         <target state="translated">로그인하는 중...</target>
@@ -477,6 +497,106 @@
       <trans-unit id="login.error.other" datatype="html">
         <source>An error occurred during login</source>
         <target state="translated">로그인 중 오류가 발생했습니다</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.title" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">비밀번호를 잊으셨나요?</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sentTitle" datatype="html">
+        <source>Check your email</source>
+        <target state="translated">이메일을 확인하세요</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sent" datatype="html">
+        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for a limited time.</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ email }}"/>을(를) 사용하는 계정이 있다면 새 비밀번호를 설정할 수 있는 링크를 보냈습니다. 링크는 제한된 시간 동안만 유효합니다.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.spam" datatype="html">
+        <source>Nothing after a few minutes? Check your spam folder, or ask again.</source>
+        <target state="translated">몇 분이 지나도 오지 않나요? 스팸함을 확인하거나 다시 요청하세요.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.backToLogin" datatype="html">
+        <source>Back to login</source>
+        <target state="translated">로그인으로 돌아가기</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.heading" datatype="html">
+        <source>Reset your password</source>
+        <target state="translated">비밀번호 재설정</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.intro" datatype="html">
+        <source>Enter the email of your account: we will send you a link to choose a new password.</source>
+        <target state="translated">계정의 이메일을 입력하세요. 새 비밀번호를 설정할 수 있는 링크를 보내 드립니다.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.failed" datatype="html">
+        <source>The email could not be sent. Please try again in a moment.</source>
+        <target state="translated">이메일을 보내지 못했습니다. 잠시 후 다시 시도해 주세요.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">이메일</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">이메일을 입력하세요</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.emailInvalid" datatype="html">
+        <source>Please enter a valid email.</source>
+        <target state="translated">올바른 이메일을 입력해 주세요.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sending" datatype="html">
+        <source>Sending...</source>
+        <target state="translated">보내는 중...</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.send" datatype="html">
+        <source>Send me a link</source>
+        <target state="translated">링크 보내기</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.title" datatype="html">
+        <source>Choose a new password</source>
+        <target state="translated">새 비밀번호 설정</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.done" datatype="html">
+        <source>Your password has been changed. You can now log in with it.</source>
+        <target state="translated">비밀번호가 변경되었습니다. 이제 새 비밀번호로 로그인할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.login" datatype="html">
+        <source>Log in</source>
+        <target state="translated">로그인</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.invalid" datatype="html">
+        <source>This link is invalid or has expired: each link works only once, for a limited time.</source>
+        <target state="translated">이 링크는 유효하지 않거나 만료되었습니다. 각 링크는 제한된 시간 동안 한 번만 사용할 수 있습니다.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.askAgain" datatype="html">
+        <source>Get a new link</source>
+        <target state="translated">새 링크 받기</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.failed" datatype="html">
+        <source>The password could not be changed. Please try again in a moment.</source>
+        <target state="translated">비밀번호를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.password" datatype="html">
+        <source>New password</source>
+        <target state="translated">새 비밀번호</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.tooShort" datatype="html">
+        <source>Password must be at least 8 characters long.</source>
+        <target state="translated">비밀번호는 8자 이상이어야 합니다.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.confirm" datatype="html">
+        <source>Confirm the new password</source>
+        <target state="translated">새 비밀번호 확인</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.mismatch" datatype="html">
+        <source>Passwords do not match.</source>
+        <target state="translated">비밀번호가 일치하지 않습니다.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.saving" datatype="html">
+        <source>Saving...</source>
+        <target state="translated">저장 중...</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.save" datatype="html">
+        <source>Change my password</source>
+        <target state="translated">비밀번호 변경</target>
       </trans-unit>
       <trans-unit id="playlist.list.title" datatype="html">
         <source>My Playlists</source>

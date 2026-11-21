@@ -5,6 +5,7 @@ import { Observable, tap } from 'rxjs';
 import { AccountCreatePostRequest, AccountLoginPostRequest, AccountService, UserApiInfo } from '../../core/api';
 import { SessionStorageService } from './session-storage.service';
 import { LOGIN_PATH, loginQueryParams, requiresLogin } from './return-url';
+import { currentLocale } from '../../shared/i18n';
 
 @Injectable({
   providedIn: 'root'
@@ -37,8 +38,9 @@ export class AuthService {
   }
 
 
+  /** Logs in, sending the current language: it becomes the account's language if the account has none yet. */
   login(user: AccountLoginPostRequest) {
-    return this.accountService.accountLoginPost(user).pipe(
+    return this.accountService.accountLoginPost({ ...user, locale: currentLocale() }).pipe(
       tap(response => {
         this.sessionStorage.persistSessionData({
           userId: response.userId ?? null,
@@ -69,10 +71,21 @@ export class AuthService {
     return this.accountService.accountDeletePost();
   }
 
+  /** Creates the account in the language the user signs up in, which becomes the account's language. */
   register(user: AccountCreatePostRequest) {
-    return this.accountService.accountCreatePost(user);
+    return this.accountService.accountCreatePost({ ...user, locale: currentLocale() });
   }
   
+  /** Asks for a password reset link by email; answers the same whether or not an account uses the email. */
+  requestPasswordReset(email: string) {
+    return this.accountService.accountPasswordForgotPost({ email, locale: currentLocale() });
+  }
+
+  /** Sets a new password with the token of a reset link (400 `invalid_token` when it is unknown, used or expired). */
+  resetPassword(token: string, password: string) {
+    return this.accountService.accountPasswordResetPost({ token, password });
+  }
+
   getUserInfo() {
     return this.accountService.accountUserinfoGet();
   }
