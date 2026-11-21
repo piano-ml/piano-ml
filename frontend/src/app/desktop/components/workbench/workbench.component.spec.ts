@@ -700,6 +700,17 @@ describe('WorkbenchComponent', () => {
       expect(el().querySelectorAll('#measure-range .noUi-marker.is-elapsed').length).toBeGreaterThan(atStart);
     });
 
+    it('keeps the play button at the right edge of the toolbar, and the pause button in its place', async () => {
+      await openScore();
+      const playPause = () => el().querySelector<HTMLElement>('#play-pause button')!.getBoundingClientRect().right;
+      const bar = el().querySelector<HTMLElement>('.bg-black')!.getBoundingClientRect().right;
+      const play = playPause();
+      expect(bar - play).toBeCloseTo(12, 0); // the toolbar's margin, as on the left
+      component.isPlaying = true; // the other tools are hidden while playing
+      render();
+      expect(playPause()).toBeCloseTo(play, 0);
+    });
+
     it('opens the MIDI setup and the tempo dialogs', async () => {
       await openScore();
       button('#midi-setup input').click();

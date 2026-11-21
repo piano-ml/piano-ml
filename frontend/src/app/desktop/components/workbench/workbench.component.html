@@ -45,7 +45,9 @@
           </div>
         </div>
         @if (!loading) {
-        <div class="flex lg:w-1/2 xl:w-1/2 items-end justify-center">
+        <!-- Right-aligned: the play button, the last tool, sits at the right edge, and the pause button takes its place
+             while playing (the other tools are hidden then). To revisit for the mobile layout. -->
+        <div class="flex lg:w-1/2 xl:w-1/2 items-end justify-end">
           <div id="tools">
             <div class="flex flex-col md:flex-row w-full md:items-center md:justify-end">
               <div class="flex flex-row flex-wrap md:flex-nowrap w-full md:w-auto md:space-x-0">
