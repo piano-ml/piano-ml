@@ -2,7 +2,7 @@
 
 PianoML exposes an MCP server that any MCP host (desktop assistant, coding assistant, chat application) can use to read your practice history and, in later versions, drive the player. Specification: `docs/coach-external-harness.md` (issue #414).
 
-The quickest way is the **Connect an AI coach** page of the app (`/coach/connect`, linked from the account page): it shows the server URL, creates a token, fills configuration snippets with it, and offers ready-made prompts to paste. This document is the reference for developers.
+The quickest way is the **Connect an AI coach** page of the app (`/coach/connect`, linked from the account page): it shows the server URL, creates a token, fills configuration snippets with it, and offers ready-made prompts to paste. The user guide, with Claude, ChatGPT and other assistants, is [`coach-getting-started.md`](coach-getting-started.md). This document is the reference for developers.
 
 ## Endpoint
 
@@ -39,7 +39,7 @@ Any host that lets you set the URL and an HTTP header works:
 - Transport: Streamable HTTP (sometimes called "HTTP")
 - Header: `Authorization: Bearer <your token>`
 
-The exact place depends on the host. Hosts that only accept OAuth connections cannot connect yet.
+The exact place depends on the host. Hosts that sign in by OAuth (the Claude apps, Claude Code, ChatGPT) need no token: they discover the PianoML authorization server from the `401` challenge of `/mcp`, and the user approves them on PianoML (design: `docs/coach-oauth-design.md`).
 
 ## Try it without an assistant
 
