@@ -723,6 +723,19 @@ describe('WorkbenchComponent', () => {
       expect(drawnLeft).toBeCloseTo(home.left, 0);
     });
 
+    it('makes the cursor span the whole system, both staves, as OSMD sizes it', async () => {
+      await openScore();
+      const osmd = TestBed.inject(PlayerStateService).osmd!;
+      const cursor = document.getElementById('cursorImg-0')!;
+      expect(cursor.style.getPropertyPriority('height')).toBe(''); // not forced: OSMD updates it on each move
+      const system = osmd.GraphicSheet.MusicPages[0].MusicSystems[0];
+      const lines = system.StaffLines;
+      expect(lines.length).toBe(2); // the fixture is a grand staff
+      const top = lines[0].PositionAndShape.RelativePosition.y;
+      const bottom = lines[lines.length - 1].PositionAndShape.RelativePosition.y + lines[lines.length - 1].StaffHeight;
+      expect(parseFloat(cursor.style.height)).toBeCloseTo((bottom - top) * 10 * osmd.Zoom, 0);
+    });
+
     it('opens the MIDI setup and the tempo dialogs', async () => {
       await openScore();
       button('#midi-setup input').click();
