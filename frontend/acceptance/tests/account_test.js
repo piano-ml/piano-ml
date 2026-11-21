@@ -46,7 +46,8 @@ async function login(I) {
 
 /**
  * Runs a MusicBrainz-backed search until results show. The browser queries musicbrainz.org directly, which
- * answers 503 when called more than about once per second: dismiss the error and search again, like a user.
+ * answers 503 when called more than about once per second: the app retries with a backoff (about 18 s at most)
+ * before it shows an error; then dismiss it and search again, like a user, waiting longer each time.
  */
 async function searchMusicBrainz(I, results, attempts = 3) {
   for (let attempt = 1; attempt <= attempts; attempt++) {
@@ -55,11 +56,11 @@ async function searchMusicBrainz(I, results, attempts = 3) {
       ([xpath]) => !!document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
         || document.body.innerText.includes('Error occurred'),
       [results],
-      20,
+      40,
     );
     if ((await I.grabNumberOfVisibleElements('//*[normalize-space() = "Error occurred"]')) === 0) return;
     I.click(locate('button').withText('Dismiss'));
-    I.wait(2 * attempt);
+    I.wait(5 * 2 ** (attempt - 1)); // 5, 10 s
   }
   throw new Error(`MusicBrainz search still failing after ${attempts} attempts`);
 }

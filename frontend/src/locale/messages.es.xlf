@@ -3034,10 +3034,6 @@ Uso: sobre acordes menores y contextos de blues menor (centros i7 / i) cuando qu
         <source>Loading related videos…</source>
         <target state="translated">Cargando vídeos relacionados…</target>
       </trans-unit>
-      <trans-unit id="score.videos.errorLabel" datatype="html">
-        <source>Video API error:</source>
-        <target state="translated">Error de la API de vídeos:</target>
-      </trans-unit>
       <trans-unit id="score.download.originalFile" datatype="html">
         <source>original file</source>
         <target state="translated">archivo original</target>
@@ -3069,10 +3065,6 @@ Uso: sobre acordes menores y contextos de blues menor (centros i7 / i) cuando qu
       <trans-unit id="score.error.noSlug" datatype="html">
         <source>No score slug provided</source>
         <target state="translated">No se indicó ninguna partitura</target>
-      </trans-unit>
-      <trans-unit id="score.videos.error" datatype="html">
-        <source>Failed to load videos</source>
-        <target state="translated">No se pudieron cargar los vídeos</target>
       </trans-unit>
       <trans-unit id="score.download.error.missingInfo" datatype="html">
         <source>Could not download the <x id="file" equiv-text="label"/>: this score is missing information.</source>

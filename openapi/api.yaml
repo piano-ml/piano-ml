@@ -478,7 +478,7 @@ paths:
           description: The ID of the score
       responses:
         '200':
-          description: List of relevant YouTube videos
+          description: List of relevant YouTube videos (empty when YouTube is unavailable)
           content:
             application/json:
               schema:
@@ -487,8 +487,6 @@ paths:
                   $ref: '#/components/schemas/YoutubeVideoApiInfo'
         '404':
           description: Score not found
-        '502':
-          description: YouTube API error
 
   /score/{id}/info:
     get:

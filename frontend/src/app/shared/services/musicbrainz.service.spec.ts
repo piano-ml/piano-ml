@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { luceneQuote, MusicbrainzService, MusicBrainzWorksResponse } from './musicbrainz.service';
+import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { luceneQuote, MUSICBRAINZ_RETRY, musicBrainzRetryDelay, MusicbrainzService, MusicBrainzWorksResponse } from './musicbrainz.service';
 
 describe('MusicbrainzService', () => {
   let service: MusicbrainzService;
@@ -167,14 +168,71 @@ describe('MusicbrainzService work helpers', () => {
     expect(works.map((w: { id: string }) => w.id)).toEqual(['1', '2', '3']);
   });
 
-  it('logs and rethrows failed requests', () => {
-    const http = TestBed.inject(HttpTestingController);
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    let failure: unknown;
-    service.searchWorksByTitle('x').subscribe({ error: (e) => (failure = e) });
-    http.expectOne(() => true).flush('down', { status: 503, statusText: 'Service Unavailable' });
-    expect(failure).toMatchObject({ status: 503 });
-    expect(console.error).toHaveBeenCalled();
+  describe('retries when MusicBrainz is busy', () => {
+    const busy = { status: 503, statusText: 'Service Unavailable' };
+    const ok: MusicBrainzWorksResponse = { created: '', count: 0, offset: 0, works: [] };
+    let httpMock: HttpTestingController;
+    const pending = () => httpMock.match(() => true);
+    beforeEach(() => {
+      vi.useFakeTimers();
+      httpMock = TestBed.inject(HttpTestingController);
+    });
+    afterEach(() => vi.useRealTimers());
+
+    it('retries a 503 after 1, 2, 4 s… then gets the results', async () => {
+      let result: unknown;
+      service.searchWorksByTitle('x').subscribe((r) => (result = r));
+      httpMock.expectOne(() => true).flush('busy', busy);
+      await vi.advanceTimersByTimeAsync(900);
+      expect(pending()).toHaveLength(0); // not before the first delay
+      await vi.advanceTimersByTimeAsync(1000 * (1 + MUSICBRAINZ_RETRY.jitter));
+      httpMock.expectOne(() => true).flush('busy', busy);
+      await vi.advanceTimersByTimeAsync(2000 * (1 + MUSICBRAINZ_RETRY.jitter));
+      httpMock.expectOne(() => true).flush(ok);
+      expect(result).toEqual(ok);
+    });
+
+    it('gives up after the last retry: logs and rethrows the error', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      let failure: unknown;
+      service.searchArtistsByName('x').subscribe({ error: (e) => (failure = e) });
+      for (let attempt = 0; attempt <= MUSICBRAINZ_RETRY.retries; attempt++) {
+        httpMock.expectOne(() => true).flush('busy', busy);
+        await vi.advanceTimersByTimeAsync(MUSICBRAINZ_RETRY.maxMs);
+      }
+      expect(pending()).toHaveLength(0);
+      expect(failure).toMatchObject({ status: 503 });
+      expect(console.error).toHaveBeenCalled();
+    });
+
+    it('does not retry an error that will not go away (400, 404)', () => {
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      let failure: unknown;
+      service.searchWorksByTitle('x').subscribe({ error: (e) => (failure = e) });
+      httpMock.expectOne(() => true).flush('bad', { status: 400, statusText: 'Bad Request' });
+      expect(failure).toMatchObject({ status: 400 });
+    });
+  });
+
+  describe('musicBrainzRetryDelay', () => {
+    const error = (status: number, headers?: Record<string, string>) => new HttpErrorResponse({ status, headers: new HttpHeaders(headers) });
+
+    it('doubles each time, with up to 20 % spread, capped', () => {
+      expect([1, 2, 3, 4].map((n) => musicBrainzRetryDelay(error(503), n, () => 0))).toEqual([1000, 2000, 4000, 8000]);
+      expect(musicBrainzRetryDelay(error(503), 1, () => 1)).toBe(1200);
+      expect(musicBrainzRetryDelay(error(503), 6, () => 0)).toBe(MUSICBRAINZ_RETRY.maxMs);
+    });
+
+    it('waits the Retry-After the server asks for when longer', () => {
+      expect(musicBrainzRetryDelay(error(503, { 'Retry-After': '3' }), 1, () => 0)).toBe(3000);
+      expect(musicBrainzRetryDelay(error(503, { 'Retry-After': '60' }), 1, () => 0)).toBe(MUSICBRAINZ_RETRY.maxMs);
+    });
+
+    it('retries busy, gateway and network errors only', () => {
+      for (const status of [0, 429, 502, 503, 504]) expect(musicBrainzRetryDelay(error(status), 1, () => 0)).toBe(1000);
+      for (const status of [400, 404, 500]) expect(musicBrainzRetryDelay(error(status), 1)).toBeNull();
+      expect(musicBrainzRetryDelay(new Error('x'), 1)).toBeNull();
+    });
   });
 });
 
