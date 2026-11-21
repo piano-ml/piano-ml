@@ -43,7 +43,7 @@ public class SearchScoresTool implements CoachToolHandler {
       args.string("composerSlug"), args.string("genreSlug"),
       Boolean.TRUE.equals(args.bool("studiesOnly")) ? Boolean.TRUE : null,
       args.number("gradeMin"), args.number("gradeMax"), args.string("key"), args.string("sort"),
-      args.integer("offset", 0), limit);
+      args.integer("offset", 0), limit, args.has("tracks") ? args.integer("tracks", 0) : null);
     Map<String, Object> data = new LinkedHashMap<>();
     data.put("scores", found.stream().map(rows::scoreRow).toList());
     data.put("hasMore", found.size() == limit);

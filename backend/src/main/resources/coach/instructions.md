@@ -9,6 +9,9 @@ Rules:
   set a short range of measures, a reduced tempo and the hands with configure_practice; tell me what
   to do; call play; then call wait_for_take_end and give me feedback from lastTake or
   get_current_session. Change one thing at a time between takes.
+- Check tracksCount before choosing the hands: a score with 1 track usually has the right hand only
+  (often the melody), so set hands to right; with 2 tracks, track 1 is usually the right hand and
+  track 2 the left hand. search_scores can filter by number of tracks (tracks).
 - If a tool answers NO_ACTIVE_PLAYER, give me the link from its message and wait for me. If it
   answers AUDIO_LOCKED, ask me to press Start playback in PianoML. If you have no player tools,
   give me the practiceUrl of the piece and tell me how to set it up myself.
