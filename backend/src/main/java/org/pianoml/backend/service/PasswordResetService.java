@@ -36,7 +36,8 @@ import java.util.UUID;
  *   exists is never told. At most {@code account.password-reset.max-emails-per-day} (3) emails per account in any
  *   24 hours; a new link ends the previous ones.</li>
  *   <li>{@link #resetPassword}: the token sets a new password, then no longer works (nor any other link of the
- *   account). It also proves the email is the user's, so the account becomes verified.</li>
+ *   account). It also proves the email is the user's, so the account becomes verified, and revokes every token
+ *   of external tools (coach, #414), which must not keep working with the old password.</li>
  * </ol>
  * Links are ended by setting their expiry to now, not deleted: the rows of the last 24 hours count the emails
  * sent. Rows expired and older than a day are deleted at each request.
@@ -55,6 +56,7 @@ public class PasswordResetService {
   private final SupportedLocales supportedLocales;
   private final PasswordResetMail mail;
   private final MailSender mailSender;
+  private final CoachGrantService coachGrants;
   private final Duration ttl;
   private final int maxEmailsPerDay;
   private final String linkBase;
@@ -63,6 +65,7 @@ public class PasswordResetService {
   @Autowired
   public PasswordResetService(UserRepository users, PasswordResetTokenRepository tokens, PasswordEncoder passwordEncoder,
                               SupportedLocales supportedLocales, PasswordResetMail mail, MailSender mailSender,
+                              CoachGrantService coachGrants,
                               @Value("${account.password-reset.ttl:7d}") Duration ttl,
                               @Value("${account.password-reset.max-emails-per-day:3}") int maxEmailsPerDay,
                               @Value("${account.password-reset.link-base:https://pianoml.org}") String linkBase) {
@@ -72,6 +75,7 @@ public class PasswordResetService {
     this.supportedLocales = supportedLocales;
     this.mail = mail;
     this.mailSender = mailSender;
+    this.coachGrants = coachGrants;
     this.ttl = ttl;
     this.maxEmailsPerDay = maxEmailsPerDay;
     this.linkBase = linkBase.replaceAll("/+$", "");
@@ -136,7 +140,8 @@ public class PasswordResetService {
     user.setVerified(true);
     users.save(user);
     tokens.expireAllOfUser(user.getId(), now);
-    log.info("Password reset for account {}", user.getId());
+    int revoked = coachGrants.revokeAll(user.getId());
+    log.info("Password reset for account {} ({} coach grant(s) revoked)", user.getId(), revoked);
   }
 
   /** The page of the link, in the language's URL prefix: https://pianoml.org/fr/account/reset-password?token=... */

@@ -31,6 +31,9 @@
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<spring-cloud-aws.version>4.2.1</spring-cloud-aws.version>
 		<spring-cloud.version>2023.0.0</spring-cloud.version>
+		<!-- mcp must be the SDK version mcp-spring-webmvc is built against (see its POM) -->
+		<mcp-spring-webmvc.version>2.0.2</mcp-spring-webmvc.version>
+		<mcp-sdk.version>2.1.0</mcp-sdk.version>
 	</properties>
 	<dependencyManagement>
       <dependencies>
@@ -98,6 +101,23 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>${springdoc-openapi-ui.version}</version>
 		</dependency>
+		<!-- Remote coach bridge (issue #414): plain WebSocket handler, no STOMP, no SockJS -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+		<!-- MCP server for the coach (issue #414): the WebMVC stateless transport and the MCP Java SDK, nothing
+		     else. Not the Spring AI starter: it pulls spring-ai-model (chat model abstractions). -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>mcp-spring-webmvc</artifactId>
+			<version>${mcp-spring-webmvc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.modelcontextprotocol.sdk</groupId>
+			<artifactId>mcp</artifactId>
+			<version>${mcp-sdk.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
@@ -116,6 +136,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<!-- Coach OAuth (issue #414): fetching client metadata documents with a pinned, SSRF-guarded DNS resolver -->
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 		</dependency>
     <dependency>
       <groupId>com.google.cloud</groupId>
@@ -189,6 +214,20 @@
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<!-- Coach contract files (issue #414), shared with the frontend: served as classpath:coach/*.json -->
+			<resource>
+				<directory>${project.basedir}/../openapi</directory>
+				<targetPath>coach</targetPath>
+				<includes>
+					<include>coach-tools.json</include>
+					<include>coach-prompts.json</include>
+				</includes>
+			</resource>
+		</resources>
 		<finalName>backend</finalName>
 		<plugins>
 			<plugin>

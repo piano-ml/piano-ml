@@ -454,6 +454,14 @@ export class PlayerAudioService implements OnDestroy {
   }
 
   /**
+   * True once the browser lets the page make sound: the soundfont's audio context and Tone's are running. A
+   * context stays suspended until a user gesture (click, key) resumes it; until then play() may wait forever.
+   */
+  isUnlocked(): boolean {
+    return this.audioContext?.state === 'running' && Tone.getContext().state === 'running';
+  }
+
+  /**
    * Démarre le transport
    */
   async start(): Promise<void> {

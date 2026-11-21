@@ -1,0 +1,30 @@
+# OAuth clients of the coach (issue #414, docs/coach-oauth-design.md 2.2 and 3, phase O2). Public clients only:
+# no secret is ever stored.
+# - kind cimd: client_id is the HTTPS URL of a client metadata document; the row is a cache of that document
+#   (metadata_expires_at), refetched when stale;
+# - kind dcr: registered through POST /oauth/register (RFC 7591); client_id is pmc_<32 hex>;
+# - redirect_uris: a JSON array of strings;
+# - last_used_at: set when the client completes an authorization; rows never used are deleted after 24 hours,
+#   rows unused for 90 days after that.
+databaseChangeLog:
+  - changeSet:
+      id: 028-1-create-coach-oauth-client
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: coach_oauth_client
+            columns:
+              - column: { name: client_id, type: VARCHAR(500), constraints: { nullable: false } }
+              - column: { name: kind, type: VARCHAR(8), constraints: { nullable: false } }
+              - column: { name: client_name, type: VARCHAR(80), constraints: { nullable: false } }
+              - column: { name: redirect_uris, type: TEXT, constraints: { nullable: false } }
+              - column: { name: metadata_fetched_at, type: TIMESTAMP WITH TIME ZONE }
+              - column: { name: metadata_expires_at, type: TIMESTAMP WITH TIME ZONE }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: last_used_at, type: TIMESTAMP WITH TIME ZONE }
+        - addPrimaryKey:
+            schemaName: pianoml
+            tableName: coach_oauth_client
+            columnNames: client_id
+            constraintName: pk_coach_oauth_client

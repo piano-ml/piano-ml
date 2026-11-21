@@ -1,0 +1,82 @@
+# Remote coach bridge (issue #414): what crosses server instances goes through these rows.
+# - coach_ws_ticket: one-time tickets that open the WebSocket (SHA-256 of the ticket, 30 seconds);
+# - coach_presence: the browser tabs with Remote coach on, by tab id, with a heartbeat;
+# - coach_command: a tool call for a tab and its result (pending -> sent -> done, or expired).
+# Rows go away with their user (ON DELETE CASCADE).
+databaseChangeLog:
+  - changeSet:
+      id: 027-1-create-coach-bridge
+      author: pianoml
+      changes:
+        - createTable:
+            schemaName: pianoml
+            tableName: coach_ws_ticket
+            columns:
+              - column: { name: ticket_hash, type: CHAR(64), constraints: { primaryKey: true, primaryKeyName: pk_coach_ws_ticket, nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: expires_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: coach_ws_ticket
+            baseColumnNames: user_id
+            constraintName: fk_coach_ws_ticket_user
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - createTable:
+            schemaName: pianoml
+            tableName: coach_presence
+            columns:
+              - column: { name: tab_id, type: UUID, constraints: { primaryKey: true, primaryKeyName: pk_coach_presence, nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: instance, type: VARCHAR(64), constraints: { nullable: false } }
+              - column: { name: connected_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: last_seen_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: last_focus_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: coach_presence
+            baseColumnNames: user_id
+            constraintName: fk_coach_presence_user
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - createIndex:
+            schemaName: pianoml
+            tableName: coach_presence
+            indexName: idx_coach_presence_user
+            columns:
+              - column: { name: user_id }
+        - createTable:
+            schemaName: pianoml
+            tableName: coach_command
+            columns:
+              - column: { name: id, type: UUID, constraints: { primaryKey: true, primaryKeyName: pk_coach_command, nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: tab_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: grant_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: client_name, type: VARCHAR(80), constraints: { nullable: false } }
+              - column: { name: tool, type: VARCHAR(40), constraints: { nullable: false } }
+              - column: { name: args, type: TEXT }
+              - column: { name: status, type: VARCHAR(12), constraints: { nullable: false } }
+              - column: { name: result, type: TEXT }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: expires_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: pianoml
+            baseTableName: coach_command
+            baseColumnNames: user_id
+            constraintName: fk_coach_command_user
+            referencedTableSchemaName: pianoml
+            referencedTableName: user
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - createIndex:
+            schemaName: pianoml
+            tableName: coach_command
+            indexName: idx_coach_command_pending
+            columns:
+              - column: { name: status }
+              - column: { name: tab_id }

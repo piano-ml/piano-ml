@@ -20,6 +20,7 @@ import { PlayerAudioService } from '../../service/player-audio.service';
 import { PlayerService } from '../../service/player.service';
 import { PlayerStateService } from '../../service/player-state.service';
 import { PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
+import { PlayerControlService } from '../../service/player-control.service';
 import { WRONG_NOTE_ARENA_FLASH_MS, WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
 
 const SCORE: ScoreApiInfo = {
@@ -547,6 +548,105 @@ describe('WorkbenchComponent', () => {
       render();
       expect(component.playConfiguration.currentStave).toBe(3);
       expect(el().querySelector('#measure-range .noUi-base')).not.toBeNull();
+    });
+  });
+
+  describe('remote control handle (coach, issue #414)', () => {
+    const control = () => TestBed.inject(PlayerControlService);
+
+    it('registers while on screen, ready once the score is loaded, and unregisters when left', async () => {
+      await openScore();
+      const handle = control().handle();
+      expect(handle).not.toBeNull();
+      expect(handle!.isReady()).toBe(true);
+      const state = handle!.getState();
+      expect(state).toMatchObject({
+        loaded: true, playing: false, page: '/work/hill-happy-birthday',
+        item: { kind: 'score', scoreId: 's1', slug: 'hill-happy-birthday', title: 'Happy Birthday' },
+        range: { fromMeasure: 1 }, loop: false,
+      });
+      // The measures as the slider counts them: the whole-score range ends after the last one
+      expect(state.measureTotal).toBe(component.playConfiguration.scoreRange[1] - 1);
+      expect(state.range.toMeasure).toBe(state.measureTotal);
+
+      await harness.navigateByUrl('/elsewhere');
+      expect(control().handle()).toBeNull();
+    });
+
+    it('sets a 1-based inclusive range as the slider does', async () => {
+      await openScore();
+      const resetLight = vi.spyOn(player, 'resetLight');
+      // scoreRange is 1-based with an exclusive end: measure 2 alone is [2, 3]
+      control().handle()!.setRange(2, 2);
+      expect(component.playConfiguration.scoreRange).toEqual([2, 3]);
+      expect(component.playConfiguration.currentStave).toBe(2);
+      expect(resetLight).toHaveBeenCalledWith(component.playConfiguration);
+      expect(control().state().range).toEqual({ fromMeasure: 2, toMeasure: 2 });
+
+      control().handle()!.setWholeScore();
+      const total = control().state().measureTotal;
+      expect(component.playConfiguration.scoreRange).toEqual([1, total + 1]);
+      expect(control().state().range).toEqual({ fromMeasure: 1, toMeasure: total });
+    });
+
+    it('sets tempo (clamped), loop, hands, metronome and keyboard', async () => {
+      await openScore();
+      const handle = control().handle()!;
+      handle.setTempoBpm(500);
+      expect(component.tempo).toBe(200);
+      handle.setTempoBpm(50);
+      expect(control().state().tempo).toEqual({ bpm: 50, originalBpm: 100, percent: 50 });
+      handle.setLoop(true);
+      handle.setHands('left');
+      handle.setMetronome(true);
+      handle.setKeyboardVisible(false);
+      expect(control().state()).toMatchObject({ loop: true, hands: 'left', metronome: true, showKeyboard: false });
+      expect([component.playConfiguration.waitForLeftHand, component.playConfiguration.waitForRightHand]).toEqual([true, false]);
+    });
+
+    it('play(restart) starts again from the range start without widening the range; stop pauses', async () => {
+      await openScore();
+      const handle = control().handle()!;
+      handle.setRange(2, 2);
+      const reset = vi.spyOn(player, 'reset');
+      const play = vi.spyOn(player, 'play');
+      await handle.play(true);
+      expect(reset).toHaveBeenCalled();
+      expect(play).toHaveBeenCalled();
+      expect(component.playConfiguration.scoreRange).toEqual([2, 3]);
+      expect(control().state().playing).toBe(true);
+
+      handle.stop();
+      expect(audio.pause).toHaveBeenCalled();
+      expect(control().state().playing).toBe(false);
+
+      reset.mockClear();
+      await handle.play(false);
+      expect(reset).not.toHaveBeenCalled();
+      expect(component.playConfiguration.scoreRange).toEqual([2, 3]);
+    });
+
+    it('a remote play sent while the sounds load waits for them instead of doing nothing', async () => {
+      audio.soundFontState.set('loading');
+      await openScore();
+      let loaded!: () => void;
+      vi.mocked(audio.initSoundFont).mockReturnValue(new Promise<void>((resolve) => { loaded = () => { audio.soundFontState.set('ready'); resolve(); }; }));
+      const play = vi.spyOn(player, 'play');
+      const playing = control().handle()!.play(false);
+      await Promise.resolve();
+      expect(play).not.toHaveBeenCalled();
+      loaded();
+      await playing;
+      expect(play).toHaveBeenCalled();
+      expect(control().state().playing).toBe(true);
+    });
+
+    it('reports the last take with its accuracy', async () => {
+      await openScore();
+      const recorder = TestBed.inject(PracticeSessionRecorder);
+      recorder.lastTake.set({ measureStart: 1, measureEnd: 2, completed: true, hands: 'both', tempoFactor: 0.6,
+        notesExpected: 20, notesHit: 18, notesWrong: 2, onsets: 10, waits: 1 });
+      expect(control().state().lastTake).toMatchObject({ completed: true, accuracy: 18 / 22, flow: 0.9 });
     });
   });
 

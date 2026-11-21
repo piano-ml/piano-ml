@@ -5,7 +5,7 @@ const modeOf = (path: string) => serverRoutes.find(route => route.path === path)
 
 describe('serverRoutes', () => {
   it('renders private pages in the browser only (the session is not visible server-side)', () => {
-    for (const path of ['account', 'account/**', 'import', 'import/**', 'score/*/reimport', 'admin', 'admin/**']) {
+    for (const path of ['account', 'account/**', 'import', 'import/**', 'coach/**', 'score/*/reimport', 'admin', 'admin/**']) {
       expect(modeOf(path), path).toBe(RenderMode.Client);
     }
   });
