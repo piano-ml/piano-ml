@@ -1,13 +1,13 @@
 # Getting started with your AI piano coach
 
-PianoML can turn the AI assistant you already use (Claude, ChatGPT, or another one) into your piano coach. Once it is connected, you can ask it things like *"How did my practice go this week?"*, *"What should I work on today?"* or *"Help me with the left hand of the Moonlight Sonata"*. It reads your practice history, suggests pieces, and can even open a score and start the player for you.
+PianoML can turn the AI assistant you already use (Le Chat by Mistral, Claude, ChatGPT, or another one) into your piano coach. Once it is connected, you can ask it things like *"How did my practice go this week?"*, *"What should I work on today?"* or *"Help me with the left hand of the Moonlight Sonata"*. It reads your practice history, suggests pieces, and can even open a score and start the player for you.
 
-PianoML does not run an AI itself: you bring your own assistant. What the assistant reads from PianoML goes to the company that runs it (Anthropic for Claude, OpenAI for ChatGPT, and so on), under that company's privacy terms.
+PianoML does not run an AI itself: you bring your own assistant. What the assistant reads from PianoML goes to the company that runs it (Mistral AI for Le Chat, Anthropic for Claude, OpenAI for ChatGPT, and so on), under that company's privacy terms.
 
 ## What you need
 
 - A PianoML account. Log in at [pianoml.org](https://pianoml.org).
-- An AI assistant that supports **MCP** (Model Context Protocol), the standard way to connect assistants to other services. Claude and ChatGPT do, and many other assistants do too.
+- An AI assistant that supports **MCP** (Model Context Protocol), the standard way to connect assistants to other services. Le Chat, Claude and ChatGPT do, and many other assistants do too.
 - For the coach to drive the player: PianoML open in a browser tab, on the computer you practice on.
 
 ## The PianoML server address
@@ -24,10 +24,23 @@ Type it exactly like this, without a slash at the end. It is also on the **Conne
 
 | | How it works | For |
 |---|---|---|
-| **Sign in** | You give the assistant the address. It sends you to PianoML, where you log in and choose what it may do. Nothing to copy. | Claude (web, desktop, mobile, Claude Code), ChatGPT, and other assistants that sign in to servers |
+| **Sign in** | You give the assistant the address. It sends you to PianoML, where you log in and choose what it may do. Nothing to copy. | Le Chat by Mistral, Claude (web, desktop, mobile, Claude Code), ChatGPT, and other assistants that sign in to servers |
 | **Access token** | You create an access on PianoML and paste its token into the assistant's settings. | Assistants that let you add a server with a header (Cursor, VS Code, Cline...), or when signing in does not work |
 
 Use **sign in** when your assistant offers it: it is quicker, and you never handle a token.
+
+---
+
+## Mistral (Le Chat)
+
+1. Open [Le Chat](https://chat.mistral.ai) and go to **Connectors** (in the side menu, under **Intelligence**).
+2. Choose **Add connector**, then **Custom MCP connector**.
+3. Name it `PianoML`, and paste the server address `https://api.pianoml.org/mcp`.
+4. For the authentication, choose **OAuth** if Le Chat offers it, then **Connect**. Le Chat sends you to PianoML: log in, check what Le Chat may do, and choose **Allow**.
+   If Le Chat asks for a token or a header instead, create an access (see [Access tokens](#access-tokens)) and enter `Authorization` as the header name and `Bearer pml_your_token` as its value.
+5. In a new chat, turn on PianoML in the tools menu.
+
+Custom connectors may depend on your Le Chat plan, and the menu names may change over time: see Mistral's help pages if you don't find them.
 
 ---
 
@@ -83,7 +96,7 @@ Developer mode depends on your ChatGPT plan and is still labeled beta by OpenAI.
 
 ### Assistants that sign in
 
-If your assistant can add a "remote MCP server" by its address and signs you in (often called OAuth), give it `https://api.pianoml.org/mcp` and follow the steps: you will land on the same PianoML approval page as with Claude and ChatGPT.
+If your assistant can add a "remote MCP server" by its address and signs you in (often called OAuth), give it `https://api.pianoml.org/mcp` and follow the steps: you will land on the same PianoML approval page as with Le Chat, Claude and ChatGPT.
 
 ### Access tokens
 
