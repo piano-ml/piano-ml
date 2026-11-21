@@ -13,5 +13,9 @@ export interface AccountCreatePostRequest {
     email: string;
     password: string;
     name: string;
+    /**
+     * The language the user signs up in (en, fr, zh-Hans...). Stored as the account\'s language when the site has it, else the best match of Accept-Language, else en.
+     */
+    locale?: string;
 }
 

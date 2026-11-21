@@ -10,6 +10,7 @@
 
 
 export interface AccountPasswordResetPostRequest { 
-    email: string;
+    token: string;
+    password: string;
 }
 

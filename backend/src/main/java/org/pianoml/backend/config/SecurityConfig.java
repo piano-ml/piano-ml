@@ -56,7 +56,7 @@ public class SecurityConfig {
         .spa()
         .csrfTokenRepository(new OriginAwareCsrfTokenRepository())
         // Pre-authentication endpoints: no session cookie to abuse yet.
-        .ignoringRequestMatchers("/account/login", "/account/create")
+        .ignoringRequestMatchers("/account/login", "/account/create", "/account/password/forgot", "/account/password/reset")
         // Explicit bearer-token clients (scripts, tools): a cross-site page cannot set this header.
         .ignoringRequestMatchers(new RequestHeaderRequestMatcher("Authorization"))
         // Browser error reports (issue #408): write-only, nothing readable comes back, and open to anonymous
@@ -79,6 +79,9 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.POST,
           "/account/login",
           "/account/create",
+          // Password reset by email: the user is not logged in
+          "/account/password/forgot",
+          "/account/password/reset",
           // Clearing the cookie must work even when the JWT has already expired.
           "/account/logout",
           "/score/play/stats",

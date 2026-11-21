@@ -14,6 +14,14 @@
         <source>Create</source>
         <target state="translated">Створення</target>
       </trans-unit>
+      <trans-unit id="account.route.forgotPassword" datatype="html">
+        <source>Forgot password</source>
+        <target state="translated">Забули пароль</target>
+      </trans-unit>
+      <trans-unit id="account.route.resetPassword" datatype="html">
+        <source>New password</source>
+        <target state="translated">Новий пароль</target>
+      </trans-unit>
       <trans-unit id="account.route.scores" datatype="html">
         <source>My Scores</source>
         <target state="translated">Мої твори</target>
@@ -159,8 +167,12 @@
         <target state="translated">Введіть своє ім'я</target>
       </trans-unit>
       <trans-unit id="createAccount.nameIsRequired" datatype="html">
-        <source> name is required. </source>
+        <source>name is required.</source>
         <target state="translated">Ім'я обов'язкове.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.nameIsTaken" datatype="html">
+        <source>This name is already taken. Please choose another one.</source>
+        <target state="translated">Це ім'я вже зайняте. Будь ласка, виберіть інше.</target>
       </trans-unit>
       <trans-unit id="createAccount.email" datatype="html">
         <source>Email</source>
@@ -177,6 +189,10 @@
       <trans-unit id="createAccount.invalidEmailFormat" datatype="html">
         <source>Invalid email format.</source>
         <target state="translated">Неправильний формат адреси.</target>
+      </trans-unit>
+      <trans-unit id="createAccount.emailIsTaken" datatype="html">
+        <source>An account already uses this email. Log in instead, or use another email.</source>
+        <target state="translated">Ця електронна адреса вже використовується іншим обліковим записом. Увійдіть або вкажіть іншу адресу.</target>
       </trans-unit>
       <trans-unit id="createAccount.password" datatype="html">
         <source>Password</source>
@@ -462,6 +478,10 @@
         <source> Password is required. </source>
         <target state="translated">Пароль обов'язковий.</target>
       </trans-unit>
+      <trans-unit id="login.forgotPassword" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">Забули пароль?</target>
+      </trans-unit>
       <trans-unit id="login.loggingIn" datatype="html">
         <source>Logging in...</source>
         <target state="translated">Вхід...</target>
@@ -477,6 +497,106 @@
       <trans-unit id="login.error.other" datatype="html">
         <source>An error occurred during login</source>
         <target state="translated">Під час входу сталася помилка</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.title" datatype="html">
+        <source>Forgot your password?</source>
+        <target state="translated">Забули пароль?</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sentTitle" datatype="html">
+        <source>Check your email</source>
+        <target state="translated">Перевірте пошту</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sent" datatype="html">
+        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for a limited time.</source>
+        <target state="translated">Якщо обліковий запис використовує <x id="INTERPOLATION" equiv-text="{{ email }}"/>, ми надіслали на цю адресу посилання для вибору нового пароля. Посилання діє обмежений час.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.spam" datatype="html">
+        <source>Nothing after a few minutes? Check your spam folder, or ask again.</source>
+        <target state="translated">Нічого не прийшло за кілька хвилин? Перевірте папку «Спам» або надішліть запит ще раз.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.backToLogin" datatype="html">
+        <source>Back to login</source>
+        <target state="translated">Повернутися до входу</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.heading" datatype="html">
+        <source>Reset your password</source>
+        <target state="translated">Скидання пароля</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.intro" datatype="html">
+        <source>Enter the email of your account: we will send you a link to choose a new password.</source>
+        <target state="translated">Введіть електронну адресу свого облікового запису: ми надішлемо посилання для вибору нового пароля.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.failed" datatype="html">
+        <source>The email could not be sent. Please try again in a moment.</source>
+        <target state="translated">Не вдалося надіслати лист. Спробуйте ще раз за мить.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email" datatype="html">
+        <source>Email</source>
+        <target state="translated">Електронна пошта</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.email.placeholder" datatype="html">
+        <source>Enter your email</source>
+        <target state="translated">Введіть електронну адресу</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.emailInvalid" datatype="html">
+        <source>Please enter a valid email.</source>
+        <target state="translated">Введіть дійсну електронну адресу.</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.sending" datatype="html">
+        <source>Sending...</source>
+        <target state="translated">Надсилання...</target>
+      </trans-unit>
+      <trans-unit id="forgotPassword.send" datatype="html">
+        <source>Send me a link</source>
+        <target state="translated">Надіслати посилання</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.title" datatype="html">
+        <source>Choose a new password</source>
+        <target state="translated">Виберіть новий пароль</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.done" datatype="html">
+        <source>Your password has been changed. You can now log in with it.</source>
+        <target state="translated">Пароль змінено. Тепер ви можете увійти з ним.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.login" datatype="html">
+        <source>Log in</source>
+        <target state="translated">Увійти</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.invalid" datatype="html">
+        <source>This link is invalid or has expired: each link works only once, for a limited time.</source>
+        <target state="translated">Це посилання недійсне або застаріле: кожне посилання діє лише один раз і протягом обмеженого часу.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.askAgain" datatype="html">
+        <source>Get a new link</source>
+        <target state="translated">Отримати нове посилання</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.failed" datatype="html">
+        <source>The password could not be changed. Please try again in a moment.</source>
+        <target state="translated">Не вдалося змінити пароль. Спробуйте ще раз за мить.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.password" datatype="html">
+        <source>New password</source>
+        <target state="translated">Новий пароль</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.tooShort" datatype="html">
+        <source>Password must be at least 8 characters long.</source>
+        <target state="translated">Пароль має містити щонайменше 8 символів.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.confirm" datatype="html">
+        <source>Confirm the new password</source>
+        <target state="translated">Підтвердьте новий пароль</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.mismatch" datatype="html">
+        <source>Passwords do not match.</source>
+        <target state="translated">Паролі не збігаються.</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.saving" datatype="html">
+        <source>Saving...</source>
+        <target state="translated">Збереження...</target>
+      </trans-unit>
+      <trans-unit id="resetPassword.save" datatype="html">
+        <source>Change my password</source>
+        <target state="translated">Змінити пароль</target>
       </trans-unit>
       <trans-unit id="playlist.list.title" datatype="html">
         <source>My Playlists</source>

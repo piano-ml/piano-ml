@@ -27,6 +27,13 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('links to the password reset, passing the email typed (not in the URL)', () => {
+    component.loginForm.setValue({ email: 'lily@example.com', password: '' });
+    fixture.detectChanges();
+    const link = (fixture.nativeElement as HTMLElement).querySelector('a[href="/account/forgot-password"]');
+    expect(link?.textContent?.trim()).toBe('Forgot your password?');
+  });
+
   describe('after a successful login', () => {
     function loginWith(returnUrl: string | null) {
       const route = TestBed.inject(ActivatedRoute);

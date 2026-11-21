@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.entity.SystemUsers;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.exception.UserAlreadyExistsException;
+import org.pianoml.backend.exception.UserAlreadyExistsException.Field;
 import org.pianoml.backend.exception.UserNotLoggedInException;
 import org.pianoml.backend.mapper.UserMapper;
 import org.pianoml.backend.model.AccountCreatePostRequest;
@@ -13,6 +14,7 @@ import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -49,6 +51,9 @@ public class AccountService {
 
   @Autowired
   private ScoreService scoreService;
+
+  @Autowired
+  private SupportedLocales supportedLocales;
 
   /**
    * Accounts whose scores are deleted with them instead of being kept under the junk user: the acceptance test
@@ -99,18 +104,45 @@ public class AccountService {
       .anyMatch(listed -> !listed.isEmpty() && listed.equalsIgnoreCase(email.trim()));
   }
 
-  public User createUser(AccountCreatePostRequest accountCreatePostRequest) {
-    if (userRepository.findByEmail(accountCreatePostRequest.getEmail()).isPresent()) {
-      throw new UserAlreadyExistsException("User with email " + accountCreatePostRequest.getEmail() + " already exists.");
-    }
+  /**
+   * Creates an account. An email or a name already taken is a {@link UserAlreadyExistsException} (409), also when
+   * another sign-up takes it between the check and the insert: the unique constraint then fails, and is told apart
+   * by checking again which field is now taken.
+   * <p>The account's language is the one the user signs up in ({@code locale} of the request) when the site has
+   * it, else the best match of the browser's {@code Accept-Language}, else English.
+   */
+  public User createUser(AccountCreatePostRequest accountCreatePostRequest, String acceptLanguage) {
+    String email = accountCreatePostRequest.getEmail();
+    String name = accountCreatePostRequest.getName();
+    checkNotTaken(email, name);
 
     User user = userMapper.toUser(accountCreatePostRequest);
     user.setPassword(passwordEncoder.encode(accountCreatePostRequest.getPassword()));
     user.setRoles("USER"); // Default role for new users
-    return userRepository.save(user);
+    user.setLocale(supportedLocales.resolve(accountCreatePostRequest.getLocale(), acceptLanguage));
+    try {
+      return userRepository.save(user);
+    } catch (DataIntegrityViolationException e) {
+      checkNotTaken(email, name);
+      throw e;
+    }
   }
 
-  public org.pianoml.backend.model.AccountLoginPost200Response loginUser(AccountLoginPostRequest accountLoginPostRequest) {
+  private void checkNotTaken(String email, String name) {
+    if (userRepository.findByEmail(email).isPresent()) {
+      throw new UserAlreadyExistsException(Field.EMAIL, "User with email " + email + " already exists.");
+    }
+    if (name != null && userRepository.existsByName(name)) {
+      throw new UserAlreadyExistsException(Field.NAME, "User with name " + name + " already exists.");
+    }
+  }
+
+  /**
+   * Logs in. An account without a language (created before accounts had one) gets the one the user logs in from,
+   * resolved like at sign-up; a language already set is never changed here.
+   */
+  public org.pianoml.backend.model.AccountLoginPost200Response loginUser(AccountLoginPostRequest accountLoginPostRequest,
+                                                                         String acceptLanguage) {
     Authentication authentication = authenticationManager.authenticate(
       new UsernamePasswordAuthenticationToken(
         accountLoginPostRequest.getEmail(),
@@ -122,6 +154,10 @@ public class AccountService {
 
     org.springframework.security.core.userdetails.User userDetails = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
     User user = userRepository.findByEmail(userDetails.getUsername()).get();
+    if (user.getLocale() == null) {
+      user.setLocale(supportedLocales.resolve(accountLoginPostRequest.getLocale(), acceptLanguage));
+      userRepository.save(user);
+    }
     org.pianoml.backend.model.AccountLoginPost200Response response = new org.pianoml.backend.model.AccountLoginPost200Response();
     response.setToken(tokenProvider.generateToken(user));
     response.setUserId(user.getId().toString());

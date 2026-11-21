@@ -12,5 +12,9 @@
 export interface AccountLoginPostRequest { 
     email: string;
     password: string;
+    /**
+     * The language the user logs in from (en, fr, zh-Hans...). Stored as the account\'s language only when the account has none yet (accounts created before languages were stored).
+     */
+    locale?: string;
 }
 
