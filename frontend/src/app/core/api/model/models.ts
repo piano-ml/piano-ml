@@ -2,6 +2,8 @@ export * from './accountCreatePost409Response';
 export * from './accountCreatePostRequest';
 export * from './accountLoginPost200Response';
 export * from './accountLoginPostRequest';
+export * from './accountPasswordForgotPostRequest';
+export * from './accountPasswordResetPost400Response';
 export * from './accountPasswordResetPostRequest';
 export * from './accountTokenRenewGet200Response';
 export * from './allWorksApiInfo';

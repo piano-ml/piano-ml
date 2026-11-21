@@ -25,6 +25,10 @@ import { AccountLoginPost200Response } from '../model/accountLoginPost200Respons
 // @ts-ignore
 import { AccountLoginPostRequest } from '../model/accountLoginPostRequest';
 // @ts-ignore
+import { AccountPasswordForgotPostRequest } from '../model/accountPasswordForgotPostRequest';
+// @ts-ignore
+import { AccountPasswordResetPost400Response } from '../model/accountPasswordResetPost400Response';
+// @ts-ignore
 import { AccountPasswordResetPostRequest } from '../model/accountPasswordResetPostRequest';
 // @ts-ignore
 import { AccountTokenRenewGet200Response } from '../model/accountTokenRenewGet200Response';
@@ -329,17 +333,18 @@ export class AccountService extends BaseService {
     }
 
     /**
-     * Reset account password
-     * @param accountPasswordResetPostRequest 
+     * Ask for a password reset link by email
+     * Emails a single-use link to choose a new password, valid for one hour, when an account uses this email. Always answers 204, so the answer does not tell whether an account exists.
+     * @param accountPasswordForgotPostRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public accountPasswordResetPost(accountPasswordResetPostRequest: AccountPasswordResetPostRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public accountPasswordResetPost(accountPasswordResetPostRequest: AccountPasswordResetPostRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public accountPasswordResetPost(accountPasswordResetPostRequest: AccountPasswordResetPostRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public accountPasswordResetPost(accountPasswordResetPostRequest: AccountPasswordResetPostRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (accountPasswordResetPostRequest === null || accountPasswordResetPostRequest === undefined) {
-            throw new Error('Required parameter accountPasswordResetPostRequest was null or undefined when calling accountPasswordResetPost.');
+    public accountPasswordForgotPost(accountPasswordForgotPostRequest: AccountPasswordForgotPostRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public accountPasswordForgotPost(accountPasswordForgotPostRequest: AccountPasswordForgotPostRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public accountPasswordForgotPost(accountPasswordForgotPostRequest: AccountPasswordForgotPostRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public accountPasswordForgotPost(accountPasswordForgotPostRequest: AccountPasswordForgotPostRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (accountPasswordForgotPostRequest === null || accountPasswordForgotPostRequest === undefined) {
+            throw new Error('Required parameter accountPasswordForgotPostRequest was null or undefined when calling accountPasswordForgotPost.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -375,7 +380,71 @@ export class AccountService extends BaseService {
             }
         }
 
-        let localVarPath = `/account/password_reset`;
+        let localVarPath = `/account/password/forgot`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: accountPasswordForgotPostRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                transferCache: localVarTransferCache,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Choose a new password with the token of a reset link
+     * @param accountPasswordResetPostRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public accountPasswordResetPost(accountPasswordResetPostRequest: AccountPasswordResetPostRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public accountPasswordResetPost(accountPasswordResetPostRequest: AccountPasswordResetPostRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public accountPasswordResetPost(accountPasswordResetPostRequest: AccountPasswordResetPostRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public accountPasswordResetPost(accountPasswordResetPostRequest: AccountPasswordResetPostRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (accountPasswordResetPostRequest === null || accountPasswordResetPostRequest === undefined) {
+            throw new Error('Required parameter accountPasswordResetPostRequest was null or undefined when calling accountPasswordResetPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/account/password/reset`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {

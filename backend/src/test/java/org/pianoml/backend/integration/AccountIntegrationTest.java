@@ -337,11 +337,8 @@ class AccountIntegrationTest extends IntegrationTestBase {
   }
 
   @Test
-  void emailConfirmationAndPasswordResetAreNotImplemented() throws Exception {
+  void emailConfirmationIsNotImplemented() throws Exception {
     mockMvc.perform(get("/account/create/some-token/confirm")).andExpect(status().isNotImplemented());
-    mockMvc.perform(post("/account/password_reset").with(csrf()).header("Authorization", bearer(user("Eve", "USER")))
-        .contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"eve@example.com\"}"))
-      .andExpect(status().isNotImplemented());
   }
 
   @Test

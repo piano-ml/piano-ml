@@ -46,6 +46,15 @@ public class SupportedLocales {
       .orElse(fallback());
   }
 
+  /**
+   * The URL prefix of a site language, without slashes: none for the source language (served at the root), else
+   * the language subtag ({@code fr}, {@code zh} for zh-Hans), like the subPath of angular.json.
+   */
+  public String pathPrefix(String code) {
+    if (code.equals(fallback())) return "";
+    return code.split("-")[0].toLowerCase(Locale.ROOT);
+  }
+
   /** The site language matching a tag exactly, or else by its primary language; empty when none does. */
   Optional<String> match(String tag) {
     if (tag == null || tag.isBlank()) return Optional.empty();

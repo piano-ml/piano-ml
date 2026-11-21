@@ -116,13 +116,6 @@ class AccountControllerTest {
       .andExpect(status().isNotImplemented());
   }
 
-  @Test
-  void passwordReset_isNotImplemented() throws Exception {
-    mockMvc.perform(post("/account/password_reset").with(user("u")).with(csrf())
-        .contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"a@example.com\"}"))
-      .andExpect(status().isNotImplemented());
-  }
-
   // --- token renew ----------------------------------------------------------------------------------------
 
   @Test

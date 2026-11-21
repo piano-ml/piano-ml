@@ -76,6 +76,16 @@ export class AuthService {
     return this.accountService.accountCreatePost({ ...user, locale: currentLocale() });
   }
   
+  /** Asks for a password reset link by email; answers the same whether or not an account uses the email. */
+  requestPasswordReset(email: string) {
+    return this.accountService.accountPasswordForgotPost({ email, locale: currentLocale() });
+  }
+
+  /** Sets a new password with the token of a reset link (400 `invalid_token` when it is unknown, used or expired). */
+  resetPassword(token: string, password: string) {
+    return this.accountService.accountPasswordResetPost({ token, password });
+  }
+
   getUserInfo() {
     return this.accountService.accountUserinfoGet();
   }

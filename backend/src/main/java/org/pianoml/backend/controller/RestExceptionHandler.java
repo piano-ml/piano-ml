@@ -1,5 +1,6 @@
 package org.pianoml.backend.controller;
 
+import org.pianoml.backend.exception.InvalidPasswordResetTokenException;
 import org.pianoml.backend.exception.UserAlreadyExistsException;
 import org.pianoml.backend.exception.UserNotLoggedInException;
 import org.pianoml.backend.service.ErrorReportService;
@@ -47,6 +48,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
       .body(Map.of("field", ex.getField().name().toLowerCase(Locale.ROOT), "message", ex.getMessage()));
   }
 
+
+  /** 400 {"error": "invalid_token"}: the reset page then offers to ask for a new link. */
+  @ExceptionHandler({InvalidPasswordResetTokenException.class})
+  public ResponseEntity<Object> handleInvalidPasswordResetToken(InvalidPasswordResetTokenException ex) {
+    return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(Map.of("error", ex.getMessage()));
+  }
 
   @ExceptionHandler({UserNotLoggedInException.class})
   public ResponseEntity<Object> handleUserNotLoggedIn(

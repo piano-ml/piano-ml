@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.api.AccountApi;
 import org.pianoml.backend.model.*;
 import org.pianoml.backend.service.AccountService;
+import org.pianoml.backend.service.PasswordResetService;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +33,9 @@ public class AccountController implements AccountApi {
 
   @Autowired
   private PlaylistEndpoints playlistEndpoints;
+
+  @Autowired
+  private PasswordResetService passwordResetService;
 
   // --- playlists (issue #278): served by PlaylistEndpoints --------------------------------------------------
 
@@ -86,6 +90,18 @@ public class AccountController implements AccountApi {
   public ResponseEntity<Void> accountCreatePost(AccountCreatePostRequest accountCreatePostRequest) {
     accountService.createUser(accountCreatePostRequest, acceptLanguage());
     return new ResponseEntity<>(HttpStatus.CREATED);
+  }
+
+  @Override
+  public ResponseEntity<Void> accountPasswordForgotPost(AccountPasswordForgotPostRequest request) {
+    passwordResetService.requestReset(request.getEmail(), request.getLocale(), acceptLanguage());
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  public ResponseEntity<Void> accountPasswordResetPost(AccountPasswordResetPostRequest request) {
+    passwordResetService.resetPassword(request.getToken(), request.getPassword());
+    return ResponseEntity.noContent().build();
   }
 
   @Override
@@ -169,11 +185,6 @@ public class AccountController implements AccountApi {
       .path("/")
       .maxAge(0)
       .build();
-  }
-
-  @Override
-  public ResponseEntity<Void> accountPasswordResetPost(AccountPasswordResetPostRequest accountPasswordResetPostRequest) {
-    return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
   }
 
   @Override

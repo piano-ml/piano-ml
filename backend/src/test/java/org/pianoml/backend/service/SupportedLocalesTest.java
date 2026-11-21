@@ -66,6 +66,20 @@ class SupportedLocalesTest {
     try (InputStream in = getClass().getResourceAsStream("/i18n.properties")) {
       properties.load(in);
     }
-    assertThat(List.of(properties.getProperty("i18n.locales").split(","))).containsExactlyElementsOf(expected);
+    List<String> codes = List.of(properties.getProperty("i18n.locales").split(","));
+    assertThat(codes).containsExactlyElementsOf(expected);
+
+    // pathPrefix gives each language's subPath (the URL prefix of reset links)
+    SupportedLocales site = new SupportedLocales(codes);
+    assertThat(site.pathPrefix(expected.getFirst())).isEqualTo(source.isTextual() ? "" : source.path("subPath").asText(""));
+    i18n.get("locales").properties().forEach(entry ->
+      assertThat(site.pathPrefix(entry.getKey())).as(entry.getKey()).isEqualTo(entry.getValue().path("subPath").asText(entry.getKey())));
+  }
+
+  @Test
+  void pathPrefixIsEmptyForTheSourceLanguage_elseTheLanguageSubtag() {
+    assertThat(locales.pathPrefix("en")).isEmpty();
+    assertThat(locales.pathPrefix("fr")).isEqualTo("fr");
+    assertThat(locales.pathPrefix("zh-Hans")).isEqualTo("zh");
   }
 }

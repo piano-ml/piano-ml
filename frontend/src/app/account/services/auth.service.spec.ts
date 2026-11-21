@@ -40,6 +40,8 @@ describe('AuthService', () => {
       accountLogoutPost: vi.fn(() => of(undefined)),
       accountDeletePost: vi.fn(() => of(undefined)),
       accountCreatePost: vi.fn(() => of(undefined)),
+      accountPasswordForgotPost: vi.fn(() => of(undefined)),
+      accountPasswordResetPost: vi.fn(() => of(undefined)),
       accountUserinfoGet: vi.fn(() => of({ id: 'u1', name: 'Alice' })),
       accountUserinfoPut: vi.fn(() => of(undefined)),
     };
@@ -180,6 +182,19 @@ describe('AuthService', () => {
     expect(api['accountCreatePost']).toHaveBeenCalledWith({ ...user, locale: 'en' });
     expect(api['accountUserinfoGet']).toHaveBeenCalledOnce();
     expect(api['accountUserinfoPut']).toHaveBeenCalledWith({ name: 'b' });
+  });
+
+  it('asks for a password reset link in the current language, and resets with the token', () => {
+    setCurrentLocale('fr');
+    try {
+      const service = create('server');
+      service.requestPasswordReset('a@example.com').subscribe();
+      service.resetPassword('tok', 'new-password').subscribe();
+      expect(api['accountPasswordForgotPost']).toHaveBeenCalledWith({ email: 'a@example.com', locale: 'fr' });
+      expect(api['accountPasswordResetPost']).toHaveBeenCalledWith({ token: 'tok', password: 'new-password' });
+    } finally {
+      setCurrentLocale(undefined);
+    }
   });
 
   it('register sends the language the user signs up in', () => {
