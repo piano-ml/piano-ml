@@ -32,7 +32,11 @@ export function fakeWorkbench(overrides: Partial<PlayerState> = {}) {
       state.tempo = { ...state.tempo, bpm, percent: Math.round((100 * bpm) / state.tempo.originalBpm) };
     }),
     setLoop: vi.fn((value: boolean) => { state.loop = value; }),
-    setHands: vi.fn((value) => { state.hands = value; void waitFor(value); }),
+    setHands: vi.fn((value, mode = 'wait') => {
+      state.hands = value;
+      state.handsMode = value === 'listen' ? null : mode;
+      void waitFor(value);
+    }),
     setMetronome: vi.fn((value: boolean) => { state.metronome = value; }),
     setKeyboardVisible: vi.fn((value: boolean) => { state.showKeyboard = value; }),
     play: vi.fn(async (restart: boolean) => {

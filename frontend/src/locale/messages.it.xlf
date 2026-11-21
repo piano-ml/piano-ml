@@ -150,6 +150,154 @@
         <source>Failed to search authors</source>
         <target state="translated">Ricerca degli autori non riuscita</target>
       </trans-unit>
+      <trans-unit id="coach.grants.title" datatype="html">
+        <source>Access for external tools</source>
+        <target state="translated">Accesso per strumenti esterni</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.connectLink" datatype="html">
+        <source>Connect an AI coach →</source>
+        <target state="translated">Collega un coach IA →</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.new" datatype="html">
+        <source>New access →</source>
+        <target state="translated">Nuovo accesso →</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.notice" datatype="html">
+        <source>A tool using this access can read your practice history and the score library, and control the player in a tab where you turned on Remote coach. What it reads is sent to the AI provider used by that tool.</source>
+        <target state="translated">Uno strumento con questo accesso può leggere la tua cronologia di esercizio e la libreria di spartiti, e controllare il lettore in una scheda in cui hai attivato il coach remoto. Ciò che legge viene inviato al fornitore di IA usato da quello strumento.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.title" datatype="html">
+        <source>Your token</source>
+        <target state="translated">Il tuo token</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.warning" datatype="html">
+        <source>Copy it now and paste it in your tool: it will not be shown again.</source>
+        <target state="translated">Copialo ora e incollalo nel tuo strumento: non verrà più mostrato.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.token.label" datatype="html">
+        <source>Access token</source>
+        <target state="translated">Token di accesso</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copied" datatype="html">
+        <source>Copied</source>
+        <target state="translated">Copiato</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copy" datatype="html">
+        <source>Copy</source>
+        <target state="translated">Copia</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.copyFailed" datatype="html">
+        <source>Copy failed: select the token and copy it manually.</source>
+        <target state="translated">Copia non riuscita: seleziona il token e copialo a mano.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.done" datatype="html">
+        <source>Done</source>
+        <target state="translated">Fatto</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.name" datatype="html">
+        <source>Name of the tool</source>
+        <target state="translated">Nome dello strumento</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.name.placeholder" datatype="html">
+        <source>For example: assistant on my laptop</source>
+        <target state="translated">Per esempio: assistente sul mio portatile</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scopes" datatype="html">
+        <source>What it can do</source>
+        <target state="translated">Cosa può fare</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.expiry" datatype="html">
+        <source>Expires after</source>
+        <target state="translated">Scade dopo</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.days" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ days }}"/> days</source>
+        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ days }}"/> giorni</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.create" datatype="html">
+        <source>Create</source>
+        <target state="translated">Crea</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.cancel" datatype="html">
+        <source>Cancel</source>
+        <target state="translated">Annulla</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.empty" datatype="html">
+        <source>No access created yet.</source>
+        <target state="translated">Nessun accesso creato finora.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.status.revoked" datatype="html">
+        <source>Revoked</source>
+        <target state="translated">Revocato</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.status.expired" datatype="html">
+        <source>Expired</source>
+        <target state="translated">Scaduto</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.revoke.confirm" datatype="html">
+        <source>The tool will stop working at once.</source>
+        <target state="translated">Lo strumento smetterà subito di funzionare.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.revoke" datatype="html">
+        <source>Revoke</source>
+        <target state="translated">Revoca</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.kind.oauth" datatype="html">
+        <source>Connected application</source>
+        <target state="translated">Applicazione collegata</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.expires" datatype="html">
+        <source>Expires <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></source>
+        <target state="translated">Scade il <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></target>
+      </trans-unit>
+      <trans-unit id="coach.grants.lastUsed" datatype="html">
+        <source>Last used <x id="INTERPOLATION" equiv-text="{{ date(grant.lastUsedAt) }}"/></source>
+        <target state="translated">Ultimo utilizzo il <x id="INTERPOLATION" equiv-text="{{ date(grant.lastUsedAt) }}"/></target>
+      </trans-unit>
+      <trans-unit id="coach.grants.neverUsed" datatype="html">
+        <source>Never used</source>
+        <target state="translated">Mai usato</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.practice" datatype="html">
+        <source>Practice history</source>
+        <target state="translated">Cronologia di esercizio</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.scores" datatype="html">
+        <source>Score library</source>
+        <target state="translated">Libreria di spartiti</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.player" datatype="html">
+        <source>Player</source>
+        <target state="translated">Lettore</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.practice.hint" datatype="html">
+        <source>Read your sessions, accuracy, streaks and level.</source>
+        <target state="translated">Leggere le tue sessioni, la precisione, le serie e il livello.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.scores.hint" datatype="html">
+        <source>Search and read the scores of the library.</source>
+        <target state="translated">Cercare e leggere gli spartiti della libreria.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.scope.player.hint" datatype="html">
+        <source>Open scores and start or stop the player in a tab where you turned on Remote coach.</source>
+        <target state="translated">Aprire spartiti e avviare o fermare il lettore in una scheda in cui hai attivato il coach remoto.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.tooMany" datatype="html">
+        <source>You already have 5 active accesses. Revoke one first.</source>
+        <target state="translated">Hai già 5 accessi attivi. Revocane prima uno.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.rateLimited" datatype="html">
+        <source>Too many accesses created in the last hour. Try again later.</source>
+        <target state="translated">Troppi accessi creati nell'ultima ora. Riprova più tardi.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.create" datatype="html">
+        <source>The access could not be created. Try again later.</source>
+        <target state="translated">Non è stato possibile creare l'accesso. Riprova più tardi.</target>
+      </trans-unit>
+      <trans-unit id="coach.grants.error.revoke" datatype="html">
+        <source>The access could not be revoked. Try again later.</source>
+        <target state="translated">Non è stato possibile revocare l'accesso. Riprova più tardi.</target>
+      </trans-unit>
       <trans-unit id="createAccount.createAccount" datatype="html">
         <source>Create Account</source>
         <target state="translated">Crea un account</target>
@@ -1102,6 +1250,286 @@
         <source>Blog posts</source>
         <target state="translated">Articoli del blog</target>
       </trans-unit>
+      <trans-unit id="coach.authorize.title" datatype="html">
+        <source>An application asks for access to your PianoML account</source>
+        <target state="translated">Un’applicazione chiede l’accesso al tuo account PianoML</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.gone" datatype="html">
+        <source>This request has expired or was already answered. Go back to your application and connect PianoML again.</source>
+        <target state="translated">Questa richiesta è scaduta o ha già ricevuto risposta. Torna alla tua applicazione e collega di nuovo PianoML.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.error" datatype="html">
+        <source>The request could not be loaded. Try again later.</source>
+        <target state="translated">Impossibile caricare la richiesta. Riprova più tardi.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.publishedBy" datatype="html">
+        <source>Published by</source>
+        <target state="translated">Pubblicata da</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.unverified" datatype="html">
+        <source>This name was given by the application itself and is not verified.</source>
+        <target state="translated">Questo nome è stato indicato dall’applicazione stessa e non è verificato.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.redirectTo" datatype="html">
+        <source>After your choice, you will be sent to</source>
+        <target state="translated">Dopo la tua scelta verrai reindirizzato a</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.loopback" datatype="html">
+        <source>This application runs on your computer. Any program on this computer could claim to be it: allow it only if you just started the connection yourself.</source>
+        <target state="translated">Questa applicazione è in esecuzione sul tuo computer. Qualsiasi programma su questo computer potrebbe spacciarsi per lei: consenti l’accesso solo se hai appena avviato tu la connessione.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.scopes" datatype="html">
+        <source>It will be able to:</source>
+        <target state="translated">Potrà:</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.privacy" datatype="html">
+        <source>What the application reads is sent to the AI provider it uses. You can revoke this access at any time on your account page.</source>
+        <target state="translated">Ciò che l’applicazione legge viene inviato al fornitore di IA che utilizza. Puoi revocare questo accesso in qualsiasi momento dalla pagina del tuo account.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.decisionError" datatype="html">
+        <source>Your answer could not be sent. Try again.</source>
+        <target state="translated">Impossibile inviare la tua risposta. Riprova.</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.refuse" datatype="html">
+        <source>Refuse</source>
+        <target state="translated">Rifiuta</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.allow" datatype="html">
+        <source>Allow</source>
+        <target state="translated">Consenti</target>
+      </trans-unit>
+      <trans-unit id="coach.authorize.manage" datatype="html">
+        <source>Manage the applications that have access</source>
+        <target state="translated">Gestisci le applicazioni con accesso</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.title" datatype="html">
+        <source>Connect an AI coach</source>
+        <target state="translated">Collega un coach IA</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.subtitle" datatype="html">
+        <source>Use your own AI assistant as your piano coach</source>
+        <target state="translated">Usa il tuo assistente IA come coach di pianoforte</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.intro" datatype="html">
+        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history, suggests pieces and drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
+        <target state="translated">Il tuo assistente IA può diventare il tuo coach di pianoforte. Collegato a PianoML, legge la tua cronologia di esercizio, ti suggerisce brani e controlla il lettore. Ciò che legge va al fornitore di IA di quell'assistente, non a PianoML.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step1" datatype="html">
+        <source>1. Connect your assistant</source>
+        <target state="translated">1. Collega il tuo assistente</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.url" datatype="html">
+        <source>Server URL</source>
+        <target state="translated">URL del server</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tokenHint" datatype="html">
+        <source>Then create an access below: its token goes in your assistant&apos;s configuration.</source>
+        <target state="translated">Poi crea un accesso qui sotto: il suo token va nella configurazione del tuo assistente.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.snippets" datatype="html">
+        <source>Configuration</source>
+        <target state="translated">Configurazione</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.placeholder" datatype="html">
+        <source>Replace &lt;your token&gt; with the token of an access, or create one above: it then appears here.</source>
+        <target state="translated">Sostituisci &lt;your token&gt; con il token di un accesso, oppure creane uno qui sopra: apparirà qui.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.copyFailed" datatype="html">
+        <source>Copy failed: select the text and copy it manually.</source>
+        <target state="translated">Copia non riuscita: seleziona il testo e copialo a mano.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step2" datatype="html">
+        <source>2. Start the coach</source>
+        <target state="translated">2. Avvia il coach</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptsHint" datatype="html">
+        <source>Paste one of these messages in your assistant. They tell it how to coach you with PianoML; it will answer in your language.</source>
+        <target state="translated">Incolla uno di questi messaggi nel tuo assistente. Gli spiega come allenarti con PianoML; ti risponderà nella tua lingua.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptsError" datatype="html">
+        <source>The prompts could not be loaded. Try again later.</source>
+        <target state="translated">Non è stato possibile caricare i messaggi. Riprova più tardi.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.promptText" datatype="html">
+        <source>Message to paste</source>
+        <target state="translated">Messaggio da incollare</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.step3" datatype="html">
+        <source>3. Play</source>
+        <target state="translated">3. Suona</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.playText" datatype="html">
+        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch stays at the bottom right of every page; turn it off at any time.</source>
+        <target state="translated">Attiva il coach remoto in una scheda di PianoML: il tuo assistente potrà aprire spartiti ed esercizi, impostare lo studio e avviare o fermare il lettore lì. L'interruttore resta in basso a destra su ogni pagina; disattivalo quando vuoi.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.playHint" datatype="html">
+        <source>Your browser asks for one click before the first sound: press Start playback when it shows up.</source>
+        <target state="translated">Il browser chiede un clic prima del primo suono: premi Avvia la riproduzione quando compare.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.turnOn" datatype="html">
+        <source>Turn on Remote coach</source>
+        <target state="translated">Attiva il coach remoto</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.coach_start.title" datatype="html">
+        <source>Start a coaching session</source>
+        <target state="translated">Inizia una sessione di coaching</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.coach_start.description" datatype="html">
+        <source>Where you stand, and one thing to practice today.</source>
+        <target state="translated">A che punto sei, e una cosa da esercitare oggi.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.review_progress.title" datatype="html">
+        <source>Review my progress</source>
+        <target state="translated">Fai il punto sui miei progressi</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.review_progress.description" datatype="html">
+        <source>A review of your last days of practice, without practicing.</source>
+        <target state="translated">Un bilancio degli ultimi giorni di esercizio, senza suonare.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.practice_piece.title" datatype="html">
+        <source>Practice a piece</source>
+        <target state="translated">Studia un brano</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.practice_piece.description" datatype="html">
+        <source>Work on one piece, its weakest passage first.</source>
+        <target state="translated">Lavora su un brano, partendo dal passaggio più debole.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.warm_up.title" datatype="html">
+        <source>Warm up</source>
+        <target state="translated">Riscaldamento</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.warm_up.description" datatype="html">
+        <source>Scales and arpeggios suited to your level and your pieces.</source>
+        <target state="translated">Scale e arpeggi adatti al tuo livello e ai tuoi brani.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.find_new_piece.title" datatype="html">
+        <source>Find a new piece</source>
+        <target state="translated">Trova un nuovo brano</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.find_new_piece.description" datatype="html">
+        <source>Three suggestions at the right level, then the chosen one opens.</source>
+        <target state="translated">Tre proposte del livello giusto, poi si apre quella scelta.</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.days" datatype="html">
+        <source>Number of days</source>
+        <target state="translated">Numero di giorni</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.piece" datatype="html">
+        <source>Piece (title, composer or both)</source>
+        <target state="translated">Brano (titolo, compositore o entrambi)</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.minutes" datatype="html">
+        <source>Minutes</source>
+        <target state="translated">Minuti</target>
+      </trans-unit>
+      <trans-unit id="coach.prompt.argument.wish" datatype="html">
+        <source>What you would like</source>
+        <target state="translated">Cosa ti piacerebbe</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.generic" datatype="html">
+        <source>Any MCP host</source>
+        <target state="translated">Qualsiasi host MCP</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.generic.note" datatype="html">
+        <source>For any assistant with a setting to add a remote MCP server by URL and header.</source>
+        <target state="translated">Per ogni assistente che permette di aggiungere un server MCP remoto tramite URL e intestazione.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.json" datatype="html">
+        <source>JSON configuration</source>
+        <target state="translated">Configurazione JSON</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.json.note" datatype="html">
+        <source>For assistants configured with an mcpServers file, for example Claude Code, Cursor or Cline. Some hosts do not use &quot;type&quot;, or name the keys differently: check their documentation.</source>
+        <target state="translated">Per gli assistenti configurati con un file mcpServers, per esempio Claude Code, Cursor o Cline. Alcuni host non usano &quot;type&quot; o chiamano le chiavi diversamente: consulta la loro documentazione.</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.bridge" datatype="html">
+        <source>Command-line bridge</source>
+        <target state="translated">Ponte da riga di comando</target>
+      </trans-unit>
+      <trans-unit id="coach.connect.tab.bridge.note" datatype="html">
+        <source>For assistants that can only start local servers, for example the Claude Desktop configuration file. Needs Node.js.</source>
+        <target state="translated">Per gli assistenti che possono avviare solo server locali, per esempio il file di configurazione di Claude Desktop. Richiede Node.js.</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.startPlayback" datatype="html">
+        <source>Start playback</source>
+        <target state="translated">Avvia la riproduzione</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.controlledBy" datatype="html">
+        <source>Controlled by <x id="INTERPOLATION" equiv-text="{{ client }}"/></source>
+        <target state="translated">Controllato da <x id="INTERPOLATION" equiv-text="{{ client }}"/></target>
+      </trans-unit>
+      <trans-unit id="coach.remote.waiting" datatype="html">
+        <source>Remote coach on</source>
+        <target state="translated">Coach remoto attivo</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.connecting" datatype="html">
+        <source>Connecting…</source>
+        <target state="translated">Connessione…</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.error" datatype="html">
+        <source>Remote coach could not connect</source>
+        <target state="translated">Il coach remoto non è riuscito a connettersi</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.label" datatype="html">
+        <source>Remote coach</source>
+        <target state="translated">Coach remoto</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.activity" datatype="html">
+        <source>Activity</source>
+        <target state="translated">Attività</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.confirm.title" datatype="html">
+        <source>Turn on Remote coach?</source>
+        <target state="translated">Attivare il coach remoto?</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.confirm.text" datatype="html">
+        <source>External tools you gave access to will be able to open scores and start or stop the player in this tab until you turn this off or close the tab.</source>
+        <target state="translated">Gli strumenti esterni a cui hai dato accesso potranno aprire spartiti e avviare o fermare il lettore in questa scheda, finché non lo disattivi o chiudi la scheda.</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.confirm.yes" datatype="html">
+        <source>Turn on</source>
+        <target state="translated">Attiva</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.get_player_state" datatype="html">
+        <source>Checked the player</source>
+        <target state="translated">Ha consultato il lettore</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.list_exercises" datatype="html">
+        <source>Looked at the exercises</source>
+        <target state="translated">Ha guardato gli esercizi</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.open_score" datatype="html">
+        <source>Opened a score</source>
+        <target state="translated">Ha aperto uno spartito</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.open_exercise" datatype="html">
+        <source>Opened an exercise</source>
+        <target state="translated">Ha aperto un esercizio</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.configure_practice" datatype="html">
+        <source>Set up the practice</source>
+        <target state="translated">Ha impostato lo studio</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.play" datatype="html">
+        <source>Started playback</source>
+        <target state="translated">Ha avviato la riproduzione</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.stop" datatype="html">
+        <source>Stopped playback</source>
+        <target state="translated">Ha fermato la riproduzione</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.wait_for_take_end" datatype="html">
+        <source>Waited for the end of the take</source>
+        <target state="translated">Ha atteso la fine della ripresa</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.get_current_session" datatype="html">
+        <source>Read the current session</source>
+        <target state="translated">Ha letto la sessione in corso</target>
+      </trans-unit>
+      <trans-unit id="coach.remote.tool.navigate" datatype="html">
+        <source>Showed a page</source>
+        <target state="translated">Ha mostrato una pagina</target>
+      </trans-unit>
       <trans-unit id="latency.heading" datatype="html">
         <source>Timing calibration</source>
         <target state="translated">Calibrazione del tempo</target>
@@ -1314,6 +1742,38 @@
         <source>MIDI access failed. If you denied permission, open your browser settings, clear or reset site permissions for this site, allow MIDI access, then reload the page.</source>
         <target state="translated">Accesso MIDI non riuscito. Se hai negato l'autorizzazione, apri le impostazioni del browser, reimposta le autorizzazioni di questo sito, consenti il MIDI e ricarica la pagina.</target>
       </trans-unit>
+      <trans-unit id="mixer.title" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">Mixer</target>
+      </trans-unit>
+      <trans-unit id="mixer.reset" datatype="html">
+        <source>Reset</source>
+        <target state="translated">Ripristina</target>
+      </trans-unit>
+      <trans-unit id="mixer.score" datatype="html">
+        <source>Score</source>
+        <target state="translated">Spartito</target>
+      </trans-unit>
+      <trans-unit id="mixer.score.hint" datatype="html">
+        <source>The notes the app plays</source>
+        <target state="translated">Le note suonate dall'app</target>
+      </trans-unit>
+      <trans-unit id="mixer.accompaniment" datatype="html">
+        <source>Accompaniment</source>
+        <target state="translated">Accompagnamento</target>
+      </trans-unit>
+      <trans-unit id="mixer.accompaniment.hint" datatype="html">
+        <source>The other instruments of the piece</source>
+        <target state="translated">Gli altri strumenti del brano</target>
+      </trans-unit>
+      <trans-unit id="mixer.metronome" datatype="html">
+        <source>Metronome</source>
+        <target state="translated">Metronomo</target>
+      </trans-unit>
+      <trans-unit id="mixer.metronome.hint" datatype="html">
+        <source>The count-in always plays at full volume</source>
+        <target state="translated">Il conteggio iniziale suona sempre a volume pieno</target>
+      </trans-unit>
       <trans-unit id="osmd.error" datatype="html">
         <source>Error Loading Score</source>
         <target state="translated">Errore nel caricamento dello spartito</target>
@@ -1377,6 +1837,10 @@
       <trans-unit id="workbench.midiBlocked.heading" datatype="html">
         <source>MIDI access blocked</source>
         <target state="translated">Accesso MIDI bloccato</target>
+      </trans-unit>
+      <trans-unit id="mixer.open" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">Mixer</target>
       </trans-unit>
       <trans-unit id="workbench.soundsLoading" datatype="html">
         <source>Loading sounds…</source>
@@ -1450,6 +1914,38 @@
         <source>Building the configuration</source>
         <target state="translated">Preparazione della configurazione</target>
       </trans-unit>
+      <trans-unit id="workbench.hand.left" datatype="html">
+        <source>Left hand</source>
+        <target state="translated">Mano sinistra</target>
+      </trans-unit>
+      <trans-unit id="workbench.hand.right" datatype="html">
+        <source>Right hand</source>
+        <target state="translated">Mano destra</target>
+      </trans-unit>
+      <trans-unit id="workbench.handMode.wait" datatype="html">
+        <source>Wait for me</source>
+        <target state="translated">Aspettami</target>
+      </trans-unit>
+      <trans-unit id="workbench.handMode.along" datatype="html">
+        <source>Play along</source>
+        <target state="translated">Suona insieme</target>
+      </trans-unit>
+      <trans-unit id="workbench.handMode.app" datatype="html">
+        <source>App plays</source>
+        <target state="translated">Suona l'app</target>
+      </trans-unit>
+      <trans-unit id="workbench.handMode.wait.hint" datatype="html">
+        <source>The score waits until you play each note.</source>
+        <target state="translated">Lo spartito aspetta che tu suoni ogni nota.</target>
+      </trans-unit>
+      <trans-unit id="workbench.handMode.along.hint" datatype="html">
+        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
+        <target state="translated">Lo spartito mantiene il tempo e suona queste note con te; ogni nota che suoni viene valutata in base al tempo.</target>
+      </trans-unit>
+      <trans-unit id="workbench.handMode.app.hint" datatype="html">
+        <source>The app plays these notes.</source>
+        <target state="translated">L'app suona queste note.</target>
+      </trans-unit>
       <trans-unit id="workbench.tour.welcome.title" datatype="html">
         <source>Welcome to the Workbench!</source>
         <target state="translated">Benvenuto nel laboratorio!</target>
@@ -1471,16 +1967,16 @@
         <target state="translated">Mano destra</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Toggle this to wait for you to play the right-hand notes before the score advances. Great for learning the melody at your own pace.</source>
-        <target state="translated">Attivalo perché lo spartito aspetti le note della mano destra prima di avanzare. Ideale per imparare la melodia con calma.</target>
+        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
+        <target state="translated">Scegli come suoni la mano destra: Aspettami (lo spartito aspetta ogni tua nota, ideale per imparare la melodia con calma), Suona insieme (lo spartito mantiene il tempo e suona queste note con te) o Suona l'app.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>
         <target state="translated">Mano sinistra</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.content" datatype="html">
-        <source>Similarly, toggle this to wait for the left-hand notes. You can enable both for full hands-together practice.</source>
-        <target state="translated">Allo stesso modo, attivalo per aspettare le note della mano sinistra. Puoi attivarle entrambe per esercitarti a mani unite.</target>
+        <source>The same for the left hand. Choose Wait for me, or Play along, on both hands for hands-together practice.</source>
+        <target state="translated">Lo stesso per la mano sinistra. Scegli Aspettami, o Suona insieme, su entrambe le mani per esercitarti a mani unite.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.loop.title" datatype="html">
         <source>Loop Mode</source>
@@ -3650,6 +4146,14 @@ Uso: sugli accordi minori e nei blues minori (centri i7 / i) quando vuoi mantene
         <source>Not found</source>
         <target state="translated">Non trovato</target>
       </trans-unit>
+      <trans-unit id="route.coachConnect" datatype="html">
+        <source>Connect an AI coach</source>
+        <target state="translated">Collega un coach IA</target>
+      </trans-unit>
+      <trans-unit id="route.coachAuthorize" datatype="html">
+        <source>Allow an application</source>
+        <target state="translated">Autorizza un’applicazione</target>
+      </trans-unit>
       <trans-unit id="seo.defaultTitle" datatype="html">
         <source>PianoML: Learn Piano with Smart Sheet Music &amp; Practice Tools</source>
         <target state="translated">PianoML: impara il pianoforte con spartiti intelligenti e strumenti di pratica</target>
@@ -3661,442 +4165,6 @@ Uso: sugli accordi minori e nei blues minori (centri i7 / i) quando vuoi mantene
       <trans-unit id="midiSetup.error.blocked" datatype="html">
         <source>MIDI access is blocked by your browser. Please open your browser settings, find site permissions for MIDI, allow access for this site, then reload the page.</source>
         <target state="translated">Il browser blocca l'accesso MIDI. Apri le impostazioni del browser, trova le autorizzazioni del sito per il MIDI, consenti l'accesso a questo sito e ricarica la pagina.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.title" datatype="html">
-        <source>Access for external tools</source>
-        <target state="translated">Accesso per strumenti esterni</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.connectLink" datatype="html">
-        <source>Connect an AI coach →</source>
-        <target state="translated">Collega un coach IA →</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.new" datatype="html">
-        <source>New access →</source>
-        <target state="translated">Nuovo accesso →</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.notice" datatype="html">
-        <source>A tool using this access can read your practice history and the score library, and control the player in a tab where you turned on Remote coach. What it reads is sent to the AI provider used by that tool.</source>
-        <target state="translated">Uno strumento con questo accesso può leggere la tua cronologia di esercizio e la libreria di spartiti, e controllare il lettore in una scheda in cui hai attivato il coach remoto. Ciò che legge viene inviato al fornitore di IA usato da quello strumento.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.token.title" datatype="html">
-        <source>Your token</source>
-        <target state="translated">Il tuo token</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.token.warning" datatype="html">
-        <source>Copy it now and paste it in your tool: it will not be shown again.</source>
-        <target state="translated">Copialo ora e incollalo nel tuo strumento: non verrà più mostrato.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.token.label" datatype="html">
-        <source>Access token</source>
-        <target state="translated">Token di accesso</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.copied" datatype="html">
-        <source>Copied</source>
-        <target state="translated">Copiato</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.copy" datatype="html">
-        <source>Copy</source>
-        <target state="translated">Copia</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.copyFailed" datatype="html">
-        <source>Copy failed: select the token and copy it manually.</source>
-        <target state="translated">Copia non riuscita: seleziona il token e copialo a mano.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.done" datatype="html">
-        <source>Done</source>
-        <target state="translated">Fatto</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.name" datatype="html">
-        <source>Name of the tool</source>
-        <target state="translated">Nome dello strumento</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.name.placeholder" datatype="html">
-        <source>For example: assistant on my laptop</source>
-        <target state="translated">Per esempio: assistente sul mio portatile</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.scopes" datatype="html">
-        <source>What it can do</source>
-        <target state="translated">Cosa può fare</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.expiry" datatype="html">
-        <source>Expires after</source>
-        <target state="translated">Scade dopo</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.days" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ days }}"/> days</source>
-        <target state="translated"><x id="INTERPOLATION" equiv-text="{{ days }}"/> giorni</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.create" datatype="html">
-        <source>Create</source>
-        <target state="translated">Crea</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.cancel" datatype="html">
-        <source>Cancel</source>
-        <target state="translated">Annulla</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.empty" datatype="html">
-        <source>No access created yet.</source>
-        <target state="translated">Nessun accesso creato finora.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.status.revoked" datatype="html">
-        <source>Revoked</source>
-        <target state="translated">Revocato</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.status.expired" datatype="html">
-        <source>Expired</source>
-        <target state="translated">Scaduto</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.revoke.confirm" datatype="html">
-        <source>The tool will stop working at once.</source>
-        <target state="translated">Lo strumento smetterà subito di funzionare.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.revoke" datatype="html">
-        <source>Revoke</source>
-        <target state="translated">Revoca</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.kind.oauth" datatype="html">
-        <source>Connected application</source>
-        <target state="translated">Applicazione collegata</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.expires" datatype="html">
-        <source>Expires <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></source>
-        <target state="translated">Scade il <x id="INTERPOLATION" equiv-text="{{ date(grant.expiresAt) }}"/></target>
-      </trans-unit>
-      <trans-unit id="coach.grants.lastUsed" datatype="html">
-        <source>Last used <x id="INTERPOLATION" equiv-text="{{ date(grant.lastUsedAt) }}"/></source>
-        <target state="translated">Ultimo utilizzo il <x id="INTERPOLATION" equiv-text="{{ date(grant.lastUsedAt) }}"/></target>
-      </trans-unit>
-      <trans-unit id="coach.grants.neverUsed" datatype="html">
-        <source>Never used</source>
-        <target state="translated">Mai usato</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.scope.practice" datatype="html">
-        <source>Practice history</source>
-        <target state="translated">Cronologia di esercizio</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.scope.scores" datatype="html">
-        <source>Score library</source>
-        <target state="translated">Libreria di spartiti</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.scope.player" datatype="html">
-        <source>Player</source>
-        <target state="translated">Lettore</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.scope.practice.hint" datatype="html">
-        <source>Read your sessions, accuracy, streaks and level.</source>
-        <target state="translated">Leggere le tue sessioni, la precisione, le serie e il livello.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.scope.scores.hint" datatype="html">
-        <source>Search and read the scores of the library.</source>
-        <target state="translated">Cercare e leggere gli spartiti della libreria.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.scope.player.hint" datatype="html">
-        <source>Open scores and start or stop the player in a tab where you turned on Remote coach.</source>
-        <target state="translated">Aprire spartiti e avviare o fermare il lettore in una scheda in cui hai attivato il coach remoto.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.error.tooMany" datatype="html">
-        <source>You already have 5 active accesses. Revoke one first.</source>
-        <target state="translated">Hai già 5 accessi attivi. Revocane prima uno.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.error.rateLimited" datatype="html">
-        <source>Too many accesses created in the last hour. Try again later.</source>
-        <target state="translated">Troppi accessi creati nell'ultima ora. Riprova più tardi.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.error.create" datatype="html">
-        <source>The access could not be created. Try again later.</source>
-        <target state="translated">Non è stato possibile creare l'accesso. Riprova più tardi.</target>
-      </trans-unit>
-      <trans-unit id="coach.grants.error.revoke" datatype="html">
-        <source>The access could not be revoked. Try again later.</source>
-        <target state="translated">Non è stato possibile revocare l'accesso. Riprova più tardi.</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.title" datatype="html">
-        <source>An application asks for access to your PianoML account</source>
-        <target state="translated">Un’applicazione chiede l’accesso al tuo account PianoML</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.gone" datatype="html">
-        <source>This request has expired or was already answered. Go back to your application and connect PianoML again.</source>
-        <target state="translated">Questa richiesta è scaduta o ha già ricevuto risposta. Torna alla tua applicazione e collega di nuovo PianoML.</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.error" datatype="html">
-        <source>The request could not be loaded. Try again later.</source>
-        <target state="translated">Impossibile caricare la richiesta. Riprova più tardi.</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.publishedBy" datatype="html">
-        <source>Published by</source>
-        <target state="translated">Pubblicata da</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.unverified" datatype="html">
-        <source>This name was given by the application itself and is not verified.</source>
-        <target state="translated">Questo nome è stato indicato dall’applicazione stessa e non è verificato.</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.redirectTo" datatype="html">
-        <source>After your choice, you will be sent to</source>
-        <target state="translated">Dopo la tua scelta verrai reindirizzato a</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.loopback" datatype="html">
-        <source>This application runs on your computer. Any program on this computer could claim to be it: allow it only if you just started the connection yourself.</source>
-        <target state="translated">Questa applicazione è in esecuzione sul tuo computer. Qualsiasi programma su questo computer potrebbe spacciarsi per lei: consenti l’accesso solo se hai appena avviato tu la connessione.</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.scopes" datatype="html">
-        <source>It will be able to:</source>
-        <target state="translated">Potrà:</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.privacy" datatype="html">
-        <source>What the application reads is sent to the AI provider it uses. You can revoke this access at any time on your account page.</source>
-        <target state="translated">Ciò che l’applicazione legge viene inviato al fornitore di IA che utilizza. Puoi revocare questo accesso in qualsiasi momento dalla pagina del tuo account.</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.decisionError" datatype="html">
-        <source>Your answer could not be sent. Try again.</source>
-        <target state="translated">Impossibile inviare la tua risposta. Riprova.</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.refuse" datatype="html">
-        <source>Refuse</source>
-        <target state="translated">Rifiuta</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.allow" datatype="html">
-        <source>Allow</source>
-        <target state="translated">Consenti</target>
-      </trans-unit>
-      <trans-unit id="coach.authorize.manage" datatype="html">
-        <source>Manage the applications that have access</source>
-        <target state="translated">Gestisci le applicazioni con accesso</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.title" datatype="html">
-        <source>Connect an AI coach</source>
-        <target state="translated">Collega un coach IA</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.subtitle" datatype="html">
-        <source>Use your own AI assistant as your piano coach</source>
-        <target state="translated">Usa il tuo assistente IA come coach di pianoforte</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.intro" datatype="html">
-        <source>Your own AI assistant can become your piano coach. Connected to PianoML, it reads your practice history, suggests pieces and drives the player. What it reads goes to the AI provider of that assistant, not to PianoML.</source>
-        <target state="translated">Il tuo assistente IA può diventare il tuo coach di pianoforte. Collegato a PianoML, legge la tua cronologia di esercizio, ti suggerisce brani e controlla il lettore. Ciò che legge va al fornitore di IA di quell'assistente, non a PianoML.</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.step1" datatype="html">
-        <source>1. Connect your assistant</source>
-        <target state="translated">1. Collega il tuo assistente</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.url" datatype="html">
-        <source>Server URL</source>
-        <target state="translated">URL del server</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.tokenHint" datatype="html">
-        <source>Then create an access below: its token goes in your assistant&apos;s configuration.</source>
-        <target state="translated">Poi crea un accesso qui sotto: il suo token va nella configurazione del tuo assistente.</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.snippets" datatype="html">
-        <source>Configuration</source>
-        <target state="translated">Configurazione</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.placeholder" datatype="html">
-        <source>Replace &lt;your token&gt; with the token of an access, or create one above: it then appears here.</source>
-        <target state="translated">Sostituisci &lt;your token&gt; con il token di un accesso, oppure creane uno qui sopra: apparirà qui.</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.copyFailed" datatype="html">
-        <source>Copy failed: select the text and copy it manually.</source>
-        <target state="translated">Copia non riuscita: seleziona il testo e copialo a mano.</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.step2" datatype="html">
-        <source>2. Start the coach</source>
-        <target state="translated">2. Avvia il coach</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.promptsHint" datatype="html">
-        <source>Paste one of these messages in your assistant. They tell it how to coach you with PianoML; it will answer in your language.</source>
-        <target state="translated">Incolla uno di questi messaggi nel tuo assistente. Gli spiega come allenarti con PianoML; ti risponderà nella tua lingua.</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.promptsError" datatype="html">
-        <source>The prompts could not be loaded. Try again later.</source>
-        <target state="translated">Non è stato possibile caricare i messaggi. Riprova più tardi.</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.promptText" datatype="html">
-        <source>Message to paste</source>
-        <target state="translated">Messaggio da incollare</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.step3" datatype="html">
-        <source>3. Play</source>
-        <target state="translated">3. Suona</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.playText" datatype="html">
-        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch stays at the bottom right of every page; turn it off at any time.</source>
-        <target state="translated">Attiva il coach remoto in una scheda di PianoML: il tuo assistente potrà aprire spartiti ed esercizi, impostare lo studio e avviare o fermare il lettore lì. L'interruttore resta in basso a destra su ogni pagina; disattivalo quando vuoi.</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.playHint" datatype="html">
-        <source>Your browser asks for one click before the first sound: press Start playback when it shows up.</source>
-        <target state="translated">Il browser chiede un clic prima del primo suono: premi Avvia la riproduzione quando compare.</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.turnOn" datatype="html">
-        <source>Turn on Remote coach</source>
-        <target state="translated">Attiva il coach remoto</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.coach_start.title" datatype="html">
-        <source>Start a coaching session</source>
-        <target state="translated">Inizia una sessione di coaching</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.coach_start.description" datatype="html">
-        <source>Where you stand, and one thing to practice today.</source>
-        <target state="translated">A che punto sei, e una cosa da esercitare oggi.</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.review_progress.title" datatype="html">
-        <source>Review my progress</source>
-        <target state="translated">Fai il punto sui miei progressi</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.review_progress.description" datatype="html">
-        <source>A review of your last days of practice, without practicing.</source>
-        <target state="translated">Un bilancio degli ultimi giorni di esercizio, senza suonare.</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.practice_piece.title" datatype="html">
-        <source>Practice a piece</source>
-        <target state="translated">Studia un brano</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.practice_piece.description" datatype="html">
-        <source>Work on one piece, its weakest passage first.</source>
-        <target state="translated">Lavora su un brano, partendo dal passaggio più debole.</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.warm_up.title" datatype="html">
-        <source>Warm up</source>
-        <target state="translated">Riscaldamento</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.warm_up.description" datatype="html">
-        <source>Scales and arpeggios suited to your level and your pieces.</source>
-        <target state="translated">Scale e arpeggi adatti al tuo livello e ai tuoi brani.</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.find_new_piece.title" datatype="html">
-        <source>Find a new piece</source>
-        <target state="translated">Trova un nuovo brano</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.find_new_piece.description" datatype="html">
-        <source>Three suggestions at the right level, then the chosen one opens.</source>
-        <target state="translated">Tre proposte del livello giusto, poi si apre quella scelta.</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.argument.days" datatype="html">
-        <source>Number of days</source>
-        <target state="translated">Numero di giorni</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.argument.piece" datatype="html">
-        <source>Piece (title, composer or both)</source>
-        <target state="translated">Brano (titolo, compositore o entrambi)</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.argument.minutes" datatype="html">
-        <source>Minutes</source>
-        <target state="translated">Minuti</target>
-      </trans-unit>
-      <trans-unit id="coach.prompt.argument.wish" datatype="html">
-        <source>What you would like</source>
-        <target state="translated">Cosa ti piacerebbe</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.tab.generic" datatype="html">
-        <source>Any MCP host</source>
-        <target state="translated">Qualsiasi host MCP</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.tab.generic.note" datatype="html">
-        <source>For any assistant with a setting to add a remote MCP server by URL and header.</source>
-        <target state="translated">Per ogni assistente che permette di aggiungere un server MCP remoto tramite URL e intestazione.</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.tab.json" datatype="html">
-        <source>JSON configuration</source>
-        <target state="translated">Configurazione JSON</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.tab.json.note" datatype="html">
-        <source>For assistants configured with an mcpServers file, for example Claude Code, Cursor or Cline. Some hosts do not use &quot;type&quot;, or name the keys differently: check their documentation.</source>
-        <target state="translated">Per gli assistenti configurati con un file mcpServers, per esempio Claude Code, Cursor o Cline. Alcuni host non usano &quot;type&quot; o chiamano le chiavi diversamente: consulta la loro documentazione.</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.tab.bridge" datatype="html">
-        <source>Command-line bridge</source>
-        <target state="translated">Ponte da riga di comando</target>
-      </trans-unit>
-      <trans-unit id="coach.connect.tab.bridge.note" datatype="html">
-        <source>For assistants that can only start local servers, for example the Claude Desktop configuration file. Needs Node.js.</source>
-        <target state="translated">Per gli assistenti che possono avviare solo server locali, per esempio il file di configurazione di Claude Desktop. Richiede Node.js.</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.startPlayback" datatype="html">
-        <source>Start playback</source>
-        <target state="translated">Avvia la riproduzione</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.controlledBy" datatype="html">
-        <source>Controlled by <x id="INTERPOLATION" equiv-text="{{ client }}"/></source>
-        <target state="translated">Controllato da <x id="INTERPOLATION" equiv-text="{{ client }}"/></target>
-      </trans-unit>
-      <trans-unit id="coach.remote.waiting" datatype="html">
-        <source>Remote coach on</source>
-        <target state="translated">Coach remoto attivo</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.connecting" datatype="html">
-        <source>Connecting…</source>
-        <target state="translated">Connessione…</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.error" datatype="html">
-        <source>Remote coach could not connect</source>
-        <target state="translated">Il coach remoto non è riuscito a connettersi</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.label" datatype="html">
-        <source>Remote coach</source>
-        <target state="translated">Coach remoto</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.activity" datatype="html">
-        <source>Activity</source>
-        <target state="translated">Attività</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.confirm.title" datatype="html">
-        <source>Turn on Remote coach?</source>
-        <target state="translated">Attivare il coach remoto?</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.confirm.text" datatype="html">
-        <source>External tools you gave access to will be able to open scores and start or stop the player in this tab until you turn this off or close the tab.</source>
-        <target state="translated">Gli strumenti esterni a cui hai dato accesso potranno aprire spartiti e avviare o fermare il lettore in questa scheda, finché non lo disattivi o chiudi la scheda.</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.confirm.yes" datatype="html">
-        <source>Turn on</source>
-        <target state="translated">Attiva</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.get_player_state" datatype="html">
-        <source>Checked the player</source>
-        <target state="translated">Ha consultato il lettore</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.list_exercises" datatype="html">
-        <source>Looked at the exercises</source>
-        <target state="translated">Ha guardato gli esercizi</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.open_score" datatype="html">
-        <source>Opened a score</source>
-        <target state="translated">Ha aperto uno spartito</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.open_exercise" datatype="html">
-        <source>Opened an exercise</source>
-        <target state="translated">Ha aperto un esercizio</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.configure_practice" datatype="html">
-        <source>Set up the practice</source>
-        <target state="translated">Ha impostato lo studio</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.play" datatype="html">
-        <source>Started playback</source>
-        <target state="translated">Ha avviato la riproduzione</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.stop" datatype="html">
-        <source>Stopped playback</source>
-        <target state="translated">Ha fermato la riproduzione</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.wait_for_take_end" datatype="html">
-        <source>Waited for the end of the take</source>
-        <target state="translated">Ha atteso la fine della ripresa</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.get_current_session" datatype="html">
-        <source>Read the current session</source>
-        <target state="translated">Ha letto la sessione in corso</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.navigate" datatype="html">
-        <source>Showed a page</source>
-        <target state="translated">Ha mostrato una pagina</target>
-      </trans-unit>
-      <trans-unit id="route.coachConnect" datatype="html">
-        <source>Connect an AI coach</source>
-        <target state="translated">Collega un coach IA</target>
-      </trans-unit>
-      <trans-unit id="route.coachAuthorize" datatype="html">
-        <source>Allow an application</source>
-        <target state="translated">Autorizza un’applicazione</target>
       </trans-unit>
     </body>
   </file>

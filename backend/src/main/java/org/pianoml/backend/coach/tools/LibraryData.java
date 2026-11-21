@@ -34,8 +34,16 @@ public class LibraryData {
   public List<ScoreApiInfo> search(User user, String keyword, String ownerId, String authorId, String authorSlug, String genreSlug,
                                    Boolean etude, Double gradeMin, Double gradeMax, String fullKey, String orderBy,
                                    int offset, int limit) {
+    return search(user, keyword, ownerId, authorId, authorSlug, genreSlug, etude, gradeMin, gradeMax, fullKey, orderBy, offset,
+      limit, null);
+  }
+
+  /** The same, only scores with this number of tracks when {@code tracks} is given. */
+  public List<ScoreApiInfo> search(User user, String keyword, String ownerId, String authorId, String authorSlug, String genreSlug,
+                                   Boolean etude, Double gradeMin, Double gradeMax, String fullKey, String orderBy,
+                                   int offset, int limit, Integer tracks) {
     return scores.searchScores(keyword, ownerId, null, authorId, authorSlug, genreSlug, etude, grade(gradeMin), grade(gradeMax),
-      null, fullKey, orderBy, offset, limit, user, null, null);
+      null, fullKey, orderBy, offset, limit, user, tracks == null ? null : List.of(tracks), null);
   }
 
   /** The score a slug (immutable) or an id designates; exactly one of them is given. */

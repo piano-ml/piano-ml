@@ -11,6 +11,9 @@ import { PracticeSessionRecorder } from './practice-session-recorder.service';
 
 export type Hands = 'both' | 'left' | 'right' | 'listen';
 
+/** How the student plays the hands they play (hand-mode.ts): waited for, or along with the app at tempo. */
+export type HandsMode = 'wait' | 'along';
+
 /** The take that just ended, before the server has it. */
 export interface LastTake {
   /** ISO time the take started: tells two takes apart even when every count is the same */
@@ -56,6 +59,8 @@ export interface PlayerState {
   tempo: { bpm: number; originalBpm: number; percent: number };
   loop: boolean;
   hands: Hands;
+  /** How the student plays the hands: waited for, or played along with the app at tempo; null when listening. */
+  handsMode: HandsMode | null;
   metronome: boolean;
   showKeyboard: boolean;
   midiInput: 'connected' | 'none' | 'blocked' | 'unknown';
@@ -96,7 +101,8 @@ export interface WorkbenchHandle {
   setWholeScore(): void;
   setTempoBpm(bpm: number): void;
   setLoop(value: boolean): void;
-  setHands(value: Hands): void;
+  /** The hands the student plays, waited for (the default) or played along; the other hand is played by the app. */
+  setHands(value: Hands, mode?: HandsMode): void;
   setMetronome(value: boolean): void;
   setKeyboardVisible(value: boolean): void;
   play(restart: boolean): Promise<void>;
@@ -186,6 +192,7 @@ export function emptyState(page: string): PlayerState {
     tempo: { bpm: 0, originalBpm: 0, percent: 100 },
     loop: false,
     hands: 'listen',
+    handsMode: null,
     metronome: false,
     showKeyboard: true,
     midiInput: 'unknown',
