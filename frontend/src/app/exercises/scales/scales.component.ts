@@ -18,7 +18,6 @@ import { PopularScoresInKeyComponent } from '../../shared/components/popular-sco
   imports: [FormsModule, PopularScoresInKeyComponent, NoteNamePipe],
   templateUrl: './scales.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './scales.component.css'
 })
 export class ScalesComponent implements OnInit {
 

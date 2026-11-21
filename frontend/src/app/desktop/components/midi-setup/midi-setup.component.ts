@@ -9,7 +9,6 @@ import { LatencyCalibrationComponent } from '../latency-calibration/latency-cali
   standalone: true,
   imports: [LatencyCalibrationComponent],
   templateUrl: './midi-setup.component.html',
-  styleUrl: './midi-setup.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MidiSetupComponent implements OnChanges, OnDestroy {
