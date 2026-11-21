@@ -688,6 +688,17 @@ describe('WorkbenchComponent', () => {
       expect(localStorage.getItem(key)).toBe('true');
     });
 
+    it('shows the elapsed measures in the slider: the fill and their marks', async () => {
+      await openScore();
+      expect(el().querySelector('#measure-range .noUi-connect')).not.toBeNull();
+      component.playConfiguration.currentStave = component.playConfiguration.scoreRange[0];
+      component.updateSlider();
+      const atStart = el().querySelectorAll('#measure-range .noUi-marker.is-elapsed').length;
+      component.playConfiguration.currentStave = component.playConfiguration.scoreRange[1] - 1;
+      component.updateSlider();
+      expect(el().querySelectorAll('#measure-range .noUi-marker.is-elapsed').length).toBeGreaterThan(atStart);
+    });
+
     it('opens the MIDI setup and the tempo dialogs', async () => {
       await openScore();
       button('#midi-setup input').click();

@@ -408,3 +408,17 @@ body {
 	font-size: 11px;
 	border-radius: 4px;
 }
+
+/* The elapsed measures, from the start of the range to the current measure: the fill and their marks in emerald */
+#measure-range .noUi-connect {
+	border: none !important;
+	background: var(--color-emerald-500);
+}
+
+#measure-range .noUi-marker-horizontal.noUi-marker.is-elapsed {
+	background: var(--color-emerald-500);
+}
+
+#measure-range .noUi-value-horizontal.is-elapsed {
+	color: var(--color-emerald-400);
+}
