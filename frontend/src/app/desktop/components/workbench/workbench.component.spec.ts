@@ -690,7 +690,8 @@ describe('WorkbenchComponent', () => {
 
     it('shows the elapsed measures in the slider: the fill and their marks', async () => {
       await openScore();
-      expect(el().querySelector('#measure-range .noUi-connect')).not.toBeNull();
+      expect(el().querySelectorAll('#measure-range .noUi-connect')).toHaveLength(2); // played (emerald), to play (white)
+      expect(el().querySelectorAll('#measure-range .noUi-marker.is-in-range').length).toBeGreaterThan(0);
       component.playConfiguration.currentStave = component.playConfiguration.scoreRange[0];
       component.updateSlider();
       const atStart = el().querySelectorAll('#measure-range .noUi-marker.is-elapsed').length;

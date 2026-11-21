@@ -26,21 +26,25 @@ export function measurePipFilter(measureCount: number): (value: number) => numbe
   };
 }
 
+/** The class of the marks and numbers of the measures to be played (from the start of the range to its end). */
+export const IN_RANGE_CLASS = 'is-in-range';
+
 /** The class of the marks and numbers of the elapsed measures (from the start of the range to the current one). */
 export const ELAPSED_CLASS = 'is-elapsed';
 
 /**
- * Marks the pips (marks and numbers) of the elapsed measures, from the start handle to the current one, in the
- * pips container of the slider. Values are the slider's 0-based ones; `max` is the last of them. A pip's measure is
- * read from its position (style.left, in percent of the track), as noUiSlider places it.
+ * Marks the pips (marks and numbers) of the slider: the measures to be played, from the start handle to the end
+ * one, and among them the elapsed ones, from the start handle to the current one. Values are the slider's 0-based
+ * ones; `max` is the last of them. A pip's measure is read from its position (style.left, in percent of the track),
+ * as noUiSlider places it.
  */
-export function markElapsedMeasures(pips: Element | null, start: number, current: number, max: number): void {
+export function markMeasures(pips: Element | null, start: number, current: number, end: number, max: number): void {
   if (!pips) return;
-  const from = Math.min(start, current);
-  const to = Math.max(start, current);
+  const within = (value: number, a: number, b: number) => value >= Math.min(a, b) && value <= Math.max(a, b);
   pips.querySelectorAll<HTMLElement>('.noUi-marker, .noUi-value').forEach(pip => {
     const left = parseFloat(pip.style.left);
     const value = Number.isFinite(left) ? Math.round((max * left) / 100) : NaN;
-    pip.classList.toggle(ELAPSED_CLASS, value >= from && value <= to);
+    pip.classList.toggle(IN_RANGE_CLASS, within(value, start, end));
+    pip.classList.toggle(ELAPSED_CLASS, within(value, start, current));
   });
 }

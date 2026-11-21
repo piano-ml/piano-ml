@@ -30,7 +30,7 @@ import { midiToPitch } from '../../service/midi-maths';
 import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
 import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
-import { markElapsedMeasures, measurePipFilter } from './measure-range-pips';
+import { markMeasures, measurePipFilter } from './measure-range-pips';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
@@ -1207,10 +1207,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       }
     });
 
-    // The elapsed measures (start handle to current measure) in emerald: the fill between the two handles (connect),
-    // and their marks and numbers, on every update (playback moves the current handle; updateOptions() rebuilds the
-    // pips)
-    this.slider.on('update', (values: (string | number)[]) => this.markElapsedMeasures(values));
+    // The measures to be played (start to end handle) in white, the elapsed ones (start handle to current measure)
+    // in emerald: the fills between the handles (connect) and their marks and numbers, marked on every update
+    // (playback moves the current handle; updateOptions() rebuilds the pips)
+    this.slider.on('update', (values: (string | number)[]) => this.markMeasures(values));
 
     this.slider.on('start', (values: (string | number)[]) => {
       const tooltips = [
@@ -1257,9 +1257,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
   /** The slider's formatted values are 1-based measures: the pips are placed on the 0-based ones. */
-  private markElapsedMeasures(values: (string | number)[]): void {
+  private markMeasures(values: (string | number)[]): void {
     const pips = this.range?.nativeElement.querySelector('.noUi-pips') ?? null;
-    markElapsedMeasures(pips, Number(values[0]) - 1, Number(values[1]) - 1, Math.max(0, this.measureCount() - 1));
+    const [start, current, end] = values.map(value => Number(value) - 1);
+    markMeasures(pips, start, current, end, Math.max(0, this.measureCount() - 1));
   }
 
   updateSlider() {
@@ -1279,8 +1280,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private getSliderBaseConfig() {
     const sliderConfig = {
       behaviour: 'unconstrained' as const,
-      // Filled between the start handle and the current measure: the measures already played (emerald)
-      connect: [false, true, false, false],
+      // Filled between the handles: start to current measure, the measures already played (emerald); current
+      // measure to end, the ones still to play (white)
+      connect: [false, true, true, false],
       range: {
         'min': 0,
         // Internal values are 0-based (the format shows them + 1): the last handle position is the last measure

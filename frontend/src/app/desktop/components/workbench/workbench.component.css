@@ -416,10 +416,23 @@ body {
 	border-radius: 4px;
 }
 
-/* The elapsed measures, from the start of the range to the current measure: the fill and their marks in emerald */
+/* The measures to be played, from the start of the range to its end, in white; among them the elapsed ones, from
+   the start to the current measure, in emerald: the fills between the handles, and their marks and numbers */
 #measure-range .noUi-connect {
 	border: none !important;
+	background: var(--color-neutral-100);
+}
+
+#measure-range .noUi-connects .noUi-connect:first-child {
 	background: var(--color-emerald-500);
+}
+
+#measure-range .noUi-marker-horizontal.noUi-marker.is-in-range {
+	background: var(--color-neutral-100);
+}
+
+#measure-range .noUi-value-horizontal.is-in-range {
+	color: var(--color-neutral-100);
 }
 
 #measure-range .noUi-marker-horizontal.noUi-marker.is-elapsed {
