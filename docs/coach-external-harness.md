@@ -205,7 +205,7 @@ RouterFunction<ServerResponse> mcpRouter(...) {
 - **`accuracy`** and **`flow`** are numbers from 0 to 1, or null when nothing was assessed.
 - **Grades** go from 0 (easiest) to 8.
 - **Paging.** `limit` and `offset`; list outputs carry `hasMore`.
-- **Links.** `<site>` is the property `coach.site-url` (default `https://www.pianoml.org`).
+- **Links.** `<site>` is the property `coach.site-url` (default `https://pianoml.org`; www.pianoml.org redirects there, so that the browser storage is the same).
 - **Free text from the database** (`title`, `author`, `description`) is cut at 500 characters; a composer biography at 1500.
 - **Output cap.** A serialized result above 16 000 characters becomes `{ ok: true, data: { truncated: true, text: "<first 16 000 characters>" } }`.
 - **`ScoreRow`**: `id, slug, title, author, authorSlug, grade, key, tempo, measures, durationSeconds, genre, genreSlug, handSeparated, hasLyrics, playCount, url, practiceUrl`. `slug` = `immutableSlug`, else `mutableSlug`. `key` = `fullKey`, else `tonic + " " + mode`. `url` = `<site>/score/<slug>`. `practiceUrl` = `<site>/work/<slug>`.
@@ -490,7 +490,7 @@ Verify each fact you depend on. If one is wrong, stop and report.
 7. Score metadata is readable by anyone: the owner/public filter in `ScoreRepositoryImpl.findWithSomeCriterias` is commented out and `getScore` has no check. Tools return what the REST API returns; do not change that visibility.
 8. `GET /score/{id}/video` runs a live YouTube search. Tools do not call it.
 9. The error-report feature (#408: `ErrorReport*`, changeset 024, `ErrorReportRateLimiter`, `ErrorReportConfig`) is the model for a vertical slice, an in-memory rate limiter, a retention job, and a scheduled job that runs with lazy initialization.
-10. The session cookie is host-only on the API host and `SameSite=Strict` (`AccountController.authCookie`). In production the SPA (`www.pianoml.org`) calls `https://api.pianoml.org` directly. In development everything goes through `frontend/proxy.conf.mjs` at `/api`, which strips the `Origin` header and has no WebSocket entry.
+10. The session cookie is host-only on the API host and `SameSite=Strict` (`AccountController.authCookie`). In production the SPA (`pianoml.org`; `www.pianoml.org` redirects there) calls `https://api.pianoml.org` directly. In development everything goes through `frontend/proxy.conf.mjs` at `/api`, which strips the `Origin` header and has no WebSocket entry.
 
 ### Frontend (`frontend/src/app/`)
 

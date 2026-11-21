@@ -257,7 +257,7 @@ class BridgeTest {
   void send_withoutATab_isNoActivePlayer_withTheLink() {
     CoachToolResult result = bridge.send(newUser().getId(), UUID.randomUUID(), "Host", "get_player_state", "{}", 2);
     assertThat(result.code()).isEqualTo("NO_ACTIVE_PLAYER");
-    assertThat(result.message()).contains("https://www.pianoml.org/?remoteCoach=1");
+    assertThat(result.message()).contains("https://pianoml.org/?remoteCoach=1");
   }
 
   @Test
