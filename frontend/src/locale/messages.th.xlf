@@ -507,8 +507,8 @@
         <target state="translated">ตรวจสอบอีเมลของคุณ</target>
       </trans-unit>
       <trans-unit id="forgotPassword.sent" datatype="html">
-        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for one hour.</source>
-        <target state="translated">หากมีบัญชีที่ใช้ <x id="INTERPOLATION" equiv-text="{{ email }}"/> เราได้ส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ไปแล้ว ลิงก์นี้ใช้ได้หนึ่งชั่วโมง</target>
+        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for one week.</source>
+        <target state="translated">หากมีบัญชีที่ใช้ <x id="INTERPOLATION" equiv-text="{{ email }}"/> เราได้ส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ไปแล้ว ลิงก์นี้ใช้ได้หนึ่งสัปดาห์</target>
       </trans-unit>
       <trans-unit id="forgotPassword.spam" datatype="html">
         <source>Nothing after a few minutes? Check your spam folder, or ask again.</source>
@@ -563,8 +563,8 @@
         <target state="translated">เข้าสู่ระบบ</target>
       </trans-unit>
       <trans-unit id="resetPassword.invalid" datatype="html">
-        <source>This link is invalid or has expired: each link works once, for one hour.</source>
-        <target state="translated">ลิงก์นี้ไม่ถูกต้องหรือหมดอายุแล้ว แต่ละลิงก์ใช้ได้ครั้งเดียว ภายในหนึ่งชั่วโมง</target>
+        <source>This link is invalid or has expired: each link works once, for one week.</source>
+        <target state="translated">ลิงก์นี้ไม่ถูกต้องหรือหมดอายุแล้ว แต่ละลิงก์ใช้ได้ครั้งเดียว ภายในหนึ่งสัปดาห์</target>
       </trans-unit>
       <trans-unit id="resetPassword.askAgain" datatype="html">
         <source>Get a new link</source>

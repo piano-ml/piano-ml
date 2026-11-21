@@ -103,6 +103,12 @@ class PasswordResetFlowTest {
     return jdbc.queryForObject("SELECT COUNT(*) FROM pianoml.password_reset_token WHERE user_id = ?", Integer.class, user.getId());
   }
 
+  /** The user's links still valid. */
+  private int validTokensOf(User user) {
+    return jdbc.queryForObject("SELECT COUNT(*) FROM pianoml.password_reset_token WHERE user_id = ? AND expires_at > CURRENT_TIMESTAMP",
+      Integer.class, user.getId());
+  }
+
   @Test
   void theLinkSetsANewPassword_once() throws Exception {
     User user = newUser("fr");
@@ -118,13 +124,16 @@ class PasswordResetFlowTest {
     String storedHash = jdbc.queryForObject("SELECT token_hash FROM pianoml.password_reset_token WHERE user_id = ?",
       String.class, user.getId());
     assertThat(storedHash).hasSize(64).isNotEqualTo(token);
+    var lifetime = jdbc.queryForMap("SELECT created_at, expires_at FROM pianoml.password_reset_token WHERE user_id = ?", user.getId());
+    assertThat(java.time.Duration.between(((java.time.OffsetDateTime) lifetime.get("created_at")),
+      ((java.time.OffsetDateTime) lifetime.get("expires_at")))).isEqualTo(java.time.Duration.ofDays(7));
 
     reset(token, "new-password").andExpect(status().isNoContent());
 
     login(user, "new-password").andExpect(status().isOk());
     login(user, "old-password").andExpect(status().isForbidden());
     assertThat(userRepository.findById(user.getId()).orElseThrow().isVerified()).isTrue();
-    assertThat(tokensOf(user)).isZero();
+    assertThat(validTokensOf(user)).isZero();
     reset(token, "another-password").andExpect(status().isBadRequest()).andExpect(jsonPath("$.error").value("invalid_token"));
   }
 
@@ -154,18 +163,50 @@ class PasswordResetFlowTest {
   }
 
   @Test
-  void asksRepeatedWithinAMinuteSendOneEmail() throws Exception {
+  void atMostThreeEmailsPerAccountIn24Hours_andOnlyTheLastLinkWorks() throws Exception {
     User user = newUser("en");
 
+    for (int i = 0; i < 4; i++) forgot(user.getEmail(), null).andExpect(status().isNoContent());
+
+    ArgumentCaptor<String> texts = ArgumentCaptor.forClass(String.class);
+    verify(mailSender, times(3)).send(eq(user.getEmail()), any(), any(), texts.capture());
+    assertThat(tokensOf(user)).isEqualTo(3);
+    assertThat(validTokensOf(user)).isEqualTo(1);
+    List<String> tokens = texts.getAllValues().stream().map(t -> { Matcher m = LINK.matcher(t); m.find(); return m.group(2); }).toList();
+    reset(tokens.get(0), "new-password").andExpect(status().isBadRequest());
+    reset(tokens.get(2), "new-password").andExpect(status().isNoContent());
+  }
+
+  @Test
+  void aResetDoesNotRestartTheDailyCount() throws Exception {
+    User user = newUser("en");
+    forgot(user.getEmail(), null).andExpect(status().isNoContent());
+    reset(sentLink(user.getEmail())[1], "new-password").andExpect(status().isNoContent());
+
+    forgot(user.getEmail(), null).andExpect(status().isNoContent());
     forgot(user.getEmail(), null).andExpect(status().isNoContent());
     forgot(user.getEmail(), null).andExpect(status().isNoContent());
 
-    verify(mailSender, times(1)).send(eq(user.getEmail()), any(), any(), any());
+    verify(mailSender, times(3)).send(eq(user.getEmail()), any(), any(), any());
+  }
+
+  @Test
+  void emailsSentMoreThan24HoursAgoNoLongerCount_andTheirRowsGo() throws Exception {
+    User user = newUser("en");
+    for (int i = 0; i < 3; i++) {
+      jdbc.update("INSERT INTO pianoml.password_reset_token (id, user_id, token_hash, created_at, expires_at) "
+          + "VALUES (?, ?, ?, DATEADD('HOUR', -25, CURRENT_TIMESTAMP), DATEADD('HOUR', -25, CURRENT_TIMESTAMP))",
+        UUID.randomUUID(), user.getId(), String.valueOf(i).repeat(64));
+    }
+
+    forgot(user.getEmail(), null).andExpect(status().isNoContent());
+
+    verify(mailSender).send(eq(user.getEmail()), any(), any(), any());
     assertThat(tokensOf(user)).isEqualTo(1);
   }
 
   @Test
-  void aNewLinkReplacesThePreviousOne() throws Exception {
+  void aNewLinkEndsThePreviousOne() throws Exception {
     User user = newUser("en");
     UUID old = UUID.randomUUID();
     jdbc.update("INSERT INTO pianoml.password_reset_token (id, user_id, token_hash, created_at, expires_at) "
@@ -174,8 +215,9 @@ class PasswordResetFlowTest {
 
     forgot(user.getEmail(), null).andExpect(status().isNoContent());
 
-    assertThat(tokensOf(user)).isEqualTo(1);
-    assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM pianoml.password_reset_token WHERE id = ?", Integer.class, old)).isZero();
+    assertThat(validTokensOf(user)).isEqualTo(1);
+    assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM pianoml.password_reset_token WHERE id = ? AND expires_at > CURRENT_TIMESTAMP",
+      Integer.class, old)).isZero();
   }
 
   @Test
