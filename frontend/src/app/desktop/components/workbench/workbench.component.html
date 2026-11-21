@@ -183,8 +183,8 @@
     }
 
 
-    <!--*ngIf="isSmallScreen()"  Handle: centered icon at bottom to toggle toolbar -->
-    <div class="p-2 absolute left-1/2 transform -translate-x-1/2 z-50 ml-2 mr-2 w-full">
+    <!-- Handle: centered icon at bottom to toggle toolbar, below the measure numbers that hang under the slider -->
+    <div class="px-2 pt-7 absolute left-1/2 transform -translate-x-1/2 z-50 ml-2 mr-2 w-full">
       <button (click)="fnToggleToolBar()" [attr.aria-pressed]="!toggleToolbar" i18n-title="@@workbench.toggleToolbar" title="Toggle the top bar"
         class="text-black p-1 w-100 rounded w-full flex items-center justify-center">
         <ng-icon name="bootstrapGripHorizontal" class="" />
