@@ -26,7 +26,7 @@ public class CoachRows {
   private final String siteUrl;
   private final UserRepository userRepository;
 
-  public CoachRows(@Value("${coach.site-url:https://www.pianoml.org}") String siteUrl, UserRepository userRepository) {
+  public CoachRows(@Value("${coach.site-url:https://pianoml.org}") String siteUrl, UserRepository userRepository) {
     this.siteUrl = siteUrl.endsWith("/") ? siteUrl.substring(0, siteUrl.length() - 1) : siteUrl;
     this.userRepository = userRepository;
   }

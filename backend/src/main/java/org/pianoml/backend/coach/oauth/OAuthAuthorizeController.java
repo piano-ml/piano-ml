@@ -83,7 +83,7 @@ public class OAuthAuthorizeController {
       @media (prefers-color-scheme:dark){body{background:#111;color:#ddd}a{color:#8ab4f8}}</style></head>
       <body><h1>This sign-in link cannot be used</h1><p>%s</p>
       <p>Go back to your application and connect PianoML again. If it keeps failing, the application may not be
-      set up for PianoML.</p><p><a href="https://www.pianoml.org/">PianoML</a></p></body></html>
+      set up for PianoML.</p><p><a href="https://pianoml.org/">PianoML</a></p></body></html>
       """.formatted(HtmlUtils.htmlEscape(message));
   }
 }
