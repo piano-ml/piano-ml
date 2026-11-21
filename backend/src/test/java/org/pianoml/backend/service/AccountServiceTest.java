@@ -272,8 +272,56 @@ public class AccountServiceTest {
     request.setEmail("taken@example.com");
     when(userRepository.findByEmail("taken@example.com")).thenReturn(Optional.of(new User()));
 
-    assertThrows(org.pianoml.backend.exception.UserAlreadyExistsException.class, () -> accountService.createUser(request));
+    var e = assertThrows(org.pianoml.backend.exception.UserAlreadyExistsException.class,
+      () -> accountService.createUser(request));
+    assertEquals(org.pianoml.backend.exception.UserAlreadyExistsException.Field.EMAIL, e.getField());
     verify(userRepository, never()).save(any());
+  }
+
+  @Test
+  public void createUser_existingName_isRejected() {
+    AccountCreatePostRequest request = new AccountCreatePostRequest();
+    request.setEmail("new@example.com");
+    request.setName("lily");
+    when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
+    when(userRepository.existsByName("lily")).thenReturn(true);
+
+    var e = assertThrows(org.pianoml.backend.exception.UserAlreadyExistsException.class,
+      () -> accountService.createUser(request));
+    assertEquals(org.pianoml.backend.exception.UserAlreadyExistsException.Field.NAME, e.getField());
+    verify(userRepository, never()).save(any());
+  }
+
+  @Test
+  public void createUser_nameTakenBetweenCheckAndInsert_isRejectedAsConflict() {
+    AccountCreatePostRequest request = new AccountCreatePostRequest();
+    request.setEmail("new@example.com");
+    request.setName("lily");
+    request.setPassword("pw");
+    when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
+    when(userRepository.existsByName("lily")).thenReturn(false, true);
+    when(passwordEncoder.encode("pw")).thenReturn("hashed");
+    when(userRepository.save(any(User.class)))
+      .thenThrow(new org.springframework.dao.DataIntegrityViolationException("user_name_key"));
+
+    var e = assertThrows(org.pianoml.backend.exception.UserAlreadyExistsException.class,
+      () -> accountService.createUser(request));
+    assertEquals(org.pianoml.backend.exception.UserAlreadyExistsException.Field.NAME, e.getField());
+  }
+
+  @Test
+  public void createUser_otherIntegrityViolation_isRethrown() {
+    AccountCreatePostRequest request = new AccountCreatePostRequest();
+    request.setEmail("new@example.com");
+    request.setName("lily");
+    request.setPassword("pw");
+    when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
+    when(userRepository.existsByName("lily")).thenReturn(false);
+    when(passwordEncoder.encode("pw")).thenReturn("hashed");
+    when(userRepository.save(any(User.class)))
+      .thenThrow(new org.springframework.dao.DataIntegrityViolationException("other"));
+
+    assertThrows(org.springframework.dao.DataIntegrityViolationException.class, () -> accountService.createUser(request));
   }
 
   @Test

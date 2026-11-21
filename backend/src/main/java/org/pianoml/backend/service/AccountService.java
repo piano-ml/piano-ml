@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.entity.SystemUsers;
 import org.pianoml.backend.entity.User;
 import org.pianoml.backend.exception.UserAlreadyExistsException;
+import org.pianoml.backend.exception.UserAlreadyExistsException.Field;
 import org.pianoml.backend.exception.UserNotLoggedInException;
 import org.pianoml.backend.mapper.UserMapper;
 import org.pianoml.backend.model.AccountCreatePostRequest;
@@ -13,6 +14,7 @@ import org.pianoml.backend.repository.UserRepository;
 import org.pianoml.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -99,15 +101,34 @@ public class AccountService {
       .anyMatch(listed -> !listed.isEmpty() && listed.equalsIgnoreCase(email.trim()));
   }
 
+  /**
+   * Creates an account. An email or a name already taken is a {@link UserAlreadyExistsException} (409), also when
+   * another sign-up takes it between the check and the insert: the unique constraint then fails, and is told apart
+   * by checking again which field is now taken.
+   */
   public User createUser(AccountCreatePostRequest accountCreatePostRequest) {
-    if (userRepository.findByEmail(accountCreatePostRequest.getEmail()).isPresent()) {
-      throw new UserAlreadyExistsException("User with email " + accountCreatePostRequest.getEmail() + " already exists.");
-    }
+    String email = accountCreatePostRequest.getEmail();
+    String name = accountCreatePostRequest.getName();
+    checkNotTaken(email, name);
 
     User user = userMapper.toUser(accountCreatePostRequest);
     user.setPassword(passwordEncoder.encode(accountCreatePostRequest.getPassword()));
     user.setRoles("USER"); // Default role for new users
-    return userRepository.save(user);
+    try {
+      return userRepository.save(user);
+    } catch (DataIntegrityViolationException e) {
+      checkNotTaken(email, name);
+      throw e;
+    }
+  }
+
+  private void checkNotTaken(String email, String name) {
+    if (userRepository.findByEmail(email).isPresent()) {
+      throw new UserAlreadyExistsException(Field.EMAIL, "User with email " + email + " already exists.");
+    }
+    if (name != null && userRepository.existsByName(name)) {
+      throw new UserAlreadyExistsException(Field.NAME, "User with name " + name + " already exists.");
+    }
   }
 
   public org.pianoml.backend.model.AccountLoginPost200Response loginUser(AccountLoginPostRequest accountLoginPostRequest) {

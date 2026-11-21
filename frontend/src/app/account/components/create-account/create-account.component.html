@@ -12,9 +12,13 @@
             class="input-field w-full"
             i18n-placeholder="@@createAccount.enterYourName.placeholder" placeholder="Enter your name">
           @if (createAccountForm.get('name')?.invalid && createAccountForm.get('name')?.touched) {
-            <div
-              class="text-error text-sm mt-1" i18n="@@createAccount.nameIsRequired">
-              name is required.
+            <div class="text-error text-sm mt-1">
+              @if (createAccountForm.get('name')?.errors?.['required']) {
+                <span i18n="@@createAccount.nameIsRequired">name is required.</span>
+              }
+              @if (createAccountForm.get('name')?.errors?.['taken']) {
+                <span i18n="@@createAccount.nameIsTaken">This name is already taken. Please choose another one.</span>
+              }
             </div>
           }
         </div>
@@ -32,6 +36,9 @@
               }
               @if (createAccountForm.get('email')?.errors?.['email']) {
                 <span i18n="@@createAccount.invalidEmailFormat">Invalid email format.</span>
+              }
+              @if (createAccountForm.get('email')?.errors?.['taken']) {
+                <span i18n="@@createAccount.emailIsTaken">An account already uses this email. Log in instead, or use another email.</span>
               }
             </div>
           }

@@ -58,12 +58,24 @@ class AccountControllerTest {
 
   @Test
   void createAccount_existingEmail_returns409_viaRestExceptionHandler() throws Exception {
-    willThrow(new UserAlreadyExistsException("User with email a@example.com already exists."))
+    willThrow(new UserAlreadyExistsException(UserAlreadyExistsException.Field.EMAIL,
+      "User with email a@example.com already exists."))
       .given(accountService).createUser(any(AccountCreatePostRequest.class));
 
     mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(SIGNUP))
       .andExpect(status().isConflict())
-      .andExpect(content().string("User with email a@example.com already exists."));
+      .andExpect(jsonPath("$.field").value("email"))
+      .andExpect(jsonPath("$.message").value("User with email a@example.com already exists."));
+  }
+
+  @Test
+  void createAccount_existingName_returns409_withNameField() throws Exception {
+    willThrow(new UserAlreadyExistsException(UserAlreadyExistsException.Field.NAME, "User with name a already exists."))
+      .given(accountService).createUser(any(AccountCreatePostRequest.class));
+
+    mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(SIGNUP))
+      .andExpect(status().isConflict())
+      .andExpect(jsonPath("$.field").value("name"));
   }
 
   // --- login ----------------------------------------------------------------------------------------------

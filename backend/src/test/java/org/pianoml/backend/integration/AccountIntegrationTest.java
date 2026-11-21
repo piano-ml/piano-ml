@@ -53,7 +53,20 @@ class AccountIntegrationTest extends IntegrationTestBase {
       given(userRepository.findByEmail("new@example.com")).willReturn(Optional.of(user("Existing", "USER")));
 
       mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(signup))
-        .andExpect(status().isConflict());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.field").value("email"));
+
+      verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void refusesANameAlreadyTaken() throws Exception {
+      given(userRepository.findByEmail("new@example.com")).willReturn(Optional.empty());
+      given(userRepository.existsByName("Newbie")).willReturn(true);
+
+      mockMvc.perform(post("/account/create").contentType(MediaType.APPLICATION_JSON).content(signup))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.field").value("name"));
 
       verify(userRepository, never()).save(any());
     }

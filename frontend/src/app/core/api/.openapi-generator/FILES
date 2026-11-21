@@ -17,6 +17,7 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/accountCreatePost409Response.ts
 model/accountCreatePostRequest.ts
 model/accountLoginPost200Response.ts
 model/accountLoginPostRequest.ts

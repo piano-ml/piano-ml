@@ -89,8 +89,22 @@ paths:
           description: Account created successfully
         '400':
           description: Bad request
-        '403':
-          description: User already exists
+        '409':
+          description: An account already has this email or this name
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    enum: [email, name]
+                    description: The field already taken
+                  message:
+                    type: string
+                required:
+                  - field
+                  - message
   /account/userinfo:
     get:
       operationId: accountUserinfoGet
