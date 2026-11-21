@@ -8,6 +8,7 @@ import org.pianoml.backend.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Date;
 
 @Component
@@ -16,13 +17,17 @@ public class JwtTokenProvider {
   @Value("${jwt.secret:'supersecret'}")
   private String jwtSecret;
 
-  //@Value("${jwt.expiration-ms:1000}")
+  /**
+   * How long a login lasts (the token and its cookie): 30 days, as PianoML is a low-risk entertainment site where
+   * being asked to log in again costs more than a stolen session. {@code jwt.expiration} takes 30d, 12h, PT1H...
+   */
+  @Value("${jwt.expiration:30d}")
   @Getter
-  private int jwtExpirationInMs = 1000 * 3600 * 24; // default to 24 hours
+  private Duration jwtExpiration = Duration.ofDays(30);
 
   public String generateToken(User user) {
     Date now = new Date();
-    Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+    Date expiryDate = new Date(now.getTime() + jwtExpiration.toMillis());
 
     return JWT.create()
       .withSubject(user.getId().toString())

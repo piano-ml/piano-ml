@@ -103,7 +103,7 @@ public class AccountController implements AccountApi {
 
     ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     appendSetCookie(attrs, expireLegacySharedAuthCookie());
-    ResponseCookie cookie = authCookie(token, jwtTokenProvider.getJwtExpirationInMs() / 1000);
+    ResponseCookie cookie = authCookie(token, jwtTokenProvider.getJwtExpiration().toSeconds());
     appendSetCookie(attrs, cookie);
     return ResponseEntity.ok().body(response);
   }
