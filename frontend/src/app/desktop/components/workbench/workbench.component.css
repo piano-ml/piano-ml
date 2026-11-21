@@ -323,8 +323,8 @@ body {
 	transition: width 150ms linear;
 }
 
-/* Measure range slider (noUiSlider): fine and discreet. A thin track, small round handles for the start and the
-   end of the range, a slim bar for the current measure, a few small measure numbers (measure-range-pips.ts). */
+/* Measure range slider (noUiSlider): fine and discreet. A thin track, bold bars for the start and the end of the
+   range, a slim bar for the current measure, a few measure numbers (measure-range-pips.ts). */
 #measure-range.noUi-target {
 	height: 4px;
 	border: none !important;
@@ -338,16 +338,17 @@ body {
 	background-color: transparent;
 }
 
+/* The start and the end of the range: bold bars, taller than the current measure's */
 #measure-range.noUi-horizontal .noUi-handle {
-	width: 14px;
-	height: 14px;
-	top: -5px;
-	right: -7px;
-	border-radius: 50%;
-	border: 2px solid var(--color-neutral-300);
-	background: var(--color-neutral-800);
+	width: 6px;
+	height: 22px;
+	top: -9px;
+	right: -3px;
+	border-radius: 2px;
+	border: none;
+	background: var(--color-neutral-300);
 	box-shadow: none;
-	cursor: grab;
+	cursor: ew-resize;
 }
 
 /* No grip lines; a larger invisible area keeps the small handles easy to grab, with a finger too */
