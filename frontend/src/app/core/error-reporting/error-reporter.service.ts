@@ -46,7 +46,8 @@ export class ErrorReporter {
       this.report({
         message: e ? e.message : stringify(error),
         exceptionType: e ? e.name || e.constructor?.name : typeof error,
-        stackTrace: e?.stack,
+        // A value thrown without a stack (a string, a rejected object): where it was reported from, at least
+        stackTrace: e?.stack || reportedFrom(),
         context,
       });
     } catch {
@@ -129,6 +130,12 @@ function stringify(value: unknown): string {
   } catch {
     return String(value);
   }
+}
+
+/** The current stack, without its first line ("Error") and the reporter's own frames. */
+function reportedFrom(): string | undefined {
+  const stack = new Error().stack;
+  return stack?.split('\n').slice(1).filter(line => !line.includes('reportedFrom') && !line.includes('reportError')).join('\n') || undefined;
 }
 
 function firstFrame(stack: string | undefined): string {

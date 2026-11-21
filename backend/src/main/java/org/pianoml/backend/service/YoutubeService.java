@@ -105,7 +105,7 @@ public class YoutubeService {
                     .collect(Collectors.toList());
 
         } catch (IOException e) {
-            log.error("Error calling YouTube API: {}", e.getMessage(), e);
+            log.info("YouTube API call failed: {}", e.getMessage());
             throw new YoutubeApiException("Failed to query YouTube API", e);
         }
     }

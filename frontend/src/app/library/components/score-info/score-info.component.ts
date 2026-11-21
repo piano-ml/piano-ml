@@ -45,7 +45,6 @@ export class ScoreInfoComponent implements OnInit {
   loadingWorkload = false;
   videos: YoutubeVideoApiInfo[] = [];
   loadingVideos = false;
-  videosError: string | null = null;
   selectedVideo: YoutubeVideoApiInfo | null = null;
   isVideoPlayerOpen = false;
   siteUrl = '';
@@ -169,13 +168,11 @@ export class ScoreInfoComponent implements OnInit {
   loadVideos(scoreId: string) {
     if (!scoreId) {
       this.videos = [];
-      this.videosError = null;
       this.loadingVideos = false;
       return;
     }
 
     this.loadingVideos = true;
-    this.videosError = null;
     this.cdr.detectChanges();
 
     this.scoreService.scoreIdVideoGet(scoreId).subscribe({
@@ -187,10 +184,10 @@ export class ScoreInfoComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.videosError = error?.message || $localize`:@@score.videos.error:Failed to load videos`;
+        // No videos then: the section stays empty, nothing for the visitor to act on
         this.videos = [];
         this.loadingVideos = false;
-        console.error('Error loading videos:', error);
+        console.info('No related videos:', error?.status ?? error);
         this.cdr.detectChanges();
       }
     });

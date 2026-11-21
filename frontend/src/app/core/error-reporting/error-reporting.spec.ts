@@ -97,22 +97,37 @@ describe('error reporting', () => {
     expect(req.request.body.context.unhandledRejection).toBe(true);
   });
 
-  it('reports a 500 and a network failure of the API, not a 404', async () => {
+  it('reports a 500 and a network failure of the API, not a 404 nor a 502', async () => {
     const { http, httpMock } = setup();
     const failed = vi.fn();
     http.get(`${API}/score/1?token=secret&tab=pdf`).subscribe({ error: failed });
     http.get(`${API}/score/2`).subscribe({ error: failed });
     http.get(`${API}/score/3`).subscribe({ error: failed });
+    http.get(`${API}/score/4/video`).subscribe({ error: failed });
     httpMock.expectOne(`${API}/score/1?token=secret&tab=pdf`).flush('boom', { status: 500, statusText: 'Server Error' });
     httpMock.expectOne(`${API}/score/2`).flush('missing', { status: 404, statusText: 'Not Found' });
     httpMock.expectOne(`${API}/score/3`).error(new ProgressEvent('error'), { status: 0 });
+    httpMock.expectOne(`${API}/score/4/video`).flush('gateway', { status: 502, statusText: 'Bad Gateway' });
 
     const sent = await reports(httpMock);
-    expect(failed).toHaveBeenCalledTimes(3); // the caller still gets its error
+    expect(failed).toHaveBeenCalledTimes(4); // the caller still gets its error
     expect(sent.map(r => r.request.body.context.status)).toEqual([500, 0]);
     expect(sent[0].request.body.message).toBe(`HTTP 500 GET ${API}/score/1`);
     expect(sent[0].request.body.context.api).toBe(`${API}/score/1?tab=pdf`);
     expect(sent[0].request.body.context.method).toBe('GET');
+    // The stack where the request was made: which code called the API (no secret from the URL in it)
+    const stack = sent[0].request.body.stackTrace as string;
+    expect(stack).toContain(`GET ${API}/score/1`);
+    expect(stack).toMatch(/error-reporting/);
+    expect(stack).not.toContain('secret');
+  });
+
+  it('gives a value thrown without a stack the stack it was reported from', async () => {
+    const { httpMock } = setup();
+    TestBed.inject(ErrorHandler).handleError('a plain string');
+    const [req] = await reports(httpMock);
+    expect(req.request.body.message).toBe('a plain string');
+    expect(req.request.body.stackTrace).toMatch(/error-reporting/);
   });
 
   it('does not report HTTP errors twice when they reach the ErrorHandler', async () => {
