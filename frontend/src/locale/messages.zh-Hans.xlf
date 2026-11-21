@@ -1994,6 +1994,14 @@
         <source>Adjust the playback speed to match your current skill level. You can also toggle the metronome on or off from here.</source>
         <target state="translated">根据当前水平调整播放速度。也可以在这里开关节拍器。</target>
       </trans-unit>
+      <trans-unit id="workbench.tour.mixer.title" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">混音</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.mixer.content" datatype="html">
+        <source>Set the volume of the score (the notes the app plays), the accompaniment and the metronome.</source>
+        <target state="translated">调节乐谱（应用演奏的音）、伴奏和节拍器的音量。</target>
+      </trans-unit>
       <trans-unit id="workbench.tour.midiSetup.title" datatype="html">
         <source>MIDI &amp; Display Setup</source>
         <target state="translated">MIDI 与显示设置</target>

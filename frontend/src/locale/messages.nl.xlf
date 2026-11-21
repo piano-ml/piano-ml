@@ -1994,6 +1994,14 @@
         <source>Adjust the playback speed to match your current skill level. You can also toggle the metronome on or off from here.</source>
         <target state="translated">Pas de afspeelsnelheid aan je niveau aan. Hier zet je ook de metronoom aan of uit.</target>
       </trans-unit>
+      <trans-unit id="workbench.tour.mixer.title" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">Mixer</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.mixer.content" datatype="html">
+        <source>Set the volume of the score (the notes the app plays), the accompaniment and the metronome.</source>
+        <target state="translated">Stel het volume in van de partituur (de noten die de app speelt), de begeleiding en de metronoom.</target>
+      </trans-unit>
       <trans-unit id="workbench.tour.midiSetup.title" datatype="html">
         <source>MIDI &amp; Display Setup</source>
         <target state="translated">MIDI- &amp; weergave-instellingen</target>

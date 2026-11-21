@@ -45,6 +45,13 @@ export const WORKBENCH_TOUR: BeaconStep[] = [
     selector: '#showTempo',
   },
   {
+    id: 'mixer',
+    title: $localize`:@@workbench.tour.mixer.title:Mixer`,
+    content: $localize`:@@workbench.tour.mixer.content:Set the volume of the score (the notes the app plays), the accompaniment and the metronome.`,
+    position: 'below',
+    selector: '#mixer',
+  },
+  {
     id: 'midi-setup',
     title: $localize`:@@workbench.tour.midiSetup.title:MIDI & Display Setup`,
     content: $localize`:@@workbench.tour.midiSetup.content:Configure your MIDI input and output devices here. You can also toggle display options like the virtual keyboard, fingering, lyrics, and harmony indicators.`,

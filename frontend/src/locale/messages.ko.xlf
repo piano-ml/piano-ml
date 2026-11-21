@@ -1994,6 +1994,14 @@
         <source>Adjust the playback speed to match your current skill level. You can also toggle the metronome on or off from here.</source>
         <target state="translated">현재 실력에 맞게 재생 속도를 조절하세요. 여기에서 메트로놈을 켜고 끌 수도 있습니다.</target>
       </trans-unit>
+      <trans-unit id="workbench.tour.mixer.title" datatype="html">
+        <source>Mixer</source>
+        <target state="translated">믹서</target>
+      </trans-unit>
+      <trans-unit id="workbench.tour.mixer.content" datatype="html">
+        <source>Set the volume of the score (the notes the app plays), the accompaniment and the metronome.</source>
+        <target state="translated">악보(앱이 연주하는 음), 반주, 메트로놈의 볼륨을 조절하세요.</target>
+      </trans-unit>
       <trans-unit id="workbench.tour.midiSetup.title" datatype="html">
         <source>MIDI &amp; Display Setup</source>
         <target state="translated">MIDI 및 화면 설정</target>
