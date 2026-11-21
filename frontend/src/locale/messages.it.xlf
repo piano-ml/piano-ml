@@ -507,8 +507,8 @@
         <target state="translated">Controlla la tua email</target>
       </trans-unit>
       <trans-unit id="forgotPassword.sent" datatype="html">
-        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for one week.</source>
-        <target state="translated">Se un account usa <x id="INTERPOLATION" equiv-text="{{ email }}"/>, gli abbiamo inviato un link per scegliere una nuova password. Il link funziona per una settimana.</target>
+        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for a limited time.</source>
+        <target state="translated">Se un account usa <x id="INTERPOLATION" equiv-text="{{ email }}"/>, gli abbiamo inviato un link per scegliere una nuova password. Il link funziona per un tempo limitato.</target>
       </trans-unit>
       <trans-unit id="forgotPassword.spam" datatype="html">
         <source>Nothing after a few minutes? Check your spam folder, or ask again.</source>
@@ -563,8 +563,8 @@
         <target state="translated">Accedi</target>
       </trans-unit>
       <trans-unit id="resetPassword.invalid" datatype="html">
-        <source>This link is invalid or has expired: each link works once, for one week.</source>
-        <target state="translated">Questo link non è valido o è scaduto: ogni link funziona una sola volta, per una settimana.</target>
+        <source>This link is invalid or has expired: each link works only once, for a limited time.</source>
+        <target state="translated">Questo link non è valido o è scaduto: ogni link funziona una sola volta, per un tempo limitato.</target>
       </trans-unit>
       <trans-unit id="resetPassword.askAgain" datatype="html">
         <source>Get a new link</source>

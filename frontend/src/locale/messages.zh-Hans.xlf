@@ -507,8 +507,8 @@
         <target state="translated">请查收邮件</target>
       </trans-unit>
       <trans-unit id="forgotPassword.sent" datatype="html">
-        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for one week.</source>
-        <target state="translated">如果有账户使用 <x id="INTERPOLATION" equiv-text="{{ email }}"/>，我们已向该邮箱发送了设置新密码的链接。链接一周内有效。</target>
+        <source>If an account uses <x id="INTERPOLATION" equiv-text="{{ email }}"/>, we have sent it a link to choose a new password. The link works for a limited time.</source>
+        <target state="translated">如果有账户使用 <x id="INTERPOLATION" equiv-text="{{ email }}"/>，我们已向该邮箱发送了设置新密码的链接。链接在限定时间内有效。</target>
       </trans-unit>
       <trans-unit id="forgotPassword.spam" datatype="html">
         <source>Nothing after a few minutes? Check your spam folder, or ask again.</source>
@@ -563,8 +563,8 @@
         <target state="translated">登录</target>
       </trans-unit>
       <trans-unit id="resetPassword.invalid" datatype="html">
-        <source>This link is invalid or has expired: each link works once, for one week.</source>
-        <target state="translated">此链接无效或已过期：每个链接仅可使用一次，有效期为一周。</target>
+        <source>This link is invalid or has expired: each link works only once, for a limited time.</source>
+        <target state="translated">此链接无效或已过期：每个链接仅可使用一次，且在限定时间内有效。</target>
       </trans-unit>
       <trans-unit id="resetPassword.askAgain" datatype="html">
         <source>Get a new link</source>
