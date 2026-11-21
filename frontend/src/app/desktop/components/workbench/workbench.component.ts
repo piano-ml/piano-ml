@@ -30,6 +30,7 @@ import { midiToPitch } from '../../service/midi-maths';
 import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
 import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
+import { measurePipFilter } from './measure-range-pips';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
@@ -1186,6 +1187,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       pips: {
         mode: PipsMode.Steps,
         density: 100,
+        // A few measure numbers and fine marks, not a number under every measure
+        filter: measurePipFilter(this.measureCount()),
         format: wNumb({
           decimals: 0,
           encoder: (i: number) => Math.round(i + 1),
