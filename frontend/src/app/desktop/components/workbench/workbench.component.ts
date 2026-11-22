@@ -36,6 +36,7 @@ import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '.
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { type Hands, type HandsMode, type PlayerState, PlayerControlService, type WorkbenchHandle, lastTakeOf, waitFor } from '../../service/player-control.service';
 import { type HandMode, type HandSide, handModeOf, handsModeOf, studentHands, withHandMode } from '../../model/hand-mode';
+import {MixerDialogComponent} from '../mixer-dialog/mixer-dialog.component';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
