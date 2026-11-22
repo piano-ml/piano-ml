@@ -26,7 +26,7 @@ public class CoachRows {
   private final String siteUrl;
   private final UserRepository userRepository;
 
-  public CoachRows(@Value("${coach.site-url:https://www.pianoml.org}") String siteUrl, UserRepository userRepository) {
+  public CoachRows(@Value("${coach.site-url:https://pianoml.org}") String siteUrl, UserRepository userRepository) {
     this.siteUrl = siteUrl.endsWith("/") ? siteUrl.substring(0, siteUrl.length() - 1) : siteUrl;
     this.userRepository = userRepository;
   }
@@ -84,6 +84,8 @@ public class CoachRows {
     row.put("genre", score.getGenre());
     row.put("genreSlug", score.getGenreSlug());
     row.put("handSeparated", score.getHandSeparated());
+    // 1 track: usually the right hand only; 2 tracks: right hand then left hand (as the player plays them)
+    row.put("tracksCount", score.getTracksCount());
     row.put("hasLyrics", score.getHasLyrics());
     row.put("playCount", score.getPlayCount());
     row.put("url", scoreUrl(slug));

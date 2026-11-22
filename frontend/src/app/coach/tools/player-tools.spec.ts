@@ -68,6 +68,28 @@ describe('player tools', () => {
       expect(wb.handle.setWholeScore).toHaveBeenCalled();
     });
 
+    it('lets the student play along (at tempo, the app silent) or be waited for', async () => {
+      const wb = fakeWorkbench();
+      control.register(wb.handle);
+      expect(await data('configure_practice', { hands: 'right', handsMode: 'along' })).toMatchObject({ hands: 'right', handsMode: 'along' });
+      expect(wb.handle.setHands).toHaveBeenLastCalledWith('right', 'along');
+
+      // handsMode alone: the same hands, played another way
+      expect(await data('configure_practice', { handsMode: 'wait' })).toMatchObject({ hands: 'right', handsMode: 'wait' });
+      expect(wb.handle.setHands).toHaveBeenLastCalledWith('right', 'wait');
+
+      // hands alone: waited for, as before
+      await data('configure_practice', { hands: 'both' });
+      expect(wb.handle.setHands).toHaveBeenLastCalledWith('both', 'wait');
+    });
+
+    it('refuses handsMode without hands the student plays', async () => {
+      control.register(fakeWorkbench().handle); // listening
+      expect(await code('configure_practice', { handsMode: 'along' })).toBe('INVALID_ARGUMENT');
+      expect(await code('configure_practice', { hands: 'listen', handsMode: 'wait' })).toBe('INVALID_ARGUMENT');
+      expect(await code('configure_practice', { hands: 'right', handsMode: 'loud' })).toBe('INVALID_ARGUMENT');
+    });
+
     it('validates the range against the score and refuses the exclusive pairs', async () => {
       control.register(fakeWorkbench().handle);
       expect(await code('configure_practice', { fromMeasure: 5, toMeasure: 4 })).toBe('INVALID_RANGE');

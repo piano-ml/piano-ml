@@ -30,7 +30,7 @@ public class CoachOAuthSettings {
   public CoachOAuthSettings(@Value("${coach.oauth.enabled:true}") boolean enabled,
                             @Value("${coach.oauth.issuer:https://api.pianoml.org}") String issuer,
                             @Value("${coach.oauth.resource:}") String resource,
-                            @Value("${coach.oauth.consent-url:https://www.pianoml.org/coach/authorize}") String consentUrl) {
+                            @Value("${coach.oauth.consent-url:https://pianoml.org/coach/authorize}") String consentUrl) {
     this.enabled = enabled;
     this.issuer = stripSlash(issuer);
     this.resource = resource == null || resource.isBlank() ? this.issuer + "/mcp" : stripSlash(resource);
@@ -39,7 +39,7 @@ public class CoachOAuthSettings {
 
   /** Tests and defaults: the production consent page. */
   public CoachOAuthSettings(boolean enabled, String issuer, String resource) {
-    this(enabled, issuer, resource, "https://www.pianoml.org/coach/authorize");
+    this(enabled, issuer, resource, "https://pianoml.org/coach/authorize");
   }
 
   private static String stripSlash(String value) {

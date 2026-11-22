@@ -19,7 +19,6 @@ import { PopularScoresInKeyComponent } from '../../shared/components/popular-sco
   imports: [FormsModule, PopularScoresInKeyComponent, NoteNamePipe],
   templateUrl: './agility.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './agility.component.css'
 })
 export class AgilityComponent implements OnInit {
 

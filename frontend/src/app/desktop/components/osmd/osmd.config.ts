@@ -51,3 +51,11 @@ export const DEFAULT_OSMD_OPTIONS: IOSMDOptions = {
  * Largeur maximale de la feuille de musique
  */
 export const SHEET_MAXIMUM_WIDTH = Number.MAX_SAFE_INTEGER;
+
+/**
+ * Page margins, in OSMD units (10 px each at zoom 1; OSMD's default is 5 each side): the score lines up with the
+ * toolbar, 12 px from each edge like the home and play/pause buttons. Left: the 1.4 units of a grand staff's brace,
+ * drawn left of the staff, plus 1.2; right: 1.2 plus the final barline's thickness, at the end of a full line.
+ */
+export const PAGE_LEFT_MARGIN = 2.6;
+export const PAGE_RIGHT_MARGIN = 1.3;

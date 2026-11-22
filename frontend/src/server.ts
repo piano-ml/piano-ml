@@ -10,9 +10,19 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HOME_VARY, homeRedirect } from './app/shared/i18n/locale-negotiation';
 import { NO_FRAME_HEADERS, isNoFramePath } from './app/coach/authorize/no-frame';
+import { canonicalRedirect } from './app/shared/canonical-host';
 
 export function app(): express.Express {
   const server = express();
+  // One address for the site: www.pianoml.org would keep its own storage (calibration, tours, preferences)
+  server.use((req, res, next) => {
+    const target = canonicalRedirect(req.get('x-forwarded-host') ?? req.get('host'), req.originalUrl);
+    if (target) {
+      res.redirect(301, target);
+      return;
+    }
+    next();
+  });
   // Soundfonts are sent uncompressed: their samples are already Ogg-compressed, and on-the-fly compression
   // drops Content-Length, so a download cut mid-stream gets cached as a truncated file for a year (maxAge below).
   server.use(compression({

@@ -90,7 +90,7 @@ The session cookie is `HttpOnly; Secure; SameSite=Strict`, host-only on `api.pia
 1. **`GET /oauth/authorize`** (API host, no session expected). Validates `response_type=code`, `client_id` (CIMD fetch or DCR row), `redirect_uri`, `code_challenge` with `code_challenge_method=S256`, `resource` = the canonical resource, `scope` ⊆ supported (`offline_access` accepted and ignored), `state` present.
    - Until `client_id` and `redirect_uri` are validated, an error is an HTML error page on PianoML, never a redirect (no open redirect).
    - After that, errors redirect to `redirect_uri` with `error`, `state` and `iss`.
-   - On success: store the request server side (`coach_oauth_request`, random id, 10 minutes, every validated parameter) and redirect to the SPA: `https://www.pianoml.org/coach/authorize?request=<id>`.
+   - On success: store the request server side (`coach_oauth_request`, random id, 10 minutes, every validated parameter) and redirect to the SPA: `https://pianoml.org/coach/authorize?request=<id>`.
 2. **Consent page `/coach/authorize`** (SPA, same site as the API: the cookie travels again on its XHR calls).
    - Not logged in: the normal login, back here through `return-url.ts`.
    - `GET /oauth/requests/{id}` (session) returns what to show: client name, client id host (or "self-declared name, unverified" for a DCR client), the redirect URI's host, the scopes with one line each, and a warning when the only redirect URIs are loopback ones.
@@ -236,7 +236,7 @@ Tests: CIMD accepted from any public host, cached, refreshed; refused for HTTP, 
 - *No `scope`, or only `offline_access`, means every scope; the user can still narrow them on the consent page.*
 - *The client's display data (name, verified host, loopback-only) is copied into the request, so the consent page never refetches a metadata document.*
 - *A request belongs to the first logged-in user who opens it; the decision is a conditional update, so two tabs or two users cannot both decide.*
-- *The consent page URL is `coach.oauth.consent-url` (default `https://www.pianoml.org/coach/authorize`). It is the English page: deep links are never redirected by language. A user who reads another language sees it in English until the app offers its language switcher there.*
+- *The consent page URL is `coach.oauth.consent-url` (default `https://pianoml.org/coach/authorize`; www.pianoml.org redirects to pianoml.org). It is the English page: deep links are never redirected by language. A user who reads another language sees it in English until the app offers its language switcher there.*
 - *A code is marked as completing the client's authorization (`last_used_at`), which keeps the client past the 24-hour cleanup.*
 
 Build: `GET /oauth/authorize`, `coach_oauth_request`, the HTML error page, `GET /oauth/requests/{id}`, `POST /oauth/requests/{id}/decision`, `coach_oauth_code`; SPA consent page `/coach/authorize` (lazy, noindex, rendered in the browser, `frame-ancestors 'none'`), login round trip, translations.

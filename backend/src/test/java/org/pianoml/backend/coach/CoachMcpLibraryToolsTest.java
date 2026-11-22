@@ -173,8 +173,8 @@ class CoachMcpLibraryToolsTest {
     assertThat(row.path("authorSlug").asText()).isEqualTo("bach-" + run);
     assertThat(row.path("measures").asInt()).isEqualTo(32);
     assertThat(row.path("durationSeconds").asInt()).isEqualTo(95);
-    assertThat(row.path("url").asText()).isEqualTo("https://www.pianoml.org/score/slug-" + prelude);
-    assertThat(row.path("practiceUrl").asText()).isEqualTo("https://www.pianoml.org/work/slug-" + prelude);
+    assertThat(row.path("url").asText()).isEqualTo("https://pianoml.org/score/slug-" + prelude);
+    assertThat(row.path("practiceUrl").asText()).isEqualTo("https://pianoml.org/work/slug-" + prelude);
     assertThat(found.path("hasMore").asBoolean()).isFalse();
 
     assertThat(texts(data("search_scores", Map.of("composer", "chopin " + run, "sort", "title_asc")).path("scores"), "title"))
@@ -190,6 +190,20 @@ class CoachMcpLibraryToolsTest {
       .containsExactly(title("Prelude"));
     assertThat(texts(data("search_scores", Map.of("genreSlug", "nocturne-" + run)).path("scores"), "title"))
       .containsExactly(title("Nocturne"));
+  }
+
+  @Test
+  void searchScores_byNumberOfTracks_andRowsCarryIt() throws Exception {
+    // Prelude: right hand only (1 track); Nocturne and Waltz: both hands (2 tracks); Minuet: unknown
+    jdbc.update("UPDATE pianoml.score SET tracks_count = 1 WHERE id = ?", prelude);
+    jdbc.update("UPDATE pianoml.score SET tracks_count = 2 WHERE title IN (?, ?)", title("Nocturne"), title("Waltz"));
+
+    assertThat(texts(data("search_scores", Map.of("keyword", run, "tracks", 1)).path("scores"), "title"))
+      .containsExactly(title("Prelude"));
+    JsonNode both = data("search_scores", Map.of("keyword", run, "tracks", 2, "sort", "title_asc")).path("scores");
+    assertThat(texts(both, "title")).containsExactly(title("Nocturne"), title("Waltz"));
+    assertThat(both.get(0).path("tracksCount").asInt()).isEqualTo(2);
+    assertThat(data("get_score", Map.of("slug", "slug-" + prelude)).path("tracksCount").asInt()).isEqualTo(1);
   }
 
   @Test
@@ -268,7 +282,7 @@ class CoachMcpLibraryToolsTest {
     JsonNode chopinRow = StreamSupport.stream(listed.path("composers").spliterator(), false)
       .filter(c -> c.path("slug").asText().equals("chopin-" + run)).findFirst().orElseThrow();
     assertThat(chopinRow.path("scoreCount").asInt()).isEqualTo(2);
-    assertThat(chopinRow.path("url").asText()).isEqualTo("https://www.pianoml.org/library/artists/chopin-" + run);
+    assertThat(chopinRow.path("url").asText()).isEqualTo("https://pianoml.org/library/artists/chopin-" + run);
     assertThat(texts(listed.path("composers"), "slug")).doesNotContain("bach-" + run);
 
     JsonNode searched = data("search_composers", Map.of("query", "bach " + run)).path("composers");
@@ -290,7 +304,7 @@ class CoachMcpLibraryToolsTest {
     JsonNode row = StreamSupport.stream(genres.path("genres").spliterator(), false)
       .filter(g -> g.path("slug").asText().equals("nocturne-" + run)).findFirst().orElseThrow();
     assertThat(row.path("scoreCount").asInt()).isEqualTo(1);
-    assertThat(row.path("url").asText()).isEqualTo("https://www.pianoml.org/library/genres/nocturne-" + run);
+    assertThat(row.path("url").asText()).isEqualTo("https://pianoml.org/library/genres/nocturne-" + run);
 
     List<String> keys = texts(data("list_keys", Map.of()).path("keys"), "");
     assertThat(data("list_keys", Map.of()).path("keys").toString()).contains("\"C major\"", "\"A minor\"", "\"G major\"");
