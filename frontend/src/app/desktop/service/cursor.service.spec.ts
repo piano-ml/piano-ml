@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { Note } from '@tonejs/midi/dist/Note';
 import type { Cursor } from 'opensheetmusicdisplay';
-import { PPQ, REPEAT_SCORE, SIMPLE_SCORE, type FixtureMeasure, renderScore, scoreMidi } from '../../testing/score-fixture';
+import { MULTI_REPEAT_SCORE, PPQ, REPEAT_SCORE, SIMPLE_SCORE, type FixtureMeasure, playbackOrder, renderScore, scoreMidi } from '../../testing/score-fixture';
 import { CURSOR_GOOD_COLOR } from '../components/osmd/osmd.config';
 import { CursorService } from './cursor.service';
 
@@ -70,6 +70,14 @@ describe('CursorService', () => {
       expect(second.osmdMeasure).toBe(first.osmdMeasure);
       expect(service.midiTicksToOsmdCursorIndex.get(tickOf(4, 0))!.osmdMeasure).toBe(2); // last bar
       expect(midi.tracks[0].notes.length).toBe(19); // bars 1 2 1 2 3: 4+4+4+4+3 right-hand notes
+    });
+
+    it('maps every pass of every repeat onto its bar (three repeats, two of them adjacent)', async () => {
+      const { slop } = await setup(MULTI_REPEAT_SCORE);
+      expect(slop).toBe(0);
+      playbackOrder(MULTI_REPEAT_SCORE).forEach((bar, played) => {
+        expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
+      });
     });
 
     it('logs a diagnostic summary in debug mode', async () => {
@@ -158,6 +166,18 @@ describe('CursorService', () => {
       service.nextNote(noteAt(midi, tickOf(2, 0))); // repeat: bar 1 again
       expect(service.measure()).toBe(0);
       expect(underCursor()).toContain(0);
+    });
+
+    it('follows a whole playback with three repeats (two adjacent), each bar drawn exactly as often as it is played', async () => {
+      // The regression (Watson's "Je te laisserai des mots"): OSMD's iterator jumped back at a repeat barline
+      // on its own, mid-step, so the cursor swept the repeated bars a third time and stayed out of sync with
+      // the audio from there on
+      const { midi } = await setup(MULTI_REPEAT_SCORE);
+      playbackOrder(MULTI_REPEAT_SCORE).forEach((bar, played) => {
+        service.nextNote(noteAt(midi, tickOf(played, 0)));
+        expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1}`).toBe(bar);
+        expect(service.measure(), `played bar ${played + 1}`).toBe(bar);
+      });
     });
 
     it('shows a measure-wide cursor when the note under it does not match', async () => {
