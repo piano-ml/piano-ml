@@ -18,6 +18,7 @@ import { PlayerAudioService } from './player-audio.service';
 import { LiveStatus, NoteKey, PlayerAssessService } from './player-assess.service';
 import { CursorService } from './cursor.service';
 import { PracticeSessionRecorder } from './practice-session-recorder.service';
+import { PlayGuideService } from './play-guide.service';
 
 
 
@@ -50,6 +51,7 @@ export class PlayerService implements OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private ngZone = inject(NgZone);
   private recorder = inject(PracticeSessionRecorder);
+  private guide = inject(PlayGuideService);
   private isBrowser: boolean;
   private timeCounterInterval?: number;
   /** Wrong notes shown on the score: the previous pass's, until the count-in of the next one ends. */
@@ -246,6 +248,7 @@ export class PlayerService implements OnDestroy {
 
   pause() {
     this.audio.pause();
+    this.guide.allOff();
     this.recorder.takeEnded(false);
     this.revealBadNotes(); // stopped: the wrong notes of what was played
   }

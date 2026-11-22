@@ -5,7 +5,7 @@ Feature('Workbench');
 const SCORE = '/work/hill-mildred-j-happy-birthday-to-you';
 const PLAY = 'bootstrapPlayFill';
 const PAUSE = 'bootstrapPauseFill';
-const TOOLS = ['#fullscreen', '#score-info', '#reset-score', '#midi-setup', '#showTempo', '#loop', '#left-hand', '#right-hand'];
+const TOOLS = ['#fullscreen', '#score-info', '#reset-score', '#midi-setup', '#showTempo', '#mixer', '#loop', '#left-hand', '#right-hand'];
 
 /** Current player state, read from the page. */
 const state = I => I.executeScript(() => {
@@ -146,13 +146,21 @@ Scenario('torture the workbench player', async ({ I }) => {
   // Playwright CSS locator: XPath built by locate().at() does not match SVG-namespaced elements
   for (const key of [39, 41, 43, 44, 46]) I.click({ pw: `#keyboard svg rect >> nth=${key}` });
 
-  // --- Practice toggles: loop, wait for left / right hand -------------------------------------------------------
-  for (const toggle of ['#loop', '#left-hand', '#right-hand']) {
-    I.dontSeeCheckboxIsChecked(`${toggle} input`);
-    I.click(`${toggle} label`);
-    I.seeCheckboxIsChecked(`${toggle} input`);
-    I.click(`${toggle} label`);
-    I.dontSeeCheckboxIsChecked(`${toggle} input`);
+  // --- Practice toggles: loop; each hand: wait for me, play along, app plays ---------------------------------------
+  I.dontSeeCheckboxIsChecked('#loop input');
+  I.click('#loop label');
+  I.seeCheckboxIsChecked('#loop input');
+  I.click('#loop label');
+  I.dontSeeCheckboxIsChecked('#loop input');
+  for (const hand of ['#left-hand', '#right-hand']) {
+    for (const mode of ['wait', 'along', 'app']) {
+      I.click(`${hand} .hand-mode-button`);
+      I.click(`${hand} [data-hand-mode="${mode}"]`);
+      I.dontSeeElement(`${hand} .hand-mode-menu`);
+      I.click(`${hand} .hand-mode-button`);
+      I.seeCheckboxIsChecked(`${hand} [data-hand-mode="${mode}"] input`);
+      I.pressKey('Escape');
+    }
   }
 
   // --- Reset: back to the first note ---------------------------------------------------------------------------

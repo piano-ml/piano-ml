@@ -4,7 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { PlayerService } from '../../service/player.service';
-import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
+import { DEFAULT_OSMD_OPTIONS, PAGE_LEFT_MARGIN, PAGE_RIGHT_MARGIN, SHEET_MAXIMUM_WIDTH } from './osmd.config';
 
 @Component({
     selector: 'app-osmd',
@@ -31,12 +31,13 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
     private cursorObserver?: MutationObserver;
     private scrollAnimationFrame?: number;
-    private recalculateTimeoutId?: ReturnType<typeof setTimeout>;
     private cursorNudgeTimeoutId?: ReturnType<typeof setTimeout>;
     private readonly hideFingeringStorageKey = 'hideFingering';
     private readonly hideFingeringAndHarmonyStorageKey = 'hideFingeringAndHarmony';    
     private readonly hideLyricsStorageKey = 'hideLyrics';
     private hideFingeringAndHarmony = false;
+    /** The display options the score is drawn with: applyDisplayOptions() re-renders only when they change. */
+    private appliedOptions: { drawFingerings: boolean; drawLyrics: boolean; hideFingeringAndHarmony: boolean } | null = null;
 
     constructor(
         private playerService: PlayerService,
@@ -63,11 +64,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
         if (this.scrollAnimationFrame) {
             cancelAnimationFrame(this.scrollAnimationFrame);
             this.scrollAnimationFrame = undefined;
-        }
-
-        if (this.recalculateTimeoutId) {
-            clearTimeout(this.recalculateTimeoutId);
-            this.recalculateTimeoutId = undefined;
         }
 
         if (this.cursorNudgeTimeoutId) {
@@ -99,11 +95,15 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
         this.osmd.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
+        this.osmd.EngravingRules.PageLeftMargin = PAGE_LEFT_MARGIN;
+        this.osmd.EngravingRules.PageRightMargin = PAGE_RIGHT_MARGIN;
 
+        const customOptions = this.getCustomOptions();
         this.osmd.setOptions({
             ...DEFAULT_OSMD_OPTIONS,
-            ...this.getCustomOptions(),
+            ...customOptions,
         });
+        this.appliedOptions = { ...customOptions, hideFingeringAndHarmony: this.hideFingeringAndHarmony };
 
         if (this.musicXml) {
             await this.osmd.load(this.musicXml);
@@ -114,9 +114,7 @@ export class OsmdComponent implements OnInit, OnDestroy {
                 for (let i = 0; i < 20; i++) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                     if (this.osmd && this.osmd.cursors && this.osmd!.GraphicSheet) {
-                        if (this.hideFingeringAndHarmony) {
-                            document.querySelectorAll('.vf-text').forEach(el => (el as HTMLElement).style.display = 'none');
-                        }
+                        this.applyFingeringAndHarmonyVisibility();
                         this.recalculateCursorPosition();
                         const status = await this.playerService.setOsmd(this.osmd!);
 
@@ -142,37 +140,59 @@ export class OsmdComponent implements OnInit, OnDestroy {
     }
 
 
+    /**
+     * Draws the score again with the display options as stored now (fingering, lyrics, fingering & harmony, set in
+     * the settings dialog), in place: no page reload, the same cursor position, the same player mapping (the options
+     * change the drawing, not the music). Does nothing while the score loads, or when the options did not change.
+     * @returns whether the score was drawn again
+     */
+    applyDisplayOptions(): boolean {
+        if (!this.osmd || this.loading || !this.osmd.GraphicSheet) {
+            return false;
+        }
+        const options = this.getCustomOptions();
+        const next = { ...options, hideFingeringAndHarmony: this.hideFingeringAndHarmony };
+        const before = this.appliedOptions;
+        if (before && before.drawFingerings === next.drawFingerings && before.drawLyrics === next.drawLyrics
+            && before.hideFingeringAndHarmony === next.hideFingeringAndHarmony) {
+            return false;
+        }
+        this.appliedOptions = next;
+        if (!before || before.drawFingerings !== next.drawFingerings || before.drawLyrics !== next.drawLyrics) {
+            this.osmd.setOptions(options);
+            this.osmd.render();
+            // The drawing was replaced: the cursor shows again at its position, on the new drawing
+            const cursor = this.osmd.cursors?.[0];
+            cursor?.show();
+            cursor?.update();
+        }
+        this.applyFingeringAndHarmonyVisibility();
+        this.recalculateCursorPosition();
+        return true;
+    }
+
+    /** Fingering and harmony texts (VexFlow's .vf-text) hidden or shown, in this score's drawing only. */
+    private applyFingeringAndHarmonyVisibility(): void {
+        const display = this.hideFingeringAndHarmony ? 'none' : '';
+        (this.osmdContainer.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.vf-text')
+            .forEach(el => el.style.display = display);
+    }
+
     @HostListener('window:resize', ['$event'])
     onResize(event: Event) {
         this.recalculateCursorPosition();
 
     }
 
+    /**
+     * The player follows the cursor of the drawing as it is now (after a load or a resize). The cursor's size is
+     * OSMD's own: on each move it spans the current system, from the top of its first staff to the bottom of its last
+     * one (a height forced here, with !important, stopped OSMD from updating it for systems of another height).
+     */
     recalculateCursorPosition() {
-        this.ngZone.runOutsideAngular(() => {
-            this.recalculateTimeoutId = setTimeout(() => {
-                if (!this.osmd || !this.osmd.GraphicSheet || !this.osmd.GraphicSheet.MeasureList || this.osmd.GraphicSheet.MeasureList.length === 0) {
-                    return;
-                }
-                const partCount = this.osmd!.GraphicSheet.MeasureList[0].length;
-                const positionAndShape = this.osmd!.GraphicSheet.MeasureList[0][partCount - 1].PositionAndShape;
-                let y = 50;
-                const cursorElement = document.getElementById('cursorImg-0');
-                if (cursorElement) {
-                    cursorElement!.style.setProperty('height', y + "px", 'important');
-                    if (partCount === 1) {
-                        y = (positionAndShape.Parent.BoundingRectangle.height) * 5;
-                        cursorElement!.style.setProperty('height', y + "px", 'important');
-                    } else {
-                        //y = positionAndShape.Parent.BoundingRectangle.height
-                        y = (positionAndShape.Parent.AbsolutePosition.y + positionAndShape.Parent.BoundingRectangle.height) * 4.6;
-                        cursorElement!.style.setProperty('height', y + "px", 'important');
-                    }
-
-                }
-                this.playerService.tiltCursor(this.osmd!.Cursor);
-            }, 1000);
-        });
+        if (this.osmd?.Cursor) {
+            this.playerService.tiltCursor(this.osmd.Cursor);
+        }
     }
 
     private logLifecycle(message: string, data?: unknown): void {

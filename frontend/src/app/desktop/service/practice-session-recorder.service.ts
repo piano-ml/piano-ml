@@ -5,6 +5,7 @@ import { PracticeMeasure, PracticeService, PracticeSessionApiInfo, PracticeTake 
 import { SessionStorageService } from '../../account/services/session-storage.service';
 import { XSRF_API_BASE, XSRF_COOKIE_NAME, XSRF_HEADER_NAME, readCookie } from '../../account/interceptors/xsrf.interceptor';
 import type { PlayConfiguration } from '../model/model';
+import { studentHands } from '../model/hand-mode';
 import { AssessCounters, AssessSnapshot, PlayerAssessService } from './player-assess.service';
 import type { CurrentSession } from './player-control.service';
 import { accuracyOf, flowOf, lastTakeOf } from './take-stats';
@@ -188,9 +189,8 @@ export class PracticeSessionRecorder implements OnDestroy {
       activeMs: 0,
       measureStart,
       measureEnd: Math.max(measureStart, Math.min(config.scoreRange[1] - 1, lastMeasure)),
-      hands: config.waitForLeftHand && config.waitForRightHand ? 'both'
-        : config.waitForLeftHand ? 'left'
-          : config.waitForRightHand ? 'right' : 'listen',
+      // The hands the student plays: waited for, or played along (hand-mode.ts)
+      hands: studentHands(config),
       tempoFactor: config.tempoFactor,
     };
     this.session.metronome = config.useMetronome;

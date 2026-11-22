@@ -2,7 +2,7 @@ import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef,
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapQuestionCircle, bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapDash, bootstrapPlus } from '@ng-icons/bootstrap-icons';
+import { bootstrapQuestionCircle, bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapDash, bootstrapPlus, bootstrapSliders } from '@ng-icons/bootstrap-icons';
 import { lefthand, righthand } from '../../../shared/icons/custom-icons';
 import { ScoreApiInfo, ScoreService, ScorePlayStatsPostRequest } from '../../../core/api';
 // biome-ignore lint/style/useImportType: <explanation>
@@ -33,7 +33,10 @@ import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
-import { type Hands, type PlayerState, PlayerControlService, type WorkbenchHandle, handsOf, lastTakeOf, waitFor } from '../../service/player-control.service';
+import { type Hands, type HandsMode, type PlayerState, PlayerControlService, type WorkbenchHandle, lastTakeOf, waitFor } from '../../service/player-control.service';
+import { type HandMode, type HandSide, handModeOf, handsModeOf, studentHands, withHandMode } from '../../model/hand-mode';
+import {MixerDialogComponent} from '../mixer-dialog/mixer-dialog.component';
+import {measurePipFilter, markMeasures} from './measure-range-pips';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
@@ -60,11 +63,16 @@ export function scoreLoadErrorMessage(error: unknown): string {
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, SlopDialogComponent],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, SlopDialogComponent, MixerDialogComponent],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // The hand menu closes on Escape and on a click anywhere else
+  host: {
+    '(document:keydown.escape)': 'closeHandMenu()',
+    '(document:click)': 'onDocumentClick($event)',
+  },
   viewProviders: [
     provideIcons({
       bootstrapHouse,
@@ -81,6 +89,7 @@ export function scoreLoadErrorMessage(error: unknown): string {
       bootstrapSpeedometer2,
       bootstrapDash,
       bootstrapPlus,
+      bootstrapSliders,
       lefthand: lefthand.data,
       righthand: righthand.data
     })
@@ -110,6 +119,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private readonly hideFingeringAndHarmonyStorageKey = 'hideFingeringAndHarmony';
   private readonly waitForLeftHandStorageKey = 'waitForLeftHand';
   private readonly waitForRightHandStorageKey = 'waitForRightHand';
+  private readonly alongLeftHandStorageKey = 'alongLeftHand';
+  private readonly alongRightHandStorageKey = 'alongRightHand';
   // Score data from state
   scoreData: ScoreApiInfo | null = null;
   // Expose loading as an observable to use `async` pipe with OnPush change detection
@@ -173,6 +184,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     doSound: true,
     waitForLeftHand: false,
     waitForRightHand: false,
+    alongLeftHand: false,
+    alongRightHand: false,
     delayFactor: 1,
     tempoFactor: 1,
     scoreRange: [1, 100],
@@ -194,6 +207,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   isMidiSetupOpen = false;
   // Tempo modal state
   isTempoOpen = false;
+  /** The mixer dialog (score, accompaniment, metronome levels). */
+  isMixerOpen = false;
   showTempo = false;
   // Control whether the `app-osmd` component is present in the DOM.
   showOsmd = true;
@@ -202,6 +217,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   scoreRange = [0, 0, 100];
 
   @ViewChild('range') range!: ElementRef<HTMLDivElement>;
+  /** The score's drawing: the settings dialog's display options are applied to it in place. */
+  @ViewChild(OsmdComponent) osmdComponent?: OsmdComponent;
   @ViewChild('titleContainer', { static: false }) titleContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('titleText', { static: false }) titleText!: ElementRef<HTMLDivElement>;
   slider: any;
@@ -254,8 +271,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.hideFingering = this.parseBooleanStorage(this.hideFingeringStorageKey);
     this.hideLyrics = this.parseBooleanStorage(this.hideLyricsStorageKey);
     this.hideFingeringAndHarmony = this.parseBooleanStorage(this.hideFingeringAndHarmonyStorageKey);
-    this.playConfiguration.waitForLeftHand = this.parseBooleanStorage(this.waitForLeftHandStorageKey);
-    this.playConfiguration.waitForRightHand = this.parseBooleanStorage(this.waitForRightHandStorageKey);
+    // Read through withHandMode, so that a stored wait and a stored play-along never come back together
+    Object.assign(this.playConfiguration, withHandMode(withHandMode({
+      waitForLeftHand: false, waitForRightHand: false, alongLeftHand: false, alongRightHand: false,
+    }, 'left', this.storedHandMode('left')), 'right', this.storedHandMode('right')));
 
     // Effect 1: Tour step highlight (beacon signals only — fires only on tour events)
     effect(() => {
@@ -381,10 +400,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       this.playConfiguration.isLoop = value;
       this.changeDetector.markForCheck();
     },
-    setHands: (value: Hands) => {
+    setHands: (value: Hands, mode: HandsMode = 'wait') => {
+      // The hands the student plays, all in the same mode (wait and play-along do not mix); the app plays the others
       const hands = waitFor(value);
-      this.setWaitForLeftHand(hands.left);
-      this.setWaitForRightHand(hands.right);
+      this.setHandMode('left', hands.left ? mode : 'app');
+      this.setHandMode('right', hands.right ? mode : 'app');
     },
     setMetronome: (value) => this.onMetronomeStatus(value),
     setKeyboardVisible: (value) => this.setHideKeyboard(!value),
@@ -435,7 +455,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       range: { fromMeasure: Math.max(1, config.scoreRange[0]), toMeasure: Math.min(config.scoreRange[1] - 1, this.measureCount()) },
       tempo: { bpm: this.tempo, originalBpm: original, percent: Math.round((100 * this.tempo) / original) },
       loop: config.isLoop,
-      hands: handsOf(config.waitForLeftHand, config.waitForRightHand),
+      hands: studentHands(config),
+      handsMode: handsModeOf(config),
       metronome: config.useMetronome,
       showKeyboard: !this.hideKeyboard,
       midiInput: this.midiInputState(),
@@ -708,10 +729,15 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.isMidiSetupOpen = true;
   }
 
+  /**
+   * The settings take effect at once, without reloading the page: the display options are drawn again in place
+   * (OsmdComponent.applyDisplayOptions), the keyboard follows hideKeyboard, the MIDI devices and the calibration are
+   * read live by the player.
+   */
   closeMidiSetup() {
     this.isMidiSetupOpen = false;
-    //window.location.reload();
-    this.reloadOsmd(50);
+    this.osmdComponent?.applyDisplayOptions();
+    this.changeDetector.markForCheck();
   }
 
   openTempo() {
@@ -724,6 +750,21 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.isTempoOpen = false;
     this.showTempo = false;
     this.changeDetector.markForCheck();
+  }
+
+  openMixer(): void {
+    this.isMixerOpen = true;
+    this.changeDetector.markForCheck();
+  }
+
+  closeMixer(): void {
+    this.isMixerOpen = false;
+    this.changeDetector.markForCheck();
+  }
+
+  /** Whether the score has accompaniment tracks (the mixer shows their channel only then). */
+  hasAccompaniment(): boolean {
+    return (this.playConfiguration.accompaniment?.tracks.length ?? 0) > 0;
   }
 
   onMetronomeStatus(value: boolean) {
@@ -853,31 +894,91 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
 
-  setWaitForLeftHand(value: boolean) {
-    this.playConfiguration.waitForLeftHand = value;
+  // --- hands: wait, play along or app plays (hand-mode.ts) -----------------------------------------------------
+
+  readonly handSides: readonly HandSide[] = ['right', 'left'];
+  readonly handModes: readonly HandMode[] = ['wait', 'along', 'app'];
+  /** The hand whose mode menu is open in the toolbar. */
+  openHandMenu: HandSide | null = null;
+
+  handMode(side: HandSide): HandMode {
+    return handModeOf(this.playConfiguration, side);
+  }
+
+  closeHandMenu(): void {
+    if (this.openHandMenu !== null) {
+      this.openHandMenu = null;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  onDocumentClick(event: Event): void {
+    if (this.openHandMenu !== null && !(event.target instanceof Element && event.target.closest('.hand-mode'))) {
+      this.closeHandMenu();
+    }
+  }
+
+  toggleHandMenu(side: HandSide): void {
+    this.openHandMenu = this.openHandMenu === side ? null : side;
+    this.changeDetector.markForCheck();
+  }
+
+  /** Sets how a hand is played, remembered for next time; wait on one hand and play-along on the other do not mix. */
+  setHandMode(side: HandSide, mode: HandMode): void {
+    Object.assign(this.playConfiguration, withHandMode(this.playConfiguration, side, mode));
+    this.openHandMenu = null;
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(this.waitForLeftHandStorageKey, JSON.stringify(value));
+      const config = this.playConfiguration;
+      localStorage.setItem(this.waitForLeftHandStorageKey, JSON.stringify(config.waitForLeftHand));
+      localStorage.setItem(this.waitForRightHandStorageKey, JSON.stringify(config.waitForRightHand));
+      localStorage.setItem(this.alongLeftHandStorageKey, JSON.stringify(!!config.alongLeftHand));
+      localStorage.setItem(this.alongRightHandStorageKey, JSON.stringify(!!config.alongRightHand));
     }
     this.changeDetector.markForCheck();
+  }
+
+  setWaitForLeftHand(value: boolean) {
+    this.setHandMode('left', value ? 'wait' : 'app');
   }
 
   setWaitForRightHand(value: boolean) {
-    this.playConfiguration.waitForRightHand = value;
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(this.waitForRightHandStorageKey, JSON.stringify(value));
+    this.setHandMode('right', value ? 'wait' : 'app');
+  }
+
+  handName(side: HandSide): string {
+    return side === 'left'
+      ? $localize`:@@workbench.hand.left:Left hand`
+      : $localize`:@@workbench.hand.right:Right hand`;
+  }
+
+  handModeLabel(mode: HandMode): string {
+    switch (mode) {
+      case 'wait': return $localize`:@@workbench.handMode.wait:Wait for me`;
+      case 'along': return $localize`:@@workbench.handMode.along:Play along`;
+      case 'app': return $localize`:@@workbench.handMode.app:App plays`;
     }
-    this.changeDetector.markForCheck();
+  }
+
+  handModeHint(mode: HandMode): string {
+    switch (mode) {
+      case 'wait': return $localize`:@@workbench.handMode.wait.hint:The score waits until you play each note.`;
+      case 'along': return $localize`:@@workbench.handMode.along.hint:The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.`;
+      case 'app': return $localize`:@@workbench.handMode.app.hint:The app plays these notes.`;
+    }
+  }
+
+  /** The hand button's label: the hand and its mode ("Right hand: Play along"). */
+  handButtonLabel(side: HandSide): string {
+    return `${this.handName(side)}: ${this.handModeLabel(this.handMode(side))}`;
+  }
+
+  private storedHandMode(side: HandSide): HandMode {
+    const wait = this.parseBooleanStorage(side === 'left' ? this.waitForLeftHandStorageKey : this.waitForRightHandStorageKey);
+    const along = this.parseBooleanStorage(side === 'left' ? this.alongLeftHandStorageKey : this.alongRightHandStorageKey);
+    return wait ? 'wait' : along ? 'along' : 'app';
   }
 
 
-  reloadOsmd(delay = 50) {
-    window.location.reload(); // can do bertter
-    // this.changeDetector.markForCheck();
-    // setTimeout(() => {
-    //   this.showOsmd = true;
-    //     this.changeDetector.markForCheck();
-    // }, delay);
-  }
 
   private titleTimer?: ReturnType<typeof setTimeout>;
 
@@ -1186,6 +1287,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       pips: {
         mode: PipsMode.Steps,
         density: 100,
+        // A few measure numbers and fine marks, not a number under every measure
+        filter: measurePipFilter(this.measureCount()),
         format: wNumb({
           decimals: 0,
           encoder: (i: number) => Math.round(i + 1),
@@ -1203,6 +1306,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
         from: (value: string) => Math.round(Number(value) - 1)
       }
     });
+
+    // The measures to be played (start to end handle) in white, the elapsed ones (start handle to current measure)
+    // in emerald: the fills between the handles (connect) and their marks and numbers, marked on every update
+    // (playback moves the current handle; updateOptions() rebuilds the pips)
+    this.slider.on('update', (values: (string | number)[]) => this.markMeasures(values));
 
     this.slider.on('start', (values: (string | number)[]) => {
       const tooltips = [
@@ -1248,6 +1356,13 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** The slider's formatted values are 1-based measures: the pips are placed on the 0-based ones. */
+  private markMeasures(values: (string | number)[]): void {
+    const pips = this.range?.nativeElement.querySelector('.noUi-pips') ?? null;
+    const [start, current, end] = values.map(value => Number(value) - 1);
+    markMeasures(pips, start, current, end, Math.max(0, this.measureCount() - 1));
+  }
+
   updateSlider() {
     if (!this.slider) return;
     const newValues = [
@@ -1265,6 +1380,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private getSliderBaseConfig() {
     const sliderConfig = {
       behaviour: 'unconstrained' as const,
+      // Filled between the handles: start to current measure, the measures already played (emerald); current
+      // measure to end, the ones still to play (white)
+      connect: [false, true, true, false],
       range: {
         'min': 0,
         // Internal values are 0-based (the format shows them + 1): the last handle position is the last measure

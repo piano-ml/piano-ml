@@ -1,0 +1,28 @@
+@if (isOpen) {
+<div class="modal" (click)="onBackdropClick($event)">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="mixer-title" (click)="$event.stopPropagation()">
+    <h2 class="card-secondary-title" id="mixer-title" i18n="@@mixer.title">Mixer</h2>
+
+    <div class="flex flex-col gap-4 p-3">
+      @for (channel of channels(); track channel.bus) {
+      <div class="flex items-center gap-3" [attr.data-mixer-channel]="channel.bus">
+        <ng-icon [name]="channel.icon" class="svg-button shrink-0" size="1.5rem" aria-hidden="true" />
+        <div class="flex flex-col flex-1 min-w-0">
+          <label class="text-sm" [for]="'mixer-' + channel.bus">{{ channel.label }}</label>
+          <span class="text-xs text-neutral-400">{{ channel.hint }}</span>
+          <input type="range" min="0" max="100" step="1" class="w-full accent-emerald-500 mt-1" [id]="'mixer-' + channel.bus"
+            [value]="percent(channel.bus)" [attr.aria-valuetext]="percent(channel.bus) + ' %'"
+            (input)="setPercent(channel.bus, $any($event.target).value)" />
+        </div>
+        <span class="text-sm tabular-nums w-12 text-right shrink-0" data-mixer-percent>{{ percent(channel.bus) }} %</span>
+      </div>
+      }
+    </div>
+
+    <div class="flex justify-between mt-4">
+      <button type="button" (click)="reset()" class="btn-secondary" data-mixer-reset i18n="@@mixer.reset">Reset</button>
+      <button type="button" (click)="close()" class="btn-secondary" i18n="@@common.close">Close</button>
+    </div>
+  </div>
+</div>
+}

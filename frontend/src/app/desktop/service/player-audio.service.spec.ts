@@ -1,5 +1,7 @@
 import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { PlayGuideService, type PlayGuideOutput } from './play-guide.service';
+import { AudioMixerService, MIXER_BUSES, MIXER_STORAGE_KEY } from './audio-mixer.service';
 import type * as Midi from '@tonejs/midi';
 import type { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import type { Note } from '@tonejs/midi/dist/Note';
@@ -61,6 +63,10 @@ describe('PlayerAudioService', () => {
       providers: [{ provide: MidiServiceService, useValue: midi }, { provide: PlayerAssessService, useValue: assess }],
     });
     audio = TestBed.inject(PlayerAudioService);
+    // Every bus at its full level: the velocities below are the score's own (the mixer is tested on its own)
+    const fullMixer = TestBed.inject(AudioMixerService);
+    MIXER_BUSES.forEach((bus) => fullMixer.setLevel(bus, 1));
+    localStorage.removeItem(MIXER_STORAGE_KEY);
     state = TestBed.inject(PlayerStateService);
     state.playConfiguration = { waitForRightHand: false, waitForLeftHand: false, useMetronome: false } as PlayConfiguration;
     synth = { noteOn: vi.fn(), noteOff: vi.fn(), stopAll: vi.fn(), programChange: vi.fn(), controllerChange: vi.fn() };
@@ -111,7 +117,7 @@ describe('PlayerAudioService', () => {
       audio.scheduleHandNote('rh', note({ time: 1, duration: 0.5, velocity: 0.5 }), 0, 1, 2, cb);
       expect(schedule.times()).toEqual([3, 3.5]); // one transport event for the note start, one for its end
       schedule.runAll();
-      expect(midi.pressOutput).toHaveBeenCalledWith(60, 0.5, expect.any(Number));
+      expect(midi.pressOutput).toHaveBeenCalledWith(60, 64 / 127, expect.any(Number)); // a whole MIDI velocity
       expect(synth.noteOn).toHaveBeenCalledWith(0, 60, 64, { time: 3 }); // sample-accurate: at its scheduled time
       expect(midi.releaseOutput).toHaveBeenCalledWith(60, expect.any(Number));
       expect(synth.noteOff).toHaveBeenCalledWith(0, 60, { time: 3.5 });
@@ -174,6 +180,68 @@ describe('PlayerAudioService', () => {
       schedule = captureSchedule();
       audio.scheduleHandNote('lh', note({ time: 1, duration: 0.5 }), 0, 1, 2, callbacks()); // played by the app
       expect(new Set(schedule.times())).toEqual(new Set(awaited));
+    });
+
+    describe('play along (hand-mode.ts)', () => {
+      let guide: { [K in keyof PlayGuideOutput]: ReturnType<typeof vi.fn> };
+
+      beforeEach(() => {
+        guide = { noteOn: vi.fn(), noteOff: vi.fn(), allOff: vi.fn() };
+        TestBed.inject(PlayGuideService).register(guide as unknown as PlayGuideOutput);
+        state.leftmostKey = 36;
+        state.rightmostKey = 96;
+        audio.pianoMLShouldPlay = true;
+      });
+
+      it('plays a hand played along with the student: sound, the guide, and an assessment by time', () => {
+        state.playConfiguration.alongRightHand = true;
+        audio.scheduleHandNote('rh', note({ time: 1, duration: 0.5, midi: 72, velocity: 0.5 }), 0, 1, 2, callbacks());
+        schedule.runAll();
+        expect(synth.noteOn).toHaveBeenCalledWith(0, 72, 64, { time: 3 });
+        expect(midi.pressOutput).toHaveBeenCalledWith(72, 64 / 127, expect.any(Number));
+        expect(midi.releaseOutput).toHaveBeenCalled();
+        expect(guide.noteOn).toHaveBeenCalledWith(72, 0.5, 'rh', expect.any(Number));
+        expect(guide.noteOff).toHaveBeenCalledWith(72, 'rh', expect.any(Number));
+        expect(assess.expectTimed.mock.calls).toEqual([[3, expect.objectContaining({ midi: 72 }), 'rh']]);
+        expect(assess.learnExpectation).not.toHaveBeenCalled();
+      });
+
+      it('plays the notes of a hand played along that the keyboard cannot reach', () => {
+        state.playConfiguration.alongLeftHand = true;
+        audio.scheduleHandNote('lh', note({ midi: 30 }), 0, 1, 0, callbacks());
+        schedule.runAll();
+        expect(synth.noteOn).toHaveBeenCalledWith(0, 30, 127, { time: 1 });
+        expect(guide.noteOn).not.toHaveBeenCalled();
+      });
+
+      it('sends the notes of an awaited hand to the guide too', () => {
+        state.playConfiguration.waitForRightHand = true;
+        audio.scheduleHandNote('rh', note({ time: 1, midi: 72 }), 0, 1, 2, callbacks());
+        schedule.runAll();
+        expect(guide.noteOn).toHaveBeenCalledWith(72, expect.any(Number), 'rh', expect.any(Number));
+        expect(synth.noteOn).not.toHaveBeenCalled();
+      });
+
+      it('sends nothing to the guide while listening (the app plays both hands)', () => {
+        audio.scheduleHandNote('rh', note({ time: 1, midi: 72 }), 0, 1, 2, callbacks());
+        schedule.runAll();
+        expect(guide.noteOn).not.toHaveBeenCalled();
+        expect(synth.noteOn).toHaveBeenCalled();
+      });
+
+      it('plays the other hand too, without the guide and without an assessment', () => {
+        state.playConfiguration.alongRightHand = true;
+        audio.scheduleHandNote('lh', note({ time: 1, midi: 48 }), 0, 1, 2, callbacks());
+        schedule.runAll();
+        expect(synth.noteOn).toHaveBeenCalled();
+        expect(guide.noteOn).not.toHaveBeenCalled();
+        expect(assess.expectTimed).not.toHaveBeenCalled();
+      });
+
+      it('turns the guide off when playback stops', () => {
+        audio.stop();
+        expect(guide.allOff).toHaveBeenCalled();
+      });
     });
 
     it('plays awaited-hand notes outside the keyboard range itself', () => {
@@ -242,6 +310,48 @@ describe('PlayerAudioService', () => {
     });
   });
 
+  describe('mixer (audio-mixer.service.ts)', () => {
+    const callbacks = () => ({ onNoteStart: vi.fn(), onNoteEnd: vi.fn() });
+    let mixer: AudioMixerService;
+    beforeEach(() => {
+      mixer = TestBed.inject(AudioMixerService);
+      audio.pianoMLShouldPlay = true;
+    });
+
+    it('plays the score at its level, on the synth and the MIDI outputs alike', () => {
+      mixer.setLevel('score', 0.5);
+      audio.scheduleHandNote('rh', note({ velocity: 1 }), 0, 1, 0, callbacks());
+      schedule.runAll();
+      expect(synth.noteOn).toHaveBeenCalledWith(0, 60, 64, expect.anything());
+      expect(midi.pressOutput).toHaveBeenCalledWith(60, 64 / 127, expect.any(Number));
+    });
+
+    it('sends nothing for a silent bus, but still the note-offs', () => {
+      mixer.setLevel('score', 0);
+      audio.scheduleHandNote('rh', note({}), 0, 1, 0, callbacks());
+      schedule.runAll();
+      expect(synth.noteOn).not.toHaveBeenCalled();
+      expect(midi.pressOutput).not.toHaveBeenCalled();
+      expect(midi.releaseOutput).toHaveBeenCalled();
+    });
+
+    it('plays the accompaniment and the metronome at their own levels', () => {
+      mixer.setLevel('accompaniment', 0.5);
+      mixer.setLevel('metronome', 0);
+      audio.scheduleAccompanimentNote(3, note({ time: 0, velocity: 1 }), 0, 1, 0);
+      schedule.runAll();
+      expect(synth.noteOn).toHaveBeenCalledWith(3, 60, 42, expect.anything()); // 127 * 0.66 * 0.5
+      audio.playMetronomeClick(true, 43, 10);
+      expect(midi.pressDrum).not.toHaveBeenCalled();
+    });
+
+    it('keeps the calibration clicks at full volume whatever the mixer', () => {
+      mixer.setLevel('metronome', 0);
+      audio.playMetronomeClick(true, 127, 10, null);
+      expect(synth.noteOn).toHaveBeenCalledWith(9, 34, 127, { time: 10 });
+    });
+  });
+
   describe('metronome', () => {
     it('clicks on the drum channel, accented on the first beat, for METRONOME_CLICK_S, all queued at once', () => {
       audio.playMetronomeClick(true, 43, 10);
@@ -273,13 +383,21 @@ describe('PlayerAudioService', () => {
       expect(click.mock.calls.map(([strong]) => strong)).toEqual([true, false, false, true, false, false]);
     });
 
-    it('plays the count-in at full volume, then the metronome at its usual volume', () => {
+    it('plays the count-in at full volume whatever the mixer, then the metronome at the mixer\'s level', () => {
       state.playConfiguration.useMetronome = true;
       const click = vi.spyOn(audio, 'playMetronomeClick').mockImplementation(() => undefined);
       audio.startCountIn(1, { timeSignature: [2, 4] } as TimeSignatureEvent, 120);
       schedule.events.filter((e) => !e.kind.startsWith('repeat')).forEach((e) => e.fn(0));
       schedule.events.find((e) => e.kind.startsWith('repeat'))!.fn(0);
-      expect(click.mock.calls.map(([, velocity]) => velocity)).toEqual([127, 127, 43]);
+      // [velocity, bus]: the count-in on no bus, the metronome on its bus
+      expect(click.mock.calls.map(([, velocity, , bus]) => [velocity, bus])).toEqual([[127, null], [127, null], [127, undefined]]);
+    });
+
+    it('clicks at the metronome level of the mixer: 30 % by default', () => {
+      TestBed.inject(AudioMixerService).reset();
+      audio.playMetronomeClick(true, undefined, 10);
+      expect(synth.noteOn).toHaveBeenCalledWith(9, 34, 38, { time: 10 }); // 127 * 0.3
+      localStorage.removeItem(MIXER_STORAGE_KEY);
     });
 
     it('keeps clicking during playback when the metronome is on', () => {

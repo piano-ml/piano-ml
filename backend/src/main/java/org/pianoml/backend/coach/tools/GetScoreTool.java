@@ -35,7 +35,6 @@ public class GetScoreTool implements CoachToolHandler {
     Map<String, Object> data = rows.scoreRow(score);
     data.put("description", CoachRows.cut(score.getDescription(), CoachRows.TEXT_CAP));
     data.put("publicDomain", score.getPublicDomain());
-    data.put("tracksCount", score.getTracksCount());
     data.put("hasHarmony", harmony != null && !harmony.isEmpty());
     data.put("videoCount", videos == null ? 0 : videos.size());
     data.put("uploadedAt", CoachRows.iso(score.getUploadedAt()));
