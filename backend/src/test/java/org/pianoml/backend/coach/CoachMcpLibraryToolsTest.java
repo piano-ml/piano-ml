@@ -193,6 +193,20 @@ class CoachMcpLibraryToolsTest {
   }
 
   @Test
+  void searchScores_byNumberOfTracks_andRowsCarryIt() throws Exception {
+    // Prelude: right hand only (1 track); Nocturne and Waltz: both hands (2 tracks); Minuet: unknown
+    jdbc.update("UPDATE pianoml.score SET tracks_count = 1 WHERE id = ?", prelude);
+    jdbc.update("UPDATE pianoml.score SET tracks_count = 2 WHERE title IN (?, ?)", title("Nocturne"), title("Waltz"));
+
+    assertThat(texts(data("search_scores", Map.of("keyword", run, "tracks", 1)).path("scores"), "title"))
+      .containsExactly(title("Prelude"));
+    JsonNode both = data("search_scores", Map.of("keyword", run, "tracks", 2, "sort", "title_asc")).path("scores");
+    assertThat(texts(both, "title")).containsExactly(title("Nocturne"), title("Waltz"));
+    assertThat(both.get(0).path("tracksCount").asInt()).isEqualTo(2);
+    assertThat(data("get_score", Map.of("slug", "slug-" + prelude)).path("tracksCount").asInt()).isEqualTo(1);
+  }
+
+  @Test
   void searchScores_pages_andValidatesItsArguments() throws Exception {
     JsonNode first = data("search_scores", Map.of("keyword", run, "sort", "playCount_desc", "limit", 2));
     assertThat(texts(first.path("scores"), "title")).containsExactly(title("Minuet"), title("Nocturne"));
