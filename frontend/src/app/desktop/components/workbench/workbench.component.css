@@ -3,280 +3,312 @@
 /* The workbench fills the window: no page scroll and no scrollbars, only while it is shown. The component is not
    encapsulated (ViewEncapsulation.None): these rules must not reach the other pages. */
 body:has(app-workbench) {
-	overflow: hidden;
+  overflow: hidden;
 }
 
 app-workbench,
 app-workbench * {
-	scrollbar-width: none;
+  scrollbar-width: none;
 }
 
 app-workbench ::-webkit-scrollbar {
-	display: none;
+  display: none;
 }
 
 /* The LCD-like display: title and tempo */
 .display {
-	background-color: #cee048;
-	color: #2f3409;
-	font-family: var(--font-lcd) !important;
-	border-radius: 8px;
-	width: 100%;
+  background-color: #cee048;
+  color: #2f3409;
+  font-family: var(--font-lcd) !important;
+  border-radius: 8px;
+  width: 100%;
 }
 
 .lcd-text {
-	font-family: var(--font-lcd) !important;
-	padding: 6px;
-	font-size: 32px;
-	line-height: 42px;
-	color: rgba(0, 0, 0, 0.8);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+  font-family: var(--font-lcd) !important;
+  padding: 6px;
+  font-size: 32px;
+  line-height: 42px;
+  color: rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* A title too long for the display scrolls once */
 @keyframes scroll-text {
 
-	0%,
-	30% {
-		transform: translateX(0);
-	}
+  0%,
+  30% {
+    transform: translateX(0);
+  }
 
-	100% {
-		transform: translateX(var(--scroll-distance, -50%));
-	}
+  100% {
+    transform: translateX(var(--scroll-distance, -50%));
+  }
 }
 
 .marquee-container {
-	position: relative;
+  position: relative;
 }
 
 .animate-marquee {
-	display: inline-block;
-	white-space: nowrap;
-	animation: scroll-text 6s ease-in-out forwards;
-	animation-delay: 1s;
-	width: max-content;
+  display: inline-block;
+  white-space: nowrap;
+  animation: scroll-text 6s ease-in-out forwards;
+  animation-delay: 1s;
+  width: max-content;
 }
 
 .animate-marquee:hover {
-	animation-play-state: paused;
+  animation-play-state: paused;
 }
 
 .title-text {
-	display: inline-block;
-	white-space: nowrap;
-	width: max-content;
+  display: inline-block;
+  white-space: nowrap;
+  width: max-content;
 }
 
 @keyframes osmd-slide-up {
-	from {
-		opacity: 0;
-		transform: translateY(24px);
-	}
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
 
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .osmd-state-transition {
-	animation: osmd-slide-up 800ms ease-out;
+  animation: osmd-slide-up 800ms ease-out;
 }
 
 /* Toolbar toggles: a hidden checkbox in a 64 px label, lighter when checked */
 .checkbox-input {
-	display: flex;
-	border-radius: 8px;
+  display: flex;
+  border-radius: 8px;
 }
 
 .checkbox-input input {
-	display: none;
+  display: none;
 }
 
 .label {
-	border-radius: 0.25rem;
-	height: 64px;
-	width: 64px;
-	background-color: var(--color-neutral-600);
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  border-radius: 0.25rem;
+  height: 64px;
+  width: 64px;
+  background-color: var(--color-neutral-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .label:has(input[type="checkbox"]:checked) {
-	background-color: var(--color-neutral-400);
+  background-color: var(--color-neutral-400);
 }
 
 .label ng-icon {
-	font-size: 32px;
-	width: 32px;
-	height: 32px;
-	color: white;
-	display: block;
-	margin: 0 auto;
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: white;
+  display: block;
+  margin: 0 auto;
 }
 
 /* Toolbar buttons: 64 px squares */
 .btn-desktop {
-	@apply bg-neutral-400 text-white;
-	height: 64px;
-	width: 64px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 0.25rem;
+  @apply bg-neutral-400 text-white;
+  height: 64px;
+  width: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
 }
 
 /* Play while the sounds load (or Retry): as tall as the other buttons, as wide as its text */
 .btn-desktop.sounds-status {
-	width: auto;
-	min-width: 64px;
-	gap: 0.5rem;
-	padding: 0 0.75rem;
-	font-size: 0.875rem;
-	white-space: nowrap;
+  width: auto;
+  min-width: 64px;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  white-space: nowrap;
 }
 
 .svg-button {
-	color: white !important;
+  color: white !important;
 }
 
 .bad {
-	background-color: var(--color-red-100);
-	transition: background-color 0.25s ease;
+  background-color: var(--color-red-100);
+  transition: background-color 0.25s ease;
 }
 
 /* The score fades out at its edges: more at the top, under the bar, than at the bottom */
 .score-container {
-	--score-fade: linear-gradient(to bottom,
-			rgba(0, 0, 0, 0) 0%,
-			rgba(0, 0, 0, 1) 18%,
-			rgba(0, 0, 0, 1) 82%,
-			rgba(0, 0, 0, 0.1) 100%);
-	mask-image: var(--score-fade);
-	-webkit-mask-image: var(--score-fade);
+  --score-fade: linear-gradient(to bottom,
+  rgba(0, 0, 0, 0) 0%,
+  rgba(0, 0, 0, 1) 18%,
+  rgba(0, 0, 0, 1) 82%,
+  rgba(0, 0, 0, 0.1) 100%);
+  mask-image: var(--score-fade);
+  -webkit-mask-image: var(--score-fade);
 }
 
 /* Score loading feedback (message + percentage + bar) */
 .loading-feedback {
-	width: 260px;
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .loading-feedback-label {
-	display: flex;
-	justify-content: space-between;
-	gap: 1rem;
-	font-size: 0.875rem;
-	line-height: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .loading-feedback-track {
-	height: 4px;
-	width: 100%;
-	border-radius: 9999px;
-	overflow: hidden;
-	background-color: color-mix(in srgb, currentColor 15%, transparent);
+  height: 4px;
+  width: 100%;
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: color-mix(in srgb, currentColor 15%, transparent);
 }
 
 .loading-feedback-bar {
-	height: 100%;
-	border-radius: inherit;
-	background-color: currentColor;
-	transition: width 150ms linear;
+  height: 100%;
+  border-radius: inherit;
+  background-color: currentColor;
+  transition: width 150ms linear;
 }
 
-/* Hands (hand-mode.ts): the button shows the mode, the menu chooses it */
-.hand-mode {
-	position: relative;
-	display: flex;
+/* Measure range slider (noUiSlider): a thin track, bold bars for the start and the end of the range, a slim bar
+   for the current measure, a few measure numbers (measure-range-pips.ts). The id outranks noUiSlider's own CSS. */
+#measure-range.noUi-target {
+  /* The marks and numbers hang below the slider, over the top of the score: drawn above .score-container, whose
+     faded top (its mask) would otherwise veil them. position: relative, as noUiSlider's CSS has it, for z-index */
+  position: relative;
+  z-index: 20;
+  height: 4px;
+  border: none;
+  border-radius: 2px;
+  box-shadow: none;
+  background-color: var(--color-neutral-700);
 }
 
-.hand-mode-button {
-	position: relative;
-	cursor: pointer;
-	border: none;
+#measure-range .noUi-connects {
+  background-color: transparent;
 }
 
-.hand-mode-button:disabled {
-	cursor: default;
-	opacity: 0.6;
+/* The start and the end of the range: bold bars, taller than the current measure's */
+#measure-range.noUi-horizontal .noUi-handle {
+  width: 6px;
+  height: 22px;
+  top: -9px;
+  right: -3px;
+  border-radius: 2px;
+  border: none;
+  background: var(--color-neutral-300);
+  box-shadow: none;
+  cursor: ew-resize;
 }
 
-/* Wait: like a checked toggle */
-.hand-mode-button.hand-wait {
-	background-color: var(--color-neutral-400);
+/* No grip lines; a larger invisible area keeps the small handles easy to grab, with a finger too */
+#measure-range .noUi-handle::before {
+  display: none;
 }
 
-/* Play along: an outlined, muted look, with a note badge */
-.hand-mode-button.hand-along {
-	background-color: var(--color-neutral-600);
-	box-shadow: inset 0 0 0 3px var(--color-neutral-300);
+#measure-range .noUi-handle::after {
+  content: '';
+  display: block;
+  position: absolute;
+  inset: -10px;
+  width: auto;
+  height: auto;
+  background: transparent;
 }
 
-.hand-along-badge {
-	position: absolute;
-	right: 6px;
-	bottom: 4px;
-	font-size: 0.875rem;
-	line-height: 1;
-	color: white;
+/* The current measure: a slim bar, not a third knob */
+#measure-range.noUi-horizontal .noUi-handle[data-handle="1"] {
+  width: 4px;
+  height: 16px;
+  top: -6px;
+  right: -2px;
+  background: var(--color-neutral-200);
 }
 
-.hand-mode-menu {
-	position: absolute;
-	top: calc(100% + 4px);
-	left: 0;
-	z-index: 30;
-	width: 16rem;
-	max-width: calc(100vw - 2rem);
-	padding: 0.5rem;
-	border-radius: 0.5rem;
-	background-color: var(--color-neutral-800);
-	box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+#measure-range .noUi-handle:focus-visible {
+  outline: 2px solid var(--color-neutral-200);
+  outline-offset: 2px;
 }
 
-.hand-mode-menu-title {
-	margin: 0 0 0.25rem;
-	padding: 0 0.25rem;
-	font-size: 0.75rem;
-	color: var(--color-neutral-400);
+#measure-range .noUi-tooltip {
+  padding: 1px 6px;
+  font-size: 11px;
+  border-radius: 4px;
+  border: 1px solid var(--color-neutral-600);
+  background: #2a2a2a;
+  color: white;
+  bottom: -180%;
 }
 
-.hand-mode-option {
-	display: flex;
-	gap: 0.5rem;
-	align-items: flex-start;
-	padding: 0.5rem;
-	border-radius: 0.375rem;
-	cursor: pointer;
+#measure-range .noUi-pips-horizontal {
+  padding-top: 2px;
+  height: 32px;
 }
 
-.hand-mode-option:hover,
-.hand-mode-option:has(input:focus-visible) {
-	background-color: var(--color-neutral-700);
+/* Wide marks, centred on their measure: noUiSlider places a mark by its left edge */
+#measure-range .noUi-marker-horizontal.noUi-marker {
+  width: 3px;
+  height: 5px;
+  margin-left: -1.5px;
+  border-radius: 1px;
+  background: var(--color-neutral-600);
 }
 
-.hand-mode-option input {
-	margin-top: 0.2rem;
+#measure-range .noUi-marker-horizontal.noUi-marker-large {
+  width: 4px;
+  height: 9px;
+  margin-left: -2px;
+  background: var(--color-neutral-500);
 }
 
-.hand-mode-option-text {
-	display: flex;
-	flex-direction: column;
+/* The measure numbers, -large or -sub: black, lean, in the app's font, just under the marks */
+#measure-range .noUi-value {
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1;
+  color: #000;
 }
 
-.hand-mode-option-label {
-	font-size: 0.875rem;
-	color: white;
+#measure-range .noUi-value-horizontal {
+  transform: translate(-50%, 65%);
 }
 
-.hand-mode-option-hint {
-	font-size: 0.75rem;
-	color: var(--color-neutral-400);
+/* The measures to be played, from the start of the range to its end, in white; among them the elapsed ones, from
+   the start to the current measure, in emerald: the fills between the handles, and their marks */
+#measure-range .noUi-connect {
+  background: var(--color-neutral-100);
+}
+
+#measure-range .noUi-connects .noUi-connect:first-child {
+  background: var(--color-emerald-500);
+}
+
+#measure-range .noUi-marker-horizontal.noUi-marker.is-in-range {
+  background: var(--color-neutral-100);
+}
+
+#measure-range .noUi-marker-horizontal.noUi-marker.is-elapsed {
+  background: var(--color-emerald-500);
 }

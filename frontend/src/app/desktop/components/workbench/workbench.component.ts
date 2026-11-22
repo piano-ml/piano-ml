@@ -30,13 +30,13 @@ import { midiToPitch } from '../../service/midi-maths';
 import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
 import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
-import { MixerDialogComponent } from '../mixer-dialog/mixer-dialog.component';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { type Hands, type HandsMode, type PlayerState, PlayerControlService, type WorkbenchHandle, lastTakeOf, waitFor } from '../../service/player-control.service';
 import { type HandMode, type HandSide, handModeOf, handsModeOf, studentHands, withHandMode } from '../../model/hand-mode';
 import {MixerDialogComponent} from '../mixer-dialog/mixer-dialog.component';
+import {measurePipFilter, markMeasures} from './measure-range-pips';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
