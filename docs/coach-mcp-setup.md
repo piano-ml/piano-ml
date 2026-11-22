@@ -85,7 +85,7 @@ The player tools run in your browser, not on the server: the assistant's call go
 
 What the assistant sees:
 
-- `NO_ACTIVE_PLAYER`: no tab has Remote coach on; the message gives the link `https://www.pianoml.org/?remoteCoach=1`, which opens the confirmation.
+- `NO_ACTIVE_PLAYER`: no tab has Remote coach on; the message gives the link `https://pianoml.org/?remoteCoach=1`, which opens the confirmation.
 - `AUDIO_LOCKED`: sound is not allowed yet; the student must press Start playback.
 - `PLAYER_TIMEOUT`: the tab did not answer in time (closed, asleep, offline).
 

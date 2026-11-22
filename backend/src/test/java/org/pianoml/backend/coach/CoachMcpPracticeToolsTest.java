@@ -248,7 +248,7 @@ class CoachMcpPracticeToolsTest {
     assertThat(context.path("timeZone").asText()).isEqualTo("Europe/Paris");
     assertThat(context.has("level")).isTrue();
     assertThat(context.path("player").path("connectedTabs").asInt()).isZero();
-    assertThat(context.path("connectUrl").asText()).isEqualTo("https://www.pianoml.org/coach/connect");
+    assertThat(context.path("connectUrl").asText()).isEqualTo("https://pianoml.org/coach/connect");
     assertThat(context.toString()).doesNotContain(student.getEmail());
   }
 
@@ -276,8 +276,8 @@ class CoachMcpPracticeToolsTest {
     assertThat(s.path("itemsTotal").asInt()).isEqualTo(3);
     assertThat(texts(s.path("recentItems"), "title")).containsExactly("Intervals", "Etude", "Prelude");
     JsonNode preludeRow = s.path("recentItems").get(2);
-    assertThat(preludeRow.path("url").asText()).isEqualTo("https://www.pianoml.org/score/slug-" + prelude);
-    assertThat(preludeRow.path("practiceUrl").asText()).isEqualTo("https://www.pianoml.org/work/slug-" + prelude);
+    assertThat(preludeRow.path("url").asText()).isEqualTo("https://pianoml.org/score/slug-" + prelude);
+    assertThat(preludeRow.path("practiceUrl").asText()).isEqualTo("https://pianoml.org/work/slug-" + prelude);
     assertThat(s.path("recentItems").get(0).has("url")).isFalse();
     assertThat(texts(s.path("keys"), "tonic")).contains("C", "G");
 

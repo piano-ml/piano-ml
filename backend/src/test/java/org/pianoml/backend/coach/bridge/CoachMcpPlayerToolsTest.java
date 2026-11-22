@@ -175,7 +175,7 @@ class CoachMcpPlayerToolsTest {
     User user = newUser();
     JsonNode envelope = mcp.call(token(user, List.of("player:control")), "get_player_state", Map.of());
     assertThat(envelope.path("code").asText()).isEqualTo("NO_ACTIVE_PLAYER");
-    assertThat(envelope.path("message").asText()).contains("https://www.pianoml.org/?remoteCoach=1");
+    assertThat(envelope.path("message").asText()).contains("https://pianoml.org/?remoteCoach=1");
   }
 
   @Test

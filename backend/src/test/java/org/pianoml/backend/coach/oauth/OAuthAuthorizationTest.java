@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(properties = {"coach.oauth.enabled=true", "coach.oauth.issuer=https://api.pianoml.org",
-  "coach.oauth.consent-url=https://www.pianoml.org/coach/authorize", "coach.oauth.authorize.per-ip-per-minute=30"})
+  "coach.oauth.consent-url=https://pianoml.org/coach/authorize", "coach.oauth.authorize.per-ip-per-minute=30"})
 class OAuthAuthorizationTest {
 
   private static final String REDIRECT = "https://harness.example/callback";
@@ -127,7 +127,7 @@ class OAuthAuthorizationTest {
     MvcResult result = authorize(params);
     assertThat(result.getResponse().getStatus()).isEqualTo(302);
     String location = result.getResponse().getHeader("Location");
-    assertThat(location).startsWith("https://www.pianoml.org/coach/authorize?request=");
+    assertThat(location).startsWith("https://pianoml.org/coach/authorize?request=");
     return query(location).get("request");
   }
 
