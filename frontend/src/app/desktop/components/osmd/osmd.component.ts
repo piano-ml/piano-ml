@@ -97,6 +97,10 @@ export class OsmdComponent implements OnInit, OnDestroy {
         this.osmd.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
         this.osmd.EngravingRules.PageLeftMargin = PAGE_LEFT_MARGIN;
         this.osmd.EngravingRules.PageRightMargin = PAGE_RIGHT_MARGIN;
+        // The cursor service follows the repeats itself (its playback-order measure sequence and its own jumps):
+        // with the OSMD iterator jumping back at the repeat barlines too, the cursor walked the repeated bars a
+        // third time and the score went out of sync with the audio from the first repeat on
+        this.osmd.EngravingRules.CursorIgnoreRepetitions = true;
 
         const customOptions = this.getCustomOptions();
         this.osmd.setOptions({
