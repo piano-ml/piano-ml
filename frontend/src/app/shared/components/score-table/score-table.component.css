@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@reference "tailwindcss";
 
 tbody tr {
 	@apply border-b border-neutral-800/60 transition-colors duration-150;

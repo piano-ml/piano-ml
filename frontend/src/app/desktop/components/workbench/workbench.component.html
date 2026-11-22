@@ -15,7 +15,7 @@
 }
 <div class="flex flex-col flex-grow h-dvh bg-white">
 
-  <div class="flex-row  bg-black relative" [class.toggleToolbar]="toggleToolbar"><!-- top bar -->
+  <div class="bg-black relative"><!-- top bar -->
 
     @if (toggleToolbar) {
     <div>
@@ -27,7 +27,7 @@
             </button>
           </div>
           <div class="display flex-grow m-1 lcd-text">
-            <div class="flex flew-grow flex-row  m-1">
+            <div class="flex flex-row m-1">
               <div #titleContainer class="flex-grow overflow-hidden mr-2 marquee-container">
                 <div #titleText [class.animate-marquee]="shouldScroll" class="title-text">
                   &nbsp;{{ title }}
@@ -45,14 +45,16 @@
           </div>
         </div>
         @if (!loading) {
-        <div class="flex lg:w-1/2 xl:w-1/2 items-end justify-center">
+        <!-- Right-aligned: the play button, the last tool, sits at the right edge, and the pause button takes its place
+             while playing (the other tools are hidden then). To revisit for the mobile layout. -->
+        <div class="flex lg:w-1/2 xl:w-1/2 items-end justify-end">
           <div id="tools">
             <div class="flex flex-col md:flex-row w-full md:items-center md:justify-end">
               <div class="flex flex-row flex-wrap md:flex-nowrap w-full md:w-auto md:space-x-0">
+                @if (!isPlaying) {
                 <button (click)="startTour()" class="btn btn-desktop m-1" id="help-tour">
                   <ng-icon name="bootstrapQuestionCircle" class="svg-button" />
                 </button>
-                @if (!isPlaying) {
                 <div class="checkbox-input m-1" id="fullscreen">
                   <label class="label svg-label">
                     <input type="checkbox" [checked]="isFullscreen" (change)="toggleFullscreen()" />
@@ -162,8 +164,9 @@
     </div>
     }
 
-    <!-- @if (toggleToolbar) {    } -->
-    <div class=" bg-transparent l-2 pr-2 p-2 mr-4 ml-4 z-100">
+    <!-- The toolbar's 12 px each side, plus half a handle (3 px): the start handle's left edge lines up with the home
+         button's corner, the end handle's right edge with the last button's -->
+    <div class="bg-transparent px-[15px] py-2">
       <div #range id="measure-range"></div>
     </div>
 
@@ -197,18 +200,17 @@
     }
 
 
-    <!--*ngIf="isSmallScreen()"  Handle: centered icon at bottom to toggle toolbar -->
-    <div class="p-2 absolute left-1/2 transform -translate-x-1/2 z-50 ml-2 mr-2 w-full">
+    <!-- Handle: centered icon at the bottom of the bar, below the measure numbers hanging under the slider, to toggle it -->
+    <div class="absolute inset-x-0 z-50 px-4 pt-7">
       <button (click)="fnToggleToolBar()" [attr.aria-pressed]="!toggleToolbar" i18n-title="@@workbench.toggleToolbar" title="Toggle the top bar"
-        class="text-black p-1 w-100 rounded w-full flex items-center justify-center">
-        <ng-icon name="bootstrapGripHorizontal" class="" />
+        class="text-black p-1 rounded w-full flex items-center justify-center">
+        <ng-icon name="bootstrapGripHorizontal" />
       </button>
     </div>
 
   </div>
 
 
-  <!-- score -->
   @if (!(loading$ | async)) {
   <div (click)="startStop()" class="bg-white flex-grow overflow-y-auto score-container">
     @if (showOsmd) {
@@ -219,9 +221,9 @@
 
 
   <div>
-    <button (click)="fnToggleKeyboard()" [attr.aria-pressed]="!toggleToolbar" i18n-title="@@workbench.toggleKeyboard" title="Toggle the keyboard"
-      id="toggle-keyboard" class="text-black p-2 w-100 rounded w-full flex items-center justify-center">
-      <ng-icon name="bootstrapGripHorizontal" class="" />
+    <button (click)="fnToggleKeyboard()" [attr.aria-pressed]="!hideKeyboard" i18n-title="@@workbench.toggleKeyboard" title="Toggle the keyboard"
+      id="toggle-keyboard" class="text-black p-2 rounded w-full flex items-center justify-center">
+      <ng-icon name="bootstrapGripHorizontal" />
     </button>
   </div>
 
@@ -236,7 +238,7 @@
     [hideLyrics]="hideLyrics" [hideFingeringAndHarmony]="hideFingeringAndHarmony"
     (hideLyricsChange)="setHideLyrics($event)" (hideKeyboardChange)="setHideKeyboard($event)"
     (hideFingeringChange)="setHideFingering($event)"
-    (hideFingeringAndHarmonyChange)="setHideFingeringAndHarmony($event)" (hideLyricsChange)="setHideLyrics($event)"
+    (hideFingeringAndHarmonyChange)="setHideFingeringAndHarmony($event)"
     (closeModal)="closeMidiSetup()"></app-midi-setup>
 
   <app-mixer-dialog [isOpen]="isMixerOpen" [hasAccompaniment]="hasAccompaniment()" (closeModal)="closeMixer()" />

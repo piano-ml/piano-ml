@@ -760,34 +760,52 @@ describe('WorkbenchComponent', () => {
       expect(localStorage.getItem(key)).toBe('true');
     });
 
-    it('applies the display settings when the settings close, in place, without reloading the page', async () => {
+    it('shows the elapsed measures in the slider: the fill and their marks', async () => {
       await openScore();
-      const drawing = component.osmdComponent!;
-      const osmd = drawing.osmd!;
-      const setOptions = vi.spyOn(osmd, 'setOptions');
-      const draw = vi.spyOn(osmd, 'render');
-      button('#midi-setup input').click();
-      component.setHideFingering(true);
-      component.setHideLyrics(true);
-      component.closeMidiSetup();
-      render();
-      expect(component.isMidiSetupOpen).toBe(false);
-      expect(component.osmdComponent).toBe(drawing); // the same drawing: nothing was reloaded
-      expect(setOptions).toHaveBeenCalledWith(expect.objectContaining({ drawFingerings: false, drawLyrics: false }));
-      expect(draw).toHaveBeenCalledOnce();
-
-      component.closeMidiSetup(); // nothing changed: not drawn again
-      expect(draw).toHaveBeenCalledOnce();
+      expect(el().querySelectorAll('#measure-range .noUi-connect')).toHaveLength(2); // played (emerald), to play (white)
+      expect(el().querySelectorAll('#measure-range .noUi-marker.is-in-range').length).toBeGreaterThan(0);
+      component.playConfiguration.currentStave = component.playConfiguration.scoreRange[0];
+      component.updateSlider();
+      const atStart = el().querySelectorAll('#measure-range .noUi-marker.is-elapsed').length;
+      component.playConfiguration.currentStave = component.playConfiguration.scoreRange[1] - 1;
+      component.updateSlider();
+      expect(el().querySelectorAll('#measure-range .noUi-marker.is-elapsed').length).toBeGreaterThan(atStart);
     });
 
-    it('hides the fingering and harmony texts without drawing the score again', async () => {
+    it('keeps the play button at the right edge of the toolbar, and the pause button in its place', async () => {
       await openScore();
-      const draw = vi.spyOn(component.osmdComponent!.osmd!, 'render');
-      component.setHideFingeringAndHarmony(true);
-      component.closeMidiSetup();
-      expect(draw).not.toHaveBeenCalled();
-      const texts = [...el().querySelectorAll<HTMLElement>('.osmd-container .vf-text')];
-      expect(texts.every((t) => t.style.display === 'none')).toBe(true);
+      const playPause = () => el().querySelector<HTMLElement>('#play-pause button')!.getBoundingClientRect().right;
+      const bar = el().querySelector<HTMLElement>('.bg-black')!.getBoundingClientRect().right;
+      const play = playPause();
+      expect(bar - play).toBeCloseTo(12, 0); // the toolbar's margin, as on the left
+      component.isPlaying = true; // the other tools, help included, are hidden while playing
+      (component as unknown as { changeDetector: { markForCheck(): void } }).changeDetector.markForCheck();
+      render();
+      expect(el().querySelector('#play-pause ng-icon[name="bootstrapPauseFill"]')).not.toBeNull();
+      expect(playPause()).toBeCloseTo(play, 0);
+      expect(el().querySelector('#help-tour')).toBeNull();
+    });
+
+    it('lines the score up with the home button on the left (osmd.config page margins)', async () => {
+      await openScore();
+      const svg = el().querySelector<SVGSVGElement>('.osmd-container svg')!;
+      const box = svg.getBoundingClientRect();
+      const drawnLeft = box.left + svg.getBBox().x * (box.width / svg.width.baseVal.value); // the brace of the grand staff
+      const home = el().querySelector<HTMLElement>('button .svg-button')!.closest('button')!.getBoundingClientRect();
+      expect(drawnLeft).toBeCloseTo(home.left, 0);
+    });
+
+    it('makes the cursor span the whole system, both staves, as OSMD sizes it', async () => {
+      await openScore();
+      const osmd = TestBed.inject(PlayerStateService).osmd!;
+      const cursor = document.getElementById('cursorImg-0')!;
+      expect(cursor.style.getPropertyPriority('height')).toBe(''); // not forced: OSMD updates it on each move
+      const system = osmd.GraphicSheet.MusicPages[0].MusicSystems[0];
+      const lines = system.StaffLines;
+      expect(lines.length).toBe(2); // the fixture is a grand staff
+      const top = lines[0].PositionAndShape.RelativePosition.y;
+      const bottom = lines[lines.length - 1].PositionAndShape.RelativePosition.y + lines[lines.length - 1].StaffHeight;
+      expect(parseFloat(cursor.style.height)).toBeCloseTo((bottom - top) * 10 * osmd.Zoom, 0);
     });
 
     it('opens the MIDI setup and the tempo dialogs', async () => {

@@ -5,7 +5,7 @@ Feature('Workbench');
 const SCORE = '/work/hill-mildred-j-happy-birthday-to-you';
 const PLAY = 'bootstrapPlayFill';
 const PAUSE = 'bootstrapPauseFill';
-const TOOLS = ['#fullscreen', '#score-info', '#reset-score', '#midi-setup', '#showTempo', '#mixer', '#loop', '#left-hand', '#right-hand'];
+const TOOLS = ['#help-tour', '#fullscreen', '#score-info', '#reset-score', '#midi-setup', '#showTempo', '#loop', '#left-hand', '#right-hand'];
 
 /** Current player state, read from the page. */
 const state = I => I.executeScript(() => {
