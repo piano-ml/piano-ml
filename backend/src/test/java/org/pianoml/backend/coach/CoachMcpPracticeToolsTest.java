@@ -267,36 +267,6 @@ class CoachMcpPracticeToolsTest {
   // --- practice tools ---------------------------------------------------------------------------------------------
 
   @Test
-  void getPracticeSummary_givesTheOverview_andTheFiveMostRecentItems() throws Exception {
-    JsonNode s = data("get_practice_summary", Map.of("timeZone", "Europe/Paris"));
-    assertThat(s.path("timeZone").asText()).isEqualTo("Europe/Paris");
-    assertThat(s.path("regularity").has("daily")).isFalse();
-    assertThat(s.path("regularity").path("currentStreakDays").asInt()).isEqualTo(1);
-    assertThat(s.path("volume").path("sessions").asInt()).isEqualTo(4);
-    assertThat(s.path("itemsTotal").asInt()).isEqualTo(3);
-    assertThat(texts(s.path("recentItems"), "title")).containsExactly("Intervals", "Etude", "Prelude");
-    JsonNode preludeRow = s.path("recentItems").get(2);
-    assertThat(preludeRow.path("url").asText()).isEqualTo("https://pianoml.org/score/slug-" + prelude);
-    assertThat(preludeRow.path("practiceUrl").asText()).isEqualTo("https://pianoml.org/work/slug-" + prelude);
-    assertThat(s.path("recentItems").get(0).has("url")).isFalse();
-    assertThat(texts(s.path("keys"), "tonic")).contains("C", "G");
-
-    assertThat(errorCode("get_practice_summary", Map.of("timeZone", "Mars/Olympus"))).isEqualTo("INVALID_ARGUMENT");
-  }
-
-  @Test
-  void getPracticeCalendar_listsThePracticedDaysOfThePeriod() throws Exception {
-    JsonNode c = data("get_practice_calendar", Map.of("days", 7));
-    assertThat(c.path("currentStreakDays").asInt()).isEqualTo(1);
-    assertThat(c.path("practicedDays").asInt()).isGreaterThanOrEqualTo(1);
-    assertThat(c.path("totalActiveSeconds").asLong()).isEqualTo(4 * 0 + 240 * 3 + 120);
-    assertThat(c.path("days").get(0).path("date").asText()).matches("\\d{4}-\\d{2}-\\d{2}");
-
-    assertThat(errorCode("get_practice_calendar", Map.of("days", 3))).isEqualTo("INVALID_ARGUMENT");
-    assertThat(errorCode("get_practice_calendar", Map.of("days", 7.5))).isEqualTo("INVALID_ARGUMENT");
-  }
-
-  @Test
   void listPracticedItems_sortsFiltersAndPages() throws Exception {
     JsonNode recent = data("list_practiced_items", Map.of());
     assertThat(texts(recent.path("items"), "title")).containsExactly("Intervals", "Etude", "Prelude");

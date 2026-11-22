@@ -126,6 +126,7 @@ export async function renderScore(measures: FixtureMeasure[]): Promise<{ osmd: O
   host.style.width = '1200px';
   document.body.appendChild(host);
   const osmd = new OpenSheetMusicDisplay(host, { backend: 'svg', autoResize: false, drawTitle: false, followCursor: false });
+  osmd.EngravingRules.CursorIgnoreRepetitions = true; // as in osmd.component.ts: the cursor service drives the repeats itself
   await osmd.load(scoreXml(measures));
   osmd.render();
   return { osmd, host, dispose: () => { osmd.clear(); host.remove(); } };
@@ -142,5 +143,23 @@ export const SIMPLE_SCORE: FixtureMeasure[] = [
 export const REPEAT_SCORE: FixtureMeasure[] = [
   { treble: ['C5', 'D5', 'E5', 'F5'], bass: ['C3:4'], repeatStart: true },
   { treble: ['G5', 'A5', 'B5', 'C6'], bass: ['G2:4'], repeatEnd: true },
+  { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
+];
+
+/**
+ * Ten bars with three repeats, the last two adjacent (|: ... :| |: ... :|), the shape of e.g. Watson's
+ * "Je te laisserai des mots" (repeats at 25-28, 81-84 and 85-88): playback is
+ * 1 | 2 3 | 2 3 | 4 5 | 6 7 | 6 7 | 8 9 | 8 9 | 10.
+ */
+export const MULTI_REPEAT_SCORE: FixtureMeasure[] = [
+  { treble: ['C5', 'D5', 'E5', 'F5'], bass: ['C3:4'] },
+  { treble: ['G5', 'A5', 'B5', 'C6'], bass: ['G2:4'], repeatStart: true },
+  { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'], repeatEnd: true },
+  { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'] },
+  { treble: ['D5', 'E5', 'F5', 'G5'], bass: ['D3:4'] },
+  { treble: ['A5', 'B5', 'C6', 'D6'], bass: ['A2:4'], repeatStart: true },
+  { treble: ['G5', 'F5', 'E5', 'D5'], bass: ['G2:4'], repeatEnd: true },
+  { treble: ['E5', 'G5', 'B5', 'D6'], bass: ['E3:4'], repeatStart: true },
+  { treble: ['C5', 'E5', 'G5', 'C6'], bass: ['C3:4'], repeatEnd: true },
   { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
 ];
