@@ -282,6 +282,11 @@ export class PlayerService implements OnDestroy {
     let midiEndTime = this.calculateEndTime();
 
     this.playConfiguration = playConfigurations;
+    // The MIDI of a score with repeats is longer than its notated measure count (the repeats are expanded in
+    // the file): the notated end boundary stops the playback at the end of the last repeat (Watson's "Je te
+    // laisserai des mots" stopped at m89 of 100, its whole ending dropped). When the range plays through the
+    // end of the score, the actual end of the MIDI content decides; a range stopping earlier keeps its boundary.
+    midiEndTime = Math.max(midiEndTime, this.midiContentEndSeconds());
     this.playConfiguration.maxPerformanceStaveCount = this.cursorService.maxMidiMeasure;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
 
@@ -585,6 +590,29 @@ export class PlayerService implements OnDestroy {
       this.playConfiguration.midi!.header
     ) * this.state.getTimeFactor();
     return endTime + this.calculateStartTime();
+  }
+
+  /**
+   * Where the MIDI content actually ends, in seconds (timeFactor applied): the end of its last note, the study
+   * tracks and the accompaniment alike. 0 unless the selected range plays through the end of the score, so that
+   * calculateEndTime()'s notated boundary stays for a range stopping earlier. The notated count comes from the
+   * rendered score; before it is known, only the whole-score default range (which starts at 0) qualifies.
+   */
+  private midiContentEndSeconds(): number {
+    const notated = this.cursorService.osmdMeasureCount;
+    const rangeEndsTheScore = notated > 0
+      ? this.playConfiguration.scoreRange[1] - 1 >= notated
+      : this.playConfiguration.scoreRange[0] === 0;
+    if (!rangeEndsTheScore) return 0;
+    let end = 0;
+    for (const midi of [this.playConfiguration.midi, this.playConfiguration.accompaniment]) {
+      for (const track of midi?.tracks ?? []) {
+        for (const note of track.notes) {
+          end = Math.max(end, note.time + note.duration);
+        }
+      }
+    }
+    return end * this.state.getTimeFactor();
   }
 
 

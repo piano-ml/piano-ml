@@ -193,6 +193,26 @@ describe('PlayerService', () => {
       expect(handTracks[0]).toMatchObject({ start: 2, end: 2 + 2 + 2 }); // from bar 2, one bar, plus the count-in
     });
 
+    it('plays to the end of a MIDI longer than the score: its repeats are expanded in the file', async () => {
+      // A score with repeats: 2 bars notated, but the MIDI plays 3 (the repeated bars expanded in the file,
+      // as in Watson's "Je te laisserai des mots", whose playback stopped at the end of its last repeat)
+      cursor.osmdMeasureCount = 2;
+      const cfg = load();
+      cfg.scoreRange = [1, 3]; // the whole notated score
+      await player.play(cfg);
+      expect(handTracks[0]).toMatchObject({ start: 0, end: 6 + 2 }); // the MIDI content decides: 3 bars, plus the count-in
+      expect(audio.scheduleEnd).toHaveBeenCalledWith(8, expect.any(Function));
+    });
+
+    it('a range stopping before the end of the score keeps its notated boundary, however long the MIDI', async () => {
+      cursor.osmdMeasureCount = 2;
+      const cfg = load();
+      cfg.scoreRange = [1, 2]; // bar 1 only: its end is notated, the last bar of the MIDI must not be played
+      await player.play(cfg);
+      expect(handTracks[0]).toMatchObject({ start: 0, end: 2 + 2 });
+      expect(audio.scheduleEnd).toHaveBeenCalledWith(4, expect.any(Function));
+    });
+
     it('counts in the bars chosen in the metronome dialog, 2 by default', async () => {
       localStorage.setItem('tempo-control-count-in', '0');
       const cfg = load();
