@@ -108,6 +108,16 @@ describe('PracticeSessionRecorder', () => {
       expect(body.takes![0]).toMatchObject({ activeSeconds: 60, completed: false, hands: 'both', notesHit: 90 });
     });
 
+    it('records a hand played along as a hand the student plays', () => {
+      setup();
+      recorder.setItem(SCORE, 8);
+      recorder.takeStarted(config({ waitForLeftHand: false, waitForRightHand: false, alongRightHand: true }));
+      snapshot = counters(10, 8, 1, 9, 0);
+      play(30);
+      recorder.takeEnded(true);
+      expect(recorder.lastTake()).toMatchObject({ hands: 'right' });
+    });
+
     it('does not assess a take in which no key was pressed, but keeps its time', () => {
       setup();
       recorder.setItem(SCORE, 8);

@@ -364,7 +364,8 @@ interface PlayerState {
   range: { fromMeasure: number; toMeasure: number };
   tempo: { bpm: number; originalBpm: number; percent: number };
   loop: boolean;
-  hands: 'both' | 'left' | 'right' | 'listen';
+  hands: 'both' | 'left' | 'right' | 'listen';   // the hands the student plays
+  handsMode: 'wait' | 'along' | null;           // waited for, or played along with the app at tempo; null when listening
   metronome: boolean;
   showKeyboard: boolean;
   midiInput: 'connected' | 'none' | 'blocked' | 'unknown';
@@ -400,10 +401,10 @@ With no workbench on screen: `loaded: false`, `item: null`, defaults elsewhere. 
 - **Returns:** `PlayerState`. **Errors:** `UNKNOWN_EXERCISE` (names the bad argument and says to call list_exercises), `LOAD_FAILED`, `LOAD_TIMEOUT`.
 
 #### 25. `configure_practice`
-- **Description:** "Set up how the loaded piece is practiced: the range of measures (1-based, inclusive), the tempo (percent of the original, or beats per minute), looping, which hand the student plays (left, right, both; 'listen' means the app plays and nothing is measured), the metronome and the on-screen keyboard. Only the given settings change. Stops playback first if the range or loop changes."
-- **Arguments (all optional):** `fromMeasure` ≥ 1; `toMeasure` ≥ 1; `wholeScore` boolean (not with from/to); `tempoPercent` 10..200; `tempoBpm` 20..200 (not with `tempoPercent`); `loop`; `hands` enum `both|left|right|listen`; `metronome`; `showKeyboard`.
+- **Description:** "Set up how the loaded piece is practiced: the range of measures (1-based, inclusive), the tempo (percent of the original, or beats per minute), looping, which hand the student plays (left, right, both; 'listen' means the app plays and nothing is measured; a score with 1 track usually has the right hand only, so choose right or listen there) and how (handsMode: 'wait', the score waits for each note, or 'along', the score keeps the tempo and plays those notes with the student, measured by timing), the metronome and the on-screen keyboard. Only the given settings change. Stops playback first if the range or loop changes."
+- **Arguments (all optional):** `fromMeasure` ≥ 1; `toMeasure` ≥ 1; `wholeScore` boolean (not with from/to); `tempoPercent` 10..200; `tempoBpm` 20..200 (not with `tempoPercent`); `loop`; `hands` enum `both|left|right|listen`; `handsMode` enum `wait|along` (default `wait`; applies to `hands`, or to the current hands when `hands` is not given; not with `listen`); `metronome`; `showKeyboard`.
 - **Returns:** `PlayerState`, plus `stoppedPlayback: true` when it stopped playback.
-- **Errors:** `NO_SCORE_LOADED`, `INVALID_RANGE` (the message gives `measureTotal`), `INVALID_ARGUMENT` for the exclusive pairs.
+- **Errors:** `NO_SCORE_LOADED`, `INVALID_RANGE` (the message gives `measureTotal`), `INVALID_ARGUMENT` for the exclusive pairs, and for `handsMode` with `listen`.
 
 #### 26. `play`
 - **Description:** "Start playback with the current setup. It resumes where it stopped; pass restart true to start again from the first measure of the range. Tell the student what to do before calling it."
@@ -447,6 +448,12 @@ Rules:
 - Call get_context first. Use the PianoML tools for anything about my history, accuracy or level,
   and never state such a fact unless it came from a tool result in this conversation. If a tool
   fails, tell me plainly what it said.
+- At the start, right after get_context, read my recent history (get_practice_summary, then
+  get_practice_sessions or list_practiced_items) and suggest one follow-up: what to practice next and
+  why. If I already asked for something, do that first and suggest the follow-up after it.
+- If I look like a beginner (no grade mastered or a low one in the level of get_context, little
+  history, or accuracy below about 0.7), start pieces at a reduced tempo with configure_practice
+  (tempoPercent 50 to 70), and raise it step by step as my accuracy improves.
 - Accuracy (0 to 1) is correct notes over expected plus wrong notes. Flow (0 to 1) drops when the
   playback had to wait for me. Both exist only when I play on a MIDI keyboard with hands set to
   left, right or both. If they are missing, explain that instead of guessing.
@@ -457,6 +464,8 @@ Rules:
 - Check tracksCount before choosing the hands: a score with 1 track usually has the right hand only
   (often the melody), so set hands to right; with 2 tracks, track 1 is usually the right hand and
   track 2 the left hand. search_scores can filter by number of tracks (tracks).
+- Once a passage goes well with the score waiting for me (handsMode wait), have me play it along
+  at tempo (handsMode along): the app keeps playing with me and accuracy is measured by timing.
 - If a tool answers NO_ACTIVE_PLAYER, give me the link from its message and wait for me. If it
   answers AUDIO_LOCKED, ask me to press Start playback in PianoML. If you have no player tools,
   give me the practiceUrl of the piece and tell me how to set it up myself.

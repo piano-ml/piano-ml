@@ -83,6 +83,10 @@
                     <ng-icon name="bootstrapSpeedometer2" class="svg-button" />
                   </label>
                 </div>
+                <button type="button" (click)="openMixer()" class="btn btn-desktop m-1" id="mixer"
+                  i18n-aria-label="@@mixer.open" aria-label="Mixer" i18n-title="@@mixer.open" title="Mixer">
+                  <ng-icon name="bootstrapSliders" class="svg-button" />
+                </button>
                 <div class="checkbox-input m-1" id="loop">
                   <label class="label svg-label">
                     <input type="checkbox" [disabled]="isPlaying" [checked]="playConfiguration.isLoop"
@@ -90,20 +94,34 @@
                     <ng-icon name="bootstrapRepeat" class="svg-button" />
                   </label>
                 </div>
-                <div class="checkbox-input m-1" id="left-hand">
-                  <label class="label svg-label">
-                    <input type="checkbox" [disabled]="isPlaying" [checked]="playConfiguration.waitForLeftHand"
-                      (change)="setWaitForLeftHand(!playConfiguration.waitForLeftHand)" />
-                    <ng-icon name="lefthand" class="svg-button" />
-                  </label>
+                @for (side of handSides; track side) {
+                <div class="hand-mode m-1" [id]="side + '-hand'">
+                  <button type="button" class="label svg-label hand-mode-button" [disabled]="isPlaying"
+                    [class.hand-wait]="handMode(side) === 'wait'" [class.hand-along]="handMode(side) === 'along'"
+                    [attr.aria-label]="handButtonLabel(side)" [title]="handButtonLabel(side)"
+                    [attr.aria-expanded]="openHandMenu === side" aria-haspopup="true" (click)="toggleHandMenu(side)">
+                    <ng-icon [name]="side === 'left' ? 'lefthand' : 'righthand'" class="svg-button" />
+                    @if (handMode(side) === 'along') {
+                      <span class="hand-along-badge" aria-hidden="true">♪</span>
+                    }
+                  </button>
+                  @if (openHandMenu === side && !isPlaying) {
+                  <div class="hand-mode-menu" role="radiogroup" [attr.aria-label]="handName(side)">
+                    <p class="hand-mode-menu-title">{{ handName(side) }}</p>
+                    @for (mode of handModes; track mode) {
+                    <label class="hand-mode-option" [attr.data-hand-mode]="mode">
+                      <input type="radio" [name]="side + '-hand-mode'" [value]="mode" [checked]="handMode(side) === mode"
+                        (change)="setHandMode(side, mode)" />
+                      <span class="hand-mode-option-text">
+                        <span class="hand-mode-option-label">{{ handModeLabel(mode) }}</span>
+                        <span class="hand-mode-option-hint">{{ handModeHint(mode) }}</span>
+                      </span>
+                    </label>
+                    }
+                  </div>
+                  }
                 </div>
-                <div class="checkbox-input m-1" id="right-hand">
-                  <label class="label svg-label">
-                    <input type="checkbox" [disabled]="isPlaying" [checked]="playConfiguration.waitForRightHand"
-                      (change)="setWaitForRightHand(!playConfiguration.waitForRightHand)" />
-                    <ng-icon name="righthand" class="svg-button" />
-                  </label>
-                </div>
+                }
                 }
                 <div id="play-pause">
                   @switch (soundFontState()) {
@@ -221,6 +239,7 @@
     (hideFingeringAndHarmonyChange)="setHideFingeringAndHarmony($event)" (hideLyricsChange)="setHideLyrics($event)"
     (closeModal)="closeMidiSetup()"></app-midi-setup>
 
+  <app-mixer-dialog [isOpen]="isMixerOpen" [hasAccompaniment]="hasAccompaniment()" (closeModal)="closeMixer()" />
   <app-tempo-control [isOpen]="isTempoOpen" [tempo]="tempo" [metronome]="playConfiguration.useMetronome"
     [countIn]="playConfiguration.countInBars ?? 2" (countInChange)="onCountInChange($event)"
     (tempoChange)="onTempoChanged($event)" (metronomeStatus)="onMetronomeStatus($event)"

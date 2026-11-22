@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { PlayerControlService, type Hands, type LastTake, type WorkbenchHandle } from '../../desktop/service/player-control.service';
+import { PlayerControlService, type Hands, type HandsMode, type LastTake, type WorkbenchHandle } from '../../desktop/service/player-control.service';
 import { type ToolArgs, ToolError } from './tool';
 import { pollUntil, sleep } from './wait';
 
@@ -28,6 +28,9 @@ export class PlayerTools {
       throw new ToolError('INVALID_ARGUMENT', 'Give either tempoPercent or tempoBpm, not both.');
     }
     let state = this.control.state();
+    if (has('handsMode') && (has('hands') ? args['hands'] : state.hands) === 'listen') {
+      throw new ToolError('INVALID_ARGUMENT', "handsMode needs hands the student plays (left, right or both), not 'listen'.");
+    }
     const changesRange = has('fromMeasure') || has('toMeasure') || args['wholeScore'] === true;
     let from = state.range.fromMeasure;
     let to = state.range.toMeasure;
@@ -57,7 +60,11 @@ export class PlayerTools {
       handle.setTempoBpm(Number(args['tempoBpm']));
     }
     if (has('loop')) handle.setLoop(args['loop'] === true);
-    if (has('hands')) handle.setHands(args['hands'] as Hands);
+    if (has('hands') || has('handsMode')) {
+      // handsMode alone changes how the current hands are played
+      const hands = has('hands') ? args['hands'] as Hands : this.control.state().hands;
+      handle.setHands(hands, has('handsMode') ? args['handsMode'] as HandsMode : 'wait');
+    }
     if (has('metronome')) handle.setMetronome(args['metronome'] === true);
     if (has('showKeyboard')) handle.setKeyboardVisible(args['showKeyboard'] === true);
     return stoppedPlayback ? { ...this.control.state(), stoppedPlayback } : this.control.state();
