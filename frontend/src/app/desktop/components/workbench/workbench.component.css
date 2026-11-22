@@ -1,52 +1,21 @@
-/* @import "nouislider/dist/nouislider.css"; */
-@import "tailwindcss";
+@reference "tailwindcss";
 
-/* Remove scrollbars from the entire page */
-html,
-body {
+/* The workbench fills the window: no page scroll and no scrollbars, only while it is shown. The component is not
+   encapsulated (ViewEncapsulation.None): these rules must not reach the other pages. */
+body:has(app-workbench) {
 	overflow: hidden;
-	/* Hides both scrollbars */
-	height: 100%;
-	/* Important for full coverage */
-	margin: 0;
-	padding: 0;
 }
 
-/* Optional: Also hide scrollbars on any scrollable container */
-* {
+app-workbench,
+app-workbench * {
 	scrollbar-width: none;
-	/* Firefox */
 }
 
-*::-webkit-scrollbar {
+app-workbench ::-webkit-scrollbar {
 	display: none;
-	/* Chrome, Safari, Edge */
 }
 
-.loader {
-	height: 20%;
-	width: 100%;
-	aspect-ratio: 1;
-	--c: #0000 64%, #000 66% 98%, #0000 101%;
-	background: radial-gradient(35% 146% at 50% 159%, var(--c)) 0 0,
-		radial-gradient(35% 146% at 50% -59%, var(--c)) 25% 100%;
-	background-size: calc(100% / 3) 50%;
-	background-repeat: repeat-x;
-	animation: l1 1s infinite linear;
-	position: absolute;
-	top: 10%;
-}
-
-@keyframes l1 {
-	to {
-		background-position: 50% 0, 75% 100%;
-	}
-}
-
-.action-bar {
-	background-color: #232326;
-}
-
+/* The LCD-like display: title and tempo */
 .display {
 	background-color: #cee048;
 	color: #2f3409;
@@ -66,7 +35,7 @@ body {
 	text-overflow: ellipsis;
 }
 
-/* Marquee animation for title */
+/* A title too long for the display scrolls once */
 @keyframes scroll-text {
 
 	0%,
@@ -117,18 +86,7 @@ body {
 	animation: osmd-slide-up 800ms ease-out;
 }
 
-
-/* From Uiverse.io by m1her */
-.radio-input {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	border-radius: 8px;
-	overflow: hidden;
-	height: 64px;
-	width: 236px;
-}
-
+/* Toolbar toggles: a hidden checkbox in a 64 px label, lighter when checked */
 .checkbox-input {
 	display: flex;
 	border-radius: 8px;
@@ -136,20 +94,6 @@ body {
 
 .checkbox-input input {
 	display: none;
-}
-
-.radio-input input {
-	display: none;
-}
-
-.checkbox-input .label {
-	background-color: var(--color-neutral-600);
-	align-items: center;
-}
-
-.radio-input .label {
-	background-color: var(--color-neutral-600);
-	align-items: center;
 }
 
 .label {
@@ -162,53 +106,20 @@ body {
 	justify-content: center;
 }
 
-.label:has(input[type="radio"]:checked) {
-	background-color: var(--color-neutral-400);
-}
-
 .label:has(input[type="checkbox"]:checked) {
 	background-color: var(--color-neutral-400);
 }
 
-.label:has(input[type="checkbox"]) {
-	height: 64px;
-	width: 64px;
-}
-
-.label .text {
+.label ng-icon {
+	font-size: 32px;
+	width: 32px;
+	height: 32px;
 	color: white;
-	--tw-font-weight: var(--font-weight-bold);
-	font-weight: var(--font-weight-bold);
-	font-size: 14px;
+	display: block;
+	margin: 0 auto;
 }
 
-
-
-.noUi-connect {
-	background-color: var(--color-neutral-600);
-	border: 1px solid var(--color-neutral-600) !important;
-}
-
-.noUi-connects {
-	border-radius: 3px;
-	background-color: var(--color-neutral-500);
-	border: 1px solid var(--color-neutral-600) !important;
-}
-
-.noUi-target {
-	border-radius: 4px;
-	border: 1px solid var(--color-neutral-100) !important;
-	box-shadow: inset 0 1px 1px black, 0 3px 6px -5px #ccc;
-}
-
-.noUi-tooltip {
-	background: #2a2a2a !important;
-	color: white !important;
-	border: 1px solid var(--color-neutral-600) !important;
-	bottom: -180% !important;
-}
-
-/* Boutons desktop avec dimensions fixes */
+/* Toolbar buttons: 64 px squares */
 .btn-desktop {
 	@apply bg-neutral-400 text-white;
 	height: 64px;
@@ -229,23 +140,8 @@ body {
 	white-space: nowrap;
 }
 
-/* ng-icon dans les labels de checkbox/radio */
-.label ng-icon {
-	font-size: 32px;
-	width: 32px;
-	height: 32px;
-	color: white;
-	display: block;
-	margin: 0 auto;
-}
-
-/* Classe svg-button pour compatibilité - applique simplement la couleur */
 .svg-button {
 	color: white !important;
-}
-
-.btn-blue:hover {
-	@apply bg-neutral-600;
 }
 
 .bad {
@@ -253,46 +149,18 @@ body {
 	transition: background-color 0.25s ease;
 }
 
-
-.pianoman-foot {
-	position: absolute;
-	text-align: center;
-}
-
-.pianoman-head {
-	position: absolute;
-	text-align: right;
-}
-
-
-.hide {
-	opacity: 0;
-	transition: opacity 0.3s ease;
-}
-
-
+/* The score fades out at its edges: more at the top, under the bar, than at the bottom */
 .score-container {
-	mask-image: linear-gradient(to bottom,
-			rgba(0, 0, 0, 0.1) 0%,
-			rgba(0, 0, 0, 1) 5%,
-			rgba(0, 0, 0, 1) 95%,
+	--score-fade: linear-gradient(to bottom,
+			rgba(0, 0, 0, 0) 0%,
+			rgba(0, 0, 0, 1) 18%,
+			rgba(0, 0, 0, 1) 82%,
 			rgba(0, 0, 0, 0.1) 100%);
-	-webkit-mask-image: linear-gradient(to bottom,
-			rgba(0, 0, 0, 0.1) 0%,
-			rgba(0, 0, 0, 1) 5%,
-			rgba(0, 0, 0, 1) 95%,
-			rgba(0, 0, 0, 0.1) 100%);
+	mask-image: var(--score-fade);
+	-webkit-mask-image: var(--score-fade);
 }
 
-.osmd-fade {
-	opacity: 0;
-	transition: opacity 600ms ease;
-}
-
-.osmd-fade-visible {
-	opacity: 1;
-}
-/* ── Score loading feedback (message + percentage + bar) ── */
+/* Score loading feedback (message + percentage + bar) */
 .loading-feedback {
 	width: 260px;
 	display: flex;

@@ -4,7 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { PlayerService } from '../../service/player.service';
-import { DEFAULT_OSMD_OPTIONS, SHEET_MAXIMUM_WIDTH } from './osmd.config';
+import { DEFAULT_OSMD_OPTIONS, PAGE_LEFT_MARGIN, PAGE_RIGHT_MARGIN, SHEET_MAXIMUM_WIDTH } from './osmd.config';
 
 @Component({
     selector: 'app-osmd',
@@ -31,7 +31,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
     private cursorObserver?: MutationObserver;
     private scrollAnimationFrame?: number;
-    private recalculateTimeoutId?: ReturnType<typeof setTimeout>;
     private cursorNudgeTimeoutId?: ReturnType<typeof setTimeout>;
     private readonly hideFingeringStorageKey = 'hideFingering';
     private readonly hideFingeringAndHarmonyStorageKey = 'hideFingeringAndHarmony';    
@@ -67,11 +66,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
             this.scrollAnimationFrame = undefined;
         }
 
-        if (this.recalculateTimeoutId) {
-            clearTimeout(this.recalculateTimeoutId);
-            this.recalculateTimeoutId = undefined;
-        }
-
         if (this.cursorNudgeTimeoutId) {
             clearTimeout(this.cursorNudgeTimeoutId);
             this.cursorNudgeTimeoutId = undefined;
@@ -101,6 +95,8 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
         this.osmd = new OpenSheetMusicDisplay(this.osmdContainer.nativeElement);
         this.osmd.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
+        this.osmd.EngravingRules.PageLeftMargin = PAGE_LEFT_MARGIN;
+        this.osmd.EngravingRules.PageRightMargin = PAGE_RIGHT_MARGIN;
 
         const customOptions = this.getCustomOptions();
         this.osmd.setOptions({
@@ -188,31 +184,15 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
     }
 
+    /**
+     * The player follows the cursor of the drawing as it is now (after a load or a resize). The cursor's size is
+     * OSMD's own: on each move it spans the current system, from the top of its first staff to the bottom of its last
+     * one (a height forced here, with !important, stopped OSMD from updating it for systems of another height).
+     */
     recalculateCursorPosition() {
-        this.ngZone.runOutsideAngular(() => {
-            this.recalculateTimeoutId = setTimeout(() => {
-                if (!this.osmd || !this.osmd.GraphicSheet || !this.osmd.GraphicSheet.MeasureList || this.osmd.GraphicSheet.MeasureList.length === 0) {
-                    return;
-                }
-                const partCount = this.osmd!.GraphicSheet.MeasureList[0].length;
-                const positionAndShape = this.osmd!.GraphicSheet.MeasureList[0][partCount - 1].PositionAndShape;
-                let y = 50;
-                const cursorElement = document.getElementById('cursorImg-0');
-                if (cursorElement) {
-                    cursorElement!.style.setProperty('height', y + "px", 'important');
-                    if (partCount === 1) {
-                        y = (positionAndShape.Parent.BoundingRectangle.height) * 5;
-                        cursorElement!.style.setProperty('height', y + "px", 'important');
-                    } else {
-                        //y = positionAndShape.Parent.BoundingRectangle.height
-                        y = (positionAndShape.Parent.AbsolutePosition.y + positionAndShape.Parent.BoundingRectangle.height) * 4.6;
-                        cursorElement!.style.setProperty('height', y + "px", 'important');
-                    }
-
-                }
-                this.playerService.tiltCursor(this.osmd!.Cursor);
-            }, 1000);
-        });
+        if (this.osmd?.Cursor) {
+            this.playerService.tiltCursor(this.osmd.Cursor);
+        }
     }
 
     private logLifecycle(message: string, data?: unknown): void {

@@ -1286,6 +1286,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
       pips: {
         mode: PipsMode.Steps,
         density: 100,
+        // A few measure numbers and fine marks, not a number under every measure
+        filter: measurePipFilter(this.measureCount()),
         format: wNumb({
           decimals: 0,
           encoder: (i: number) => Math.round(i + 1),
@@ -1303,6 +1305,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
         from: (value: string) => Math.round(Number(value) - 1)
       }
     });
+
+    // The measures to be played (start to end handle) in white, the elapsed ones (start handle to current measure)
+    // in emerald: the fills between the handles (connect) and their marks and numbers, marked on every update
+    // (playback moves the current handle; updateOptions() rebuilds the pips)
+    this.slider.on('update', (values: (string | number)[]) => this.markMeasures(values));
 
     this.slider.on('start', (values: (string | number)[]) => {
       const tooltips = [
@@ -1348,6 +1355,13 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** The slider's formatted values are 1-based measures: the pips are placed on the 0-based ones. */
+  private markMeasures(values: (string | number)[]): void {
+    const pips = this.range?.nativeElement.querySelector('.noUi-pips') ?? null;
+    const [start, current, end] = values.map(value => Number(value) - 1);
+    markMeasures(pips, start, current, end, Math.max(0, this.measureCount() - 1));
+  }
+
   updateSlider() {
     if (!this.slider) return;
     const newValues = [
@@ -1365,6 +1379,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private getSliderBaseConfig() {
     const sliderConfig = {
       behaviour: 'unconstrained' as const,
+      // Filled between the handles: start to current measure, the measures already played (emerald); current
+      // measure to end, the ones still to play (white)
+      connect: [false, true, true, false],
       range: {
         'min': 0,
         // Internal values are 0-based (the format shows them + 1): the last handle position is the last measure
