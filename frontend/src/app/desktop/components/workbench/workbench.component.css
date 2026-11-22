@@ -191,124 +191,92 @@ app-workbench ::-webkit-scrollbar {
 	transition: width 150ms linear;
 }
 
-/* Measure range slider (noUiSlider): a thin track, bold bars for the start and the end of the range, a slim bar
-   for the current measure, a few measure numbers (measure-range-pips.ts). The id outranks noUiSlider's own CSS. */
-#measure-range.noUi-target {
-	/* The marks and numbers hang below the slider, over the top of the score: drawn above .score-container, whose
-	   faded top (its mask) would otherwise veil them. position: relative, as noUiSlider's CSS has it, for z-index */
+/* Hands (hand-mode.ts): the button shows the mode, the menu chooses it */
+.hand-mode {
 	position: relative;
-	z-index: 20;
-	height: 4px;
+	display: flex;
+}
+
+.hand-mode-button {
+	position: relative;
+	cursor: pointer;
 	border: none;
-	border-radius: 2px;
-	box-shadow: none;
+}
+
+.hand-mode-button:disabled {
+	cursor: default;
+	opacity: 0.6;
+}
+
+/* Wait: like a checked toggle */
+.hand-mode-button.hand-wait {
+	background-color: var(--color-neutral-400);
+}
+
+/* Play along: an outlined, muted look, with a note badge */
+.hand-mode-button.hand-along {
+	background-color: var(--color-neutral-600);
+	box-shadow: inset 0 0 0 3px var(--color-neutral-300);
+}
+
+.hand-along-badge {
+	position: absolute;
+	right: 6px;
+	bottom: 4px;
+	font-size: 0.875rem;
+	line-height: 1;
+	color: white;
+}
+
+.hand-mode-menu {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 0;
+	z-index: 30;
+	width: 16rem;
+	max-width: calc(100vw - 2rem);
+	padding: 0.5rem;
+	border-radius: 0.5rem;
+	background-color: var(--color-neutral-800);
+	box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+}
+
+.hand-mode-menu-title {
+	margin: 0 0 0.25rem;
+	padding: 0 0.25rem;
+	font-size: 0.75rem;
+	color: var(--color-neutral-400);
+}
+
+.hand-mode-option {
+	display: flex;
+	gap: 0.5rem;
+	align-items: flex-start;
+	padding: 0.5rem;
+	border-radius: 0.375rem;
+	cursor: pointer;
+}
+
+.hand-mode-option:hover,
+.hand-mode-option:has(input:focus-visible) {
 	background-color: var(--color-neutral-700);
 }
 
-#measure-range .noUi-connects {
-	background-color: transparent;
+.hand-mode-option input {
+	margin-top: 0.2rem;
 }
 
-/* The start and the end of the range: bold bars, taller than the current measure's */
-#measure-range.noUi-horizontal .noUi-handle {
-	width: 6px;
-	height: 22px;
-	top: -9px;
-	right: -3px;
-	border-radius: 2px;
-	border: none;
-	background: var(--color-neutral-300);
-	box-shadow: none;
-	cursor: ew-resize;
+.hand-mode-option-text {
+	display: flex;
+	flex-direction: column;
 }
 
-/* No grip lines; a larger invisible area keeps the small handles easy to grab, with a finger too */
-#measure-range .noUi-handle::before {
-	display: none;
-}
-
-#measure-range .noUi-handle::after {
-	content: '';
-	display: block;
-	position: absolute;
-	inset: -10px;
-	width: auto;
-	height: auto;
-	background: transparent;
-}
-
-/* The current measure: a slim bar, not a third knob */
-#measure-range.noUi-horizontal .noUi-handle[data-handle="1"] {
-	width: 4px;
-	height: 16px;
-	top: -6px;
-	right: -2px;
-	background: var(--color-neutral-200);
-}
-
-#measure-range .noUi-handle:focus-visible {
-	outline: 2px solid var(--color-neutral-200);
-	outline-offset: 2px;
-}
-
-#measure-range .noUi-tooltip {
-	padding: 1px 6px;
-	font-size: 11px;
-	border-radius: 4px;
-	border: 1px solid var(--color-neutral-600);
-	background: #2a2a2a;
+.hand-mode-option-label {
+	font-size: 0.875rem;
 	color: white;
-	bottom: -180%;
 }
 
-#measure-range .noUi-pips-horizontal {
-	padding-top: 2px;
-	height: 32px;
-}
-
-/* Wide marks, centred on their measure: noUiSlider places a mark by its left edge */
-#measure-range .noUi-marker-horizontal.noUi-marker {
-	width: 3px;
-	height: 5px;
-	margin-left: -1.5px;
-	border-radius: 1px;
-	background: var(--color-neutral-600);
-}
-
-#measure-range .noUi-marker-horizontal.noUi-marker-large {
-	width: 4px;
-	height: 9px;
-	margin-left: -2px;
-	background: var(--color-neutral-500);
-}
-
-/* The measure numbers, -large or -sub: black, lean, in the app's font, just under the marks */
-#measure-range .noUi-value {
-	font-family: inherit;
-	font-size: 17px;
-	font-weight: 400;
-	line-height: 1;
-	color: #000;
-}
-
-#measure-range .noUi-value-horizontal {
-	transform: translate(-50%, 65%);
-}
-
-/* The measures to be played, from the start of the range to its end, in white; among them the elapsed ones, from
-   the start to the current measure, in emerald: the fills between the handles, and their marks */
-#measure-range .noUi-connect {
-	background: var(--color-neutral-100);
-}
-
-#measure-range .noUi-connects .noUi-connect:first-child {
-	background: var(--color-emerald-500);
-}
-
-#measure-range .noUi-marker-horizontal.noUi-marker.is-in-range {
-	background: var(--color-neutral-100);
-}
-
-#measure-range .noUi-marker-horizontal.noUi-marker.is-elapsed {
-	background: var(--color-emerald-500);
+.hand-mode-option-hint {
+	font-size: 0.75rem;
+	color: var(--color-neutral-400);
 }
