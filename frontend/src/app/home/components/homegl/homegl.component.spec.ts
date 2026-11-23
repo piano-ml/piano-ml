@@ -12,7 +12,12 @@ import { ShaderServer } from './homegl.testing';
 describe('HomeglComponent', () => {
   let fixture: ComponentFixture<HomeglComponent>;
   let component: HomeglComponent;
-  afterEach(() => fixture?.destroy());
+  afterEach(() => {
+    fixture?.destroy();
+    // The WebGL-unavailable test stubs HTMLCanvasElement.prototype.getContext to return null: left in place, it
+    // broke every later spec of the run that draws on a canvas (OSMD measures its texts with a 2D context)
+    vi.restoreAllMocks();
+  });
 
   describe('when the files are missing', () => {
     let http: HttpTestingController;
