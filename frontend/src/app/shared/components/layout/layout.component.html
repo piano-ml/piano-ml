@@ -33,7 +33,7 @@
         </a>
 
         @if ((isLoggedIn$ | async) === true) {
-          <a routerLink="/account/home" class="user-link" i18n-title="@@layout.account.title" title="Go to your account page">
+          <a routerLink="/account" class="user-link" i18n-title="@@layout.account.title" title="Go to your account page">
             {{ username$ | async }}
           </a>
           @if (isAdmin() && onAccountHome()) {

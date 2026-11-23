@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { isCsrfRejection } from '../../../interceptors/xsrf.interceptor';
 import { AuthService } from '../../../services/auth.service';
 
-/** "Me" tab of the account page: the user's identity, logout and account deletion. */
+/** "My Account" tab of the account page: the user's identity, logout and account deletion. */
 @Component({
   selector: 'app-account-me',
   imports: [ReactiveFormsModule],

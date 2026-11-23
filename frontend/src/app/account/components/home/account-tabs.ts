@@ -1,4 +1,4 @@
-/** Tabs of the account page, in display order. Each is a child route of /account/home, its label also the breadcrumb. */
+/** Tabs of the account page, in display order. Each is a child route of /account (/account/playlists…), its label also the breadcrumb. */
 export const ACCOUNT_TABS = [
   { path: 'playlists', label: $localize`:@@accountHome.myPlaylists:My Playlists` },
   { path: 'scores', label: $localize`:@@accountHome.myScores:My Scores` },

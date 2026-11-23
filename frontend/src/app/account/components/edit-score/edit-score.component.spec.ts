@@ -238,7 +238,7 @@ describe('EditScoreComponent', () => {
 
       (el.querySelector('.modal button.btn-danger') as HTMLButtonElement).click();
       expect(del).toHaveBeenCalledWith('s1');
-      expect(navigate).toHaveBeenCalledWith(['/account/home/scores']);
+      expect(navigate).toHaveBeenCalledWith(['/account/scores']);
     });
 
     it('can be cancelled', async () => {

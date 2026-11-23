@@ -21,12 +21,12 @@ describe('AccountHomeComponent — tabs', () => {
   let harness: RouterTestingHarness;
   let breadcrumbs: BreadcrumbService;
 
-  async function setup(url = '/account/home') {
+  async function setup(url = '/account') {
     await TestBed.configureTestingModule({
       providers: [
         provideRouter([
           {
-            path: 'account/home',
+            path: 'account',
             component: AccountHomeComponent,
             children: [
               { path: '', redirectTo: ACCOUNT_TABS[0].path, pathMatch: 'full' },
@@ -54,7 +54,7 @@ describe('AccountHomeComponent — tabs', () => {
     await setup();
     const labels = [...el().querySelectorAll('nav a')].map(a => a.textContent!.trim());
     expect(labels).toEqual(['My Playlists', 'My Scores', 'Practice', 'AI', 'My Account']);
-    expect(TestBed.inject(Router).url).toBe('/account/home/playlists');
+    expect(TestBed.inject(Router).url).toBe('/account/playlists');
     expect(tab('playlists').classList).toContain('border-emerald-500');
     expect(tab('me').classList).not.toContain('border-emerald-500');
     expect(el().querySelector('[data-testid="tab-content"]')).not.toBeNull();
@@ -66,26 +66,26 @@ describe('AccountHomeComponent — tabs', () => {
       breadcrumbs.items$.subscribe(value => (items = value)).unsubscribe();
       return items;
     };
-    await setup('/account/home/ai');
-    expect(current()).toEqual([{ label: 'AI', path: '/account/home/ai' }]);
-    await harness.navigateByUrl('/account/home/me');
-    expect(current()).toEqual([{ label: 'My Account', path: '/account/home/me' }]);
+    await setup('/account/ai');
+    expect(current()).toEqual([{ label: 'AI', path: '/account/ai' }]);
+    await harness.navigateByUrl('/account/me');
+    expect(current()).toEqual([{ label: 'My Account', path: '/account/me' }]);
   });
 
   it('each tab links to its own route', async () => {
-    await setup('/account/home/scores');
-    expect(tab('scores').getAttribute('href')).toBe('/account/home/scores');
-    expect(tab('me').getAttribute('href')).toBe('/account/home/me');
+    await setup('/account/scores');
+    expect(tab('scores').getAttribute('href')).toBe('/account/scores');
+    expect(tab('me').getAttribute('href')).toBe('/account/me');
     expect(tab('scores').classList).toContain('border-emerald-500');
     expect(tab('me').classList).not.toContain('border-emerald-500');
   });
 
   it('sends a logged-out visitor to login, remembering the tab', async () => {
     loggedIn.next(false);
-    await setup('/account/home/ai');
+    await setup('/account/ai');
     await harness.fixture.whenStable();
     const router = TestBed.inject(Router);
-    expect(router.url).toBe(`/account/login?returnUrl=${encodeURIComponent('/account/home/ai')}`);
+    expect(router.url).toBe(`/account/login?returnUrl=${encodeURIComponent('/account/ai')}`);
   });
 
   it('goes to login when the session ends while on the page', async () => {

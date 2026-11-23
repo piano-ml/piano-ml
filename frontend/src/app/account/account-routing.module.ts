@@ -15,9 +15,25 @@ import { CoachGrantsComponent } from './components/coach-grants/coach-grants.com
 import { ACCOUNT_TABS, accountTabLabel } from './components/home/account-tabs';
 
 const routes: Routes = [
+  { path: 'login', component: LoginComponent,     data: { breadcrumb: $localize`:@@account.route.login:Login` } },
+  { path: 'create', component: CreateAccountComponent,     data: { breadcrumb: $localize`:@@account.route.create:Create` } },
+  { path: 'forgot-password', component: ForgotPasswordComponent, data: { breadcrumb: $localize`:@@account.route.forgotPassword:Forgot password` } },
+  { path: 'reset-password', component: ResetPasswordComponent, data: { breadcrumb: $localize`:@@account.route.resetPassword:New password` } },
+  { path: 'score/edit/:id', component: EditScoreComponent,     data: { breadcrumb: $localize`:@@account.route.editScore:Edit Score` } },
+  // A playlist's own page, outside the tabs: Account > My Playlists > <playlist>
   {
-    // The account page: one tab per child route; the breadcrumb shows the open tab (Account > My Playlists)
-    path: 'home',
+    path: 'playlists',
+    data: { breadcrumb: accountTabLabel('playlists') },
+    children: [
+      { path: ':slug', component: PlaylistDetailComponent, data: { breadcrumb: $localize`:@@account.route.playlist:Playlist` } },
+    ],
+  },
+  // Former URLs of the tabs
+  { path: 'home', redirectTo: ACCOUNT_TABS[0].path, pathMatch: 'full' },
+  { path: 'home/:tab', redirectTo: ':tab' },
+  {
+    // The account page: one tab per child route (/account/playlists, /account/scores…); the breadcrumb shows the open tab
+    path: '',
     component: AccountHomeComponent,
     children: [
       { path: '', redirectTo: ACCOUNT_TABS[0].path, pathMatch: 'full' },
@@ -28,22 +44,6 @@ const routes: Routes = [
       { path: 'me', component: AccountMeComponent, data: { breadcrumb: accountTabLabel('me') } },
     ],
   },
-  { path: 'login', component: LoginComponent,     data: { breadcrumb: $localize`:@@account.route.login:Login` } },
-  { path: 'create', component: CreateAccountComponent,     data: { breadcrumb: $localize`:@@account.route.create:Create` } },
-  { path: 'forgot-password', component: ForgotPasswordComponent, data: { breadcrumb: $localize`:@@account.route.forgotPassword:Forgot password` } },
-  { path: 'reset-password', component: ResetPasswordComponent, data: { breadcrumb: $localize`:@@account.route.resetPassword:New password` } },
-  // Former pages, now tabs of the account page
-  { path: 'scores', redirectTo: 'home/scores', pathMatch: 'full' },
-  {
-    path: 'playlists',
-    data: { breadcrumb: $localize`:@@account.route.playlists:My Playlists` },
-    children: [
-      { path: '', redirectTo: '/account/home/playlists', pathMatch: 'full' },
-      { path: ':slug', component: PlaylistDetailComponent, data: { breadcrumb: $localize`:@@account.route.playlist:Playlist` } },
-    ],
-  },
-  { path: 'score/edit/:id', component: EditScoreComponent,     data: { breadcrumb: $localize`:@@account.route.editScore:Edit Score` } },
-  { path: '', redirectTo: 'home', pathMatch: 'full' }
 ];
 
 @NgModule({

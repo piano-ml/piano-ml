@@ -18,21 +18,21 @@
         <source>New password</source>
         <target state="translated">새 비밀번호</target>
       </trans-unit>
-      <trans-unit id="account.route.playlists" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">내 재생목록</target>
+      <trans-unit id="account.route.editScore" datatype="html">
+        <source>Edit Score</source>
+        <target state="translated">악보 편집</target>
       </trans-unit>
       <trans-unit id="account.route.playlist" datatype="html">
         <source>Playlist</source>
         <target state="translated">재생목록</target>
       </trans-unit>
-      <trans-unit id="account.route.editScore" datatype="html">
-        <source>Edit Score</source>
-        <target state="translated">악보 편집</target>
-      </trans-unit>
       <trans-unit id="browse.capsuleCount" datatype="html">
         <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
         <target state="translated">{VAR_PLURAL, plural, =1 {악보 1개} other {악보 <x id="INTERPOLATION"/>개}}</target>
+      </trans-unit>
+      <trans-unit id="route.account" datatype="html">
+        <source>Account</source>
+        <target state="translated">계정</target>
       </trans-unit>
       <trans-unit id="accountScores.browseLibrary" datatype="html">
         <source> Browse library </source>
@@ -754,10 +754,6 @@
         <source>Most scores</source>
         <target state="translated">악보 많은 순</target>
       </trans-unit>
-      <trans-unit id="playlist.back" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">내 재생목록</target>
-      </trans-unit>
       <trans-unit id="playlist.notFound" datatype="html">
         <source>This playlist does not exist, or it is not yours.</source>
         <target state="translated">이 재생목록은 없거나 내 것이 아닙니다.</target>
@@ -777,6 +773,10 @@
       <trans-unit id="playlist.delete" datatype="html">
         <source>Delete playlist</source>
         <target state="translated">재생목록 삭제</target>
+      </trans-unit>
+      <trans-unit id="playlist.backToList" datatype="html">
+        <source>Playlists</source>
+        <target state="translated">재생목록</target>
       </trans-unit>
       <trans-unit id="playlist.detail.empty" datatype="html">
         <source>No scores yet. Use ♡ or &quot;Save to…&quot; on any score page.</source>
@@ -4025,10 +4025,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="route.reimport" datatype="html">
         <source>Re-import</source>
         <target state="translated">다시 가져오기</target>
-      </trans-unit>
-      <trans-unit id="route.account" datatype="html">
-        <source>Account</source>
-        <target state="translated">계정</target>
       </trans-unit>
       <trans-unit id="route.blog" datatype="html">
         <source>Blog</source>
