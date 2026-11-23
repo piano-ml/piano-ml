@@ -2,10 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="it" datatype="plaintext" original="ng2.template">
     <body>
-      <trans-unit id="account.route.home" datatype="html">
-        <source>Home</source>
-        <target state="translated">Home</target>
-      </trans-unit>
       <trans-unit id="account.route.login" datatype="html">
         <source>Login</source>
         <target state="translated">Accedi</target>
@@ -458,37 +454,37 @@
         <source>Failed to delete score</source>
         <target state="translated">Impossibile eliminare lo spartito</target>
       </trans-unit>
-      <trans-unit id="accountHome.profile" datatype="html">
-        <source>Profile</source>
-        <target state="translated">Profilo</target>
-      </trans-unit>
-      <trans-unit id="accountHome.subtitle" datatype="html">
-        <source>Your account, AI access, practice, scores and playlists</source>
-        <target state="translated">Il tuo account, l'accesso IA, la pratica, gli spartiti e le playlist</target>
-      </trans-unit>
-      <trans-unit id="accountHome.tabs.label" datatype="html">
-        <source>Account sections</source>
-        <target state="translated">Sezioni dell'account</target>
-      </trans-unit>
-      <trans-unit id="accountHome.tab.me" datatype="html">
-        <source>Me</source>
-        <target state="translated">Io</target>
-      </trans-unit>
-      <trans-unit id="accountHome.tab.ai" datatype="html">
-        <source>AI</source>
-        <target state="translated">IA</target>
-      </trans-unit>
-      <trans-unit id="accountHome.practice" datatype="html">
-        <source>Practice</source>
-        <target state="translated">Pratica</target>
+      <trans-unit id="accountHome.myPlaylists" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Le mie playlist</target>
       </trans-unit>
       <trans-unit id="accountHome.myScores" datatype="html">
         <source>My Scores</source>
         <target state="translated">I miei spartiti</target>
       </trans-unit>
-      <trans-unit id="accountHome.myPlaylists" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">Le mie playlist</target>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Pratica</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tab.ai" datatype="html">
+        <source>AI</source>
+        <target state="translated">IA</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tab.myAccount" datatype="html">
+        <source>My Account</source>
+        <target state="translated">Il mio account</target>
+      </trans-unit>
+      <trans-unit id="accountHome.profile" datatype="html">
+        <source>Profile</source>
+        <target state="translated">Profilo</target>
+      </trans-unit>
+      <trans-unit id="accountHome.subtitle" datatype="html">
+        <source>Your playlists, scores, practice, AI access and account</source>
+        <target state="translated">Le tue playlist, gli spartiti, la pratica, l'accesso IA e il tuo account</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tabs.label" datatype="html">
+        <source>Account sections</source>
+        <target state="translated">Sezioni dell'account</target>
       </trans-unit>
       <trans-unit id="accountHome.name" datatype="html">
         <source>Name</source>
@@ -718,13 +714,17 @@
         <source>Browse the library →</source>
         <target state="translated">Sfoglia la libreria →</target>
       </trans-unit>
-      <trans-unit id="playlist.scoreCount" datatype="html">
-        <source>{VAR_PLURAL, plural, =0 {No scores} =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
-        <target state="translated">{VAR_PLURAL, plural, =0 {Nessuno spartito} =1 {1 spartito} other {<x id="INTERPOLATION"/> spartiti}}</target>
+      <trans-unit id="scoreTable.favorite" datatype="html">
+        <source>Favorite</source>
+        <target state="translated">Preferito</target>
       </trans-unit>
-      <trans-unit id="playlist.updated" datatype="html">
-        <source>updated <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></source>
-        <target state="translated">aggiornata <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></target>
+      <trans-unit id="playlist.column.scores" datatype="html">
+        <source>Scores</source>
+        <target state="translated">Spartiti</target>
+      </trans-unit>
+      <trans-unit id="playlist.column.updated" datatype="html">
+        <source>Updated</source>
+        <target state="translated">Aggiornata</target>
       </trans-unit>
       <trans-unit id="common.loading" datatype="html">
         <source>Loading...</source>
@@ -762,9 +762,17 @@
         <source>This playlist does not exist, or it is not yours.</source>
         <target state="translated">Questa playlist non esiste o non è tua.</target>
       </trans-unit>
+      <trans-unit id="playlist.scoreCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =0 {No scores} =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =0 {Nessuno spartito} =1 {1 spartito} other {<x id="INTERPOLATION"/> spartiti}}</target>
+      </trans-unit>
       <trans-unit id="playlist.created" datatype="html">
         <source>created <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></source>
         <target state="translated">creata il <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.updated" datatype="html">
+        <source>updated <x id="INTERPOLATION" equiv-text="{{ meta().updated }}"/></source>
+        <target state="translated">aggiornata <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></target>
       </trans-unit>
       <trans-unit id="playlist.delete" datatype="html">
         <source>Delete playlist</source>
@@ -3877,10 +3885,6 @@ Uso: sugli accordi minori e nei blues minori (centri i7 / i) quando vuoi mantene
       <trans-unit id="quickActions.import" datatype="html">
         <source>Import</source>
         <target state="translated">Importa</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.favorite" datatype="html">
-        <source>Favorite</source>
-        <target state="translated">Preferito</target>
       </trans-unit>
       <trans-unit id="scoreTable.actions" datatype="html">
         <source> Actions </source>

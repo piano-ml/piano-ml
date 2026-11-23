@@ -2,10 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="pl" datatype="plaintext" original="ng2.template">
     <body>
-      <trans-unit id="account.route.home" datatype="html">
-        <source>Home</source>
-        <target state="translated">Start</target>
-      </trans-unit>
       <trans-unit id="account.route.login" datatype="html">
         <source>Login</source>
         <target state="translated">Logowanie</target>
@@ -458,37 +454,37 @@
         <source>Failed to delete score</source>
         <target state="translated">Nie udało się usunąć utworu</target>
       </trans-unit>
-      <trans-unit id="accountHome.profile" datatype="html">
-        <source>Profile</source>
-        <target state="translated">Profil</target>
-      </trans-unit>
-      <trans-unit id="accountHome.subtitle" datatype="html">
-        <source>Your account, AI access, practice, scores and playlists</source>
-        <target state="translated">Twoje konto, dostęp AI, ćwiczenia, nuty i playlisty</target>
-      </trans-unit>
-      <trans-unit id="accountHome.tabs.label" datatype="html">
-        <source>Account sections</source>
-        <target state="translated">Sekcje konta</target>
-      </trans-unit>
-      <trans-unit id="accountHome.tab.me" datatype="html">
-        <source>Me</source>
-        <target state="translated">Ja</target>
-      </trans-unit>
-      <trans-unit id="accountHome.tab.ai" datatype="html">
-        <source>AI</source>
-        <target state="translated">AI</target>
-      </trans-unit>
-      <trans-unit id="accountHome.practice" datatype="html">
-        <source>Practice</source>
-        <target state="translated">Ćwiczenie</target>
+      <trans-unit id="accountHome.myPlaylists" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Moje playlisty</target>
       </trans-unit>
       <trans-unit id="accountHome.myScores" datatype="html">
         <source>My Scores</source>
         <target state="translated">Moje utwory</target>
       </trans-unit>
-      <trans-unit id="accountHome.myPlaylists" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">Moje playlisty</target>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Ćwiczenie</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tab.ai" datatype="html">
+        <source>AI</source>
+        <target state="translated">AI</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tab.myAccount" datatype="html">
+        <source>My Account</source>
+        <target state="translated">Moje konto</target>
+      </trans-unit>
+      <trans-unit id="accountHome.profile" datatype="html">
+        <source>Profile</source>
+        <target state="translated">Profil</target>
+      </trans-unit>
+      <trans-unit id="accountHome.subtitle" datatype="html">
+        <source>Your playlists, scores, practice, AI access and account</source>
+        <target state="translated">Twoje playlisty, nuty, ćwiczenia, dostęp AI i konto</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tabs.label" datatype="html">
+        <source>Account sections</source>
+        <target state="translated">Sekcje konta</target>
       </trans-unit>
       <trans-unit id="accountHome.name" datatype="html">
         <source>Name</source>
@@ -718,13 +714,17 @@
         <source>Browse the library →</source>
         <target state="translated">Przeglądaj bibliotekę →</target>
       </trans-unit>
-      <trans-unit id="playlist.scoreCount" datatype="html">
-        <source>{VAR_PLURAL, plural, =0 {No scores} =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
-        <target state="translated">{VAR_PLURAL, plural, =0 {Brak utworów} =1 {1 utwór} few {<x id="INTERPOLATION"/> utwory} many {<x id="INTERPOLATION"/> utworów} other {<x id="INTERPOLATION"/> utworu}}</target>
+      <trans-unit id="scoreTable.favorite" datatype="html">
+        <source>Favorite</source>
+        <target state="translated">Ulubione</target>
       </trans-unit>
-      <trans-unit id="playlist.updated" datatype="html">
-        <source>updated <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></source>
-        <target state="translated">zaktualizowano <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></target>
+      <trans-unit id="playlist.column.scores" datatype="html">
+        <source>Scores</source>
+        <target state="translated">Nuty</target>
+      </trans-unit>
+      <trans-unit id="playlist.column.updated" datatype="html">
+        <source>Updated</source>
+        <target state="translated">Zaktualizowano</target>
       </trans-unit>
       <trans-unit id="common.loading" datatype="html">
         <source>Loading...</source>
@@ -762,9 +762,17 @@
         <source>This playlist does not exist, or it is not yours.</source>
         <target state="translated">Ta playlista nie istnieje lub nie należy do ciebie.</target>
       </trans-unit>
+      <trans-unit id="playlist.scoreCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =0 {No scores} =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =0 {Brak utworów} =1 {1 utwór} few {<x id="INTERPOLATION"/> utwory} many {<x id="INTERPOLATION"/> utworów} other {<x id="INTERPOLATION"/> utworu}}</target>
+      </trans-unit>
       <trans-unit id="playlist.created" datatype="html">
         <source>created <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></source>
         <target state="translated">utworzono <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></target>
+      </trans-unit>
+      <trans-unit id="playlist.updated" datatype="html">
+        <source>updated <x id="INTERPOLATION" equiv-text="{{ meta().updated }}"/></source>
+        <target state="translated">zaktualizowano <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></target>
       </trans-unit>
       <trans-unit id="playlist.delete" datatype="html">
         <source>Delete playlist</source>
@@ -3877,10 +3885,6 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
       <trans-unit id="quickActions.import" datatype="html">
         <source>Import</source>
         <target state="translated">Importuj</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.favorite" datatype="html">
-        <source>Favorite</source>
-        <target state="translated">Ulubione</target>
       </trans-unit>
       <trans-unit id="scoreTable.actions" datatype="html">
         <source> Actions </source>

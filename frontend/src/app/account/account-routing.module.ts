@@ -12,20 +12,20 @@ import { PlaylistDetailComponent } from './components/playlists/playlist-detail.
 import { AccountMeComponent } from './components/home/me/me.component';
 import { PracticeSummaryComponent } from './components/practice-summary/practice-summary.component';
 import { CoachGrantsComponent } from './components/coach-grants/coach-grants.component';
+import { ACCOUNT_TABS, accountTabLabel } from './components/home/account-tabs';
 
 const routes: Routes = [
   {
-    // The account page: one tab per child route
+    // The account page: one tab per child route; the breadcrumb shows the open tab (Account > My Playlists)
     path: 'home',
     component: AccountHomeComponent,
-    data: { breadcrumb: $localize`:@@account.route.home:Home` },
     children: [
-      { path: '', redirectTo: 'me', pathMatch: 'full' },
-      { path: 'me', component: AccountMeComponent },
-      { path: 'ai', component: CoachGrantsComponent },
-      { path: 'practice', component: PracticeSummaryComponent },
-      { path: 'scores', component: AccountScoresComponent },
-      { path: 'playlists', component: AccountPlaylistsComponent },
+      { path: '', redirectTo: ACCOUNT_TABS[0].path, pathMatch: 'full' },
+      { path: 'playlists', component: AccountPlaylistsComponent, data: { breadcrumb: accountTabLabel('playlists') } },
+      { path: 'scores', component: AccountScoresComponent, data: { breadcrumb: accountTabLabel('scores') } },
+      { path: 'practice', component: PracticeSummaryComponent, data: { breadcrumb: accountTabLabel('practice') } },
+      { path: 'ai', component: CoachGrantsComponent, data: { breadcrumb: accountTabLabel('ai') } },
+      { path: 'me', component: AccountMeComponent, data: { breadcrumb: accountTabLabel('me') } },
     ],
   },
   { path: 'login', component: LoginComponent,     data: { breadcrumb: $localize`:@@account.route.login:Login` } },

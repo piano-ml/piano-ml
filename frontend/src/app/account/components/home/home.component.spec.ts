@@ -7,6 +7,8 @@ import { vi } from 'vitest';
 
 import { AccountHomeComponent } from './home.component';
 import { AuthService } from '../../services/auth.service';
+import { BreadcrumbService } from '../../../shared/services/breadcrumb.service';
+import { ACCOUNT_TABS } from './account-tabs';
 
 @Component({ standalone: true, template: '<p data-testid="tab-content">content</p>' })
 class TabStubComponent {}
@@ -17,6 +19,7 @@ class LoginStubComponent {}
 describe('AccountHomeComponent — tabs', () => {
   let loggedIn: BehaviorSubject<boolean>;
   let harness: RouterTestingHarness;
+  let breadcrumbs: BreadcrumbService;
 
   async function setup(url = '/account/home') {
     await TestBed.configureTestingModule({
@@ -26,8 +29,8 @@ describe('AccountHomeComponent — tabs', () => {
             path: 'account/home',
             component: AccountHomeComponent,
             children: [
-              { path: '', redirectTo: 'me', pathMatch: 'full' },
-              ...['me', 'ai', 'practice', 'scores', 'playlists'].map(path => ({ path, component: TabStubComponent })),
+              { path: '', redirectTo: ACCOUNT_TABS[0].path, pathMatch: 'full' },
+              ...ACCOUNT_TABS.map(({ path, label }) => ({ path, component: TabStubComponent, data: { breadcrumb: label } })),
             ],
           },
           { path: 'account/login', component: LoginStubComponent },
@@ -35,6 +38,7 @@ describe('AccountHomeComponent — tabs', () => {
         { provide: AuthService, useValue: { isLoggedIn: loggedIn } },
       ],
     }).compileComponents();
+    breadcrumbs = TestBed.inject(BreadcrumbService);
     harness = await RouterTestingHarness.create();
     await harness.navigateByUrl(url);
   }
@@ -46,20 +50,32 @@ describe('AccountHomeComponent — tabs', () => {
     loggedIn = new BehaviorSubject(true);
   });
 
-  it('lists the tabs in order and opens "Me" by default', async () => {
+  it('lists the tabs in order and opens "My Playlists" by default', async () => {
     await setup();
     const labels = [...el().querySelectorAll('nav a')].map(a => a.textContent!.trim());
-    expect(labels).toEqual(['Me', 'AI', 'Practice', 'My Scores', 'My Playlists']);
-    expect(TestBed.inject(Router).url).toBe('/account/home/me');
-    expect(tab('me').classList).toContain('border-emerald-500');
-    expect(tab('ai').classList).not.toContain('border-emerald-500');
+    expect(labels).toEqual(['My Playlists', 'My Scores', 'Practice', 'AI', 'My Account']);
+    expect(TestBed.inject(Router).url).toBe('/account/home/playlists');
+    expect(tab('playlists').classList).toContain('border-emerald-500');
+    expect(tab('me').classList).not.toContain('border-emerald-500');
     expect(el().querySelector('[data-testid="tab-content"]')).not.toBeNull();
+  });
+
+  it('the breadcrumb follows the open tab', async () => {
+    const current = () => {
+      let items: { label: string; path?: string }[] = [];
+      breadcrumbs.items$.subscribe(value => (items = value)).unsubscribe();
+      return items;
+    };
+    await setup('/account/home/ai');
+    expect(current()).toEqual([{ label: 'AI', path: '/account/home/ai' }]);
+    await harness.navigateByUrl('/account/home/me');
+    expect(current()).toEqual([{ label: 'My Account', path: '/account/home/me' }]);
   });
 
   it('each tab links to its own route', async () => {
     await setup('/account/home/scores');
     expect(tab('scores').getAttribute('href')).toBe('/account/home/scores');
-    expect(tab('playlists').getAttribute('href')).toBe('/account/home/playlists');
+    expect(tab('me').getAttribute('href')).toBe('/account/home/me');
     expect(tab('scores').classList).toContain('border-emerald-500');
     expect(tab('me').classList).not.toContain('border-emerald-500');
   });

@@ -52,36 +52,38 @@
   }
 
   @if (playlists().length > 0) {
-    <ul class="playlist-grid">
-      @for (p of playlists(); track p.id) {
-        <li>
-          <a class="playlist-card" [routerLink]="['/account/playlists', p.slug]" [attr.data-testid]="'playlist-' + p.slug">
-            <div class="playlist-mosaic" aria-hidden="true">
-              @for (i of cells; track i) {
-                @if (p.coverImages[i]; as image) {
-                  <img [src]="image" alt="" loading="lazy">
-                } @else {
-                  <span class="mosaic-empty"><ng-icon name="bootstrapMusicNoteBeamed" size="18" /></span>
+    <!-- Same look as the library score table: one row per playlist, a click opens it -->
+    <div class="overflow-x-auto">
+      <table class="w-full playlist-table" data-testid="playlist-table">
+        <thead>
+          <tr class="border-b border-neutral-800">
+            <th class="pb-3 pt-1 w-10"><span class="sr-only" i18n="@@scoreTable.favorite">Favorite</span></th>
+            <th class="pb-3 pt-1 pl-3 pr-3 text-left text-xs font-semibold uppercase tracking-widest text-neutral-400" i18n="@@scoreTable.title">Title</th>
+            <th class="pb-3 pt-1 pl-3 pr-3 text-right text-xs font-semibold uppercase tracking-widest text-neutral-400" i18n="@@playlist.column.scores">Scores</th>
+            <th class="pb-3 pt-1 pl-3 pr-0 text-left text-xs font-semibold uppercase tracking-widest text-neutral-400" i18n="@@playlist.column.updated">Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of playlists(); track p.id) {
+            <tr class="cursor-pointer" (click)="open(p, $event)">
+              <td class="py-1 pl-0 pr-1 w-10 text-center">
+                @if (p.isDefault) {
+                  <ng-icon name="bootstrapHeartFill" size="14" class="text-rose-500" aria-hidden="true" />
                 }
-              }
-              @if (p.isDefault) {
-                <span class="mosaic-badge"><ng-icon name="bootstrapHeartFill" size="14" /></span>
-              }
-            </div>
-            <div class="flex flex-col gap-1 min-w-0">
-              <p class="playlist-card-title">{{ titleOf(p) }}</p>
-              @if (p.description) {
-                <p class="text-xs text-neutral-400 line-clamp-2">{{ p.description }}</p>
-              }
-              <p class="text-xs text-neutral-500">
-                <span i18n="@@playlist.scoreCount">{p.itemCount, plural, =0 {No scores} =1 {1 score} other {{{ p.itemCount }} scores}}</span>
-                · <span i18n="@@playlist.updated">updated {{ updated(p) }}</span>
-              </p>
-            </div>
-          </a>
-        </li>
-      }
-    </ul>
+              </td>
+              <td class="py-2.5 pl-3 pr-3 text-sm text-neutral-300 text-left">
+                <a class="playlist-link" [routerLink]="['/account/playlists', p.slug]" [attr.data-testid]="'playlist-' + p.slug">{{ titleOf(p) }}</a>
+                @if (p.description) {
+                  <p class="text-xs text-neutral-500 line-clamp-1">{{ p.description }}</p>
+                }
+              </td>
+              <td class="py-2.5 pl-3 pr-3 text-sm text-neutral-300 text-right tabular-nums" [attr.data-testid]="'playlist-count-' + p.slug">{{ p.itemCount }}</td>
+              <td class="py-2.5 pl-3 pr-0 text-sm text-neutral-300 text-left whitespace-nowrap">{{ updated(p) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
     @if (hasMore()) {
       <div class="flex flex-col items-center gap-2">
