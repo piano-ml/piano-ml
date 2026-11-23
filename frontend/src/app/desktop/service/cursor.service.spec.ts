@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { Note } from '@tonejs/midi/dist/Note';
-import type { Cursor } from 'opensheetmusicdisplay';
-import { MULTI_REPEAT_SCORE, PPQ, REPEAT_SCORE, SIMPLE_SCORE, type FixtureMeasure, playbackOrder, renderScore, scoreMidi } from '../../testing/score-fixture';
+import { AlignmentType, type Cursor, RepetitionInstruction, RepetitionInstructionEnum } from 'opensheetmusicdisplay';
+import { DOUBLE_BACK_JUMP_SCORE, MULTI_REPEAT_SCORE, PPQ, REPEAT_SCORE, SIMPLE_SCORE, type FixtureMeasure, playbackOrder, renderScore, scoreMidi } from '../../testing/score-fixture';
 import { CURSOR_GOOD_COLOR } from '../components/osmd/osmd.config';
 import { CursorService } from './cursor.service';
 
@@ -76,6 +76,18 @@ describe('CursorService', () => {
       const { slop } = await setup(MULTI_REPEAT_SCORE);
       expect(slop).toBe(0);
       playbackOrder(MULTI_REPEAT_SCORE).forEach((bar, played) => {
+        expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
+      });
+    });
+
+    it('maps a section closed by two backward jumps: the second jump replays it once more', async () => {
+      // Diabelli's Op. 151 Sonatina 1: m47 jumps back to m10 after the m26 repeat was already played;
+      // the pass counter the section shared used to take only the first jump
+      const { slop } = await setup(DOUBLE_BACK_JUMP_SCORE);
+      expect(slop).toBe(0);
+      const order = playbackOrder(DOUBLE_BACK_JUMP_SCORE);
+      expect(order).toEqual([0, 1, 2, 1, 2, 3, 4, 1, 2, 3, 4, 5]);
+      order.forEach((bar, played) => {
         expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
       });
     });
@@ -180,6 +192,15 @@ describe('CursorService', () => {
       });
     });
 
+    it('follows a whole playback through a section closed by two backward jumps', async () => {
+      const { midi } = await setup(DOUBLE_BACK_JUMP_SCORE);
+      playbackOrder(DOUBLE_BACK_JUMP_SCORE).forEach((bar, played) => {
+        service.nextNote(noteAt(midi, tickOf(played, 0)));
+        expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1}`).toBe(bar);
+        expect(service.measure(), `played bar ${played + 1}`).toBe(bar);
+      });
+    });
+
     it('shows a measure-wide cursor when the note under it does not match', async () => {
       await setup(SIMPLE_SCORE);
       service.nextNote({ ticks: tickOf(0, 0), midi: 61 } as Note); // C# instead of C
@@ -229,6 +250,49 @@ describe('CursorService', () => {
       expect(service.isFirstIterOfMeasure(4, cursor)).toBe(true);
       cursor.next();
       expect(service.isFirstIterOfMeasure(5, cursor)).toBe(false);
+    });
+  });
+
+  /**
+   * The played-measure sequence built from repetition instructions alone (no rendering): each backward jump
+   * is taken once, to the last forward repeat before it; entry n of a section plays its ending (volta) n, and
+   * past the last numbered entry the last ending — the way MuseScore exports the MIDI the mapping follows.
+   * The shapes below are the ones of Diabelli's Op. 151 Sonatina 1 (a section closed by two backward jumps,
+   * voltas on the first one), which the shared pass counter used to lose 37 measures of.
+   */
+  describe('buildOsmdMeasureSequence', () => {
+    const instr = (measureIndex: number, type: RepetitionInstructionEnum, alignment: AlignmentType, ending?: number) =>
+      new RepetitionInstruction(measureIndex, type, alignment, undefined, ending === undefined ? undefined : [ending]);
+    const StartLine = RepetitionInstructionEnum.StartLine;
+    const BackJump = RepetitionInstructionEnum.BackJumpLine;
+    const Ending = RepetitionInstructionEnum.Ending;
+
+    function sequenceWith(measures: number, instrs: RepetitionInstruction[]): number[] {
+      const svc = service as unknown as { repetitionInstructions: RepetitionInstruction[]; osmdMeasureNoteMap: Map<number, unknown[]> };
+      svc.repetitionInstructions = instrs;
+      for (let i = 0; i < measures; i++) svc.osmdMeasureNoteMap.set(i, []);
+      return service.buildOsmdMeasureSequence();
+    }
+
+    it('takes each backward jump once, to the last forward repeat before it', () => {
+      const seq = sequenceWith(6, [instr(1, StartLine, AlignmentType.End), instr(2, BackJump, AlignmentType.End), instr(4, BackJump, AlignmentType.End)]);
+      expect(seq).toEqual([0, 1, 2, 1, 2, 3, 4, 1, 2, 3, 4, 5]);
+    });
+
+    it('plays the voltas by entry, the last one again past the numbered entries', () => {
+      const seq = sequenceWith(7, [
+        instr(1, StartLine, AlignmentType.End),
+        instr(2, Ending, AlignmentType.Begin, 1), instr(2, Ending, AlignmentType.End, 1), instr(2, BackJump, AlignmentType.End),
+        instr(3, Ending, AlignmentType.Begin, 2), instr(3, Ending, AlignmentType.End, 2),
+        instr(5, BackJump, AlignmentType.End),
+      ]);
+      // entry 1 plays volta 1 (m2), entry 2 volta 2 (m3), entry 3 volta 2 again — then the piece goes on
+      expect(seq).toEqual([0, 1, 2, 1, 3, 4, 5, 1, 3, 4, 5, 6]);
+    });
+
+    it('a backward jump without a forward repeat goes to the start of the piece', () => {
+      const seq = sequenceWith(4, [instr(2, BackJump, AlignmentType.End)]);
+      expect(seq).toEqual([0, 1, 2, 0, 1, 2, 3]);
     });
   });
 

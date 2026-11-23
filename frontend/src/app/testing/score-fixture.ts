@@ -163,3 +163,17 @@ export const MULTI_REPEAT_SCORE: FixtureMeasure[] = [
   { treble: ['C5', 'E5', 'G5', 'C6'], bass: ['C3:4'], repeatEnd: true },
   { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
 ];
+
+/**
+ * A |: section closed by TWO :| further down (as in Diabelli's Op. 151 Sonatina 1, whose m47 jumps back to
+ * m10 after the m26 repeat was already played): each backward jump is taken once, playback is
+ * 1 | 2 3 | 2 3 | 4 5 | 2 3 4 5 | 6.
+ */
+export const DOUBLE_BACK_JUMP_SCORE: FixtureMeasure[] = [
+  { treble: ['C5', 'D5', 'E5', 'F5'], bass: ['C3:4'] },
+  { treble: ['G5', 'A5', 'B5', 'C6'], bass: ['G2:4'], repeatStart: true },
+  { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'], repeatEnd: true },
+  { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'] },
+  { treble: ['D5', 'E5', 'F5', 'G5'], bass: ['D3:4'], repeatEnd: true },
+  { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
+];

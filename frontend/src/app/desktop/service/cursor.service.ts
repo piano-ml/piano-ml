@@ -605,26 +605,64 @@ export class CursorService implements OnDestroy {
         this.feedback(feedbackMessage, 0);
         const osmdMeasureSequence: number[] = Array.from(this.osmdMeasureNoteMap.keys());
         const outputSequence: number[] = [];
-        let passCount = 1;
         let currentMeasureNumber = 0;
-        let anchor = 0;
         let insideVolta = false;
         let security = 0;
 
         let daCapoCount = 0;
         const MAX_DACAPO = 2; // security
+
+        // Each backward jump is taken exactly once: the first time the walk reaches it. A repetition can
+        // carry several of them (a second :| further down the same |: section — Diabelli's Op. 151 Sonatina 1
+        // jumps back from its m47 to m10 after the m26 repeat was already played): the pass counter shared
+        // by the section missed every jump but the first, and the sequence lost 37 measures there.
+        const firedJumps = new Set<RepetitionInstruction>();
+        // A backward jump goes to the last forward repeat before it (or the start of the piece), as the
+        // MIDI exports do it — OSMD's own repetition start does not always say so (a lone second :| gets a
+        // repetition of the measures just before it).
+        const startLines = this.repetitionInstructions
+            .filter((instr) => instr.type === RepetitionInstructionEnum.StartLine && instr.alignment === AlignmentType.End)
+            .map((instr) => instr.measureIndex)
+            .sort((a, b) => a - b);
+        const anchorAt = (measureIndex: number): number => {
+            let anchor = 0;
+            for (const start of startLines) {
+                if (start > measureIndex) break;
+                anchor = start;
+            }
+            return anchor;
+        };
+        // How many times the walk entered a section (by its start measure): entry n plays the ending
+        // (volta) numbered n — and past the last numbered entry, the last ending (as MuseScore exports it:
+        // the third pass of Diabelli's m10-m47 plays volta 2).
+        const entries = new Map<number, number>();
+        const endingsByRep = new Map<number, RepetitionInstruction[]>();
+        for (const instr of this.repetitionInstructions) {
+            if (instr.type !== RepetitionInstructionEnum.Ending || instr.alignment !== AlignmentType.Begin) continue;
+            const key = anchorAt(instr.measureIndex);
+            const group = endingsByRep.get(key);
+            if (group) group.push(instr);
+            else endingsByRep.set(key, [instr]);
+        }
+        const maxEndingOf = (instr: RepetitionInstruction): number => Math.max(0, ...(instr.endingIndices ?? []));
+        /** The ending the current entry of this section plays: the one numbered for it, or the last one beyond. */
+        const chosenEnding = (anchor: number): RepetitionInstruction | undefined => {
+            const group = endingsByRep.get(anchor);
+            if (!group || group.length === 0) return undefined;
+            const pass = entries.get(anchor) ?? 1;
+            const forPass = group.find((instr) => instr.endingIndices?.includes(pass));
+            if (forPass) return forPass;
+            const lastNumbered = Math.max(...group.map(maxEndingOf));
+            return pass > lastNumbered ? group.reduce((a, b) => (maxEndingOf(a) >= maxEndingOf(b) ? a : b)) : undefined;
+        };
+        /** Whether this ending (its start or its end instruction) is the one played by the current entry. */
+        const playsThisEntry = (instr: RepetitionInstruction): boolean => {
+            const chosen = chosenEnding(anchorAt(instr.measureIndex));
+            return !!chosen && (chosen.endingIndices ?? []).join(',') === (instr.endingIndices ?? []).join(',');
+        };
+
         while (currentMeasureNumber < osmdMeasureSequence.length && security < 10000) {
             security++;
-            const isStartBar = this.repetitionInstructions.find(
-                instr =>
-                    instr.type === RepetitionInstructionEnum.StartLine
-                    && instr.alignment === AlignmentType.End
-                    && instr.measureIndex === currentMeasureNumber
-            );
-            if (isStartBar && anchor !== currentMeasureNumber) {
-                anchor = currentMeasureNumber;
-                passCount = 1;
-            }
 
             // DaCapo handling
             const isDaCapo = this.repetitionInstructions.find(
@@ -638,8 +676,9 @@ export class CursorService implements OnDestroy {
                 if (daCapoCount > MAX_DACAPO) {
                     break; // security
                 }
+                // After a D.C. the repetitions are not taken again (their jumps already fired): the piece
+                // plays through as its last pass
                 currentMeasureNumber = 0;
-                passCount = 1;
                 continue;
             }
 
@@ -647,10 +686,9 @@ export class CursorService implements OnDestroy {
                 instr =>
                     instr.type === RepetitionInstructionEnum.Ending
                     && instr.alignment === AlignmentType.Begin
-                    && !instr.endingIndices.includes(passCount)
                     && currentMeasureNumber === instr.measureIndex
             );
-            if (currentVoltaStart) {
+            if (currentVoltaStart && !playsThisEntry(currentVoltaStart)) {
                 insideVolta = true;
             }
             if (!insideVolta) {
@@ -660,10 +698,9 @@ export class CursorService implements OnDestroy {
                 instr =>
                     instr.type === RepetitionInstructionEnum.Ending
                     && instr.alignment === AlignmentType.End
-                    && !instr.endingIndices.includes(passCount)
                     && currentMeasureNumber === instr.measureIndex
             );
-            if (currentVoltaEnd) {
+            if (currentVoltaEnd && !playsThisEntry(currentVoltaEnd)) {
                 insideVolta = false;
             }
 
@@ -674,9 +711,11 @@ export class CursorService implements OnDestroy {
                     && instr.measureIndex === currentMeasureNumber
             )
 
-            if (isBackJump && passCount == 1) {
-                currentMeasureNumber = anchor;
-                passCount++;
+            if (isBackJump && !firedJumps.has(isBackJump)) {
+                firedJumps.add(isBackJump);
+                const target = anchorAt(currentMeasureNumber);
+                entries.set(target, (entries.get(target) ?? 1) + 1);
+                currentMeasureNumber = target;
             } else {
                 currentMeasureNumber++;
             }
