@@ -4,8 +4,7 @@ import { Midi } from "@tonejs/midi";
 import type { Note as MidiNote, Note } from "@tonejs/midi/dist/Note";
 import { Cursor, Note as OSMDNote, GraphicalNote, VexFlowGraphicalNote, OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { CURSOR_GOOD_COLOR } from "../components/osmd/osmd.config";
-import { smithWatermanAlign, smithWatermanAlign2 } from "./smith-waterman";
-import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
+import { OsmdArrayElement } from "../model/model";
 
 /**
  * The view scrolls (to centre the cursor) once the cursor comes within this fraction of the view's height or width
@@ -46,7 +45,6 @@ export class CursorService implements OnDestroy {
     private static readonly UI_YIELD_AFTER_MS = 16;
     private setupTimeoutId?: ReturnType<typeof setTimeout>;
     private lastYield = 0;
-    private alignmentAlgorithm: CursorAlignmentAlgorithm = "sw2";
     private cursorIndex = 0;
     /** Keep the cursor in view while it moves (set from the score's followCursor option, see PlayerService). */
     follow = false;
@@ -137,20 +135,6 @@ export class CursorService implements OnDestroy {
         return score;
     }
 
-
-    setAlignmentAlgorithm(algorithm: CursorAlignmentAlgorithm): void {
-        this.alignmentAlgorithm = algorithm;
-    }
-
-    getAlignmentAlgorithm(): CursorAlignmentAlgorithm {
-        return this.alignmentAlgorithm;
-    }
-
-    private runSelectedAlignment(osmdArray: OsmdArrayElement[]): OsmdArrayElement[] {
-        return this.alignmentAlgorithm === "sw2"
-            ? smithWatermanAlign2(osmdArray)
-            : smithWatermanAlign(osmdArray);
-    }
 
     nextNote(note: Note) {
         const link = this.midiTicksToOsmdCursorIndex.get(note.ticks);
@@ -244,9 +228,6 @@ export class CursorService implements OnDestroy {
             if (newPass) {
                 midiMeasure++;
                 measureSequence.push(measure);
-                // the previous step that has notes closed the previous pass
-                const last = osmdArray.at(-1);
-                if (last) last.isLast = true;
             }
             previousMeasure = measure;
             previousInMeasure = inMeasure;
@@ -255,24 +236,15 @@ export class CursorService implements OnDestroy {
             const notesUnderCursor: OSMDNote[] = (iterator.CurrentVoiceEntries ?? []).flatMap(voiceEntry => voiceEntry.Notes ?? []);
             if (notesUnderCursor.length > 0) {
                 osmdArray.push({
-                    midiMeasure,
                     osmdMeasure: measure,
                     osmdIndex: step,
-                    index: step,
-                    isFirst: newPass,
-                    isLast: false, // set when the next pass starts
                     isSkipable: notesUnderCursor.every(n => this.isSkipable(n)),
-                    isJump: false, // OSMD takes the jumps: the cursor index never goes back
-                    target: null,
-                    targetMeasure: null,
                     osmdPitches: notesUnderCursor
                         .map(n => n.Pitch?.getHalfTone())
                         .filter((pitch): pitch is number => pitch != null)
                         .map(pitch => pitch + 12), // align octave with midi
                     midiPitches: [],
                     midiTicks: null,
-                    midiTicksDuration: null,
-                    midiTime: null,
                 });
             }
 
@@ -282,8 +254,6 @@ export class CursorService implements OnDestroy {
                 await this.maybeYieldToUi();
             }
         }
-        const last = osmdArray.at(-1);
-        if (last) last.isLast = true;
         cursor.reset();
         this.cursorIndex = 0;
 
@@ -425,7 +395,6 @@ export class CursorService implements OnDestroy {
             if (pitchesToAdd.length > 0) {
                 if (step.midiTicks === null) {
                     step.midiTicks = ticks;
-                    step.midiTime = midiNotes[0]?.time ?? null;
                 }
                 step.midiPitches.push(...pitchesToAdd);
             }

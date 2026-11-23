@@ -364,12 +364,6 @@ describe('CursorService', () => {
   });
 
   describe('options', () => {
-    it('stores the alignment algorithm (sw2 by default)', () => {
-      // NOTE: setup() no longer runs the Smith-Waterman alignment, so this setting currently has no effect
-      expect(service.getAlignmentAlgorithm()).toBe('sw2');
-      service.setAlignmentAlgorithm('sw1');
-      expect(service.getAlignmentAlgorithm()).toBe('sw1');
-    });
 
 
     it('reports progress as a whole percentage', () => {
