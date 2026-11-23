@@ -107,27 +107,25 @@ export class OsmdComponent implements OnInit, OnDestroy {
             await this.osmd.load(this.musicXml);
             // The cursor follows MuseScore's MIDI: play the repeats in its order (see midi-repeat-conventions)
             applyMidiRepeatConventions(this.osmd.Sheet);
-            this.osmd!.render(); // unfortunately not resolvable in load callback, we have to wait for the cursor to be available
+            // render() draws the sheet and creates the cursors synchronously: both are ready when it returns
+            this.osmd!.render();
 
             // Move complex initialization out of the Angular zone to avoid keeping the app unstable
             this.ngZone.runOutsideAngular(async () => {
-                for (let i = 0; i < 20; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    if (this.osmd && this.osmd.cursors && this.osmd!.GraphicSheet) {
-                        this.applyFingeringAndHarmonyVisibility();
-                        this.recalculateCursorPosition();
-                        await this.playerService.setOsmd(this.osmd!);
-
-                        this.ngZone.run(() => {
-                            this.loading = false;
-                            this.osmd!.cursors[0].SkipInvisibleNotes = true;
-                            this.osmd!.cursors[0].show();
-                            this.osmd!.cursors[0].reset();
-                            this.loadingChange.emit(false);
-                        });
-                        break;
-                    }
+                if (!this.osmd?.cursors?.[0] || !this.osmd.GraphicSheet) {
+                    return;
                 }
+                this.applyFingeringAndHarmonyVisibility();
+                this.recalculateCursorPosition();
+                await this.playerService.setOsmd(this.osmd);
+
+                this.ngZone.run(() => {
+                    this.loading = false;
+                    this.osmd!.cursors[0].SkipInvisibleNotes = true;
+                    this.osmd!.cursors[0].show();
+                    this.osmd!.cursors[0].reset();
+                    this.loadingChange.emit(false);
+                });
             });
         }
     }
