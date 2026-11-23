@@ -1,17 +1,17 @@
-<section data-testid="coach-grants">
-  <div class="flex items-center justify-between mb-3">
-    <p class="section-label" i18n="@@coach.grants.title">Access for external tools</p>
-    <span class="flex items-center gap-4">
+<section class="page-panel" data-testid="coach-grants">
+  <div class="page-toolbar">
+    <p class="page-sub-title" i18n="@@coach.grants.title">Access for external tools</p>
+    <div class="page-toolbar-actions">
       @if (showConnectLink()) {
-        <a routerLink="/coach/connect" class="link-primary text-xs" data-testid="coach-grant-connect" i18n="@@coach.grants.connectLink">Connect an AI coach →</a>
+        <a routerLink="/coach/connect" class="btn-secondary" data-testid="coach-grant-connect" i18n="@@coach.grants.connectLink">Connect an AI coach →</a>
       }
       @if (!formOpen() && !createdToken()) {
-        <button type="button" class="link-primary text-xs" data-testid="coach-grant-new" (click)="openForm()" i18n="@@coach.grants.new">New access →</button>
+        <button type="button" class="btn-primary" data-testid="coach-grant-new" (click)="openForm()" i18n="@@coach.grants.new">New access →</button>
       }
-    </span>
+    </div>
   </div>
 
-  <div class="exercise-desc-card">
+  <div class="exercise-desc-card max-w-2xl">
     <div class="exercise-desc-section">
       <p class="text-xs text-neutral-400" data-testid="coach-grant-notice" i18n="@@coach.grants.notice">A tool using this access can read your practice history and the score library, and control the player in a tab where you turned on Remote coach. What it reads is sent to the AI provider used by that tool.</p>
     </div>

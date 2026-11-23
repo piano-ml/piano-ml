@@ -38,7 +38,6 @@
 		@apply inline-flex items-center rounded-sm font-bold py-2 px-6 text-sm tracking-[0.075em] border transition-all duration-200
 		       bg-neutral-200/10 border-neutral-600 text-neutral-200
 		       hover:bg-neutral-200/20 hover:border-neutral-400
-		       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/50
 		       disabled:opacity-40 disabled:cursor-not-allowed;
 	}
 
@@ -79,7 +78,12 @@
 	}
 
 	.capsule {
-		@apply bg-neutral-700 hover:bg-emerald-600 text-white rounded-lg p-3 border  border-emerald-500/50 transition-colors;		
+		@apply bg-neutral-700 hover:bg-emerald-600 text-white rounded-lg p-3 border border-emerald-500/50 transition-colors;
+	}
+
+	/* The look of a capsule for a value that is read, not clicked (no hover) */
+	.capsule-static {
+		@apply bg-neutral-700 text-white rounded-lg p-3 border border-emerald-500/50;
 	}
 
 	.capsule-primary {
@@ -235,6 +239,85 @@
 	/* ── CTA below the exercise body ── */
 	.exercise-cta {
 		@apply mt-6;
+	}
+
+	/* ── Account pages: a toolbar first (context on the left, actions on the right), then the content ── */
+	.page-panel {
+		@apply flex flex-col gap-5;
+	}
+
+	.page-toolbar {
+		@apply flex flex-wrap items-center justify-between gap-3;
+	}
+
+	.page-toolbar-actions {
+		@apply ml-auto flex flex-wrap items-center gap-3;
+	}
+
+	/* ── Data tables: the look of the library score table (shared/components/score-table) ── */
+	.data-table {
+		@apply w-full;
+	}
+
+	.data-table thead tr {
+		@apply border-b border-neutral-800;
+	}
+
+	.data-table th {
+		@apply pb-3 pt-1 px-3 text-left text-xs font-semibold uppercase tracking-widest text-neutral-400;
+	}
+
+	.data-table td {
+		@apply py-2.5 px-3 text-sm text-neutral-300;
+	}
+
+	.data-table :is(th, td):last-child {
+		@apply pr-0;
+	}
+
+	.data-table tbody tr {
+		@apply border-b border-neutral-800/60 transition-colors duration-150 hover:bg-neutral-800/40;
+	}
+
+	.data-table .col-icon {
+		@apply w-10 px-1 text-center;
+	}
+
+	.data-table .col-number {
+		@apply text-right tabular-nums;
+	}
+
+	/* ── Tab bars (library, account): links or buttons, the open one underlined ── */
+	.tab-bar {
+		@apply flex overflow-x-auto overscroll-x-contain;
+		scrollbar-width: none;
+	}
+
+	.tab-link {
+		@apply shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 border-transparent text-neutral-300
+		       transition-colors duration-200 hover:text-white;
+		/* Inside the scrolling bar, an outer focus ring would be clipped */
+		outline-offset: -2px;
+	}
+
+	.tab-link-active {
+		@apply border-emerald-500 text-white;
+	}
+}
+
+/* ── Focus: one visible ring for keyboard users; a tap or a click shows none (:focus-visible) ── */
+@layer base {
+	:focus-visible {
+		outline: 2px solid var(--color-emerald-400, #34d399);
+		outline-offset: 2px;
+	}
+}
+
+/* Phones zoom in on a text field under 16px when it gets the focus (iOS): keep fields at 16px on touch screens.
+   Unlayered, so it wins over text-sm / text-xs on a field. */
+@media (pointer: coarse) {
+	.input-field {
+		font-size: 16px;
 	}
 }
 

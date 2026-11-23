@@ -54,6 +54,8 @@ interface OpenTake {
 
 interface Session {
   id: string;
+  /** The user logged in when the session started: it is only ever sent for that user. */
+  userId: string | null;
   item: PracticeItem;
   startedAt: number;
   lastEventAt: number;
@@ -92,6 +94,13 @@ function addCounters(into: AssessCounters, from: AssessCounters): void {
 /** The take's counters, or none when the user played too little for the take to say anything about them. */
 export const assessedTake = (snapshot: AssessSnapshot, maxNotesPlayed = UNASSESSED_MAX_NOTES_PLAYED): AssessSnapshot =>
   snapshot.played <= maxNotesPlayed ? { ...emptyCounters(), measures: [], played: snapshot.played } : snapshot;
+
+/**
+ * Whether the session has an accuracy (notes were expected) or a flow (onsets were expected), as the backend
+ * computes them. Without either (listening, no MIDI keyboard) the backend does not keep it: it is not sent.
+ */
+export const isAssessed = (session: PracticeSessionApiInfo): boolean =>
+  (session.notesExpected ?? 0) > 0 || (session.onsets ?? 0) > 0;
 
 const toApiCounters = (c: AssessCounters) => ({
   notesExpected: c.expected, notesHit: c.hit, notesWrong: c.wrong, onsets: c.onsets, waits: c.waits,
@@ -166,6 +175,7 @@ export class PracticeSessionRecorder implements OnDestroy {
     if (!this.session) {
       this.session = {
         id: crypto.randomUUID(),
+        userId: this.sessionStorage.getUserId(),
         item: this.item,
         startedAt: now,
         lastEventAt: now,
@@ -266,11 +276,12 @@ export class PracticeSessionRecorder implements OnDestroy {
   flush(reason: FlushReason, keepalive = false): void {
     const userId = this.sessionStorage.getUserId();
     const session = this.session;
-    if (!this.isBrowser || !session || !userId) {
+    // Only for the user who played it: not anonymously, not under an account logged in since
+    if (!this.isBrowser || !session || !userId || session.userId !== userId) {
       return;
     }
     const payload = this.toApiSession(session, reason);
-    if (payload.activeSeconds < MIN_ACTIVE_SECONDS) {
+    if (payload.activeSeconds < MIN_ACTIVE_SECONDS || !isAssessed(payload)) {
       return;
     }
     this.writeOutbox(session.id, { userId, savedAt: this.now(), session: payload });

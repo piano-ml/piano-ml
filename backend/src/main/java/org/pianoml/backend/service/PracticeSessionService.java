@@ -75,11 +75,25 @@ public class PracticeSessionService {
    * Creates the session or replaces its content. The caller has checked that an existing session belongs to
    * {@code user}.
    *
+   * @return the stored session, or empty when it has neither accuracy nor flow: nothing was assessed (listening,
+   *   no MIDI keyboard), so it is not kept. The counters only grow while a session goes on, so a session that is
+   *   assessed later is stored at its next write.
    * @throws IllegalArgumentException (400) when the session is invalid or implausible
    */
   @Transactional
-  public PracticeSession upsert(UUID id, PracticeSessionApiInfo body, User user) {
+  public Optional<PracticeSession> upsert(UUID id, PracticeSessionApiInfo body, User user) {
     validate(body);
+
+    int expected = orZero(body.getNotesExpected());
+    int hit = orZero(body.getNotesHit());
+    int wrong = orZero(body.getNotesWrong());
+    int onsets = orZero(body.getOnsets());
+    int waits = orZero(body.getWaits());
+    Double accuracy = accuracy(expected, hit, wrong);
+    Double flow = flow(onsets, waits);
+    if (accuracy == null && flow == null) {
+      return Optional.empty();
+    }
 
     PracticeSession session = practiceSessionRepository.findById(id).orElseGet(PracticeSession::new);
     session.setId(id);
@@ -112,21 +126,16 @@ public class PracticeSessionService {
     session.setInput(body.getInput() == null ? null : body.getInput().getValue());
     session.setEndReason(body.getEndReason() == null ? null : body.getEndReason().getValue());
 
-    int expected = orZero(body.getNotesExpected());
-    int hit = orZero(body.getNotesHit());
-    int wrong = orZero(body.getNotesWrong());
-    int onsets = orZero(body.getOnsets());
-    int waits = orZero(body.getWaits());
     session.setNotesExpected(expected);
     session.setNotesHit(hit);
     session.setNotesWrong(wrong);
     session.setOnsets(onsets);
     session.setWaits(waits);
-    session.setAccuracy(accuracy(expected, hit, wrong));
-    session.setFlow(flow(onsets, waits));
+    session.setAccuracy(accuracy);
+    session.setFlow(flow);
 
     session.setDetail(objectMapper.writeValueAsString(new Detail(body.getMeasures(), body.getTakes())));
-    return practiceSessionRepository.save(session);
+    return Optional.of(practiceSessionRepository.save(session));
   }
 
   /** hit / (expected + wrong), or null when no note was expected (listening, no MIDI keyboard). */
@@ -210,16 +219,16 @@ public class PracticeSessionService {
     session.setMode(body.getMode());
   }
 
-  /** The user's sessions, newest first. A scoreId takes precedence over the kind. */
+  /** The user's assessed sessions, newest first. A scoreId takes precedence over the kind. */
   public List<PracticeSession> recent(User user, int limit, String kind, UUID scoreId) {
     PageRequest page = PageRequest.of(0, Math.max(1, Math.min(limit, 100)));
     if (scoreId != null) {
-      return practiceSessionRepository.findByUserIdAndScoreIdOrderByStartedAtDesc(user.getId(), scoreId, page);
+      return practiceSessionRepository.findAssessedByScore(user.getId(), scoreId, page);
     }
     if (hasText(kind)) {
-      return practiceSessionRepository.findByUserIdAndKindOrderByStartedAtDesc(user.getId(), kind, page);
+      return practiceSessionRepository.findAssessedByKind(user.getId(), kind, page);
     }
-    return practiceSessionRepository.findByUserIdOrderByStartedAtDesc(user.getId(), page);
+    return practiceSessionRepository.findAssessed(user.getId(), page);
   }
 
   @Transactional

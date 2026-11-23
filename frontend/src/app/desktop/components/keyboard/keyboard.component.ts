@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, type ElementRef, ViewChild, signal,
 import { isPlatformBrowser } from '@angular/common';
 import { MidiServiceService } from "../../../shared/services/midi-service.service";
 import PianoKeys from '@jesperdj/pianokeys';
-import { midiToPitch } from "../../service/midi-maths";
 import { PlayerKeyboardService } from "../../service/player-keyboard.service";
 
 
@@ -42,18 +41,13 @@ export class KeyboardComponent implements OnDestroy, AfterViewInit {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-    const preferences = localStorage.getItem("preferences");
-    const parsedPreferences = JSON.parse(preferences || '{}');
-    const leftmostKey = this.minKey || midiToPitch(parsedPreferences.leftmostKey || 21) || null;
-    const rightmostKey = this.maxKey || midiToPitch(parsedPreferences.rightmostKey || 108) || null;
-
     const computedKeyHeight = this.keyHeight ?? 140;
     this.keyboard = new PianoKeys.Keyboard(
       this.keyboardContainer.nativeElement,
       {
         keyHeight: computedKeyHeight,
-        lowest: leftmostKey,
-        highest: rightmostKey
+        lowest: this.minKey,
+        highest: this.maxKey
       });
     this.keyboardService.setPianoKeys(this.keyboard);
     this.attachKeyboardListeners();

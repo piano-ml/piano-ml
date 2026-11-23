@@ -5,7 +5,7 @@ import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } fro
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   bootstrapArrowDown, bootstrapArrowLeft, bootstrapArrowUp, bootstrapChevronBarDown, bootstrapChevronBarUp,
-  bootstrapGripVertical, bootstrapHeartFill, bootstrapMusicNoteBeamed, bootstrapPencil, bootstrapTrash, bootstrapX,
+  bootstrapGripVertical, bootstrapMusicNoteBeamed, bootstrapPencil, bootstrapTrash, bootstrapX,
 } from '@ng-icons/bootstrap-icons';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PlaylistDetail, PlaylistItem, PlaylistService } from '../../../core/api';
@@ -26,7 +26,7 @@ export const ORDER_SAVE_DELAY_MS = 600;
   imports: [FormsModule, RouterLink, NgIcon, CdkDropList, CdkDrag, CdkDragHandle],
   viewProviders: [provideIcons({
     bootstrapArrowDown, bootstrapArrowLeft, bootstrapArrowUp, bootstrapChevronBarDown, bootstrapChevronBarUp,
-    bootstrapGripVertical, bootstrapHeartFill, bootstrapMusicNoteBeamed, bootstrapPencil, bootstrapTrash, bootstrapX,
+    bootstrapGripVertical, bootstrapMusicNoteBeamed, bootstrapPencil, bootstrapTrash, bootstrapX,
   })],
   templateUrl: './playlist-detail.component.html',
   styleUrl: './playlists.css',

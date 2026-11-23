@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, LOCALE_ID, OnInit, inject, signal }
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapHeart, bootstrapHeartFill, bootstrapMusicNoteBeamed, bootstrapPlus } from '@ng-icons/bootstrap-icons';
+import { bootstrapHeart, bootstrapHeartFill, bootstrapPlus } from '@ng-icons/bootstrap-icons';
 import { PlaylistService, PlaylistSummary } from '../../../core/api';
 import { PlaylistStore, playlistTitle } from '../../services/playlist-store.service';
 import { relativeTime } from './playlist-format';
@@ -11,11 +11,11 @@ export type PlaylistOrderBy = 'lastModified_desc' | 'createdAt_desc' | 'title_as
 
 export const PLAYLIST_PAGE_SIZE = 24;
 
-/** The user's playlists (issue #278): Favorites first, then a card per playlist, page by page. */
+/** The user's playlists (issue #278): Favorites first, then a row per playlist, page by page. */
 @Component({
   selector: 'app-account-playlists',
   imports: [FormsModule, RouterLink, NgIcon],
-  viewProviders: [provideIcons({ bootstrapHeart, bootstrapHeartFill, bootstrapMusicNoteBeamed, bootstrapPlus })],
+  viewProviders: [provideIcons({ bootstrapHeart, bootstrapHeartFill, bootstrapPlus })],
   templateUrl: './account-playlists.component.html',
   styleUrl: './playlists.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,8 +46,6 @@ export class AccountPlaylistsComponent implements OnInit {
   ];
 
   readonly titleOf = playlistTitle;
-  /** The 4 cells of a cover mosaic */
-  readonly cells = [0, 1, 2, 3];
 
   ngOnInit(): void {
     this.load(true);
@@ -104,6 +102,18 @@ export class AccountPlaylistsComponent implements OnInit {
         this.store.saveFailed();
       },
     });
+  }
+
+  /** A click anywhere on the row opens the playlist, in a new tab with Ctrl/Cmd; the title link handles its own clicks. */
+  open(playlist: PlaylistSummary, event: MouseEvent): void {
+    if ((event.target as HTMLElement).closest('a')) {
+      return;
+    }
+    if (event.ctrlKey || event.metaKey) {
+      window.open(`/account/playlists/${playlist.slug}`, '_blank', 'noopener');
+    } else {
+      this.router.navigate(['/account/playlists', playlist.slug]);
+    }
   }
 
   updated(playlist: PlaylistSummary): string {

@@ -11,8 +11,12 @@ const SUMMARY: PracticeSummary = {
   scoreAccuracy: { last10: { sessions: 10, accuracy: 0.92 } },
 };
 const SESSIONS: PracticeSessionApiInfo[] = [
-  { id: 'a', kind: 'score', slug: 'prelude', title: 'Prelude', startedAt: '2026-11-15T10:00:00Z', endedAt: '2026-11-15T10:10:00Z', activeSeconds: 540, accuracy: 0.9 },
-  { id: 'b', kind: 'exercise', title: 'Left then right', tonic: 'Am', startedAt: '2026-11-14T10:00:00Z', endedAt: '2026-11-14T10:05:00Z', activeSeconds: 120 },
+  { id: 'a', kind: 'score', slug: 'prelude', title: 'Prelude', author: 'Chopin', startedAt: '2026-11-15T10:00:00Z', endedAt: '2026-11-15T10:10:00Z', activeSeconds: 540, accuracy: 0.9 },
+  { id: 'b', kind: 'exercise', title: 'Left then right', tonic: 'Am', mode: 'Harmonic minor', exerciseType: 'scale', patternKey: 'harmonic_minor', exerciseKey: 'left_than_right',
+    startedAt: '2026-11-14T10:00:00Z', endedAt: '2026-11-14T10:05:00Z', activeSeconds: 120, flow: 0.5 },
+  { id: 'c', kind: 'score', title: 'Idea', author: 'Barry Gibb', startedAt: '2026-11-13T10:00:00Z', endedAt: '2026-11-13T10:05:00Z', activeSeconds: 120, accuracy: 0.7 },
+  // listening: neither accuracy nor flow
+  { id: 'd', kind: 'score', slug: 'nocturne', title: 'Nocturne', startedAt: '2026-11-12T10:00:00Z', endedAt: '2026-11-12T10:05:00Z', activeSeconds: 300, hands: 'listen' },
 ];
 
 describe('PracticeSummaryComponent', () => {
@@ -43,16 +47,25 @@ describe('PracticeSummaryComponent', () => {
     expect(text('practice-accuracy')).toBe('92%');
   });
 
-  it('lists the latest sessions, scores linked to their page', () => {
+  it('lists the assessed sessions: a score links to its page, an exercise to its exercise page', () => {
     create();
     const rows = el().querySelectorAll('[data-testid="practice-session"]');
-    expect(rows).toHaveLength(2);
+    expect(rows).toHaveLength(3); // not the listening one
     expect(rows[0].querySelector('a')?.getAttribute('href')).toBe('/score/prelude');
+    expect(rows[0].textContent).toContain('Chopin');
     expect(rows[0].textContent).toContain('9 min');
     expect(rows[0].textContent).toContain('90%');
-    expect(rows[1].querySelector('a')).toBeNull();
-    expect(rows[1].textContent).toContain('Am');
-    expect(rows[1].textContent).toContain('–'); // not assessed
+    expect(rows[1].querySelector('a')?.getAttribute('href')).toBe('/exercises/scale/Am/harmonic_minor/left_than_right');
+    expect(rows[1].textContent).toContain('Am Harmonic minor');
+    expect(rows[1].textContent).toContain('–'); // accuracy not assessed, flow is
+  });
+
+  it('says when the score of a session is no longer in the library', () => {
+    create();
+    const deleted = el().querySelectorAll('[data-testid="practice-session"]')[2];
+    expect(deleted.querySelector('a')).toBeNull();
+    expect(deleted.textContent).toContain('Barry Gibb');
+    expect(deleted.querySelector('[data-testid="practice-deleted"]')?.textContent).toContain('no longer in the library');
   });
 
   it('says so when nothing was recorded', () => {
@@ -64,6 +77,26 @@ describe('PracticeSummaryComponent', () => {
   it('stays out of the page when the summary cannot be loaded', () => {
     create(new Error('offline'));
     expect(el().querySelector('[data-testid="practice-summary"]')).toBeNull();
+  });
+
+  it('places "Delete practice history" at the bottom of the page', () => {
+    create();
+    const section = el().querySelector('[data-testid="practice-summary"]')!;
+    expect(section.lastElementChild!.querySelector('[data-testid="practice-delete"]')).not.toBeNull();
+  });
+
+  it('asks for confirmation in a dialog; Cancel deletes nothing', () => {
+    create();
+    const click = (testId: string) => {
+      (el().querySelector(`[data-testid="${testId}"]`) as HTMLButtonElement).click();
+      fixture.detectChanges();
+    };
+    click('practice-delete');
+    expect(el().querySelector('[role="dialog"]')?.getAttribute('aria-modal')).toBe('true');
+
+    click('practice-delete-cancel');
+    expect(el().querySelector('[role="dialog"]')).toBeNull();
+    expect(api.practiceSessionsDelete).not.toHaveBeenCalled();
   });
 
   it('deletes the history only after a confirmation, then reloads', () => {

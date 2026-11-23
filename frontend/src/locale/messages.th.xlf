@@ -2,10 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="th" datatype="plaintext" original="ng2.template">
     <body>
-      <trans-unit id="account.route.home" datatype="html">
-        <source>Home</source>
-        <target state="translated">หน้าแรก</target>
-      </trans-unit>
       <trans-unit id="account.route.login" datatype="html">
         <source>Login</source>
         <target state="translated">เข้าสู่ระบบ</target>
@@ -22,29 +18,13 @@
         <source>New password</source>
         <target state="translated">รหัสผ่านใหม่</target>
       </trans-unit>
-      <trans-unit id="account.route.scores" datatype="html">
-        <source>My Scores</source>
-        <target state="translated">โน้ตเพลงของฉัน</target>
-      </trans-unit>
-      <trans-unit id="account.route.playlists" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">เพลย์ลิสต์ของฉัน</target>
-      </trans-unit>
-      <trans-unit id="account.route.playlist" datatype="html">
-        <source>Playlist</source>
-        <target state="translated">เพลย์ลิสต์</target>
-      </trans-unit>
       <trans-unit id="account.route.editScore" datatype="html">
         <source>Edit Score</source>
         <target state="translated">แก้ไขโน้ตเพลง</target>
       </trans-unit>
-      <trans-unit id="accountScores.myScores" datatype="html">
-        <source>My Scores</source>
-        <target state="translated">โน้ตเพลงของฉัน</target>
-      </trans-unit>
-      <trans-unit id="accountScores.yourUploadedAndCuratedCollection" datatype="html">
-        <source>Your uploaded and curated collection</source>
-        <target state="translated">คอลเลกชันโน้ตเพลงที่คุณอัปโหลดและคัดสรร</target>
+      <trans-unit id="account.route.playlist" datatype="html">
+        <source>Playlist</source>
+        <target state="translated">เพลย์ลิสต์</target>
       </trans-unit>
       <trans-unit id="browse.capsuleCount" datatype="html">
         <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
@@ -382,6 +362,14 @@
         <source>← Cancel</source>
         <target state="translated">← ยกเลิก</target>
       </trans-unit>
+      <trans-unit id="editScore.saving" datatype="html">
+        <source>Saving…</source>
+        <target state="translated">กำลังบันทึก…</target>
+      </trans-unit>
+      <trans-unit id="accountHome.save" datatype="html">
+        <source>Save</source>
+        <target state="translated">บันทึก</target>
+      </trans-unit>
       <trans-unit id="editScore.loadingScore" datatype="html">
         <source>Loading score…</source>
         <target state="translated">กำลังโหลดโน้ตเพลง…</target>
@@ -438,6 +426,10 @@
         <source> Cancel </source>
         <target state="translated">ยกเลิก</target>
       </trans-unit>
+      <trans-unit id="accountHome.deleting" datatype="html">
+        <source>Deleting…</source>
+        <target state="translated">กำลังลบ…</target>
+      </trans-unit>
       <trans-unit id="editScore.error.noId" datatype="html">
         <source>No score ID provided</source>
         <target state="translated">ไม่ได้ระบุโน้ตเพลง</target>
@@ -470,21 +462,37 @@
         <source>Failed to delete score</source>
         <target state="translated">ลบโน้ตเพลงไม่สำเร็จ</target>
       </trans-unit>
-      <trans-unit id="accountHome.profile" datatype="html">
-        <source>Profile</source>
-        <target state="translated">โปรไฟล์</target>
-      </trans-unit>
-      <trans-unit id="accountHome.accountSettingsWorkbenchPreferences" datatype="html">
-        <source>Account settings &amp; workbench preferences</source>
-        <target state="translated">การตั้งค่าบัญชีและค่ากำหนดโต๊ะทำงาน</target>
+      <trans-unit id="accountHome.myPlaylists" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">เพลย์ลิสต์ของฉัน</target>
       </trans-unit>
       <trans-unit id="accountHome.myScores" datatype="html">
         <source>My Scores</source>
         <target state="translated">โน้ตเพลงของฉัน</target>
       </trans-unit>
-      <trans-unit id="accountHome.myPlaylists" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">เพลย์ลิสต์ของฉัน</target>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">การฝึกซ้อม</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tab.ai" datatype="html">
+        <source>AI</source>
+        <target state="translated">AI</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tab.myAccount" datatype="html">
+        <source>My Account</source>
+        <target state="translated">บัญชีของฉัน</target>
+      </trans-unit>
+      <trans-unit id="accountHome.profile" datatype="html">
+        <source>Profile</source>
+        <target state="translated">โปรไฟล์</target>
+      </trans-unit>
+      <trans-unit id="accountHome.subtitle" datatype="html">
+        <source>Your playlists, scores, practice, AI access and account</source>
+        <target state="translated">เพลย์ลิสต์ โน้ตเพลง การฝึกซ้อม การเข้าถึง AI และบัญชีของคุณ</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tabs.label" datatype="html">
+        <source>Account sections</source>
+        <target state="translated">ส่วนของบัญชี</target>
       </trans-unit>
       <trans-unit id="accountHome.deleteAccount" datatype="html">
         <source>Delete account</source>
@@ -494,13 +502,13 @@
         <source>Logout</source>
         <target state="translated">ออกจากระบบ</target>
       </trans-unit>
-      <trans-unit id="accountHome.identity" datatype="html">
-        <source>Identity</source>
-        <target state="translated">ข้อมูลตัวตน</target>
-      </trans-unit>
       <trans-unit id="accountHome.name" datatype="html">
         <source>Name</source>
         <target state="translated">ชื่อ</target>
+      </trans-unit>
+      <trans-unit id="accountHome.noName" datatype="html">
+        <source>No name set</source>
+        <target state="translated">ยังไม่ได้ตั้งชื่อ</target>
       </trans-unit>
       <trans-unit id="accountHome.edit" datatype="html">
         <source>Edit</source>
@@ -510,73 +518,9 @@
         <source>Your name</source>
         <target state="translated">ชื่อของคุณ</target>
       </trans-unit>
-      <trans-unit id="accountHome.save" datatype="html">
-        <source>Save</source>
-        <target state="translated">บันทึก</target>
-      </trans-unit>
       <trans-unit id="accountHome.cancel" datatype="html">
         <source>Cancel</source>
         <target state="translated">ยกเลิก</target>
-      </trans-unit>
-      <trans-unit id="accountHome.workbench" datatype="html">
-        <source>Workbench</source>
-        <target state="translated">โต๊ะทำงาน</target>
-      </trans-unit>
-      <trans-unit id="accountHome.midiSetup" datatype="html">
-        <source>MIDI Setup →</source>
-        <target state="translated">ตั้งค่า MIDI →</target>
-      </trans-unit>
-      <trans-unit id="accountHome.midiLowestKey" datatype="html">
-        <source>MIDI lowest key</source>
-        <target state="translated">คีย์ MIDI ต่ำสุด</target>
-      </trans-unit>
-      <trans-unit id="accountHome.midiHighestKey" datatype="html">
-        <source>MIDI highest key</source>
-        <target state="translated">คีย์ MIDI สูงสุด</target>
-      </trans-unit>
-      <trans-unit id="accountHome.drawFingering" datatype="html">
-        <source>Draw fingering</source>
-        <target state="translated">แสดงการวางนิ้ว</target>
-      </trans-unit>
-      <trans-unit id="accountHome.drawLyrics" datatype="html">
-        <source>Draw lyrics</source>
-        <target state="translated">แสดงเนื้อร้อง</target>
-      </trans-unit>
-      <trans-unit id="accountHome.showKeyboard" datatype="html">
-        <source>Show keyboard</source>
-        <target state="translated">แสดงคีย์บอร์ด</target>
-      </trans-unit>
-      <trans-unit id="accountHome.lowestKeyLabel" datatype="html">
-        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">คีย์ MIDI ต่ำสุด <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(กดโน้ตหนึ่งตัว)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="accountHome.key.required" datatype="html">
-        <source>Required.</source>
-        <target state="translated">จำเป็นต้องกรอก</target>
-      </trans-unit>
-      <trans-unit id="accountHome.key.min" datatype="html">
-        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
-        <target state="translated">ต่ำสุด <x id="INTERPOLATION" equiv-text="{{ 21 }}"/></target>
-      </trans-unit>
-      <trans-unit id="accountHome.key.max" datatype="html">
-        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
-        <target state="translated">สูงสุด <x id="INTERPOLATION" equiv-text="{{ 108 }}"/></target>
-      </trans-unit>
-      <trans-unit id="accountHome.highestKeyLabel" datatype="html">
-        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">คีย์ MIDI สูงสุด <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(กดโน้ตหนึ่งตัว)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="accountHome.listening.lowest" datatype="html">
-        <source>Listening for MIDI — lowest key…</source>
-        <target state="translated">กำลังรอสัญญาณ MIDI — คีย์ต่ำสุด…</target>
-      </trans-unit>
-      <trans-unit id="accountHome.listening.highest" datatype="html">
-        <source>Listening for MIDI — highest key…</source>
-        <target state="translated">กำลังรอสัญญาณ MIDI — คีย์สูงสุด…</target>
-      </trans-unit>
-      <trans-unit id="accountHome.lowestKeyMustBeLess" datatype="html">
-        <source>Lowest key must be less than highest key.</source>
-        <target state="translated">คีย์ต่ำสุดต้องต่ำกว่าคีย์สูงสุด</target>
       </trans-unit>
       <trans-unit id="accountHome.yourAccountWillBePermanently" datatype="html">
         <source> Your account will be permanently deleted. This action cannot be undone. </source>
@@ -585,6 +529,10 @@
       <trans-unit id="accountHome.yourScoresAreKeptOn" datatype="html">
         <source> Your scores are kept on PianoML but will no longer be linked to you. </source>
         <target state="translated">โน้ตเพลงของคุณจะยังอยู่บน PianoML แต่จะไม่เชื่อมโยงกับคุณอีก</target>
+      </trans-unit>
+      <trans-unit id="accountHome.deleteMyAccount" datatype="html">
+        <source>Delete my account</source>
+        <target state="translated">ลบบัญชีของฉัน</target>
       </trans-unit>
       <trans-unit id="accountHome.error.session" datatype="html">
         <source>Your session needs a refresh. Please reload the page and try again.</source>
@@ -746,14 +694,6 @@
         <source>Change my password</source>
         <target state="translated">เปลี่ยนรหัสผ่าน</target>
       </trans-unit>
-      <trans-unit id="playlist.list.title" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">เพลย์ลิสต์ของฉัน</target>
-      </trans-unit>
-      <trans-unit id="playlist.list.subtitle" datatype="html">
-        <source>Your favorites and practice lists</source>
-        <target state="translated">รายการโปรดและรายการฝึกซ้อมของคุณ</target>
-      </trans-unit>
       <trans-unit id="playlist.sort.label" datatype="html">
         <source>Sort</source>
         <target state="translated">เรียงตาม</target>
@@ -786,13 +726,17 @@
         <source>Browse the library →</source>
         <target state="translated">เรียกดูคลังเพลง →</target>
       </trans-unit>
-      <trans-unit id="playlist.scoreCount" datatype="html">
-        <source>{VAR_PLURAL, plural, =0 {No scores} =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
-        <target state="translated">{VAR_PLURAL, plural, =0 {ไม่มีโน้ตเพลง} other {โน้ตเพลง <x id="INTERPOLATION"/> รายการ}}</target>
+      <trans-unit id="scoreTable.favorite" datatype="html">
+        <source>Favorite</source>
+        <target state="translated">รายการโปรด</target>
       </trans-unit>
-      <trans-unit id="playlist.updated" datatype="html">
-        <source>updated <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></source>
-        <target state="translated">อัปเดตเมื่อ <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></target>
+      <trans-unit id="playlist.column.scores" datatype="html">
+        <source>Scores</source>
+        <target state="translated">โน้ตเพลง</target>
+      </trans-unit>
+      <trans-unit id="playlist.column.updated" datatype="html">
+        <source>Updated</source>
+        <target state="translated">อัปเดต</target>
       </trans-unit>
       <trans-unit id="common.loading" datatype="html">
         <source>Loading...</source>
@@ -822,21 +766,29 @@
         <source>Most scores</source>
         <target state="translated">โน้ตเพลงมากที่สุด</target>
       </trans-unit>
-      <trans-unit id="playlist.back" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">เพลย์ลิสต์ของฉัน</target>
-      </trans-unit>
       <trans-unit id="playlist.notFound" datatype="html">
         <source>This playlist does not exist, or it is not yours.</source>
         <target state="translated">เพลย์ลิสต์นี้ไม่มีอยู่ หรือไม่ใช่ของคุณ</target>
+      </trans-unit>
+      <trans-unit id="playlist.scoreCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =0 {No scores} =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =0 {ไม่มีโน้ตเพลง} other {โน้ตเพลง <x id="INTERPOLATION"/> รายการ}}</target>
       </trans-unit>
       <trans-unit id="playlist.created" datatype="html">
         <source>created <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></source>
         <target state="translated">สร้างเมื่อ <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></target>
       </trans-unit>
+      <trans-unit id="playlist.updated" datatype="html">
+        <source>updated <x id="INTERPOLATION" equiv-text="{{ meta().updated }}"/></source>
+        <target state="translated">อัปเดตเมื่อ <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></target>
+      </trans-unit>
       <trans-unit id="playlist.delete" datatype="html">
         <source>Delete playlist</source>
         <target state="translated">ลบเพลย์ลิสต์</target>
+      </trans-unit>
+      <trans-unit id="playlist.backToList" datatype="html">
+        <source>Playlists</source>
+        <target state="translated">เพลย์ลิสต์</target>
       </trans-unit>
       <trans-unit id="playlist.detail.empty" datatype="html">
         <source>No scores yet. Use ♡ or &quot;Save to…&quot; on any score page.</source>
@@ -910,10 +862,6 @@
         <source>Undo</source>
         <target state="translated">เลิกทำ</target>
       </trans-unit>
-      <trans-unit id="accountHome.practice" datatype="html">
-        <source>Practice</source>
-        <target state="translated">การฝึกซ้อม</target>
-      </trans-unit>
       <trans-unit id="accountHome.practice.empty" datatype="html">
         <source>Nothing recorded yet. Play a score or an exercise to see your progress here.</source>
         <target state="translated">ยังไม่มีการบันทึก เล่นโน้ตเพลงหรือแบบฝึกหัดเพื่อดูความก้าวหน้าของคุณที่นี่</target>
@@ -934,21 +882,93 @@
         <source>Accuracy (last 10 scores)</source>
         <target state="translated">ความแม่นยำ (โน้ตเพลง 10 รายการล่าสุด)</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice.exerciseAccuracy" datatype="html">
+        <source>Accuracy (last 10 exercises)</source>
+        <target state="translated">ความแม่นยำ (แบบฝึก 10 ครั้งล่าสุด)</target>
+      </trans-unit>
       <trans-unit id="accountHome.practice.recent" datatype="html">
         <source>Recent sessions</source>
         <target state="translated">การฝึกล่าสุด</target>
       </trans-unit>
-      <trans-unit id="accountHome.practice.exercise" datatype="html">
-        <source>Exercise</source>
-        <target state="translated">แบบฝึกหัด</target>
+      <trans-unit id="accountHome.practice.column.date" datatype="html">
+        <source>Date</source>
+        <target state="translated">วันที่</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">ความยาว</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.hands" datatype="html">
+        <source>Hands</source>
+        <target state="translated">มือ</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tempo" datatype="html">
+        <source>Tempo</source>
+        <target state="translated">จังหวะ</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.column.accuracy" datatype="html">
+        <source>Accuracy</source>
+        <target state="translated">ความแม่นยำ</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.flow" datatype="html">
+        <source>Flow</source>
+        <target state="translated">ความลื่นไหล</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.pieces" datatype="html">
+        <source>Pieces</source>
+        <target state="translated">บทเพลง</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.sessions" datatype="html">
+        <source>Sessions</source>
+        <target state="translated">ครั้ง</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.best" datatype="html">
+        <source>Best</source>
+        <target state="translated">ดีที่สุด</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.last" datatype="html">
+        <source>Last</source>
+        <target state="translated">ล่าสุด</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.coverage" datatype="html">
+        <source>Coverage</source>
+        <target state="translated">ความครอบคลุม</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.weakMeasures" datatype="html">
+        <source>Weak measures</source>
+        <target state="translated">ห้องที่ยังอ่อน</target>
       </trans-unit>
       <trans-unit id="accountHome.practice.deleteHistory" datatype="html">
         <source>Delete practice history</source>
         <target state="translated">ลบประวัติการฝึกซ้อม</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice.deleteWarning" datatype="html">
+        <source>All your practice sessions will be permanently deleted, with the progress shown here. This action cannot be undone.</source>
+        <target state="translated">เซสชันการฝึกซ้อมทั้งหมดของคุณจะถูกลบอย่างถาวร รวมถึงความก้าวหน้าที่แสดงที่นี่ การดำเนินการนี้ไม่สามารถย้อนกลับได้</target>
+      </trans-unit>
       <trans-unit id="accountHome.practice.confirmDelete" datatype="html">
         <source>Delete all sessions</source>
         <target state="translated">ลบการฝึกทั้งหมด</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.deleted" datatype="html">
+        <source>no longer in the library</source>
+        <target state="translated">ไม่อยู่ในคลังแล้ว</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">แบบฝึกหัด</target>
+      </trans-unit>
+      <trans-unit id="reimport.bothHands" datatype="html">
+        <source>Both hands</source>
+        <target state="translated">สองมือ</target>
+      </trans-unit>
+      <trans-unit id="reimport.leftHand" datatype="html">
+        <source>Left hand</source>
+        <target state="translated">มือซ้าย</target>
+      </trans-unit>
+      <trans-unit id="reimport.rightHand" datatype="html">
+        <source>Right hand</source>
+        <target state="translated">มือขวา</target>
       </trans-unit>
       <trans-unit id="playlist.favorites" datatype="html">
         <source>Favorites</source>
@@ -1678,6 +1698,34 @@
         <source> PianoML — The app might play piano (not the keyboard) </source>
         <target state="translated">PianoML — ให้แอปเล่นเสียงเปียโน (ไม่ใช่คีย์บอร์ด)</target>
       </trans-unit>
+      <trans-unit id="midiSetup.lowestKey" datatype="html">
+        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">คีย์ MIDI ต่ำสุด <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(กดโน้ตหนึ่งตัว)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.highestKey" datatype="html">
+        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">คีย์ MIDI สูงสุด <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(กดโน้ตหนึ่งตัว)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.lowest" datatype="html">
+        <source>Listening for MIDI — lowest key…</source>
+        <target state="translated">กำลังรอสัญญาณ MIDI — คีย์ต่ำสุด…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.highest" datatype="html">
+        <source>Listening for MIDI — highest key…</source>
+        <target state="translated">กำลังรอสัญญาณ MIDI — คีย์สูงสุด…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.min" datatype="html">
+        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
+        <target state="translated">ต่ำสุด <x id="INTERPOLATION" equiv-text="{{ 21 }}"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.max" datatype="html">
+        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
+        <target state="translated">สูงสุด <x id="INTERPOLATION" equiv-text="{{ 108 }}"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.lowestKeyMustBeLess" datatype="html">
+        <source>Lowest key must be less than highest key.</source>
+        <target state="translated">คีย์ต่ำสุดต้องต่ำกว่าคีย์สูงสุด</target>
+      </trans-unit>
       <trans-unit id="midiSetup.hideKeyboard" datatype="html">
         <source>Hide Keyboard</source>
         <target state="translated">ซ่อนคีย์บอร์ด</target>
@@ -1777,10 +1825,6 @@
       <trans-unit id="osmd.error" datatype="html">
         <source>Error Loading Score</source>
         <target state="translated">โหลดโน้ตเพลงไม่สำเร็จ</target>
-      </trans-unit>
-      <trans-unit id="scoreInfo.tempo" datatype="html">
-        <source>Tempo</source>
-        <target state="translated">จังหวะ</target>
       </trans-unit>
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
@@ -3206,10 +3250,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>Artist</source>
         <target state="translated">ศิลปิน</target>
       </trans-unit>
-      <trans-unit id="scoreTable.duration" datatype="html">
-        <source>Duration</source>
-        <target state="translated">ความยาว</target>
-      </trans-unit>
       <trans-unit id="scoreTable.grade" datatype="html">
         <source>Grade</source>
         <target state="translated">ระดับ</target>
@@ -3762,18 +3802,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>The original MIDI file cannot be read.</source>
         <target state="translated">อ่านไฟล์ MIDI ต้นฉบับไม่ได้</target>
       </trans-unit>
-      <trans-unit id="reimport.bothHands" datatype="html">
-        <source>Both hands</source>
-        <target state="translated">สองมือ</target>
-      </trans-unit>
-      <trans-unit id="reimport.rightHand" datatype="html">
-        <source>Right hand</source>
-        <target state="translated">มือขวา</target>
-      </trans-unit>
-      <trans-unit id="reimport.leftHand" datatype="html">
-        <source>Left hand</source>
-        <target state="translated">มือซ้าย</target>
-      </trans-unit>
       <trans-unit id="reimport.error.refused" datatype="html">
         <source>The server refused these tracks, or the original file is not a MIDI file.</source>
         <target state="translated">เซิร์ฟเวอร์ปฏิเสธแทร็กเหล่านี้ หรือไฟล์ต้นฉบับไม่ใช่ไฟล์ MIDI</target>
@@ -3921,10 +3949,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="quickActions.import" datatype="html">
         <source>Import</source>
         <target state="translated">นำเข้า</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.favorite" datatype="html">
-        <source>Favorite</source>
-        <target state="translated">รายการโปรด</target>
       </trans-unit>
       <trans-unit id="scoreTable.actions" datatype="html">
         <source> Actions </source>

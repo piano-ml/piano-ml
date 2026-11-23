@@ -10,8 +10,7 @@ import { AccountCreatePost409Response } from '../../../core/api';
   selector: 'app-create-account',
   imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './create-account.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './create-account.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class CreateAccountComponent {
   createAccountForm: FormGroup;

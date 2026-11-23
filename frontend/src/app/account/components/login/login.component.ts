@@ -9,8 +9,7 @@ import { RETURN_URL_PARAM, safeReturnUrl } from '../../services/return-url';
   selector: 'app-login',
   imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './login.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class LoginComponent {
   loginForm: FormGroup;

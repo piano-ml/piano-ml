@@ -1,14 +1,7 @@
-<article class="main-article">
+<div class="page-panel">
 
-  <div class="px-4 sm:px-6 pt-4">
-    <h1 class="page-title" i18n="@@playlist.list.title">My Playlists</h1>
-    <div class="page-sub-title" i18n="@@playlist.list.subtitle">Your favorites and practice lists</div>
-  </div>
-
-  <hr class="mx-4 sm:mx-6">
-
-  <div class="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6">
-    <label class="flex items-center gap-2 text-xs text-neutral-400">
+  <div class="page-toolbar">
+    <label class="flex items-center gap-2">
       <span class="field-label" i18n="@@playlist.sort.label">Sort</span>
       <select class="input-field !w-auto !py-1.5 text-sm" data-testid="playlist-sort"
         [ngModel]="orderBy()" (ngModelChange)="sortBy($event)">
@@ -18,95 +11,96 @@
       </select>
     </label>
     @if (!creating()) {
-      <button type="button" class="btn-primary gap-1.5" (click)="startCreate()" data-testid="new-playlist">
-        <ng-icon name="bootstrapPlus" size="14" aria-hidden="true" />
-        <span i18n="@@playlist.new">New playlist</span>
-      </button>
+      <div class="page-toolbar-actions">
+        <button type="button" class="btn-primary gap-1.5" (click)="startCreate()" data-testid="new-playlist">
+          <ng-icon name="bootstrapPlus" size="14" aria-hidden="true" />
+          <span i18n="@@playlist.new">New playlist</span>
+        </button>
+      </div>
     }
   </div>
 
-  <div class="px-4 sm:px-6 pb-12 mt-6 flex flex-col gap-6">
-
-    @if (creating()) {
-      <form class="exercise-desc-card max-w-xl" (ngSubmit)="create()" (keydown.escape)="cancelCreate()" data-testid="create-form">
-        <div class="exercise-desc-section flex flex-col gap-4">
-          <div class="flex flex-col gap-1.5">
-            <label class="field-label" for="new-playlist-title" i18n="@@playlist.field.title">Title</label>
-            <input id="new-playlist-title" type="text" class="input-field" name="title" maxlength="100" required autofocus
-              [ngModel]="newTitle()" (ngModelChange)="newTitle.set($event)">
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="field-label" for="new-playlist-description" i18n="@@playlist.field.description">Description (optional)</label>
-            <textarea id="new-playlist-description" class="input-field" name="description" rows="2" maxlength="1000"
-              [ngModel]="newDescription()" (ngModelChange)="newDescription.set($event)"></textarea>
-          </div>
-          <div class="flex gap-3">
-            <button type="submit" class="btn-success" [disabled]="!newTitle().trim() || saving()" i18n="@@favorite.create">Create</button>
-            <button type="button" class="btn-secondary" (click)="cancelCreate()" i18n="@@accountHome.cancel">Cancel</button>
-          </div>
+  @if (creating()) {
+    <form class="exercise-desc-card max-w-2xl" (ngSubmit)="create()" (keydown.escape)="cancelCreate()" data-testid="create-form">
+      <div class="exercise-desc-section flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="field-label" for="new-playlist-title" i18n="@@playlist.field.title">Title</label>
+          <input id="new-playlist-title" type="text" class="input-field" name="title" maxlength="100" required autofocus
+            [ngModel]="newTitle()" (ngModelChange)="newTitle.set($event)">
         </div>
-      </form>
-    }
-
-    @if (error()) {
-      <p class="alert-error" role="alert" i18n="@@playlist.list.error">Your playlists could not be loaded.</p>
-    }
-
-    @if (loaded() && !error() && total() === 0) {
-      <div class="playlist-empty" data-testid="playlists-empty">
-        <ng-icon name="bootstrapHeart" size="48" class="text-neutral-600" aria-hidden="true" />
-        <p class="text-neutral-300" i18n="@@playlist.list.empty">Tap ♡ on any score to save it here</p>
-        <a routerLink="/library" class="link-primary text-sm" i18n="@@playlist.browseLibrary">Browse the library →</a>
+        <div class="flex flex-col gap-1.5">
+          <label class="field-label" for="new-playlist-description" i18n="@@playlist.field.description">Description (optional)</label>
+          <textarea id="new-playlist-description" class="input-field" name="description" rows="2" maxlength="1000"
+            [ngModel]="newDescription()" (ngModelChange)="newDescription.set($event)"></textarea>
+        </div>
+        <div class="flex gap-3">
+          <button type="submit" class="btn-success" [disabled]="!newTitle().trim() || saving()" i18n="@@favorite.create">Create</button>
+          <button type="button" class="btn-secondary" (click)="cancelCreate()" i18n="@@accountHome.cancel">Cancel</button>
+        </div>
       </div>
-    }
+    </form>
+  }
 
-    @if (playlists().length > 0) {
-      <ul class="playlist-grid">
-        @for (p of playlists(); track p.id) {
-          <li>
-            <a class="playlist-card" [routerLink]="['/account/playlists', p.slug]" [attr.data-testid]="'playlist-' + p.slug">
-              <div class="playlist-mosaic" aria-hidden="true">
-                @for (i of cells; track i) {
-                  @if (p.coverImages[i]; as image) {
-                    <img [src]="image" alt="" loading="lazy">
-                  } @else {
-                    <span class="mosaic-empty"><ng-icon name="bootstrapMusicNoteBeamed" size="18" /></span>
-                  }
-                }
+  @if (error()) {
+    <p class="alert-error" role="alert" i18n="@@playlist.list.error">Your playlists could not be loaded.</p>
+  }
+
+  @if (loaded() && !error() && total() === 0) {
+    <div class="playlist-empty" data-testid="playlists-empty">
+      <ng-icon name="bootstrapHeart" size="48" class="text-neutral-600" aria-hidden="true" />
+      <p class="text-neutral-300" i18n="@@playlist.list.empty">Tap ♡ on any score to save it here</p>
+      <a routerLink="/library" class="link-primary text-sm" i18n="@@playlist.browseLibrary">Browse the library →</a>
+    </div>
+  }
+
+  @if (playlists().length > 0) {
+    <!-- One row per playlist; a click opens it -->
+    <div class="overflow-x-auto">
+      <table class="data-table" data-testid="playlist-table">
+        <thead>
+          <tr class="border-b border-neutral-800">
+            <th class="col-icon"><span class="sr-only" i18n="@@scoreTable.favorite">Favorite</span></th>
+            <th i18n="@@scoreTable.title">Title</th>
+            <th class="col-number" i18n="@@playlist.column.scores">Scores</th>
+            <th i18n="@@playlist.column.updated">Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of playlists(); track p.id) {
+            <tr class="cursor-pointer" (click)="open(p, $event)">
+              <td class="col-icon">
                 @if (p.isDefault) {
-                  <span class="mosaic-badge"><ng-icon name="bootstrapHeartFill" size="14" /></span>
+                  <ng-icon name="bootstrapHeartFill" size="14" class="text-rose-500" aria-hidden="true" />
                 }
-              </div>
-              <div class="flex flex-col gap-1 min-w-0">
-                <p class="playlist-card-title">{{ titleOf(p) }}</p>
+              </td>
+              <td>
+                <a class="playlist-link" [routerLink]="['/account/playlists', p.slug]" [attr.data-testid]="'playlist-' + p.slug">{{ titleOf(p) }}</a>
                 @if (p.description) {
-                  <p class="text-xs text-neutral-400 line-clamp-2">{{ p.description }}</p>
+                  <p class="text-xs text-neutral-500 line-clamp-1">{{ p.description }}</p>
                 }
-                <p class="text-xs text-neutral-500">
-                  <span i18n="@@playlist.scoreCount">{p.itemCount, plural, =0 {No scores} =1 {1 score} other {{{ p.itemCount }} scores}}</span>
-                  · <span i18n="@@playlist.updated">updated {{ updated(p) }}</span>
-                </p>
-              </div>
-            </a>
-          </li>
-        }
-      </ul>
+              </td>
+              <td class="col-number" [attr.data-testid]="'playlist-count-' + p.slug">{{ p.itemCount }}</td>
+              <td class="whitespace-nowrap">{{ updated(p) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
-      @if (hasMore()) {
-        <div class="flex flex-col items-center gap-2">
-          <button type="button" class="btn-primary" (click)="load(false)" [disabled]="loading()" data-testid="load-more">
-            @if (loading()) { <ng-container i18n="@@common.loading">Loading...</ng-container> } @else { <ng-container i18n="@@browse.loadMore">Load More</ng-container> }
-          </button>
-          <p class="text-xs text-neutral-500" i18n="@@playlist.shownOfTotal">{{ playlists().length }} of {{ total() }}</p>
-        </div>
-      }
-    }
-
-    @if (loading() && !loaded()) {
-      <div class="flex items-center gap-3 py-10" role="status">
-        <span class="spinner w-4 h-4 text-neutral-500" aria-hidden="true"></span>
-        <span class="text-sm text-neutral-400" i18n="@@common.loading">Loading...</span>
+    @if (hasMore()) {
+      <div class="flex flex-col items-center gap-2">
+        <button type="button" class="btn-primary" (click)="load(false)" [disabled]="loading()" data-testid="load-more">
+          @if (loading()) { <ng-container i18n="@@common.loading">Loading...</ng-container> } @else { <ng-container i18n="@@browse.loadMore">Load More</ng-container> }
+        </button>
+        <p class="text-xs text-neutral-500" i18n="@@playlist.shownOfTotal">{{ playlists().length }} of {{ total() }}</p>
       </div>
     }
-  </div>
-</article>
+  }
+
+  @if (loading() && !loaded()) {
+    <div class="flex items-center justify-center gap-3 py-10" role="status">
+      <span class="spinner w-4 h-4 text-neutral-500" aria-hidden="true"></span>
+      <span class="text-sm text-neutral-400" i18n="@@common.loading">Loading...</span>
+    </div>
+  }
+</div>
