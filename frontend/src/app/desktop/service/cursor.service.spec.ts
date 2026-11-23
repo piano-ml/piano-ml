@@ -26,7 +26,6 @@ describe('CursorService', () => {
   const noteAt = (midi: { tracks: { notes: Note[] }[] }, ticks: number, track = 0) => midi.tracks[track].notes.find((n) => n.ticks === ticks)!;
 
   beforeEach(() => {
-    localStorage.removeItem('cursorService.debug');
     TestBed.configureTestingModule({});
     service = TestBed.inject(CursorService);
   });
@@ -131,15 +130,6 @@ describe('CursorService', () => {
       expect(service.measureSequence).toEqual(order);
     });
 
-    it('logs a diagnostic summary in debug mode', async () => {
-      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
-      vi.spyOn(console, 'groupCollapsed').mockImplementation(() => undefined);
-      vi.spyOn(console, 'table').mockImplementation(() => undefined);
-      service.setDiagnosticMode(true, false);
-      await setup(SIMPLE_SCORE, scoreMidi(SIMPLE_SCORE, (bar, _h, p) => (bar === 2 ? p + 1 : p)));
-      expect(log.mock.calls.some(([m]) => String(m).includes('repetitionInstructions'))).toBe(true);
-      expect(console.table).toHaveBeenCalled();
-    });
   });
 
   describe('following playback (nextNote)', () => {
@@ -381,13 +371,6 @@ describe('CursorService', () => {
       expect(service.getAlignmentAlgorithm()).toBe('sw1');
     });
 
-    it('remembers diagnostic mode across reloads', () => {
-      service.setDiagnosticMode(true);
-      expect(localStorage.getItem('cursorService.debug')).toBe('1');
-      expect(TestBed.runInInjectionContext(() => new CursorService())['diagnosticMode']).toBe(true);
-      service.setDiagnosticMode(false);
-      expect(localStorage.getItem('cursorService.debug')).toBe('0');
-    });
 
     it('reports progress as a whole percentage', () => {
       service.feedback('Building', 42.4);
