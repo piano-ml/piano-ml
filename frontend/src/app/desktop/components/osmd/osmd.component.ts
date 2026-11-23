@@ -4,6 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { PlayerService } from '../../service/player.service';
+import { applyMidiRepeatConventions } from '../../service/midi-repeat-conventions';
 import { DEFAULT_OSMD_OPTIONS, PAGE_LEFT_MARGIN, PAGE_RIGHT_MARGIN, SHEET_MAXIMUM_WIDTH } from './osmd.config';
 
 @Component({
@@ -31,7 +32,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
     private cursorObserver?: MutationObserver;
     private scrollAnimationFrame?: number;
-    private cursorNudgeTimeoutId?: ReturnType<typeof setTimeout>;
     private readonly hideFingeringStorageKey = 'hideFingering';
     private readonly hideFingeringAndHarmonyStorageKey = 'hideFingeringAndHarmony';    
     private readonly hideLyricsStorageKey = 'hideLyrics';
@@ -66,11 +66,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
             this.scrollAnimationFrame = undefined;
         }
 
-        if (this.cursorNudgeTimeoutId) {
-            clearTimeout(this.cursorNudgeTimeoutId);
-            this.cursorNudgeTimeoutId = undefined;
-        }
-
         // Nettoyer l'instance OSMD
         if (this.osmd) {
             this.osmd.clear();
@@ -97,10 +92,9 @@ export class OsmdComponent implements OnInit, OnDestroy {
         this.osmd.EngravingRules.SheetMaximumWidth = SHEET_MAXIMUM_WIDTH;
         this.osmd.EngravingRules.PageLeftMargin = PAGE_LEFT_MARGIN;
         this.osmd.EngravingRules.PageRightMargin = PAGE_RIGHT_MARGIN;
-        // The cursor service follows the repeats itself (its playback-order measure sequence and its own jumps):
-        // with the OSMD iterator jumping back at the repeat barlines too, the cursor walked the repeated bars a
-        // third time and the score went out of sync with the audio from the first repeat on
-        this.osmd.EngravingRules.CursorIgnoreRepetitions = true;
+        // OSMD's iterator takes the repeats (voltas, D.C. / D.S. ...): the cursor service maps the MIDI onto its
+        // playback-order steps and moves the cursor with it (see CursorService.buildPlaybackSteps)
+        this.osmd.EngravingRules.CursorIgnoreRepetitions = false;
 
         const customOptions = this.getCustomOptions();
         this.osmd.setOptions({
@@ -111,34 +105,27 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
         if (this.musicXml) {
             await this.osmd.load(this.musicXml);
-            this.osmd!.render(); // unfortunately not resolvable in load callback, we have to wait for the cursor to be available
+            // The cursor follows MuseScore's MIDI: play the repeats in its order (see midi-repeat-conventions)
+            applyMidiRepeatConventions(this.osmd.Sheet);
+            // render() draws the sheet and creates the cursors synchronously: both are ready when it returns
+            this.osmd!.render();
 
             // Move complex initialization out of the Angular zone to avoid keeping the app unstable
             this.ngZone.runOutsideAngular(async () => {
-                for (let i = 0; i < 20; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    if (this.osmd && this.osmd.cursors && this.osmd!.GraphicSheet) {
-                        this.applyFingeringAndHarmonyVisibility();
-                        this.recalculateCursorPosition();
-                        const status = await this.playerService.setOsmd(this.osmd!);
-
-                        this.ngZone.run(() => {
-                            this.loading = false;
-                            this.osmd!.cursors[0].SkipInvisibleNotes = true;
-                            this.osmd!.cursors[0].show();
-                            this.osmd!.cursors[0].reset();
-                            this.loadingChange.emit(false);
-                        });
-
-                        this.cursorNudgeTimeoutId = setTimeout(() => {
-                            //this.osmd!.cursors[0].previous();
-                            this.osmd!.cursors[0].next();
-                            this.osmd!.cursors[0].previous();
-                            //this.osmd!.cursors[0].previous();
-                        }, 1000);
-                        break;
-                    }
+                if (!this.osmd?.cursors?.[0] || !this.osmd.GraphicSheet) {
+                    return;
                 }
+                this.applyFingeringAndHarmonyVisibility();
+                this.recalculateCursorPosition();
+                await this.playerService.setOsmd(this.osmd);
+
+                this.ngZone.run(() => {
+                    this.loading = false;
+                    this.osmd!.cursors[0].SkipInvisibleNotes = true;
+                    this.osmd!.cursors[0].show();
+                    this.osmd!.cursors[0].reset();
+                    this.loadingChange.emit(false);
+                });
             });
         }
     }

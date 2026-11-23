@@ -60,24 +60,20 @@ export interface PlayConfiguration {
 
 
 
-export type CursorAlignmentAlgorithm = "sw1" | "sw2";
-
+/** One cursor step (in playback order) that has notes, and the MIDI onset mapped onto it. */
 export interface OsmdArrayElement {
-    midiMeasure: number;
+    /** The measure of the step (0-based measure list index) */
     osmdMeasure: number;
+    /** The step's cursor index: its position in OSMD's playback-order walk */
     osmdIndex: number;
-    index: number;
-    isFirst: boolean;
-    isLast: boolean;
-    isJump: boolean;
-    target: number | null;
-    targetMeasure: number | null;
+    /** Only rests, tied-over notes, cue or grace notes: nothing to play */
     isSkipable: boolean;
+    /** The notes' pitches, as MIDI numbers */
     osmdPitches: number[] | null;
-    midiPitches: number[] ;
+    /** The expected pitches the MIDI onset played */
+    midiPitches: number[];
+    /** The MIDI onset (ticks) mapped onto the step, null when none */
     midiTicks: number | null;
-    midiTicksDuration: number | null;
-    midiTime: number | null;
 }
 
 
