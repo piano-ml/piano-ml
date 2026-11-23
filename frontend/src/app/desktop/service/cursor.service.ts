@@ -53,7 +53,6 @@ export class CursorService implements OnDestroy {
     follow = false;
     /** The scrolling container of the cursor element, found once per element. */
     private scrollerOf?: { element: HTMLElement; x: HTMLElement | null; y: HTMLElement | null };
-    private iteratorSize = 0;
     private repetitionInstructions: RepetitionInstruction[] = [];
     private osmdArray: OsmdArrayElement[] | undefined;
     private midiTicksNoteMap: Map<number, MidiNote[]> = new Map();   // ticks => MidiNote[]    
@@ -91,7 +90,6 @@ export class CursorService implements OnDestroy {
         this.measure.set(0);
         this.slopScoreSignal.set(0);
         this.cursorIndex = 0;
-        this.iteratorSize = 0;
         this.maxMidiMeasure = 0;
         this.osmdMeasureCount = 0;
         this.verifyAllElementsOk = false;
@@ -125,9 +123,6 @@ export class CursorService implements OnDestroy {
 
         this.buildMidiTicksNoteMap(midi)
         midi = null as any; // free memory
-        await this.yieldToUi();
-
-        this.hydrateRepetitionInstructions(this.cursor); // diagnostics only: OSMD's iterator takes the repeats
         await this.yieldToUi();
 
         // One walk in playback order with OSMD's own iterator (CursorIgnoreRepetitions = false): it takes
@@ -251,11 +246,16 @@ export class CursorService implements OnDestroy {
      *
      * A measure pass starts where the measure changes, where OSMD reports a jump, or where the time within the
      * measure goes back (a measure repeated by itself, after a jump hidden by skipped invisible entries).
+     *
+     * The repetition instructions of the measures met are collected on the way, for the diagnostic summary only.
      */
     private async buildPlaybackSteps(cursor: Cursor): Promise<void> {
         const feedbackMessage = $localize`:@@workbench.progress.cursor:Initializing the sheet cursor`;
-        const maxSteps = Math.max(this.iteratorSize * 20, 20000);
-        const feedbackStep = Math.max(1, Math.floor(this.iteratorSize / 100));
+        // A runaway guard far above any score (Diabelli's 298 played measures take about 2,000 steps); the number
+        // of steps is not known before the walk, so progress is reported at its start and end (it takes a few ms)
+        const maxSteps = 1_000_000;
+        const repetitionInstructions = new Set<RepetitionInstruction>();
+        const measuresSeen = new Set<number>();
         const osmdArray: OsmdArrayElement[] = [];
         const measureSequence: number[] = [];
         let step = 0;
@@ -263,6 +263,7 @@ export class CursorService implements OnDestroy {
         let previousMeasure = -1;
         let previousInMeasure = -1;
         let maxMeasure = -1;
+        this.feedback(feedbackMessage, 0);
         cursor.reset();
         while (!cursor.iterator.EndReached) {
             if (step > maxSteps) {
@@ -283,6 +284,11 @@ export class CursorService implements OnDestroy {
             previousMeasure = measure;
             previousInMeasure = inMeasure;
             maxMeasure = Math.max(maxMeasure, measure);
+            if (!measuresSeen.has(measure)) {
+                measuresSeen.add(measure);
+                for (const instr of iterator.CurrentMeasure.FirstRepetitionInstructions) repetitionInstructions.add(instr);
+                for (const instr of iterator.CurrentMeasure.LastRepetitionInstructions) repetitionInstructions.add(instr);
+            }
 
             const notesUnderCursor: OSMDNote[] = (iterator.CurrentVoiceEntries ?? []).flatMap(voiceEntry => voiceEntry.Notes ?? []);
             if (notesUnderCursor.length > 0) {
@@ -310,9 +316,6 @@ export class CursorService implements OnDestroy {
 
             iterator.moveToNextVisibleVoiceEntry(false);
             step++;
-            if (step % feedbackStep === 0) {
-                this.feedback(feedbackMessage, Math.min(99, (step / Math.max(1, this.iteratorSize)) * 100));
-            }
             if (step % (CursorService.UI_YIELD_STEP * 64) === 0) {
                 await this.yieldToUi();
             }
@@ -325,6 +328,7 @@ export class CursorService implements OnDestroy {
         this.osmdMeasureCount = maxMeasure + 1;
         this.maxMidiMeasure = Math.max(0, midiMeasure);
         this.osmdMeasureSequence = measureSequence;
+        this.repetitionInstructions = [...repetitionInstructions];
         this.osmdArray = osmdArray;
         this.feedback(feedbackMessage, 100);
         this.debugStep(feedbackMessage, osmdArray);
@@ -503,44 +507,6 @@ export class CursorService implements OnDestroy {
 
 
 
-    /**
-     * construst the list of repetition instructions reading info from osmd sheet via the cursor
-     * @param cursor 
-     * @return repetitionInstructions the list of repetition instructions
-     */
-    hydrateRepetitionInstructions(cursor: Cursor): RepetitionInstruction[] {
-        const feedbackMessage = $localize`:@@workbench.progress.voltas:Building the repeat endings`;
-        this.feedback(feedbackMessage, 0)
-        this.repetitionInstructions = [];
-        this.iteratorSize = 0;
-        const feedbackStep = 1;
-        while (!cursor.iterator.EndReached) {
-            this.iteratorSize++;
-            const m = cursor.iterator.CurrentMeasure;
-            if (m.FirstRepetitionInstructions.length > 0) {
-                for (const instr of m.FirstRepetitionInstructions) {
-                    this.repetitionInstructions.push(instr);
-                }
-            }
-            if (m.LastRepetitionInstructions.length > 0) {
-                for (const instr of m.LastRepetitionInstructions) {
-                    this.repetitionInstructions.push(instr);
-                }
-            }
-            cursor.iterator.moveToNext();
-            if (this.iteratorSize % feedbackStep === 0) {
-                this.feedback(feedbackMessage, Math.min(90, this.iteratorSize));
-            }
-        }
-        this.feedback(feedbackMessage, 95)
-
-        // deduplicate this.repetitionInstructions
-        this.repetitionInstructions = Array.from(
-            new Map(this.repetitionInstructions.map(instr => [instr, instr])).values()
-        );
-        this.feedback(feedbackMessage, Math.min(100, this.iteratorSize));
-        return this.repetitionInstructions;
-    }
 
 
 
