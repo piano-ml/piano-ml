@@ -162,6 +162,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private static readonly textDecoder = new TextDecoder();
 
   private readonly tourSeenKey = 'workbench-tour-seen';
+  /** Set when the calibration dialog was offered once: not offered again, even if it was closed without calibrating. */
+  private readonly calibrationSeenKey = 'calibration-seen';
   private lastHighlightedElement: HTMLElement | null = null;
 
   // Loading feedback exposed as observable for OnPush template updates
@@ -677,12 +679,21 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** A score opened without a timing calibration ever made: the calibration is offered (after the tour, on a first visit). */
+  /**
+   * The timing calibration is offered once, only after the guided tour was seen, and never again whether it was made,
+   * closed or impossible (no calibration is needed when one is already stored).
+   */
   private offerCalibration(): void {
-    if (this.scoreData?.id !== 'exercise' && !hasLatencyCalibration()) {
-      this.isCalibrationOpen = true;
-      this.changeDetector.markForCheck();
+    if (this.scoreData?.id === 'exercise') return;
+    try {
+      if (!localStorage.getItem(this.tourSeenKey) || localStorage.getItem(this.calibrationSeenKey)) return;
+      localStorage.setItem(this.calibrationSeenKey, 'true');
+    } catch {
+      return; // storage unavailable: not offered, rather than on every score
     }
+    if (hasLatencyCalibration()) return;
+    this.isCalibrationOpen = true;
+    this.changeDetector.markForCheck();
   }
 
   setupSightReadingMode() {
