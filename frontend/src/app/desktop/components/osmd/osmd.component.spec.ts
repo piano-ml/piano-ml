@@ -37,7 +37,7 @@ describe('OsmdComponent', () => {
 
   beforeEach(() => {
     for (const key of ['hideFingering', 'hideLyrics', 'hideFingeringAndHarmony', 'cursorService.debug']) localStorage.removeItem(key);
-    player = { setOsmd: vi.fn(async () => 0), tiltCursor: vi.fn(), releaseScoreSession: vi.fn() };
+    player = { setOsmd: vi.fn(async () => undefined), tiltCursor: vi.fn(), releaseScoreSession: vi.fn() };
   });
   afterEach(() => fixture?.destroy());
 

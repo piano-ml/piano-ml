@@ -2,10 +2,9 @@
 import { Injectable, signal, OnDestroy } from "@angular/core";
 import { Midi } from "@tonejs/midi";
 import type { Note as MidiNote, Note } from "@tonejs/midi/dist/Note";
-import { AlignmentType, Cursor, RepetitionInstruction, RepetitionInstructionEnum, Note as OSMDNote, GraphicalNote, VexFlowGraphicalNote, OpenSheetMusicDisplay } from "opensheetmusicdisplay";
-import { CURSOR_BAD_COLOR, CURSOR_GOOD_COLOR } from "../components/osmd/osmd.config";
-import { smithWatermanAlign, smithWatermanAlign2 } from "./smith-waterman";
-import { CursorAlignmentAlgorithm, OsmdArrayElement } from "../model/model";
+import { Cursor, Note as OSMDNote, GraphicalNote, VexFlowGraphicalNote, OpenSheetMusicDisplay } from "opensheetmusicdisplay";
+import { CURSOR_GOOD_COLOR } from "../components/osmd/osmd.config";
+import { OsmdArrayElement } from "../model/model";
 
 /**
  * The view scrolls (to centre the cursor) once the cursor comes within this fraction of the view's height or width
@@ -42,31 +41,19 @@ function visibleRange(scroller: HTMLElement | null, axis: 'x' | 'y'): [number, n
 })
 export class CursorService implements OnDestroy {
 
-    private static readonly DIAGNOSTIC_STORAGE_KEY = "cursorService.debug";
-    private static readonly DIAGNOSTIC_SAMPLE_LIMIT = 12;
-    private static readonly UI_YIELD_STEP = 8;
+    /** Setup gives the UI a turn once it has worked this long without one (a frame at 60 Hz). */
+    private static readonly UI_YIELD_AFTER_MS = 16;
     private setupTimeoutId?: ReturnType<typeof setTimeout>;
-    private diagnosticMode = this.readDiagnosticModeFromStorage();
-    private alignmentAlgorithm: CursorAlignmentAlgorithm = "sw2";
+    private lastYield = 0;
     private cursorIndex = 0;
     /** Keep the cursor in view while it moves (set from the score's followCursor option, see PlayerService). */
     follow = false;
     /** The scrolling container of the cursor element, found once per element. */
     private scrollerOf?: { element: HTMLElement; x: HTMLElement | null; y: HTMLElement | null };
-    private iteratorSize = 0;
-    private repetitionInstructions: RepetitionInstruction[] = [];
-    private osmdArray: OsmdArrayElement[] | undefined;
     private midiTicksNoteMap: Map<number, MidiNote[]> = new Map();   // ticks => MidiNote[]    
-    private osmdCursorIdxNoteMap: Map<number, OSMDNote[]> = new Map();
     private osmdCursorIdxToMeasureMap: Map<number, number> = new Map();
-    private osmdMeasureNoteMap: Map<number, OSMDNote[]> = new Map();
     private osmdMeasureSequence: number[] = [];
-    private midiBarToOsmdMeasure: Map<number, number> = new Map();
-    private verifyAllElementsOk = false;
-    private verifyAllElementsOkSignal = signal<boolean>(false);
     public maxMidiMeasure = 0;
-    // Signal exposé pour le slop score
-    public slopScoreSignal = signal<number>(0);
 
 
     cursor: Cursor | undefined;
@@ -75,8 +62,6 @@ export class CursorService implements OnDestroy {
     feedbackSignal = signal<{ message: string; percentage: number } | null>(null);
     readonly measure = signal<number>(0);
     midiTicksToOsmdCursorIndex: Map<number, { osmdIndex: number, osmdMeasure: number }> = new Map();
-    osmdMeasureToFirstStepIndex: Map<number, number> = new Map();
-    sortedMappedMidiTicks: number[] = [];
     sortedMidiTicks: number[] = [];
 
     public tiltCursor(cursor: Cursor): void {
@@ -91,116 +76,53 @@ export class CursorService implements OnDestroy {
 
         this.feedbackSignal.set(null);
         this.measure.set(0);
-        this.slopScoreSignal.set(0);
         this.cursorIndex = 0;
-        this.iteratorSize = 0;
         this.maxMidiMeasure = 0;
         this.osmdMeasureCount = 0;
-        this.verifyAllElementsOk = false;
-        this.verifyAllElementsOkSignal.set(false);
 
         this.midiTicksNoteMap.clear();
-        this.osmdCursorIdxNoteMap.clear();
         this.osmdCursorIdxToMeasureMap.clear();
-        this.osmdMeasureNoteMap.clear();
-        this.midiBarToOsmdMeasure.clear();
         this.midiTicksToOsmdCursorIndex.clear();
-        this.osmdMeasureToFirstStepIndex.clear();
-        this.repetitionInstructions = [];
         this.osmdMeasureSequence = [];
-        this.sortedMappedMidiTicks = [];
         this.sortedMidiTicks = [];
 
-        if (this.osmdArray) {
-            this.osmdArray.clear();
-            this.osmdArray = undefined;
-        }
-
         this.cursor = undefined;
-        this.debugLog("cursor session reset");
     }
 
-    public async setup(cursor: Cursor, midi: Midi): Promise<number> {
+    /**
+     * Maps every MIDI onset (ticks) to a cursor position: midiTicksToOsmdCursorIndex, which nextNote() follows.
+     * The cursor steps (OSMD's walk, in playback order) are an intermediate list, dropped once mapped.
+     */
+    public async setup(cursor: Cursor, midi: Midi): Promise<void> {
 
         this.cursor = cursor;
         this.midiTicksToOsmdCursorIndex.clear();
         this.feedbackSignal.set({ message: $localize`:@@workbench.progress.initializing:Initializing...`, percentage: 0 });
-        await this.yieldToUi();
+        // The UI gets a turn only once setup has worked a frame's time without one (maybeYieldToUi): a usual
+        // score sets up in one go (Diabelli's 298 played measures: about 20 ms), a long one stays responsive
+        this.lastYield = performance.now();
 
         this.buildMidiTicksNoteMap(midi)
         midi = null as any; // free memory
-        await this.yieldToUi();
+        await this.maybeYieldToUi();
 
-        this.hydrateRepetitionInstructions(this.cursor);
-        await this.yieldToUi();
+        // One walk in playback order with OSMD's own iterator (CursorIgnoreRepetitions = false): it takes
+        // the repeats, voltas, D.C. / D.S. itself, so the steps come out unrolled, each at its cursor index
+        const steps = await this.buildPlaybackSteps(this.cursor);
+        await this.maybeYieldToUi();
 
-        this.builOsmdMeasureNoteMap(this.cursor);
-        await this.yieldToUi();
+        this.hydrateOsmdArray(steps);
+        await this.maybeYieldToUi();
 
-        this.buildOsmdMeasureSequence();
-        await this.yieldToUi();
-
-        this.initOsmdArray();
-        await this.yieldToUi();
-
-
-        this.osmdMeasureToFirstStepIndex.clear();
-        await this.buildOsmdStepsSequence(cursor);
-        await this.yieldToUi();
-
-        this.hydrateTargets(this.osmdMeasureToFirstStepIndex);
-        await this.yieldToUi();
-
-
-        this.hydrateOsmdArray();
-        await this.yieldToUi();
-
-        this.debugStep("Final hydration", this.osmdArray!);
-
-        this.linkMidiTicksToCursorIndex();
-        await this.yieldToUi();
-
-        if (this.diagnosticMode) {
-            console.groupCollapsed("[cursor][mapping] mapMidiTicksToOsmdCursorIndex");
-            console.table(
-                Array.from(this.midiTicksToOsmdCursorIndex.entries()).map(([midiTicks, v]) => ({ midiTicks, osmdIndex: v.osmdIndex, osmdMeasure: v.osmdMeasure })));
-            console.groupEnd();
-        }
-
-
-
-        let score = this.verify(true);
-        this.slopScoreSignal.set(score);
+        this.linkMidiTicksToCursorIndex(steps);
+        this.cursor.CursorOptions.color = CURSOR_GOOD_COLOR;
         this.feedbackSignal.set(null);
-        await this.yieldToUi();
 
-        this.osmdArray!.clear();
         this.midiTicksNoteMap.clear();
-        this.osmdCursorIdxNoteMap.clear();
-        this.osmdMeasureNoteMap.clear();
-        this.osmdMeasureNoteMap.clear();
-        this.osmdMeasureSequence = [];
-        this.midiBarToOsmdMeasure.clear();
-        // this.osmdCursorIdxToMeasureMap.clear(); is used for slider and must not be cleared
-        // this.midiTicksToOsmdCursorIndex will be our main output and must not be cleared    
-        return score;
+        // Kept: midiTicksToOsmdCursorIndex (followed by nextNote), osmdCursorIdxToMeasureMap (reset(start), the
+        // measure slider) and osmdMeasureSequence (measureSequence)
     }
 
-
-    setAlignmentAlgorithm(algorithm: CursorAlignmentAlgorithm): void {
-        this.alignmentAlgorithm = algorithm;
-        this.debugLog("alignment algorithm updated", { algorithm: this.alignmentAlgorithm });
-    }
-
-    getAlignmentAlgorithm(): CursorAlignmentAlgorithm {
-        return this.alignmentAlgorithm;
-    }
-
-    private runSelectedAlignment(osmdArray: OsmdArrayElement[]): OsmdArrayElement[] {
-        return this.alignmentAlgorithm === "sw2"
-            ? smithWatermanAlign2(osmdArray)
-            : smithWatermanAlign(osmdArray);
-    }
 
     nextNote(note: Note) {
         const link = this.midiTicksToOsmdCursorIndex.get(note.ticks);
@@ -212,9 +134,6 @@ export class CursorService implements OnDestroy {
                 this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
                 this.cursor!.CursorOptions.type = 4;
             } else {
-                //if (this.diagnosticMode) {
-                //    this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
-                //}
                 this.cursor!.CursorOptions.type = 3; // measure rectangle
             }
             if (moved) {
@@ -252,199 +171,88 @@ export class CursorService implements OnDestroy {
         this.drawCursor(cursor);
     }
     /**
-     * First pass
-     * 
-     * @param cursor 
-     * @returns 
+     * The played measures, in playback order, of the score set up last (e.g. [0, 1, 2, 1, 2, 3]): one entry
+     * per measure pass, as OSMD's iterator plays them.
      */
-    private async buildOsmdStepsSequence(cursor: Cursor): Promise<Map<number, number>> {
-        let feedbackMessage = $localize`:@@workbench.progress.steps:Building the step sequence`;
-        const feedbackStep = Math.max(1, Math.floor(this.iteratorSize / 100));
-        cursor.reset();
-        const osmdSteps: number[] = [];
-        const osmdMeasureToFirstStepIndex = this.osmdMeasureToFirstStepIndex;
-        let feedbackCounter = 0;
-        while (!cursor.iterator.EndReached) {
-            const currentMeasureListIndex = cursor.iterator.CurrentMeasure.measureListIndex;
-            if (!osmdMeasureToFirstStepIndex.has(currentMeasureListIndex)) {
-                osmdMeasureToFirstStepIndex.set(currentMeasureListIndex, osmdSteps.length);
-            }
-            osmdSteps.push(currentMeasureListIndex);
-            cursor.iterator.moveToNext();
-            feedbackCounter++;
-            if (feedbackCounter % feedbackStep === 0) {
-                this.feedback(feedbackMessage, (feedbackCounter / this.iteratorSize) * 100);
-            }
-            if (feedbackCounter % CursorService.UI_YIELD_STEP === 0) {
-                await this.yieldToUi();
-            }
-        }
-        this.feedback(feedbackMessage, 99);
-        cursor.reset();
-        if (this.diagnosticMode) {
-            console.groupCollapsed(feedbackMessage);
-            console.table(Array.from(osmdMeasureToFirstStepIndex.entries()).map(([measure, step]) => ({ measure, step })));
-            console.groupEnd();
-        }
-        this.feedback(feedbackMessage, 100);
-        await this.yieldToUi();
-        return this.osmdMeasureToFirstStepIndex;
-
+    get measureSequence(): readonly number[] {
+        return this.osmdMeasureSequence;
     }
 
-    initOsmdArray(): void {
-        let index = 0;
-        const osmdArray: OsmdArrayElement[] = [];
-        let midiMeasureIndex = 0;
-        const osmdMesureSequence = this.osmdMeasureSequence;
-        const maxSecondPassIterations = Math.max(this.iteratorSize * 20, osmdMesureSequence.length * 20, 20000);
-        const cursor = this.cursor!;
+    /**
+     * Walks the score once in playback order with OSMD's own iterator: returns the cursor steps that have notes
+     * (the MIDI is mapped onto them), and sets the played-measure sequence (osmdMeasureSequence).
+     *
+     * With EngravingRules.CursorIgnoreRepetitions = false, MusicPartManagerIterator.moveToNext() takes the
+     * repeats itself: backward repeats (as often as `<repeat times>` says), the ending (volta) of each pass,
+     * D.C. / D.S. al Fine / al Coda. The walk moves exactly like stepIterator() does (cursor.reset(), then
+     * moveToNextVisibleVoiceEntry), so step k of the walk IS cursor index k: no jump targets to resolve.
+     *
+     * A measure pass starts where the measure changes, where OSMD reports a jump, or where the time within the
+     * measure goes back (a measure repeated by itself, after a jump hidden by skipped invisible entries).
+     */
+    private async buildPlaybackSteps(cursor: Cursor): Promise<OsmdArrayElement[]> {
         const feedbackMessage = $localize`:@@workbench.progress.cursor:Initializing the sheet cursor`;
-        let secondPassCounter = 0;
-        while (!cursor.iterator.EndReached) {
-            if (secondPassCounter > maxSecondPassIterations) {
-                const diagnosticState = {
-                    secondPassCounter,
-                    maxSecondPassIterations,
-                    midiMeasureIndex,
-                    osmdMeasureSequenceLength: osmdMesureSequence.length,
-                    currentMeasureListIndex: cursor.iterator.CurrentMeasure.measureListIndex,
-                    osmdArrayLength: osmdArray.length,
-                };
-                console.error("[cursor][mapping] runaway detected in pass (2/4)", diagnosticState);
-                throw new Error("cursor mapping runaway detected in pass (2/4)");
-            }
-
-            const firstIter = this.isFirstIterOfMeasure(index, cursor)
-            const lastIter = this.isLastIterOfMeasure(index, cursor)
-            const osmdMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex;
-            const currentMeasureValue = osmdMesureSequence[midiMeasureIndex];
-            const nextMeasureValue = osmdMesureSequence[midiMeasureIndex + 1];
-            const hasMeasureTransition = currentMeasureValue != null && nextMeasureValue != null;
-            const isNaturalAdvance = hasMeasureTransition && nextMeasureValue === currentMeasureValue + 1;
-            const isJump =
-                lastIter
-                && hasMeasureTransition
-                && !isNaturalAdvance;
-            const jumpTargetMeasure = isJump ? nextMeasureValue : null;
-            let notesUnderCursor: OSMDNote[] = (cursor.iterator.CurrentVoiceEntries ?? [])
-                .flatMap(voiceEntry => voiceEntry.Notes ?? []);
-            const isTremolo = notesUnderCursor.at(0)?.TremoloInfo != null;
-
-            if (notesUnderCursor.length === 0) {
-                cursor.iterator.moveToNext();
-                index++;
-                secondPassCounter++;
-                if (lastIter) {
-                    midiMeasureIndex++;
-                    this.feedback(feedbackMessage, (midiMeasureIndex / osmdMesureSequence.length) * 100);
-                }
-                continue;
-            }
-            notesUnderCursor = (cursor.iterator.CurrentVoiceEntries ?? [])
-                .flatMap(voiceEntry => voiceEntry.Notes ?? []);
-
-            const osmdPitches = notesUnderCursor
-                .map(n => n.Pitch?.getHalfTone())
-                .filter((pitch): pitch is number => pitch != null)
-                .map(pitch => pitch + 12); // align octave with midi
-            const toSkip = notesUnderCursor.every(n => this.isSkipable(n));
-            const o: OsmdArrayElement = {
-                midiMeasure: midiMeasureIndex,
-                osmdMeasure: osmdMeasureIndex,
-                osmdIndex: 0,
-                index: index,
-                isFirst: firstIter,
-                isLast: lastIter,
-                isSkipable: toSkip,
-                isJump: isJump,
-                target: null, // will be filled in next pass
-                targetMeasure: jumpTargetMeasure,
-                osmdPitches,
-                midiPitches: [],
-                midiTicks: null,
-                midiTicksDuration: null,
-                midiTime: null
-            }
-            osmdArray.push(o);
-            if (o.isLast && hasMeasureTransition && !isNaturalAdvance) {
-                const targetMeasure = osmdMesureSequence[midiMeasureIndex + 1];
-                this.moveToMeasure(targetMeasure);
-                //await this.yieldToUi(); // yield to let the cursor update
-            } else {
-                cursor.iterator.moveToNext();
-            }
-            index++;
-            secondPassCounter++;
-            if (lastIter) {
-                midiMeasureIndex++;
-                this.feedback(feedbackMessage, (midiMeasureIndex / osmdMesureSequence.length) * 100);
-            }
-            if (secondPassCounter % CursorService.UI_YIELD_STEP === 0) {
-                //await this.yieldToUi();
-            }
-        }
-        this.maxMidiMeasure = Math.max(...osmdArray.map(e => e.midiMeasure))
+        // A runaway guard far above any score (Diabelli's 298 played measures take about 2,000 steps); the number
+        // of steps is not known before the walk, so progress is reported at its start and end (it takes a few ms)
+        const maxSteps = 1_000_000;
+        const osmdArray: OsmdArrayElement[] = [];
+        const measureSequence: number[] = [];
+        let step = 0;
+        let midiMeasure = -1;
+        let previousMeasure = -1;
+        let previousInMeasure = -1;
+        let maxMeasure = -1;
+        this.feedback(feedbackMessage, 0);
         cursor.reset();
-        this.feedback(feedbackMessage, 100);
-        this.debugStep(feedbackMessage, osmdArray);
-        this.osmdArray = osmdArray;
-    }
+        while (!cursor.iterator.EndReached) {
+            if (step > maxSteps) {
+                console.error("[cursor][mapping] runaway detected in the playback walk", { step, maxSteps });
+                throw new Error("cursor mapping runaway detected in the playback walk");
+            }
+            const iterator = cursor.iterator;
+            const measure = iterator.CurrentMeasure.measureListIndex;
+            const inMeasure = iterator.CurrentRelativeInMeasureTimestamp.RealValue;
+            const newPass = measure !== previousMeasure || iterator.JumpOccurred || inMeasure <= previousInMeasure;
+            if (newPass) {
+                midiMeasure++;
+                measureSequence.push(measure);
+            }
+            previousMeasure = measure;
+            previousInMeasure = inMeasure;
+            maxMeasure = Math.max(maxMeasure, measure);
 
-    debugStep(feedbackMessage: string, osmdArray: OsmdArrayElement[]): void {
-        if (!this.diagnosticMode) {
-            return;
-        }
-        console.groupCollapsed("[cursor][mapping][hydrateOsmdArray]" + feedbackMessage);
-        console.table(Array.from(osmdArray));
-        console.groupEnd();
-
-    }
-
-    hydrateTargets(osmdMeasureToFirstStepIndex: Map<number, number>): OsmdArrayElement[] {
-        //console.log("hydrateTargets start (need osmdMeasureToFirstStepIndex)", osmdMeasureToFirstStepIndex);
-        const osmdArray = this.osmdArray!;
-        const feedbackMessage = $localize`:@@workbench.progress.hydrating:Preparing the cursor`;
-        let targetOsmdIndex = 0;
-        let thirdPassCounter = 0;
-        const feedbackStep = Math.max(1, Math.floor(osmdArray.length / 100));
-        const uiYieldStep = CursorService.UI_YIELD_STEP;
-        for (let i = 0; i < osmdArray.length; i++) {
-            const o = osmdArray[i];
-            o.osmdIndex = targetOsmdIndex;
-            if (o.isJump) {
-                const resolvedTarget = osmdMeasureToFirstStepIndex.get(o.targetMeasure!);
-                targetOsmdIndex = resolvedTarget!;
-                o.target = targetOsmdIndex;
-            } else {
-                targetOsmdIndex++;
+            const notesUnderCursor: OSMDNote[] = (iterator.CurrentVoiceEntries ?? []).flatMap(voiceEntry => voiceEntry.Notes ?? []);
+            if (notesUnderCursor.length > 0) {
+                osmdArray.push({
+                    osmdMeasure: measure,
+                    osmdIndex: step,
+                    isSkipable: notesUnderCursor.every(n => this.isSkipable(n)),
+                    osmdPitches: notesUnderCursor
+                        .map(n => n.Pitch?.getHalfTone())
+                        .filter((pitch): pitch is number => pitch != null)
+                        .map(pitch => pitch + 12), // align octave with midi
+                    midiPitches: [],
+                    midiTicks: null,
+                });
             }
 
-            thirdPassCounter++;
-            if (thirdPassCounter % feedbackStep === 0 || thirdPassCounter === osmdArray.length) {
-                this.feedback(feedbackMessage, (thirdPassCounter / osmdArray.length) * 100);
-            }
-            if (thirdPassCounter % uiYieldStep === 0) {
-                //await this.yieldToUi();
+            iterator.moveToNextVisibleVoiceEntry(false);
+            step++;
+            if ((step & 255) === 0) {
+                await this.maybeYieldToUi();
             }
         }
-        this.debugStep(feedbackMessage, osmdArray); //.filter(o => o.osmdMeasure==8));
-        this.feedback(feedbackMessage, 100);
+        cursor.reset();
+        this.cursorIndex = 0;
 
+        this.osmdMeasureCount = maxMeasure + 1;
+        this.maxMidiMeasure = Math.max(0, midiMeasure);
+        this.osmdMeasureSequence = measureSequence;
+        this.feedback(feedbackMessage, 100);
         return osmdArray;
     }
 
 
-    inDebugRange(idx: number): boolean {
-        return idx > 514 && idx < 545;
-    }
-
-    arrRemove(arr: number[], value: number): void {
-        const pos = arr.indexOf(value);
-        if (pos !== -1) {
-            arr.splice(pos, 1);
-        }
-    }
 
     private hasAnyPitchOverlap(expectedPitches: number[] | null | undefined, eventPitches: number[]): boolean {
         if (!expectedPitches || expectedPitches.length === 0 || eventPitches.length === 0) {
@@ -495,12 +303,10 @@ export class CursorService implements OnDestroy {
 
 
 
-    hydrateOsmdArray(lookahead = 6): OsmdArrayElement[] {
-        const osmdArray = this.osmdArray!;
+    /** Attaches each MIDI onset to the cursor step whose pitches it plays (looking ahead past extra or missing notes). */
+    private hydrateOsmdArray(osmdArray: OsmdArrayElement[], lookahead = 6): void {
         const sortedTicks = this.sortedMidiTicks;
-        const midiTicksNoteMap = this.
-
-            midiTicksNoteMap;
+        const midiTicksNoteMap = this.midiTicksNoteMap;
 
         /** Return the index of the first non-skippable step at or after `from`. */
         const nextPlayable = (from: number): number => {
@@ -569,240 +375,16 @@ export class CursorService implements OnDestroy {
             if (pitchesToAdd.length > 0) {
                 if (step.midiTicks === null) {
                     step.midiTicks = ticks;
-                    step.midiTime = midiNotes[0]?.time ?? null;
                 }
                 step.midiPitches.push(...pitchesToAdd);
             }
             // If pitchesToAdd is empty (pure embellishment / no match), the tick is
             // consumed without touching midiTicks so the step isn't polluted.
 
-            if (this.inDebugRange(osmdIdx)) {
-                console.log('[hydrateOsmdArray]', ticks, osmdIdx, step.osmdPitches, step.midiPitches);
-            }
 
             midiIdx++;
         }
-
-        this.debugStep("Hydrating MIDI pitches", osmdArray);
-        return osmdArray;
     }
-
-    /***     */
-    //    async hydrateOsmdArray(cursor: Cursor): Promise<OsmdArrayElement[]> {
-    //     }
-    /**      */
-
-
-
-
-
-    /**
-     * Build a repetition-aware sequence of OSMD measure indices (e.g. [1,2,3,1,2,3,4,...]).
-     * This is intentionally computed standalone for future refactors.
-     */
-    buildOsmdMeasureSequence(): number[] {
-        const feedbackMessage = $localize`:@@workbench.progress.measureSequence:Building the measure sequence`;
-        this.feedback(feedbackMessage, 0);
-        const osmdMeasureSequence: number[] = Array.from(this.osmdMeasureNoteMap.keys());
-        const outputSequence: number[] = [];
-        let currentMeasureNumber = 0;
-        let insideVolta = false;
-        let security = 0;
-
-        let daCapoCount = 0;
-        const MAX_DACAPO = 2; // security
-
-        // Each backward jump is taken exactly once: the first time the walk reaches it. A repetition can
-        // carry several of them (a second :| further down the same |: section — Diabelli's Op. 151 Sonatina 1
-        // jumps back from its m47 to m10 after the m26 repeat was already played): the pass counter shared
-        // by the section missed every jump but the first, and the sequence lost 37 measures there.
-        const firedJumps = new Set<RepetitionInstruction>();
-        // A backward jump goes to the last forward repeat before it (or the start of the piece), as the
-        // MIDI exports do it — OSMD's own repetition start does not always say so (a lone second :| gets a
-        // repetition of the measures just before it).
-        const startLines = this.repetitionInstructions
-            .filter((instr) => instr.type === RepetitionInstructionEnum.StartLine && instr.alignment === AlignmentType.End)
-            .map((instr) => instr.measureIndex)
-            .sort((a, b) => a - b);
-        const anchorAt = (measureIndex: number): number => {
-            let anchor = 0;
-            for (const start of startLines) {
-                if (start > measureIndex) break;
-                anchor = start;
-            }
-            return anchor;
-        };
-        // How many times the walk entered a section (by its start measure): entry n plays the ending
-        // (volta) numbered n — and past the last numbered entry, the last ending (as MuseScore exports it:
-        // the third pass of Diabelli's m10-m47 plays volta 2).
-        const entries = new Map<number, number>();
-        const endingsByRep = new Map<number, RepetitionInstruction[]>();
-        for (const instr of this.repetitionInstructions) {
-            if (instr.type !== RepetitionInstructionEnum.Ending || instr.alignment !== AlignmentType.Begin) continue;
-            const key = anchorAt(instr.measureIndex);
-            const group = endingsByRep.get(key);
-            if (group) group.push(instr);
-            else endingsByRep.set(key, [instr]);
-        }
-        const maxEndingOf = (instr: RepetitionInstruction): number => Math.max(0, ...(instr.endingIndices ?? []));
-        /** The ending the current entry of this section plays: the one numbered for it, or the last one beyond. */
-        const chosenEnding = (anchor: number): RepetitionInstruction | undefined => {
-            const group = endingsByRep.get(anchor);
-            if (!group || group.length === 0) return undefined;
-            const pass = entries.get(anchor) ?? 1;
-            const forPass = group.find((instr) => instr.endingIndices?.includes(pass));
-            if (forPass) return forPass;
-            const lastNumbered = Math.max(...group.map(maxEndingOf));
-            return pass > lastNumbered ? group.reduce((a, b) => (maxEndingOf(a) >= maxEndingOf(b) ? a : b)) : undefined;
-        };
-        /** Whether this ending (its start or its end instruction) is the one played by the current entry. */
-        const playsThisEntry = (instr: RepetitionInstruction): boolean => {
-            const chosen = chosenEnding(anchorAt(instr.measureIndex));
-            return !!chosen && (chosen.endingIndices ?? []).join(',') === (instr.endingIndices ?? []).join(',');
-        };
-
-        while (currentMeasureNumber < osmdMeasureSequence.length && security < 10000) {
-            security++;
-
-            // DaCapo handling
-            const isDaCapo = this.repetitionInstructions.find(
-                instr =>
-                    instr.type === RepetitionInstructionEnum.DaCapo
-                    && instr.alignment === AlignmentType.End
-                    && instr.measureIndex === currentMeasureNumber
-            );
-            if (isDaCapo) {
-                daCapoCount++;
-                if (daCapoCount > MAX_DACAPO) {
-                    break; // security
-                }
-                // After a D.C. the repetitions are not taken again (their jumps already fired): the piece
-                // plays through as its last pass
-                currentMeasureNumber = 0;
-                continue;
-            }
-
-            const currentVoltaStart = this.repetitionInstructions.find(
-                instr =>
-                    instr.type === RepetitionInstructionEnum.Ending
-                    && instr.alignment === AlignmentType.Begin
-                    && currentMeasureNumber === instr.measureIndex
-            );
-            if (currentVoltaStart && !playsThisEntry(currentVoltaStart)) {
-                insideVolta = true;
-            }
-            if (!insideVolta) {
-                outputSequence.push(currentMeasureNumber);
-            }
-            const currentVoltaEnd = this.repetitionInstructions.find(
-                instr =>
-                    instr.type === RepetitionInstructionEnum.Ending
-                    && instr.alignment === AlignmentType.End
-                    && currentMeasureNumber === instr.measureIndex
-            );
-            if (currentVoltaEnd && !playsThisEntry(currentVoltaEnd)) {
-                insideVolta = false;
-            }
-
-            const isBackJump = this.repetitionInstructions.find(
-                instr =>
-                    instr.type === RepetitionInstructionEnum.BackJumpLine
-                    && instr.alignment === AlignmentType.End
-                    && instr.measureIndex === currentMeasureNumber
-            )
-
-            if (isBackJump && !firedJumps.has(isBackJump)) {
-                firedJumps.add(isBackJump);
-                const target = anchorAt(currentMeasureNumber);
-                entries.set(target, (entries.get(target) ?? 1) + 1);
-                currentMeasureNumber = target;
-            } else {
-                currentMeasureNumber++;
-            }
-        }
-        this.feedback(feedbackMessage, 100);
-        this.osmdMeasureSequence = outputSequence;
-        return outputSequence;
-    }
-
-
-    /**
-     * construst the list of repetition instructions reading info from osmd sheet via the cursor
-     * @param cursor 
-     * @return repetitionInstructions the list of repetition instructions
-     */
-    hydrateRepetitionInstructions(cursor: Cursor): RepetitionInstruction[] {
-        const feedbackMessage = $localize`:@@workbench.progress.voltas:Building the repeat endings`;
-        this.feedback(feedbackMessage, 0)
-        this.repetitionInstructions = [];
-        this.iteratorSize = 0;
-        const feedbackStep = 1;
-        while (!cursor.iterator.EndReached) {
-            this.iteratorSize++;
-            const m = cursor.iterator.CurrentMeasure;
-            if (m.FirstRepetitionInstructions.length > 0) {
-                for (const instr of m.FirstRepetitionInstructions) {
-                    this.repetitionInstructions.push(instr);
-                }
-            }
-            if (m.LastRepetitionInstructions.length > 0) {
-                for (const instr of m.LastRepetitionInstructions) {
-                    this.repetitionInstructions.push(instr);
-                }
-            }
-            cursor.iterator.moveToNext();
-            if (this.iteratorSize % feedbackStep === 0) {
-                this.feedback(feedbackMessage, Math.min(90, this.iteratorSize));
-            }
-        }
-        this.feedback(feedbackMessage, 95)
-
-        // deduplicate this.repetitionInstructions
-        this.repetitionInstructions = Array.from(
-            new Map(this.repetitionInstructions.map(instr => [instr, instr])).values()
-        );
-        this.feedback(feedbackMessage, Math.min(100, this.iteratorSize));
-        return this.repetitionInstructions;
-    }
-
-    /**
-     * build a map of measure index => osmd notes under cursor using the cursor to extract this information
-     * @param cursor  
-     * @return this.osmdMeasureNoteMap Map<number, OSMDNote[]> measure index => osmd notes under cursor
-     */
-    builOsmdMeasureNoteMap(cursor: Cursor): Map<number, OSMDNote[]> {
-        const feedbackMessage = $localize`:@@workbench.progress.measures:Building the measures`;
-        this.feedback(feedbackMessage, 0);
-        this.osmdMeasureNoteMap.clear();
-        let maxMeasureNumberXml = -1;
-        const totalSteps = Math.max(1, this.iteratorSize);
-        const feedbackStep = Math.max(1, Math.floor(totalSteps / 100));
-        let step = 0;
-        cursor.reset();
-        while (!cursor.iterator.EndReached) {
-            const currentMeasure = cursor.iterator.CurrentMeasure;
-            const currentIndex = currentMeasure.measureListIndex;
-            maxMeasureNumberXml = Math.max(maxMeasureNumberXml, currentIndex);
-            const notesUnderCursor = cursor.NotesUnderCursor();
-            const bucket = this.osmdMeasureNoteMap.get(currentIndex);
-            if (bucket) {
-                bucket.push(...notesUnderCursor);
-            } else {
-                this.osmdMeasureNoteMap.set(currentIndex, notesUnderCursor);
-            }
-            cursor.iterator.moveToNext();
-            step++;
-            if (step % feedbackStep === 0 || step === totalSteps) {
-                this.feedback(feedbackMessage, (step / totalSteps) * 100);
-            }
-        }
-        // The highest measure index is 0-based: one more measure than it says
-        this.osmdMeasureCount = maxMeasureNumberXml + 1;
-        this.feedback(feedbackMessage, 100);
-        cursor.reset();
-        return this.osmdMeasureNoteMap;
-    }
-
 
 
     /*
@@ -836,121 +418,18 @@ export class CursorService implements OnDestroy {
 
 
     /**
-     *  this function first fill osmdArray with midiTicks and notes then output mapMidiTicksToOsmdCursorIndex
-     *  
-     *  @return this.mapMidiTicksToOsmdCursorIndex will trigger (or not) the cursor advance and back in another service
+     * Builds the two maps kept after setup: MIDI onset (ticks) -> cursor step, and measure -> its first cursor step
+     * (in the first pass). A step no onset was attached to has no entry in the first.
      */
-    linkMidiTicksToCursorIndex(): Map<number, { osmdIndex: number, osmdMeasure: number }> {
-        this.osmdArray!.forEach(element => {
-            this.midiTicksToOsmdCursorIndex.set(element.midiTicks ?? -1, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
+    private linkMidiTicksToCursorIndex(osmdArray: OsmdArrayElement[]): void {
+        for (const element of osmdArray) {
+            if (element.midiTicks !== null) {
+                this.midiTicksToOsmdCursorIndex.set(element.midiTicks, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
+            }
             if (!this.osmdCursorIdxToMeasureMap.has(element.osmdMeasure)) {
-                this.osmdCursorIdxToMeasureMap.set(element.osmdMeasure, element.osmdIndex);            
+                this.osmdCursorIdxToMeasureMap.set(element.osmdMeasure, element.osmdIndex);
             }
-        });
-        return this.midiTicksToOsmdCursorIndex;
-    }
-
-    /**
-     * Verify the mapping by checking if midi ticks and osmd measures are correctly aligned 
-     * according to some heuristics.
-     */
-    verify(getScore = false): number {
-        this.yieldToUi();
-        let notOkPercentage = 0;
-        const osmdArray = this.osmdArray ?? [];
-        let firstNotOkIndex: number | null = null;
-        let notOkCount = 0;
-        const totalCount = osmdArray.length;
-        const invalidSamples: Array<{
-            index: number;
-            osmdIndex: number;
-            osmdMeasure: number;
-            midiMeasure: number;
-            midiTicks: number | null;
-            osmdPitches: string;
-            midiPitches: string;
-        }> = [];
-
-        osmdArray.forEach((element, index) => {
-            if (!this.isOsmdArrayElementOk(element)) {
-                if (firstNotOkIndex == null) {
-                    firstNotOkIndex = index;
-                }
-                notOkCount++;
-                if (this.diagnosticMode && invalidSamples.length < CursorService.DIAGNOSTIC_SAMPLE_LIMIT) {
-                    invalidSamples.push({
-                        index,
-                        osmdIndex: element.osmdIndex,
-                        osmdMeasure: element.osmdMeasure,
-                        midiMeasure: element.midiMeasure,
-                        midiTicks: element.midiTicks,
-                        osmdPitches: (element.osmdPitches ?? []).join(","),
-                        midiPitches: (element.midiPitches ?? []).join(","),
-                    });
-                }
-            }
-        });
-
-        this.verifyAllElementsOk = notOkCount === 0;
-        this.verifyAllElementsOkSignal.set(this.verifyAllElementsOk);
-        notOkPercentage = Math.round((notOkCount / totalCount) * 1000) / 10;
-        if (this.diagnosticMode) {
-            const repetitionTypeLabels: Record<number, string> = {
-                [RepetitionInstructionEnum.StartLine]: "StartLine",
-                [RepetitionInstructionEnum.ForwardJump]: "ForwardJump",
-                [RepetitionInstructionEnum.BackJumpLine]: "BackJumpLine",
-                [RepetitionInstructionEnum.Ending]: "Ending",
-                [RepetitionInstructionEnum.DaCapo]: "DaCapo",
-                [RepetitionInstructionEnum.DalSegno]: "DalSegno",
-                [RepetitionInstructionEnum.Fine]: "Fine",
-                [RepetitionInstructionEnum.ToCoda]: "ToCoda",
-                [RepetitionInstructionEnum.DalSegnoAlFine]: "DalSegnoAlFine",
-                [RepetitionInstructionEnum.DaCapoAlFine]: "DaCapoAlFine",
-                [RepetitionInstructionEnum.DalSegnoAlCoda]: "DalSegnoAlCoda",
-                [RepetitionInstructionEnum.DaCapoAlCoda]: "DaCapoAlCoda",
-                [RepetitionInstructionEnum.Coda]: "Coda",
-                [RepetitionInstructionEnum.Segno]: "Segno",
-                [RepetitionInstructionEnum.None]: "None",
-            };
-            const repetitionSample = this.repetitionInstructions
-                .slice(0, CursorService.DIAGNOSTIC_SAMPLE_LIMIT)
-                .map((instr) => ({
-                    measureIndex: instr.measureIndex,
-                    alignment: instr.alignment,
-                    typeText: repetitionTypeLabels[instr.type] ?? String(instr.type),
-                    endingIndices: instr.endingIndices ? instr.endingIndices.join(",") : "",
-                }));
-            console.groupCollapsed("[verify] summary");
-            console.log("repetitionInstructions", {
-                count: this.repetitionInstructions.length,
-                sample: repetitionSample,
-            });
-            console.log("osmdMeasureSequence", {
-                count: this.osmdMeasureSequence.length,
-                head: this.osmdMeasureSequence.slice(0, CursorService.DIAGNOSTIC_SAMPLE_LIMIT),
-                tail: this.osmdMeasureSequence.slice(-CursorService.DIAGNOSTIC_SAMPLE_LIMIT),
-            });
-            console.log("osmdArray", {
-                count: osmdArray.length,
-                invalidSampleCount: invalidSamples.length,
-                invalidSamples,
-            });
-            console.groupEnd();
         }
-        if (!this.verifyAllElementsOk && this.diagnosticMode) {
-            console.groupCollapsed("[cursor][verify] KO summary");
-            console.log({
-                firstNotOkIndex,
-                notOkCount,
-                notOkPercentage,
-            });
-            console.groupEnd();
-            this.cursor!.CursorOptions.color = CURSOR_BAD_COLOR;
-        } else {
-            this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
-        }
-        this.yieldToUi();
-        return notOkPercentage;
     }
 
 
@@ -1002,15 +481,19 @@ export class CursorService implements OnDestroy {
      * Steps the cursor's iterator to `targetIndex` without drawing it; true when it moved. cursor.next() /
      * previous() each run update() (a forced layout and a smooth scrollIntoView), which an onset spanning several
      * steps, or a seek, paid on every step: the caller draws once.
+     *
+     * The index counts steps in playback order (OSMD's iterator takes the repeats going forward). Going back,
+     * OSMD moves in source order: it neither undoes the jumps it took nor rewinds the pass counts of the
+     * repeats, so a step back across a repeat would leave the index and the iterator out of step. A move back
+     * replays from the start instead (iterator steps only, nothing is drawn).
      */
     private stepIterator(cursor: Cursor, targetIndex: number): boolean {
         const from = this.cursorIndex;
         if (targetIndex < this.cursorIndex) {
-            while (this.cursorIndex > targetIndex && !cursor.iterator.FrontReached) {
-                cursor.iterator.moveToPreviousVisibleVoiceEntry(false);
-                this.cursorIndex--;
-            }
-        } else if (targetIndex > this.cursorIndex) {
+            cursor.resetIterator();
+            this.cursorIndex = 0;
+        }
+        if (targetIndex > this.cursorIndex) {
             while (this.cursorIndex < targetIndex && !cursor.iterator.EndReached) {
                 cursor.iterator.moveToNextVisibleVoiceEntry(false);
                 this.cursorIndex++;
@@ -1019,80 +502,11 @@ export class CursorService implements OnDestroy {
         return this.cursorIndex !== from;
     }
 
-    /**
-     * Move cursor to a given measure
-     * @param targetMeasure 
-     * 
-     */
-    moveToMeasure(targetMeasure: number) {
-        if (this.cursor!.iterator.CurrentMeasure.measureListIndex > targetMeasure) {
-            this.backToMeasure(targetMeasure);
-            //if (targetMeasure === 0 && this.cursor!.iterator.CurrentMeasure.measureListIndex > targetMeasure) {
-            this.backToMeasure(targetMeasure - 1);
-
-        }
-        if (this.cursor!.iterator.CurrentMeasure.measureListIndex < targetMeasure) {
-            this.nextToMeasure(targetMeasure);
-        }
-    }
-
-
-    /**
-     * Move the cursor back to a specific measure
-     */
-    private backToMeasure(measureIndex: number): void {
-        const cursor = this.cursor!;
-        if (measureIndex == 0) {
-            while (!cursor.iterator.FrontReached) {
-                cursor.iterator.moveToPrevious() // .previousMeasure();
-            }
-        } else {
-            while (cursor.iterator.CurrentMeasure.measureListIndex > measureIndex && !cursor.iterator.FrontReached) {
-                cursor.iterator.moveToPrevious() // .previousMeasure();
-            }
-        }
-    }
-
-    /**
-     * Move the cursor forward to a specific measure
-     */
-    private nextToMeasure(measureIndex: number): void {
-        const cursor = this.cursor!;
-        while (cursor.iterator.CurrentMeasure.measureListIndex < measureIndex && !cursor.iterator.EndReached) {
-            cursor.iterator.moveToNext() // .nextMeasure();
-        }
-        //cursor.iterator.moveToPrevious(); // to be on the first element of the measure, not the first element of the next one   
-    }
-
 
     /*=========================================================================
      *                         utility functions
      *=========================================================================
      */
-
-    isFirstIterOfMeasure(index: number, cursor: Cursor) {
-        if (index === 0 || cursor.iterator.FrontReached) {
-            return true;
-        }
-
-        const currentMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex;
-        cursor.iterator.moveToPrevious();
-        const previousMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex;
-        cursor.iterator.moveToNext();
-        return previousMeasureIndex !== currentMeasureIndex;
-    }
-
-    isLastIterOfMeasure(index: number, cursor: Cursor) {
-        const currentMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex;
-        cursor.iterator.moveToNext();
-        if (this.cursor!.iterator.EndReached) {
-            cursor.iterator.moveToPrevious();
-            return true;
-        }
-        const nextMeasureIndex = cursor.iterator.CurrentMeasure.measureListIndex;
-        cursor.iterator.moveToPrevious();
-        return (nextMeasureIndex !== currentMeasureIndex);
-    }
 
 
     /**
@@ -1118,8 +532,11 @@ export class CursorService implements OnDestroy {
     }
 
 
-    private async yieldToUi(): Promise<void> {
+    /** Gives the UI a turn (setTimeout 0, a few ms) only when setup has worked UI_YIELD_AFTER_MS without one. */
+    private async maybeYieldToUi(): Promise<void> {
+        if (performance.now() - this.lastYield < CursorService.UI_YIELD_AFTER_MS) return;
         await new Promise<void>(resolve => setTimeout(resolve, 0));
+        this.lastYield = performance.now();
     }
 
     feedback(message: string, percentage: number) {
@@ -1133,59 +550,11 @@ export class CursorService implements OnDestroy {
         return pitch % 12;
     }
 
-    private isOsmdArrayElementOk(element: OsmdArrayElement): boolean {
-        const osmdPitchClasses = new Set(element.osmdPitches ?? []);
-        const midiPitchClasses = new Set(element.midiPitches ?? []);
-        const midiIsSubsetOfOsmd = Array.from(midiPitchClasses)
-            //.map(pitch => pitch % 12)
-            .every(pitch => osmdPitchClasses.has(pitch));
-        return element.isSkipable || midiIsSubsetOfOsmd;
-    }
 
 
 
     private findCursorIndexForMeasure(targetMeasure: number): number {
         return this.osmdCursorIdxToMeasureMap.get(targetMeasure) ?? 0;
-    }
-
-    /* =========================================================================
-    *                         diagnostic mode
-    *=========================================================================
-    */
-    setDiagnosticMode(enabled: boolean, persist = true): void {
-        this.diagnosticMode = enabled;
-
-        if (persist && typeof window !== "undefined") {
-            try {
-                window.localStorage.setItem(CursorService.DIAGNOSTIC_STORAGE_KEY, enabled ? "1" : "0");
-            } catch {
-                // ignore storage failures
-            }
-        }
-        this.debugLog("diagnostic mode updated", { enabled: this.diagnosticMode, persist });
-    }
-
-    private readDiagnosticModeFromStorage(): boolean {
-        if (typeof window === "undefined") {
-            return false;
-        }
-
-        try {
-            return window.localStorage.getItem(CursorService.DIAGNOSTIC_STORAGE_KEY) === "1";
-        } catch {
-            return true;
-        }
-    }
-
-    private debugLog(message: string, data?: unknown): void {
-        if (!this.diagnosticMode) {
-            return;
-        }
-        if (data === undefined) {
-            console.log(`[cursor][debug] ${message}`);
-            return;
-        }
-        console.log(`[cursor][debug] ${message}`, data);
     }
 
     ngOnDestroy(): void {

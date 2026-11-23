@@ -558,8 +558,7 @@ describe('PlayerService', () => {
     it('setOsmd maps the score for the cursor', async () => {
       load();
       const rendered = await renderScore(SIMPLE_SCORE);
-      const slop = await player.setOsmd(rendered.osmd);
-      expect(slop).toBe(0);
+      await player.setOsmd(rendered.osmd);
       expect(cursor.midiTicksToOsmdCursorIndex.size).toBeGreaterThan(0);
       expect(player.verticalPixelShiftValue).toBeGreaterThan(0);
       rendered.dispose();

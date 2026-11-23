@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { Note } from '@tonejs/midi/dist/Note';
-import { AlignmentType, type Cursor, RepetitionInstruction, RepetitionInstructionEnum } from 'opensheetmusicdisplay';
-import { DOUBLE_BACK_JUMP_SCORE, MULTI_REPEAT_SCORE, PPQ, REPEAT_SCORE, SIMPLE_SCORE, type FixtureMeasure, playbackOrder, renderScore, scoreMidi } from '../../testing/score-fixture';
+import type { Cursor } from 'opensheetmusicdisplay';
+import { DA_CAPO_AL_FINE_SCORE, DA_CAPO_VOLTA_SCORE, DOUBLE_BACK_JUMP_SCORE, MULTI_REPEAT_SCORE, PPQ, REPEAT_SCORE, SIMPLE_SCORE, VOLTA_DOUBLE_BACK_JUMP_SCORE, VOLTA_SCORE, type FixtureMeasure, playbackOrder, renderScore, scoreMidi } from '../../testing/score-fixture';
 import { CURSOR_GOOD_COLOR } from '../components/osmd/osmd.config';
 import { CursorService } from './cursor.service';
 
@@ -17,8 +17,8 @@ describe('CursorService', () => {
   async function setup(measures: FixtureMeasure[], midi = scoreMidi(measures)) {
     rendered = await renderScore(measures);
     cursor = rendered.osmd.cursor;
-    const slop = await service.setup(cursor, midi);
-    return { slop, midi };
+    await service.setup(cursor, midi);
+    return { midi };
   }
   /** Pitch classes under the cursor, sorted. */
   const underCursor = () => [...new Set(cursor.NotesUnderCursor().filter((n) => n.Pitch).map((n) => n.Pitch.getHalfTone() % 12))].sort((a, b) => a - b);
@@ -26,7 +26,6 @@ describe('CursorService', () => {
   const noteAt = (midi: { tracks: { notes: Note[] }[] }, ticks: number, track = 0) => midi.tracks[track].notes.find((n) => n.ticks === ticks)!;
 
   beforeEach(() => {
-    localStorage.removeItem('cursorService.debug');
     TestBed.configureTestingModule({});
     service = TestBed.inject(CursorService);
   });
@@ -34,9 +33,7 @@ describe('CursorService', () => {
 
   describe('setup', () => {
     it('maps every MIDI onset to the score and reports a perfect match', async () => {
-      const { slop } = await setup(SIMPLE_SCORE);
-      expect(slop).toBe(0);
-      expect(service.slopScoreSignal()).toBe(0);
+      await setup(SIMPLE_SCORE);
       expect(service.feedbackSignal()).toBeNull(); // progress feedback cleared when done
       for (const ticks of service.sortedMidiTicks) {
         expect(service.midiTicksToOsmdCursorIndex.has(ticks), `tick ${ticks}`).toBe(true);
@@ -55,16 +52,13 @@ describe('CursorService', () => {
 
     it('only attaches the pitches the score expects: wrong MIDI notes still map, and never count', async () => {
       // the MIDI plays C#3 instead of C3 in bar 1: the onset still maps (by the matching C5 above it)
-      // NOTE: since only expected pitches are attached, verify() cannot find a mismatch: the slop score stays 0
       const midi = scoreMidi(SIMPLE_SCORE, (bar, hand, pitch) => (bar === 0 && hand === 'bass' ? pitch + 1 : pitch));
-      const { slop } = await setup(SIMPLE_SCORE, midi);
+      await setup(SIMPLE_SCORE, midi);
       expect(service.midiTicksToOsmdCursorIndex.get(0)?.osmdMeasure).toBe(0);
-      expect(slop).toBe(0);
     });
 
     it('follows repeats: the second pass maps onto the same bars', async () => {
-      const { slop, midi } = await setup(REPEAT_SCORE);
-      expect(slop).toBe(0);
+      const { midi } = await setup(REPEAT_SCORE);
       const first = service.midiTicksToOsmdCursorIndex.get(tickOf(0, 1))!; // bar 1, beat 2, first pass
       const second = service.midiTicksToOsmdCursorIndex.get(tickOf(2, 1))!; // same note, second pass
       expect(second.osmdMeasure).toBe(first.osmdMeasure);
@@ -73,8 +67,7 @@ describe('CursorService', () => {
     });
 
     it('maps every pass of every repeat onto its bar (three repeats, two of them adjacent)', async () => {
-      const { slop } = await setup(MULTI_REPEAT_SCORE);
-      expect(slop).toBe(0);
+      await setup(MULTI_REPEAT_SCORE);
       playbackOrder(MULTI_REPEAT_SCORE).forEach((bar, played) => {
         expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
       });
@@ -83,8 +76,7 @@ describe('CursorService', () => {
     it('maps a section closed by two backward jumps: the second jump replays it once more', async () => {
       // Diabelli's Op. 151 Sonatina 1: m47 jumps back to m10 after the m26 repeat was already played;
       // the pass counter the section shared used to take only the first jump
-      const { slop } = await setup(DOUBLE_BACK_JUMP_SCORE);
-      expect(slop).toBe(0);
+      await setup(DOUBLE_BACK_JUMP_SCORE);
       const order = playbackOrder(DOUBLE_BACK_JUMP_SCORE);
       expect(order).toEqual([0, 1, 2, 1, 2, 3, 4, 1, 2, 3, 4, 5]);
       order.forEach((bar, played) => {
@@ -92,15 +84,41 @@ describe('CursorService', () => {
       });
     });
 
-    it('logs a diagnostic summary in debug mode', async () => {
-      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
-      vi.spyOn(console, 'groupCollapsed').mockImplementation(() => undefined);
-      vi.spyOn(console, 'table').mockImplementation(() => undefined);
-      service.setDiagnosticMode(true, false);
-      await setup(SIMPLE_SCORE, scoreMidi(SIMPLE_SCORE, (bar, _h, p) => (bar === 2 ? p + 1 : p)));
-      expect(log.mock.calls.some(([m]) => String(m).includes('repetitionInstructions'))).toBe(true);
-      expect(console.table).toHaveBeenCalled();
+    it('maps each pass onto the ending (volta) OSMD plays for it', async () => {
+      await setup(VOLTA_SCORE);
+      expect(playbackOrder(VOLTA_SCORE)).toEqual([0, 1, 2, 3, 1, 2, 4, 5]);
+      playbackOrder(VOLTA_SCORE).forEach((bar, played) => {
+        expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
+      });
     });
+
+    it('maps a section with endings closed by a second :| (Diabelli): the third pass plays the second ending', async () => {
+      await setup(VOLTA_DOUBLE_BACK_JUMP_SCORE);
+      const order = playbackOrder(VOLTA_DOUBLE_BACK_JUMP_SCORE);
+      expect(order).toEqual([0, 1, 2, 3, 1, 2, 4, 5, 1, 2, 4, 5, 6]);
+      expect(service.measureSequence).toEqual(order);
+      order.forEach((bar, played) => {
+        expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
+      });
+    });
+
+    it('maps a D.C. al Fine: the Menuet again, without its repeat, up to the Fine', async () => {
+      await setup(DA_CAPO_AL_FINE_SCORE);
+      const order = playbackOrder(DA_CAPO_AL_FINE_SCORE);
+      expect(order).toEqual([0, 1, 0, 1, 2, 3, 2, 3, 0, 1]);
+      expect(service.measureSequence).toEqual(order);
+      order.forEach((bar, played) => {
+        expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
+      });
+    });
+
+    it('maps a D.C. al Fine over endings: after the D.C. the second ending is played', async () => {
+      await setup(DA_CAPO_VOLTA_SCORE);
+      const order = playbackOrder(DA_CAPO_VOLTA_SCORE);
+      expect(order).toEqual([0, 1, 0, 2, 3, 0, 2]);
+      expect(service.measureSequence).toEqual(order);
+    });
+
   });
 
   describe('following playback (nextNote)', () => {
@@ -201,6 +219,51 @@ describe('CursorService', () => {
       });
     });
 
+    it('follows a whole playback through first and second endings', async () => {
+      const { midi } = await setup(VOLTA_SCORE);
+      playbackOrder(VOLTA_SCORE).forEach((bar, played) => {
+        service.nextNote(noteAt(midi, tickOf(played, 0)));
+        expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1}`).toBe(bar);
+        expect(service.measure(), `played bar ${played + 1}`).toBe(bar);
+      });
+    });
+
+    it('follows a whole playback through the Diabelli shape (endings, then a second :|)', async () => {
+      const { midi } = await setup(VOLTA_DOUBLE_BACK_JUMP_SCORE);
+      playbackOrder(VOLTA_DOUBLE_BACK_JUMP_SCORE).forEach((bar, played) => {
+        service.nextNote(noteAt(midi, tickOf(played, 0)));
+        expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1}`).toBe(bar);
+      });
+    });
+
+    it('follows a whole playback through a D.C. al Fine, and seeks back across the D.C.', async () => {
+      const { midi } = await setup(DA_CAPO_AL_FINE_SCORE);
+      const order = playbackOrder(DA_CAPO_AL_FINE_SCORE);
+      order.forEach((bar, played) => {
+        service.nextNote(noteAt(midi, tickOf(played, 0)));
+        expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1}`).toBe(bar);
+      });
+      service.nextNote(noteAt(midi, tickOf(5, 2))); // back before the D.C.: bar 4, first pass of the Trio's repeat
+      expect(cursor.iterator.CurrentMeasure.measureListIndex).toBe(3);
+      for (let played = 6; played < order.length; played++) {
+        service.nextNote(noteAt(midi, tickOf(played, 0)));
+        expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1} after the seek`).toBe(order[played]);
+      }
+    });
+
+    it('seeks back across a repeat it took and plays on from there in step with the audio', async () => {
+      // OSMD moves back in source order without undoing its jumps: the service replays from the start
+      const { midi } = await setup(VOLTA_SCORE);
+      const order = playbackOrder(VOLTA_SCORE);
+      service.nextNote(noteAt(midi, tickOf(6, 0))); // second ending, after the repeat
+      service.nextNote(noteAt(midi, tickOf(2, 1))); // back to bar 3, first pass
+      expect(cursor.iterator.CurrentMeasure.measureListIndex).toBe(2);
+      for (let played = 3; played < order.length; played++) {
+        service.nextNote(noteAt(midi, tickOf(played, 0)));
+        expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1}`).toBe(order[played]);
+      }
+    });
+
     it('shows a measure-wide cursor when the note under it does not match', async () => {
       await setup(SIMPLE_SCORE);
       service.nextNote({ ticks: tickOf(0, 0), midi: 61 } as Note); // C# instead of C
@@ -230,69 +293,31 @@ describe('CursorService', () => {
       service.reset(2);
       expect(service.measure()).toBe(0);
     });
-
-    it('moveToMeasure goes forward and back', async () => {
-      await setup(SIMPLE_SCORE);
-      service.moveToMeasure(2);
-      expect(cursor.iterator.CurrentMeasureIndex).toBe(2);
-      service.moveToMeasure(0);
-      expect(cursor.iterator.CurrentMeasureIndex).toBe(0);
-    });
-
-    it('tells the first and last cursor steps of a bar', async () => {
-      await setup(SIMPLE_SCORE);
-      cursor.reset();
-      expect(service.isFirstIterOfMeasure(0, cursor)).toBe(true);
-      expect(service.isLastIterOfMeasure(0, cursor)).toBe(false);
-      for (let i = 0; i < 3; i++) cursor.next(); // 4th beat of bar 1
-      expect(service.isLastIterOfMeasure(3, cursor)).toBe(true);
-      cursor.next(); // first beat of bar 2
-      expect(service.isFirstIterOfMeasure(4, cursor)).toBe(true);
-      cursor.next();
-      expect(service.isFirstIterOfMeasure(5, cursor)).toBe(false);
-    });
   });
 
   /**
-   * The played-measure sequence built from repetition instructions alone (no rendering): each backward jump
-   * is taken once, to the last forward repeat before it; entry n of a section plays its ending (volta) n, and
-   * past the last numbered entry the last ending — the way MuseScore exports the MIDI the mapping follows.
-   * The shapes below are the ones of Diabelli's Op. 151 Sonatina 1 (a section closed by two backward jumps,
-   * voltas on the first one), which the shared pass counter used to lose 37 measures of.
+   * The played-measure sequence now comes from OSMD's own iterator (CursorIgnoreRepetitions = false): one
+   * entry per measure pass, in the order the MIDI exports play them.
    */
-  describe('buildOsmdMeasureSequence', () => {
-    const instr = (measureIndex: number, type: RepetitionInstructionEnum, alignment: AlignmentType, ending?: number) =>
-      new RepetitionInstruction(measureIndex, type, alignment, undefined, ending === undefined ? undefined : [ending]);
-    const StartLine = RepetitionInstructionEnum.StartLine;
-    const BackJump = RepetitionInstructionEnum.BackJumpLine;
-    const Ending = RepetitionInstructionEnum.Ending;
-
-    function sequenceWith(measures: number, instrs: RepetitionInstruction[]): number[] {
-      const svc = service as unknown as { repetitionInstructions: RepetitionInstruction[]; osmdMeasureNoteMap: Map<number, unknown[]> };
-      svc.repetitionInstructions = instrs;
-      for (let i = 0; i < measures; i++) svc.osmdMeasureNoteMap.set(i, []);
-      return service.buildOsmdMeasureSequence();
-    }
-
-    it('takes each backward jump once, to the last forward repeat before it', () => {
-      const seq = sequenceWith(6, [instr(1, StartLine, AlignmentType.End), instr(2, BackJump, AlignmentType.End), instr(4, BackJump, AlignmentType.End)]);
-      expect(seq).toEqual([0, 1, 2, 1, 2, 3, 4, 1, 2, 3, 4, 5]);
+  describe('measureSequence (from OSMD)', () => {
+    it('plays a plain score straight through', async () => {
+      await setup(SIMPLE_SCORE);
+      expect(service.measureSequence).toEqual([0, 1, 2]);
     });
 
-    it('plays the voltas by entry, the last one again past the numbered entries', () => {
-      const seq = sequenceWith(7, [
-        instr(1, StartLine, AlignmentType.End),
-        instr(2, Ending, AlignmentType.Begin, 1), instr(2, Ending, AlignmentType.End, 1), instr(2, BackJump, AlignmentType.End),
-        instr(3, Ending, AlignmentType.Begin, 2), instr(3, Ending, AlignmentType.End, 2),
-        instr(5, BackJump, AlignmentType.End),
-      ]);
-      // entry 1 plays volta 1 (m2), entry 2 volta 2 (m3), entry 3 volta 2 again — then the piece goes on
-      expect(seq).toEqual([0, 1, 2, 1, 3, 4, 5, 1, 3, 4, 5, 6]);
+    it('takes each repeat once, adjacent repeats too', async () => {
+      await setup(MULTI_REPEAT_SCORE);
+      expect(service.measureSequence).toEqual(playbackOrder(MULTI_REPEAT_SCORE));
     });
 
-    it('a backward jump without a forward repeat goes to the start of the piece', () => {
-      const seq = sequenceWith(4, [instr(2, BackJump, AlignmentType.End)]);
-      expect(seq).toEqual([0, 1, 2, 0, 1, 2, 3]);
+    it('plays the first ending, then skips it for the second', async () => {
+      await setup(VOLTA_SCORE);
+      expect(service.measureSequence).toEqual([0, 1, 2, 3, 1, 2, 4, 5]);
+    });
+
+    it('a section closed by two backward jumps goes back to its forward repeat twice', async () => {
+      await setup(DOUBLE_BACK_JUMP_SCORE);
+      expect(service.measureSequence).toEqual(playbackOrder(DOUBLE_BACK_JUMP_SCORE));
     });
   });
 
@@ -303,15 +328,14 @@ describe('CursorService', () => {
       expect(service.midiTicksToOsmdCursorIndex.size).toBe(0);
       expect(service.sortedMidiTicks).toEqual([]);
       expect(service.cursor).toBeUndefined();
-      expect([service.measure(), service.slopScoreSignal(), service.maxMidiMeasure]).toEqual([0, 0, 0]);
+      expect([service.measure(), service.maxMidiMeasure]).toEqual([0, 0]);
     });
 
     it('can set up a second score after a reset', async () => {
       await setup(SIMPLE_SCORE);
       rendered.dispose();
       service.resetSession();
-      const { slop } = await setup(REPEAT_SCORE);
-      expect(slop).toBe(0);
+      await setup(REPEAT_SCORE);
     });
 
     it('ngOnDestroy resets the session', async () => {
@@ -328,20 +352,7 @@ describe('CursorService', () => {
   });
 
   describe('options', () => {
-    it('stores the alignment algorithm (sw2 by default)', () => {
-      // NOTE: setup() no longer runs the Smith-Waterman alignment, so this setting currently has no effect
-      expect(service.getAlignmentAlgorithm()).toBe('sw2');
-      service.setAlignmentAlgorithm('sw1');
-      expect(service.getAlignmentAlgorithm()).toBe('sw1');
-    });
 
-    it('remembers diagnostic mode across reloads', () => {
-      service.setDiagnosticMode(true);
-      expect(localStorage.getItem('cursorService.debug')).toBe('1');
-      expect(TestBed.runInInjectionContext(() => new CursorService())['diagnosticMode']).toBe(true);
-      service.setDiagnosticMode(false);
-      expect(localStorage.getItem('cursorService.debug')).toBe('0');
-    });
 
     it('reports progress as a whole percentage', () => {
       service.feedback('Building', 42.4);
