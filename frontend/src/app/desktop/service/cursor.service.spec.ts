@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { Note } from '@tonejs/midi/dist/Note';
 import type { Cursor } from 'opensheetmusicdisplay';
-import { DOUBLE_BACK_JUMP_SCORE, MULTI_REPEAT_SCORE, PPQ, REPEAT_SCORE, SIMPLE_SCORE, VOLTA_SCORE, type FixtureMeasure, playbackOrder, renderScore, scoreMidi } from '../../testing/score-fixture';
+import { DOUBLE_BACK_JUMP_SCORE, MULTI_REPEAT_SCORE, PPQ, REPEAT_SCORE, SIMPLE_SCORE, VOLTA_DOUBLE_BACK_JUMP_SCORE, VOLTA_SCORE, type FixtureMeasure, playbackOrder, renderScore, scoreMidi } from '../../testing/score-fixture';
 import { CURSOR_GOOD_COLOR } from '../components/osmd/osmd.config';
 import { CursorService } from './cursor.service';
 
@@ -80,10 +80,7 @@ describe('CursorService', () => {
       });
     });
 
-    // KNOWN DIVERGENCE (POC, OSMD 2.3.0): at a second :| with no |: of its own, OSMD jumps back to just after
-    // the previous :| (the engraving convention, OSMD d3db884); MuseScore's MIDI export, which the mapping
-    // follows, goes back to the last |:. it.fails keeps the requirement visible until this is settled.
-    it.fails('maps a section closed by two backward jumps: the second jump replays it once more', async () => {
+    it('maps a section closed by two backward jumps: the second jump replays it once more', async () => {
       // Diabelli's Op. 151 Sonatina 1: m47 jumps back to m10 after the m26 repeat was already played;
       // the pass counter the section shared used to take only the first jump
       const { slop } = await setup(DOUBLE_BACK_JUMP_SCORE);
@@ -100,6 +97,17 @@ describe('CursorService', () => {
       expect(slop).toBe(0);
       expect(playbackOrder(VOLTA_SCORE)).toEqual([0, 1, 2, 3, 1, 2, 4, 5]);
       playbackOrder(VOLTA_SCORE).forEach((bar, played) => {
+        expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
+      });
+    });
+
+    it('maps a section with endings closed by a second :| (Diabelli): the third pass plays the second ending', async () => {
+      const { slop } = await setup(VOLTA_DOUBLE_BACK_JUMP_SCORE);
+      expect(slop).toBe(0);
+      const order = playbackOrder(VOLTA_DOUBLE_BACK_JUMP_SCORE);
+      expect(order).toEqual([0, 1, 2, 3, 1, 2, 4, 5, 1, 2, 4, 5, 6]);
+      expect(service.measureSequence).toEqual(order);
+      order.forEach((bar, played) => {
         expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
       });
     });
@@ -204,10 +212,7 @@ describe('CursorService', () => {
       });
     });
 
-    // KNOWN DIVERGENCE (POC, OSMD 2.3.0): at a second :| with no |: of its own, OSMD jumps back to just after
-    // the previous :| (the engraving convention, OSMD d3db884); MuseScore's MIDI export, which the mapping
-    // follows, goes back to the last |:. it.fails keeps the requirement visible until this is settled.
-    it.fails('follows a whole playback through a section closed by two backward jumps', async () => {
+    it('follows a whole playback through a section closed by two backward jumps', async () => {
       const { midi } = await setup(DOUBLE_BACK_JUMP_SCORE);
       playbackOrder(DOUBLE_BACK_JUMP_SCORE).forEach((bar, played) => {
         service.nextNote(noteAt(midi, tickOf(played, 0)));
@@ -222,6 +227,14 @@ describe('CursorService', () => {
         service.nextNote(noteAt(midi, tickOf(played, 0)));
         expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1}`).toBe(bar);
         expect(service.measure(), `played bar ${played + 1}`).toBe(bar);
+      });
+    });
+
+    it('follows a whole playback through the Diabelli shape (endings, then a second :|)', async () => {
+      const { midi } = await setup(VOLTA_DOUBLE_BACK_JUMP_SCORE);
+      playbackOrder(VOLTA_DOUBLE_BACK_JUMP_SCORE).forEach((bar, played) => {
+        service.nextNote(noteAt(midi, tickOf(played, 0)));
+        expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1}`).toBe(bar);
       });
     });
 
@@ -289,10 +302,7 @@ describe('CursorService', () => {
       expect(service.measureSequence).toEqual([0, 1, 2, 3, 1, 2, 4, 5]);
     });
 
-    // KNOWN DIVERGENCE (POC, OSMD 2.3.0): at a second :| with no |: of its own, OSMD jumps back to just after
-    // the previous :| (the engraving convention, OSMD d3db884); MuseScore's MIDI export, which the mapping
-    // follows, goes back to the last |:. it.fails keeps the requirement visible until this is settled.
-    it.fails('a section closed by two backward jumps goes back to its forward repeat twice', async () => {
+    it('a section closed by two backward jumps goes back to its forward repeat twice', async () => {
       await setup(DOUBLE_BACK_JUMP_SCORE);
       expect(service.measureSequence).toEqual(playbackOrder(DOUBLE_BACK_JUMP_SCORE));
     });

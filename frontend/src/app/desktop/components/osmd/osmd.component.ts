@@ -4,6 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { ScoreApiInfo } from '../../../core/api/model/scoreApiInfo';
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
 import { PlayerService } from '../../service/player.service';
+import { applyMidiRepeatConventions } from '../../service/midi-repeat-conventions';
 import { DEFAULT_OSMD_OPTIONS, PAGE_LEFT_MARGIN, PAGE_RIGHT_MARGIN, SHEET_MAXIMUM_WIDTH } from './osmd.config';
 
 @Component({
@@ -110,6 +111,8 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
         if (this.musicXml) {
             await this.osmd.load(this.musicXml);
+            // The cursor follows MuseScore's MIDI: play the repeats in its order (see midi-repeat-conventions)
+            applyMidiRepeatConventions(this.osmd.Sheet);
             this.osmd!.render(); // unfortunately not resolvable in load callback, we have to wait for the cursor to be available
 
             // Move complex initialization out of the Angular zone to avoid keeping the app unstable

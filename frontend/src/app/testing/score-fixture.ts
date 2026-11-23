@@ -1,5 +1,6 @@
 import { Midi } from '@tonejs/midi';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
+import { applyMidiRepeatConventions } from '../desktop/service/midi-repeat-conventions';
 
 /**
  * Test helper: a small two-staff piano score, as MusicXML (rendered with OSMD in the test browser) and
@@ -82,8 +83,8 @@ export function scoreXml(measures: FixtureMeasure[]): string {
 }
 
 /**
- * Measure indexes in playback order: a :| jumps back to the last |: once; pass n of a repeat plays its
- * volta n only.
+ * Measure indexes in playback order, as MuseScore's MIDI export plays them: each :| jumps back to the last |:
+ * once; pass n of a repeat plays its volta n, and a pass past the last numbered volta plays the last one.
  */
 export function playbackOrder(measures: FixtureMeasure[]): number[] {
   const order: number[] = [];
@@ -95,7 +96,8 @@ export function playbackOrder(measures: FixtureMeasure[]): number[] {
       repeatFrom = i;
       pass = 1;
     }
-    if (measures[i].volta !== undefined && measures[i].volta !== pass) continue;
+    const volta = measures[i].volta;
+    if (volta !== undefined && volta !== Math.min(pass, lastVolta(measures, repeatFrom))) continue;
     order.push(i);
     if (measures[i].repeatEnd && !repeated.has(i)) {
       repeated.add(i);
@@ -104,6 +106,13 @@ export function playbackOrder(measures: FixtureMeasure[]): number[] {
     }
   }
   return order;
+}
+
+/** The highest volta number of the section starting at `from` (up to the next |:). */
+function lastVolta(measures: FixtureMeasure[], from: number): number {
+  let last = 0;
+  for (let i = from; i < measures.length && (i === from || !measures[i].repeatStart); i++) last = Math.max(last, measures[i].volta ?? 0);
+  return last;
 }
 
 /**
@@ -145,6 +154,7 @@ export async function renderScore(measures: FixtureMeasure[]): Promise<{ osmd: O
   const osmd = new OpenSheetMusicDisplay(host, { backend: 'svg', autoResize: false, drawTitle: false, followCursor: false });
   osmd.EngravingRules.CursorIgnoreRepetitions = false; // as in osmd.component.ts: OSMD's iterator takes the repeats
   await osmd.load(scoreXml(measures));
+  applyMidiRepeatConventions(osmd.Sheet); // as in osmd.component.ts
   osmd.render();
   return { osmd, host, dispose: () => { osmd.clear(); host.remove(); } };
 }
@@ -205,5 +215,20 @@ export const VOLTA_SCORE: FixtureMeasure[] = [
   { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'] },
   { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'], volta: 1, repeatEnd: true },
   { treble: ['D5', 'E5', 'F5', 'G5'], bass: ['D3:4'], volta: 2 },
+  { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
+];
+
+/**
+ * The shape of Diabelli's Op. 151 Sonatina 1 (m10-m47): a |: section with first and second endings, and a
+ * second :| after the second ending, |: 2 3 [1. 4 :| [2. 5 ] 6 :| 7. MuseScore takes each :| once and plays
+ * the second ending again on the third pass: 1 | 2 3 4 | 2 3 5 6 | 2 3 5 6 | 7.
+ */
+export const VOLTA_DOUBLE_BACK_JUMP_SCORE: FixtureMeasure[] = [
+  { treble: ['C5', 'D5', 'E5', 'F5'], bass: ['C3:4'] },
+  { treble: ['G5', 'A5', 'B5', 'C6'], bass: ['G2:4'], repeatStart: true },
+  { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'] },
+  { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'], volta: 1, repeatEnd: true },
+  { treble: ['D5', 'E5', 'F5', 'G5'], bass: ['D3:4'], volta: 2 },
+  { treble: ['A5', 'B5', 'C6', 'D6'], bass: ['A2:4'], repeatEnd: true },
   { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
 ];
