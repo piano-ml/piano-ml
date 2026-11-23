@@ -32,7 +32,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
 
     private cursorObserver?: MutationObserver;
     private scrollAnimationFrame?: number;
-    private cursorNudgeTimeoutId?: ReturnType<typeof setTimeout>;
     private readonly hideFingeringStorageKey = 'hideFingering';
     private readonly hideFingeringAndHarmonyStorageKey = 'hideFingeringAndHarmony';    
     private readonly hideLyricsStorageKey = 'hideLyrics';
@@ -65,11 +64,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
         if (this.scrollAnimationFrame) {
             cancelAnimationFrame(this.scrollAnimationFrame);
             this.scrollAnimationFrame = undefined;
-        }
-
-        if (this.cursorNudgeTimeoutId) {
-            clearTimeout(this.cursorNudgeTimeoutId);
-            this.cursorNudgeTimeoutId = undefined;
         }
 
         // Nettoyer l'instance OSMD
@@ -131,13 +125,6 @@ export class OsmdComponent implements OnInit, OnDestroy {
                             this.osmd!.cursors[0].reset();
                             this.loadingChange.emit(false);
                         });
-
-                        this.cursorNudgeTimeoutId = setTimeout(() => {
-                            //this.osmd!.cursors[0].previous();
-                            this.osmd!.cursors[0].next();
-                            this.osmd!.cursors[0].previous();
-                            //this.osmd!.cursors[0].previous();
-                        }, 1000);
                         break;
                     }
                 }
