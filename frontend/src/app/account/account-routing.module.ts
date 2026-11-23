@@ -14,20 +14,12 @@ import { PracticeSummaryComponent } from './components/practice-summary/practice
 import { CoachGrantsComponent } from './components/coach-grants/coach-grants.component';
 import { ACCOUNT_TABS, accountTabLabel } from './components/home/account-tabs';
 
-const routes: Routes = [
+export const accountRoutes: Routes = [
   { path: 'login', component: LoginComponent,     data: { breadcrumb: $localize`:@@account.route.login:Login` } },
   { path: 'create', component: CreateAccountComponent,     data: { breadcrumb: $localize`:@@account.route.create:Create` } },
   { path: 'forgot-password', component: ForgotPasswordComponent, data: { breadcrumb: $localize`:@@account.route.forgotPassword:Forgot password` } },
   { path: 'reset-password', component: ResetPasswordComponent, data: { breadcrumb: $localize`:@@account.route.resetPassword:New password` } },
   { path: 'score/edit/:id', component: EditScoreComponent,     data: { breadcrumb: $localize`:@@account.route.editScore:Edit Score` } },
-  // A playlist's own page, outside the tabs: Account > My Playlists > <playlist>
-  {
-    path: 'playlists',
-    data: { breadcrumb: accountTabLabel('playlists') },
-    children: [
-      { path: ':slug', component: PlaylistDetailComponent, data: { breadcrumb: $localize`:@@account.route.playlist:Playlist` } },
-    ],
-  },
   // Former URLs of the tabs
   { path: 'home', redirectTo: ACCOUNT_TABS[0].path, pathMatch: 'full' },
   { path: 'home/:tab', redirectTo: ':tab' },
@@ -44,10 +36,19 @@ const routes: Routes = [
       { path: 'me', component: AccountMeComponent, data: { breadcrumb: accountTabLabel('me') } },
     ],
   },
+  // A playlist's own page, outside the tabs: Account > My Playlists > <playlist>. It must come after the tabs:
+  // listed first, this childless parent would also match a bare /account/playlists and render nothing.
+  {
+    path: 'playlists',
+    data: { breadcrumb: accountTabLabel('playlists') },
+    children: [
+      { path: ':slug', component: PlaylistDetailComponent, data: { breadcrumb: $localize`:@@account.route.playlist:Playlist` } },
+    ],
+  },
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(accountRoutes)],
   exports: [RouterModule]
 })
 export class AccountRoutingModule { }
