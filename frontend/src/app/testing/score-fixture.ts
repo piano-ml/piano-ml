@@ -15,6 +15,8 @@ export interface FixtureMeasure {
   repeatStart?: boolean;
   /** Repeat sign at the end of this measure (:|): playback jumps back to the last repeatStart, once */
   repeatEnd?: boolean;
+  /** A one-measure ending (volta bracket "n."): played only on pass n of its repeat */
+  volta?: number;
 }
 
 export const PPQ = 480;
@@ -60,8 +62,14 @@ export function scoreXml(measures: FixtureMeasure[]): string {
       ? '<attributes><divisions>1</divisions><key><fifths>0</fifths></key><time><beats>4</beats><beat-type>4</beat-type></time>' +
         '<staves>2</staves><clef number="1"><sign>G</sign><line>2</line></clef><clef number="2"><sign>F</sign><line>4</line></clef></attributes>'
       : '';
-    const start = m.repeatStart ? '<barline location="left"><bar-style>heavy-light</bar-style><repeat direction="forward"/></barline>' : '';
-    const end = m.repeatEnd ? '<barline location="right"><bar-style>light-heavy</bar-style><repeat direction="backward"/></barline>' : '';
+    const voltaStart = m.volta ? `<ending number="${m.volta}" type="start">${m.volta}.</ending>` : '';
+    const voltaStop = m.volta ? `<ending number="${m.volta}" type="${m.repeatEnd ? 'stop' : 'discontinue'}"/>` : '';
+    const start = m.repeatStart || m.volta
+      ? `<barline location="left">${m.repeatStart ? '<bar-style>heavy-light</bar-style>' : ''}${voltaStart}${m.repeatStart ? '<repeat direction="forward"/>' : ''}</barline>`
+      : '';
+    const end = m.repeatEnd || m.volta
+      ? `<barline location="right">${m.repeatEnd ? '<bar-style>light-heavy</bar-style>' : ''}${voltaStop}${m.repeatEnd ? '<repeat direction="backward"/>' : ''}</barline>`
+      : '';
     return `<measure number="${i + 1}">${attributes}${start}` +
       m.treble.map((t) => noteXml(t, 1, 1)).join('') +
       '<backup><duration>4</duration></backup>' +
@@ -73,16 +81,25 @@ export function scoreXml(measures: FixtureMeasure[]): string {
     `<part id="P1">${body}</part></score-partwise>`;
 }
 
-/** Measure indexes in playback order (a :| jumps back to the last |: once). */
+/**
+ * Measure indexes in playback order: a :| jumps back to the last |: once; pass n of a repeat plays its
+ * volta n only.
+ */
 export function playbackOrder(measures: FixtureMeasure[]): number[] {
   const order: number[] = [];
   let repeatFrom = 0;
+  let pass = 1;
   const repeated = new Set<number>();
   for (let i = 0; i < measures.length; i++) {
-    if (measures[i].repeatStart) repeatFrom = i;
+    if (measures[i].repeatStart && i !== repeatFrom) {
+      repeatFrom = i;
+      pass = 1;
+    }
+    if (measures[i].volta !== undefined && measures[i].volta !== pass) continue;
     order.push(i);
     if (measures[i].repeatEnd && !repeated.has(i)) {
       repeated.add(i);
+      pass++;
       i = repeatFrom - 1;
     }
   }
@@ -126,7 +143,7 @@ export async function renderScore(measures: FixtureMeasure[]): Promise<{ osmd: O
   host.style.width = '1200px';
   document.body.appendChild(host);
   const osmd = new OpenSheetMusicDisplay(host, { backend: 'svg', autoResize: false, drawTitle: false, followCursor: false });
-  osmd.EngravingRules.CursorIgnoreRepetitions = true; // as in osmd.component.ts: the cursor service drives the repeats itself
+  osmd.EngravingRules.CursorIgnoreRepetitions = false; // as in osmd.component.ts: OSMD's iterator takes the repeats
   await osmd.load(scoreXml(measures));
   osmd.render();
   return { osmd, host, dispose: () => { osmd.clear(); host.remove(); } };
@@ -175,5 +192,18 @@ export const DOUBLE_BACK_JUMP_SCORE: FixtureMeasure[] = [
   { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'], repeatEnd: true },
   { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'] },
   { treble: ['D5', 'E5', 'F5', 'G5'], bass: ['D3:4'], repeatEnd: true },
+  { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
+];
+
+/**
+ * A repeat with first and second endings (voltas): |: 2 3 [1. 4 :| [2. 5 | 6 — playback is
+ * 1 | 2 3 4 | 2 3 5 | 6.
+ */
+export const VOLTA_SCORE: FixtureMeasure[] = [
+  { treble: ['C5', 'D5', 'E5', 'F5'], bass: ['C3:4'] },
+  { treble: ['G5', 'A5', 'B5', 'C6'], bass: ['G2:4'], repeatStart: true },
+  { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'] },
+  { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'], volta: 1, repeatEnd: true },
+  { treble: ['D5', 'E5', 'F5', 'G5'], bass: ['D3:4'], volta: 2 },
   { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
 ];
