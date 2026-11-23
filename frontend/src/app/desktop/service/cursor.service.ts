@@ -50,13 +50,10 @@ export class CursorService implements OnDestroy {
     follow = false;
     /** The scrolling container of the cursor element, found once per element. */
     private scrollerOf?: { element: HTMLElement; x: HTMLElement | null; y: HTMLElement | null };
-    private osmdArray: OsmdArrayElement[] | undefined;
     private midiTicksNoteMap: Map<number, MidiNote[]> = new Map();   // ticks => MidiNote[]    
     private osmdCursorIdxToMeasureMap: Map<number, number> = new Map();
     private osmdMeasureSequence: number[] = [];
     public maxMidiMeasure = 0;
-    // Signal exposé pour le slop score
-    public slopScoreSignal = signal<number>(0);
 
 
     cursor: Cursor | undefined;
@@ -65,7 +62,6 @@ export class CursorService implements OnDestroy {
     feedbackSignal = signal<{ message: string; percentage: number } | null>(null);
     readonly measure = signal<number>(0);
     midiTicksToOsmdCursorIndex: Map<number, { osmdIndex: number, osmdMeasure: number }> = new Map();
-    sortedMappedMidiTicks: number[] = [];
     sortedMidiTicks: number[] = [];
 
     public tiltCursor(cursor: Cursor): void {
@@ -80,7 +76,6 @@ export class CursorService implements OnDestroy {
 
         this.feedbackSignal.set(null);
         this.measure.set(0);
-        this.slopScoreSignal.set(0);
         this.cursorIndex = 0;
         this.maxMidiMeasure = 0;
         this.osmdMeasureCount = 0;
@@ -89,18 +84,16 @@ export class CursorService implements OnDestroy {
         this.osmdCursorIdxToMeasureMap.clear();
         this.midiTicksToOsmdCursorIndex.clear();
         this.osmdMeasureSequence = [];
-        this.sortedMappedMidiTicks = [];
         this.sortedMidiTicks = [];
-
-        if (this.osmdArray) {
-            this.osmdArray.clear();
-            this.osmdArray = undefined;
-        }
 
         this.cursor = undefined;
     }
 
-    public async setup(cursor: Cursor, midi: Midi): Promise<number> {
+    /**
+     * Maps every MIDI onset (ticks) to a cursor position: midiTicksToOsmdCursorIndex, which nextNote() follows.
+     * The cursor steps (OSMD's walk, in playback order) are an intermediate list, dropped once mapped.
+     */
+    public async setup(cursor: Cursor, midi: Midi): Promise<void> {
 
         this.cursor = cursor;
         this.midiTicksToOsmdCursorIndex.clear();
@@ -115,24 +108,19 @@ export class CursorService implements OnDestroy {
 
         // One walk in playback order with OSMD's own iterator (CursorIgnoreRepetitions = false): it takes
         // the repeats, voltas, D.C. / D.S. itself, so the steps come out unrolled, each at its cursor index
-        await this.buildPlaybackSteps(this.cursor);
+        const steps = await this.buildPlaybackSteps(this.cursor);
         await this.maybeYieldToUi();
 
-        this.hydrateOsmdArray();
+        this.hydrateOsmdArray(steps);
         await this.maybeYieldToUi();
 
-        this.linkMidiTicksToCursorIndex();
-
-        const score = this.verify();
-        this.slopScoreSignal.set(score);
+        this.linkMidiTicksToCursorIndex(steps);
+        this.cursor.CursorOptions.color = CURSOR_GOOD_COLOR;
         this.feedbackSignal.set(null);
 
-        this.osmdArray!.clear();
         this.midiTicksNoteMap.clear();
-        // this.osmdMeasureSequence (one number per played measure) is kept: measureSequence exposes it
-        // this.osmdCursorIdxToMeasureMap.clear(); is used for slider and must not be cleared
-        // this.midiTicksToOsmdCursorIndex will be our main output and must not be cleared    
-        return score;
+        // Kept: midiTicksToOsmdCursorIndex (followed by nextNote), osmdCursorIdxToMeasureMap (reset(start), the
+        // measure slider) and osmdMeasureSequence (measureSequence)
     }
 
 
@@ -191,8 +179,8 @@ export class CursorService implements OnDestroy {
     }
 
     /**
-     * Walks the score once in playback order with OSMD's own iterator, building the step array the MIDI is
-     * mapped onto (osmdArray) and the played-measure sequence (osmdMeasureSequence).
+     * Walks the score once in playback order with OSMD's own iterator: returns the cursor steps that have notes
+     * (the MIDI is mapped onto them), and sets the played-measure sequence (osmdMeasureSequence).
      *
      * With EngravingRules.CursorIgnoreRepetitions = false, MusicPartManagerIterator.moveToNext() takes the
      * repeats itself: backward repeats (as often as `<repeat times>` says), the ending (volta) of each pass,
@@ -202,7 +190,7 @@ export class CursorService implements OnDestroy {
      * A measure pass starts where the measure changes, where OSMD reports a jump, or where the time within the
      * measure goes back (a measure repeated by itself, after a jump hidden by skipped invisible entries).
      */
-    private async buildPlaybackSteps(cursor: Cursor): Promise<void> {
+    private async buildPlaybackSteps(cursor: Cursor): Promise<OsmdArrayElement[]> {
         const feedbackMessage = $localize`:@@workbench.progress.cursor:Initializing the sheet cursor`;
         // A runaway guard far above any score (Diabelli's 298 played measures take about 2,000 steps); the number
         // of steps is not known before the walk, so progress is reported at its start and end (it takes a few ms)
@@ -260,17 +248,11 @@ export class CursorService implements OnDestroy {
         this.osmdMeasureCount = maxMeasure + 1;
         this.maxMidiMeasure = Math.max(0, midiMeasure);
         this.osmdMeasureSequence = measureSequence;
-        this.osmdArray = osmdArray;
         this.feedback(feedbackMessage, 100);
+        return osmdArray;
     }
 
 
-    arrRemove(arr: number[], value: number): void {
-        const pos = arr.indexOf(value);
-        if (pos !== -1) {
-            arr.splice(pos, 1);
-        }
-    }
 
     private hasAnyPitchOverlap(expectedPitches: number[] | null | undefined, eventPitches: number[]): boolean {
         if (!expectedPitches || expectedPitches.length === 0 || eventPitches.length === 0) {
@@ -321,12 +303,10 @@ export class CursorService implements OnDestroy {
 
 
 
-    hydrateOsmdArray(lookahead = 6): OsmdArrayElement[] {
-        const osmdArray = this.osmdArray!;
+    /** Attaches each MIDI onset to the cursor step whose pitches it plays (looking ahead past extra or missing notes). */
+    private hydrateOsmdArray(osmdArray: OsmdArrayElement[], lookahead = 6): void {
         const sortedTicks = this.sortedMidiTicks;
-        const midiTicksNoteMap = this.
-
-            midiTicksNoteMap;
+        const midiTicksNoteMap = this.midiTicksNoteMap;
 
         /** Return the index of the first non-skippable step at or after `from`. */
         const nextPlayable = (from: number): number => {
@@ -404,22 +384,7 @@ export class CursorService implements OnDestroy {
 
             midiIdx++;
         }
-
-        return osmdArray;
     }
-
-    /***     */
-    //    async hydrateOsmdArray(cursor: Cursor): Promise<OsmdArrayElement[]> {
-    //     }
-    /**      */
-
-
-
-
-
-
-
-
 
 
     /*
@@ -453,28 +418,18 @@ export class CursorService implements OnDestroy {
 
 
     /**
-     *  this function first fill osmdArray with midiTicks and notes then output mapMidiTicksToOsmdCursorIndex
-     *  
-     *  @return this.mapMidiTicksToOsmdCursorIndex will trigger (or not) the cursor advance and back in another service
+     * Builds the two maps kept after setup: MIDI onset (ticks) -> cursor step, and measure -> its first cursor step
+     * (in the first pass). A step no onset was attached to has no entry in the first.
      */
-    linkMidiTicksToCursorIndex(): Map<number, { osmdIndex: number, osmdMeasure: number }> {
-        this.osmdArray!.forEach(element => {
-            this.midiTicksToOsmdCursorIndex.set(element.midiTicks ?? -1, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
-            if (!this.osmdCursorIdxToMeasureMap.has(element.osmdMeasure)) {
-                this.osmdCursorIdxToMeasureMap.set(element.osmdMeasure, element.osmdIndex);            
+    private linkMidiTicksToCursorIndex(osmdArray: OsmdArrayElement[]): void {
+        for (const element of osmdArray) {
+            if (element.midiTicks !== null) {
+                this.midiTicksToOsmdCursorIndex.set(element.midiTicks, { osmdIndex: element.osmdIndex, osmdMeasure: element.osmdMeasure });
             }
-        });
-        return this.midiTicksToOsmdCursorIndex;
-    }
-
-    /**
-     * The share of mapped cursor steps (in %, one decimal) whose MIDI pitches the score does not expect there.
-     */
-    verify(): number {
-        const osmdArray = this.osmdArray ?? [];
-        const notOkCount = osmdArray.filter(element => !this.isOsmdArrayElementOk(element)).length;
-        this.cursor!.CursorOptions.color = CURSOR_GOOD_COLOR;
-        return osmdArray.length === 0 ? 0 : Math.round((notOkCount / osmdArray.length) * 1000) / 10;
+            if (!this.osmdCursorIdxToMeasureMap.has(element.osmdMeasure)) {
+                this.osmdCursorIdxToMeasureMap.set(element.osmdMeasure, element.osmdIndex);
+            }
+        }
     }
 
 
@@ -595,14 +550,6 @@ export class CursorService implements OnDestroy {
         return pitch % 12;
     }
 
-    private isOsmdArrayElementOk(element: OsmdArrayElement): boolean {
-        const osmdPitchClasses = new Set(element.osmdPitches ?? []);
-        const midiPitchClasses = new Set(element.midiPitches ?? []);
-        const midiIsSubsetOfOsmd = Array.from(midiPitchClasses)
-            //.map(pitch => pitch % 12)
-            .every(pitch => osmdPitchClasses.has(pitch));
-        return element.isSkipable || midiIsSubsetOfOsmd;
-    }
 
 
 

@@ -122,7 +122,7 @@ export class OsmdComponent implements OnInit, OnDestroy {
                     if (this.osmd && this.osmd.cursors && this.osmd!.GraphicSheet) {
                         this.applyFingeringAndHarmonyVisibility();
                         this.recalculateCursorPosition();
-                        const status = await this.playerService.setOsmd(this.osmd!);
+                        await this.playerService.setOsmd(this.osmd!);
 
                         this.ngZone.run(() => {
                             this.loading = false;
