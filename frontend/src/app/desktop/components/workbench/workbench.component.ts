@@ -29,7 +29,6 @@ import { ElapsedTimePipe } from '../../../shared/pipes/elapsed-time.pipe';
 import { midiToPitch } from '../../service/midi-maths';
 import { CursorService } from '../../service/cursor.service';
 import { Note } from '@tonejs/midi/dist/Note';
-import { SlopDialogComponent } from '../slop-dialog/slop-dialog.component';
 import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
@@ -63,7 +62,7 @@ export function scoreLoadErrorMessage(error: unknown): string {
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, SlopDialogComponent, MixerDialogComponent],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, MixerDialogComponent],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -97,7 +96,6 @@ export function scoreLoadErrorMessage(error: unknown): string {
 })
 
 export class WorkbenchComponent implements OnInit, OnDestroy {
-  showSlopDialog = false;
   /** The browser denies MIDI to the site: /work/:slug says so in a popup, as the setup panel does. */
   showMidiBlockedDialog = false;
   protected readonly midiBlockedMessage = MIDI_BLOCKED_MESSAGE;

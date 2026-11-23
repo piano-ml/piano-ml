@@ -1778,50 +1778,6 @@
         <source>Error Loading Score</source>
         <target state="translated">โหลดโน้ตเพลงไม่สำเร็จ</target>
       </trans-unit>
-      <trans-unit id="slop.heading" datatype="html">
-        <source> Encoding issue detected </source>
-        <target state="translated">พบปัญหาการเข้ารหัส</target>
-      </trans-unit>
-      <trans-unit id="slop.explanation" datatype="html">
-        <source> Exact conversion from sheet music to sound has not been possible.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Ex: A 4/4 bar with 5 quarter notes. </source>
-        <target state="translated">ไม่สามารถแปลงโน้ตเพลงเป็นเสียงได้อย่างแม่นยำ<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> เช่น ห้องเพลง 4/4 ที่มีโน้ตตัวดำ 5 ตัว</target>
-      </trans-unit>
-      <trans-unit id="slop.repaired" datatype="html">
-        <source>The score has been rebuilt. Reload the page to practice the repaired version.</source>
-        <target state="translated">สร้างโน้ตเพลงใหม่แล้ว โปรดโหลดหน้าใหม่เพื่อฝึกเวอร์ชันที่ซ่อมแล้ว</target>
-      </trans-unit>
-      <trans-unit id="slop.reload" datatype="html">
-        <source>Reload</source>
-        <target state="translated">โหลดใหม่</target>
-      </trans-unit>
-      <trans-unit id="workbench.retry" datatype="html">
-        <source>Try again</source>
-        <target state="translated">ลองอีกครั้ง</target>
-      </trans-unit>
-      <trans-unit id="slop.repair" datatype="html">
-        <source>Repair</source>
-        <target state="translated">ซ่อมแซม</target>
-      </trans-unit>
-      <trans-unit id="slop.downloading" datatype="html">
-        <source>Downloading...</source>
-        <target state="translated">กำลังดาวน์โหลด...</target>
-      </trans-unit>
-      <trans-unit id="slop.computing" datatype="html">
-        <source>Computing...</source>
-        <target state="translated">กำลังคำนวณ...</target>
-      </trans-unit>
-      <trans-unit id="slop.error.download" datatype="html">
-        <source>The MIDI file of this score could not be downloaded.</source>
-        <target state="translated">ดาวน์โหลดไฟล์ MIDI ของโน้ตเพลงนี้ไม่สำเร็จ</target>
-      </trans-unit>
-      <trans-unit id="slop.error.read" datatype="html">
-        <source>The MIDI file of this score could not be read.</source>
-        <target state="translated">อ่านไฟล์ MIDI ของโน้ตเพลงนี้ไม่สำเร็จ</target>
-      </trans-unit>
-      <trans-unit id="slop.error.upload" datatype="html">
-        <source>The server could not rebuild this score.</source>
-        <target state="translated">เซิร์ฟเวอร์สร้างโน้ตเพลงนี้ใหม่ไม่สำเร็จ</target>
-      </trans-unit>
       <trans-unit id="scoreInfo.tempo" datatype="html">
         <source>Tempo</source>
         <target state="translated">จังหวะ</target>
@@ -1852,6 +1808,10 @@
       </trans-unit>
       <trans-unit id="workbench.soundsRetry" datatype="html">
         <source>Retry</source>
+        <target state="translated">ลองอีกครั้ง</target>
+      </trans-unit>
+      <trans-unit id="workbench.retry" datatype="html">
+        <source>Try again</source>
         <target state="translated">ลองอีกครั้ง</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
@@ -2054,29 +2014,9 @@
         <source>Initializing...</source>
         <target state="translated">กำลังเริ่มต้น...</target>
       </trans-unit>
-      <trans-unit id="workbench.progress.steps" datatype="html">
-        <source>Building the step sequence</source>
-        <target state="translated">กำลังสร้างลำดับขั้น</target>
-      </trans-unit>
       <trans-unit id="workbench.progress.cursor" datatype="html">
         <source>Initializing the sheet cursor</source>
         <target state="translated">กำลังเริ่มต้นเคอร์เซอร์โน้ตเพลง</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.hydrating" datatype="html">
-        <source>Preparing the cursor</source>
-        <target state="translated">กำลังเตรียมเคอร์เซอร์</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.measureSequence" datatype="html">
-        <source>Building the measure sequence</source>
-        <target state="translated">กำลังสร้างลำดับห้องเพลง</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.voltas" datatype="html">
-        <source>Building the repeat endings</source>
-        <target state="translated">กำลังสร้างตอนจบของการย้อน</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.measures" datatype="html">
-        <source>Building the measures</source>
-        <target state="translated">กำลังสร้างห้องเพลง</target>
       </trans-unit>
       <trans-unit id="workbench.progress.midiMap" datatype="html">
         <source>Building the MIDI map</source>

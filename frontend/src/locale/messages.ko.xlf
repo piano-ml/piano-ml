@@ -1778,50 +1778,6 @@
         <source>Error Loading Score</source>
         <target state="translated">악보를 불러오는 중 오류 발생</target>
       </trans-unit>
-      <trans-unit id="slop.heading" datatype="html">
-        <source> Encoding issue detected </source>
-        <target state="translated">인코딩 문제 감지</target>
-      </trans-unit>
-      <trans-unit id="slop.explanation" datatype="html">
-        <source> Exact conversion from sheet music to sound has not been possible.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Ex: A 4/4 bar with 5 quarter notes. </source>
-        <target state="translated">악보를 소리로 정확하게 변환할 수 없습니다.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> 예: 4/4 마디에 4분음표가 5개 있는 경우.</target>
-      </trans-unit>
-      <trans-unit id="slop.repaired" datatype="html">
-        <source>The score has been rebuilt. Reload the page to practice the repaired version.</source>
-        <target state="translated">악보를 다시 만들었습니다. 페이지를 새로 고쳐 수정된 버전으로 연습하세요.</target>
-      </trans-unit>
-      <trans-unit id="slop.reload" datatype="html">
-        <source>Reload</source>
-        <target state="translated">새로 고침</target>
-      </trans-unit>
-      <trans-unit id="workbench.retry" datatype="html">
-        <source>Try again</source>
-        <target state="translated">다시 시도</target>
-      </trans-unit>
-      <trans-unit id="slop.repair" datatype="html">
-        <source>Repair</source>
-        <target state="translated">수정</target>
-      </trans-unit>
-      <trans-unit id="slop.downloading" datatype="html">
-        <source>Downloading...</source>
-        <target state="translated">다운로드 중...</target>
-      </trans-unit>
-      <trans-unit id="slop.computing" datatype="html">
-        <source>Computing...</source>
-        <target state="translated">계산 중...</target>
-      </trans-unit>
-      <trans-unit id="slop.error.download" datatype="html">
-        <source>The MIDI file of this score could not be downloaded.</source>
-        <target state="translated">이 악보의 MIDI 파일을 다운로드할 수 없습니다.</target>
-      </trans-unit>
-      <trans-unit id="slop.error.read" datatype="html">
-        <source>The MIDI file of this score could not be read.</source>
-        <target state="translated">이 악보의 MIDI 파일을 읽을 수 없습니다.</target>
-      </trans-unit>
-      <trans-unit id="slop.error.upload" datatype="html">
-        <source>The server could not rebuild this score.</source>
-        <target state="translated">서버가 이 악보를 다시 만들 수 없습니다.</target>
-      </trans-unit>
       <trans-unit id="scoreInfo.tempo" datatype="html">
         <source>Tempo</source>
         <target state="translated">템포</target>
@@ -1852,6 +1808,10 @@
       </trans-unit>
       <trans-unit id="workbench.soundsRetry" datatype="html">
         <source>Retry</source>
+        <target state="translated">다시 시도</target>
+      </trans-unit>
+      <trans-unit id="workbench.retry" datatype="html">
+        <source>Try again</source>
         <target state="translated">다시 시도</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
@@ -2054,29 +2014,9 @@
         <source>Initializing...</source>
         <target state="translated">초기화하는 중...</target>
       </trans-unit>
-      <trans-unit id="workbench.progress.steps" datatype="html">
-        <source>Building the step sequence</source>
-        <target state="translated">단계 시퀀스를 만드는 중</target>
-      </trans-unit>
       <trans-unit id="workbench.progress.cursor" datatype="html">
         <source>Initializing the sheet cursor</source>
         <target state="translated">악보 커서를 초기화하는 중</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.hydrating" datatype="html">
-        <source>Preparing the cursor</source>
-        <target state="translated">커서를 준비하는 중</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.measureSequence" datatype="html">
-        <source>Building the measure sequence</source>
-        <target state="translated">마디 시퀀스를 만드는 중</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.voltas" datatype="html">
-        <source>Building the repeat endings</source>
-        <target state="translated">반복 끝부분을 만드는 중</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.measures" datatype="html">
-        <source>Building the measures</source>
-        <target state="translated">마디를 만드는 중</target>
       </trans-unit>
       <trans-unit id="workbench.progress.midiMap" datatype="html">
         <source>Building the MIDI map</source>
