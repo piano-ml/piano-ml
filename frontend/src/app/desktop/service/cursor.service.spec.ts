@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { Note } from '@tonejs/midi/dist/Note';
 import type { Cursor } from 'opensheetmusicdisplay';
-import { DOUBLE_BACK_JUMP_SCORE, MULTI_REPEAT_SCORE, PPQ, REPEAT_SCORE, SIMPLE_SCORE, VOLTA_DOUBLE_BACK_JUMP_SCORE, VOLTA_SCORE, type FixtureMeasure, playbackOrder, renderScore, scoreMidi } from '../../testing/score-fixture';
+import { DA_CAPO_AL_FINE_SCORE, DA_CAPO_VOLTA_SCORE, DOUBLE_BACK_JUMP_SCORE, MULTI_REPEAT_SCORE, PPQ, REPEAT_SCORE, SIMPLE_SCORE, VOLTA_DOUBLE_BACK_JUMP_SCORE, VOLTA_SCORE, type FixtureMeasure, playbackOrder, renderScore, scoreMidi } from '../../testing/score-fixture';
 import { CURSOR_GOOD_COLOR } from '../components/osmd/osmd.config';
 import { CursorService } from './cursor.service';
 
@@ -110,6 +110,25 @@ describe('CursorService', () => {
       order.forEach((bar, played) => {
         expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
       });
+    });
+
+    it('maps a D.C. al Fine: the Menuet again, without its repeat, up to the Fine', async () => {
+      const { slop } = await setup(DA_CAPO_AL_FINE_SCORE);
+      expect(slop).toBe(0);
+      const order = playbackOrder(DA_CAPO_AL_FINE_SCORE);
+      expect(order).toEqual([0, 1, 0, 1, 2, 3, 2, 3, 0, 1]);
+      expect(service.measureSequence).toEqual(order);
+      order.forEach((bar, played) => {
+        expect(service.midiTicksToOsmdCursorIndex.get(tickOf(played, 0))?.osmdMeasure, `played bar ${played + 1}`).toBe(bar);
+      });
+    });
+
+    it('maps a D.C. al Fine over endings: after the D.C. the second ending is played', async () => {
+      const { slop } = await setup(DA_CAPO_VOLTA_SCORE);
+      expect(slop).toBe(0);
+      const order = playbackOrder(DA_CAPO_VOLTA_SCORE);
+      expect(order).toEqual([0, 1, 0, 2, 3, 0, 2]);
+      expect(service.measureSequence).toEqual(order);
     });
 
     it('logs a diagnostic summary in debug mode', async () => {
@@ -236,6 +255,21 @@ describe('CursorService', () => {
         service.nextNote(noteAt(midi, tickOf(played, 0)));
         expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1}`).toBe(bar);
       });
+    });
+
+    it('follows a whole playback through a D.C. al Fine, and seeks back across the D.C.', async () => {
+      const { midi } = await setup(DA_CAPO_AL_FINE_SCORE);
+      const order = playbackOrder(DA_CAPO_AL_FINE_SCORE);
+      order.forEach((bar, played) => {
+        service.nextNote(noteAt(midi, tickOf(played, 0)));
+        expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1}`).toBe(bar);
+      });
+      service.nextNote(noteAt(midi, tickOf(5, 2))); // back before the D.C.: bar 4, first pass of the Trio's repeat
+      expect(cursor.iterator.CurrentMeasure.measureListIndex).toBe(3);
+      for (let played = 6; played < order.length; played++) {
+        service.nextNote(noteAt(midi, tickOf(played, 0)));
+        expect(cursor.iterator.CurrentMeasure.measureListIndex, `played bar ${played + 1} after the seek`).toBe(order[played]);
+      }
     });
 
     it('seeks back across a repeat it took and plays on from there in step with the audio', async () => {
