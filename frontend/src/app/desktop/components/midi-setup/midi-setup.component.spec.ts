@@ -1,4 +1,5 @@
 import { provideBeacon } from 'ng-beacon';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MidiServiceService } from '../../../shared/services/midi-service.service';
 import { MidiSetupComponent } from './midi-setup.component';
@@ -21,6 +22,7 @@ describe('MidiSetupComponent', () => {
     isOutputDeviceSelected: ReturnType<typeof vi.fn>;
     setInputDeviceEnabled: ReturnType<typeof vi.fn>;
     setOutputDeviceEnabled: ReturnType<typeof vi.fn>;
+    midiEvent: ReturnType<typeof signal<unknown>>;
   };
 
   /** Opens the dialog and waits for the device lists. */
@@ -50,6 +52,7 @@ describe('MidiSetupComponent', () => {
       isOutputDeviceSelected: vi.fn((d: unknown) => d === null),
       setInputDeviceEnabled: vi.fn(),
       setOutputDeviceEnabled: vi.fn(),
+      midiEvent: signal<unknown>(null),
     };
 
     await TestBed.configureTestingModule({
@@ -145,6 +148,89 @@ describe('MidiSetupComponent', () => {
       vi.mocked(navigator.requestMIDIAccess).mockRejectedValue(new DOMException('denied', 'SecurityError'));
       await open();
       expect(el.textContent).toContain('MIDI access failed');
+    });
+  });
+
+  describe('key range', () => {
+    const keyInput = (id: string) => el.querySelector(`#${id}`) as HTMLInputElement;
+    const stored = () => JSON.parse(localStorage.getItem('preferences') ?? 'null');
+    function enter(id: string, value: string) {
+      keyInput(id).value = value;
+      keyInput(id).dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+    }
+    function play(note: number, type: 'down' | 'up' = 'down') {
+      midi.midiEvent.set({ type, note });
+      fixture.detectChanges();
+    }
+
+    beforeEach(() => localStorage.clear());
+    afterEach(() => localStorage.clear());
+
+    it('defaults to the full 88 keys', async () => {
+      await open();
+      expect(keyInput('midi-lowest-key').value).toBe('21');
+      expect(keyInput('midi-highest-key').value).toBe('108');
+    });
+
+    it('loads the stored range when opened', async () => {
+      localStorage.setItem('preferences', JSON.stringify({ leftmostKey: 36, rightmostKey: 96 }));
+      await open();
+      expect(keyInput('midi-lowest-key').value).toBe('36');
+      expect(keyInput('midi-highest-key').value).toBe('96');
+    });
+
+    it('ignores corrupted stored preferences', async () => {
+      localStorage.setItem('preferences', '{not json');
+      await open();
+      expect(keyInput('midi-lowest-key').value).toBe('21');
+    });
+
+    it('saves an entered key, keeping the other stored preferences', async () => {
+      localStorage.setItem('preferences', JSON.stringify({ other: 'kept' }));
+      await open();
+      enter('midi-lowest-key', '36');
+      expect(stored()).toEqual({ other: 'kept', leftmostKey: 36, rightmostKey: 108 });
+    });
+
+    it.each([
+      ['midi-lowest-key', '20', 'Min 21.'],
+      ['midi-highest-key', '109', 'Max 108.'],
+      ['midi-lowest-key', '', 'Min 21.'],
+      ['midi-lowest-key', '108', 'Lowest key must be less than highest key.'],
+    ])('refuses %s = %j', async (id, value, message) => {
+      await open();
+      enter(id, value);
+      expect(el.querySelector('[data-testid="key-range-error"]')?.textContent).toContain(message);
+      expect(stored()).toBeNull();
+    });
+
+    it('sets the focused field from the next key played, not from an earlier one', async () => {
+      await open();
+      play(30);
+      keyInput('midi-lowest-key').dispatchEvent(new Event('focus'));
+      fixture.detectChanges();
+      expect(el.textContent).toContain('Listening for MIDI — lowest key…');
+      expect(keyInput('midi-lowest-key').value).toBe('21');
+
+      play(40, 'up');
+      expect(keyInput('midi-lowest-key').value).toBe('21');
+      play(40);
+      expect(keyInput('midi-lowest-key').value).toBe('40');
+      expect(stored()).toEqual({ leftmostKey: 40, rightmostKey: 108 });
+
+      keyInput('midi-lowest-key').dispatchEvent(new Event('blur'));
+      play(50);
+      expect(keyInput('midi-lowest-key').value).toBe('40');
+    });
+
+    it('stops listening when closed', async () => {
+      await open();
+      keyInput('midi-highest-key').dispatchEvent(new Event('focus'));
+      fixture.componentRef.setInput('isOpen', false);
+      fixture.detectChanges();
+      play(84);
+      expect(stored()).toBeNull();
     });
   });
 

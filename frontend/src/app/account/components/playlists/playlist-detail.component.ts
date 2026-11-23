@@ -157,7 +157,7 @@ export class PlaylistDetailComponent implements OnInit {
         this.deleting.set(false);
         this.confirmingDelete.set(false);
         this.toast.show($localize`:@@playlist.toast.deleted:Deleted "${playlistTitle(p)}:title:"`);
-        this.router.navigate(['/account/playlists']);
+        this.router.navigate(['/account/home/playlists']);
       },
       error: () => {
         this.deleting.set(false);

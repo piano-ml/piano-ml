@@ -333,7 +333,7 @@ export class EditScoreComponent implements OnInit {
         this.showDeleteConfirmation = false;
         this.cdr.detectChanges();
         // Navigate to scores list
-        this.router.navigate(['/account/scores']);
+        this.router.navigate(['/account/home/scores']);
       },
       error: (error) => {
         this.error = error.message || $localize`:@@editScore.error.delete:Failed to delete score`;

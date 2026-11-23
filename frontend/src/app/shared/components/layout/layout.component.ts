@@ -92,7 +92,8 @@ export class LayoutComponent implements OnDestroy {
 
   /** The admin entry only shows on the account home page, not on every page of the site. */
   onAccountHome(): boolean {
-    return this.router.url.split(/[?#]/)[0] === '/account/home';
+    const path = this.router.url.split(/[?#]/)[0];
+    return path === '/account/home' || path.startsWith('/account/home/');
   }
 
   logout() {

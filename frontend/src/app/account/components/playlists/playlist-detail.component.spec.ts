@@ -124,7 +124,7 @@ describe('PlaylistDetailComponent', () => {
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     q('delete-confirm')!.click();
     expect(api.accountPlaylistSlugDelete).toHaveBeenCalledWith('recital');
-    expect(navigate).toHaveBeenCalledWith(['/account/playlists']);
+    expect(navigate).toHaveBeenCalledWith(['/account/home/playlists']);
   });
 
   it('says so for an unknown playlist', () => {
