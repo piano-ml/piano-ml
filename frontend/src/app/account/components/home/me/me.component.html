@@ -1,13 +1,22 @@
-<div class="flex flex-col gap-6 max-w-2xl">
+<div class="page-panel">
 
-  <div class="exercise-desc-card">
+  <div class="page-toolbar">
+    <div class="page-toolbar-actions" data-testid="account-actions">
+      <button type="button" (click)="openDeleteConfirmation()" class="btn-danger" data-testid="delete-account" i18n="@@accountHome.deleteAccount">Delete account</button>
+      <button type="button" (click)="logout()" class="btn-danger" data-testid="logout" i18n="@@accountHome.logout">Logout</button>
+    </div>
+  </div>
+
+  <div class="exercise-desc-card max-w-2xl">
     <div class="exercise-desc-section">
 
       @if (!editMode) {
         <div class="flex items-start justify-between gap-4">
           <div class="flex flex-col gap-1">
             <p class="field-label" i18n="@@accountHome.name">Name</p>
-            <p class="text-sm text-neutral-200 mt-0.5">{{ userInfo.name || 'No name set' }}</p>
+            <p class="text-sm text-neutral-200 mt-0.5">
+              @if (userInfo.name) { {{ userInfo.name }} } @else { <ng-container i18n="@@accountHome.noName">No name set</ng-container> }
+            </p>
             <p class="text-xs text-neutral-400 mt-1">{{ userInfo.email }}</p>
           </div>
           <button type="button" (click)="enableEdit()" class="btn-primary shrink-0" i18n="@@accountHome.edit">Edit</button>
@@ -29,11 +38,6 @@
       }
 
     </div>
-  </div>
-
-  <div class="flex flex-wrap items-center gap-3" data-testid="account-actions">
-    <button type="button" (click)="openDeleteConfirmation()" class="btn-danger" data-testid="delete-account" i18n="@@accountHome.deleteAccount">Delete account</button>
-    <button type="button" (click)="logout()" class="btn-danger" data-testid="logout" i18n="@@accountHome.logout">Logout</button>
   </div>
 
 </div>
@@ -59,7 +63,7 @@
         </button>
         <button type="button" (click)="confirmDeleteAccount()" class="btn-danger" [disabled]="deleting"
           data-testid="delete-confirm">
-          {{ deleting ? 'Deleting…' : 'Delete my account' }}
+          @if (deleting) { <ng-container i18n="@@accountHome.deleting">Deleting…</ng-container> } @else { <ng-container i18n="@@accountHome.deleteMyAccount">Delete my account</ng-container> }
         </button>
       </div>
     </div>

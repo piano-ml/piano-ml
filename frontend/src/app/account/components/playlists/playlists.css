@@ -1,9 +1,6 @@
-/* List page: rows styled like the library score table */
-.playlist-table tbody tr { border-bottom: 1px solid rgb(38 38 38 / 0.6); transition: background-color 150ms; }
-.playlist-table tbody tr:hover { background: rgb(38 38 38 / 0.4); }
+/* List page: playlist titles in the data table (styles.css) */
 .playlist-link { font-weight: 600; color: #f5f5f5; }
 .playlist-link:hover { text-decoration: underline; }
-.playlist-link:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(251, 113, 133, 0.6); border-radius: 0.125rem; }
 
 .playlist-empty {
   display: flex; flex-direction: column; align-items: center; gap: 0.75rem; text-align: center;
@@ -16,8 +13,7 @@
   display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.5rem 0.5rem 0.25rem;
   background: #262626; border: 1px solid #404040; border-radius: 0.25rem;
 }
-.playlist-row:focus-visible, .playlist-row:focus-within { border-color: #737373; }
-.playlist-row:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(251, 113, 133, 0.5); }
+.playlist-row:focus-within { border-color: #737373; }
 .row-handle {
   display: flex; align-items: center; justify-content: center; width: 2rem; min-height: 2.5rem;
   color: #737373; cursor: grab; touch-action: none; flex: none;
@@ -35,7 +31,6 @@
   color: #a3a3a3; border-radius: 0.125rem; cursor: pointer;
 }
 .row-btn:hover:not(:disabled) { color: #fff; background: rgba(255, 255, 255, 0.08); }
-.row-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(251, 113, 133, 0.6); }
 .row-btn:disabled { opacity: 0.3; cursor: default; }
 .row-btn-danger:hover:not(:disabled) { color: #f87171; }
 

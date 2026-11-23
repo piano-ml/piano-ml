@@ -1,68 +1,144 @@
 @if (loaded() && summary(); as s) {
-  <section data-testid="practice-summary">
-    <p class="section-label mb-3" i18n="@@accountHome.practice">Practice</p>
-
-    <div class="exercise-desc-card">
-      @if (!s.volume?.sessions) {
+  <section class="page-panel" data-testid="practice-summary">
+    @if (!s.volume?.sessions) {
+      <div class="exercise-desc-card max-w-2xl">
         <div class="exercise-desc-section">
           <p class="text-sm text-neutral-400" data-testid="practice-empty" i18n="@@accountHome.practice.empty">Nothing recorded yet. Play a score or an exercise to see your progress here.</p>
         </div>
-      } @else {
-        <div class="exercise-desc-section">
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4">
-            <div>
-              <p class="field-label" i18n="@@accountHome.practice.daysInARow">Days in a row</p>
-              <p class="text-sm text-neutral-200 mt-0.5" data-testid="practice-streak">{{ s.regularity?.currentStreakDays ?? 0 }}</p>
-            </div>
-            <div>
-              <p class="field-label" i18n="@@accountHome.practice.last7Days">Last 7 days</p>
-              <p class="text-sm text-neutral-200 mt-0.5" data-testid="practice-week">{{ duration(s.volume?.activeSeconds7) }}</p>
-            </div>
-            <div>
-              <p class="field-label" i18n="@@accountHome.practice.totalTime">Total time</p>
-              <p class="text-sm text-neutral-200 mt-0.5">{{ duration(s.volume?.activeSeconds) }}</p>
-            </div>
-            <div>
-              <p class="field-label" i18n="@@accountHome.practice.accuracy">Accuracy (last 10 scores)</p>
-              <p class="text-sm text-neutral-200 mt-0.5" data-testid="practice-accuracy">{{ percent(s.scoreAccuracy?.last10?.accuracy) }}</p>
-            </div>
-          </div>
-        </div>
+      </div>
+    } @else {
+      <!-- Pills like the genres of the library: the value, then what it is -->
+      <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" data-testid="practice-stats">
+        <li class="capsule-static">
+          <p class="font-medium text-sm" data-testid="practice-streak">{{ s.regularity?.currentStreakDays ?? 0 }}</p>
+          <p class="text-xs text-gray-300 mt-1" i18n="@@accountHome.practice.daysInARow">Days in a row</p>
+        </li>
+        <li class="capsule-static">
+          <p class="font-medium text-sm" data-testid="practice-week">{{ duration(s.volume?.activeSeconds7) }}</p>
+          <p class="text-xs text-gray-300 mt-1" i18n="@@accountHome.practice.last7Days">Last 7 days</p>
+        </li>
+        <li class="capsule-static">
+          <p class="font-medium text-sm">{{ duration(s.volume?.activeSeconds) }}</p>
+          <p class="text-xs text-gray-300 mt-1" i18n="@@accountHome.practice.totalTime">Total time</p>
+        </li>
+        <li class="capsule-static">
+          <p class="font-medium text-sm" data-testid="practice-accuracy">{{ percent(s.scoreAccuracy?.last10?.accuracy) }}</p>
+          <p class="text-xs text-gray-300 mt-1" i18n="@@accountHome.practice.accuracy">Accuracy (last 10 scores)</p>
+        </li>
+        <li class="capsule-static">
+          <p class="font-medium text-sm" data-testid="practice-exercise-accuracy">{{ percent(s.exerciseAccuracy?.last10?.accuracy) }}</p>
+          <p class="text-xs text-gray-300 mt-1" i18n="@@accountHome.practice.exerciseAccuracy">Accuracy (last 10 exercises)</p>
+        </li>
+      </ul>
+    }
 
-        <div class="exercise-desc-section">
-          <p class="field-label mb-2" i18n="@@accountHome.practice.recent">Recent sessions</p>
-          <ul class="flex flex-col gap-1.5">
-            @for (session of sessions(); track session.id) {
-              <li class="flex items-baseline justify-between gap-4 text-sm" data-testid="practice-session">
-                <span class="min-w-0 truncate text-neutral-200">
-                  @if (session.slug) {
-                    <a [routerLink]="['/score', session.slug]" class="link-primary">{{ session.title }}</a>
-                  } @else if (session.title) {
-                    {{ session.title }}
-                  } @else {
-                    <ng-container i18n="@@accountHome.practice.exercise">Exercise</ng-container>
-                  }
-                  @if (session.kind === 'exercise' && session.tonic) {
-                    <span class="text-neutral-400"> · {{ session.tonic }}</span>
-                  }
-                </span>
-                <span class="shrink-0 text-xs text-neutral-400">
-                  {{ date(session.startedAt) }} · {{ duration(session.activeSeconds) }} · {{ percent(session.accuracy) }}
-                </span>
-              </li>
-            }
-          </ul>
+    @if (sessions().length > 0) {
+      <div>
+        <p class="section-label mb-3" i18n="@@accountHome.practice.recent">Recent sessions</p>
+        <div class="overflow-x-auto">
+          <table class="data-table" data-testid="practice-sessions">
+            <thead>
+              <tr>
+                <th i18n="@@scoreTable.title">Title</th>
+                <th class="hidden sm:table-cell" i18n="@@accountHome.practice.column.date">Date</th>
+                <th class="col-number hidden sm:table-cell" i18n="@@scoreTable.duration">Duration</th>
+                <th class="hidden md:table-cell" i18n="@@accountHome.practice.hands">Hands</th>
+                <th class="col-number hidden md:table-cell" i18n="@@scoreInfo.tempo">Tempo</th>
+                <th class="col-number" i18n="@@accountHome.practice.column.accuracy">Accuracy</th>
+                <th class="col-number hidden lg:table-cell" i18n="@@accountHome.practice.flow">Flow</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (session of sessions(); track session.id) {
+                <tr data-testid="practice-session" [class.cursor-pointer]="linkOf(session)" (click)="open(session, $event)">
+                  <td><ng-container *ngTemplateOutlet="titleCell; context: { $implicit: session }" /></td>
+                  <td class="whitespace-nowrap hidden sm:table-cell">{{ date(session.startedAt) }}</td>
+                  <td class="col-number whitespace-nowrap hidden sm:table-cell">{{ duration(session.activeSeconds) }}</td>
+                  <td class="whitespace-nowrap hidden md:table-cell">{{ hands(session.hands) }}</td>
+                  <td class="col-number hidden md:table-cell">{{ percent(session.tempoFactor) }}</td>
+                  <td class="col-number">{{ percent(session.accuracy) }}</td>
+                  <td class="col-number hidden lg:table-cell">{{ percent(session.flow) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
+      </div>
+    }
+    @if (items().length > 0) {
+      <div>
+        <p class="section-label mb-3" i18n="@@accountHome.practice.pieces">Pieces</p>
+        <div class="overflow-x-auto">
+          <table class="data-table" data-testid="practice-items">
+            <thead>
+              <tr>
+                <th i18n="@@scoreTable.title">Title</th>
+                <th class="col-number hidden sm:table-cell" i18n="@@accountHome.practice.sessions">Sessions</th>
+                <th class="col-number" i18n="@@accountHome.practice.best">Best</th>
+                <th class="col-number" i18n="@@accountHome.practice.last">Last</th>
+                <th class="col-number hidden md:table-cell" i18n="@@accountHome.practice.coverage">Coverage</th>
+                <th class="col-number hidden md:table-cell" i18n="@@scoreInfo.tempo">Tempo</th>
+                <th class="hidden lg:table-cell" i18n="@@accountHome.practice.weakMeasures">Weak measures</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of items(); track $index) {
+                <tr data-testid="practice-item" [class.cursor-pointer]="linkOf(item)" (click)="open(item, $event)">
+                  <td><ng-container *ngTemplateOutlet="titleCell; context: { $implicit: item }" /></td>
+                  <td class="col-number hidden sm:table-cell">{{ item.sessions ?? '–' }}</td>
+                  <td class="col-number">{{ percent(item.bestAccuracy) }}</td>
+                  <td class="col-number">{{ percent(item.lastAccuracy) }}</td>
+                  <td class="col-number hidden md:table-cell">{{ percent(item.coverage) }}</td>
+                  <td class="col-number hidden md:table-cell">{{ percent(item.bestTempoFactor) }}</td>
+                  <td class="hidden lg:table-cell">{{ weakMeasures(item) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
 
-        <div class="exercise-desc-section flex items-center justify-end gap-3">
-          @if (!confirmingDelete()) {
-            <button type="button" class="link-primary text-xs" data-testid="practice-delete" (click)="confirmingDelete.set(true)" i18n="@@accountHome.practice.deleteHistory">Delete practice history</button>
-          } @else {
-            <button type="button" class="btn-secondary" [disabled]="deleting()" (click)="confirmingDelete.set(false)" i18n="@@accountHome.cancel">Cancel</button>
-            <button type="button" class="btn-danger" [disabled]="deleting()" data-testid="practice-delete-confirm" (click)="deleteHistory()" i18n="@@accountHome.practice.confirmDelete">Delete all sessions</button>
-          }
+    <!-- ── At the bottom, aligned right: deleting the history, behind a confirmation dialog ── -->
+    @if (s.volume?.sessions) {
+      <div class="page-toolbar">
+        <div class="page-toolbar-actions">
+          <button type="button" class="btn-danger" data-testid="practice-delete" (click)="confirmingDelete.set(true)" i18n="@@accountHome.practice.deleteHistory">Delete practice history</button>
         </div>
-      }
-    </div>
+      </div>
+    }
   </section>
+
+  @if (confirmingDelete()) {
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-practice-title" (keydown.escape)="cancelDelete()">
+      <div class="modal-content max-w-md">
+        <h3 id="delete-practice-title" class="page-sub-title mb-4" i18n="@@accountHome.practice.deleteHistory">Delete practice history</h3>
+        <p class="text-sm text-neutral-400 mb-4" i18n="@@accountHome.practice.deleteWarning">All your practice sessions will be permanently deleted, with the progress shown here. This action cannot be undone.</p>
+        <div class="flex justify-end gap-3">
+          <button type="button" class="btn-secondary" [disabled]="deleting()" (click)="cancelDelete()" data-testid="practice-delete-cancel" i18n="@@accountHome.cancel">Cancel</button>
+          <button type="button" class="btn-danger" [disabled]="deleting()" data-testid="practice-delete-confirm" (click)="deleteHistory()" i18n="@@accountHome.practice.confirmDelete">Delete all sessions</button>
+        </div>
+      </div>
+    </div>
+  }
 }
+
+<!-- Title of a session or a piece: a link to its score or exercise, then its author (an exercise: its key), or why
+     there is no link (a score deleted since) -->
+<ng-template #titleCell let-row>
+  @if (linkOf(row); as link) {
+    <a [routerLink]="link" class="font-semibold text-neutral-100 hover:underline">{{ row.title || exerciseLabel }}</a>
+  } @else {
+    <span class="font-semibold text-neutral-100">{{ row.title || exerciseLabel }}</span>
+  }
+  <p class="text-xs text-neutral-400">
+    @if (row.kind === 'exercise') {
+      {{ row.tonic }} {{ row.mode }}
+    } @else {
+      {{ row.author }}
+      @if (!row.slug) {
+        <span class="text-neutral-500" data-testid="practice-deleted">@if (row.author) { · }<ng-container i18n="@@accountHome.practice.deleted">no longer in the library</ng-container></span>
+      }
+    }
+  </p>
+</ng-template>

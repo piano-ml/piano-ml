@@ -30,10 +30,6 @@
         <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
         <target state="translated">{VAR_PLURAL, plural, =1 {1 เพลง} other {<x id="INTERPOLATION"/> เพลง}}</target>
       </trans-unit>
-      <trans-unit id="route.account" datatype="html">
-        <source>Account</source>
-        <target state="translated">บัญชี</target>
-      </trans-unit>
       <trans-unit id="accountScores.browseLibrary" datatype="html">
         <source> Browse library </source>
         <target state="translated">เลือกดูคลังเพลง</target>
@@ -366,6 +362,14 @@
         <source>← Cancel</source>
         <target state="translated">← ยกเลิก</target>
       </trans-unit>
+      <trans-unit id="editScore.saving" datatype="html">
+        <source>Saving…</source>
+        <target state="translated">กำลังบันทึก…</target>
+      </trans-unit>
+      <trans-unit id="accountHome.save" datatype="html">
+        <source>Save</source>
+        <target state="translated">บันทึก</target>
+      </trans-unit>
       <trans-unit id="editScore.loadingScore" datatype="html">
         <source>Loading score…</source>
         <target state="translated">กำลังโหลดโน้ตเพลง…</target>
@@ -421,6 +425,10 @@
       <trans-unit id="editScore.cancel2" datatype="html">
         <source> Cancel </source>
         <target state="translated">ยกเลิก</target>
+      </trans-unit>
+      <trans-unit id="accountHome.deleting" datatype="html">
+        <source>Deleting…</source>
+        <target state="translated">กำลังลบ…</target>
       </trans-unit>
       <trans-unit id="editScore.error.noId" datatype="html">
         <source>No score ID provided</source>
@@ -486,9 +494,21 @@
         <source>Account sections</source>
         <target state="translated">ส่วนของบัญชี</target>
       </trans-unit>
+      <trans-unit id="accountHome.deleteAccount" datatype="html">
+        <source>Delete account</source>
+        <target state="translated">ลบบัญชี</target>
+      </trans-unit>
+      <trans-unit id="accountHome.logout" datatype="html">
+        <source>Logout</source>
+        <target state="translated">ออกจากระบบ</target>
+      </trans-unit>
       <trans-unit id="accountHome.name" datatype="html">
         <source>Name</source>
         <target state="translated">ชื่อ</target>
+      </trans-unit>
+      <trans-unit id="accountHome.noName" datatype="html">
+        <source>No name set</source>
+        <target state="translated">ยังไม่ได้ตั้งชื่อ</target>
       </trans-unit>
       <trans-unit id="accountHome.edit" datatype="html">
         <source>Edit</source>
@@ -498,21 +518,9 @@
         <source>Your name</source>
         <target state="translated">ชื่อของคุณ</target>
       </trans-unit>
-      <trans-unit id="accountHome.save" datatype="html">
-        <source>Save</source>
-        <target state="translated">บันทึก</target>
-      </trans-unit>
       <trans-unit id="accountHome.cancel" datatype="html">
         <source>Cancel</source>
         <target state="translated">ยกเลิก</target>
-      </trans-unit>
-      <trans-unit id="accountHome.deleteAccount" datatype="html">
-        <source>Delete account</source>
-        <target state="translated">ลบบัญชี</target>
-      </trans-unit>
-      <trans-unit id="accountHome.logout" datatype="html">
-        <source>Logout</source>
-        <target state="translated">ออกจากระบบ</target>
       </trans-unit>
       <trans-unit id="accountHome.yourAccountWillBePermanently" datatype="html">
         <source> Your account will be permanently deleted. This action cannot be undone. </source>
@@ -521,6 +529,10 @@
       <trans-unit id="accountHome.yourScoresAreKeptOn" datatype="html">
         <source> Your scores are kept on PianoML but will no longer be linked to you. </source>
         <target state="translated">โน้ตเพลงของคุณจะยังอยู่บน PianoML แต่จะไม่เชื่อมโยงกับคุณอีก</target>
+      </trans-unit>
+      <trans-unit id="accountHome.deleteMyAccount" datatype="html">
+        <source>Delete my account</source>
+        <target state="translated">ลบบัญชีของฉัน</target>
       </trans-unit>
       <trans-unit id="accountHome.error.session" datatype="html">
         <source>Your session needs a refresh. Please reload the page and try again.</source>
@@ -870,21 +882,93 @@
         <source>Accuracy (last 10 scores)</source>
         <target state="translated">ความแม่นยำ (โน้ตเพลง 10 รายการล่าสุด)</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice.exerciseAccuracy" datatype="html">
+        <source>Accuracy (last 10 exercises)</source>
+        <target state="translated">ความแม่นยำ (แบบฝึก 10 ครั้งล่าสุด)</target>
+      </trans-unit>
       <trans-unit id="accountHome.practice.recent" datatype="html">
         <source>Recent sessions</source>
         <target state="translated">การฝึกล่าสุด</target>
       </trans-unit>
-      <trans-unit id="accountHome.practice.exercise" datatype="html">
-        <source>Exercise</source>
-        <target state="translated">แบบฝึกหัด</target>
+      <trans-unit id="accountHome.practice.column.date" datatype="html">
+        <source>Date</source>
+        <target state="translated">วันที่</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">ความยาว</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.hands" datatype="html">
+        <source>Hands</source>
+        <target state="translated">มือ</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tempo" datatype="html">
+        <source>Tempo</source>
+        <target state="translated">จังหวะ</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.column.accuracy" datatype="html">
+        <source>Accuracy</source>
+        <target state="translated">ความแม่นยำ</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.flow" datatype="html">
+        <source>Flow</source>
+        <target state="translated">ความลื่นไหล</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.pieces" datatype="html">
+        <source>Pieces</source>
+        <target state="translated">บทเพลง</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.sessions" datatype="html">
+        <source>Sessions</source>
+        <target state="translated">ครั้ง</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.best" datatype="html">
+        <source>Best</source>
+        <target state="translated">ดีที่สุด</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.last" datatype="html">
+        <source>Last</source>
+        <target state="translated">ล่าสุด</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.coverage" datatype="html">
+        <source>Coverage</source>
+        <target state="translated">ความครอบคลุม</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.weakMeasures" datatype="html">
+        <source>Weak measures</source>
+        <target state="translated">ห้องที่ยังอ่อน</target>
       </trans-unit>
       <trans-unit id="accountHome.practice.deleteHistory" datatype="html">
         <source>Delete practice history</source>
         <target state="translated">ลบประวัติการฝึกซ้อม</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice.deleteWarning" datatype="html">
+        <source>All your practice sessions will be permanently deleted, with the progress shown here. This action cannot be undone.</source>
+        <target state="translated">เซสชันการฝึกซ้อมทั้งหมดของคุณจะถูกลบอย่างถาวร รวมถึงความก้าวหน้าที่แสดงที่นี่ การดำเนินการนี้ไม่สามารถย้อนกลับได้</target>
+      </trans-unit>
       <trans-unit id="accountHome.practice.confirmDelete" datatype="html">
         <source>Delete all sessions</source>
         <target state="translated">ลบการฝึกทั้งหมด</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.deleted" datatype="html">
+        <source>no longer in the library</source>
+        <target state="translated">ไม่อยู่ในคลังแล้ว</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">แบบฝึกหัด</target>
+      </trans-unit>
+      <trans-unit id="reimport.bothHands" datatype="html">
+        <source>Both hands</source>
+        <target state="translated">สองมือ</target>
+      </trans-unit>
+      <trans-unit id="reimport.leftHand" datatype="html">
+        <source>Left hand</source>
+        <target state="translated">มือซ้าย</target>
+      </trans-unit>
+      <trans-unit id="reimport.rightHand" datatype="html">
+        <source>Right hand</source>
+        <target state="translated">มือขวา</target>
       </trans-unit>
       <trans-unit id="playlist.favorites" datatype="html">
         <source>Favorites</source>
@@ -1741,10 +1825,6 @@
       <trans-unit id="osmd.error" datatype="html">
         <source>Error Loading Score</source>
         <target state="translated">โหลดโน้ตเพลงไม่สำเร็จ</target>
-      </trans-unit>
-      <trans-unit id="scoreInfo.tempo" datatype="html">
-        <source>Tempo</source>
-        <target state="translated">จังหวะ</target>
       </trans-unit>
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
@@ -3170,10 +3250,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>Artist</source>
         <target state="translated">ศิลปิน</target>
       </trans-unit>
-      <trans-unit id="scoreTable.duration" datatype="html">
-        <source>Duration</source>
-        <target state="translated">ความยาว</target>
-      </trans-unit>
       <trans-unit id="scoreTable.grade" datatype="html">
         <source>Grade</source>
         <target state="translated">ระดับ</target>
@@ -3726,18 +3802,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source>The original MIDI file cannot be read.</source>
         <target state="translated">อ่านไฟล์ MIDI ต้นฉบับไม่ได้</target>
       </trans-unit>
-      <trans-unit id="reimport.bothHands" datatype="html">
-        <source>Both hands</source>
-        <target state="translated">สองมือ</target>
-      </trans-unit>
-      <trans-unit id="reimport.rightHand" datatype="html">
-        <source>Right hand</source>
-        <target state="translated">มือขวา</target>
-      </trans-unit>
-      <trans-unit id="reimport.leftHand" datatype="html">
-        <source>Left hand</source>
-        <target state="translated">มือซ้าย</target>
-      </trans-unit>
       <trans-unit id="reimport.error.refused" datatype="html">
         <source>The server refused these tracks, or the original file is not a MIDI file.</source>
         <target state="translated">เซิร์ฟเวอร์ปฏิเสธแทร็กเหล่านี้ หรือไฟล์ต้นฉบับไม่ใช่ไฟล์ MIDI</target>
@@ -4025,6 +4089,10 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="route.reimport" datatype="html">
         <source>Re-import</source>
         <target state="translated">นำเข้าอีกครั้ง</target>
+      </trans-unit>
+      <trans-unit id="route.account" datatype="html">
+        <source>Account</source>
+        <target state="translated">บัญชี</target>
       </trans-unit>
       <trans-unit id="route.blog" datatype="html">
         <source>Blog</source>

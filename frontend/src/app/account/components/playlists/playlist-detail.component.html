@@ -29,7 +29,7 @@
           </p>
         </div>
       } @else {
-        <form class="exercise-desc-card max-w-xl" (ngSubmit)="saveEdit()" (keydown.escape)="cancelEdit()" data-testid="edit-form">
+        <form class="exercise-desc-card max-w-2xl" (ngSubmit)="saveEdit()" (keydown.escape)="cancelEdit()" data-testid="edit-form">
           <div class="exercise-desc-section flex flex-col gap-4">
             <div class="flex flex-col gap-1.5">
               <label class="field-label" for="playlist-title" i18n="@@playlist.field.title">Title</label>
@@ -52,23 +52,24 @@
 
     <hr class="mx-4 sm:mx-6">
 
-    <!-- ── Toolbar: same place and look as "New playlist" on the playlists tab ── -->
     @if (!editing()) {
-      <div class="flex flex-wrap items-center justify-end gap-3 px-4 sm:px-6" data-testid="playlist-toolbar">
-        @if (!p.isDefault) {
-          <button type="button" class="btn-secondary !px-3" (click)="askDelete()" data-testid="delete-playlist"
-            i18n-aria-label="@@playlist.delete" aria-label="Delete playlist" i18n-title="@@playlist.delete" title="Delete playlist">
-            <ng-icon name="bootstrapTrash" size="14" aria-hidden="true" />
+      <div class="page-toolbar px-4 sm:px-6" data-testid="playlist-toolbar">
+        <div class="page-toolbar-actions">
+          @if (!p.isDefault) {
+            <button type="button" class="btn-secondary !px-3" (click)="askDelete()" data-testid="delete-playlist"
+              i18n-aria-label="@@playlist.delete" aria-label="Delete playlist" i18n-title="@@playlist.delete" title="Delete playlist">
+              <ng-icon name="bootstrapTrash" size="14" aria-hidden="true" />
+            </button>
+          }
+          <a routerLink="/account/playlists" class="btn-primary gap-1.5" data-testid="back-to-playlists">
+            <ng-icon name="bootstrapArrowLeft" size="14" aria-hidden="true" />
+            <span i18n="@@playlist.backToList">Playlists</span>
+          </a>
+          <button type="button" class="btn-primary gap-1.5" (click)="startEdit()" data-testid="edit-playlist">
+            <ng-icon name="bootstrapPencil" size="14" aria-hidden="true" />
+            <span i18n="@@accountHome.edit">Edit</span>
           </button>
-        }
-        <a routerLink="/account/playlists" class="btn-primary gap-1.5" data-testid="back-to-playlists">
-          <ng-icon name="bootstrapArrowLeft" size="14" aria-hidden="true" />
-          <span i18n="@@playlist.backToList">Playlists</span>
-        </a>
-        <button type="button" class="btn-primary gap-1.5" (click)="startEdit()" data-testid="edit-playlist">
-          <ng-icon name="bootstrapPencil" size="14" aria-hidden="true" />
-          <span i18n="@@accountHome.edit">Edit</span>
-        </button>
+        </div>
       </div>
     }
 

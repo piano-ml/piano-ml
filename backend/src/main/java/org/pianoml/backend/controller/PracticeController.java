@@ -44,7 +44,7 @@ public class PracticeController implements PracticeApi {
     if (existing.isPresent() && !existing.get().getUserId().equals(user.getId())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
-    PracticeSession saved;
+    Optional<PracticeSession> saved;
     try {
       saved = practiceSessionService.upsert(id, body, user);
     } catch (DataIntegrityViolationException e) {
@@ -54,7 +54,10 @@ public class PracticeController implements PracticeApi {
       }
       saved = practiceSessionService.upsert(id, body, user);
     }
-    return ResponseEntity.ok(practiceSessionService.toApiInfo(saved, practiceSessionService.slugOf(saved)));
+    // Nothing assessed (neither accuracy nor flow): not stored
+    return saved
+      .map(s -> ResponseEntity.ok(practiceSessionService.toApiInfo(s, practiceSessionService.slugOf(s))))
+      .orElseGet(() -> ResponseEntity.noContent().build());
   }
 
   @Override

@@ -1,28 +1,25 @@
-<div class="flex flex-col gap-5">
+<div class="page-panel">
 
-  <!-- ── Toolbar ────────────────────────────────────────── -->
-  <div class="flex items-center justify-between gap-4">
+  <div class="page-toolbar">
     <p class="page-sub-title">
       @if (!loading && scores.length > 0) {
         <span i18n="@@browse.capsuleCount">{scores.length, plural, =1 {1 score} other {{{ scores.length }} scores}}</span>
       }
     </p>
-    <div class="flex items-center gap-3">
-      <app-quick-actions></app-quick-actions>
-      <button (click)="navigateToOpen()" class="btn-primary" [disabled]="loading" i18n="@@accountScores.browseLibrary">
+    <div class="page-toolbar-actions">
+      <app-quick-actions />
+      <button type="button" (click)="navigateToOpen()" class="btn-primary" [disabled]="loading" i18n="@@accountScores.browseLibrary">
         Browse library
       </button>
     </div>
   </div>
 
-  <!-- ── Error ──────────────────────────────────────────── -->
   @if (error && !loading) {
     <div class="alert-error">
       <strong i18n="@@accountScores.error">Error:</strong> {{ error }}
     </div>
   }
 
-  <!-- ── Scores table ───────────────────────────────────── -->
   @if (!error) {
     <app-score-table
       [scores]="scores"
@@ -32,9 +29,7 @@
       [showRowClick]="true"
       (scoreClick)="onScoreClick($event)"
       i18n-emptyMessage="@@accountScores.empty" emptyMessage="No scores yet — upload your first MIDI file to get started."
-      i18n-loadingMessage="@@accountScores.loading" loadingMessage="Loading your scores…"
-      rowClass="">
-    </app-score-table>
+      i18n-loadingMessage="@@accountScores.loading" loadingMessage="Loading your scores…" />
   }
 
 </div>

@@ -5,15 +5,12 @@
     <div class="page-sub-title" i18n="@@accountHome.subtitle">Your playlists, scores, practice, AI access and account</div>
   </div>
 
-  <!-- ── Tabs: one child route each; scrolls on its own on phones rather than widening the page ── -->
+  <!-- ── Tabs: one child route each; on phones the bar scrolls sideways and keeps the open tab in view ── -->
   <nav class="px-4 sm:px-6" i18n-aria-label="@@accountHome.tabs.label" aria-label="Account sections">
-    <div class="flex overflow-x-auto">
+    <div class="tab-bar">
       @for (tab of tabs; track tab.path) {
-        <a [routerLink]="tab.path" routerLinkActive="border-emerald-500 text-white" #rla="routerLinkActive"
-          [class.text-gray-300]="!rla.isActive" [attr.data-testid]="'tab-' + tab.path"
-          class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
-          {{ tab.label }}
-        </a>
+        <a class="tab-link" [routerLink]="tab.path" routerLinkActive="tab-link-active" ariaCurrentWhenActive="page"
+          #rla="routerLinkActive" [appKeepInView]="rla.isActive" [attr.data-testid]="'tab-' + tab.path">{{ tab.label }}</a>
       }
     </div>
   </nav>

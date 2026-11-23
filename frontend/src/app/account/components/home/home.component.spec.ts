@@ -55,8 +55,8 @@ describe('AccountHomeComponent — tabs', () => {
     const labels = [...el().querySelectorAll('nav a')].map(a => a.textContent!.trim());
     expect(labels).toEqual(['My Playlists', 'My Scores', 'Practice', 'AI', 'My Account']);
     expect(TestBed.inject(Router).url).toBe('/account/playlists');
-    expect(tab('playlists').classList).toContain('border-emerald-500');
-    expect(tab('me').classList).not.toContain('border-emerald-500');
+    expect(tab('playlists').getAttribute('aria-current')).toBe('page');
+    expect(tab('me').getAttribute('aria-current')).toBeNull();
     expect(el().querySelector('[data-testid="tab-content"]')).not.toBeNull();
   });
 
@@ -76,8 +76,8 @@ describe('AccountHomeComponent — tabs', () => {
     await setup('/account/scores');
     expect(tab('scores').getAttribute('href')).toBe('/account/scores');
     expect(tab('me').getAttribute('href')).toBe('/account/me');
-    expect(tab('scores').classList).toContain('border-emerald-500');
-    expect(tab('me').classList).not.toContain('border-emerald-500');
+    expect(tab('scores').getAttribute('aria-current')).toBe('page');
+    expect(tab('me').getAttribute('aria-current')).toBeNull();
   });
 
   it('sends a logged-out visitor to login, remembering the tab', async () => {

@@ -336,7 +336,8 @@ class CoachMcpLibraryToolsTest {
     mockMvc.perform(put("/practice/session/" + UUID.randomUUID())
         .header("Authorization", "Bearer " + jwtTokenProvider.generateToken(student)).contentType(MediaType.APPLICATION_JSON)
         .content("""
-          {"kind":"score","scoreId":"%s","startedAt":"%s","endedAt":"%s","activeSeconds":120,"timeZone":"UTC"}"""
+          {"kind":"score","scoreId":"%s","startedAt":"%s","endedAt":"%s","activeSeconds":120,"timeZone":"UTC",
+           "notesExpected":10,"notesHit":10,"notesWrong":0,"onsets":10,"waits":0}"""
           .formatted(minuet, start, start.plusMinutes(3))))
       .andExpect(status().isOk());
     assertThat(texts(data("recommend_scores", Map.of("difficulty", "easier", "count", 10)).path("scores"), "title"))
