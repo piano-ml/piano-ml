@@ -1,5 +1,6 @@
 import { Midi } from '@tonejs/midi';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
+import { applyMidiRepeatConventions } from '../desktop/service/midi-repeat-conventions';
 
 /**
  * Test helper: a small two-staff piano score, as MusicXML (rendered with OSMD in the test browser) and
@@ -15,6 +16,12 @@ export interface FixtureMeasure {
   repeatStart?: boolean;
   /** Repeat sign at the end of this measure (:|): playback jumps back to the last repeatStart, once */
   repeatEnd?: boolean;
+  /** A one-measure ending (volta bracket "n."): played only on pass n of its repeat */
+  volta?: number;
+  /** "Fine" at the end of this measure: where the piece ends after a D.C. al Fine */
+  fine?: boolean;
+  /** "D.C. al Fine" at the end of this measure: back to the start, repeats not taken again, up to the Fine */
+  daCapo?: boolean;
 }
 
 export const PPQ = 480;
@@ -60,33 +67,69 @@ export function scoreXml(measures: FixtureMeasure[]): string {
       ? '<attributes><divisions>1</divisions><key><fifths>0</fifths></key><time><beats>4</beats><beat-type>4</beat-type></time>' +
         '<staves>2</staves><clef number="1"><sign>G</sign><line>2</line></clef><clef number="2"><sign>F</sign><line>4</line></clef></attributes>'
       : '';
-    const start = m.repeatStart ? '<barline location="left"><bar-style>heavy-light</bar-style><repeat direction="forward"/></barline>' : '';
-    const end = m.repeatEnd ? '<barline location="right"><bar-style>light-heavy</bar-style><repeat direction="backward"/></barline>' : '';
+    const voltaStart = m.volta ? `<ending number="${m.volta}" type="start">${m.volta}.</ending>` : '';
+    const voltaStop = m.volta ? `<ending number="${m.volta}" type="${m.repeatEnd ? 'stop' : 'discontinue'}"/>` : '';
+    const start = m.repeatStart || m.volta
+      ? `<barline location="left">${m.repeatStart ? '<bar-style>heavy-light</bar-style>' : ''}${voltaStart}${m.repeatStart ? '<repeat direction="forward"/>' : ''}</barline>`
+      : '';
+    const end = m.repeatEnd || m.volta
+      ? `<barline location="right">${m.repeatEnd ? '<bar-style>light-heavy</bar-style>' : ''}${voltaStop}${m.repeatEnd ? '<repeat direction="backward"/>' : ''}</barline>`
+      : '';
+    // Fine / D.C. al Fine as MuseScore writes them: words for the eye, <sound> for playback
+    const direction = (words: string, sound: string) =>
+      `<direction placement="above"><direction-type><words>${words}</words></direction-type><sound ${sound}/></direction>`;
+    const marks = (m.fine ? direction('Fine', 'fine="yes"') : '') + (m.daCapo ? direction('D.C. al Fine', 'dacapo="yes"') : '');
     return `<measure number="${i + 1}">${attributes}${start}` +
       m.treble.map((t) => noteXml(t, 1, 1)).join('') +
       '<backup><duration>4</duration></backup>' +
       m.bass.map((t) => noteXml(t, 5, 2)).join('') +
-      `${end}</measure>`;
+      `${marks}${end}</measure>`;
   }).join('');
   return '<?xml version="1.0" encoding="UTF-8"?><score-partwise version="3.1">' +
     '<part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>' +
     `<part id="P1">${body}</part></score-partwise>`;
 }
 
-/** Measure indexes in playback order (a :| jumps back to the last |: once). */
+/**
+ * Measure indexes in playback order, as MuseScore's MIDI export plays them: each :| jumps back to the last |:
+ * once; pass n of a repeat plays its volta n, and a pass past the last numbered volta plays the last one.
+ * A D.C. al Fine goes back to the start once; from there the repeats are not taken again (each section plays
+ * once, with its last volta) and the piece ends at the Fine.
+ */
 export function playbackOrder(measures: FixtureMeasure[]): number[] {
   const order: number[] = [];
   let repeatFrom = 0;
+  let pass = 1;
   const repeated = new Set<number>();
+  let afterDaCapo = false;
   for (let i = 0; i < measures.length; i++) {
-    if (measures[i].repeatStart) repeatFrom = i;
+    if (measures[i].repeatStart && i !== repeatFrom) {
+      repeatFrom = i;
+      pass = 1;
+    }
+    const volta = measures[i].volta;
+    const playedVolta = afterDaCapo ? lastVolta(measures, repeatFrom) : Math.min(pass, lastVolta(measures, repeatFrom));
+    if (volta !== undefined && volta !== playedVolta) continue;
     order.push(i);
-    if (measures[i].repeatEnd && !repeated.has(i)) {
+    if (afterDaCapo && measures[i].fine) break;
+    if (measures[i].repeatEnd && !afterDaCapo && !repeated.has(i)) {
       repeated.add(i);
+      pass++;
       i = repeatFrom - 1;
+    } else if (measures[i].daCapo && !afterDaCapo) {
+      afterDaCapo = true;
+      repeatFrom = 0;
+      i = -1;
     }
   }
   return order;
+}
+
+/** The highest volta number of the section starting at `from` (up to the next |:). */
+function lastVolta(measures: FixtureMeasure[], from: number): number {
+  let last = 0;
+  for (let i = from; i < measures.length && (i === from || !measures[i].repeatStart); i++) last = Math.max(last, measures[i].volta ?? 0);
+  return last;
 }
 
 /**
@@ -126,8 +169,9 @@ export async function renderScore(measures: FixtureMeasure[]): Promise<{ osmd: O
   host.style.width = '1200px';
   document.body.appendChild(host);
   const osmd = new OpenSheetMusicDisplay(host, { backend: 'svg', autoResize: false, drawTitle: false, followCursor: false });
-  osmd.EngravingRules.CursorIgnoreRepetitions = true; // as in osmd.component.ts: the cursor service drives the repeats itself
+  osmd.EngravingRules.CursorIgnoreRepetitions = false; // as in osmd.component.ts: OSMD's iterator takes the repeats
   await osmd.load(scoreXml(measures));
+  applyMidiRepeatConventions(osmd.Sheet); // as in osmd.component.ts
   osmd.render();
   return { osmd, host, dispose: () => { osmd.clear(); host.remove(); } };
 }
@@ -162,4 +206,68 @@ export const MULTI_REPEAT_SCORE: FixtureMeasure[] = [
   { treble: ['E5', 'G5', 'B5', 'D6'], bass: ['E3:4'], repeatStart: true },
   { treble: ['C5', 'E5', 'G5', 'C6'], bass: ['C3:4'], repeatEnd: true },
   { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
+];
+
+/**
+ * A |: section closed by TWO :| further down (as in Diabelli's Op. 151 Sonatina 1, whose m47 jumps back to
+ * m10 after the m26 repeat was already played): each backward jump is taken once, playback is
+ * 1 | 2 3 | 2 3 | 4 5 | 2 3 4 5 | 6.
+ */
+export const DOUBLE_BACK_JUMP_SCORE: FixtureMeasure[] = [
+  { treble: ['C5', 'D5', 'E5', 'F5'], bass: ['C3:4'] },
+  { treble: ['G5', 'A5', 'B5', 'C6'], bass: ['G2:4'], repeatStart: true },
+  { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'], repeatEnd: true },
+  { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'] },
+  { treble: ['D5', 'E5', 'F5', 'G5'], bass: ['D3:4'], repeatEnd: true },
+  { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
+];
+
+/**
+ * A repeat with first and second endings (voltas): |: 2 3 [1. 4 :| [2. 5 | 6 — playback is
+ * 1 | 2 3 4 | 2 3 5 | 6.
+ */
+export const VOLTA_SCORE: FixtureMeasure[] = [
+  { treble: ['C5', 'D5', 'E5', 'F5'], bass: ['C3:4'] },
+  { treble: ['G5', 'A5', 'B5', 'C6'], bass: ['G2:4'], repeatStart: true },
+  { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'] },
+  { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'], volta: 1, repeatEnd: true },
+  { treble: ['D5', 'E5', 'F5', 'G5'], bass: ['D3:4'], volta: 2 },
+  { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
+];
+
+/**
+ * The shape of Diabelli's Op. 151 Sonatina 1 (m10-m47): a |: section with first and second endings, and a
+ * second :| after the second ending, |: 2 3 [1. 4 :| [2. 5 ] 6 :| 7. MuseScore takes each :| once and plays
+ * the second ending again on the third pass: 1 | 2 3 4 | 2 3 5 6 | 2 3 5 6 | 7.
+ */
+export const VOLTA_DOUBLE_BACK_JUMP_SCORE: FixtureMeasure[] = [
+  { treble: ['C5', 'D5', 'E5', 'F5'], bass: ['C3:4'] },
+  { treble: ['G5', 'A5', 'B5', 'C6'], bass: ['G2:4'], repeatStart: true },
+  { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'] },
+  { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'], volta: 1, repeatEnd: true },
+  { treble: ['D5', 'E5', 'F5', 'G5'], bass: ['D3:4'], volta: 2 },
+  { treble: ['A5', 'B5', 'C6', 'D6'], bass: ['A2:4'], repeatEnd: true },
+  { treble: ['C5+E5+G5:2', 'r:2'], bass: ['C3:4'] },
+];
+
+/**
+ * A Menuet and Trio: |: 1 2 :| Fine |: 3 4 :| D.C. al Fine. Each half is repeated, then the Menuet is played
+ * again without its repeat and the piece ends at the Fine: 1 2 | 1 2 | 3 4 | 3 4 | 1 2.
+ */
+export const DA_CAPO_AL_FINE_SCORE: FixtureMeasure[] = [
+  { treble: ['C5', 'D5', 'E5', 'F5'], bass: ['C3:4'], repeatStart: true },
+  { treble: ['G5', 'A5', 'B5', 'C6'], bass: ['G2:4'], repeatEnd: true, fine: true },
+  { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'], repeatStart: true },
+  { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'], repeatEnd: true, daCapo: true },
+];
+
+/**
+ * A D.C. al Fine with first and second endings in the Menuet: |: 1 [1. 2 :| [2. 3 ] Fine | 4 D.C. al Fine.
+ * After the D.C. the repeat is not taken again and the second ending is played: 1 2 | 1 3 | 4 | 1 3.
+ */
+export const DA_CAPO_VOLTA_SCORE: FixtureMeasure[] = [
+  { treble: ['C5', 'D5', 'E5', 'F5'], bass: ['C3:4'], repeatStart: true },
+  { treble: ['G5', 'A5', 'B5', 'C6'], bass: ['G2:4'], volta: 1, repeatEnd: true },
+  { treble: ['E5', 'F5', 'G5', 'A5'], bass: ['A2:4'], volta: 2, fine: true },
+  { treble: ['F5', 'E5', 'D5', 'C5'], bass: ['F2:4'], daCapo: true },
 ];

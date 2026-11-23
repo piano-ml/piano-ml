@@ -542,7 +542,7 @@ export class PlayerService implements OnDestroy {
     }
   }
 
-  async setOsmd(osmd: OpenSheetMusicDisplay): Promise<number> {
+  async setOsmd(osmd: OpenSheetMusicDisplay): Promise<void> {
     this.state.osmd = osmd;
     // half tone pixel shift calculation
     this.verticalPixelShiftValue = this.state.osmd!.EngravingRules.StaffDistance / 2;
@@ -552,7 +552,7 @@ export class PlayerService implements OnDestroy {
       this.cursorService.follow = true;
       osmd.FollowCursor = false;
     }
-    return this.cursorService.setup(osmd.cursor, this.playConfiguration.midi!)
+    await this.cursorService.setup(osmd.cursor, this.playConfiguration.midi!);
   }
 
   tiltCursor(cursor: Cursor) {

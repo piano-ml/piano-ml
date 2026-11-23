@@ -1778,50 +1778,6 @@
         <source>Error Loading Score</source>
         <target state="translated">Errore nel caricamento dello spartito</target>
       </trans-unit>
-      <trans-unit id="slop.heading" datatype="html">
-        <source> Encoding issue detected </source>
-        <target state="translated">Problema di codifica rilevato</target>
-      </trans-unit>
-      <trans-unit id="slop.explanation" datatype="html">
-        <source> Exact conversion from sheet music to sound has not been possible.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Ex: A 4/4 bar with 5 quarter notes. </source>
-        <target state="translated">Non è stato possibile convertire esattamente lo spartito in suono.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Es.: una battuta in 4/4 con 5 semiminime.</target>
-      </trans-unit>
-      <trans-unit id="slop.repaired" datatype="html">
-        <source>The score has been rebuilt. Reload the page to practice the repaired version.</source>
-        <target state="translated">Lo spartito è stato ricostruito. Ricarica la pagina per esercitarti sulla versione riparata.</target>
-      </trans-unit>
-      <trans-unit id="slop.reload" datatype="html">
-        <source>Reload</source>
-        <target state="translated">Ricarica</target>
-      </trans-unit>
-      <trans-unit id="workbench.retry" datatype="html">
-        <source>Try again</source>
-        <target state="translated">Riprova</target>
-      </trans-unit>
-      <trans-unit id="slop.repair" datatype="html">
-        <source>Repair</source>
-        <target state="translated">Ripara</target>
-      </trans-unit>
-      <trans-unit id="slop.downloading" datatype="html">
-        <source>Downloading...</source>
-        <target state="translated">Download in corso...</target>
-      </trans-unit>
-      <trans-unit id="slop.computing" datatype="html">
-        <source>Computing...</source>
-        <target state="translated">Calcolo in corso...</target>
-      </trans-unit>
-      <trans-unit id="slop.error.download" datatype="html">
-        <source>The MIDI file of this score could not be downloaded.</source>
-        <target state="translated">Impossibile scaricare il file MIDI di questo spartito.</target>
-      </trans-unit>
-      <trans-unit id="slop.error.read" datatype="html">
-        <source>The MIDI file of this score could not be read.</source>
-        <target state="translated">Impossibile leggere il file MIDI di questo spartito.</target>
-      </trans-unit>
-      <trans-unit id="slop.error.upload" datatype="html">
-        <source>The server could not rebuild this score.</source>
-        <target state="translated">Il server non è riuscito a ricostruire questo spartito.</target>
-      </trans-unit>
       <trans-unit id="scoreInfo.tempo" datatype="html">
         <source>Tempo</source>
         <target state="translated">Tempo</target>
@@ -1852,6 +1808,10 @@
       </trans-unit>
       <trans-unit id="workbench.soundsRetry" datatype="html">
         <source>Retry</source>
+        <target state="translated">Riprova</target>
+      </trans-unit>
+      <trans-unit id="workbench.retry" datatype="html">
+        <source>Try again</source>
         <target state="translated">Riprova</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
@@ -2054,29 +2014,9 @@
         <source>Initializing...</source>
         <target state="translated">Inizializzazione...</target>
       </trans-unit>
-      <trans-unit id="workbench.progress.steps" datatype="html">
-        <source>Building the step sequence</source>
-        <target state="translated">Preparazione della sequenza di passi</target>
-      </trans-unit>
       <trans-unit id="workbench.progress.cursor" datatype="html">
         <source>Initializing the sheet cursor</source>
         <target state="translated">Inizializzazione del cursore dello spartito</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.hydrating" datatype="html">
-        <source>Preparing the cursor</source>
-        <target state="translated">Preparazione del cursore</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.measureSequence" datatype="html">
-        <source>Building the measure sequence</source>
-        <target state="translated">Preparazione della sequenza di battute</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.voltas" datatype="html">
-        <source>Building the repeat endings</source>
-        <target state="translated">Preparazione dei finali di ripetizione</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.measures" datatype="html">
-        <source>Building the measures</source>
-        <target state="translated">Preparazione delle battute</target>
       </trans-unit>
       <trans-unit id="workbench.progress.midiMap" datatype="html">
         <source>Building the MIDI map</source>

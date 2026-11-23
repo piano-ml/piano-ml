@@ -1778,50 +1778,6 @@
         <source>Error Loading Score</source>
         <target state="translated">加载乐谱出错</target>
       </trans-unit>
-      <trans-unit id="slop.heading" datatype="html">
-        <source> Encoding issue detected </source>
-        <target state="translated">检测到编码问题</target>
-      </trans-unit>
-      <trans-unit id="slop.explanation" datatype="html">
-        <source> Exact conversion from sheet music to sound has not been possible.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Ex: A 4/4 bar with 5 quarter notes. </source>
-        <target state="translated">无法将乐谱准确转换为声音。<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/>例如：一个 4/4 拍的小节里有 5 个四分音符。</target>
-      </trans-unit>
-      <trans-unit id="slop.repaired" datatype="html">
-        <source>The score has been rebuilt. Reload the page to practice the repaired version.</source>
-        <target state="translated">乐谱已重建。请重新加载页面，练习修复后的版本。</target>
-      </trans-unit>
-      <trans-unit id="slop.reload" datatype="html">
-        <source>Reload</source>
-        <target state="translated">重新加载</target>
-      </trans-unit>
-      <trans-unit id="workbench.retry" datatype="html">
-        <source>Try again</source>
-        <target state="translated">重试</target>
-      </trans-unit>
-      <trans-unit id="slop.repair" datatype="html">
-        <source>Repair</source>
-        <target state="translated">修复</target>
-      </trans-unit>
-      <trans-unit id="slop.downloading" datatype="html">
-        <source>Downloading...</source>
-        <target state="translated">正在下载……</target>
-      </trans-unit>
-      <trans-unit id="slop.computing" datatype="html">
-        <source>Computing...</source>
-        <target state="translated">正在计算……</target>
-      </trans-unit>
-      <trans-unit id="slop.error.download" datatype="html">
-        <source>The MIDI file of this score could not be downloaded.</source>
-        <target state="translated">无法下载此乐谱的 MIDI 文件。</target>
-      </trans-unit>
-      <trans-unit id="slop.error.read" datatype="html">
-        <source>The MIDI file of this score could not be read.</source>
-        <target state="translated">无法读取此乐谱的 MIDI 文件。</target>
-      </trans-unit>
-      <trans-unit id="slop.error.upload" datatype="html">
-        <source>The server could not rebuild this score.</source>
-        <target state="translated">服务器无法重建此乐谱。</target>
-      </trans-unit>
       <trans-unit id="scoreInfo.tempo" datatype="html">
         <source>Tempo</source>
         <target state="translated">速度</target>
@@ -1852,6 +1808,10 @@
       </trans-unit>
       <trans-unit id="workbench.soundsRetry" datatype="html">
         <source>Retry</source>
+        <target state="translated">重试</target>
+      </trans-unit>
+      <trans-unit id="workbench.retry" datatype="html">
+        <source>Try again</source>
         <target state="translated">重试</target>
       </trans-unit>
       <trans-unit id="workbench.backToScore" datatype="html">
@@ -2054,29 +2014,9 @@
         <source>Initializing...</source>
         <target state="translated">正在初始化……</target>
       </trans-unit>
-      <trans-unit id="workbench.progress.steps" datatype="html">
-        <source>Building the step sequence</source>
-        <target state="translated">正在生成步进序列</target>
-      </trans-unit>
       <trans-unit id="workbench.progress.cursor" datatype="html">
         <source>Initializing the sheet cursor</source>
         <target state="translated">正在初始化乐谱光标</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.hydrating" datatype="html">
-        <source>Preparing the cursor</source>
-        <target state="translated">正在准备光标</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.measureSequence" datatype="html">
-        <source>Building the measure sequence</source>
-        <target state="translated">正在生成小节序列</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.voltas" datatype="html">
-        <source>Building the repeat endings</source>
-        <target state="translated">正在生成反复结尾</target>
-      </trans-unit>
-      <trans-unit id="workbench.progress.measures" datatype="html">
-        <source>Building the measures</source>
-        <target state="translated">正在生成小节</target>
       </trans-unit>
       <trans-unit id="workbench.progress.midiMap" datatype="html">
         <source>Building the MIDI map</source>
