@@ -35,7 +35,7 @@ app-workbench ::-webkit-scrollbar {
   transform: translateY(-50%);
   max-width: calc(50% - 24px);
   font-family: var(--font-lcd);
-  font-size: 14px;
+  font-size: 11px;
   line-height: 1;
   color: rgba(0, 0, 0, 0.8);
   white-space: nowrap;
