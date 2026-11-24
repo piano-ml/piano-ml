@@ -134,7 +134,7 @@ describe('WorkbenchComponent', () => {
         expect(scores.scoreOwnerIdTypeVersionRevisionGet).toHaveBeenCalledWith('o1', 's1', type, 1, 1, 'events', true);
       }
       expect(el().querySelector('.osmd-container svg')).not.toBeNull();
-      expect(el().querySelector('app-keyboard')).not.toBeNull();
+      expect(el().querySelector('app-keyboard')).toBeNull(); // hidden until the user shows it
       expect(el().querySelector('.loading-feedback')).toBeNull();
     });
 
@@ -702,11 +702,11 @@ describe('WorkbenchComponent', () => {
 
     it('restores the remembered settings', async () => {
       localStorage.setItem('waitForRightHand', 'true');
-      localStorage.setItem('hideKeyboard', 'true');
+      localStorage.setItem('hideKeyboard', 'false');
       await openScore();
       expect(component.playConfiguration.waitForRightHand).toBe(true);
-      expect(component.hideKeyboard).toBe(true);
-      expect(el().querySelector('app-keyboard')).toBeNull();
+      expect(component.hideKeyboard).toBe(false);
+      expect(el().querySelector('app-keyboard')).not.toBeNull();
     });
 
     it('opens the mixer from the toolbar, between the metronome and the loop', async () => {
@@ -789,8 +789,8 @@ describe('WorkbenchComponent', () => {
       expect(component.toggleToolbar).toBe(false);
       component.fnToggleToolBar();
       expect(component.toggleToolbar).toBe(true);
-      component.fnToggleKeyboard();
-      expect(component.hideKeyboard).toBe(true);
+      component.fnToggleKeyboard(); // hidden by default: shows it
+      expect(component.hideKeyboard).toBe(false);
     });
 
     it('hides the toolbar on small screens', async () => {

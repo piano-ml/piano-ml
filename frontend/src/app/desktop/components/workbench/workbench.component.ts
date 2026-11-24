@@ -185,7 +185,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
 
   // UI state
-  hideKeyboard = false;
+  /** Hidden until the user shows it: reading the score, not the keys, is what the workbench trains. */
+  hideKeyboard = true;
   hideFingering = false;
   hideLyrics = false;
   hideFingeringAndHarmony = false;
@@ -255,7 +256,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     // Initialize elapsed time observable
     this.elapsedTime = this.playerService.elapsedTime;
 
-    this.hideKeyboard = this.parseBooleanStorage(this.hideKeyboardStorageKey);
+    this.hideKeyboard = this.parseBooleanStorage(this.hideKeyboardStorageKey, true);
     this.hideFingering = this.parseBooleanStorage(this.hideFingeringStorageKey);
     this.hideLyrics = this.parseBooleanStorage(this.hideLyricsStorageKey);
     this.hideFingeringAndHarmony = this.parseBooleanStorage(this.hideFingeringAndHarmonyStorageKey);
@@ -683,8 +684,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   }
 
-  parseBooleanStorage(key: string): boolean {
-    if (!isPlatformBrowser(this.platformId)) return false;
+  /** A remembered on/off setting, or `fallback` when none was saved. */
+  parseBooleanStorage(key: string, fallback = false): boolean {
+    if (!isPlatformBrowser(this.platformId)) return fallback;
     const stored = localStorage.getItem(key);
     if (stored !== null) {
       try {
@@ -693,7 +695,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
         return stored === 'true';
       }
     }
-    return false;
+    return fallback;
   }
 
   openMidiSetup() {
