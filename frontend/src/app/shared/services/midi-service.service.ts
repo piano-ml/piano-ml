@@ -48,6 +48,8 @@ export class MidiServiceService {
   private readonly noteListeners = new Set<(event: MidiStateEvent) => void>()
   /** Set when the browser refused MIDI access (permission denied or not granted): pages tell the user how to allow it. */
   public readonly midiBlocked = signal(false)
+  /** Names of the enabled MIDI inputs, comma-separated ('' when none), for display. */
+  public readonly inputDeviceName = signal('')
 
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -235,6 +237,7 @@ export class MidiServiceService {
     device.open()
     device.addEventListener('midimessage', this.onMidiMessage)
     this.enabledInputDevices.set(device.id, device)
+    this.updateInputDeviceName()
     console.log(`Enabled MIDI input device: ${device.manufacturer} ${device.name} ${device.version} `)
 
   }
@@ -259,6 +262,11 @@ export class MidiServiceService {
     device.removeEventListener('midimessage', this.onMidiMessage)
     device.close()
     this.enabledInputDevices.delete(device.id)
+    this.updateInputDeviceName()
+  }
+
+  private updateInputDeviceName() {
+    this.inputDeviceName.set([...this.enabledInputDevices.values()].map(device => device.name ?? '').filter(Boolean).join(', '))
   }
 
   setInputDeviceEnabled(device: MIDIInput, enabled: boolean) {

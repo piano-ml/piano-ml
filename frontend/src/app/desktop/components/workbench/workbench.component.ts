@@ -219,6 +219,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private readonly playerControl = inject(PlayerControlService);
   private readonly playerAudio = inject(PlayerAudioService);
   private readonly midiService = inject(MidiServiceService);
+  /** Name of the MIDI input in use, shown left of the keyboard handle. */
+  readonly midiInputName = this.midiService.inputDeviceName;
   /** Stable identity of the exercise on the stand, for the practice history (null for a score). */
   private exerciseItem: PracticeItem | null = null;
   /** The stored exercise this workbench loaded (EXERCICE_INFO_KEY as read): the only one it may clear (#413). */

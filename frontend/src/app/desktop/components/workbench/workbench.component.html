@@ -204,7 +204,10 @@
   }
 
 
-  <div>
+  <div class="relative">
+    @if (midiInputName()) {
+    <span class="wb-midi-input">{{ midiInputName() }}</span>
+    }
     <button (click)="fnToggleKeyboard()" [attr.aria-pressed]="!hideKeyboard" i18n-title="@@workbench.toggleKeyboard" title="Toggle the keyboard"
       id="toggle-keyboard" class="text-black p-2 rounded w-full flex items-center justify-center">
       <ng-icon name="bootstrapGripHorizontal" />

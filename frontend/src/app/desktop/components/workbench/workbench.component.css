@@ -27,6 +27,23 @@ app-workbench ::-webkit-scrollbar {
   text-overflow: ellipsis;
 }
 
+/* The MIDI input in use, left of the keyboard handle, in the LCD font */
+.wb-midi-input {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: calc(50% - 24px);
+  font-family: var(--font-lcd);
+  font-size: 14px;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
 /* A title too long for the display scrolls once */
 @keyframes scroll-text {
   0%,
