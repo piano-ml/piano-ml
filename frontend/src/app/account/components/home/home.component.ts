@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapHeart } from '@ng-icons/bootstrap-icons';
+import { bootstrapHeart, bootstrapMusicNote, bootstrapPerson } from '@ng-icons/bootstrap-icons';
 import { AuthService } from '../../services/auth.service';
 import { loginQueryParams } from '../../services/return-url';
 import { ACCOUNT_TABS } from './account-tabs';
 import { KeepInViewDirective } from '../../../shared/directives/keep-in-view.directive';
-import { aiRectangle } from '../../../shared/icons/custom-icons';
+import { aiRectangle, piano } from '../../../shared/icons/custom-icons';
 
 /** The account page: a tab bar (one child route per tab) over the selected section. */
 @Component({
@@ -20,7 +20,7 @@ import { aiRectangle } from '../../../shared/icons/custom-icons';
     .tab-icon { display: block; font-size: 1em; }
     .tab-icon-ai { font-size: 1.5em; margin-inline: -0.2em; }
   `,
-  viewProviders: [provideIcons({ aiRectangle: aiRectangle.data, bootstrapHeart })],
+  viewProviders: [provideIcons({ aiRectangle: aiRectangle.data, piano: piano.data, bootstrapHeart, bootstrapMusicNote, bootstrapPerson })],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccountHomeComponent {

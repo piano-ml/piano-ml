@@ -52,10 +52,22 @@ export const aiRectangle: CustomIcon = {
   </svg>`
 };
 
+// SVG content for a piano icon in the Bootstrap Icons style (16 px grid, current color): three white keys, two black
+export const piano: CustomIcon = {
+  name: 'piano',
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+    <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor"/>
+    <path d="M5.8 9h1v4.5h-1zM9.2 9h1v4.5h-1z"/>
+    <rect x="4.6" y="2.5" width="2.4" height="6.5" rx="0.4"/>
+    <rect x="9" y="2.5" width="2.4" height="6.5" rx="0.4"/>
+  </svg>`
+};
+
 // Export all custom icons
 export const customIcons = {
   keyboard,
   lefthand,
   righthand,
-  aiRectangle
+  aiRectangle,
+  piano
 };

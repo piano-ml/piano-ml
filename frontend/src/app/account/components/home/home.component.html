@@ -11,10 +11,7 @@
       @for (tab of tabs; track tab.path) {
         <a class="tab-link" [routerLink]="tab.path" routerLinkActive="tab-link-active" ariaCurrentWhenActive="page"
           #rla="routerLinkActive" [appKeepInView]="rla.isActive" [attr.data-testid]="'tab-' + tab.path">
-          @switch (tab.path) {
-            @case ('ai') { <ng-icon name="aiRectangle" class="tab-icon tab-icon-ai" aria-hidden="true" /> }
-            @case ('playlists') { <ng-icon name="bootstrapHeart" class="tab-icon" aria-hidden="true" /> }
-          }
+          <ng-icon [name]="tab.icon" class="tab-icon" [class.tab-icon-ai]="tab.path === 'ai'" aria-hidden="true" />
           <span>{{ tab.label }}</span>
         </a>
       }
