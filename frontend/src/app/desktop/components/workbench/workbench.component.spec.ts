@@ -18,10 +18,9 @@ import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../.
 import { CursorService } from '../../service/cursor.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { PlayerService } from '../../service/player.service';
-import { PlayerStateService } from '../../service/player-state.service';
 import { PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { PlayerControlService } from '../../service/player-control.service';
-import { WRONG_NOTE_ARENA_FLASH_MS, WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
+import { WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
 
 const SCORE: ScoreApiInfo = {
   id: 's1', owner_id: 'o1', version: 1, title: 'Happy Birthday', author: 'Mildred J. Hill', tempo: 100,
@@ -540,22 +539,6 @@ describe('WorkbenchComponent', () => {
       const setItem = vi.spyOn(TestBed.inject(PracticeSessionRecorder), 'setItem');
       await openScore();
       expect(setItem).toHaveBeenLastCalledWith({ kind: 'score', scoreId: 's1', title: 'Happy Birthday' }, expect.any(Number));
-    });
-
-    const wrongNote = () => {
-      TestBed.inject(PlayerStateService).wrongNotes.update((count) => count + 1);
-      TestBed.tick(); // runs the wrong-note effect
-    };
-
-    it('flashes the score on a wrong note, and leaves a hidden keyboard hidden', async () => {
-      await openScore();
-      component.setHideKeyboard(true);
-      vi.useFakeTimers();
-      wrongNote();
-      expect(component.arenaClass).toBe('bad');
-      expect(component.hideKeyboard).toBe(true);
-      vi.advanceTimersByTime(WRONG_NOTE_ARENA_FLASH_MS);
-      expect(component.arenaClass).toBe('');
     });
 
     it('moves the bar slider with the cursor', async () => {

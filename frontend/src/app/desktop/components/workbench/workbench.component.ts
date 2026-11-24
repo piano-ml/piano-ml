@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, untracked, NgZone } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, NgZone } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RemoteCoachToggleComponent } from '../../../coach/remote/toggle/remote-coach-toggle.component';
@@ -39,10 +39,6 @@ import {MixerDialogComponent} from '../mixer-dialog/mixer-dialog.component';
 import {measurePipFilter, markMeasures} from './measure-range-pips';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
-
-
-/** How long the arena flashes red after a wrong note. */
-export const WRONG_NOTE_ARENA_FLASH_MS = 500;
 
 /** What to tell the user when a score cannot be loaded for practice. */
 export function scoreLoadErrorMessage(error: unknown): string {
@@ -98,9 +94,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   protected get soundFontState() { return this.playerService.soundFontState; }
   private midiPermission: PermissionStatus | null = null;
   private midiBlockedChecked = false;
-  /** Wrong notes already reacted to (the player's counter outlives this component). */
-  private seenWrongNotes = 0;
-  private arenaFlashTimer?: ReturnType<typeof setTimeout>;
   /** The popup opens once per visit, whichever check notices first. */
   private midiBlockedShown = false;
 
@@ -196,7 +189,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   hideFingering = false;
   hideLyrics = false;
   hideFingeringAndHarmony = false;
-  arenaClass = '';
   isFullscreen = false;
   isMidiSetupOpen = false;
   // Tempo modal state
@@ -304,19 +296,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
       if (this.playerService.message() === 'END') {
         this.onPlaybackEnded();
-      }
-    });
-
-    // Effect 2b: wrong notes. A counter, not the BAD message: two wrong notes in a row are two changes, and each
-    // one restarts the keyboard timer.
-    this.seenWrongNotes = untracked(() => this.playerService.wrongNotes());
-    effect(() => {
-      if (!isPlatformBrowser(this.platformId)) return;
-
-      const wrongNotes = this.playerService.wrongNotes();
-      if (wrongNotes !== this.seenWrongNotes) {
-        this.seenWrongNotes = wrongNotes;
-        this.onWrongNote();
       }
     });
 
@@ -513,19 +492,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private openMidiBlockedDialog(): void {
     this.midiBlockedShown = true;
     this.showMidiBlockedDialog = true;
-    this.changeDetector.markForCheck();
-  }
-
-  /**
-   * Flashes the arena (the wrong note itself is shown on the score; the on-screen keyboard is left as it is).
-   */
-  private onWrongNote(): void {
-    this.arenaClass = 'bad';
-    clearTimeout(this.arenaFlashTimer);
-    this.arenaFlashTimer = setTimeout(() => {
-      this.arenaClass = '';
-      this.changeDetector.markForCheck();
-    }, WRONG_NOTE_ARENA_FLASH_MS);
     this.changeDetector.markForCheck();
   }
 
@@ -1458,7 +1424,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
     clearTimeout(this.titleTimer);
     this.titleTimer = undefined;
-    clearTimeout(this.arenaFlashTimer);
     this.playerService.releaseScoreSession();
     this.clearData();
     // Remove resize listener

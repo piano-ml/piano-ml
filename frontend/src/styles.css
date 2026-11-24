@@ -486,3 +486,19 @@ beacon-overlay .beacon-btn-prev {
     outline-color: rgba(16, 185, 129, 0.5) !important;
   }
 }
+
+/* The workbench toolbar's 64 px square buttons, also used by its dialogs (tempo, mixer). Outside the components
+   layer on purpose: their background must win over .btn's hover. */
+.btn-desktop {
+  @apply bg-neutral-400 text-white;
+  height: 64px;
+  width: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+}
+
+.svg-button {
+  color: white !important;
+}
