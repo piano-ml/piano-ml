@@ -65,6 +65,8 @@ export class CoachGrantsComponent implements OnInit {
   readonly created = output<string>();
   /** The link to the Connect page: on the account page, not on the Connect page itself. */
   readonly showConnectLink = input(true);
+  /** The New access button: on the Connect page only, the account page lists and revokes */
+  readonly canCreate = input(false);
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(80), Validators.pattern(/\S/)]],

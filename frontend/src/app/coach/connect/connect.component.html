@@ -30,7 +30,7 @@
       </div>
     </section>
 
-    <app-coach-grants [showConnectLink]="false" (created)="token.set($event)"></app-coach-grants>
+    <app-coach-grants [showConnectLink]="false" [canCreate]="true" (created)="token.set($event)"></app-coach-grants>
 
     <!-- Configuration snippets -->
     <section>
