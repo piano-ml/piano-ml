@@ -478,7 +478,7 @@ Rules:
 
 | id | Arguments | Task |
 |---|---|---|
-| `coach_start` | none | "Start now: read my practice summary and my weak spots, tell me in three lines where I stand, and propose one thing to practice today. Ask before opening it." |
+| `coach_start` | none | "Start now: read my last 3 sessions, tell me in three lines where I stand, and propose one thing to practice today. Ask before opening it." |
 | `review_progress` | `days` (optional, default 30) | "Review my last {days} days: regularity, time, accuracy trend, what improved, what is stuck, and which measures of which pieces are weakest. No practice now, only the review." |
 | `practice_piece` | `piece` (required) | "I want to work on {piece}. Find it in my history or in the library, open it, and take me through its weakest passage in short loops at reduced tempo, raising the tempo when a take is above 90 % accuracy." |
 | `warm_up` | `minutes` (optional, default 10) | "Give me a {minutes}-minute warm-up with scale or arpeggio exercises suited to my level and to the keys of the pieces I am practicing. Run it step by step." |
