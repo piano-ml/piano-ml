@@ -8,7 +8,6 @@ import { ScoreService } from '../../../core/api/api/score.service';
   imports: [],
   templateUrl: './browse-by-genre.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './browse-by-genre.component.css'
 })
 export class BrowseByGenreComponent implements  OnChanges {
   genres: ScoreGenreBrowseGet200ResponseInner[] = [];

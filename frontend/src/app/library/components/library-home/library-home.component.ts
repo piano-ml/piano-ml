@@ -10,7 +10,6 @@ import { MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../../../desktop/model/
   imports: [BrowseComponent, RouterModule, QuickActionsComponent],
   templateUrl: './library-home.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './library-home.component.css'
 })
 export class LibraryHomeComponent implements OnInit {
 
