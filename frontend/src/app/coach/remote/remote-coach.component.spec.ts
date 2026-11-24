@@ -1,15 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PLATFORM_ID, signal } from '@angular/core';
+import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { vi } from 'vitest';
 import { SessionStorageService } from '../../account/services/session-storage.service';
 import { CoachGrantPresenceService } from './coach-grant-presence.service';
 import type { BridgeActivity, BridgeState, RemoteBridgeService } from './remote-bridge.service';
-import { REMOTE_BRIDGE_LOADER, RemoteCoachComponent } from './remote-coach.component';
+import { RemoteCoachComponent } from './remote-coach.component';
+import { REMOTE_BRIDGE_LOADER, REMOTE_COACH_DOC } from './remote-coach.service';
+import { RemoteCoachToggleComponent } from './toggle/remote-coach-toggle.component';
+
+/** The switch (as in the header) and the host (as in the app root), as the app shows them. */
+@Component({
+  imports: [RemoteCoachComponent, RemoteCoachToggleComponent],
+  template: '<app-remote-coach-toggle /><app-remote-coach />',
+})
+class HostComponent {}
 
 describe('RemoteCoachComponent', () => {
-  let fixture: ComponentFixture<RemoteCoachComponent>;
+  let fixture: ComponentFixture<HostComponent>;
   let loggedIn: BehaviorSubject<boolean>;
   let bridge: {
     state: ReturnType<typeof signal<BridgeState>>; lastClient: ReturnType<typeof signal<string | null>>;
@@ -33,7 +42,7 @@ describe('RemoteCoachComponent', () => {
       enable: vi.fn(() => bridge.state.set('on')), disable: vi.fn(() => bridge.state.set('off')), startPlayback: vi.fn(),
     };
     TestBed.configureTestingModule({
-      imports: [RemoteCoachComponent],
+      imports: [HostComponent],
       providers: [
         provideRouter([{ path: '**', children: [] }]),
         { provide: PLATFORM_ID, useValue: options.platform ?? 'browser' },
@@ -42,7 +51,7 @@ describe('RemoteCoachComponent', () => {
         { provide: REMOTE_BRIDGE_LOADER, useValue: () => Promise.resolve(bridge as unknown as RemoteBridgeService) },
       ],
     });
-    fixture = TestBed.createComponent(RemoteCoachComponent);
+    fixture = TestBed.createComponent(HostComponent);
     fixture.detectChanges();
     if (options.url) {
       await TestBed.inject(Router).navigateByUrl(options.url);
@@ -68,17 +77,24 @@ describe('RemoteCoachComponent', () => {
     fixture.detectChanges();
   }
 
-  it('shows nothing to a logged-out visitor, nor during server rendering', async () => {
-    await create({ loggedIn: false });
-    expect(q('remote-coach')).toBeNull();
-    TestBed.resetTestingModule();
+  const title = () => q('remote-coach-switch')?.getAttribute('title');
+
+  it('shows nothing during server rendering', async () => {
     await create({ platform: 'server' });
-    expect(q('remote-coach')).toBeNull();
+    expect(q('remote-coach-switch')).toBeNull();
+    expect(q('remote-coach-doc')).toBeNull();
+  });
+
+  it('links a logged-out visitor to the blog post instead of the switch', async () => {
+    await create({ loggedIn: false });
+    expect(q('remote-coach-switch')).toBeNull();
+    expect(q('remote-coach-doc')?.getAttribute('href')).toBe(REMOTE_COACH_DOC);
   });
 
   it('turns on only after the confirmation, and off in one click', async () => {
     await create();
-    expect(q('remote-coach-status')?.textContent).toContain('Remote coach');
+    expect(title()).toBe('Turn on Remote coach');
+    expect(q('remote-coach-switch')?.getAttribute('aria-checked')).toBe('false');
     await click('remote-coach-switch');
     expect(q('remote-coach-confirm')?.textContent).toContain('until you turn this off or close the tab');
     expect(bridge.enable).not.toHaveBeenCalled();
@@ -87,6 +103,8 @@ describe('RemoteCoachComponent', () => {
     await vi.waitFor(() => expect(bridge.enable).toHaveBeenCalledOnce());
     fixture.detectChanges();
     expect(q('remote-coach-confirm')).toBeNull();
+    expect(q('remote-coach-switch')?.getAttribute('aria-checked')).toBe('true');
+    expect(q('remote-coach-switch')?.classList).toContain('look-on');
 
     await click('remote-coach-switch');
     expect(bridge.disable).toHaveBeenCalledOnce();
@@ -104,15 +122,20 @@ describe('RemoteCoachComponent', () => {
     expect(q('remote-coach-confirm')).toBeNull();
   });
 
-  it('shows who controls the tab and what it did', async () => {
+  it('tells in its tooltip who controls the tab, and whether it connects or failed', async () => {
     await create();
     await turnOn();
+    expect(title()).toBe('Remote coach on');
     bridge.lastClient.set('Laptop assistant');
-    bridge.activity.set([{ at: new Date(), client: 'Laptop assistant', tool: 'open_score', ok: true }]);
     fixture.detectChanges();
-    expect(q('remote-coach-status')?.textContent).toContain('Controlled by Laptop assistant');
-    await click('remote-coach-expand');
-    expect(q('remote-coach-activity')?.textContent).toContain('Opened a score');
+    expect(title()).toBe('Controlled by Laptop assistant');
+    bridge.state.set('connecting');
+    fixture.detectChanges();
+    expect(title()).toBe('Connecting…');
+    expect(q('remote-coach-switch')?.classList).toContain('look-connecting');
+    bridge.state.set('error');
+    fixture.detectChanges();
+    expect(title()).toBe('Remote coach could not connect');
   });
 
   it('offers the Start playback click when sound is locked', async () => {
@@ -140,10 +163,11 @@ describe('RemoteCoachComponent', () => {
     expect(decodeURIComponent(url)).toContain('remoteCoach=1');
   });
 
-  it('stays hidden from a user without a grant that can drive the player', async () => {
+  it('links to the blog post for a user without a grant that can drive the player', async () => {
     await create({ hasGrant: false });
     expect(presence.refresh).toHaveBeenCalledOnce();
-    expect(q('remote-coach')).toBeNull();
+    expect(q('remote-coach-switch')).toBeNull();
+    expect(q('remote-coach-doc')).not.toBeNull();
   });
 
   it('asks for the grants once per login, not each time the session is refreshed', async () => {
@@ -157,24 +181,25 @@ describe('RemoteCoachComponent', () => {
     expect(presence.refresh).toHaveBeenCalledTimes(2);
   });
 
-  it('appears once a grant shows up, and hides again on logout', async () => {
+  it('becomes a switch once a grant shows up, and a link again on logout', async () => {
     await create({ hasGrant: false });
     presence.hasPlayerGrant.set(true);
     fixture.detectChanges();
-    expect(q('remote-coach')).not.toBeNull();
+    expect(q('remote-coach-switch')).not.toBeNull();
     loggedIn.next(false);
     fixture.detectChanges();
     expect(presence.reset).toHaveBeenCalled();
-    expect(q('remote-coach')).toBeNull();
+    expect(q('remote-coach-switch')).toBeNull();
+    expect(q('remote-coach-doc')).not.toBeNull();
   });
 
   it('without a grant, the Connect page link still turns it on, and it then shows', async () => {
     await create({ hasGrant: false, url: '/coach/connect?remoteCoach=1' });
     await fixture.whenStable();
-    expect(q('remote-coach')).toBeNull();
+    expect(q('remote-coach-switch')).toBeNull();
     await click('remote-coach-confirm-yes');
     await vi.waitFor(() => expect(bridge.enable).toHaveBeenCalledOnce());
     fixture.detectChanges();
-    expect(q('remote-coach-status')?.textContent).toContain('Remote coach on');
+    expect(title()).toBe('Remote coach on');
   });
 });

@@ -22,6 +22,7 @@ describe('BlogComponent', () => {
   it('lists the posts with links to their pages', () => {
     expect(links().map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
       ['# New feature: Play with Accompaniment', '/blog/just-play-along'],
+      ['# Getting started with your AI piano coach', '/blog/ai-coach'],
     ]);
   });
 

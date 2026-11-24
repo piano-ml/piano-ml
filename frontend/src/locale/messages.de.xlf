@@ -1383,8 +1383,8 @@
         <target state="translated">3. Spielen</target>
       </trans-unit>
       <trans-unit id="coach.connect.playText" datatype="html">
-        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch stays at the bottom right of every page; turn it off at any time.</source>
-        <target state="translated">Schalte den Fern-Coach in einem PianoML-Tab ein: Dein Assistent kann dann dort Noten und Übungen öffnen, die Übung einstellen und den Player starten oder stoppen. Der Schalter bleibt unten rechts auf jeder Seite; schalte ihn jederzeit aus.</target>
+        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch is in the header of every page and in the practice toolbar; turn it off at any time.</source>
+        <target state="translated">Schalte den Fern-Coach in einem PianoML-Tab ein: Dein Assistent kann dann dort Noten und Übungen öffnen, die Übung einstellen und den Player starten oder stoppen. Der Schalter ist in der Kopfzeile jeder Seite und in der Übungsleiste; schalte ihn jederzeit aus.</target>
       </trans-unit>
       <trans-unit id="coach.connect.playHint" datatype="html">
         <source>Your browser asks for one click before the first sound: press Start playback when it shows up.</source>
@@ -1478,30 +1478,6 @@
         <source>Start playback</source>
         <target state="translated">Wiedergabe starten</target>
       </trans-unit>
-      <trans-unit id="coach.remote.controlledBy" datatype="html">
-        <source>Controlled by <x id="INTERPOLATION" equiv-text="{{ client }}"/></source>
-        <target state="translated">Gesteuert von <x id="INTERPOLATION" equiv-text="{{ client }}"/></target>
-      </trans-unit>
-      <trans-unit id="coach.remote.waiting" datatype="html">
-        <source>Remote coach on</source>
-        <target state="translated">Fern-Coach eingeschaltet</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.connecting" datatype="html">
-        <source>Connecting…</source>
-        <target state="translated">Verbinden…</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.error" datatype="html">
-        <source>Remote coach could not connect</source>
-        <target state="translated">Der Fern-Coach konnte keine Verbindung herstellen</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.label" datatype="html">
-        <source>Remote coach</source>
-        <target state="translated">Fern-Coach</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.activity" datatype="html">
-        <source>Activity</source>
-        <target state="translated">Aktivität</target>
-      </trans-unit>
       <trans-unit id="coach.remote.confirm.title" datatype="html">
         <source>Turn on Remote coach?</source>
         <target state="translated">Fern-Coach einschalten?</target>
@@ -1514,45 +1490,25 @@
         <source>Turn on</source>
         <target state="translated">Einschalten</target>
       </trans-unit>
-      <trans-unit id="coach.remote.tool.get_player_state" datatype="html">
-        <source>Checked the player</source>
-        <target state="translated">Player abgefragt</target>
+      <trans-unit id="coach.remote.learnMore" datatype="html">
+        <source>Learn about the AI coach</source>
+        <target state="translated">Mehr über den KI-Coach</target>
       </trans-unit>
-      <trans-unit id="coach.remote.tool.list_exercises" datatype="html">
-        <source>Looked at the exercises</source>
-        <target state="translated">Übungen angesehen</target>
+      <trans-unit id="coach.remote.connecting" datatype="html">
+        <source>Connecting…</source>
+        <target state="translated">Verbinden…</target>
       </trans-unit>
-      <trans-unit id="coach.remote.tool.open_score" datatype="html">
-        <source>Opened a score</source>
-        <target state="translated">Noten geöffnet</target>
+      <trans-unit id="coach.remote.error" datatype="html">
+        <source>Remote coach could not connect</source>
+        <target state="translated">Der Fern-Coach konnte keine Verbindung herstellen</target>
       </trans-unit>
-      <trans-unit id="coach.remote.tool.open_exercise" datatype="html">
-        <source>Opened an exercise</source>
-        <target state="translated">Übung geöffnet</target>
+      <trans-unit id="coach.remote.controlledBy" datatype="html">
+        <source>Controlled by <x id="INTERPOLATION" equiv-text="client"/></source>
+        <target state="translated">Gesteuert von <x id="INTERPOLATION" equiv-text="{{ client }}"/></target>
       </trans-unit>
-      <trans-unit id="coach.remote.tool.configure_practice" datatype="html">
-        <source>Set up the practice</source>
-        <target state="translated">Übung eingestellt</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.play" datatype="html">
-        <source>Started playback</source>
-        <target state="translated">Wiedergabe gestartet</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.stop" datatype="html">
-        <source>Stopped playback</source>
-        <target state="translated">Wiedergabe gestoppt</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.wait_for_take_end" datatype="html">
-        <source>Waited for the end of the take</source>
-        <target state="translated">Auf das Ende des Durchgangs gewartet</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.get_current_session" datatype="html">
-        <source>Read the current session</source>
-        <target state="translated">Aktuelle Sitzung gelesen</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.navigate" datatype="html">
-        <source>Showed a page</source>
-        <target state="translated">Seite angezeigt</target>
+      <trans-unit id="coach.remote.waiting" datatype="html">
+        <source>Remote coach on</source>
+        <target state="translated">Fern-Coach eingeschaltet</target>
       </trans-unit>
       <trans-unit id="latency.heading" datatype="html">
         <source>Timing calibration</source>

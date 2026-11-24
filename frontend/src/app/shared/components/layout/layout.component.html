@@ -31,6 +31,7 @@
           <span class="hidden sm:inline" i18n="@@layout.support.buyMeA">Buy me a</span>
           <span aria-hidden="true" class="donation-icon" [class.donation-icon-bump]="donationTick">{{ donationIcon }}</span>
         </a>
+        <app-remote-coach-toggle />
 
         @if ((isLoggedIn$ | async) === true) {
           <a routerLink="/account" class="user-link" i18n-title="@@layout.account.title" title="Go to your account page">

@@ -63,6 +63,10 @@
                 <button (click)="showInfo()" class="btn btn-desktop m-1" id="score-info">
                   <ng-icon name="bootstrapInfoCircleFill" class="svg-button" />
                 </button>
+                }
+                <!-- Remote coach: stays while playing, the coach usually starts the playback itself -->
+                <app-remote-coach-toggle variant="workbench" id="remote-coach" />
+                @if (!isPlaying) {
                 <button (click)="reset()" class="btn btn-desktop m-1" id="reset-score">
                   <ng-icon name="bootstrapSkipBackwardFill" class="svg-button" />
                 </button>
