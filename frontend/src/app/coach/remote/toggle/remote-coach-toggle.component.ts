@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, PLATFORM_ID, inject, input } from '
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { bootstrapFiletypeAi } from '@ng-icons/bootstrap-icons';
+import { aiRectangle } from '../../../shared/icons/custom-icons';
 import { REMOTE_COACH_DOC, RemoteCoachService } from '../remote-coach.service';
 
 /**
@@ -16,7 +16,7 @@ import { REMOTE_COACH_DOC, RemoteCoachService } from '../remote-coach.service';
   templateUrl: './remote-coach-toggle.component.html',
   styleUrl: './remote-coach-toggle.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({ bootstrapFiletypeAi })],
+  viewProviders: [provideIcons({ aiRectangle: aiRectangle.data })],
 })
 export class RemoteCoachToggleComponent {
   readonly variant = input<'header' | 'workbench'>('header');

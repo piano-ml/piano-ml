@@ -43,9 +43,19 @@ export const lefthand: CustomIcon = {
   </svg>`
 };
 
+// SVG content for the Remote coach icon: "AI" in a rounded square (ai-rectangle), stroked in the current color
+export const aiRectangle: CustomIcon = {
+  name: 'aiRectangle',
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+    <path stroke="currentColor" stroke-linecap="round" stroke-width="6" fill="none" d="M46 76L58.0844 52.2089C58.1495 52.0807 58.281 52 58.4248 52V52C58.5725 52 58.7069 52.0852 58.77 52.2187L70 76M52 70H63M81 76V52"/>
+    <rect width="82" height="82" x="23" y="23" stroke="currentColor" stroke-width="6" rx="20" fill="none"/>
+  </svg>`
+};
+
 // Export all custom icons
 export const customIcons = {
   keyboard,
   lefthand,
-  righthand
+  righthand,
+  aiRectangle
 };
