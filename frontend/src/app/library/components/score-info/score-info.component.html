@@ -11,6 +11,7 @@
   <hr class="mx-4 sm:mx-6">
 
   <div class="toolbar">
+    <button (click)="onBack()" class="btn-secondary" i18n="@@score.back">← Browse</button>
     @if (score) {
     @if (loggedIn()) {
     <app-favorite-button [score]="score" size="md" [withMenu]="true" />
@@ -20,7 +21,6 @@
       <span i18n="@@score.copyLink">Copy link</span>
     </button>
     }
-    <button (click)="onBack()" class="btn-secondary" i18n="@@score.back">← Browse</button>
     @if (isOwner()) {
     <button (click)="editScore()" class="btn-primary">
       <ng-icon name="bootstrapPencil" size="13" />
