@@ -1,1 +1,71 @@
-/* All styling via Tailwind utilities */
+@reference "tailwindcss";
+
+.hero {
+  @apply px-4 sm:px-6 pt-12 sm:pt-16 pb-8 sm:pb-10;
+}
+
+.hero-title {
+  @apply mb-5 text-4xl sm:text-5xl lg:text-[3.75rem] font-black leading-[1.1] tracking-tight text-neutral-50;
+}
+
+.hero-intro {
+  @apply mb-8 max-w-lg text-base leading-relaxed text-neutral-400;
+}
+
+.features {
+  @apply px-4 sm:px-6 pt-8 pb-14;
+}
+
+.features-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-3;
+}
+
+.feature-card {
+  @apply flex flex-col overflow-hidden rounded-sm border border-neutral-800 bg-neutral-800/30 transition-colors duration-200;
+}
+
+.feature-card:hover {
+  @apply border-neutral-700 bg-neutral-800/60;
+}
+
+/* The picture fades into the card */
+.feature-media {
+  @apply relative h-28 shrink-0 overflow-hidden;
+}
+
+.feature-media::after {
+  content: '';
+  @apply absolute inset-0 bg-linear-to-b from-transparent via-transparent to-neutral-900;
+}
+
+.feature-media img {
+  @apply size-full object-cover opacity-50 transition duration-500 ease-out;
+}
+
+.feature-card:hover .feature-media img {
+  @apply opacity-70 scale-105;
+}
+
+.feature-body {
+  @apply flex flex-1 flex-col gap-2 p-5;
+}
+
+.feature-title {
+  @apply text-sm font-bold text-neutral-200 transition-colors;
+}
+
+.feature-text {
+  @apply flex-1 text-xs leading-relaxed text-neutral-400;
+}
+
+.feature-cta {
+  @apply mt-2 inline-flex items-center gap-1 text-xs text-red-400 transition-colors;
+}
+
+.feature-card:hover .feature-title {
+  @apply text-white;
+}
+
+.feature-card:hover .feature-cta {
+  @apply text-red-300;
+}
