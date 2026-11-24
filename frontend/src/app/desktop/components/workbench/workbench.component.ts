@@ -33,7 +33,7 @@ import { PracticeItem, PracticeSessionRecorder } from '../../service/practice-se
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService, queryMidiPermission } from '../../../shared/services/midi-service.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { type Hands, type HandsMode, type PlayerState, PlayerControlService, type WorkbenchHandle, lastTakeOf, waitFor } from '../../service/player-control.service';
-import { type HandMode, type HandSide, handModeOf, handsModeOf, studentHands, withHandMode } from '../../model/hand-mode';
+import { type HandMode, type HandSide, handModeOf, handsModeOf, studentHands, withHandMode, withWait } from '../../model/hand-mode';
 import {MixerDialogComponent} from '../mixer-dialog/mixer-dialog.component';
 import {measurePipFilter, markMeasures} from './measure-range-pips';
 
@@ -67,11 +67,6 @@ export function scoreLoadErrorMessage(error: unknown): string {
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // The hand menu closes on Escape and on a click anywhere else
-  host: {
-    '(document:keydown.escape)': 'closeHandMenu()',
-    '(document:click)': 'onDocumentClick($event)',
-  },
   viewProviders: [
     provideIcons({
       bootstrapHouse,
@@ -117,8 +112,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private readonly hideFingeringAndHarmonyStorageKey = 'hideFingeringAndHarmony';
   private readonly waitForLeftHandStorageKey = 'waitForLeftHand';
   private readonly waitForRightHandStorageKey = 'waitForRightHand';
-  private readonly alongLeftHandStorageKey = 'alongLeftHand';
-  private readonly alongRightHandStorageKey = 'alongRightHand';
   // Score data from state
   scoreData: ScoreApiInfo | null = null;
   // Expose loading as an observable to use `async` pipe with OnPush change detection
@@ -184,8 +177,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     doSound: true,
     waitForLeftHand: false,
     waitForRightHand: false,
-    alongLeftHand: false,
-    alongRightHand: false,
+    alongLeftHand: true,
+    alongRightHand: true,
     delayFactor: 1,
     tempoFactor: 1,
     scoreRange: [1, 100],
@@ -271,10 +264,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.hideFingering = this.parseBooleanStorage(this.hideFingeringStorageKey);
     this.hideLyrics = this.parseBooleanStorage(this.hideLyricsStorageKey);
     this.hideFingeringAndHarmony = this.parseBooleanStorage(this.hideFingeringAndHarmonyStorageKey);
-    // Read through withHandMode, so that a stored wait and a stored play-along never come back together
-    Object.assign(this.playConfiguration, withHandMode(withHandMode({
-      waitForLeftHand: false, waitForRightHand: false, alongLeftHand: false, alongRightHand: false,
-    }, 'left', this.storedHandMode('left')), 'right', this.storedHandMode('right')));
+    // The hands waited for last time; the others are played along (or by the app while a hand waits)
+    Object.assign(this.playConfiguration, withWait(withWait(this.playConfiguration,
+      'left', this.parseBooleanStorage(this.waitForLeftHandStorageKey)),
+      'right', this.parseBooleanStorage(this.waitForRightHandStorageKey)));
 
     // Effect 1: Tour step highlight (beacon signals only — fires only on tour events)
     effect(() => {
@@ -903,55 +896,31 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   }
 
 
-  // --- hands: wait, play along or app plays (hand-mode.ts) -----------------------------------------------------
+  // --- hands: a toggle per hand, pressed waits for the student, released plays along (hand-mode.ts) -----------
 
   readonly handSides: readonly HandSide[] = ['right', 'left'];
-  readonly handModes: readonly HandMode[] = ['wait', 'along', 'app'];
-  /** The hand whose mode menu is open in the toolbar. */
-  openHandMenu: HandSide | null = null;
 
   handMode(side: HandSide): HandMode {
     return handModeOf(this.playConfiguration, side);
   }
 
-  closeHandMenu(): void {
-    if (this.openHandMenu !== null) {
-      this.openHandMenu = null;
-      this.changeDetector.markForCheck();
-    }
+  /** The toolbar toggle: the hand waits for the student, or is played along; remembered for next time. */
+  toggleWait(side: HandSide): void {
+    this.applyHands(withWait(this.playConfiguration, side, this.handMode(side) !== 'wait'));
   }
 
-  onDocumentClick(event: Event): void {
-    if (this.openHandMenu !== null && !(event.target instanceof Element && event.target.closest('.hand-mode'))) {
-      this.closeHandMenu();
-    }
-  }
-
-  toggleHandMenu(side: HandSide): void {
-    this.openHandMenu = this.openHandMenu === side ? null : side;
-    this.changeDetector.markForCheck();
-  }
-
-  /** Sets how a hand is played, remembered for next time; wait on one hand and play-along on the other do not mix. */
+  /** Sets one hand's mode (the coach); wait on one hand and play-along on the other do not mix. */
   setHandMode(side: HandSide, mode: HandMode): void {
-    Object.assign(this.playConfiguration, withHandMode(this.playConfiguration, side, mode));
-    this.openHandMenu = null;
+    this.applyHands(withHandMode(this.playConfiguration, side, mode));
+  }
+
+  private applyHands(flags: Partial<PlayConfiguration>): void {
+    Object.assign(this.playConfiguration, flags);
     if (isPlatformBrowser(this.platformId)) {
-      const config = this.playConfiguration;
-      localStorage.setItem(this.waitForLeftHandStorageKey, JSON.stringify(config.waitForLeftHand));
-      localStorage.setItem(this.waitForRightHandStorageKey, JSON.stringify(config.waitForRightHand));
-      localStorage.setItem(this.alongLeftHandStorageKey, JSON.stringify(!!config.alongLeftHand));
-      localStorage.setItem(this.alongRightHandStorageKey, JSON.stringify(!!config.alongRightHand));
+      localStorage.setItem(this.waitForLeftHandStorageKey, JSON.stringify(this.playConfiguration.waitForLeftHand));
+      localStorage.setItem(this.waitForRightHandStorageKey, JSON.stringify(this.playConfiguration.waitForRightHand));
     }
     this.changeDetector.markForCheck();
-  }
-
-  setWaitForLeftHand(value: boolean) {
-    this.setHandMode('left', value ? 'wait' : 'app');
-  }
-
-  setWaitForRightHand(value: boolean) {
-    this.setHandMode('right', value ? 'wait' : 'app');
   }
 
   handName(side: HandSide): string {
@@ -968,26 +937,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
   }
 
-  handModeHint(mode: HandMode): string {
-    switch (mode) {
-      case 'wait': return $localize`:@@workbench.handMode.wait.hint:The score waits until you play each note.`;
-      case 'along': return $localize`:@@workbench.handMode.along.hint:The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.`;
-      case 'app': return $localize`:@@workbench.handMode.app.hint:The app plays these notes.`;
-    }
-  }
-
-  /** The hand button's label: the hand and its mode ("Right hand: Play along"). */
+  /** The hand toggle's label: the hand and its mode ("Right hand: Play along"). */
   handButtonLabel(side: HandSide): string {
     return `${this.handName(side)}: ${this.handModeLabel(this.handMode(side))}`;
   }
-
-  private storedHandMode(side: HandSide): HandMode {
-    const wait = this.parseBooleanStorage(side === 'left' ? this.waitForLeftHandStorageKey : this.waitForRightHandStorageKey);
-    const along = this.parseBooleanStorage(side === 'left' ? this.alongLeftHandStorageKey : this.alongRightHandStorageKey);
-    return wait ? 'wait' : along ? 'along' : 'app';
-  }
-
-
 
   private titleTimer?: ReturnType<typeof setTimeout>;
 

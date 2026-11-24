@@ -1938,18 +1938,6 @@
         <source>App plays</source>
         <target state="translated">L'app joue</target>
       </trans-unit>
-      <trans-unit id="workbench.handMode.wait.hint" datatype="html">
-        <source>The score waits until you play each note.</source>
-        <target state="translated">La partition attend que vous jouiez chaque note.</target>
-      </trans-unit>
-      <trans-unit id="workbench.handMode.along.hint" datatype="html">
-        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
-        <target state="translated">La partition garde le tempo et joue ces notes avec vous ; chaque note que vous jouez est évaluée selon son timing.</target>
-      </trans-unit>
-      <trans-unit id="workbench.handMode.app.hint" datatype="html">
-        <source>The app plays these notes.</source>
-        <target state="translated">L'app joue ces notes.</target>
-      </trans-unit>
       <trans-unit id="workbench.tour.welcome.title" datatype="html">
         <source>Welcome to the Workbench!</source>
         <target state="translated">Bienvenue dans l'atelier !</target>
@@ -1971,16 +1959,16 @@
         <target state="translated">Main droite</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
-        <target state="translated">Choisissez comment jouer la main droite : M'attendre (la partition attend chacune de vos notes, idéal pour apprendre la mélodie à votre rythme), Jouer avec (la partition garde le tempo et joue ces notes avec vous) ou L'app joue.</target>
+        <source>Press to have the score wait for each of your right-hand notes, great for learning the melody at your own pace. Released, you play along: the score keeps the tempo and plays these notes with you.</source>
+        <target state="translated">Enfoncé, la partition attend chacune des notes de votre main droite, idéal pour apprendre la mélodie à votre rythme. Relâché, vous jouez avec : la partition garde le tempo et joue ces notes avec vous.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>
         <target state="translated">Main gauche</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.content" datatype="html">
-        <source>The same for the left hand. Choose Wait for me, or Play along, on both hands for hands-together practice.</source>
-        <target state="translated">De même pour la main gauche. Choisissez M'attendre, ou Jouer avec, sur les deux mains pour travailler mains ensemble.</target>
+        <source>The same for the left hand. Press both hands, or release both, for hands-together practice.</source>
+        <target state="translated">Même chose pour la main gauche. Enfoncez les deux mains, ou relâchez-les toutes les deux, pour travailler mains ensemble.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.loop.title" datatype="html">
         <source>Loop Mode</source>
