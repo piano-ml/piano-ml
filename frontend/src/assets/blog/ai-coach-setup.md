@@ -1,8 +1,6 @@
-# Getting started with your AI piano coach
+# Set up your AI piano coach
 
-PianoML can turn the AI assistant you already use (Le Chat by Mistral, Claude, ChatGPT, or another one) into your piano coach. Once it is connected, you can ask it things like *"How did my practice go this week?"*, *"What should I work on today?"* or *"Help me with the left hand of the Moonlight Sonata"*. It reads your practice history, suggests pieces, and can even open a score and start the player for you.
-
-PianoML does not run an AI itself: you bring your own assistant. What the assistant reads from PianoML goes to the company that runs it (Mistral AI for Le Chat, Anthropic for Claude, OpenAI for ChatGPT, and so on), under that company's privacy terms.
+This guide connects your AI assistant to PianoML, then lets it coach you and drive the player. New to the AI coach? Start with [Getting started with your AI piano coach](/blog/ai-coach).
 
 ## What you need
 
@@ -173,7 +171,7 @@ The coach can open a score or an exercise, set the tempo, the measures, the hand
 
 The color of the switch tells where it stands: white when off, orange and blinking while it connects, emerald when on, orange when it could not connect. When on, its tooltip shows which assistant controls the tab. Click it again to turn it off at any time. It is also off after you reload the page or log out, so the coach can never take over a tab without you.
 
-The switch only works once an assistant is connected with the **Player** permission: until then it is dimmed and leads to this page. If your assistant says no PianoML tab is listening, it gives you a link that opens PianoML with the switch ready to confirm.
+The switch only works once an assistant is connected with the **Player** permission: until then it is dimmed and leads to [the presentation of the AI coach](/blog/ai-coach). If your assistant says no PianoML tab is listening, it gives you a link that opens PianoML with the switch ready to confirm.
 
 ## What the coach can see and do
 

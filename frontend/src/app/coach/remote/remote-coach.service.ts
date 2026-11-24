@@ -14,7 +14,7 @@ export const REMOTE_BRIDGE_LOADER = new InjectionToken<(injector: Injector) => P
 });
 
 /** The blog post that presents the feature: where the switch leads while it is not available. */
-export const REMOTE_COACH_DOC = '/blog/ai-coach-setup';
+export const REMOTE_COACH_DOC = '/blog/ai-coach';
 
 /** What the switches show: the bridge state, or `unavailable` when there is no grant that can drive the player. */
 export type RemoteCoachLook = BridgeState | 'unavailable';
