@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.time.temporal.Temporal;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The compact rows tools return (coach, issue #414, section 4.1 of the specification): ItemRow, SessionRow, and
@@ -133,6 +134,34 @@ public class CoachRows {
   }
 
   /** Every field of a session except its measures and takes. */
+  /**
+   * A session as a line of a list: what was practiced, when, how and how well, without the counters (get_practice_session
+   * has them). Empty fields are left out, so that a few recent sessions stay a short read.
+   */
+  public Map<String, Object> sessionBrief(PracticeSessionApiInfo s) {
+    Map<String, Object> row = new LinkedHashMap<>();
+    row.put("id", s.getId() == null ? null : s.getId().toString());
+    row.put("kind", s.getKind() == null ? null : s.getKind().getValue());
+    row.put("title", cut(s.getTitle(), TEXT_CAP));
+    row.put("exerciseType", s.getExerciseType());
+    row.put("tonic", s.getTonic());
+    row.put("mode", s.getMode());
+    row.put("localDate", iso(s.getLocalDate()));
+    row.put("activeSeconds", s.getActiveSeconds());
+    row.put("takeCount", s.getTakeCount());
+    row.put("measureStart", s.getMeasureStart());
+    row.put("measureEnd", s.getMeasureEnd());
+    row.put("hands", s.getHands() == null ? null : s.getHands().getValue());
+    row.put("tempoFactor", s.getTempoFactor());
+    row.put("accuracy", s.getAccuracy());
+    row.put("flow", s.getFlow());
+    if ("score".equals(row.get("kind"))) {
+      row.put("practiceUrl", practiceUrl(s.getSlug()));
+    }
+    row.values().removeIf(Objects::isNull);
+    return row;
+  }
+
   public Map<String, Object> sessionRow(PracticeSessionApiInfo s) {
     Map<String, Object> row = new LinkedHashMap<>();
     row.put("id", s.getId() == null ? null : s.getId().toString());
