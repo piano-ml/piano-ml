@@ -678,66 +678,43 @@ describe('WorkbenchComponent', () => {
   });
 
   describe('settings', () => {
-    /** Opens a hand's menu in the toolbar and picks a mode, like a user. */
-    function chooseHandMode(side: 'left' | 'right', mode: 'wait' | 'along' | 'app') {
-      button(`#${side}-hand .hand-mode-button`).click();
+    /** Clicks a hand's toggle in the toolbar, like a user. */
+    function toggleHand(side: 'left' | 'right'): HTMLInputElement {
+      const toggle = el().querySelector(`#${side}-hand input`) as HTMLInputElement;
+      toggle.click();
       render();
-      const radio = el().querySelector(`#${side}-hand [data-hand-mode="${mode}"] input`) as HTMLInputElement;
-      radio.checked = true;
-      radio.dispatchEvent(new Event('change'));
-      render();
+      return toggle;
     }
 
     it.each([
       ['left', 'waitForLeftHand'],
       ['right', 'waitForRightHand'],
-    ] as const)('the %s hand menu waits for that hand, remembered for next time', async (side, key) => {
+    ] as const)('the %s hand toggle waits for that hand when pressed, remembered for next time', async (side, key) => {
       await openScore();
-      chooseHandMode(side, 'wait');
+      const toggle = toggleHand(side);
       expect(component.playConfiguration[key]).toBe(true);
+      expect(toggle.checked).toBe(true);
       expect(localStorage.getItem(key)).toBe('true');
-      expect(el().querySelector(`#${side}-hand .hand-mode-menu`)).toBeNull(); // closed once chosen
     });
 
-    it('plays a hand along, shown on its button, remembered for next time', async () => {
+    it('plays a hand along once released, shown in its label', async () => {
       await openScore();
-      chooseHandMode('right', 'along');
-      expect(component.playConfiguration.alongRightHand).toBe(true);
-      expect(component.playConfiguration.waitForRightHand).toBe(false);
-      expect(localStorage.getItem('alongRightHand')).toBe('true');
-      const handButton = button('#right-hand .hand-mode-button');
-      expect(handButton.classList).toContain('hand-along');
-      expect(handButton.getAttribute('aria-label')).toBe('Right hand: Play along');
-    });
-
-    it('does not mix wait and play-along: the other hand goes back to the app', async () => {
-      await openScore();
-      chooseHandMode('left', 'wait');
-      chooseHandMode('right', 'along');
-      expect(component.playConfiguration.waitForLeftHand).toBe(false);
-      expect(component.playConfiguration.alongRightHand).toBe(true);
-    });
-
-    it('closes the hand menu on Escape and on a click elsewhere', async () => {
-      await openScore();
-      button('#right-hand .hand-mode-button').click();
-      render();
-      expect(el().querySelector('#right-hand .hand-mode-menu')).not.toBeNull();
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-      render();
-      expect(el().querySelector('#right-hand .hand-mode-menu')).toBeNull();
-
-      button('#right-hand .hand-mode-button').click();
-      render();
-      document.body.click();
-      render();
-      expect(el().querySelector('#right-hand .hand-mode-menu')).toBeNull();
-    });
-
-    it('restores a remembered play-along', async () => {
-      localStorage.setItem('alongLeftHand', 'true');
-      await openScore();
+      toggleHand('right');
+      const toggle = toggleHand('right');
+      expect(toggle.checked).toBe(false);
+      expect(component.handMode('right')).toBe('along');
       expect(component.handMode('left')).toBe('along');
+      expect(toggle.getAttribute('aria-label')).toBe('Right hand: Play along');
+      expect(localStorage.getItem('waitForRightHand')).toBe('false');
+    });
+
+    it('keeps the other hand waiting when one is released', async () => {
+      await openScore();
+      toggleHand('left');
+      toggleHand('right');
+      toggleHand('right');
+      expect(component.handMode('left')).toBe('wait');
+      expect(component.handMode('right')).toBe('app');
     });
 
     it('restores the remembered settings', async () => {
