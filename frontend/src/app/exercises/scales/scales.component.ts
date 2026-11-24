@@ -30,6 +30,7 @@ export class ScalesComponent implements OnInit {
   keys = majorKeys
   fullKey = '';
   componentKey = 0;
+  readonly noDescription = $localize`:@@exercises.noDescription:No description available.`;
 
   private isHydratingFromUrl = false;
 

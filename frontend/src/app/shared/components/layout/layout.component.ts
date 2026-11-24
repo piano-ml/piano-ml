@@ -18,10 +18,11 @@ import { LanguageSwitcherComponent } from '../language-switcher/language-switche
 import versionInfo from '../../../../assets/version.json';
 
 import { ToastHostComponent } from '../toast-host/toast-host.component';
+import { RemoteCoachToggleComponent } from '../../../coach/remote/toggle/remote-coach-toggle.component';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterModule, CommonModule, NgIcon, LanguageSwitcherComponent, ToastHostComponent],
+  imports: [RouterModule, CommonModule, NgIcon, LanguageSwitcherComponent, ToastHostComponent, RemoteCoachToggleComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
     changeDetection: ChangeDetectionStrategy.Eager,

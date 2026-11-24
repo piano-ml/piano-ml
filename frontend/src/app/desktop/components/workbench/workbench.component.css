@@ -1,5 +1,3 @@
-@reference "tailwindcss";
-
 /* The workbench fills the window: no page scroll and no scrollbars, only while it is shown. The component is not
    encapsulated (ViewEncapsulation.None): these rules must not reach the other pages. */
 body:has(app-workbench) {
@@ -16,28 +14,38 @@ app-workbench ::-webkit-scrollbar {
 }
 
 /* The LCD-like display: title and tempo */
-.display {
+.wb-lcd {
   background-color: #cee048;
-  color: #2f3409;
-  font-family: var(--font-lcd) !important;
+  color: rgba(0, 0, 0, 0.8);
+  font-family: var(--font-lcd);
   border-radius: 8px;
-  width: 100%;
-}
-
-.lcd-text {
-  font-family: var(--font-lcd) !important;
   padding: 6px;
   font-size: 32px;
   line-height: 42px;
-  color: rgba(0, 0, 0, 0.8);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* The MIDI input in use, left of the keyboard handle, in the LCD font */
+.wb-midi-input {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: calc(50% - 24px);
+  font-family: var(--font-lcd);
+  font-size: 11px;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
 /* A title too long for the display scrolls once */
 @keyframes scroll-text {
-
   0%,
   30% {
     transform: translateX(0);
@@ -48,26 +56,18 @@ app-workbench ::-webkit-scrollbar {
   }
 }
 
-.marquee-container {
-  position: relative;
-}
-
-.animate-marquee {
-  display: inline-block;
-  white-space: nowrap;
-  animation: scroll-text 6s ease-in-out forwards;
-  animation-delay: 1s;
-  width: max-content;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-
 .title-text {
   display: inline-block;
   white-space: nowrap;
   width: max-content;
+}
+
+.animate-marquee {
+  animation: scroll-text 6s ease-in-out 1s forwards;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 @keyframes osmd-slide-up {
@@ -86,48 +86,21 @@ app-workbench ::-webkit-scrollbar {
   animation: osmd-slide-up 800ms ease-out;
 }
 
-/* Toolbar toggles: a hidden checkbox in a 64 px label, lighter when checked */
-.checkbox-input {
-  display: flex;
-  border-radius: 8px;
-}
-
-.checkbox-input input {
-  display: none;
-}
-
-.label {
-  border-radius: 0.25rem;
-  height: 64px;
-  width: 64px;
+/* Toolbar toggles: a .btn-desktop label around a hidden checkbox, darker unless checked */
+.btn-desktop.wb-toggle {
   background-color: var(--color-neutral-600);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.label:has(input[type="checkbox"]:checked) {
+.btn-desktop.wb-toggle:has(input:checked) {
   background-color: var(--color-neutral-400);
 }
 
-.label ng-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
-  color: white;
-  display: block;
-  margin: 0 auto;
+.wb-toggle input {
+  display: none;
 }
 
-/* Toolbar buttons: 64 px squares */
-.btn-desktop {
-  @apply bg-neutral-400 text-white;
-  height: 64px;
-  width: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.25rem;
+.wb-toggle ng-icon {
+  font-size: 32px;
 }
 
 /* Play while the sounds load (or Retry): as tall as the other buttons, as wide as its text */
@@ -138,15 +111,6 @@ app-workbench ::-webkit-scrollbar {
   padding: 0 0.75rem;
   font-size: 0.875rem;
   white-space: nowrap;
-}
-
-.svg-button {
-  color: white !important;
-}
-
-.bad {
-  background-color: var(--color-red-100);
-  transition: background-color 0.25s ease;
 }
 
 /* The score fades out at the top only, under the bar */

@@ -10,7 +10,6 @@ import { KeyNamePipe } from '../../../shared/i18n';
   imports: [CommonModule, RouterModule, KeyNamePipe],
   templateUrl: './score-basic-info.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './score-basic-info.component.css'
 })
 export class ScoreBasicInfoComponent {
   @Input() score!: ScoreApiInfo;

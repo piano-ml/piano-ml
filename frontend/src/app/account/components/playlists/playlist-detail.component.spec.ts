@@ -53,13 +53,22 @@ describe('PlaylistDetailComponent', () => {
 
   afterEach(() => vi.useRealTimers());
 
+  const altDown = (index: number) =>
+    fixture.componentInstance.onRowKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true }), index);
+
+  /** Asks to remove a score, then confirms it */
+  function removeScore(id: string) {
+    q('remove-' + id)!.click();
+    fixture.detectChanges();
+    q('remove-confirm')!.click();
+    fixture.detectChanges();
+  }
+
   it('sends several moves as one debounced reorder', () => {
     vi.useFakeTimers();
     create();
-    q('down-a')!.click();
-    fixture.detectChanges();
-    q('down-a')!.click();
-    fixture.detectChanges();
+    altDown(0);
+    altDown(1);
     expect(order()).toEqual(['b', 'c', 'a']);
     expect(api.accountPlaylistItemsOrderPut).not.toHaveBeenCalled();
 
@@ -81,7 +90,7 @@ describe('PlaylistDetailComponent', () => {
     vi.useFakeTimers();
     create();
     api.accountPlaylistItemsOrderPut.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
-    q('up-b')!.click();
+    altDown(0);
     vi.advanceTimersByTime(ORDER_SAVE_DELAY_MS);
     expect(api.playlistSlugGet).toHaveBeenCalledTimes(2);
     expect(order()).toEqual(['a', 'b', 'c']);
@@ -90,8 +99,7 @@ describe('PlaylistDetailComponent', () => {
 
   it('removes a score with Undo, which puts it back at its old position', () => {
     create();
-    q('remove-a')!.click();
-    fixture.detectChanges();
+    removeScore('a');
     expect(store.removeFrom).toHaveBeenCalledWith('recital', 'a');
     expect(order()).toEqual(['b', 'c']);
 
@@ -103,7 +111,7 @@ describe('PlaylistDetailComponent', () => {
 
   it('Undo of the last score needs no reorder: adding appends', () => {
     create();
-    q('remove-c')!.click();
+    removeScore('c');
     TestBed.inject(ToastService).runAction();
     expect(order()).toEqual(['a', 'b', 'c']);
     expect(api.accountPlaylistItemsOrderPut).not.toHaveBeenCalled();

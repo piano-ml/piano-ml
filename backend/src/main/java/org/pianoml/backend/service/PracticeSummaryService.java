@@ -320,11 +320,15 @@ public class PracticeSummaryService {
       }
     }
 
-    Map<UUID, String> slugs = slugs(byItem.values());
+    Map<UUID, Score> scores = scores(byItem.values());
     List<PracticeItemStats> items = new ArrayList<>();
     for (ItemAccumulator item : byItem.values()) {
       PracticeItemStats stats = item.stats;
-      stats.setSlug(stats.getScoreId() == null ? null : slugs.get(stats.getScoreId()));
+      Score score = stats.getScoreId() == null ? null : scores.get(stats.getScoreId());
+      if (score != null) {
+        stats.setSlug(PracticeSessionService.slugOf(score));
+        stats.setTempo(score.getTempo());
+      }
       stats.setSessions(item.sessions);
       stats.setActiveSeconds(item.activeSeconds);
       stats.setBestAccuracy(item.bestAccuracy);
@@ -390,7 +394,8 @@ public class PracticeSummaryService {
     return worst;
   }
 
-  private Map<UUID, String> slugs(Iterable<ItemAccumulator> items) {
+  /** The scores of the items still in the library, for their links and tempos. */
+  private Map<UUID, Score> scores(Iterable<ItemAccumulator> items) {
     List<UUID> ids = new ArrayList<>();
     int count = 0;
     for (ItemAccumulator item : items) {
@@ -398,13 +403,13 @@ public class PracticeSummaryService {
         ids.add(item.stats.getScoreId());
       }
     }
-    Map<UUID, String> slugs = new HashMap<>();
+    Map<UUID, Score> scores = new HashMap<>();
     if (!ids.isEmpty()) {
       for (Score score : scoreRepository.findAllById(ids)) {
-        slugs.put(score.getId(), PracticeSessionService.slugOf(score));
+        scores.put(score.getId(), score);
       }
     }
-    return slugs;
+    return scores;
   }
 
   // --- level -----------------------------------------------------------------------------------------------

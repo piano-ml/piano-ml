@@ -32,6 +32,7 @@ describe('CoachGrantsComponent', () => {
       providers: [provideRouter([]), { provide: AccountGrantsService, useValue: api }],
     });
     fixture = TestBed.createComponent(CoachGrantsComponent);
+    fixture.componentRef.setInput('canCreate', true);
     fixture.detectChanges();
   }
 

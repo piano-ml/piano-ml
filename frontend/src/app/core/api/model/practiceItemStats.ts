@@ -19,6 +19,10 @@ export interface PracticeItemStats {
     slug?: string;
     title?: string;
     author?: string;
+    /**
+     * The score\'s tempo in BPM, as in the library; null for an exercise or a score that is gone
+     */
+    tempo?: number;
     exerciseType?: string;
     patternKey?: string;
     exerciseKey?: string;

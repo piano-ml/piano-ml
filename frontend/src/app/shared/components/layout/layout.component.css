@@ -1,129 +1,107 @@
 @reference "tailwindcss";
 
-/* ── HEADER ─────────────────────────────────────────────────────── */
+.page {
+  @apply flex flex-col min-h-screen;
+}
+
+.page-content {
+  @apply flex flex-1 flex-col;
+}
+
+/* ── Header: breadcrumb on the left, actions on the right ── */
 
 .site-header {
-  @apply sticky top-0 z-20 bg-black backdrop-blur-sm border-b border-neutral-800;
+  @apply sticky top-0 z-20 flex h-14 items-center justify-between border-b border-neutral-800 bg-black px-4 sm:px-6;
 }
 
-.header-inner {
-  @apply flex items-center justify-between px-4 sm:px-6 h-14;
-}
-
-/* Breadcrumb */
 .breadcrumb-nav {
-  @apply flex items-center gap-0.5 min-w-0 overflow-hidden;
+  @apply flex min-w-0 items-center gap-0.5 overflow-hidden;
 }
 
 .brand-mark {
-  @apply flex items-center gap-2 text-neutral-200 font-bold text-xs uppercase
-         tracking-widest no-underline hover:text-white transition-colors shrink-0;
+  @apply flex shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-widest text-neutral-200 transition-colors hover:text-white;
 }
 
 .brand-dot {
-  @apply inline-block w-2.5 h-2.5 rounded-full bg-[#FFDD00] shrink-0;
+  @apply size-2.5 shrink-0 rounded-full bg-[#FFDD00];
 }
 
 .crumb-sep {
-  @apply text-neutral-700 mx-1.5 text-xs select-none;
+  @apply mx-1.5 select-none text-xs text-neutral-700;
 }
 
 .crumb-link {
-  @apply text-neutral-400 text-xs uppercase tracking-wider font-medium
-         no-underline hover:text-neutral-200 transition-colors
-         truncate max-w-[100px] sm:max-w-[180px] md:max-w-xs;
+  @apply max-w-[100px] truncate text-xs font-medium uppercase tracking-wider text-neutral-400 transition-colors
+         hover:text-neutral-200 sm:max-w-[180px] md:max-w-xs;
 }
 
 .crumb-current {
-  @apply text-red-400 hover:text-red-400 cursor-default;
+  @apply cursor-default text-red-400 hover:text-red-400;
 }
 
-/* Actions */
 .header-actions {
-  @apply flex items-center gap-2 sm:gap-3 shrink-0 ml-4;
-  min-width: 9rem;
+  @apply ml-4 flex min-w-36 shrink-0 items-center gap-2 sm:gap-3;
 }
 
 .support-btn {
-  @apply flex items-center gap-1.5 text-xs font-medium text-neutral-400
-         hover:text-neutral-200 border border-neutral-700 hover:border-neutral-600
-         rounded-sm px-3 py-1.5 no-underline transition-all duration-200
-         focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-500;
+  @apply flex items-center gap-1.5 rounded-sm border border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-400
+         transition-colors duration-200 hover:border-neutral-600 hover:text-neutral-200;
 }
 
 .login-btn {
-  @apply text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300
-         no-underline border border-red-500/30 hover:border-red-400/60
-         rounded-sm px-3 py-1.5 transition-all duration-200
-         focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-red-500;
+  @apply rounded-sm border border-red-500/30 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-red-400
+         transition-colors duration-200 hover:border-red-400/60 hover:text-red-300;
 }
 
 .user-link {
-  @apply text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300
-         no-underline underline underline-offset-4 decoration-red-500/40
-         hover:decoration-red-400/80 transition-all;
+  @apply text-xs font-bold uppercase tracking-widest text-red-400 underline decoration-red-500/40 underline-offset-4
+         transition-colors hover:text-red-300 hover:decoration-red-400/80;
 }
 
-/* ── FOOTER ─────────────────────────────────────────────────────── */
+/* The "Buy me a" icon changes now and then, with a bump */
+.donation-icon {
+  display: inline-block;
+  opacity: 0.9;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.donation-icon-bump {
+  opacity: 1;
+  transform: translateY(-2px) scale(1.15) rotate(-6deg);
+}
+
+/* ── Footer: source, legal links, version; stacked on phones ── */
 
 .site-footer {
-  @apply bg-black border-t border-neutral-800/80 z-20 relative;
+  @apply relative z-20 flex flex-col items-center justify-between gap-3 border-t border-neutral-800/80 bg-black py-4
+         sm:flex-row sm:gap-0;
+  /* The content stays within 96rem on very wide screens, the black bar goes edge to edge */
+  padding-inline: max(1rem, (100% - 96rem) / 2);
 }
 
-.footer-inner {
-  @apply flex flex-col sm:flex-row items-center justify-between
-         px-4 sm:px-6 py-4 gap-3 sm:gap-0 max-w-screen-2xl mx-auto;
-}
-
-.footer-brand {
-  @apply flex items-center gap-2.5;
-}
-
-.footer-logo {
-  @apply flex items-center gap-2 text-neutral-400 font-bold text-xs uppercase tracking-widest;
-}
-
-.footer-version {
-  @apply font-mono text-xs text-neutral-400 hover:text-neutral-200
-         no-underline transition-colors;
+@media (min-width: 640px) {
+  .site-footer {
+    padding-inline: max(1.5rem, (100% - 96rem) / 2);
+  }
 }
 
 .footer-links {
   @apply flex items-center gap-2;
 }
 
+.footer-link,
+.footer-version {
+  @apply text-xs text-neutral-400;
+}
+
 .footer-link {
-  @apply text-neutral-400 hover:text-neutral-200 no-underline text-xs
-         transition-colors focus-visible:outline-none focus-visible:text-neutral-200;
+  @apply transition-colors hover:text-neutral-200 focus-visible:text-neutral-200;
+}
+
+.footer-source {
+  @apply flex items-center gap-2;
 }
 
 .footer-sep {
-  @apply text-neutral-800 text-xs select-none;
-}
-
-.footer-meta {
-  @apply flex items-center gap-3;
-}
-
-.footer-icon-link {
-  @apply text-neutral-400 hover:text-neutral-200 no-underline transition-colors text-sm
-         focus-visible:outline-none focus-visible:text-neutral-200;
-}
-
-.footer-copy {
-  @apply text-neutral-400 text-xs;
-}
-
-/* ── DONATION ICON ──────────────────────────────────────────────── */
-
-.donation-icon {
-  display: inline-block;
-  transition: transform 160ms ease, opacity 160ms ease;
-  transform: translateY(0) scale(1);
-  opacity: 0.9;
-}
-
-.donation-icon-bump {
-  transform: translateY(-2px) scale(1.15) rotate(-6deg);
-  opacity: 1;
+  @apply select-none text-xs text-neutral-800;
 }

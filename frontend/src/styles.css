@@ -1,5 +1,3 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import "tailwindcss";
 
 @theme {
@@ -86,16 +84,8 @@
 		@apply bg-neutral-700 text-white rounded-lg p-3 border border-emerald-500/50;
 	}
 
-	.capsule-primary {
-		@apply font-bold py-2 px-6 tracking-[0.075em] border transition-all duration-200 bg-emerald-500/10 border-emerald-500/50 text-emerald-400;
-	}
-
 	.card {
 		@apply border  p-4;
-	}
-
-	.card-primary {
-		@apply bg-neutral-800 border rounded-lg border-neutral-700  text-white;
 	}
 
 	.card-secondary {
@@ -110,21 +100,12 @@
 		@apply text-sm font-bold uppercase tracking-widest text-neutral-400 mb-4;
 	}
 
-	.item-title {
-		@apply text-lg font-semibold text-white mb-2;
-	}
-
 	.link-primary {
 		@apply font-semibold no-underline text-red-400 hover:text-red-300  decoration-red-500/50 hover:decoration-red-300 transition-colors;
 	}
 
-
 	.link-secondary {
 		@apply text-blue-400 hover:text-red-300 underline decoration-blue-500/50 hover:decoration-red-300 transition-colors;
-	}
-
-	.link-alt {
-		@apply text-red-300 hover:text-red-200 underline text-sm decoration-red-400/50 hover:decoration-red-200 transition-colors;
 	}
 
 	.input-field {
@@ -142,32 +123,12 @@
 		@apply text-red-500;
 	}
 
-	.text-info {
-		@apply text-blue-400;
-	}
-
-	.text-info-dark {
-		@apply text-blue-600;
-	}
-
 	.text-success {
 		@apply text-emerald-400;
 	}
 
 	.text-muted {
 		@apply text-gray-400;
-	}
-
-	.text-muted-light {
-		@apply text-neutral-300;
-	}
-
-	.border-muted {
-		@apply border-neutral-600;
-	}
-
-	.border-dark {
-		@apply border-neutral-800;
 	}
 
 	.alert-error {
@@ -212,6 +173,11 @@
 		@apply flex flex-col gap-4 w-full md:w-80 shrink-0;
 	}
 
+	/* A label above its field */
+	.exercise-field {
+		@apply flex flex-col gap-1.5;
+	}
+
 	.exercise-desc {
 		@apply flex-1 min-w-0;
 	}
@@ -234,11 +200,6 @@
 
 	.exercise-desc-divider {
 		@apply border-t border-neutral-700/60;
-	}
-
-	/* ── CTA below the exercise body ── */
-	.exercise-cta {
-		@apply mt-6;
 	}
 
 	/* ── Account pages: a toolbar first (context on the left, actions on the right), then the content ── */
@@ -321,12 +282,8 @@
 	}
 }
 
-
-
 html,
 body {
-	margin: 0;
-	padding: 0;
 	@apply bg-neutral-900 text-neutral-200;
 }
 
@@ -398,11 +355,6 @@ hr {
 	@apply text-neutral-200 bg-zinc-700 rounded-sm p-6  mx-4;
 }
 
-
-.filter-tag {
-	@apply bg-red-600/10 border border-red-600/50 text-red-400 rounded-sm px-3 py-1 font-medium tracking-[0.075em] transition-colors duration-200;
-}
-
 /* Router-outlet inserts host element as sibling — make it fill the flex container */
 router-outlet + * {
 	flex: 1 1 0%;
@@ -418,24 +370,16 @@ router-outlet + * {
 	@apply bg-neutral-800/50 border border-neutral-700/50 p-4 flex-1;
 }
 
-
 thead tr {
   @apply bg-neutral-700;
 }
-
 
 th, td {
 	@apply border border-zinc-600 text-neutral-200;
 }
 
 tbody tr:hover {
-	/* Animation pour les lignes du tableau, sauf thead */
 	@apply bg-emerald-500;
-}
-
-
-.loading {
-  @apply border-emerald-500;
 }
 
 /* Beacon Tour Theming */
@@ -485,4 +429,20 @@ beacon-overlay .beacon-btn-prev {
     box-shadow: 0 0 60px 25px rgba(16, 185, 129, 0.6) !important;
     outline-color: rgba(16, 185, 129, 0.5) !important;
   }
+}
+
+/* The workbench toolbar's 64 px square buttons, also used by its dialogs (tempo, mixer). Outside the components
+   layer on purpose: their background must win over .btn's hover. */
+.btn-desktop {
+  @apply bg-neutral-400 text-white;
+  height: 64px;
+  width: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+}
+
+.svg-button {
+  color: white !important;
 }

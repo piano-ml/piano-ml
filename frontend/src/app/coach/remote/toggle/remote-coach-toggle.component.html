@@ -1,0 +1,14 @@
+@if (isBrowser) {
+  @if (coach.look() === 'unavailable') {
+    <a [routerLink]="doc" class="coach-toggle look-unavailable" [class]="'variant-' + variant()" data-testid="remote-coach-doc"
+      [title]="coach.tooltip()" [attr.aria-label]="coach.tooltip()">
+      <ng-icon name="aiRectangle" />
+    </a>
+  } @else {
+    <button type="button" role="switch" class="coach-toggle" [class]="'variant-' + variant() + ' look-' + coach.look()"
+      data-testid="remote-coach-switch" [attr.aria-checked]="coach.on()" [title]="coach.tooltip()"
+      [attr.aria-label]="coach.tooltip()" (click)="coach.toggle()">
+      <ng-icon name="aiRectangle" />
+    </button>
+  }
+}

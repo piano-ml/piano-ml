@@ -22,7 +22,6 @@ interface ProvidedSong {
   imports: [],
   templateUrl: './builtin.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './builtin.component.css'
 })
 export class BuiltinComponent {
 

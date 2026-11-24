@@ -238,12 +238,16 @@ public class PracticeSessionService {
     return deleted;
   }
 
-  public PracticeSessionApiInfo toApiInfo(PracticeSession session, String slug) {
+  /** The session for the API; its score (null for an exercise or a score that is gone) gives the link and the tempo. */
+  public PracticeSessionApiInfo toApiInfo(PracticeSession session, Score score) {
     PracticeSessionApiInfo api = new PracticeSessionApiInfo();
     api.setId(session.getId());
     api.setKind(PracticeSessionApiInfo.KindEnum.fromValue(session.getKind()));
     api.setScoreId(session.getScoreId());
-    api.setSlug(slug);
+    if (score != null) {
+      api.setSlug(slugOf(score));
+      api.setTempo(score.getTempo());
+    }
     api.setTitle(session.getTitle());
     api.setAuthor(session.getAuthor());
     api.setExerciseType(session.getExerciseType());
@@ -287,12 +291,12 @@ public class PracticeSessionService {
     return api;
   }
 
-  /** Slug of the session's score, for links; null for an exercise or a score that is gone. */
-  public String slugOf(PracticeSession session) {
+  /** The session's score, for its link and tempo; null for an exercise or a score that is gone. */
+  public Score scoreOf(PracticeSession session) {
     if (session.getScoreId() == null) {
       return null;
     }
-    return scoreRepository.findById(session.getScoreId()).map(PracticeSessionService::slugOf).orElse(null);
+    return scoreRepository.findById(session.getScoreId()).orElse(null);
   }
 
   static String slugOf(Score score) {

@@ -1,6 +1,7 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, untracked, NgZone } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, NgZone } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RemoteCoachToggleComponent } from '../../../coach/remote/toggle/remote-coach-toggle.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapQuestionCircle, bootstrapSpeedometer2, bootstrapGear, bootstrapHouse, bootstrapSkipBackwardFill, bootstrapPlayFill, bootstrapPauseFill, bootstrapRepeat, bootstrapInfoCircleFill, bootstrapFullscreen, bootstrapFullscreenExit, bootstrapGripHorizontal, bootstrapDash, bootstrapPlus, bootstrapSliders } from '@ng-icons/bootstrap-icons';
 import { lefthand, righthand } from '../../../shared/icons/custom-icons';
@@ -39,10 +40,6 @@ import {measurePipFilter, markMeasures} from './measure-range-pips';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
-
-/** How long the arena flashes red after a wrong note. */
-export const WRONG_NOTE_ARENA_FLASH_MS = 500;
-
 /** What to tell the user when a score cannot be loaded for practice. */
 export function scoreLoadErrorMessage(error: unknown): string {
   const status = error instanceof HttpErrorResponse ? error.status : undefined;
@@ -62,7 +59,7 @@ export function scoreLoadErrorMessage(error: unknown): string {
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, MixerDialogComponent],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, MixerDialogComponent, RemoteCoachToggleComponent],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -97,9 +94,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   protected get soundFontState() { return this.playerService.soundFontState; }
   private midiPermission: PermissionStatus | null = null;
   private midiBlockedChecked = false;
-  /** Wrong notes already reacted to (the player's counter outlives this component). */
-  private seenWrongNotes = 0;
-  private arenaFlashTimer?: ReturnType<typeof setTimeout>;
   /** The popup opens once per visit, whichever check notices first. */
   private midiBlockedShown = false;
 
@@ -191,11 +185,11 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
 
   // UI state
-  hideKeyboard = false;
+  /** Hidden until the user shows it: reading the score, not the keys, is what the workbench trains. */
+  hideKeyboard = true;
   hideFingering = false;
   hideLyrics = false;
   hideFingeringAndHarmony = false;
-  arenaClass = '';
   isFullscreen = false;
   isMidiSetupOpen = false;
   // Tempo modal state
@@ -226,6 +220,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   private readonly playerControl = inject(PlayerControlService);
   private readonly playerAudio = inject(PlayerAudioService);
   private readonly midiService = inject(MidiServiceService);
+  /** Name of the MIDI input in use, shown left of the keyboard handle. */
+  readonly midiInputName = this.midiService.inputDeviceName;
   /** Stable identity of the exercise on the stand, for the practice history (null for a score). */
   private exerciseItem: PracticeItem | null = null;
   /** The stored exercise this workbench loaded (EXERCICE_INFO_KEY as read): the only one it may clear (#413). */
@@ -260,7 +256,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     // Initialize elapsed time observable
     this.elapsedTime = this.playerService.elapsedTime;
 
-    this.hideKeyboard = this.parseBooleanStorage(this.hideKeyboardStorageKey);
+    this.hideKeyboard = this.parseBooleanStorage(this.hideKeyboardStorageKey, true);
     this.hideFingering = this.parseBooleanStorage(this.hideFingeringStorageKey);
     this.hideLyrics = this.parseBooleanStorage(this.hideLyricsStorageKey);
     this.hideFingeringAndHarmony = this.parseBooleanStorage(this.hideFingeringAndHarmonyStorageKey);
@@ -303,19 +299,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
       if (this.playerService.message() === 'END') {
         this.onPlaybackEnded();
-      }
-    });
-
-    // Effect 2b: wrong notes. A counter, not the BAD message: two wrong notes in a row are two changes, and each
-    // one restarts the keyboard timer.
-    this.seenWrongNotes = untracked(() => this.playerService.wrongNotes());
-    effect(() => {
-      if (!isPlatformBrowser(this.platformId)) return;
-
-      const wrongNotes = this.playerService.wrongNotes();
-      if (wrongNotes !== this.seenWrongNotes) {
-        this.seenWrongNotes = wrongNotes;
-        this.onWrongNote();
       }
     });
 
@@ -515,19 +498,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     this.changeDetector.markForCheck();
   }
 
-  /**
-   * Flashes the arena (the wrong note itself is shown on the score; the on-screen keyboard is left as it is).
-   */
-  private onWrongNote(): void {
-    this.arenaClass = 'bad';
-    clearTimeout(this.arenaFlashTimer);
-    this.arenaFlashTimer = setTimeout(() => {
-      this.arenaClass = '';
-      this.changeDetector.markForCheck();
-    }, WRONG_NOTE_ARENA_FLASH_MS);
-    this.changeDetector.markForCheck();
-  }
-
   closeMidiBlockedDialog() {
     this.showMidiBlockedDialog = false;
     this.changeDetector.markForCheck();
@@ -714,8 +684,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   }
 
-  parseBooleanStorage(key: string): boolean {
-    if (!isPlatformBrowser(this.platformId)) return false;
+  /** A remembered on/off setting, or `fallback` when none was saved. */
+  parseBooleanStorage(key: string, fallback = false): boolean {
+    if (!isPlatformBrowser(this.platformId)) return fallback;
     const stored = localStorage.getItem(key);
     if (stored !== null) {
       try {
@@ -724,7 +695,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
         return stored === 'true';
       }
     }
-    return false;
+    return fallback;
   }
 
   openMidiSetup() {
@@ -1457,7 +1428,6 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     }
     clearTimeout(this.titleTimer);
     this.titleTimer = undefined;
-    clearTimeout(this.arenaFlashTimer);
     this.playerService.releaseScoreSession();
     this.clearData();
     // Remove resize listener
