@@ -73,7 +73,7 @@ describe('PracticeSessionRecorder', () => {
     localStorage.removeItem(OUTBOX_KEY);
     now = Date.parse('2026-11-15T10:00:00Z');
     vi.spyOn(Date, 'now').mockImplementation(() => now);
-    snapshot = counters(0, 0);
+    snapshot = counters(10, 10); // an assessed take: unassessed sessions are not sent
   });
 
   afterEach(() => {
@@ -118,7 +118,7 @@ describe('PracticeSessionRecorder', () => {
       expect(recorder.lastTake()).toMatchObject({ hands: 'right' });
     });
 
-    it('does not assess a take in which no key was pressed, but keeps its time', () => {
+    it('does not assess a take in which no key was pressed: with nothing assessed, the session is not sent', () => {
       setup();
       recorder.setItem(SCORE, 8);
       recorder.takeStarted(config({ waitForLeftHand: false, waitForRightHand: false }));
@@ -126,9 +126,8 @@ describe('PracticeSessionRecorder', () => {
       recorder.activity();
       snapshot = counters(30, 0, 0, 0, 0); // 30 notes went by, none played
       recorder.takeEnded(true);
-      const [{ body }] = sent();
-      expect(body).toMatchObject({ activeSeconds: 20, notesExpected: 0, notesHit: 0, notesWrong: 0, onsets: 0, measures: [] });
-      expect(body.takes![0]).toMatchObject({ activeSeconds: 20, notesExpected: 0, notesHit: 0 });
+      expect(sent()).toEqual([]);
+      expect(localStorage.getItem(OUTBOX_KEY)).toBeNull();
     });
 
     it('assesses a take only above UNASSESSED_MAX_NOTES_PLAYED key presses', () => {
@@ -160,7 +159,7 @@ describe('PracticeSessionRecorder', () => {
       expect(sent()[0].body.hands).toBe(expected);
     });
 
-    it('without a MIDI keyboard, time counts and the input is "none"', () => {
+    it('without a MIDI keyboard, nothing is assessed: the session is not sent', () => {
       setup();
       recorder.setItem(SCORE, 8);
       recorder.takeStarted(config());
@@ -168,8 +167,19 @@ describe('PracticeSessionRecorder', () => {
         now += 2000;
         recorder.activity(); // the score moves on
       }
+      snapshot = counters(10, 0, 0, 0, 0); // notes went by, no key can be pressed
       recorder.takeEnded(true);
-      expect(sent()[0].body).toMatchObject({ activeSeconds: 20, input: 'none', notesExpected: 0 });
+      expect(sent()).toEqual([]);
+    });
+
+    it('is only sent for the user who played it, not for an account logged in since', () => {
+      setup('u1');
+      recorder.setItem(SCORE, 8);
+      recorder.takeStarted(config());
+      play(20);
+      localStorage.setItem('userId', 'u2'); // logged out, then in as someone else, in the same tab
+      recorder.takeEnded(false);
+      expect(sent()).toEqual([]);
     });
 
     it('the clock stops after 30 s without a note', () => {

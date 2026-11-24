@@ -1,6 +1,7 @@
 import { Component, ChangeDetectorRef, OnDestroy, inject, PLATFORM_ID, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
+
 // biome-ignore lint/style/useImportType: <explanation>
 import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -11,6 +12,7 @@ import {  bootstrapGithub } from '@ng-icons/bootstrap-icons';
 import { map, Observable, tap } from 'rxjs';
 import { AuthService } from '../../../account/services/auth.service';
 import { loginQueryParams } from '../../../account/services/return-url';
+import { ACCOUNT_TABS } from '../../../account/components/home/account-tabs';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 
 import versionInfo from '../../../../assets/version.json';
@@ -90,9 +92,10 @@ export class LayoutComponent implements OnDestroy {
     return this.authService.isAdmin();
   }
 
-  /** The admin entry only shows on the account home page, not on every page of the site. */
+  /** The admin entry only shows on the account page (its tabs), not on every page of the site. */
   onAccountHome(): boolean {
-    return this.router.url.split(/[?#]/)[0] === '/account/home';
+    const path = this.router.url.split(/[?#]/)[0];
+    return ACCOUNT_TABS.some(tab => path === `/account/${tab.path}`);
   }
 
   logout() {

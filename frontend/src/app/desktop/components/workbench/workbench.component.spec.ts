@@ -484,6 +484,22 @@ describe('WorkbenchComponent', () => {
       await waitFor(() => { render(); return !!el().querySelector('app-latency-calibration .modal'); });
     });
 
+    it('offers it only once, even when closed without calibrating', async () => {
+      localStorage.setItem('workbench-tour-seen', 'true');
+      localStorage.setItem('calibration-seen', 'true');
+      await openScore();
+      render();
+      expect(el().querySelector('app-latency-calibration .modal')).toBeNull();
+    });
+
+    it('marks it seen when offered', async () => {
+      localStorage.setItem('workbench-tour-seen', 'true');
+      await openScore();
+      render();
+      expect(el().querySelector('app-latency-calibration .modal')).not.toBeNull();
+      expect(localStorage.getItem('calibration-seen')).toBe('true');
+    });
+
     it('does not offer it again once a correction is stored, 0 included', async () => {
       localStorage.setItem('workbench-tour-seen', 'true');
       localStorage.setItem('audioLatencyCalibrationMs', '0');

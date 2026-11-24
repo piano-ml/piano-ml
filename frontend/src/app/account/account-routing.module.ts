@@ -9,28 +9,46 @@ import { AccountScoresComponent } from './components/account-scores/account-scor
 import { EditScoreComponent } from './components/edit-score/edit-score.component';
 import { AccountPlaylistsComponent } from './components/playlists/account-playlists.component';
 import { PlaylistDetailComponent } from './components/playlists/playlist-detail.component';
+import { AccountMeComponent } from './components/home/me/me.component';
+import { PracticeSummaryComponent } from './components/practice-summary/practice-summary.component';
+import { CoachGrantsComponent } from './components/coach-grants/coach-grants.component';
+import { ACCOUNT_TABS, accountTabLabel } from './components/home/account-tabs';
 
-const routes: Routes = [
-    { path: 'home', component: AccountHomeComponent,     data: { breadcrumb: $localize`:@@account.route.home:Home` } },
+export const accountRoutes: Routes = [
   { path: 'login', component: LoginComponent,     data: { breadcrumb: $localize`:@@account.route.login:Login` } },
   { path: 'create', component: CreateAccountComponent,     data: { breadcrumb: $localize`:@@account.route.create:Create` } },
   { path: 'forgot-password', component: ForgotPasswordComponent, data: { breadcrumb: $localize`:@@account.route.forgotPassword:Forgot password` } },
   { path: 'reset-password', component: ResetPasswordComponent, data: { breadcrumb: $localize`:@@account.route.resetPassword:New password` } },
-  { path: 'scores', component: AccountScoresComponent,     data: { breadcrumb: $localize`:@@account.route.scores:My Scores` } },
+  { path: 'score/edit/:id', component: EditScoreComponent,     data: { breadcrumb: $localize`:@@account.route.editScore:Edit Score` } },
+  // Former URLs of the tabs
+  { path: 'home', redirectTo: ACCOUNT_TABS[0].path, pathMatch: 'full' },
+  { path: 'home/:tab', redirectTo: ':tab' },
+  {
+    // The account page: one tab per child route (/account/playlists, /account/scores…); the breadcrumb shows the open tab
+    path: '',
+    component: AccountHomeComponent,
+    children: [
+      { path: '', redirectTo: ACCOUNT_TABS[0].path, pathMatch: 'full' },
+      { path: 'playlists', component: AccountPlaylistsComponent, data: { breadcrumb: accountTabLabel('playlists') } },
+      { path: 'scores', component: AccountScoresComponent, data: { breadcrumb: accountTabLabel('scores') } },
+      { path: 'practice', component: PracticeSummaryComponent, data: { breadcrumb: accountTabLabel('practice') } },
+      { path: 'ai', component: CoachGrantsComponent, data: { breadcrumb: accountTabLabel('ai') } },
+      { path: 'me', component: AccountMeComponent, data: { breadcrumb: accountTabLabel('me') } },
+    ],
+  },
+  // A playlist's own page, outside the tabs: Account > My Playlists > <playlist>. It must come after the tabs:
+  // listed first, this childless parent would also match a bare /account/playlists and render nothing.
   {
     path: 'playlists',
-    data: { breadcrumb: $localize`:@@account.route.playlists:My Playlists` },
+    data: { breadcrumb: accountTabLabel('playlists') },
     children: [
-      { path: '', component: AccountPlaylistsComponent },
       { path: ':slug', component: PlaylistDetailComponent, data: { breadcrumb: $localize`:@@account.route.playlist:Playlist` } },
     ],
   },
-  { path: 'score/edit/:id', component: EditScoreComponent,     data: { breadcrumb: $localize`:@@account.route.editScore:Edit Score` } },
-  { path: '', redirectTo: 'home', pathMatch: 'full' }
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(accountRoutes)],
   exports: [RouterModule]
 })
 export class AccountRoutingModule { }

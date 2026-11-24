@@ -18,6 +18,7 @@ import wNumb from 'wnumb';
 import { BeaconService } from 'ng-beacon';
 import { BROWSE_TOUR } from './browse.tour';
 import { KeyNamePipe } from '../../../shared/i18n';
+import { KeepInViewDirective } from '../../../shared/directives/keep-in-view.directive';
 
 @Component({
   selector: 'app-browse',
@@ -25,6 +26,7 @@ import { KeyNamePipe } from '../../../shared/i18n';
   styleUrl: './browse.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
+    KeepInViewDirective,
     FormsModule,
     ScoreTableComponent,
     QuickActionsComponent,

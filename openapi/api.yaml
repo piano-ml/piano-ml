@@ -1492,6 +1492,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PracticeSessionApiInfo'
+        '204':
+          description: >
+            Not stored: nothing was assessed (neither accuracy nor flow), for example while listening or without a
+            MIDI keyboard
         '400':
           description: Invalid or implausible session
         '401':

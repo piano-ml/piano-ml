@@ -12,14 +12,13 @@
 
   <hr class="mx-4 sm:mx-6">
 
-  <!-- ── Toolbar ────────────────────────────────────────── -->
-  <div class="flex items-center justify-between px-4 sm:px-6">
+  <div class="page-toolbar px-4 sm:px-6">
     <p class="text-xs text-neutral-400">{{ score?.author }}</p>
-    <div class="flex items-center gap-3">
+    <div class="page-toolbar-actions">
       <button type="button" (click)="onDelete()" class="btn-danger" [disabled]="loading" i18n="@@editScore.delete">Delete</button>
       <button type="button" (click)="onCancel()" class="btn-secondary" [disabled]="loading" i18n="@@editScore.cancel">← Cancel</button>
       <button type="submit" form="score-edit-form" class="btn-hero" [disabled]="loading || scoreForm.invalid">
-        {{ loading ? 'Saving…' : 'Save' }}
+        @if (loading) { <ng-container i18n="@@editScore.saving">Saving…</ng-container> } @else { <ng-container i18n="@@accountHome.save">Save</ng-container> }
       </button>
     </div>
   </div>
@@ -28,8 +27,8 @@
 
     <!-- ── Loading ─────────────────────────────────────────── -->
     @if (loading && !score) {
-      <div class="flex items-center gap-3 py-10">
-        <div class="spinner w-4 h-4 text-neutral-500"></div>
+      <div class="flex items-center justify-center gap-3 py-10" role="status">
+        <span class="spinner w-4 h-4 text-neutral-500" aria-hidden="true"></span>
         <p class="text-sm text-neutral-400" i18n="@@editScore.loadingScore">Loading score…</p>
       </div>
     }
@@ -127,16 +126,16 @@
 
   <!-- ── Delete confirmation modal ──────────────────────────── -->
   @if (showDeleteConfirmation) {
-    <div class="modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-score-title">
       <div class="modal-content">
-        <h3 class="page-sub-title mb-4" i18n="@@editScore.confirmDelete">Confirm delete</h3>
+        <h3 id="delete-score-title" class="page-sub-title mb-4" i18n="@@editScore.confirmDelete">Confirm delete</h3>
         <p class="text-sm text-neutral-400 mb-6" i18n="@@editScore.thisActionCannotBeUndone">This action cannot be undone. Are you sure?</p>
         <div class="flex justify-end gap-3">
           <button type="button" (click)="showDeleteConfirmation = false" class="btn-secondary" [disabled]="deleting" i18n="@@editScore.cancel2">
             Cancel
           </button>
           <button type="button" (click)="confirmDelete()" class="btn-danger" [disabled]="deleting">
-            {{ deleting ? 'Deleting…' : 'Delete' }}
+            @if (deleting) { <ng-container i18n="@@accountHome.deleting">Deleting…</ng-container> } @else { <ng-container i18n="@@editScore.delete">Delete</ng-container> }
           </button>
         </div>
       </div>

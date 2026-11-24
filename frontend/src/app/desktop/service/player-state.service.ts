@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { KeyRangeService } from '../../shared/services/key-range.service';
 import { BehaviorSubject } from 'rxjs';
 import type { PlayConfiguration, lateNote } from '../model/model';
 import type { OpenSheetMusicDisplay, Cursor } from 'opensheetmusicdisplay';
@@ -34,9 +35,12 @@ export class PlayerStateService {
   //lateNotes: Map<number, lateNote[]> = new Map<number, lateNote[]>();
   ticks: number = 0;
 
-  // Keyboard preferences
-  leftmostKey: number = 21;  // Default A0
-  rightmostKey: number = 108; // Default C8
+  // Keys of the user's MIDI keyboard (MIDI setup): read live, so a change applies to the next notes scheduled
+  private readonly keyRange = inject(KeyRangeService);
+  get leftmostKey(): number { return this.keyRange.range().leftmostKey; }
+  set leftmostKey(key: number) { this.keyRange.range.update(range => ({ ...range, leftmostKey: key })); }
+  get rightmostKey(): number { return this.keyRange.range().rightmostKey; }
+  set rightmostKey(key: number) { this.keyRange.range.update(range => ({ ...range, rightmostKey: key })); }
 
   // Cached time factor to avoid repeated calculations
   private _timeFactorCache?: number;

@@ -45,6 +45,10 @@ describe('return-url', () => {
   describe('requiresLogin', () => {
     it.each([
       '/account/home',
+      '/account/playlists',
+      '/account/playlists/favorites',
+      '/account/ai',
+      '/account/me',
       '/account/scores',
       '/account/scores?page=2',
       '/account/score/edit/42',

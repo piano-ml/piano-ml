@@ -217,6 +217,23 @@ class PracticeControllerTest {
   }
 
   @Test
+  void put_withoutAccuracyNorFlow_isNotStored_untilAssessed() throws Exception {
+    User user = newUser();
+    UUID score = newScore(user.getId(), "Prelude", "C", "major", 3f);
+    UUID id = UUID.randomUUID();
+    String listening = scoreSession(score, 10, 100)
+      .replace("\"notesExpected\": 100, \"notesHit\": 90, \"notesWrong\": 10, \"onsets\": 50, \"waits\": 5,",
+        "\"notesExpected\": 0, \"notesHit\": 0, \"notesWrong\": 0, \"onsets\": 0, \"waits\": 0,");
+
+    putSession(user, id, listening).andExpect(status().isNoContent());
+    assertThat(practiceSessionRepository.findById(id)).isEmpty();
+
+    // The same session, once notes were assessed (a later checkpoint), is stored
+    putSession(user, id, scoreSession(score, 10, 100)).andExpect(status().isOk());
+    assertThat(practiceSessionRepository.findById(id)).isPresent();
+  }
+
+  @Test
   void put_onAnotherUsersSession_isForbidden() throws Exception {
     User user = newUser();
     User intruder = newUser();
@@ -333,6 +350,26 @@ class PracticeControllerTest {
       .andExpect(jsonPath("$.volume.sessions").value(0))
       .andExpect(jsonPath("$.scoreAccuracy.last10.sessions").value(0))
       .andExpect(jsonPath("$.items", hasSize(0)));
+  }
+
+  @Test
+  void sessionsStoredWithoutAccuracyNorFlow_countNowhere() throws Exception {
+    User user = newUser();
+    UUID prelude = newScore(user.getId(), "Prelude", "C", "major", 3f);
+    LocalDate today = LocalDate.now(ZoneOffset.UTC);
+    // Listening sessions stored before they were refused: nothing expected, so neither accuracy nor flow
+    seed(user, prelude, "Prelude", today.minusDays(1), 600, 0, 0, 0);
+    seed(user, prelude, "Prelude", today.minusDays(2), 600, 0, 0, 0);
+    seed(user, prelude, "Prelude", today.minusDays(3), 300, 100, 80, 0);
+
+    mockMvc.perform(get("/practice/sessions").header("Authorization", bearer(user)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$", hasSize(1)));
+    mockMvc.perform(get("/practice/summary?timeZone=UTC").header("Authorization", bearer(user)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.volume.sessions").value(1))
+      .andExpect(jsonPath("$.volume.activeSeconds").value(300))
+      .andExpect(jsonPath("$.items[0].sessions").value(1));
   }
 
   @Test

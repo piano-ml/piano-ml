@@ -29,7 +29,7 @@ export const serverRoutes: ServerRoute[] = [
   },
   
   // Private pages: the session lives in the browser (localStorage + HttpOnly cookie sent by the browser), so
-  // server-side rendering always sees a logged-out visitor and redirected /account/home to /account/login on
+  // server-side rendering always sees a logged-out visitor and redirected the account pages to /account/login on
   // reload. They have no SEO value: render them in the browser only.
   {
     path: 'account/**',

@@ -1,8 +1,10 @@
 import { isPlatformBrowser } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, effect, inject, signal, untracked } from '@angular/core';
 import { MIDI_BLOCKED_MESSAGE, MidiServiceService } from '../../../shared/services/midi-service.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { LatencyCalibrationComponent } from '../latency-calibration/latency-calibration.component';
+import { HIGHEST_MIDI_KEY, KeyField, KeyRangeService, LOWEST_MIDI_KEY } from '../../../shared/services/key-range.service';
+
 
 @Component({
   selector: 'app-midi-setup',
@@ -39,18 +41,42 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
   /** The timing calibration dialog, over this one. */
   calibrationOpen = false;
 
+  protected readonly keyFields: { name: KeyField; inputId: string }[] = [
+    { name: 'leftmostKey', inputId: 'midi-lowest-key' },
+    { name: 'rightmostKey', inputId: 'midi-highest-key' },
+  ];
+  private readonly keyRangeService = inject(KeyRangeService);
+  /** The keys of the user's MIDI keyboard. */
+  readonly keyRange = this.keyRangeService.range;
+  /** The key range field being focused: the next key played sets it. */
+  readonly listeningTo = signal<KeyField | null>(null);
+  /** Why the last entered key was refused, if it was. */
+  readonly keyRangeError = signal<'min' | 'max' | 'range' | null>(null);
+
 
 
   constructor(
     private midiService: MidiServiceService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    // Runs on each key played, not on focus: a note played before the field was focused does not count.
+    effect(() => {
+      const event = this.midiService.midiEvent();
+      const field = untracked(this.listeningTo);
+      if (field && event?.type === 'down') {
+        untracked(() => this.setKey(field, event.note));
+      }
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen']?.currentValue) {
+      this.keyRangeService.reload();
+      this.keyRangeError.set(null);
       this.loadDevices();
     } else if (changes['isOpen']) {
       this.calibrationOpen = false;
+      this.listeningTo.set(null);
     }
   }
 
@@ -85,6 +111,20 @@ export class MidiSetupComponent implements OnChanges, OnDestroy {
 
   setHideLyricsVisibility(show: boolean) {
     this.hideLyricsChange.emit(!show);
+  }
+
+  /** Sets one end of the key range and saves it, unless it is out of the piano range or past the other end. */
+  setKey(field: KeyField, note: number) {
+    const range = { ...this.keyRange(), [field]: note };
+    const error = !(note >= LOWEST_MIDI_KEY) ? 'min'
+      : note > HIGHEST_MIDI_KEY ? 'max'
+      : range.leftmostKey >= range.rightmostKey ? 'range'
+      : null;
+    this.keyRangeError.set(error);
+    if (!error) {
+      this.keyRangeService.save(range);
+    }
+    this.cdr.markForCheck();
   }
 
   isInputEnabled(device: MIDIInput) {

@@ -12,8 +12,7 @@ import { ScoreBasicInfoComponent } from "../../../library/components/score-basic
   standalone: true,
   imports: [ReactiveFormsModule, AuthorSearchModalComponent, ScoreBasicInfoComponent],
   templateUrl: './edit-score.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './edit-score.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class EditScoreComponent implements OnInit {
   scoreForm: FormGroup;
