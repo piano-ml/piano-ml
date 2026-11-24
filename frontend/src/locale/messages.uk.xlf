@@ -462,6 +462,10 @@
         <source>Failed to delete score</source>
         <target state="translated">Не вдалося видалити твір</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Заняття</target>
+      </trans-unit>
       <trans-unit id="accountHome.myPlaylists" datatype="html">
         <source>My Playlists</source>
         <target state="translated">Мої добірки</target>
@@ -469,10 +473,6 @@
       <trans-unit id="accountHome.myScores" datatype="html">
         <source>My Scores</source>
         <target state="translated">Мої твори</target>
-      </trans-unit>
-      <trans-unit id="accountHome.practice" datatype="html">
-        <source>Practice</source>
-        <target state="translated">Заняття</target>
       </trans-unit>
       <trans-unit id="accountHome.tab.ai" datatype="html">
         <source>AI</source>
@@ -798,37 +798,45 @@
         <source>Drag ⋮⋮ to reorder, or focus a row and press Alt+↑ / Alt+↓.</source>
         <target state="translated">Перетягніть ⋮⋮, щоб змінити порядок, або виберіть рядок і натисніть Alt+↑ / Alt+↓.</target>
       </trans-unit>
+      <trans-unit id="scoreTable.artist" datatype="html">
+        <source>Artist</source>
+        <target state="translated">Виконавець</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">Тривалість</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.bpm" datatype="html">
+        <source>BPM</source>
+        <target state="translated">BPM</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">Рівень</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">Доріжки</target>
+      </trans-unit>
       <trans-unit id="playlist.dragHandle" datatype="html">
         <source>Drag to reorder</source>
         <target state="translated">Перетягніть, щоб змінити порядок</target>
       </trans-unit>
-      <trans-unit id="playlist.grade" datatype="html">
-        <source>Grade <x id="INTERPOLATION" equiv-text="{{ item.score.grade }}"/></source>
-        <target state="translated">Рівень <x id="INTERPOLATION" equiv-text="{{ item.score.grade }}"/></target>
-      </trans-unit>
-      <trans-unit id="playlist.added" datatype="html">
-        <source>added <x id="INTERPOLATION" equiv-text="{{ added(item) }}"/></source>
-        <target state="translated">додано <x id="INTERPOLATION" equiv-text="{{ added(item) }}"/></target>
-      </trans-unit>
-      <trans-unit id="playlist.moveTop" datatype="html">
-        <source>Move to top</source>
-        <target state="translated">Перемістити на початок</target>
-      </trans-unit>
-      <trans-unit id="playlist.moveUp" datatype="html">
-        <source>Move up</source>
-        <target state="translated">Перемістити вгору</target>
-      </trans-unit>
-      <trans-unit id="playlist.moveDown" datatype="html">
-        <source>Move down</source>
-        <target state="translated">Перемістити вниз</target>
-      </trans-unit>
-      <trans-unit id="playlist.moveBottom" datatype="html">
-        <source>Move to bottom</source>
-        <target state="translated">Перемістити в кінець</target>
-      </trans-unit>
       <trans-unit id="playlist.remove" datatype="html">
         <source>Remove from playlist</source>
         <target state="translated">Вилучити з добірки</target>
+      </trans-unit>
+      <trans-unit id="playlist.removeConfirm.title" datatype="html">
+        <source>Remove &quot;<x id="INTERPOLATION" equiv-text="{{ item.score.title }}"/>&quot; from &quot;<x id="INTERPOLATION_1" equiv-text="{{ titleOf(p) }}"/>&quot;?</source>
+        <target state="translated">Вилучити «<x id="INTERPOLATION" equiv-text="{{ item.score.title }}"/>» з «<x id="INTERPOLATION_1" equiv-text="{{ titleOf(p) }}"/>»?</target>
+      </trans-unit>
+      <trans-unit id="playlist.removeConfirm.body" datatype="html">
+        <source>The score itself is not deleted.</source>
+        <target state="translated">Саму партитуру не буде видалено.</target>
+      </trans-unit>
+      <trans-unit id="playlist.removeConfirm.confirm" datatype="html">
+        <source>Remove</source>
+        <target state="translated">Вилучити</target>
       </trans-unit>
       <trans-unit id="playlist.deleteConfirm.title" datatype="html">
         <source>Delete &quot;<x id="INTERPOLATION" equiv-text="{{ titleOf(p) }}"/>&quot;?</source>
@@ -894,10 +902,6 @@
         <source>Date</source>
         <target state="translated">Дата</target>
       </trans-unit>
-      <trans-unit id="scoreTable.duration" datatype="html">
-        <source>Duration</source>
-        <target state="translated">Тривалість</target>
-      </trans-unit>
       <trans-unit id="accountHome.practice.hands" datatype="html">
         <source>Hands</source>
         <target state="translated">Руки</target>
@@ -905,10 +909,6 @@
       <trans-unit id="scoreInfo.tempo" datatype="html">
         <source>Tempo</source>
         <target state="translated">Темп</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.bpm" datatype="html">
-        <source>BPM</source>
-        <target state="translated">BPM</target>
       </trans-unit>
       <trans-unit id="accountHome.practice.column.accuracy" datatype="html">
         <source>Accuracy</source>
@@ -3193,18 +3193,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="browse.showing" datatype="html">
         <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
         <target state="translated">{VAR_PLURAL, plural, =1 {Показано 1 твір} one {Показано <x id="INTERPOLATION"/> твір} few {Показано <x id="INTERPOLATION"/> твори} many {Показано <x id="INTERPOLATION"/> творів} other {Показано <x id="INTERPOLATION"/> твору}}</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.artist" datatype="html">
-        <source>Artist</source>
-        <target state="translated">Виконавець</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.grade" datatype="html">
-        <source>Grade</source>
-        <target state="translated">Рівень</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.tracks" datatype="html">
-        <source>Tracks</source>
-        <target state="translated">Доріжки</target>
       </trans-unit>
       <trans-unit id="browse.grade.min" datatype="html">
         <source>Minimum grade</source>

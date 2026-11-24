@@ -462,6 +462,10 @@
         <source>Failed to delete score</source>
         <target state="translated">No se pudo eliminar la partitura</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Práctica</target>
+      </trans-unit>
       <trans-unit id="accountHome.myPlaylists" datatype="html">
         <source>My Playlists</source>
         <target state="translated">Mis listas</target>
@@ -469,10 +473,6 @@
       <trans-unit id="accountHome.myScores" datatype="html">
         <source>My Scores</source>
         <target state="translated">Mis partituras</target>
-      </trans-unit>
-      <trans-unit id="accountHome.practice" datatype="html">
-        <source>Practice</source>
-        <target state="translated">Práctica</target>
       </trans-unit>
       <trans-unit id="accountHome.tab.ai" datatype="html">
         <source>AI</source>
@@ -798,37 +798,45 @@
         <source>Drag ⋮⋮ to reorder, or focus a row and press Alt+↑ / Alt+↓.</source>
         <target state="translated">Arrastra ⋮⋮ para reordenar, o selecciona una fila y pulsa Alt+↑ / Alt+↓.</target>
       </trans-unit>
+      <trans-unit id="scoreTable.artist" datatype="html">
+        <source>Artist</source>
+        <target state="translated">Artista</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">Duración</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.bpm" datatype="html">
+        <source>BPM</source>
+        <target state="translated">BPM</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">Nivel</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">Pistas</target>
+      </trans-unit>
       <trans-unit id="playlist.dragHandle" datatype="html">
         <source>Drag to reorder</source>
         <target state="translated">Arrastrar para reordenar</target>
       </trans-unit>
-      <trans-unit id="playlist.grade" datatype="html">
-        <source>Grade <x id="INTERPOLATION" equiv-text="{{ item.score.grade }}"/></source>
-        <target state="translated">Grado <x id="INTERPOLATION" equiv-text="{{ item.score.grade }}"/></target>
-      </trans-unit>
-      <trans-unit id="playlist.added" datatype="html">
-        <source>added <x id="INTERPOLATION" equiv-text="{{ added(item) }}"/></source>
-        <target state="translated">añadida el <x id="INTERPOLATION" equiv-text="{{ added(item) }}"/></target>
-      </trans-unit>
-      <trans-unit id="playlist.moveTop" datatype="html">
-        <source>Move to top</source>
-        <target state="translated">Mover al principio</target>
-      </trans-unit>
-      <trans-unit id="playlist.moveUp" datatype="html">
-        <source>Move up</source>
-        <target state="translated">Subir</target>
-      </trans-unit>
-      <trans-unit id="playlist.moveDown" datatype="html">
-        <source>Move down</source>
-        <target state="translated">Bajar</target>
-      </trans-unit>
-      <trans-unit id="playlist.moveBottom" datatype="html">
-        <source>Move to bottom</source>
-        <target state="translated">Mover al final</target>
-      </trans-unit>
       <trans-unit id="playlist.remove" datatype="html">
         <source>Remove from playlist</source>
         <target state="translated">Quitar de la lista</target>
+      </trans-unit>
+      <trans-unit id="playlist.removeConfirm.title" datatype="html">
+        <source>Remove &quot;<x id="INTERPOLATION" equiv-text="{{ item.score.title }}"/>&quot; from &quot;<x id="INTERPOLATION_1" equiv-text="{{ titleOf(p) }}"/>&quot;?</source>
+        <target state="translated">¿Quitar «<x id="INTERPOLATION" equiv-text="{{ item.score.title }}"/>» de «<x id="INTERPOLATION_1" equiv-text="{{ titleOf(p) }}"/>»?</target>
+      </trans-unit>
+      <trans-unit id="playlist.removeConfirm.body" datatype="html">
+        <source>The score itself is not deleted.</source>
+        <target state="translated">La partitura en sí no se elimina.</target>
+      </trans-unit>
+      <trans-unit id="playlist.removeConfirm.confirm" datatype="html">
+        <source>Remove</source>
+        <target state="translated">Quitar</target>
       </trans-unit>
       <trans-unit id="playlist.deleteConfirm.title" datatype="html">
         <source>Delete &quot;<x id="INTERPOLATION" equiv-text="{{ titleOf(p) }}"/>&quot;?</source>
@@ -894,10 +902,6 @@
         <source>Date</source>
         <target state="translated">Fecha</target>
       </trans-unit>
-      <trans-unit id="scoreTable.duration" datatype="html">
-        <source>Duration</source>
-        <target state="translated">Duración</target>
-      </trans-unit>
       <trans-unit id="accountHome.practice.hands" datatype="html">
         <source>Hands</source>
         <target state="translated">Manos</target>
@@ -905,10 +909,6 @@
       <trans-unit id="scoreInfo.tempo" datatype="html">
         <source>Tempo</source>
         <target state="translated">Tempo</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.bpm" datatype="html">
-        <source>BPM</source>
-        <target state="translated">BPM</target>
       </trans-unit>
       <trans-unit id="accountHome.practice.column.accuracy" datatype="html">
         <source>Accuracy</source>
@@ -3193,18 +3193,6 @@ Uso: sobre acordes menores y contextos de blues menor (centros i7 / i) cuando qu
       <trans-unit id="browse.showing" datatype="html">
         <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
         <target state="translated">{VAR_PLURAL, plural, =1 {Mostrando 1 partitura} other {Mostrando <x id="INTERPOLATION"/> partituras}}</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.artist" datatype="html">
-        <source>Artist</source>
-        <target state="translated">Artista</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.grade" datatype="html">
-        <source>Grade</source>
-        <target state="translated">Nivel</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.tracks" datatype="html">
-        <source>Tracks</source>
-        <target state="translated">Pistas</target>
       </trans-unit>
       <trans-unit id="browse.grade.min" datatype="html">
         <source>Minimum grade</source>

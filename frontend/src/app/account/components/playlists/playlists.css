@@ -7,39 +7,50 @@
   padding: 3rem 1rem; border: 1px dashed #404040; border-radius: 0.25rem;
 }
 
-/* Detail page rows */
-.playlist-rows { display: flex; flex-direction: column; gap: 0.375rem; }
-.playlist-row {
-  display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.5rem 0.5rem 0.25rem;
-  background: #262626; border: 1px solid #404040; border-radius: 0.25rem;
+/* Detail page: a table look (as the browse page's score table) on a list, whose rows can be dragged. The head and
+   the rows share the columns: order, genre, artist, title, duration, BPM, grade, tracks, remove. Genre, duration,
+   BPM and tracks (.col-md) show from 768 px. */
+.playlist-grid {
+  display: grid; align-items: center; column-gap: 1.5rem;
+  grid-template-columns: 3.75rem minmax(0, 1fr) minmax(0, 2fr) 3rem 2.5rem;
 }
-.playlist-row:focus-within { border-color: #737373; }
+.playlist-grid .col-md { display: none; }
+@media (min-width: 768px) {
+  .playlist-grid {
+    grid-template-columns: 3.75rem minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 2fr) 4.5rem 3rem 3rem 3.5rem 2.5rem;
+  }
+  .playlist-grid .col-md { display: block; }
+}
+.playlist-head {
+  padding: 0.25rem 0 0.75rem; border-bottom: 1px solid #262626;
+  font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #a3a3a3;
+}
+.playlist-row {
+  padding: 0.375rem 0; border-bottom: 1px solid rgb(38 38 38 / 0.6);
+  font-size: 0.875rem; color: #d4d4d4; transition: background-color 150ms;
+}
+.playlist-row:hover { background: rgb(38 38 38 / 0.4); }
+.playlist-row:focus-visible { outline: 1px solid #737373; outline-offset: -1px; }
+.row-order { display: flex; align-items: center; justify-content: flex-end; }
 .row-handle {
-  display: flex; align-items: center; justify-content: center; width: 2rem; min-height: 2.5rem;
+  display: flex; align-items: center; justify-content: center; width: 2rem; min-height: 2.25rem;
   color: #737373; cursor: grab; touch-action: none; flex: none;
 }
 .row-handle:active { cursor: grabbing; }
-.row-position { width: 1.75rem; text-align: right; font-variant-numeric: tabular-nums; color: #a3a3a3; flex: none; }
-.row-thumb { width: 2.75rem; height: 2.75rem; object-fit: cover; border-radius: 0.125rem; background: #fff; flex: none; }
-.row-thumb-empty { display: flex; align-items: center; justify-content: center; background: #333; color: #6b6b6b; }
-.row-badge {
-  font-size: 0.75rem; padding: 0.125rem 0.375rem; border-radius: 0.125rem;
-  border: 1px solid #525252; color: #d4d4d4; white-space: nowrap;
-}
+.row-position { width: 1.5rem; text-align: right; font-variant-numeric: tabular-nums; color: #a3a3a3; }
+.row-title { color: #f5f5f5; }
+.row-title:hover { text-decoration: underline; }
 .row-btn {
-  display: inline-flex; align-items: center; justify-content: center; min-width: 2.5rem; min-height: 2.5rem;
+  display: inline-flex; align-items: center; justify-content: center; min-width: 2.25rem; min-height: 2.25rem;
   color: #a3a3a3; border-radius: 0.125rem; cursor: pointer;
 }
-.row-btn:hover:not(:disabled) { color: #fff; background: rgba(255, 255, 255, 0.08); }
-.row-btn:disabled { opacity: 0.3; cursor: default; }
-.row-btn-danger:hover:not(:disabled) { color: #f87171; }
+.row-btn:hover { color: #f87171; background: rgba(255, 255, 255, 0.08); }
 
 /* CDK drag and drop */
 .cdk-drag-preview {
-  box-sizing: border-box; border-radius: 0.25rem; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
-  background: #303030; border: 1px solid #737373;
+  box-sizing: border-box; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6); background: #303030; border: 1px solid #737373;
 }
-.cdk-drag-placeholder { opacity: 0.25; border-style: dashed; }
+.cdk-drag-placeholder { opacity: 0.25; }
 .cdk-drag-animating { transition: transform 200ms cubic-bezier(0, 0, 0.2, 1); }
 .playlist-rows.cdk-drop-list-dragging .playlist-row:not(.cdk-drag-placeholder) {
   transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);

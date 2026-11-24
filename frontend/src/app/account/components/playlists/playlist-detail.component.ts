@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, LOCALE_ID, OnInit, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  bootstrapArrowDown, bootstrapArrowLeft, bootstrapArrowUp, bootstrapChevronBarDown, bootstrapChevronBarUp,
-  bootstrapGripVertical, bootstrapMusicNoteBeamed, bootstrapPencil, bootstrapTrash, bootstrapX,
+  bootstrapArrowLeft, bootstrapGripVertical, bootstrapPencil, bootstrapTrash, bootstrapX,
 } from '@ng-icons/bootstrap-icons';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PlaylistDetail, PlaylistItem, PlaylistService } from '../../../core/api';
@@ -18,15 +18,14 @@ export const ORDER_SAVE_DELAY_MS = 600;
 
 /**
  * One of the user's playlists (issue #278): edit its title and description, delete it, reorder its scores
- * (drag and drop, buttons, Alt+↑/↓) and remove them with Undo. The URL uses the playlist's slug, which never
+ * (drag and drop, Alt+↑/↓) and remove them, after a confirmation, with Undo. The URL uses the playlist's slug, which never
  * changes, so it survives a rename.
  */
 @Component({
   selector: 'app-playlist-detail',
-  imports: [FormsModule, RouterLink, NgIcon, CdkDropList, CdkDrag, CdkDragHandle],
+  imports: [DecimalPipe, FormsModule, RouterLink, NgIcon, CdkDropList, CdkDrag, CdkDragHandle],
   viewProviders: [provideIcons({
-    bootstrapArrowDown, bootstrapArrowLeft, bootstrapArrowUp, bootstrapChevronBarDown, bootstrapChevronBarUp,
-    bootstrapGripVertical, bootstrapMusicNoteBeamed, bootstrapPencil, bootstrapTrash, bootstrapX,
+    bootstrapArrowLeft, bootstrapGripVertical, bootstrapPencil, bootstrapTrash, bootstrapX,
   })],
   templateUrl: './playlist-detail.component.html',
   styleUrl: './playlists.css',
@@ -52,6 +51,9 @@ export class PlaylistDetailComponent implements OnInit {
 
   readonly confirmingDelete = signal(false);
   readonly deleting = signal(false);
+
+  /** The score whose removal waits for a confirmation */
+  readonly confirmingRemove = signal<PlaylistItem | null>(null);
 
   /** Announced to screen readers after a move */
   readonly announcement = signal('');
@@ -237,8 +239,24 @@ export class PlaylistDetailComponent implements OnInit {
 
   // --- remove --------------------------------------------------------------------------------------------------
 
+  askRemove(item: PlaylistItem): void {
+    this.confirmingRemove.set(item);
+  }
+
+  cancelRemove(): void {
+    this.confirmingRemove.set(null);
+  }
+
+  confirmRemove(): void {
+    const item = this.confirmingRemove();
+    this.confirmingRemove.set(null);
+    if (item) {
+      this.remove(item);
+    }
+  }
+
   /** Removes the score at once; Undo puts it back where it was. */
-  remove(item: PlaylistItem): void {
+  private remove(item: PlaylistItem): void {
     const scoreId = item.score.id;
     if (!scoreId) {
       return;
@@ -279,9 +297,5 @@ export class PlaylistDetailComponent implements OnInit {
         this.load();
       },
     });
-  }
-
-  added(item: PlaylistItem): string {
-    return shortDate(item.addedAt, this.locale);
   }
 }
