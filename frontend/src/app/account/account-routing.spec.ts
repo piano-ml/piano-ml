@@ -63,8 +63,8 @@ describe('account routes', () => {
   });
 
   it.each([
-    ['/account', '/account/playlists'],
-    ['/account/home', '/account/playlists'],
+    ['/account', '/account/practice'],
+    ['/account/home', '/account/practice'],
     ['/account/home/ai', '/account/ai'],
   ])('%s redirects to %s', async (from, to) => {
     await harness.navigateByUrl(from);
