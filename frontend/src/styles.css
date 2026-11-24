@@ -212,6 +212,11 @@
 		@apply flex flex-col gap-4 w-full md:w-80 shrink-0;
 	}
 
+	/* A label above its field */
+	.exercise-field {
+		@apply flex flex-col gap-1.5;
+	}
+
 	.exercise-desc {
 		@apply flex-1 min-w-0;
 	}

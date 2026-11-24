@@ -32,6 +32,7 @@ export class AgilityComponent implements OnInit {
   availableChords = chords
   fullKey = '';
   componentKey = 0;
+  readonly noDescription = $localize`:@@exercises.noDescription:No description available.`;
 
   private isHydratingFromUrl = false;
   
