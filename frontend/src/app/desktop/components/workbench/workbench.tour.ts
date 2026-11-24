@@ -19,14 +19,14 @@ export const WORKBENCH_TOUR: BeaconStep[] = [
   {
     id: 'right-hand',
     title: $localize`:@@workbench.tour.rightHand.title:Right Hand Practice`,
-    content: $localize`:@@workbench.tour.rightHand.content:Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.`,
+    content: $localize`:@@workbench.tour.rightHand.content:Press to have the score wait for each of your right-hand notes, great for learning the melody at your own pace. Released, you play along: the score keeps the tempo and plays these notes with you.`,
     position: 'below',
     selector: '#right-hand',
   },
   {
     id: 'left-hand',
     title: $localize`:@@workbench.tour.leftHand.title:Left Hand Practice`,
-    content: $localize`:@@workbench.tour.leftHand.content:The same for the left hand. Choose Wait for me, or Play along, on both hands for hands-together practice.`,
+    content: $localize`:@@workbench.tour.leftHand.content:The same for the left hand. Press both hands, or release both, for hands-together practice.`,
     position: 'below',
     selector: '#left-hand',
   },

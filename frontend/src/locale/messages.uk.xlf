@@ -1938,18 +1938,6 @@
         <source>App plays</source>
         <target state="translated">Грає застосунок</target>
       </trans-unit>
-      <trans-unit id="workbench.handMode.wait.hint" datatype="html">
-        <source>The score waits until you play each note.</source>
-        <target state="translated">Ноти чекають, доки ви зіграєте кожну ноту.</target>
-      </trans-unit>
-      <trans-unit id="workbench.handMode.along.hint" datatype="html">
-        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
-        <target state="translated">Ноти тримають темп і грають ці ноти разом з вами; кожну зіграну ноту оцінюють за точністю ритму.</target>
-      </trans-unit>
-      <trans-unit id="workbench.handMode.app.hint" datatype="html">
-        <source>The app plays these notes.</source>
-        <target state="translated">Застосунок грає ці ноти.</target>
-      </trans-unit>
       <trans-unit id="workbench.tour.welcome.title" datatype="html">
         <source>Welcome to the Workbench!</source>
         <target state="translated">Ласкаво просимо до майстерні!</target>
@@ -1971,16 +1959,16 @@
         <target state="translated">Права рука</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
-        <target state="translated">Виберіть, як ви граєте правою рукою: Чекати на мене (ноти чекають на кожну вашу ноту, ідеально, щоб вивчати мелодію у своєму темпі), Грати разом (ноти тримають темп і грають ці ноти разом з вами) або Грає застосунок.</target>
+        <source>Press to have the score wait for each of your right-hand notes, great for learning the melody at your own pace. Released, you play along: the score keeps the tempo and plays these notes with you.</source>
+        <target state="translated">Натисніть, і ноти чекатимуть на кожну ноту вашої правої руки — чудово, щоб вивчити мелодію у власному темпі. Відпущено — ви граєте разом: ноти тримають темп і грають ці ноти з вами.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>
         <target state="translated">Ліва рука</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.content" datatype="html">
-        <source>The same for the left hand. Choose Wait for me, or Play along, on both hands for hands-together practice.</source>
-        <target state="translated">Те саме для лівої руки. Виберіть Чекати на мене або Грати разом для обох рук, щоб грати двома руками.</target>
+        <source>The same for the left hand. Press both hands, or release both, for hands-together practice.</source>
+        <target state="translated">Те саме для лівої руки. Натисніть обидві руки або відпустіть обидві, щоб грати двома руками.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.loop.title" datatype="html">
         <source>Loop Mode</source>
