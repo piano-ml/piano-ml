@@ -2690,6 +2690,11 @@ components:
             author:
               type: string
               readOnly: true
+            tempo:
+              type: integer
+              format: int32
+              readOnly: true
+              description: The score's tempo in BPM, as in the library; null for an exercise or a score that is gone
             exerciseType:
               type: string
               description: scale or agility. Required when kind is exercise
@@ -2900,6 +2905,10 @@ components:
           type: string
         author:
           type: string
+        tempo:
+          type: integer
+          format: int32
+          description: The score's tempo in BPM, as in the library; null for an exercise or a score that is gone
         exerciseType:
           type: string
         patternKey:

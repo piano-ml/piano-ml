@@ -906,6 +906,10 @@
         <source>Tempo</source>
         <target state="translated">Tempo</target>
       </trans-unit>
+      <trans-unit id="scoreTable.bpm" datatype="html">
+        <source>BPM</source>
+        <target state="translated">BPM</target>
+      </trans-unit>
       <trans-unit id="accountHome.practice.column.accuracy" datatype="html">
         <source>Accuracy</source>
         <target state="translated">Justesse</target>
