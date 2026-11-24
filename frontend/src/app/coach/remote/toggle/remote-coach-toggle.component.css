@@ -20,7 +20,8 @@
   font-size: 34px;
 }
 
-.variant-header.look-unavailable {
+/* Off: dimmed; unavailable keeps the plain white icon, that leads to the presentation post */
+.variant-header.look-off {
   @apply text-neutral-500 opacity-60 hover:opacity-100 hover:text-neutral-300;
 }
 
@@ -43,7 +44,8 @@
   font-size: 48px;
 }
 
-.variant-workbench.look-unavailable {
+/* As in the header: off is dimmed, unavailable keeps the plain tile */
+.variant-workbench.look-off {
   @apply bg-neutral-800 text-neutral-500 hover:text-neutral-300;
 }
 
