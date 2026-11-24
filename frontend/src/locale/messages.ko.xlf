@@ -1938,18 +1938,6 @@
         <source>App plays</source>
         <target state="translated">앱이 연주</target>
       </trans-unit>
-      <trans-unit id="workbench.handMode.wait.hint" datatype="html">
-        <source>The score waits until you play each note.</source>
-        <target state="translated">악보가 각 음을 칠 때까지 기다립니다.</target>
-      </trans-unit>
-      <trans-unit id="workbench.handMode.along.hint" datatype="html">
-        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
-        <target state="translated">악보가 템포를 유지하며 이 음들을 함께 연주합니다. 내가 친 음은 타이밍으로 평가됩니다.</target>
-      </trans-unit>
-      <trans-unit id="workbench.handMode.app.hint" datatype="html">
-        <source>The app plays these notes.</source>
-        <target state="translated">앱이 이 음들을 연주합니다.</target>
-      </trans-unit>
       <trans-unit id="workbench.tour.welcome.title" datatype="html">
         <source>Welcome to the Workbench!</source>
         <target state="translated">작업대에 오신 것을 환영합니다!</target>
@@ -1971,16 +1959,16 @@
         <target state="translated">오른손 연습</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
-        <target state="translated">오른손을 어떻게 칠지 선택하세요: 나를 기다리기(악보가 음마다 기다려 주어 내 속도로 멜로디를 익히기 좋아요), 따라 치기(악보가 템포를 유지하며 이 음들을 함께 연주해요) 또는 앱이 연주.</target>
+        <source>Press to have the score wait for each of your right-hand notes, great for learning the melody at your own pace. Released, you play along: the score keeps the tempo and plays these notes with you.</source>
+        <target state="translated">누르면 악보가 오른손 음표를 하나하나 기다려 줍니다. 내 속도로 멜로디를 익히기에 좋아요. 떼면 따라 치기: 악보가 템포를 유지하며 이 음표들을 함께 연주합니다.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>
         <target state="translated">왼손 연습</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.content" datatype="html">
-        <source>The same for the left hand. Choose Wait for me, or Play along, on both hands for hands-together practice.</source>
-        <target state="translated">왼손도 마찬가지입니다. 양손 연습을 하려면 두 손 모두 나를 기다리기나 따라 치기를 선택하세요.</target>
+        <source>The same for the left hand. Press both hands, or release both, for hands-together practice.</source>
+        <target state="translated">왼손도 마찬가지입니다. 양손 연습은 두 손을 모두 누르거나 모두 떼세요.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.loop.title" datatype="html">
         <source>Loop Mode</source>
