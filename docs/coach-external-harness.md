@@ -263,9 +263,9 @@ Data comes from `PracticeSummaryService.summary(user, timeZone)` and `PracticeSe
 - **Returns:** `keys[]` (at most 30): `tonic, mode, activeSeconds, sessions, accuracy, lastPlayedAt`, sorted by `activeSeconds` desc.
 
 #### 8. `get_practice_sessions`
-- **Description:** "The student's recent practice sessions, newest first. One session is all the takes on one piece or exercise during one visit."
-- **Arguments:** `limit` 1..20 (default 10); `kind` enum `score|exercise`; `scoreId` uuid; `sinceDays` 1..365.
-- **Returns:** `sessions` (`SessionRow[]`).
+- **Description:** "The student's last practice sessions, newest first, one short line each: what, when, range, hands, tempo, accuracy and flow. One session is all the takes on one piece or exercise during one visit. get_practice_session gives one session in detail."
+- **Arguments:** `limit` 1..20 (default 3); `kind` enum `score|exercise`; `scoreId` uuid; `sinceDays` 1..365.
+- **Returns:** `sessions`: short rows (`id, kind, title | exerciseType tonic mode, localDate, activeSeconds, takeCount, measureStart, measureEnd, hands, tempoFactor, accuracy, flow, practiceUrl`), empty fields left out; the full `SessionRow` is `get_practice_session`'s.
 - **Implementation:** with `sinceDays`: `recent(user, 100, kind, scoreId)`, filter, cut to `limit`; otherwise `recent(user, limit, kind, scoreId)`. Map with `toApiInfo(session, slugOf(session))`.
 
 #### 9. `get_practice_session`
@@ -448,9 +448,10 @@ Rules:
 - Call get_context first. Use the PianoML tools for anything about my history, accuracy or level,
   and never state such a fact unless it came from a tool result in this conversation. If a tool
   fails, tell me plainly what it said.
-- At the start, right after get_context, read my recent history (get_practice_summary, then
-  get_practice_sessions or list_practiced_items) and suggest one follow-up: what to practice next and
-  why. If I already asked for something, do that first and suggest the follow-up after it.
+- At the start, right after get_context, read only my last 3 sessions (get_practice_sessions, its
+  default) and suggest one follow-up: what to practice next and why. If I already asked for
+  something, do that first and suggest the follow-up after it. Go further (get_practice_summary,
+  list_practiced_items, get_practice_session) only when a question needs it.
 - If I look like a beginner (no grade mastered or a low one in the level of get_context, little
   history, or accuracy below about 0.7), start pieces at a reduced tempo with configure_practice
   (tempoPercent 50 to 70), and raise it step by step as my accuracy improves.
@@ -477,7 +478,7 @@ Rules:
 
 | id | Arguments | Task |
 |---|---|---|
-| `coach_start` | none | "Start now: read my practice summary and my weak spots, tell me in three lines where I stand, and propose one thing to practice today. Ask before opening it." |
+| `coach_start` | none | "Start now: read my last 3 sessions, tell me in three lines where I stand, and propose one thing to practice today. Ask before opening it." |
 | `review_progress` | `days` (optional, default 30) | "Review my last {days} days: regularity, time, accuracy trend, what improved, what is stuck, and which measures of which pieces are weakest. No practice now, only the review." |
 | `practice_piece` | `piece` (required) | "I want to work on {piece}. Find it in my history or in the library, open it, and take me through its weakest passage in short loops at reduced tempo, raising the tempo when a take is above 90 % accuracy." |
 | `warm_up` | `minutes` (optional, default 10) | "Give me a {minutes}-minute warm-up with scale or arpeggio exercises suited to my level and to the keys of the pieces I am practicing. Run it step by step." |

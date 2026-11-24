@@ -13,9 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Tool 8, get_practice_sessions: recent sessions, newest first. */
+/** Tool 8, get_practice_sessions: the last sessions, newest first, as short lines (details: get_practice_session). */
 @Component
 public class GetPracticeSessionsTool implements CoachToolHandler {
+
+  /** A glance at the recent history; the student or the agent asks for more when needed. */
+  static final int DEFAULT_LIMIT = 3;
 
   private final CoachRows rows;
   private final PracticeData practice;
@@ -35,7 +38,7 @@ public class GetPracticeSessionsTool implements CoachToolHandler {
   @Override
   public Object execute(GrantPrincipal principal, Map<String, Object> arguments) {
     CoachArgs args = new CoachArgs(arguments);
-    int limit = args.integer("limit", 10);
+    int limit = args.integer("limit", DEFAULT_LIMIT);
     String kind = args.string("kind");
     UUID scoreId = args.uuid("scoreId");
     Integer sinceDays = args.integer("sinceDays");
@@ -49,6 +52,6 @@ public class GetPracticeSessionsTool implements CoachToolHandler {
     } else {
       sessions = practice.recent(user, limit, kind, scoreId);
     }
-    return Map.of("sessions", sessions.stream().map(practice::toApiInfo).map(rows::sessionRow).toList());
+    return Map.of("sessions", sessions.stream().map(practice::toApiInfo).map(rows::sessionBrief).toList());
   }
 }

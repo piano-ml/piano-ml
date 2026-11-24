@@ -199,7 +199,7 @@
       "practice:read"
     ],
     "timeoutSeconds": 10,
-    "description": "The student's recent practice sessions, newest first. One session is all the takes on one piece or exercise during one visit. Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
+    "description": "The student's last practice sessions, newest first, one short line each: what, when, range, hands, tempo, accuracy and flow. One session is all the takes on one piece or exercise during one visit. get_practice_session gives one session in detail. Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -207,7 +207,7 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 20,
-          "default": 10
+          "default": 3
         },
         "kind": {
           "type": "string",

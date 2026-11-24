@@ -462,6 +462,10 @@
         <source>Failed to delete score</source>
         <target state="translated">Stück konnte nicht gelöscht werden</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Üben</target>
+      </trans-unit>
       <trans-unit id="accountHome.myPlaylists" datatype="html">
         <source>My Playlists</source>
         <target state="translated">Meine Playlists</target>
@@ -469,10 +473,6 @@
       <trans-unit id="accountHome.myScores" datatype="html">
         <source>My Scores</source>
         <target state="translated">Meine Stücke</target>
-      </trans-unit>
-      <trans-unit id="accountHome.practice" datatype="html">
-        <source>Practice</source>
-        <target state="translated">Üben</target>
       </trans-unit>
       <trans-unit id="accountHome.tab.ai" datatype="html">
         <source>AI</source>
@@ -798,37 +798,45 @@
         <source>Drag ⋮⋮ to reorder, or focus a row and press Alt+↑ / Alt+↓.</source>
         <target state="translated">Ziehe ⋮⋮ zum Umsortieren, oder wähle eine Zeile und drücke Alt+↑ / Alt+↓.</target>
       </trans-unit>
+      <trans-unit id="scoreTable.artist" datatype="html">
+        <source>Artist</source>
+        <target state="translated">Künstler</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">Dauer</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.bpm" datatype="html">
+        <source>BPM</source>
+        <target state="translated">BPM</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.grade" datatype="html">
+        <source>Grade</source>
+        <target state="translated">Stufe</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.tracks" datatype="html">
+        <source>Tracks</source>
+        <target state="translated">Spuren</target>
+      </trans-unit>
       <trans-unit id="playlist.dragHandle" datatype="html">
         <source>Drag to reorder</source>
         <target state="translated">Zum Umsortieren ziehen</target>
       </trans-unit>
-      <trans-unit id="playlist.grade" datatype="html">
-        <source>Grade <x id="INTERPOLATION" equiv-text="{{ item.score.grade }}"/></source>
-        <target state="translated">Stufe <x id="INTERPOLATION" equiv-text="{{ item.score.grade }}"/></target>
-      </trans-unit>
-      <trans-unit id="playlist.added" datatype="html">
-        <source>added <x id="INTERPOLATION" equiv-text="{{ added(item) }}"/></source>
-        <target state="translated">hinzugefügt am <x id="INTERPOLATION" equiv-text="{{ added(item) }}"/></target>
-      </trans-unit>
-      <trans-unit id="playlist.moveTop" datatype="html">
-        <source>Move to top</source>
-        <target state="translated">Ganz nach oben</target>
-      </trans-unit>
-      <trans-unit id="playlist.moveUp" datatype="html">
-        <source>Move up</source>
-        <target state="translated">Nach oben</target>
-      </trans-unit>
-      <trans-unit id="playlist.moveDown" datatype="html">
-        <source>Move down</source>
-        <target state="translated">Nach unten</target>
-      </trans-unit>
-      <trans-unit id="playlist.moveBottom" datatype="html">
-        <source>Move to bottom</source>
-        <target state="translated">Ganz nach unten</target>
-      </trans-unit>
       <trans-unit id="playlist.remove" datatype="html">
         <source>Remove from playlist</source>
         <target state="translated">Aus der Playlist entfernen</target>
+      </trans-unit>
+      <trans-unit id="playlist.removeConfirm.title" datatype="html">
+        <source>Remove &quot;<x id="INTERPOLATION" equiv-text="{{ item.score.title }}"/>&quot; from &quot;<x id="INTERPOLATION_1" equiv-text="{{ titleOf(p) }}"/>&quot;?</source>
+        <target state="translated">„<x id="INTERPOLATION" equiv-text="{{ item.score.title }}"/>“ aus „<x id="INTERPOLATION_1" equiv-text="{{ titleOf(p) }}"/>“ entfernen?</target>
+      </trans-unit>
+      <trans-unit id="playlist.removeConfirm.body" datatype="html">
+        <source>The score itself is not deleted.</source>
+        <target state="translated">Die Partitur selbst wird nicht gelöscht.</target>
+      </trans-unit>
+      <trans-unit id="playlist.removeConfirm.confirm" datatype="html">
+        <source>Remove</source>
+        <target state="translated">Entfernen</target>
       </trans-unit>
       <trans-unit id="playlist.deleteConfirm.title" datatype="html">
         <source>Delete &quot;<x id="INTERPOLATION" equiv-text="{{ titleOf(p) }}"/>&quot;?</source>
@@ -894,10 +902,6 @@
         <source>Date</source>
         <target state="translated">Datum</target>
       </trans-unit>
-      <trans-unit id="scoreTable.duration" datatype="html">
-        <source>Duration</source>
-        <target state="translated">Dauer</target>
-      </trans-unit>
       <trans-unit id="accountHome.practice.hands" datatype="html">
         <source>Hands</source>
         <target state="translated">Hände</target>
@@ -905,10 +909,6 @@
       <trans-unit id="scoreInfo.tempo" datatype="html">
         <source>Tempo</source>
         <target state="translated">Tempo</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.bpm" datatype="html">
-        <source>BPM</source>
-        <target state="translated">BPM</target>
       </trans-unit>
       <trans-unit id="accountHome.practice.column.accuracy" datatype="html">
         <source>Accuracy</source>
@@ -1383,8 +1383,8 @@
         <target state="translated">3. Spielen</target>
       </trans-unit>
       <trans-unit id="coach.connect.playText" datatype="html">
-        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch stays at the bottom right of every page; turn it off at any time.</source>
-        <target state="translated">Schalte den Fern-Coach in einem PianoML-Tab ein: Dein Assistent kann dann dort Noten und Übungen öffnen, die Übung einstellen und den Player starten oder stoppen. Der Schalter bleibt unten rechts auf jeder Seite; schalte ihn jederzeit aus.</target>
+        <source>Turn on Remote coach in a PianoML tab: your assistant can then open scores and exercises, set up the practice, and start or stop the player there. The switch is in the header of every page and in the practice toolbar; turn it off at any time.</source>
+        <target state="translated">Schalte den Fern-Coach in einem PianoML-Tab ein: Dein Assistent kann dann dort Noten und Übungen öffnen, die Übung einstellen und den Player starten oder stoppen. Der Schalter ist in der Kopfzeile jeder Seite und in der Übungsleiste; schalte ihn jederzeit aus.</target>
       </trans-unit>
       <trans-unit id="coach.connect.playHint" datatype="html">
         <source>Your browser asks for one click before the first sound: press Start playback when it shows up.</source>
@@ -1478,30 +1478,6 @@
         <source>Start playback</source>
         <target state="translated">Wiedergabe starten</target>
       </trans-unit>
-      <trans-unit id="coach.remote.controlledBy" datatype="html">
-        <source>Controlled by <x id="INTERPOLATION" equiv-text="{{ client }}"/></source>
-        <target state="translated">Gesteuert von <x id="INTERPOLATION" equiv-text="{{ client }}"/></target>
-      </trans-unit>
-      <trans-unit id="coach.remote.waiting" datatype="html">
-        <source>Remote coach on</source>
-        <target state="translated">Fern-Coach eingeschaltet</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.connecting" datatype="html">
-        <source>Connecting…</source>
-        <target state="translated">Verbinden…</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.error" datatype="html">
-        <source>Remote coach could not connect</source>
-        <target state="translated">Der Fern-Coach konnte keine Verbindung herstellen</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.label" datatype="html">
-        <source>Remote coach</source>
-        <target state="translated">Fern-Coach</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.activity" datatype="html">
-        <source>Activity</source>
-        <target state="translated">Aktivität</target>
-      </trans-unit>
       <trans-unit id="coach.remote.confirm.title" datatype="html">
         <source>Turn on Remote coach?</source>
         <target state="translated">Fern-Coach einschalten?</target>
@@ -1514,45 +1490,25 @@
         <source>Turn on</source>
         <target state="translated">Einschalten</target>
       </trans-unit>
-      <trans-unit id="coach.remote.tool.get_player_state" datatype="html">
-        <source>Checked the player</source>
-        <target state="translated">Player abgefragt</target>
+      <trans-unit id="coach.remote.learnMore" datatype="html">
+        <source>Learn about the AI coach</source>
+        <target state="translated">Mehr über den KI-Coach</target>
       </trans-unit>
-      <trans-unit id="coach.remote.tool.list_exercises" datatype="html">
-        <source>Looked at the exercises</source>
-        <target state="translated">Übungen angesehen</target>
+      <trans-unit id="coach.remote.connecting" datatype="html">
+        <source>Connecting…</source>
+        <target state="translated">Verbinden…</target>
       </trans-unit>
-      <trans-unit id="coach.remote.tool.open_score" datatype="html">
-        <source>Opened a score</source>
-        <target state="translated">Noten geöffnet</target>
+      <trans-unit id="coach.remote.error" datatype="html">
+        <source>Remote coach could not connect</source>
+        <target state="translated">Der Fern-Coach konnte keine Verbindung herstellen</target>
       </trans-unit>
-      <trans-unit id="coach.remote.tool.open_exercise" datatype="html">
-        <source>Opened an exercise</source>
-        <target state="translated">Übung geöffnet</target>
+      <trans-unit id="coach.remote.controlledBy" datatype="html">
+        <source>Controlled by <x id="INTERPOLATION" equiv-text="client"/></source>
+        <target state="translated">Gesteuert von <x id="INTERPOLATION" equiv-text="{{ client }}"/></target>
       </trans-unit>
-      <trans-unit id="coach.remote.tool.configure_practice" datatype="html">
-        <source>Set up the practice</source>
-        <target state="translated">Übung eingestellt</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.play" datatype="html">
-        <source>Started playback</source>
-        <target state="translated">Wiedergabe gestartet</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.stop" datatype="html">
-        <source>Stopped playback</source>
-        <target state="translated">Wiedergabe gestoppt</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.wait_for_take_end" datatype="html">
-        <source>Waited for the end of the take</source>
-        <target state="translated">Auf das Ende des Durchgangs gewartet</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.get_current_session" datatype="html">
-        <source>Read the current session</source>
-        <target state="translated">Aktuelle Sitzung gelesen</target>
-      </trans-unit>
-      <trans-unit id="coach.remote.tool.navigate" datatype="html">
-        <source>Showed a page</source>
-        <target state="translated">Seite angezeigt</target>
+      <trans-unit id="coach.remote.waiting" datatype="html">
+        <source>Remote coach on</source>
+        <target state="translated">Fern-Coach eingeschaltet</target>
       </trans-unit>
       <trans-unit id="latency.heading" datatype="html">
         <source>Timing calibration</source>
@@ -3237,18 +3193,6 @@ Anwendung: über Mollakkorden und Moll-Blues-Kontexten (i7- bzw. i-Zentren), wen
       <trans-unit id="browse.showing" datatype="html">
         <source>{VAR_PLURAL, plural, =1 {Showing 1 score} other {Showing <x id="INTERPOLATION"/> scores}}</source>
         <target state="translated">{VAR_PLURAL, plural, =1 {1 Stück angezeigt} other {<x id="INTERPOLATION"/> Stücke angezeigt}}</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.artist" datatype="html">
-        <source>Artist</source>
-        <target state="translated">Künstler</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.grade" datatype="html">
-        <source>Grade</source>
-        <target state="translated">Stufe</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.tracks" datatype="html">
-        <source>Tracks</source>
-        <target state="translated">Spuren</target>
       </trans-unit>
       <trans-unit id="browse.grade.min" datatype="html">
         <source>Minimum grade</source>

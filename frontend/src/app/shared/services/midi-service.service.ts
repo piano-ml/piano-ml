@@ -48,6 +48,11 @@ export class MidiServiceService {
   private readonly noteListeners = new Set<(event: MidiStateEvent) => void>()
   /** Set when the browser refused MIDI access (permission denied or not granted): pages tell the user how to allow it. */
   public readonly midiBlocked = signal(false)
+  /** Names of the enabled MIDI inputs, comma-separated ('' when none), for display. */
+  public readonly inputDeviceName = signal('')
+  /** Enabled inputs that are unplugged: kept enabled (they come back when plugged again), not shown. */
+  private readonly unpluggedInputs = new Set<string>()
+  private connectionsWatched = false
 
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -149,6 +154,7 @@ export class MidiServiceService {
       return;
     }
     getMidiInputs().then((inputs) => {
+      this.watchConnections();
       this.availableInputs = Array.from(inputs.values());
       if (inputs.size === 0) {
         if (this.midiSetupRetries < this.maxRetries) {
@@ -235,6 +241,7 @@ export class MidiServiceService {
     device.open()
     device.addEventListener('midimessage', this.onMidiMessage)
     this.enabledInputDevices.set(device.id, device)
+    this.updateInputDeviceName()
     console.log(`Enabled MIDI input device: ${device.manufacturer} ${device.name} ${device.version} `)
 
   }
@@ -259,6 +266,46 @@ export class MidiServiceService {
     device.removeEventListener('midimessage', this.onMidiMessage)
     device.close()
     this.enabledInputDevices.delete(device.id)
+    this.updateInputDeviceName()
+  }
+
+  private updateInputDeviceName() {
+    this.inputDeviceName.set([...this.enabledInputDevices.values()]
+      .filter(device => !this.unpluggedInputs.has(device.id))
+      .map(device => device.name ?? '').filter(Boolean).join(', '))
+  }
+
+  /** Follows devices plugged or unplugged after the setup, once MIDI access is granted. */
+  private watchConnections() {
+    if (this.connectionsWatched) {
+      return
+    }
+    this.connectionsWatched = true
+    navigator.requestMIDIAccess().then((access) => {
+      access.addEventListener('statechange', (event) => this.onPortStateChange((event as MIDIConnectionEvent).port, access))
+    }).catch(() => {
+      this.connectionsWatched = false
+    })
+  }
+
+  /**
+   * An input was plugged or unplugged: an unplugged one leaves the display (its port stays open, so it plays again
+   * once plugged back); a plugged one is enabled when it is the selected input (or nothing was chosen yet).
+   */
+  onPortStateChange(port: MIDIPort | null, access: MIDIAccess) {
+    if (port?.type !== 'input') {
+      return
+    }
+    this.availableInputs = Array.from(access.inputs.values())
+    if (port.state === 'disconnected') {
+      this.unpluggedInputs.add(port.id)
+    } else {
+      this.unpluggedInputs.delete(port.id)
+      if (!this.enabledInputDevices.has(port.id) && this.isInputDeviceSelected(port as MIDIInput)) {
+        this.enableInputMidiDevice(port as MIDIInput)
+      }
+    }
+    this.updateInputDeviceName()
   }
 
   setInputDeviceEnabled(device: MIDIInput, enabled: boolean) {

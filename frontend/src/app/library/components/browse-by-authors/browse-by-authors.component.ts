@@ -9,7 +9,6 @@ import { ScoreService } from '../../../core/api/api/score.service';
   imports: [RouterModule],
   templateUrl: './browse-by-authors.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './browse-by-authors.component.css'
 })
 export class BrowseByAuthorsComponent implements OnInit, OnChanges {
   authors: AuthorWithScoreCount[] = [];

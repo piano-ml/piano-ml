@@ -18,10 +18,9 @@ import { EXERCICE_INFO_KEY, MIDI_STORAGE_KEY, MUSIC_XML_STORAGE_KEY } from '../.
 import { CursorService } from '../../service/cursor.service';
 import { PlayerAudioService } from '../../service/player-audio.service';
 import { PlayerService } from '../../service/player.service';
-import { PlayerStateService } from '../../service/player-state.service';
 import { PracticeSessionRecorder } from '../../service/practice-session-recorder.service';
 import { PlayerControlService } from '../../service/player-control.service';
-import { WRONG_NOTE_ARENA_FLASH_MS, WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
+import { WorkbenchComponent, scoreLoadErrorMessage } from './workbench.component';
 
 const SCORE: ScoreApiInfo = {
   id: 's1', owner_id: 'o1', version: 1, title: 'Happy Birthday', author: 'Mildred J. Hill', tempo: 100,
@@ -81,7 +80,7 @@ describe('WorkbenchComponent', () => {
     localStorage.clear();
     localStorage.setItem('workbench-tour-seen', 'true');
     const midiService = {
-      midiEvent: signal(null), midiBlocked: signal(false), addNoteListener: vi.fn(() => () => undefined), setupMidiDeviceListeners: vi.fn(), resetSessionOutputs: vi.fn(), pianoMLShouldPlay: vi.fn(() => true),
+      midiEvent: signal(null), midiBlocked: signal(false), inputDeviceName: signal(""), addNoteListener: vi.fn(() => () => undefined), setupMidiDeviceListeners: vi.fn(), resetSessionOutputs: vi.fn(), pianoMLShouldPlay: vi.fn(() => true),
       pressOutput: vi.fn(), releaseOutput: vi.fn(), press: vi.fn(), release: vi.fn(), pressDrum: vi.fn(), releaseDrum: vi.fn(),
       isInputDeviceSelected: vi.fn(() => false), isOutputDeviceSelected: vi.fn(() => true),
       setInputDeviceEnabled: vi.fn(), setOutputDeviceEnabled: vi.fn(),
@@ -135,7 +134,7 @@ describe('WorkbenchComponent', () => {
         expect(scores.scoreOwnerIdTypeVersionRevisionGet).toHaveBeenCalledWith('o1', 's1', type, 1, 1, 'events', true);
       }
       expect(el().querySelector('.osmd-container svg')).not.toBeNull();
-      expect(el().querySelector('app-keyboard')).not.toBeNull();
+      expect(el().querySelector('app-keyboard')).toBeNull(); // hidden until the user shows it
       expect(el().querySelector('.loading-feedback')).toBeNull();
     });
 
@@ -542,22 +541,6 @@ describe('WorkbenchComponent', () => {
       expect(setItem).toHaveBeenLastCalledWith({ kind: 'score', scoreId: 's1', title: 'Happy Birthday' }, expect.any(Number));
     });
 
-    const wrongNote = () => {
-      TestBed.inject(PlayerStateService).wrongNotes.update((count) => count + 1);
-      TestBed.tick(); // runs the wrong-note effect
-    };
-
-    it('flashes the score on a wrong note, and leaves a hidden keyboard hidden', async () => {
-      await openScore();
-      component.setHideKeyboard(true);
-      vi.useFakeTimers();
-      wrongNote();
-      expect(component.arenaClass).toBe('bad');
-      expect(component.hideKeyboard).toBe(true);
-      vi.advanceTimersByTime(WRONG_NOTE_ARENA_FLASH_MS);
-      expect(component.arenaClass).toBe('');
-    });
-
     it('moves the bar slider with the cursor', async () => {
       await openScore();
       TestBed.inject(CursorService).measure.set(2);
@@ -719,11 +702,11 @@ describe('WorkbenchComponent', () => {
 
     it('restores the remembered settings', async () => {
       localStorage.setItem('waitForRightHand', 'true');
-      localStorage.setItem('hideKeyboard', 'true');
+      localStorage.setItem('hideKeyboard', 'false');
       await openScore();
       expect(component.playConfiguration.waitForRightHand).toBe(true);
-      expect(component.hideKeyboard).toBe(true);
-      expect(el().querySelector('app-keyboard')).toBeNull();
+      expect(component.hideKeyboard).toBe(false);
+      expect(el().querySelector('app-keyboard')).not.toBeNull();
     });
 
     it('opens the mixer from the toolbar, between the metronome and the loop', async () => {
@@ -806,8 +789,8 @@ describe('WorkbenchComponent', () => {
       expect(component.toggleToolbar).toBe(false);
       component.fnToggleToolBar();
       expect(component.toggleToolbar).toBe(true);
-      component.fnToggleKeyboard();
-      expect(component.hideKeyboard).toBe(true);
+      component.fnToggleKeyboard(); // hidden by default: shows it
+      expect(component.hideKeyboard).toBe(false);
     });
 
     it('hides the toolbar on small screens', async () => {

@@ -167,13 +167,13 @@ Some assistants also list these messages in their own menus (as "prompts"), wher
 The coach can open a score or an exercise, set the tempo, the measures, the hands and the loop, start and stop the player, and look at how each take went. All of this happens in your browser, in a PianoML tab you choose:
 
 1. Open PianoML in your browser, logged in.
-2. Turn on the **Remote coach** switch at the bottom right of the page, and confirm. You can also use **Turn on Remote coach** on the **Connect an AI coach** page.
+2. Click the **Remote coach** switch (the AI document icon) and confirm. It is in the page header, next to your account name, and in the practice toolbar, next to the information button. You can also use **Turn on Remote coach** on the **Connect an AI coach** page.
 3. Ask your assistant to practice something: *"Open Für Elise, measures 1 to 8, slow, right hand only"*.
 4. The first time it starts the player, your browser needs one click before it plays sound: press **Start playback** when it shows up.
 
-While Remote coach is on, the switch shows which assistant controls the tab and what it did. Turn it off at any time. It is also off after you reload the page or log out, so the coach can never take over a tab without you.
+The color of the switch tells where it stands: white when off, orange and blinking while it connects, emerald when on, orange when it could not connect. When on, its tooltip shows which assistant controls the tab. Click it again to turn it off at any time. It is also off after you reload the page or log out, so the coach can never take over a tab without you.
 
-The switch only shows once an assistant is connected with the **Player** permission. If your assistant says no PianoML tab is listening, it gives you a link that opens PianoML with the switch ready to confirm.
+The switch only works once an assistant is connected with the **Player** permission: until then it is dimmed and leads to the AI coach blog post. If your assistant says no PianoML tab is listening, it gives you a link that opens PianoML with the switch ready to confirm.
 
 ## What the coach can see and do
 

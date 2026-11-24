@@ -168,6 +168,15 @@ describe('PlayerAssessService', () => {
       ]);
     });
 
+    it('reports no missed note when none was hit (the user just listened), the counters still count them', () => {
+      assess.expectTimed(1, at(60), 'rh');
+      assess.expectTimed(2, at(62), 'rh');
+      assess.playTimed(1, 61); // a wrong key does not make it a played take
+      assess.endTimed();
+      expect(assess.snapshot()).toMatchObject({ expected: 2, hit: 0, wrong: 1 });
+      expect(assess.timings()).toEqual([]);
+    });
+
     it('counts a chord as one onset, both hands included', () => {
       assess.expectTimed(1, at(60), 'rh');
       assess.expectTimed(1, at(48), 'lh');

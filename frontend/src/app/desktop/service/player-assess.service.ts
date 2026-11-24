@@ -350,12 +350,14 @@ export class PlayerAssessService implements OnDestroy {
 
   /**
    * The notes of the take played late or early, or missed once their window closed (play-along); in wait mode, the
-   * notes of the onsets the score had to wait for, as late.
+   * notes of the onsets the score had to wait for, as late. When no note at all was hit (the user just listened),
+   * nothing is reported as missed: a score painted all gray says nothing.
    */
   timings(): { note: Note; timing: NoteTiming }[] {
     const timings = this.lateNotes.map((note) => ({ note, timing: 'late' as NoteTiming }));
+    const anyHit = this.timed.some((expectation) => expectation.hit);
     for (const expectation of this.timed) {
-      const timing = expectation.hit ? expectation.timing : expectation.counted ? 'missed' : undefined;
+      const timing = expectation.hit ? expectation.timing : expectation.counted && anyHit ? 'missed' : undefined;
       if (timing) {
         timings.push({ note: expectation.note, timing });
       }

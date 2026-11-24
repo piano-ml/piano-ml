@@ -22,7 +22,26 @@ test('does not touch a value or name containing "secure"', () => {
   assert.deepEqual(rewriteSetCookies(['secure_pref=secure; Path=/']), ['secure_pref=secure; Path=/']);
 });
 
-test('drops cookies scoped to a production domain', () => {
+test('makes a cookie scoped to a production domain host-only (remote API XSRF-TOKEN)', () => {
+  assert.deepEqual(
+    rewriteSetCookies(['XSRF-TOKEN=t; Domain=pianoml.org; Path=/']),
+    ['XSRF-TOKEN=t; Path=/'],
+  );
+  assert.deepEqual(
+    rewriteSetCookies(['XSRF-TOKEN=t; Path=/; domain=.pianoml.org; Secure', 'XSRF-TOKEN=u; Domain=pianoml.org']),
+    ['XSRF-TOKEN=t; Path=/', 'XSRF-TOKEN=u'],
+  );
+});
+
+test('keeps a host-only cookie expired with Max-Age=0 (logout)', () => {
+  assert.deepEqual(rewriteSetCookies(['Authorization=; Path=/; Max-Age=0']), ['Authorization=; Path=/; Max-Age=0']);
+});
+
+test('keeps a domain cookie with a Max-Age starting with 0 but not 0', () => {
+  assert.deepEqual(rewriteSetCookies(['A=b; Domain=pianoml.org; Max-Age=03600']), ['A=b; Max-Age=03600']);
+});
+
+test('drops a domain cookie that only expires one', () => {
   assert.deepEqual(
     rewriteSetCookies([
       'Authorization=; Path=/; Domain=.pianoml.org; Max-Age=0; Secure; HttpOnly; SameSite=None',

@@ -43,9 +43,31 @@ export const lefthand: CustomIcon = {
   </svg>`
 };
 
+// SVG content for the Remote coach icon: "AI" in a rounded square (ai-rectangle), stroked in the current color
+export const aiRectangle: CustomIcon = {
+  name: 'aiRectangle',
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+    <path stroke="currentColor" stroke-linecap="round" stroke-width="6" fill="none" d="M46 76L58.0844 52.2089C58.1495 52.0807 58.281 52 58.4248 52V52C58.5725 52 58.7069 52.0852 58.77 52.2187L70 76M52 70H63M81 76V52"/>
+    <rect width="82" height="82" x="23" y="23" stroke="currentColor" stroke-width="6" rx="20" fill="none"/>
+  </svg>`
+};
+
+// SVG content for a piano icon in the Bootstrap Icons style (16 px grid, current color): three white keys, two black
+export const piano: CustomIcon = {
+  name: 'piano',
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+    <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor"/>
+    <path d="M5.8 9h1v4.5h-1zM9.2 9h1v4.5h-1z"/>
+    <rect x="4.6" y="2.5" width="2.4" height="6.5" rx="0.4"/>
+    <rect x="9" y="2.5" width="2.4" height="6.5" rx="0.4"/>
+  </svg>`
+};
+
 // Export all custom icons
 export const customIcons = {
   keyboard,
   lefthand,
-  righthand
+  righthand,
+  aiRectangle,
+  piano
 };
