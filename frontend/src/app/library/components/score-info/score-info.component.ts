@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, PLATFORM_ID, inject, ChangeDetectionStrategy } from '@angular/core';
 import { prefetchSoundFont } from '../../../shared/services/soundfont-cache';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { DatePipe, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo, YoutubeVideoApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
@@ -28,7 +28,7 @@ const DOWNLOAD_LABELS: Record<ScoreDownloadType, string> = {
 @Component({
   selector: 'app-score-info',
   standalone: true,
-  imports: [CommonModule, NgIcon, FavoriteButtonComponent, ScoreBasicInfoComponent, ExercisesInKeyComponent, VideoCarouselComponent, VideoPlayerModalComponent],
+  imports: [DatePipe, NgTemplateOutlet, NgIcon, FavoriteButtonComponent, ScoreBasicInfoComponent, ExercisesInKeyComponent, VideoCarouselComponent, VideoPlayerModalComponent],
   templateUrl: './score-info.component.html',
   styleUrl: './score-info.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
