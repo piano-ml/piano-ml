@@ -306,3 +306,81 @@ blockquote {
         font-size: 1rem;
     }
 }
+/* Tables (markdown): the site-wide table style is light text for dark pages, unreadable on the white post */
+.blog-post table {
+    width: 100%;
+    margin: 24px 0;
+    border-collapse: collapse;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.blog-post th,
+.blog-post td {
+    padding: 10px 12px;
+    border: 1px solid #e5e5e5;
+    color: #3c4043;
+    background-color: transparent;
+    text-align: left;
+    vertical-align: top;
+}
+
+.blog-post th {
+    color: #15171a;
+    background-color: #f5f5f5;
+    font-weight: 600;
+}
+
+/* Wide tables scroll sideways on phones instead of overflowing the post */
+@media (max-width: 767px) {
+    .blog-post table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.875rem;
+    }
+}
+
+/* Code: inline and in blocks, on a light grey background */
+.blog-post code {
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    background-color: #f2f2f2;
+    color: #15171a;
+    font-size: 0.9em;
+}
+
+.blog-post pre {
+    margin: 20px 0;
+    padding: 14px 16px;
+    border-radius: 6px;
+    background-color: #f2f2f2;
+    overflow-x: auto;
+}
+
+.blog-post pre code {
+    padding: 0;
+    background-color: transparent;
+}
+
+/* Numbered steps: the site-wide reset hides the numbers; same size as the paragraphs */
+.blog-post ol {
+    list-style: decimal;
+    padding-left: 28px;
+}
+
+.blog-post ol li,
+.blog-post ul li {
+    font-size: 1.125rem;
+    color: #3c4043;
+}
+
+.blog-post ol li::marker {
+    color: #666;
+}
+
+@media (max-width: 767px) {
+    .blog-post ol li,
+    .blog-post ul li {
+        font-size: 1rem;
+    }
+}
