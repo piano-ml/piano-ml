@@ -1,14 +1,7 @@
 <article class="main-article">
 
-  <div class="px-4 sm:px-6 pt-4">
-    <a routerLink="/account/playlists" class="link-primary text-xs inline-flex items-center gap-1">
-      <ng-icon name="bootstrapArrowLeft" size="12" aria-hidden="true" />
-      <span i18n="@@playlist.back">My Playlists</span>
-    </a>
-  </div>
-
   @if (loading() && !playlist()) {
-    <div class="flex items-center gap-3 px-4 sm:px-6 py-10" role="status">
+    <div class="flex items-center justify-center gap-3 px-4 sm:px-6 py-10" role="status">
       <span class="spinner w-4 h-4 text-neutral-500" aria-hidden="true"></span>
       <span class="text-sm text-neutral-400" i18n="@@common.loading">Loading...</span>
     </div>
@@ -22,40 +15,21 @@
 
   @if (playlist(); as p) {
     <!-- ── Header ─────────────────────────────────────────── -->
-    <div class="px-4 sm:px-6 pt-2">
+    <div class="px-4 sm:px-6 pt-4">
       @if (!editing()) {
-        <div class="flex flex-wrap items-start justify-between gap-3">
-          <div class="min-w-0">
-            <h1 class="page-title inline-flex items-center gap-2" data-testid="playlist-title">
-              @if (p.isDefault) {
-                <ng-icon name="bootstrapHeartFill" size="20" class="text-rose-500" aria-hidden="true" />
-              }
-              {{ titleOf(p) }}
-            </h1>
-            @if (p.description) {
-              <p class="page-sub-title">{{ p.description }}</p>
-            }
-            <p class="text-xs text-neutral-500 mt-1">
-              <span i18n="@@playlist.scoreCount">{items().length, plural, =0 {No scores} =1 {1 score} other {{{ items().length }} scores}}</span>
-              · <span i18n="@@playlist.created">created {{ meta().created }}</span>
-              · <span i18n="@@playlist.updated">updated {{ meta().updated }}</span>
-            </p>
-          </div>
-          <div class="flex gap-2">
-            <button type="button" class="btn-primary gap-1.5" (click)="startEdit()" data-testid="edit-playlist">
-              <ng-icon name="bootstrapPencil" size="13" aria-hidden="true" />
-              <span i18n="@@accountHome.edit">Edit</span>
-            </button>
-            @if (!p.isDefault) {
-              <button type="button" class="btn-secondary !px-3" (click)="askDelete()" data-testid="delete-playlist"
-                i18n-aria-label="@@playlist.delete" aria-label="Delete playlist" i18n-title="@@playlist.delete" title="Delete playlist">
-                <ng-icon name="bootstrapTrash" size="14" aria-hidden="true" />
-              </button>
-            }
-          </div>
+        <div class="min-w-0">
+          <h1 class="page-title" data-testid="playlist-title">{{ titleOf(p) }}</h1>
+          @if (p.description) {
+            <p class="page-sub-title">{{ p.description }}</p>
+          }
+          <p class="text-xs text-neutral-500 mt-1">
+            <span i18n="@@playlist.scoreCount">{items().length, plural, =0 {No scores} =1 {1 score} other {{{ items().length }} scores}}</span>
+            · <span i18n="@@playlist.created">created {{ meta().created }}</span>
+            · <span i18n="@@playlist.updated">updated {{ meta().updated }}</span>
+          </p>
         </div>
       } @else {
-        <form class="exercise-desc-card max-w-xl" (ngSubmit)="saveEdit()" (keydown.escape)="cancelEdit()" data-testid="edit-form">
+        <form class="exercise-desc-card max-w-2xl" (ngSubmit)="saveEdit()" (keydown.escape)="cancelEdit()" data-testid="edit-form">
           <div class="exercise-desc-section flex flex-col gap-4">
             <div class="flex flex-col gap-1.5">
               <label class="field-label" for="playlist-title" i18n="@@playlist.field.title">Title</label>
@@ -78,8 +52,29 @@
 
     <hr class="mx-4 sm:mx-6">
 
+    @if (!editing()) {
+      <div class="page-toolbar px-4 sm:px-6" data-testid="playlist-toolbar">
+        <div class="page-toolbar-actions">
+          @if (!p.isDefault) {
+            <button type="button" class="btn-secondary !px-3" (click)="askDelete()" data-testid="delete-playlist"
+              i18n-aria-label="@@playlist.delete" aria-label="Delete playlist" i18n-title="@@playlist.delete" title="Delete playlist">
+              <ng-icon name="bootstrapTrash" size="14" aria-hidden="true" />
+            </button>
+          }
+          <a routerLink="/account/playlists" class="btn-primary gap-1.5" data-testid="back-to-playlists">
+            <ng-icon name="bootstrapArrowLeft" size="14" aria-hidden="true" />
+            <span i18n="@@playlist.backToList">Playlists</span>
+          </a>
+          <button type="button" class="btn-primary gap-1.5" (click)="startEdit()" data-testid="edit-playlist">
+            <ng-icon name="bootstrapPencil" size="14" aria-hidden="true" />
+            <span i18n="@@accountHome.edit">Edit</span>
+          </button>
+        </div>
+      </div>
+    }
+
     <!-- ── Items ──────────────────────────────────────────── -->
-    <div class="px-4 sm:px-6 pb-12">
+    <div class="px-4 sm:px-6 pb-12 mt-6">
       @if (items().length === 0) {
         <div class="playlist-empty" data-testid="playlist-empty">
           <p class="text-neutral-300" i18n="@@playlist.detail.empty">No scores yet. Use ♡ or "Save to…" on any score page.</p>

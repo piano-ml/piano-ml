@@ -63,6 +63,40 @@
         </div>
       </div>
     </section>
+    <!-- Key range of the MIDI keyboard: focus a field, then play a note to set it -->
+    <section class="mb-2" data-testid="key-range">
+      <div class="card-secondary grid grid-cols-3 gap-2">
+        @for (field of keyFields; track field.name) {
+        <label class="font-medium" [for]="field.inputId">
+          @if (field.name === 'leftmostKey') {
+          <ng-container i18n="@@midiSetup.lowestKey">MIDI lowest key <span class="normal-case font-normal tracking-normal text-neutral-500 ml-1">(play a note)</span></ng-container>
+          } @else {
+          <ng-container i18n="@@midiSetup.highestKey">MIDI highest key <span class="normal-case font-normal tracking-normal text-neutral-500 ml-1">(play a note)</span></ng-container>
+          }
+        </label>
+        <div class="col-span-2 flex justify-end">
+          <input type="number" class="input-field !w-28" min="21" max="108" [id]="field.inputId"
+            [value]="keyRange()[field.name]" [class.border-success]="listeningTo() === field.name"
+            (focus)="listeningTo.set(field.name)" (blur)="listeningTo.set(null)"
+            (change)="setKey(field.name, $any($event.target).valueAsNumber)" />
+        </div>
+        }
+        @if (listeningTo(); as listening) {
+        <p class="col-span-3 text-success text-xs">
+          @if (listening === 'leftmostKey') { <ng-container i18n="@@midiSetup.listening.lowest">Listening for MIDI — lowest key…</ng-container> } @else { <ng-container i18n="@@midiSetup.listening.highest">Listening for MIDI — highest key…</ng-container> }
+        </p>
+        }
+        @if (keyRangeError(); as rangeError) {
+        <p class="col-span-3 text-error text-xs" role="alert" data-testid="key-range-error">
+          @switch (rangeError) {
+            @case ('min') { <ng-container i18n="@@midiSetup.key.min">Min {{ 21 }}.</ng-container> }
+            @case ('max') { <ng-container i18n="@@midiSetup.key.max">Max {{ 108 }}.</ng-container> }
+            @default { <ng-container i18n="@@midiSetup.lowestKeyMustBeLess">Lowest key must be less than highest key.</ng-container> }
+          }
+        </p>
+        }
+      </div>
+    </section>
     <section class="mb-2">
       <div class="card-secondary grid grid-cols-3">
         <div>

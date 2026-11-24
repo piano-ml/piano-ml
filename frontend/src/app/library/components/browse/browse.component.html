@@ -96,26 +96,22 @@
   <!-- Tabs Section -->
   @if ( !(selectedAuthor || selectedGenre || activeSearchKeyword)) {
   <nav class="" i18n-aria-label="@@browse.tabs.label" aria-label="Browse options">
-    <!-- Tab Headers: tighter and shorter on phones; scrolls on its own rather than widening the page -->
-    <div class="flex overflow-x-auto">
-      <button (click)="setActiveTab('new')" [class.border-emerald-500]="activeTab === 'new'"
-        [class.text-white]="activeTab === 'new'" [class.text-gray-300]="activeTab !== 'new'"
-        class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200  focus:outline-none">
+    <!-- Tab Headers: tighter and shorter on phones; the bar scrolls sideways and keeps the open tab in view -->
+    <div class="tab-bar">
+      <button type="button" class="tab-link" (click)="setActiveTab('new')" [class.tab-link-active]="activeTab === 'new'"
+        [attr.aria-current]="activeTab === 'new' ? 'page' : null" [appKeepInView]="activeTab === 'new'">
         <ng-container i18n="@@browse.tab.new">New</ng-container>
       </button>
-      <button (click)="setActiveTab('popular')" [class.border-emerald-500]="activeTab === 'popular'"
-        [class.text-white]="activeTab === 'popular'" [class.text-gray-300]="activeTab !== 'popular'"
-        class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200 focus:outline-none">
+      <button type="button" class="tab-link" (click)="setActiveTab('popular')" [class.tab-link-active]="activeTab === 'popular'"
+        [attr.aria-current]="activeTab === 'popular' ? 'page' : null" [appKeepInView]="activeTab === 'popular'">
         <ng-container i18n="@@browse.tab.popular">Popular</ng-container>
       </button>
-      <button (click)="setActiveTab('genres')" [class.border-emerald-500]="activeTab === 'genres'"
-        [class.text-white]="activeTab === 'genres'" [class.text-gray-300]="activeTab !== 'genres'"
-        class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+      <button type="button" class="tab-link" (click)="setActiveTab('genres')" [class.tab-link-active]="activeTab === 'genres'"
+        [attr.aria-current]="activeTab === 'genres' ? 'page' : null" [appKeepInView]="activeTab === 'genres'">
         <span class="hidden sm:inline" i18n="@@browse.tab.genres.long">Browse by Genres</span><span class="sm:hidden" i18n="@@browse.tab.genres.short">Genres</span>
       </button>
-      <button (click)="setActiveTab('artists')" [class.border-emerald-500]="activeTab === 'artists'"
-        [class.text-white]="activeTab === 'artists'" [class.text-gray-300]="activeTab !== 'artists'"
-        class="shrink-0 whitespace-nowrap px-3 sm:px-6 py-3 font-medium border-b-2 transition-colors duration-200 hover:text-white focus:outline-none">
+      <button type="button" class="tab-link" (click)="setActiveTab('artists')" [class.tab-link-active]="activeTab === 'artists'"
+        [attr.aria-current]="activeTab === 'artists' ? 'page' : null" [appKeepInView]="activeTab === 'artists'">
         <span class="hidden sm:inline" i18n="@@browse.tab.artists.long">Browse by Artist</span><span class="sm:hidden" i18n="@@browse.tab.artists.short">Artist</span>
       </button>
     </div>

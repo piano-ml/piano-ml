@@ -11,8 +11,7 @@ import { currentLocale } from '../../../shared/i18n';
   selector: 'app-account-scores',
   imports: [RouterModule, ScoreTableComponent, QuickActionsComponent],
   templateUrl: './account-scores.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './account-scores.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class AccountScoresComponent implements OnInit {
   scores: ScoreApiInfo[] = [];

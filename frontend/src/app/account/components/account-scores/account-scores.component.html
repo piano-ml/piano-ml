@@ -1,51 +1,35 @@
-<article class="main-article">
+<div class="page-panel">
 
-  <div class="px-4 sm:px-6 pt-4">
-    <div class="page-title" i18n="@@accountScores.myScores">My Scores</div>
-    <div class="page-sub-title" i18n="@@accountScores.yourUploadedAndCuratedCollection">Your uploaded and curated collection</div>
-  </div>
-
-  <hr class="mx-4 sm:mx-6">
-
-  <div class="px-4 sm:px-6 pb-12 flex flex-col gap-5">
-
-    <!-- ── Toolbar ────────────────────────────────────────── -->
-    <div class="flex items-center justify-between gap-4">
-      <p class="page-sub-title">
-        @if (!loading && scores.length > 0) {
-          <span i18n="@@browse.capsuleCount">{scores.length, plural, =1 {1 score} other {{{ scores.length }} scores}}</span>
-        }
-      </p>
-      <div class="flex items-center gap-3">
-        <app-quick-actions></app-quick-actions>
-        <button (click)="navigateToOpen()" class="btn-primary" [disabled]="loading" i18n="@@accountScores.browseLibrary">
-          Browse library
-        </button>
-      </div>
+  <div class="page-toolbar">
+    <p class="page-sub-title">
+      @if (!loading && scores.length > 0) {
+        <span i18n="@@browse.capsuleCount">{scores.length, plural, =1 {1 score} other {{{ scores.length }} scores}}</span>
+      }
+    </p>
+    <div class="page-toolbar-actions">
+      <app-quick-actions />
+      <button type="button" (click)="navigateToOpen()" class="btn-primary" [disabled]="loading" i18n="@@accountScores.browseLibrary">
+        Browse library
+      </button>
     </div>
-
-    <!-- ── Error ──────────────────────────────────────────── -->
-    @if (error && !loading) {
-      <div class="alert-error">
-        <strong i18n="@@accountScores.error">Error:</strong> {{ error }}
-      </div>
-    }
-
-    <!-- ── Scores table ───────────────────────────────────── -->
-    @if (!error) {
-      <app-score-table
-        [scores]="scores"
-        [loading]="loading"
-        [columns]="tableColumns"
-        [actions]="tableActions"
-        [showRowClick]="true"
-        (scoreClick)="onScoreClick($event)"
-        i18n-emptyMessage="@@accountScores.empty" emptyMessage="No scores yet — upload your first MIDI file to get started."
-        i18n-loadingMessage="@@accountScores.loading" loadingMessage="Loading your scores…"
-        rowClass="">
-      </app-score-table>
-    }
-
   </div>
 
-</article>
+  @if (error && !loading) {
+    <div class="alert-error">
+      <strong i18n="@@accountScores.error">Error:</strong> {{ error }}
+    </div>
+  }
+
+  @if (!error) {
+    <app-score-table
+      [scores]="scores"
+      [loading]="loading"
+      [columns]="tableColumns"
+      [actions]="tableActions"
+      [showRowClick]="true"
+      (scoreClick)="onScoreClick($event)"
+      i18n-emptyMessage="@@accountScores.empty" emptyMessage="No scores yet — upload your first MIDI file to get started."
+      i18n-loadingMessage="@@accountScores.loading" loadingMessage="Loading your scores…" />
+  }
+
+</div>

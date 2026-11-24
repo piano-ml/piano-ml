@@ -71,8 +71,8 @@ public class PracticeSummaryService {
   }
 
   public PracticeSummary summary(User user, String timeZone) {
-    List<PracticeSession> sessions = practiceSessionRepository
-      .findByUserIdOrderByStartedAtDesc(user.getId(), PageRequest.of(0, MAX_SESSIONS));
+    // Assessed sessions only: listening is not counted (time, streak, pieces)
+    List<PracticeSession> sessions = practiceSessionRepository.findAssessed(user.getId(), PageRequest.of(0, MAX_SESSIONS));
 
     String zoneId = timeZone != null && !timeZone.isBlank() ? timeZone
       : sessions.stream().map(PracticeSession::getTimeZone).filter(Objects::nonNull).findFirst().orElse(null);

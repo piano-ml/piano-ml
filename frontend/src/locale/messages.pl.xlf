@@ -2,10 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="pl" datatype="plaintext" original="ng2.template">
     <body>
-      <trans-unit id="account.route.home" datatype="html">
-        <source>Home</source>
-        <target state="translated">Start</target>
-      </trans-unit>
       <trans-unit id="account.route.login" datatype="html">
         <source>Login</source>
         <target state="translated">Logowanie</target>
@@ -22,29 +18,13 @@
         <source>New password</source>
         <target state="translated">Nowe hasło</target>
       </trans-unit>
-      <trans-unit id="account.route.scores" datatype="html">
-        <source>My Scores</source>
-        <target state="translated">Moje utwory</target>
-      </trans-unit>
-      <trans-unit id="account.route.playlists" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">Moje playlisty</target>
-      </trans-unit>
-      <trans-unit id="account.route.playlist" datatype="html">
-        <source>Playlist</source>
-        <target state="translated">Playlista</target>
-      </trans-unit>
       <trans-unit id="account.route.editScore" datatype="html">
         <source>Edit Score</source>
         <target state="translated">Edycja utworu</target>
       </trans-unit>
-      <trans-unit id="accountScores.myScores" datatype="html">
-        <source>My Scores</source>
-        <target state="translated">Moje utwory</target>
-      </trans-unit>
-      <trans-unit id="accountScores.yourUploadedAndCuratedCollection" datatype="html">
-        <source>Your uploaded and curated collection</source>
-        <target state="translated">Twoja kolekcja wgranych i wybranych utworów</target>
+      <trans-unit id="account.route.playlist" datatype="html">
+        <source>Playlist</source>
+        <target state="translated">Playlista</target>
       </trans-unit>
       <trans-unit id="browse.capsuleCount" datatype="html">
         <source>{VAR_PLURAL, plural, =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
@@ -382,6 +362,14 @@
         <source>← Cancel</source>
         <target state="translated">← Anuluj</target>
       </trans-unit>
+      <trans-unit id="editScore.saving" datatype="html">
+        <source>Saving…</source>
+        <target state="translated">Zapisywanie…</target>
+      </trans-unit>
+      <trans-unit id="accountHome.save" datatype="html">
+        <source>Save</source>
+        <target state="translated">Zapisz</target>
+      </trans-unit>
       <trans-unit id="editScore.loadingScore" datatype="html">
         <source>Loading score…</source>
         <target state="translated">Ładowanie utworu…</target>
@@ -438,6 +426,10 @@
         <source> Cancel </source>
         <target state="translated">Anuluj</target>
       </trans-unit>
+      <trans-unit id="accountHome.deleting" datatype="html">
+        <source>Deleting…</source>
+        <target state="translated">Usuwanie…</target>
+      </trans-unit>
       <trans-unit id="editScore.error.noId" datatype="html">
         <source>No score ID provided</source>
         <target state="translated">Nie wskazano utworu</target>
@@ -470,21 +462,37 @@
         <source>Failed to delete score</source>
         <target state="translated">Nie udało się usunąć utworu</target>
       </trans-unit>
-      <trans-unit id="accountHome.profile" datatype="html">
-        <source>Profile</source>
-        <target state="translated">Profil</target>
-      </trans-unit>
-      <trans-unit id="accountHome.accountSettingsWorkbenchPreferences" datatype="html">
-        <source>Account settings &amp; workbench preferences</source>
-        <target state="translated">Ustawienia konta i preferencje warsztatu</target>
+      <trans-unit id="accountHome.myPlaylists" datatype="html">
+        <source>My Playlists</source>
+        <target state="translated">Moje playlisty</target>
       </trans-unit>
       <trans-unit id="accountHome.myScores" datatype="html">
         <source>My Scores</source>
         <target state="translated">Moje utwory</target>
       </trans-unit>
-      <trans-unit id="accountHome.myPlaylists" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">Moje playlisty</target>
+      <trans-unit id="accountHome.practice" datatype="html">
+        <source>Practice</source>
+        <target state="translated">Ćwiczenie</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tab.ai" datatype="html">
+        <source>AI</source>
+        <target state="translated">AI</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tab.myAccount" datatype="html">
+        <source>My Account</source>
+        <target state="translated">Moje konto</target>
+      </trans-unit>
+      <trans-unit id="accountHome.profile" datatype="html">
+        <source>Profile</source>
+        <target state="translated">Profil</target>
+      </trans-unit>
+      <trans-unit id="accountHome.subtitle" datatype="html">
+        <source>Your playlists, scores, practice, AI access and account</source>
+        <target state="translated">Twoje playlisty, nuty, ćwiczenia, dostęp AI i konto</target>
+      </trans-unit>
+      <trans-unit id="accountHome.tabs.label" datatype="html">
+        <source>Account sections</source>
+        <target state="translated">Sekcje konta</target>
       </trans-unit>
       <trans-unit id="accountHome.deleteAccount" datatype="html">
         <source>Delete account</source>
@@ -494,13 +502,13 @@
         <source>Logout</source>
         <target state="translated">Wyloguj się</target>
       </trans-unit>
-      <trans-unit id="accountHome.identity" datatype="html">
-        <source>Identity</source>
-        <target state="translated">Tożsamość</target>
-      </trans-unit>
       <trans-unit id="accountHome.name" datatype="html">
         <source>Name</source>
         <target state="translated">Imię</target>
+      </trans-unit>
+      <trans-unit id="accountHome.noName" datatype="html">
+        <source>No name set</source>
+        <target state="translated">Nie ustawiono nazwy</target>
       </trans-unit>
       <trans-unit id="accountHome.edit" datatype="html">
         <source>Edit</source>
@@ -510,73 +518,9 @@
         <source>Your name</source>
         <target state="translated">Twoje imię</target>
       </trans-unit>
-      <trans-unit id="accountHome.save" datatype="html">
-        <source>Save</source>
-        <target state="translated">Zapisz</target>
-      </trans-unit>
       <trans-unit id="accountHome.cancel" datatype="html">
         <source>Cancel</source>
         <target state="translated">Anuluj</target>
-      </trans-unit>
-      <trans-unit id="accountHome.workbench" datatype="html">
-        <source>Workbench</source>
-        <target state="translated">Warsztat</target>
-      </trans-unit>
-      <trans-unit id="accountHome.midiSetup" datatype="html">
-        <source>MIDI Setup →</source>
-        <target state="translated">Ustawienia MIDI →</target>
-      </trans-unit>
-      <trans-unit id="accountHome.midiLowestKey" datatype="html">
-        <source>MIDI lowest key</source>
-        <target state="translated">Najniższy klawisz MIDI</target>
-      </trans-unit>
-      <trans-unit id="accountHome.midiHighestKey" datatype="html">
-        <source>MIDI highest key</source>
-        <target state="translated">Najwyższy klawisz MIDI</target>
-      </trans-unit>
-      <trans-unit id="accountHome.drawFingering" datatype="html">
-        <source>Draw fingering</source>
-        <target state="translated">Pokazuj palcowanie</target>
-      </trans-unit>
-      <trans-unit id="accountHome.drawLyrics" datatype="html">
-        <source>Draw lyrics</source>
-        <target state="translated">Pokazuj tekst</target>
-      </trans-unit>
-      <trans-unit id="accountHome.showKeyboard" datatype="html">
-        <source>Show keyboard</source>
-        <target state="translated">Pokazuj klawiaturę</target>
-      </trans-unit>
-      <trans-unit id="accountHome.lowestKeyLabel" datatype="html">
-        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">Najniższy klawisz MIDI <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(zagraj dźwięk)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="accountHome.key.required" datatype="html">
-        <source>Required.</source>
-        <target state="translated">Wymagane.</target>
-      </trans-unit>
-      <trans-unit id="accountHome.key.min" datatype="html">
-        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
-        <target state="translated">Min. <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
-      </trans-unit>
-      <trans-unit id="accountHome.key.max" datatype="html">
-        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
-        <target state="translated">Maks. <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
-      </trans-unit>
-      <trans-unit id="accountHome.highestKeyLabel" datatype="html">
-        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">Najwyższy klawisz MIDI <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(zagraj dźwięk)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="accountHome.listening.lowest" datatype="html">
-        <source>Listening for MIDI — lowest key…</source>
-        <target state="translated">Nasłuch MIDI – najniższy klawisz…</target>
-      </trans-unit>
-      <trans-unit id="accountHome.listening.highest" datatype="html">
-        <source>Listening for MIDI — highest key…</source>
-        <target state="translated">Nasłuch MIDI – najwyższy klawisz…</target>
-      </trans-unit>
-      <trans-unit id="accountHome.lowestKeyMustBeLess" datatype="html">
-        <source>Lowest key must be less than highest key.</source>
-        <target state="translated">Najniższy klawisz musi być niższy niż najwyższy.</target>
       </trans-unit>
       <trans-unit id="accountHome.yourAccountWillBePermanently" datatype="html">
         <source> Your account will be permanently deleted. This action cannot be undone. </source>
@@ -585,6 +529,10 @@
       <trans-unit id="accountHome.yourScoresAreKeptOn" datatype="html">
         <source> Your scores are kept on PianoML but will no longer be linked to you. </source>
         <target state="translated">Twoje utwory zostaną w PianoML, ale nie będą już z tobą powiązane.</target>
+      </trans-unit>
+      <trans-unit id="accountHome.deleteMyAccount" datatype="html">
+        <source>Delete my account</source>
+        <target state="translated">Usuń moje konto</target>
       </trans-unit>
       <trans-unit id="accountHome.error.session" datatype="html">
         <source>Your session needs a refresh. Please reload the page and try again.</source>
@@ -746,14 +694,6 @@
         <source>Change my password</source>
         <target state="translated">Zmień hasło</target>
       </trans-unit>
-      <trans-unit id="playlist.list.title" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">Moje playlisty</target>
-      </trans-unit>
-      <trans-unit id="playlist.list.subtitle" datatype="html">
-        <source>Your favorites and practice lists</source>
-        <target state="translated">Twoje ulubione i listy do ćwiczeń</target>
-      </trans-unit>
       <trans-unit id="playlist.sort.label" datatype="html">
         <source>Sort</source>
         <target state="translated">Sortuj</target>
@@ -786,13 +726,17 @@
         <source>Browse the library →</source>
         <target state="translated">Przeglądaj bibliotekę →</target>
       </trans-unit>
-      <trans-unit id="playlist.scoreCount" datatype="html">
-        <source>{VAR_PLURAL, plural, =0 {No scores} =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
-        <target state="translated">{VAR_PLURAL, plural, =0 {Brak utworów} =1 {1 utwór} few {<x id="INTERPOLATION"/> utwory} many {<x id="INTERPOLATION"/> utworów} other {<x id="INTERPOLATION"/> utworu}}</target>
+      <trans-unit id="scoreTable.favorite" datatype="html">
+        <source>Favorite</source>
+        <target state="translated">Ulubione</target>
       </trans-unit>
-      <trans-unit id="playlist.updated" datatype="html">
-        <source>updated <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></source>
-        <target state="translated">zaktualizowano <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></target>
+      <trans-unit id="playlist.column.scores" datatype="html">
+        <source>Scores</source>
+        <target state="translated">Nuty</target>
+      </trans-unit>
+      <trans-unit id="playlist.column.updated" datatype="html">
+        <source>Updated</source>
+        <target state="translated">Zaktualizowano</target>
       </trans-unit>
       <trans-unit id="common.loading" datatype="html">
         <source>Loading...</source>
@@ -822,21 +766,29 @@
         <source>Most scores</source>
         <target state="translated">Najwięcej utworów</target>
       </trans-unit>
-      <trans-unit id="playlist.back" datatype="html">
-        <source>My Playlists</source>
-        <target state="translated">Moje playlisty</target>
-      </trans-unit>
       <trans-unit id="playlist.notFound" datatype="html">
         <source>This playlist does not exist, or it is not yours.</source>
         <target state="translated">Ta playlista nie istnieje lub nie należy do ciebie.</target>
+      </trans-unit>
+      <trans-unit id="playlist.scoreCount" datatype="html">
+        <source>{VAR_PLURAL, plural, =0 {No scores} =1 {1 score} other {<x id="INTERPOLATION"/> scores}}</source>
+        <target state="translated">{VAR_PLURAL, plural, =0 {Brak utworów} =1 {1 utwór} few {<x id="INTERPOLATION"/> utwory} many {<x id="INTERPOLATION"/> utworów} other {<x id="INTERPOLATION"/> utworu}}</target>
       </trans-unit>
       <trans-unit id="playlist.created" datatype="html">
         <source>created <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></source>
         <target state="translated">utworzono <x id="INTERPOLATION" equiv-text="{{ meta().created }}"/></target>
       </trans-unit>
+      <trans-unit id="playlist.updated" datatype="html">
+        <source>updated <x id="INTERPOLATION" equiv-text="{{ meta().updated }}"/></source>
+        <target state="translated">zaktualizowano <x id="INTERPOLATION" equiv-text="{{ updated(p) }}"/></target>
+      </trans-unit>
       <trans-unit id="playlist.delete" datatype="html">
         <source>Delete playlist</source>
         <target state="translated">Usuń playlistę</target>
+      </trans-unit>
+      <trans-unit id="playlist.backToList" datatype="html">
+        <source>Playlists</source>
+        <target state="translated">Playlisty</target>
       </trans-unit>
       <trans-unit id="playlist.detail.empty" datatype="html">
         <source>No scores yet. Use ♡ or &quot;Save to…&quot; on any score page.</source>
@@ -910,10 +862,6 @@
         <source>Undo</source>
         <target state="translated">Cofnij</target>
       </trans-unit>
-      <trans-unit id="accountHome.practice" datatype="html">
-        <source>Practice</source>
-        <target state="translated">Ćwiczenie</target>
-      </trans-unit>
       <trans-unit id="accountHome.practice.empty" datatype="html">
         <source>Nothing recorded yet. Play a score or an exercise to see your progress here.</source>
         <target state="translated">Nic jeszcze nie zapisano. Zagraj utwór lub ćwiczenie, aby zobaczyć tutaj swoje postępy.</target>
@@ -934,21 +882,93 @@
         <source>Accuracy (last 10 scores)</source>
         <target state="translated">Dokładność (ostatnie 10 utworów)</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice.exerciseAccuracy" datatype="html">
+        <source>Accuracy (last 10 exercises)</source>
+        <target state="translated">Dokładność (ostatnie 10 ćwiczeń)</target>
+      </trans-unit>
       <trans-unit id="accountHome.practice.recent" datatype="html">
         <source>Recent sessions</source>
         <target state="translated">Ostatnie sesje</target>
       </trans-unit>
-      <trans-unit id="accountHome.practice.exercise" datatype="html">
-        <source>Exercise</source>
-        <target state="translated">Ćwiczenie</target>
+      <trans-unit id="accountHome.practice.column.date" datatype="html">
+        <source>Date</source>
+        <target state="translated">Data</target>
+      </trans-unit>
+      <trans-unit id="scoreTable.duration" datatype="html">
+        <source>Duration</source>
+        <target state="translated">Czas trwania</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.hands" datatype="html">
+        <source>Hands</source>
+        <target state="translated">Ręce</target>
+      </trans-unit>
+      <trans-unit id="scoreInfo.tempo" datatype="html">
+        <source>Tempo</source>
+        <target state="translated">Tempo</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.column.accuracy" datatype="html">
+        <source>Accuracy</source>
+        <target state="translated">Dokładność</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.flow" datatype="html">
+        <source>Flow</source>
+        <target state="translated">Płynność</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.pieces" datatype="html">
+        <source>Pieces</source>
+        <target state="translated">Utwory</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.sessions" datatype="html">
+        <source>Sessions</source>
+        <target state="translated">Sesje</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.best" datatype="html">
+        <source>Best</source>
+        <target state="translated">Najlepsza</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.last" datatype="html">
+        <source>Last</source>
+        <target state="translated">Ostatnia</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.coverage" datatype="html">
+        <source>Coverage</source>
+        <target state="translated">Pokrycie</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.weakMeasures" datatype="html">
+        <source>Weak measures</source>
+        <target state="translated">Słabe takty</target>
       </trans-unit>
       <trans-unit id="accountHome.practice.deleteHistory" datatype="html">
         <source>Delete practice history</source>
         <target state="translated">Usuń historię ćwiczeń</target>
       </trans-unit>
+      <trans-unit id="accountHome.practice.deleteWarning" datatype="html">
+        <source>All your practice sessions will be permanently deleted, with the progress shown here. This action cannot be undone.</source>
+        <target state="translated">Wszystkie Twoje sesje ćwiczeń zostaną trwale usunięte wraz z widocznymi tu postępami. Tej operacji nie można cofnąć.</target>
+      </trans-unit>
       <trans-unit id="accountHome.practice.confirmDelete" datatype="html">
         <source>Delete all sessions</source>
         <target state="translated">Usuń wszystkie sesje</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.deleted" datatype="html">
+        <source>no longer in the library</source>
+        <target state="translated">nie ma już w bibliotece</target>
+      </trans-unit>
+      <trans-unit id="accountHome.practice.exercise" datatype="html">
+        <source>Exercise</source>
+        <target state="translated">Ćwiczenie</target>
+      </trans-unit>
+      <trans-unit id="reimport.bothHands" datatype="html">
+        <source>Both hands</source>
+        <target state="translated">Obie ręce</target>
+      </trans-unit>
+      <trans-unit id="reimport.leftHand" datatype="html">
+        <source>Left hand</source>
+        <target state="translated">Lewa ręka</target>
+      </trans-unit>
+      <trans-unit id="reimport.rightHand" datatype="html">
+        <source>Right hand</source>
+        <target state="translated">Prawa ręka</target>
       </trans-unit>
       <trans-unit id="playlist.favorites" datatype="html">
         <source>Favorites</source>
@@ -1678,6 +1698,34 @@
         <source> PianoML — The app might play piano (not the keyboard) </source>
         <target state="translated">PianoML — aplikacja gra na pianinie (nie klawiatura)</target>
       </trans-unit>
+      <trans-unit id="midiSetup.lowestKey" datatype="html">
+        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Najniższy klawisz MIDI <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(zagraj dźwięk)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.highestKey" datatype="html">
+        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Najwyższy klawisz MIDI <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(zagraj dźwięk)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.lowest" datatype="html">
+        <source>Listening for MIDI — lowest key…</source>
+        <target state="translated">Nasłuch MIDI – najniższy klawisz…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.highest" datatype="html">
+        <source>Listening for MIDI — highest key…</source>
+        <target state="translated">Nasłuch MIDI – najwyższy klawisz…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.min" datatype="html">
+        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
+        <target state="translated">Min. <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.max" datatype="html">
+        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
+        <target state="translated">Maks. <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.lowestKeyMustBeLess" datatype="html">
+        <source>Lowest key must be less than highest key.</source>
+        <target state="translated">Najniższy klawisz musi być niższy niż najwyższy.</target>
+      </trans-unit>
       <trans-unit id="midiSetup.hideKeyboard" datatype="html">
         <source>Hide Keyboard</source>
         <target state="translated">Ukryj klawiaturę</target>
@@ -1777,10 +1825,6 @@
       <trans-unit id="osmd.error" datatype="html">
         <source>Error Loading Score</source>
         <target state="translated">Błąd ładowania nut</target>
-      </trans-unit>
-      <trans-unit id="scoreInfo.tempo" datatype="html">
-        <source>Tempo</source>
-        <target state="translated">Tempo</target>
       </trans-unit>
       <trans-unit id="tempo.metronome" datatype="html">
         <source>Metronome</source>
@@ -3206,10 +3250,6 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source>Artist</source>
         <target state="translated">Wykonawca</target>
       </trans-unit>
-      <trans-unit id="scoreTable.duration" datatype="html">
-        <source>Duration</source>
-        <target state="translated">Czas trwania</target>
-      </trans-unit>
       <trans-unit id="scoreTable.grade" datatype="html">
         <source>Grade</source>
         <target state="translated">Poziom</target>
@@ -3762,18 +3802,6 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source>The original MIDI file cannot be read.</source>
         <target state="translated">Nie można odczytać oryginalnego pliku MIDI.</target>
       </trans-unit>
-      <trans-unit id="reimport.bothHands" datatype="html">
-        <source>Both hands</source>
-        <target state="translated">Obie ręce</target>
-      </trans-unit>
-      <trans-unit id="reimport.rightHand" datatype="html">
-        <source>Right hand</source>
-        <target state="translated">Prawa ręka</target>
-      </trans-unit>
-      <trans-unit id="reimport.leftHand" datatype="html">
-        <source>Left hand</source>
-        <target state="translated">Lewa ręka</target>
-      </trans-unit>
       <trans-unit id="reimport.error.refused" datatype="html">
         <source>The server refused these tracks, or the original file is not a MIDI file.</source>
         <target state="translated">Serwer odrzucił te ścieżki lub oryginalny plik nie jest plikiem MIDI.</target>
@@ -3921,10 +3949,6 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
       <trans-unit id="quickActions.import" datatype="html">
         <source>Import</source>
         <target state="translated">Importuj</target>
-      </trans-unit>
-      <trans-unit id="scoreTable.favorite" datatype="html">
-        <source>Favorite</source>
-        <target state="translated">Ulubione</target>
       </trans-unit>
       <trans-unit id="scoreTable.actions" datatype="html">
         <source> Actions </source>
