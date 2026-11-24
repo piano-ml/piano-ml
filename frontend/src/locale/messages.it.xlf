@@ -1938,18 +1938,6 @@
         <source>App plays</source>
         <target state="translated">Suona l'app</target>
       </trans-unit>
-      <trans-unit id="workbench.handMode.wait.hint" datatype="html">
-        <source>The score waits until you play each note.</source>
-        <target state="translated">Lo spartito aspetta che tu suoni ogni nota.</target>
-      </trans-unit>
-      <trans-unit id="workbench.handMode.along.hint" datatype="html">
-        <source>The score keeps the tempo and plays these notes with you; each one you play is scored by its timing.</source>
-        <target state="translated">Lo spartito mantiene il tempo e suona queste note con te; ogni nota che suoni viene valutata in base al tempo.</target>
-      </trans-unit>
-      <trans-unit id="workbench.handMode.app.hint" datatype="html">
-        <source>The app plays these notes.</source>
-        <target state="translated">L'app suona queste note.</target>
-      </trans-unit>
       <trans-unit id="workbench.tour.welcome.title" datatype="html">
         <source>Welcome to the Workbench!</source>
         <target state="translated">Benvenuto nel laboratorio!</target>
@@ -1971,16 +1959,16 @@
         <target state="translated">Mano destra</target>
       </trans-unit>
       <trans-unit id="workbench.tour.rightHand.content" datatype="html">
-        <source>Choose how you play the right hand: Wait for me (the score waits for each of your notes, great for learning the melody at your own pace), Play along (the score keeps the tempo and plays these notes with you) or App plays.</source>
-        <target state="translated">Scegli come suoni la mano destra: Aspettami (lo spartito aspetta ogni tua nota, ideale per imparare la melodia con calma), Suona insieme (lo spartito mantiene il tempo e suona queste note con te) o Suona l'app.</target>
+        <source>Press to have the score wait for each of your right-hand notes, great for learning the melody at your own pace. Released, you play along: the score keeps the tempo and plays these notes with you.</source>
+        <target state="translated">Premi perché lo spartito aspetti ogni nota della mano destra, ideale per imparare la melodia al tuo ritmo. Rilasciato, suoni insieme: lo spartito mantiene il tempo e suona queste note con te.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.title" datatype="html">
         <source>Left Hand Practice</source>
         <target state="translated">Mano sinistra</target>
       </trans-unit>
       <trans-unit id="workbench.tour.leftHand.content" datatype="html">
-        <source>The same for the left hand. Choose Wait for me, or Play along, on both hands for hands-together practice.</source>
-        <target state="translated">Lo stesso per la mano sinistra. Scegli Aspettami, o Suona insieme, su entrambe le mani per esercitarti a mani unite.</target>
+        <source>The same for the left hand. Press both hands, or release both, for hands-together practice.</source>
+        <target state="translated">Lo stesso per la mano sinistra. Premi entrambe le mani, o rilasciale entrambe, per esercitarti a mani unite.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.loop.title" datatype="html">
         <source>Loop Mode</source>

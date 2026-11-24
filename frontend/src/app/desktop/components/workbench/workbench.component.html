@@ -96,31 +96,12 @@
                   </label>
                 </div>
                 @for (side of handSides; track side) {
-                <div class="hand-mode m-1" [id]="side + '-hand'">
-                  <button type="button" class="label svg-label hand-mode-button" [disabled]="isPlaying"
-                    [class.hand-wait]="handMode(side) === 'wait'" [class.hand-along]="handMode(side) === 'along'"
-                    [attr.aria-label]="handButtonLabel(side)" [title]="handButtonLabel(side)"
-                    [attr.aria-expanded]="openHandMenu === side" aria-haspopup="true" (click)="toggleHandMenu(side)">
+                <div class="checkbox-input m-1" [id]="side + '-hand'">
+                  <label class="label svg-label" [title]="handButtonLabel(side)">
+                    <input type="checkbox" [disabled]="isPlaying" [checked]="handMode(side) === 'wait'"
+                      [attr.aria-label]="handButtonLabel(side)" (change)="toggleWait(side)" />
                     <ng-icon [name]="side === 'left' ? 'lefthand' : 'righthand'" class="svg-button" />
-                    @if (handMode(side) === 'along') {
-                      <span class="hand-along-badge" aria-hidden="true">♪</span>
-                    }
-                  </button>
-                  @if (openHandMenu === side && !isPlaying) {
-                  <div class="hand-mode-menu" role="radiogroup" [attr.aria-label]="handName(side)">
-                    <p class="hand-mode-menu-title">{{ handName(side) }}</p>
-                    @for (mode of handModes; track mode) {
-                    <label class="hand-mode-option" [attr.data-hand-mode]="mode">
-                      <input type="radio" [name]="side + '-hand-mode'" [value]="mode" [checked]="handMode(side) === mode"
-                        (change)="setHandMode(side, mode)" />
-                      <span class="hand-mode-option-text">
-                        <span class="hand-mode-option-label">{{ handModeLabel(mode) }}</span>
-                        <span class="hand-mode-option-hint">{{ handModeHint(mode) }}</span>
-                      </span>
-                    </label>
-                    }
-                  </div>
-                  }
+                  </label>
                 </div>
                 }
                 }

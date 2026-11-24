@@ -60,6 +60,18 @@ export function withHandMode(config: HandFlags, side: HandSide, mode: HandMode):
   return next;
 }
 
+/**
+ * The toolbar's hand toggles: a pressed hand waits for the student; released, it is played along. When a hand
+ * waits, the released one is played by the app (waiting pauses the tempo play-along needs); when none waits, both
+ * are played along.
+ */
+export function withWait(config: HandFlags, side: HandSide, wait: boolean): Required<HandFlags> {
+  const left = side === 'left' ? wait : config.waitForLeftHand;
+  const right = side === 'right' ? wait : config.waitForRightHand;
+  const along = !left && !right;
+  return { waitForLeftHand: left, waitForRightHand: right, alongLeftHand: along, alongRightHand: along };
+}
+
 /** Whether the student plays the hand (wait or along): what a practice take records. */
 export function studentPlays(config: HandFlags, side: HandSide): boolean {
   return handModeOf(config, side) !== 'app';

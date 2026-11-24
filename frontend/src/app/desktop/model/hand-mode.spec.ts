@@ -1,4 +1,4 @@
-import { handModeOf, isListening, isTimed, studentHands, withHandMode } from './hand-mode';
+import { handModeOf, isListening, isTimed, studentHands, withHandMode, withWait } from './hand-mode';
 
 const none = { waitForLeftHand: false, waitForRightHand: false, alongLeftHand: false, alongRightHand: false };
 
@@ -20,6 +20,14 @@ describe('hand modes', () => {
     expect(withHandMode({ ...none, waitForLeftHand: true }, 'right', 'along')).toEqual({ ...none, alongRightHand: true });
     expect(withHandMode({ ...none, alongLeftHand: true }, 'right', 'wait')).toEqual({ ...none, waitForRightHand: true });
     expect(withHandMode({ ...none, alongLeftHand: true }, 'right', 'along')).toEqual({ ...none, alongLeftHand: true, alongRightHand: true });
+  });
+
+  it('toggles a hand: pressed waits, released plays along, or the app plays it while the other hand waits', () => {
+    const along = { ...none, alongLeftHand: true, alongRightHand: true };
+    expect(withWait(along, 'right', true)).toEqual({ ...none, waitForRightHand: true });
+    expect(withWait({ ...none, waitForRightHand: true }, 'left', true)).toEqual({ ...none, waitForLeftHand: true, waitForRightHand: true });
+    expect(withWait({ ...none, waitForLeftHand: true, waitForRightHand: true }, 'right', false)).toEqual({ ...none, waitForLeftHand: true });
+    expect(withWait({ ...none, waitForRightHand: true }, 'right', false)).toEqual(along);
   });
 
   it('names the hands the student plays, waited for or played along', () => {
