@@ -1,103 +1,66 @@
-<div class="flex flex-col min-h-screen" id="top">
+<div class="page">
+  <header class="site-header">
+    <nav class="breadcrumb-nav" i18n-aria-label="@@layout.breadcrumb.label" aria-label="Breadcrumb navigation">
+      <a routerLink="/summary" class="brand-mark" i18n-title="@@layout.brand.title" title="Go to the PianoML summary page">
+        <span class="brand-dot" aria-hidden="true"></span>
+        PianoML
+      </a>
+      @for (item of breadcrumbService.items$ | async; track item.path; let last = $last) {
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      @if (last) {
+      <span class="crumb-link crumb-current" aria-current="page">{{ item.label }}</span>
+      } @else {
+      <a [routerLink]="item.path" class="crumb-link" [title]="navigateTo(item.label)">{{ item.label }}</a>
+      }
+      }
+    </nav>
 
-  <!-- ─── HEADER ───────────────────────────────────────────────── -->
-  <header class="site-header" role="banner">
-    <div class="header-inner">
-
-      <nav class="breadcrumb-nav" i18n-aria-label="@@layout.breadcrumb.label" aria-label="Breadcrumb navigation">
-        <a routerLink="/summary" class="brand-mark" i18n-title="@@layout.brand.title" title="Go to the PianoML summary page">
-          <span class="brand-dot" aria-hidden="true"></span>
-          PianoML
-        </a>
-
-        @for (item of breadcrumbService.items$ | async; track item.path; let last = $last) {
-          <span class="crumb-sep" aria-hidden="true">/</span>
-          @if (!last) {
-            <a [routerLink]="item.path" class="crumb-link" [title]="navigateTo(item.label)">
-              {{ item.label }}
-            </a>
-          } @else {
-            <span class="crumb-link crumb-current" aria-current="page">{{ item.label }}</span>
-          }
-        }
-      </nav>
-
-      <div class="header-actions">
-        <app-language-switcher />
-        <a class="support-btn"
-           href="https://www.buymeacoffee.com/emmanuelflg"
-           target="_blank" rel="noopener noreferrer"
-           i18n-title="@@layout.support.title" title="Support PianoML">
-          <span class="hidden sm:inline" i18n="@@layout.support.buyMeA">Buy me a</span>
-          <span aria-hidden="true" class="donation-icon" [class.donation-icon-bump]="donationTick">{{ donationIcon }}</span>
-        </a>
-
-        @if ((isLoggedIn$ | async) === true) {
-          <a routerLink="/account" class="user-link" i18n-title="@@layout.account.title" title="Go to your account page">
-            {{ username$ | async }}
-          </a>
-          @if (isAdmin() && onAccountHome()) {
-            <a routerLink="/admin/errors" class="user-link" data-admin-errors i18n-title="@@layout.adminErrors.title" title="Error reports (administrators)" i18n="@@layout.adminErrors">Errors</a>
-          }
-        } @else {
-          @if (!(router.url === '/account/login')) {
-            <a routerLink="/account/login" [queryParams]="loginQueryParams(router.url)" class="login-btn" i18n-title="@@layout.login.title" title="Log in to your PianoML account" i18n="@@layout.login">
-              Login
-            </a>
-          }
-        }
-      </div>
-
+    <div class="header-actions">
+      <app-language-switcher />
+      <a class="support-btn" href="https://www.buymeacoffee.com/emmanuelflg" target="_blank" rel="noopener noreferrer"
+        i18n-title="@@layout.support.title" title="Support PianoML">
+        <span class="hidden sm:inline" i18n="@@layout.support.buyMeA">Buy me a</span>
+        <span aria-hidden="true" class="donation-icon" [class.donation-icon-bump]="donationTick">{{ donationIcon }}</span>
+      </a>
+      <app-remote-coach-toggle />
+      @if ((isLoggedIn$ | async) === true) {
+      <a routerLink="/account" class="user-link" i18n-title="@@layout.account.title" title="Go to your account page">{{ username$ | async }}</a>
+      @if (isAdmin() && onAccountHome()) {
+      <a routerLink="/admin/errors" class="user-link" data-admin-errors i18n-title="@@layout.adminErrors.title" title="Error reports (administrators)" i18n="@@layout.adminErrors">Errors</a>
+      }
+      } @else if (router.url !== '/account/login') {
+      <a routerLink="/account/login" [queryParams]="loginQueryParams(router.url)" class="login-btn" i18n-title="@@layout.login.title" title="Log in to your PianoML account" i18n="@@layout.login">
+        Login
+      </a>
+      }
     </div>
   </header>
 
-  <!-- ─── CONTENT ──────────────────────────────────────────────── -->
-  <div class="flex-1 flex flex-col">
+  <main class="page-content">
     <router-outlet />
-  </div>
+  </main>
 
   <app-toast-host />
 
-  <!-- ─── FOOTER ───────────────────────────────────────────────── -->
-  <footer class="site-footer" role="contentinfo">
-    <div class="footer-inner">
+  <footer class="site-footer">
+    <a href="https://github.com/piano-ml/piano-ml" class="footer-link footer-source" target="_blank" rel="noopener noreferrer"
+      i18n-aria-label="@@layout.source.label" aria-label="View source on GitHub"
+      i18n-title="@@layout.source.title" title="View PianoML source code on GitHub">
+      <ng-icon name="bootstrapGithub" />
+      <span i18n="@@layout.source">source</span>
+    </a>
 
-      <!-- Brand + version -->
-      <div class="footer-link">
+    <nav class="footer-links" i18n-aria-label="@@layout.footer.label" aria-label="Footer navigation">
+      <a routerLink="/blog/legal" class="footer-link" i18n-title="@@layout.legal.title" title="Legal notice and terms of use" i18n="@@layout.legal">
+        Legal Notice
+      </a>
+      <span class="footer-sep" aria-hidden="true">&middot;</span>
+      <a href="https://github.com/piano-ml/piano-ml/issues" class="footer-link" target="_blank" rel="noopener noreferrer"
+        i18n-title="@@layout.issue.title" title="Report a bug or request a feature" i18n="@@layout.issue">
+        Report an Issue
+      </a>
+    </nav>
 
-        <a href="https://github.com/piano-ml/piano-ml"
-           class="footer-icon-link"
-           i18n-aria-label="@@layout.source.label" aria-label="View source on GitHub"
-           i18n-title="@@layout.source.title" title="View PianoML source code on GitHub"
-           target="_blank" rel="noopener noreferrer">
-          <ng-icon name="bootstrapGithub"></ng-icon>
-          <span class="ml-2 pb-2" i18n="@@layout.source">source</span>
-        </a>
-
-      </div>
-
-      <!-- Legal navigation -->
-      <nav class="footer-links" i18n-aria-label="@@layout.footer.label" aria-label="Footer navigation">
-        <a routerLink="/blog/legal" class="footer-link" i18n-title="@@layout.legal.title" title="Legal notice and terms of use" i18n="@@layout.legal">
-          Legal Notice
-        </a>
-        <span class="footer-sep" aria-hidden="true">&middot;</span>
-        <a href="https://github.com/piano-ml/piano-ml/issues"
-           class="footer-link"
-           target="_blank" rel="noopener noreferrer"
-           i18n-title="@@layout.issue.title" title="Report a bug or request a feature" i18n="@@layout.issue">
-          Report an Issue
-        </a>
-      </nav>
-
-      <!-- Social + copyright -->
-      <div class="footer-link">
-
-        PianoML&#64;{{ version.commit }}
-        
-      </div>
-
-    </div>
+    <span class="footer-version">PianoML&#64;{{ version.commit }}</span>
   </footer>
-
 </div>

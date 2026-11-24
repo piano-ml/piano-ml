@@ -5,7 +5,7 @@
       @if (showConnectLink()) {
         <a routerLink="/coach/connect" class="btn-secondary" data-testid="coach-grant-connect" i18n="@@coach.grants.connectLink">Connect an AI coach →</a>
       }
-      @if (!formOpen() && !createdToken()) {
+      @if (canCreate() && !formOpen() && !createdToken()) {
         <button type="button" class="btn-primary" data-testid="coach-grant-new" (click)="openForm()" i18n="@@coach.grants.new">New access →</button>
       }
     </div>

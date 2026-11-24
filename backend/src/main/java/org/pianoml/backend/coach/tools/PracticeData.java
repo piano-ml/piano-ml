@@ -32,7 +32,7 @@ public class PracticeData {
   }
 
   public PracticeSessionApiInfo toApiInfo(PracticeSession session) {
-    return sessions.toApiInfo(session, sessions.slugOf(session));
+    return sessions.toApiInfo(session, sessions.scoreOf(session));
   }
 
   public PracticeSessionService sessions() {

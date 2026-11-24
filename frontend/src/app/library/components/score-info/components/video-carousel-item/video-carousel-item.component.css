@@ -1,12 +1,12 @@
 .video-card {
   width: 100%;
+  overflow: hidden;
   text-align: left;
   background: rgba(23, 23, 23, 0.7);
   border: 1px solid rgba(64, 64, 64, 0.6);
   border-radius: 2px;
-  overflow: hidden;
-  transition: all 0.2s ease;
   cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .video-card:hover {
@@ -17,7 +17,6 @@
 
 .video-thumb-wrap {
   position: relative;
-  width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
   background: rgb(10, 10, 10);
@@ -41,8 +40,6 @@
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.2);
-  opacity: 1;
-  transition: opacity 0.2s ease;
 }
 
 .play-icon {
@@ -52,8 +49,8 @@
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 9999px;
-  color: white;
   font-size: 1.125rem;
+  color: white;
   background: rgba(220, 38, 38, 0.85);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
@@ -63,25 +60,27 @@
 }
 
 .video-title {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: rgb(245, 245, 245);
-  line-height: 1.35;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: rgb(245, 245, 245);
+}
+
+.video-channel,
+.video-date {
+  font-size: 0.75rem;
 }
 
 .video-channel {
-  margin: 0.5rem 0 0;
-  font-size: 0.75rem;
+  margin-top: 0.5rem;
   color: rgb(163, 163, 163);
 }
 
 .video-date {
-  margin: 0.25rem 0 0;
-  font-size: 0.75rem;
+  margin-top: 0.25rem;
   color: rgb(115, 115, 115);
 }

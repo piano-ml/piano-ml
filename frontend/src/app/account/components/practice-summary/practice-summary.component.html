@@ -44,6 +44,7 @@
                 <th class="col-number hidden sm:table-cell" i18n="@@scoreTable.duration">Duration</th>
                 <th class="hidden md:table-cell" i18n="@@accountHome.practice.hands">Hands</th>
                 <th class="col-number hidden md:table-cell" i18n="@@scoreInfo.tempo">Tempo</th>
+                <th class="col-number hidden md:table-cell" i18n="@@scoreTable.bpm">BPM</th>
                 <th class="col-number" i18n="@@accountHome.practice.column.accuracy">Accuracy</th>
                 <th class="col-number hidden lg:table-cell" i18n="@@accountHome.practice.flow">Flow</th>
               </tr>
@@ -56,6 +57,7 @@
                   <td class="col-number whitespace-nowrap hidden sm:table-cell">{{ duration(session.activeSeconds) }}</td>
                   <td class="whitespace-nowrap hidden md:table-cell">{{ hands(session.hands) }}</td>
                   <td class="col-number hidden md:table-cell">{{ percent(session.tempoFactor) }}</td>
+                  <td class="col-number hidden md:table-cell">{{ session.tempo ?? '–' }}</td>
                   <td class="col-number">{{ percent(session.accuracy) }}</td>
                   <td class="col-number hidden lg:table-cell">{{ percent(session.flow) }}</td>
                 </tr>
@@ -78,6 +80,7 @@
                 <th class="col-number" i18n="@@accountHome.practice.last">Last</th>
                 <th class="col-number hidden md:table-cell" i18n="@@accountHome.practice.coverage">Coverage</th>
                 <th class="col-number hidden md:table-cell" i18n="@@scoreInfo.tempo">Tempo</th>
+                <th class="col-number hidden md:table-cell" i18n="@@scoreTable.bpm">BPM</th>
                 <th class="hidden lg:table-cell" i18n="@@accountHome.practice.weakMeasures">Weak measures</th>
               </tr>
             </thead>
@@ -90,6 +93,7 @@
                   <td class="col-number">{{ percent(item.lastAccuracy) }}</td>
                   <td class="col-number hidden md:table-cell">{{ percent(item.coverage) }}</td>
                   <td class="col-number hidden md:table-cell">{{ percent(item.bestTempoFactor) }}</td>
+                  <td class="col-number hidden md:table-cell">{{ item.tempo ?? '–' }}</td>
                   <td class="hidden lg:table-cell">{{ weakMeasures(item) }}</td>
                 </tr>
               }

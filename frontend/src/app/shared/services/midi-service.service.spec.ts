@@ -252,6 +252,55 @@ describe('MidiServiceService', () => {
       expect(midi.pianoMLShouldPlay()).toBe(true); // default output
     });
 
+    describe('devices plugged or unplugged afterwards', () => {
+      /** Plugs or unplugs a fake input, as the browser reports it. */
+      const plug = (p: FakePort, state: 'connected' | 'disconnected') => {
+        Object.assign(p, { type: 'input', state });
+        if (state === 'connected') access.inputs.set(p.id, asIn(p)); else access.inputs.delete(p.id);
+        access.dispatchEvent(Object.assign(new Event('statechange'), { port: p }));
+      };
+
+      it('hides the name of the input unplugged, and shows it again once plugged back', async () => {
+        const piano = port('in-1', 'Digital Piano');
+        access.inputs.set('in-1', asIn(piano));
+        midi.setupMidiDeviceListeners();
+        await settle();
+        expect(midi.inputDeviceName()).toBe('Digital Piano');
+        plug(piano, 'disconnected');
+        expect(midi.inputDeviceName()).toBe('');
+        expect(midi.availableInputs).toEqual([]);
+        expect(midi.isInputMidiDeviceEnabled(asIn(piano))).toBe(true); // still listened to
+        plug(piano, 'connected');
+        expect(midi.inputDeviceName()).toBe('Digital Piano');
+        expect(midi.availableInputs).toEqual([asIn(piano)]);
+      });
+
+      it('enables a keyboard plugged after the setup, when it is the selected one', async () => {
+        access.inputs.set('in-0', asIn(port('in-0', 'Other')));
+        localStorage.setItem('midiInputDevicesEnabled', JSON.stringify(['acme::digital piano']));
+        midi.setupMidiDeviceListeners();
+        await settle();
+        const other = port('in-2', 'Stranger');
+        plug(other, 'connected');
+        expect(midi.isInputMidiDeviceEnabled(asIn(other))).toBe(false);
+        const piano = port('in-1', 'Digital Piano');
+        plug(piano, 'connected');
+        expect(midi.isInputMidiDeviceEnabled(asIn(piano))).toBe(true);
+        expect(midi.inputDeviceName()).toBe('Digital Piano');
+      });
+
+      it('ignores outputs', async () => {
+        const piano = port('in-1', 'Digital Piano');
+        access.inputs.set('in-1', asIn(piano));
+        midi.setupMidiDeviceListeners();
+        await settle();
+        const synth = Object.assign(port('out-1', 'Synth'), { type: 'output', state: 'disconnected' });
+        access.dispatchEvent(Object.assign(new Event('statechange'), { port: synth }));
+        expect(midi.availableInputs).toEqual([asIn(piano)]);
+        expect(midi.inputDeviceName()).toBe('Digital Piano');
+      });
+    });
+
     it('restores the remembered output', async () => {
       const synth = port('out-1', 'Synth');
       access.inputs.set('in-1', asIn(port('in-1', 'Piano')));

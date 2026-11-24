@@ -103,6 +103,7 @@ export class BrowseComponent implements OnInit, AfterViewInit, OnDestroy {
     { key: 'author', label: $localize`:@@scoreTable.artist:Artist`, visible: true },
     { key: 'title', label: $localize`:@@scoreTable.title:Title`, visible: true },
     { key: 'duration', label: $localize`:@@scoreTable.duration:Duration`, visible: true },
+    { key: 'tempo', label: $localize`:@@scoreTable.bpm:BPM`, visible: true, formatter: (value) => value ? String(value) : '–' },
     { key: 'grade', label: $localize`:@@scoreTable.grade:Grade`, visible: true },
     { key: 'tracks_count', label: $localize`:@@scoreTable.tracks:Tracks`, visible: true }
   ];

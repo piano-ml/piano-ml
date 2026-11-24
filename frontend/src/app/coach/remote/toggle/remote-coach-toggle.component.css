@@ -1,0 +1,76 @@
+@reference "tailwindcss";
+
+:host {
+  display: contents;
+}
+
+.coach-toggle {
+  @apply flex items-center justify-center shrink-0 cursor-pointer transition-colors duration-200
+         focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400;
+}
+
+/* ── Header: the icon alone (its rounded square is the frame), between Buy me a coffee and the account name ── */
+
+.variant-header {
+  @apply w-8 h-8 rounded-sm text-white/85 hover:text-white;
+}
+
+/* The square fills 82/128 of the icon: 34 px draws a 22 px frame */
+.variant-header ng-icon {
+  font-size: 34px;
+}
+
+/* Off: dimmed; unavailable keeps the plain white icon, that leads to the presentation post */
+.variant-header.look-off {
+  @apply text-neutral-500 opacity-60 hover:opacity-100 hover:text-neutral-300;
+}
+
+.variant-header.look-on {
+  @apply text-emerald-400;
+}
+
+.variant-header.look-connecting,
+.variant-header.look-error {
+  @apply text-orange-400;
+}
+
+/* ── Workbench: a 64 px tile like the hand toggles ── */
+
+.variant-workbench {
+  @apply m-1 w-16 h-16 rounded bg-neutral-600 text-white;
+}
+
+.variant-workbench ng-icon {
+  font-size: 48px;
+}
+
+/* As in the header: off is dimmed, unavailable keeps the plain tile */
+.variant-workbench.look-off {
+  @apply bg-neutral-800 text-neutral-500 hover:text-neutral-300;
+}
+
+.variant-workbench.look-on {
+  @apply bg-emerald-600;
+}
+
+.variant-workbench.look-connecting,
+.variant-workbench.look-error {
+  @apply bg-orange-500;
+}
+
+/* Connecting blinks, in both places */
+.look-connecting {
+  animation: coach-blink 1s steps(2, start) infinite;
+}
+
+@keyframes coach-blink {
+  to {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .look-connecting {
+    animation: none;
+  }
+}

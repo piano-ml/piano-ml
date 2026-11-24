@@ -339,6 +339,7 @@ describe('ScoreInfoComponent', () => {
         user = { id: 'owner-1', admin: false };
         fixture.detectChanges();
         const order = buttonsOrder();
+        expect(order[0]).toBe('← Browse'); // first, at the left
         expect(order.indexOf('Original')).toBeGreaterThan(order.indexOf('← Browse'));
         expect(order.indexOf('Original')).toBeLessThan(order.indexOf('MIDI'));
 

@@ -42,6 +42,10 @@ export interface PracticeSessionApiInfo {
     title?: string;
     readonly author?: string;
     /**
+     * The score\'s tempo in BPM, as in the library; null for an exercise or a score that is gone
+     */
+    readonly tempo?: number;
+    /**
      * scale or agility. Required when kind is exercise
      */
     exerciseType?: string;

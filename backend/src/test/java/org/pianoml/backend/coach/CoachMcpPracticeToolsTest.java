@@ -333,18 +333,26 @@ class CoachMcpPracticeToolsTest {
   }
 
   @Test
-  void getPracticeSessions_newestFirst_withoutMeasuresOrTakes() throws Exception {
+  void getPracticeSessions_theLastThreeByDefault_newestFirst_asShortRows() throws Exception {
     JsonNode sessions = data("get_practice_sessions", Map.of()).path("sessions");
-    assertThat(sessions).hasSize(4);
-    assertThat(sessions.get(0).path("kind").asText()).isEqualTo("exercise");
-    assertThat(sessions.get(0).has("measures")).isFalse();
-    assertThat(sessions.get(0).has("takes")).isFalse();
-    assertThat(sessions.get(1).path("url").asText()).endsWith("/score/slug-" + etude);
+    assertThat(sessions).hasSize(3); // of 4
+    JsonNode exercise = sessions.get(0);
+    assertThat(exercise.path("kind").asText()).isEqualTo("exercise");
+    assertThat(exercise.has("practiceUrl")).isFalse();
+    JsonNode score = sessions.get(1);
+    assertThat(score.path("practiceUrl").asText()).endsWith("/work/slug-" + etude);
+    assertThat(score.has("title")).isTrue();
+    // no counters, no takes nor measures, no empty field: those are get_practice_session's
+    for (String heavy : List.of("measures", "takes", "notesExpected", "notesHit", "onsets", "waits", "startedAt", "url", "author")) {
+      assertThat(score.has(heavy)).as(heavy).isFalse();
+    }
+    score.properties().forEach(field -> assertThat(field.getValue().isNull()).as(field.getKey()).isFalse());
 
+    assertThat(data("get_practice_sessions", Map.of("limit", 10)).path("sessions")).hasSize(4);
     assertThat(data("get_practice_sessions", Map.of("limit", 2)).path("sessions")).hasSize(2);
     assertThat(data("get_practice_sessions", Map.of("kind", "exercise")).path("sessions")).hasSize(1);
     assertThat(data("get_practice_sessions", Map.of("scoreId", prelude.toString())).path("sessions")).hasSize(2);
-    assertThat(data("get_practice_sessions", Map.of("sinceDays", 1)).path("sessions")).hasSize(4);
+    assertThat(data("get_practice_sessions", Map.of("sinceDays", 1, "limit", 10)).path("sessions")).hasSize(4);
     assertThat(errorCode("get_practice_sessions", Map.of("scoreId", "not-a-uuid"))).isEqualTo("INVALID_ARGUMENT");
   }
 
