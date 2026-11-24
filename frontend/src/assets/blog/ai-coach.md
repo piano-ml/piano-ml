@@ -4,4 +4,5 @@ PianoML can turn the AI assistant you already use (Le Chat by Mistral, Claude, C
 
 PianoML does not run an AI itself: you bring your own assistant. What the assistant reads from PianoML goes to the company that runs it (Mistral AI for Le Chat, Anthropic for Claude, OpenAI for ChatGPT, and so on), under that company's privacy terms.
 
-Ready to connect yours? Follow the step-by-step guide: **[Set up your AI piano coach](/blog/ai-coach-setup)**. It takes a few minutes with Le Chat, Claude, ChatGPT or any other assistant that supports MCP.
+It takes a few seconds to connect any assistant.
+Ready to connect yours? Follow the step-by-step guide: **[Set up your AI piano coach](/blog/ai-coach-setup)**. 
