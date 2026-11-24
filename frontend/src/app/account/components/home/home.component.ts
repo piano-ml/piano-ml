@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
+import { bootstrapHeart } from '@ng-icons/bootstrap-icons';
 import { AuthService } from '../../services/auth.service';
 import { loginQueryParams } from '../../services/return-url';
 import { ACCOUNT_TABS } from './account-tabs';
@@ -13,8 +14,13 @@ import { aiRectangle } from '../../../shared/icons/custom-icons';
   selector: 'app-account-home',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, KeepInViewDirective, NgIcon],
   templateUrl: './home.component.html',
-  styles: '.tab-icon { font-size: 1.5em; vertical-align: -0.4em; margin-right: 0.1em; }',
-  viewProviders: [provideIcons({ aiRectangle: aiRectangle.data })],
+  // Icon and label centered on one line; the AI icon's square fills only 64% of its box, hence its larger size
+  styles: `
+    .tab-link { display: inline-flex; align-items: center; gap: 0.4em; }
+    .tab-icon { display: block; font-size: 1em; }
+    .tab-icon-ai { font-size: 1.5em; margin-inline: -0.2em; }
+  `,
+  viewProviders: [provideIcons({ aiRectangle: aiRectangle.data, bootstrapHeart })],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccountHomeComponent {
