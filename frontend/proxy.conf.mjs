@@ -9,16 +9,23 @@
 
 const target = process.env.API_TARGET ?? 'https://api.pianoml.org';
 
+const DOMAIN_ATTRIBUTE = /;\s*domain=[^;]*/i;
+const EXPIRED = /;\s*max-age=0\s*(?=;|$)/i;
+
 /**
  * Adapts API cookies to http://localhost / http://127.0.0.1:
- * - drops cookies scoped to a production domain (Domain=...): the browser would reject them anyway;
+ * - makes cookies scoped to a production domain (Domain=pianoml.org) host-only, since the browser would reject
+ *   them on localhost. The remote API scopes XSRF-TOKEN this way (the proxy strips Origin and targets a
+ *   pianoml.org host), and without it every write fails with CSRF_TOKEN_INVALID;
+ * - drops a domain cookie that only expires one (Max-Age=0): it targets a cookie that cannot exist on localhost,
+ *   and made host-only it could erase the live cookie of the same name;
  * - removes Secure, which browsers refuse on plain-http origins.
  * SameSite=Strict/Lax keep working: every request is same-origin for the browser.
  */
 export function rewriteSetCookies(setCookies) {
   return setCookies
-    .filter((cookie) => !/;\s*domain=/i.test(cookie))
-    .map((cookie) => cookie.replace(/;\s*secure(?=\s*;|\s*$)/gi, ''));
+    .filter((cookie) => !(DOMAIN_ATTRIBUTE.test(cookie) && EXPIRED.test(cookie)))
+    .map((cookie) => cookie.replace(new RegExp(DOMAIN_ATTRIBUTE, 'gi'), '').replace(/;\s*secure(?=\s*;|\s*$)/gi, ''));
 }
 
 export default {
