@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import type { Note } from '@tonejs/midi/dist/Note';
 import type { MidiStateEvent } from '../../shared/model/webmidi';
 import { CursorService } from './cursor.service';
-import { GOOD_RANGE, PlayerAssessService } from './player-assess.service';
+import { GOOD_RANGE, PlayerAssessService, TIMING_RANGE } from './player-assess.service';
 
 /**
  * The assessment compares what the score expects (learnExpectation, fed by the player as notes become due)
@@ -131,7 +131,7 @@ describe('PlayerAssessService', () => {
     it('the right pitch outside the window, or a pitch not in the score, is wrong', () => {
       assess.expectTimed(2, at(60, 1), 'rh');
       assess.expectTimed(5, at(64, 3), 'rh');
-      expect(assess.playTimed(2 + GOOD_RANGE + 0.01, 60)).toEqual({ bad: true });
+      expect(assess.playTimed(2 + TIMING_RANGE + 0.01, 60)).toEqual({ bad: true });
       expect(assess.playTimed(5, 61)).toEqual({ bad: true });
       const snapshot = assess.snapshot();
       expect(snapshot).toMatchObject({ hit: 0, wrong: 2, played: 2 });
@@ -152,6 +152,22 @@ describe('PlayerAssessService', () => {
       expect(assess.snapshot()).toMatchObject({ expected: 2, hit: 2, wrong: 1 });
     });
 
+    it('a right pitch beyond ±GOOD_RANGE but within ±TIMING_RANGE is a hit, shown late or early; an unplayed one missed', () => {
+      const late = at(60), early = at(62), inTime = at(64), missed = at(65);
+      assess.expectTimed(2, late, 'rh');
+      assess.expectTimed(3, early, 'rh');
+      assess.expectTimed(4, inTime, 'rh');
+      assess.expectTimed(5, missed, 'rh');
+      expect(assess.playTimed(2 + GOOD_RANGE + 0.05, 60)).toEqual({ bad: false });
+      expect(assess.playTimed(3 - GOOD_RANGE - 0.05, 62)).toEqual({ bad: false });
+      expect(assess.playTimed(4 + GOOD_RANGE - 0.01, 64)).toEqual({ bad: false });
+      assess.endTimed();
+      expect(assess.snapshot()).toMatchObject({ expected: 4, hit: 3, wrong: 0 });
+      expect(assess.timings()).toEqual([
+        { note: late, timing: 'late' }, { note: early, timing: 'early' }, { note: missed, timing: 'missed' },
+      ]);
+    });
+
     it('counts a chord as one onset, both hands included', () => {
       assess.expectTimed(1, at(60), 'rh');
       assess.expectTimed(1, at(48), 'lh');
@@ -163,9 +179,9 @@ describe('PlayerAssessService', () => {
     it('an unplayed note is missed once its window has closed, in a snapshot taken mid-take', () => {
       assess.expectTimed(1, at(60), 'rh');
       assess.expectTimed(4, at(62), 'rh');
-      transport = 1 + GOOD_RANGE - 0.01;
+      transport = 1 + TIMING_RANGE - 0.01;
       expect(assess.snapshot()).toMatchObject({ expected: 0, hit: 0 }); // still playable
-      transport = 1 + GOOD_RANGE + 0.01;
+      transport = 1 + TIMING_RANGE + 0.01;
       expect(assess.snapshot()).toMatchObject({ expected: 1, hit: 0, onsets: 1 });
       expect(assess.snapshot()).toMatchObject({ expected: 1 }); // counted once
     });
@@ -183,7 +199,7 @@ describe('PlayerAssessService', () => {
       assess.expectTimed(1, at(72), 'rh');
       assess.expectTimed(3, at(74), 'rh');
       assess.expectTimed(2, at(48), 'lh');
-      transport = 2 + GOOD_RANGE + 0.01;
+      transport = 2 + TIMING_RANGE + 0.01;
       expect(assess.snapshot()).toMatchObject({ expected: 2 }); // the notes at 1 and 2, not the one at 3
     });
 
@@ -292,6 +308,8 @@ describe('PlayerAssessService', () => {
 
       expect(assess.snapshot()).toMatchObject({ onsets: 2, waits: 1 });
       expect(assess.snapshot().measures.map((m) => m.waits)).toEqual([0, 1]);
+      // The notes of the onset waited for are shown late
+      expect(assess.timings().map(({ note, timing }) => [note.midi, timing])).toEqual([[62, 'late']]);
     });
 
     it('a note still awaited is expected but not hit', () => {

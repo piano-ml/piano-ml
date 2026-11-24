@@ -15,7 +15,7 @@ import { Cursor, GraphicalNote, OpenSheetMusicDisplay, Note as OSMDNote, VexFlow
 import { PlayerStateService } from './player-state.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
 import { PlayerAudioService } from './player-audio.service';
-import { LiveStatus, NoteKey, PlayerAssessService } from './player-assess.service';
+import { LiveStatus, NoteKey, NoteTiming, PlayerAssessService } from './player-assess.service';
 import { CursorService } from './cursor.service';
 import { PracticeSessionRecorder } from './practice-session-recorder.service';
 import { PlayGuideService } from './play-guide.service';
@@ -41,6 +41,9 @@ export function readCountInBars(): number {
   }
 }
 
+/** The colors of the notes played off time or missed, on the score when the pass ends (red: wrong notes). */
+const TIMING_COLORS: Record<NoteTiming, string> = { late: '#D4A000', early: '#1E6FD9', missed: '#9CA3AF' };
+
 @Injectable({
   providedIn: 'root'
 })
@@ -54,10 +57,12 @@ export class PlayerService implements OnDestroy {
   private guide = inject(PlayGuideService);
   private isBrowser: boolean;
   private timeCounterInterval?: number;
-  /** Wrong notes shown on the score: the previous pass's, until the count-in of the next one ends. */
+  /** Notes colored on the score (wrong, late, early, missed): the previous pass's, until the count-in of the next one ends. */
   private highlightedBadNotes = new Set<GraphicalNote>();
   /** Wrong notes of the pass in progress: shown when it ends (or is stopped), each with its offset in half tones. */
   private pendingBadNotes = new Map<GraphicalNote, number>();
+  /** The notehead of each score note of the pass, found under the cursor when the note became due. */
+  private scoreNotes = new Map<Note, GraphicalNote>();
   private badMessageTimer?: ReturnType<typeof setTimeout>;
   /** Unsubscribes processMidiEvent from the MIDI service. */
   private removeNoteListener: () => void;
@@ -275,6 +280,7 @@ export class PlayerService implements OnDestroy {
   async play(playConfigurations: PlayConfiguration) {
     this.audio.clearSchedule();
     this.pendingBadNotes.clear(); // the new pass collects its own
+    this.scoreNotes.clear();
     this.recorder.takeEnded(false);
     this.assess.reset();
     this.recorder.takeStarted(playConfigurations);
@@ -463,18 +469,40 @@ export class PlayerService implements OnDestroy {
     this.pendingBadNotes.set(closest, closest.sourceNote.halfTone - pitch + 12);
   }
 
-  /** The pass ended or was stopped: its wrong notes in red on the score, each moved by how far off the key was. */
+  /** The notehead under the cursor that sounds `note`, for timings() when the pass ends. */
+  private rememberScoreNote(note: Note) {
+    const graphical = (this.cursorService.cursor?.GNotesUnderCursor() as GraphicalNote[] | undefined)
+      ?.find((g) => g.sourceNote?.halfTone === note.midi - 12);
+    if (graphical) {
+      this.scoreNotes.set(note, graphical);
+    }
+  }
+
+  /**
+   * The pass ended or was stopped: its notes played late (yellow), early (blue) or missed (gray), then its wrong
+   * notes in red, each moved by how far off the key was.
+   */
   private revealBadNotes() {
-    for (const [note, delta] of this.pendingBadNotes) {
-      try {
-        note.setColor("#FF0000", {});
-        (note as VexFlowGraphicalNote).getSVGGElement().style.transform = "translateY(" + (delta * this.verticalPixelShiftValue) + "px) ";
-        this.highlightedBadNotes.add(note);
-      } catch {
-        // a note no longer rendered
+    for (const { note, timing } of this.assess.timings()) {
+      const graphical = this.scoreNotes.get(note);
+      if (graphical) {
+        this.highlight(graphical, TIMING_COLORS[timing], 0);
       }
     }
+    for (const [note, delta] of this.pendingBadNotes) {
+      this.highlight(note, '#FF0000', delta);
+    }
     this.pendingBadNotes.clear();
+  }
+
+  private highlight(note: GraphicalNote, color: string, delta: number) {
+    try {
+      note.setColor(color, {});
+      (note as VexFlowGraphicalNote).getSVGGElement().style.transform = delta ? `translateY(${delta * this.verticalPixelShiftValue}px)` : '';
+      this.highlightedBadNotes.add(note);
+    } catch {
+      // a note no longer rendered
+    }
   }
 
   private unHighlightBadNote() {
@@ -510,6 +538,7 @@ export class PlayerService implements OnDestroy {
         this.lightExpectedNotesOnKeyboard(liveStatus!);
       }
       this.cursorMayBeAdvance(note);
+      this.rememberScoreNote(note);
       this.keyboard.lightNoteOnKeyboard(hand, note);
     }, time);
   }
