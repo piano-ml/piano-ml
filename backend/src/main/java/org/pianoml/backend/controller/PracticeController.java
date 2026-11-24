@@ -56,7 +56,7 @@ public class PracticeController implements PracticeApi {
     }
     // Nothing assessed (neither accuracy nor flow): not stored
     return saved
-      .map(s -> ResponseEntity.ok(practiceSessionService.toApiInfo(s, practiceSessionService.slugOf(s))))
+      .map(s -> ResponseEntity.ok(practiceSessionService.toApiInfo(s, practiceSessionService.scoreOf(s))))
       .orElseGet(() -> ResponseEntity.noContent().build());
   }
 
@@ -65,7 +65,7 @@ public class PracticeController implements PracticeApi {
     User user = currentUser();
     List<PracticeSessionApiInfo> sessions = practiceSessionService.recent(user, limit == null ? 10 : limit, kind, scoreId)
       .stream()
-      .map(s -> practiceSessionService.toApiInfo(s, practiceSessionService.slugOf(s)))
+      .map(s -> practiceSessionService.toApiInfo(s, practiceSessionService.scoreOf(s)))
       .toList();
     return ResponseEntity.ok(sessions);
   }
