@@ -5,6 +5,14 @@
   margin: 0.25rem 0 1.5rem;
 }
 
+/* Small screens: the slider takes the row; the side margin keeps the end handles and pips on screen */
+@media (width < 40rem) {
+  .browse-grade-slider {
+    width: auto;
+    margin-inline: 1rem;
+  }
+}
+
 .browse-grade-slider.noUi-target {
   height: 0.5rem;
   background: #3f3f46;
