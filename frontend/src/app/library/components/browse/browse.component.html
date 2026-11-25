@@ -4,16 +4,17 @@
     <div class="flex gap-2">
       <input id="browse-search-keyword" #searchKeywordInput [(ngModel)]="searchKeyword" (keyup.enter)="onSearch()"
         i18n-placeholder="@@browse.search.placeholder" placeholder="Search scores by title, artist, or genre..." class="input-field flex-1">
-      <!-- Small screens: Search and Help show an icon, the text stays for screen readers; the input gets the room -->
+      <!-- Small screens: Search and Help show an icon, the text stays for screen readers; the input gets the room.
+           The icon is hidden through its wrapper: ng-icon's own host display would win over sm:hidden -->
       <button (click)="onSearch()" class="btn-primary max-sm:px-3" [disabled]="loading">
-        <ng-icon name="bootstrapSearch" class="sm:hidden" aria-hidden="true" />
+        <span class="flex sm:hidden" aria-hidden="true"><ng-icon name="bootstrapSearch" /></span>
         <span class="sr-only sm:not-sr-only">
           @if (loading) { <ng-container i18n="@@browse.searching">Searching...</ng-container> } @else { <ng-container i18n="@@browse.search">Search</ng-container> }
         </span>
       </button>
       <button (click)="startTour()" class="btn-secondary max-sm:px-3" i18n-aria-label="@@browse.help.label" aria-label="Restart library tour"
         i18n-title="@@browse.help.title" title="Show help tour">
-        <ng-icon name="bootstrapQuestionCircle" class="sm:hidden" aria-hidden="true" />
+        <span class="flex sm:hidden" aria-hidden="true"><ng-icon name="bootstrapQuestionCircle" /></span>
         <span class="sr-only sm:not-sr-only" i18n="@@browse.help">Help</span>
       </button>
       @if (activeSearchKeyword) {
