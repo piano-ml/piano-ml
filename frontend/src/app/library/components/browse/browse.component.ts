@@ -19,13 +19,17 @@ import { BeaconService } from 'ng-beacon';
 import { BROWSE_TOUR } from './browse.tour';
 import { KeyNamePipe } from '../../../shared/i18n';
 import { KeepInViewDirective } from '../../../shared/directives/keep-in-view.directive';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { bootstrapQuestionCircle, bootstrapSearch } from '@ng-icons/bootstrap-icons';
 
 @Component({
   selector: 'app-browse',
   templateUrl: './browse.component.html',
   styleUrl: './browse.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
+  viewProviders: [provideIcons({ bootstrapQuestionCircle, bootstrapSearch })],
   imports: [
+    NgIcon,
     KeepInViewDirective,
     FormsModule,
     ScoreTableComponent,
