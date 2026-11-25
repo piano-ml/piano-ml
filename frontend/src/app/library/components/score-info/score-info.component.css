@@ -28,6 +28,48 @@
   width: 100%;
 }
 
+/* Small screens: the toolbar is 3 equal columns (Browse to PDF on 3 lines when all are shown), Practice takes a row */
+@media (width < 640px) {
+  .toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  /* A long label (some languages) wraps; the buttons of a row keep the same height */
+  .toolbar > button {
+    min-width: 0;
+    padding-inline: 0.5rem;
+    text-align: center;
+  }
+
+  .toolbar > .practice {
+    grid-column: 1 / -1;
+  }
+
+  /* The favorite split button fills its cell; too narrow for "Favorite", the heart alone (it keeps its aria-label) */
+  .toolbar app-favorite-button {
+    container-type: inline-size;
+  }
+
+  .toolbar ::ng-deep app-favorite-button .fav-group {
+    width: 100%;
+    height: 100%;
+  }
+
+  .toolbar ::ng-deep app-favorite-button .fav-heart {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-inline: 0.5rem;
+  }
+
+  @container (width < 9.5rem) {
+    .toolbar ::ng-deep app-favorite-button .fav-heart > span {
+      display: none;
+    }
+  }
+}
+
 .download-error {
   display: flex;
   align-items: flex-start;
