@@ -1,0 +1,45 @@
+@let b = beat();
+<div class="beat-indicator" [class.beat-large]="size() === 'large'" [class.beat-compact]="size() === 'compact'"
+  [class.beat-paused]="!running()" [class.beat-downbeat]="downbeat()"
+  [style.--beat-duration]="b.beatSeconds + 's'" role="img" [attr.aria-label]="ariaLabel()">
+  <svg class="beat-ring" viewBox="0 0 100 100" aria-hidden="true">
+    @for (segment of segments(); track segment.index) {
+    <circle class="beat-track" [class.beat-track-downbeat]="segment.index === 0" cx="50" cy="50" r="44"
+      pathLength="100" [attr.stroke-dasharray]="segment.length + ' 100'"
+      [attr.transform]="'rotate(' + segment.rotate + ' 50 50)'" />
+    @if (segment.state === 'past') {
+    <circle class="beat-fill" [class.beat-fill-downbeat]="segment.index === 0" cx="50" cy="50" r="44"
+      pathLength="100" [attr.stroke-dasharray]="segment.length + ' 100'"
+      [attr.transform]="'rotate(' + segment.rotate + ' 50 50)'" />
+    }
+    @if (segment.state === 'current') {
+    <!-- Keyed by the beat: a new beat starts a new fill, even on the same number -->
+    @for (seq of [b.seq]; track seq) {
+    <circle class="beat-fill beat-filling" [class.beat-fill-downbeat]="segment.index === 0" cx="50" cy="50" r="44"
+      pathLength="100" [style.--beat-length]="segment.length"
+      [attr.transform]="'rotate(' + segment.rotate + ' 50 50)'" />
+    }
+    }
+    }
+  </svg>
+
+  <div class="beat-center">
+    @if (size() === 'large') {
+    <div class="beat-phase">{{ phaseLabel() }}</div>
+    }
+    @for (seq of [b.seq]; track seq) {
+    <div class="beat-number">{{ b.beat }}</div>
+    }
+    @if (size() === 'large') {
+    <div class="beat-meta">
+      @if (bpm(); as tempo) {
+      <span class="beat-bpm">♩ {{ tempo }}</span>
+      }
+      <span class="beat-signature">{{ b.timeSignature[0] }}/{{ b.timeSignature[1] }}</span>
+      @if (b.phase === 'count-in' && b.countInBars > 1) {
+      <span class="beat-bar"><ng-container i18n="@@beat.bar">Bar</ng-container> {{ b.countInBar }}/{{ b.countInBars }}</span>
+      }
+    </div>
+    }
+  </div>
+</div>

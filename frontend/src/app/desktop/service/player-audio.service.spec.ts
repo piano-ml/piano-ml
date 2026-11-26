@@ -411,6 +411,25 @@ describe('PlayerAudioService', () => {
       expect(click.mock.calls.slice(-3).map(([strong]) => strong)).toEqual([true, false, true]);
     });
 
+    it('shows each beat on the indicator, count-in then playing, metronome on or off', () => {
+      state.playConfiguration.useMetronome = false;
+      const click = vi.spyOn(audio, 'playMetronomeClick').mockImplementation(() => undefined);
+      audio.startCountIn(2, { timeSignature: [3, 4] } as TimeSignatureEvent, 120);
+      const seen: string[] = [];
+      for (const event of schedule.events.filter((e) => !e.kind.startsWith('repeat'))) {
+        event.fn(0);
+        const b = state.beat()!;
+        seen.push(`${b.phase} ${b.countInBar}:${b.beat}`);
+      }
+      expect(seen).toEqual(['count-in 1:1', 'count-in 1:2', 'count-in 1:3', 'count-in 2:1', 'count-in 2:2', 'count-in 2:3']);
+      const clicks = click.mock.calls.length;
+      const repeat = schedule.events.find((e) => e.kind.startsWith('repeat'))!;
+      const seq = state.beat()!.seq;
+      repeat.fn(0); repeat.fn(0);
+      expect(state.beat()).toMatchObject({ phase: 'playing', beat: 2, beatsPerBar: 3, beatSeconds: 0.5, seq: seq + 2 });
+      expect(click.mock.calls.length).toBe(clicks); // the metronome is off: no click while playing
+    });
+
     it('defaults to 4/4 without a time signature', () => {
       expect(audio.startCountIn(1, undefined as unknown as TimeSignatureEvent, 60)).toBeCloseTo(4);
     });

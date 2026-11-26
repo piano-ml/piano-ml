@@ -1510,6 +1510,26 @@
         <source>Remote coach on</source>
         <target state="translated">เปิดโค้ชทางไกลแล้ว</target>
       </trans-unit>
+      <trans-unit id="beat.bar" datatype="html">
+        <source>Bar</source>
+        <target state="translated">ห้อง</target>
+      </trans-unit>
+      <trans-unit id="beat.waiting" datatype="html">
+        <source>Waiting</source>
+        <target state="translated">กำลังรอ</target>
+      </trans-unit>
+      <trans-unit id="beat.countIn" datatype="html">
+        <source>Count-in</source>
+        <target state="translated">นับนำ</target>
+      </trans-unit>
+      <trans-unit id="beat.playing" datatype="html">
+        <source>Playing</source>
+        <target state="translated">กำลังเล่น</target>
+      </trans-unit>
+      <trans-unit id="beat.ofBar" datatype="html">
+        <source>Beat <x id="beat" equiv-text="beat"/> of <x id="beats" equiv-text="beatsPerBar"/></source>
+        <target state="translated">จังหวะ <x id="beat" equiv-text="beat"/> จาก <x id="beats" equiv-text="beatsPerBar"/></target>
+      </trans-unit>
       <trans-unit id="latency.heading" datatype="html">
         <source>Timing calibration</source>
         <target state="translated">ปรับเทียบจังหวะ</target>
@@ -1658,34 +1678,6 @@
         <source> PianoML — The app might play piano (not the keyboard) </source>
         <target state="translated">PianoML — ให้แอปเล่นเสียงเปียโน (ไม่ใช่คีย์บอร์ด)</target>
       </trans-unit>
-      <trans-unit id="midiSetup.lowestKey" datatype="html">
-        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">คีย์ MIDI ต่ำสุด <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(กดโน้ตหนึ่งตัว)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="midiSetup.highestKey" datatype="html">
-        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">คีย์ MIDI สูงสุด <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(กดโน้ตหนึ่งตัว)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="midiSetup.listening.lowest" datatype="html">
-        <source>Listening for MIDI — lowest key…</source>
-        <target state="translated">กำลังรอสัญญาณ MIDI — คีย์ต่ำสุด…</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.listening.highest" datatype="html">
-        <source>Listening for MIDI — highest key…</source>
-        <target state="translated">กำลังรอสัญญาณ MIDI — คีย์สูงสุด…</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.key.min" datatype="html">
-        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
-        <target state="translated">ต่ำสุด <x id="INTERPOLATION" equiv-text="{{ 21 }}"/></target>
-      </trans-unit>
-      <trans-unit id="midiSetup.key.max" datatype="html">
-        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
-        <target state="translated">สูงสุด <x id="INTERPOLATION" equiv-text="{{ 108 }}"/></target>
-      </trans-unit>
-      <trans-unit id="midiSetup.lowestKeyMustBeLess" datatype="html">
-        <source>Lowest key must be less than highest key.</source>
-        <target state="translated">คีย์ต่ำสุดต้องต่ำกว่าคีย์สูงสุด</target>
-      </trans-unit>
       <trans-unit id="midiSetup.hideKeyboard" datatype="html">
         <source>Hide Keyboard</source>
         <target state="translated">ซ่อนคีย์บอร์ด</target>
@@ -1733,6 +1725,34 @@
       <trans-unit id="midiSetup.calibration.open" datatype="html">
         <source>Calibrate…</source>
         <target state="translated">ปรับเทียบ…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.lowestKey" datatype="html">
+        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">คีย์ MIDI ต่ำสุด <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(กดโน้ตหนึ่งตัว)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.highestKey" datatype="html">
+        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">คีย์ MIDI สูงสุด <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(กดโน้ตหนึ่งตัว)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.lowest" datatype="html">
+        <source>Listening for MIDI — lowest key…</source>
+        <target state="translated">กำลังรอสัญญาณ MIDI — คีย์ต่ำสุด…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.highest" datatype="html">
+        <source>Listening for MIDI — highest key…</source>
+        <target state="translated">กำลังรอสัญญาณ MIDI — คีย์สูงสุด…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.min" datatype="html">
+        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
+        <target state="translated">ต่ำสุด <x id="INTERPOLATION" equiv-text="{{ 21 }}"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.max" datatype="html">
+        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
+        <target state="translated">สูงสุด <x id="INTERPOLATION" equiv-text="{{ 108 }}"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.lowestKeyMustBeLess" datatype="html">
+        <source>Lowest key must be less than highest key.</source>
+        <target state="translated">คีย์ต่ำสุดต้องต่ำกว่าคีย์สูงสุด</target>
       </trans-unit>
       <trans-unit id="midiSetup.inputFallback" datatype="html">
         <source>MIDI Input</source>
@@ -2482,26 +2502,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source> Start with 2 keys per day. Each day work on a different key pair. The following sequence takes 12 days to complete a full cycle of all 24 major + minor keys. </source>
         <target state="translated">เริ่มด้วยวันละ 2 บันไดเสียง แต่ละวันฝึกคู่ที่ต่างกัน ลำดับต่อไปนี้ใช้เวลา 12 วันเพื่อครบทั้ง 24 บันไดเสียงเมเจอร์และไมเนอร์</target>
       </trans-unit>
-      <trans-unit id="exercises.majorSharp" datatype="html">
-        <source>Major Keys (Sharp):</source>
-        <target state="translated">บันไดเสียงเมเจอร์ (ชาร์ป):</target>
-      </trans-unit>
-      <trans-unit id="exercises.day" datatype="html">
-        <source>Day <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</source>
-        <target state="translated">วันที่ <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</target>
-      </trans-unit>
-      <trans-unit id="exercises.majorFlat" datatype="html">
-        <source>Major Keys (Flat):</source>
-        <target state="translated">บันไดเสียงเมเจอร์ (แฟลต):</target>
-      </trans-unit>
-      <trans-unit id="exercises.minorSharp" datatype="html">
-        <source>Minor Keys (Sharp):</source>
-        <target state="translated">บันไดเสียงไมเนอร์ (ชาร์ป):</target>
-      </trans-unit>
-      <trans-unit id="exercises.minorFlat" datatype="html">
-        <source>Minor Keys (Flat):</source>
-        <target state="translated">บันไดเสียงไมเนอร์ (แฟลต):</target>
-      </trans-unit>
       <trans-unit id="exercises.level1.chromatic" datatype="html">
         <source>You can add the Chromatic Scale to any of these keys, starting on the key note.</source>
         <target state="translated">คุณเพิ่มบันไดเสียงโครมาติกให้กับบันไดเสียงใดก็ได้ โดยเริ่มจากโน้ตโทนิก</target>
@@ -2541,6 +2541,26 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="exercises.level4b.intro" datatype="html">
         <source>An alternative sequence goes the opposite direction around the Circle of 5ths.</source>
         <target state="translated">ลำดับทางเลือกที่ไปรอบวงจรคู่ห้าในทิศทางตรงกันข้าม</target>
+      </trans-unit>
+      <trans-unit id="exercises.day" datatype="html">
+        <source>Day <x id="INTERPOLATION" equiv-text="{{ group.day }}"/>:</source>
+        <target state="translated">วันที่ <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorSharp" datatype="html">
+        <source>Major Keys (Sharp):</source>
+        <target state="translated">บันไดเสียงเมเจอร์ (ชาร์ป):</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorFlat" datatype="html">
+        <source>Major Keys (Flat):</source>
+        <target state="translated">บันไดเสียงเมเจอร์ (แฟลต):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorSharp" datatype="html">
+        <source>Minor Keys (Sharp):</source>
+        <target state="translated">บันไดเสียงไมเนอร์ (ชาร์ป):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorFlat" datatype="html">
+        <source>Minor Keys (Flat):</source>
+        <target state="translated">บันไดเสียงไมเนอร์ (แฟลต):</target>
       </trans-unit>
       <trans-unit id="exercise.contrary_motion.title" datatype="html">
         <source>Contrary motion starting on the same note.</source>
@@ -3095,7 +3115,7 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <target state="translated">แสดงคำแนะนำ</target>
       </trans-unit>
       <trans-unit id="browse.help" datatype="html">
-        <source> Help </source>
+        <source>Help</source>
         <target state="translated"> ช่วยเหลือ </target>
       </trans-unit>
       <trans-unit id="browse.clear" datatype="html">
@@ -3502,13 +3522,13 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - Piano Score</source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> โดย <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - โน้ตเพลงเปียโน</target>
       </trans-unit>
-      <trans-unit id="score.copyLink" datatype="html">
-        <source>Copy link</source>
-        <target state="translated">คัดลอกลิงก์</target>
-      </trans-unit>
       <trans-unit id="score.back" datatype="html">
         <source>← Browse</source>
         <target state="translated">← เลือกดู</target>
+      </trans-unit>
+      <trans-unit id="score.copyLink" datatype="html">
+        <source>Copy link</source>
+        <target state="translated">คัดลอกลิงก์</target>
       </trans-unit>
       <trans-unit id="score.edit" datatype="html">
         <source>Edit</source>

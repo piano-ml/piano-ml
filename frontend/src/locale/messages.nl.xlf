@@ -1510,6 +1510,26 @@
         <source>Remote coach on</source>
         <target state="translated">Coach op afstand aan</target>
       </trans-unit>
+      <trans-unit id="beat.bar" datatype="html">
+        <source>Bar</source>
+        <target state="translated">Maat</target>
+      </trans-unit>
+      <trans-unit id="beat.waiting" datatype="html">
+        <source>Waiting</source>
+        <target state="translated">Wachten</target>
+      </trans-unit>
+      <trans-unit id="beat.countIn" datatype="html">
+        <source>Count-in</source>
+        <target state="translated">Aftellen</target>
+      </trans-unit>
+      <trans-unit id="beat.playing" datatype="html">
+        <source>Playing</source>
+        <target state="translated">Speelt</target>
+      </trans-unit>
+      <trans-unit id="beat.ofBar" datatype="html">
+        <source>Beat <x id="beat" equiv-text="beat"/> of <x id="beats" equiv-text="beatsPerBar"/></source>
+        <target state="translated">Tel <x id="beat" equiv-text="beat"/> van <x id="beats" equiv-text="beatsPerBar"/></target>
+      </trans-unit>
       <trans-unit id="latency.heading" datatype="html">
         <source>Timing calibration</source>
         <target state="translated">Timingkalibratie</target>
@@ -1658,34 +1678,6 @@
         <source> PianoML — The app might play piano (not the keyboard) </source>
         <target state="translated">PianoML — De app speelt piano (niet het keyboard)</target>
       </trans-unit>
-      <trans-unit id="midiSetup.lowestKey" datatype="html">
-        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">Laagste MIDI-toets <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(speel een noot)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="midiSetup.highestKey" datatype="html">
-        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">Hoogste MIDI-toets <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(speel een noot)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="midiSetup.listening.lowest" datatype="html">
-        <source>Listening for MIDI — lowest key…</source>
-        <target state="translated">Luisteren naar MIDI – laagste toets…</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.listening.highest" datatype="html">
-        <source>Listening for MIDI — highest key…</source>
-        <target state="translated">Luisteren naar MIDI – hoogste toets…</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.key.min" datatype="html">
-        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
-        <target state="translated">Min. <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.key.max" datatype="html">
-        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
-        <target state="translated">Max. <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.lowestKeyMustBeLess" datatype="html">
-        <source>Lowest key must be less than highest key.</source>
-        <target state="translated">De laagste toets moet lager zijn dan de hoogste.</target>
-      </trans-unit>
       <trans-unit id="midiSetup.hideKeyboard" datatype="html">
         <source>Hide Keyboard</source>
         <target state="translated">Toetsenbord verbergen</target>
@@ -1733,6 +1725,34 @@
       <trans-unit id="midiSetup.calibration.open" datatype="html">
         <source>Calibrate…</source>
         <target state="translated">Kalibreren…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.lowestKey" datatype="html">
+        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Laagste MIDI-toets <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(speel een noot)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.highestKey" datatype="html">
+        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Hoogste MIDI-toets <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(speel een noot)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.lowest" datatype="html">
+        <source>Listening for MIDI — lowest key…</source>
+        <target state="translated">Luisteren naar MIDI – laagste toets…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.highest" datatype="html">
+        <source>Listening for MIDI — highest key…</source>
+        <target state="translated">Luisteren naar MIDI – hoogste toets…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.min" datatype="html">
+        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
+        <target state="translated">Min. <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.max" datatype="html">
+        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
+        <target state="translated">Max. <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.lowestKeyMustBeLess" datatype="html">
+        <source>Lowest key must be less than highest key.</source>
+        <target state="translated">De laagste toets moet lager zijn dan de hoogste.</target>
       </trans-unit>
       <trans-unit id="midiSetup.inputFallback" datatype="html">
         <source>MIDI Input</source>
@@ -2482,26 +2502,6 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
         <source> Start with 2 keys per day. Each day work on a different key pair. The following sequence takes 12 days to complete a full cycle of all 24 major + minor keys. </source>
         <target state="translated">Begin met 2 toonsoorten per dag, elke dag een ander paar. De volgende reeks duurt 12 dagen voor een volledige cyclus van alle 24 majeur- en mineurtoonsoorten.</target>
       </trans-unit>
-      <trans-unit id="exercises.majorSharp" datatype="html">
-        <source>Major Keys (Sharp):</source>
-        <target state="translated">Majeurtoonsoorten (kruisen):</target>
-      </trans-unit>
-      <trans-unit id="exercises.day" datatype="html">
-        <source>Day <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</source>
-        <target state="translated">Dag <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</target>
-      </trans-unit>
-      <trans-unit id="exercises.majorFlat" datatype="html">
-        <source>Major Keys (Flat):</source>
-        <target state="translated">Majeurtoonsoorten (mollen):</target>
-      </trans-unit>
-      <trans-unit id="exercises.minorSharp" datatype="html">
-        <source>Minor Keys (Sharp):</source>
-        <target state="translated">Mineurtoonsoorten (kruisen):</target>
-      </trans-unit>
-      <trans-unit id="exercises.minorFlat" datatype="html">
-        <source>Minor Keys (Flat):</source>
-        <target state="translated">Mineurtoonsoorten (mollen):</target>
-      </trans-unit>
       <trans-unit id="exercises.level1.chromatic" datatype="html">
         <source>You can add the Chromatic Scale to any of these keys, starting on the key note.</source>
         <target state="translated">Je kunt bij elk van deze toonsoorten de chromatische toonladder toevoegen, beginnend op de grondtoon.</target>
@@ -2541,6 +2541,26 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
       <trans-unit id="exercises.level4b.intro" datatype="html">
         <source>An alternative sequence goes the opposite direction around the Circle of 5ths.</source>
         <target state="translated">Een alternatieve reeks gaat in de andere richting rond de kwintencirkel.</target>
+      </trans-unit>
+      <trans-unit id="exercises.day" datatype="html">
+        <source>Day <x id="INTERPOLATION" equiv-text="{{ group.day }}"/>:</source>
+        <target state="translated">Dag <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorSharp" datatype="html">
+        <source>Major Keys (Sharp):</source>
+        <target state="translated">Majeurtoonsoorten (kruisen):</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorFlat" datatype="html">
+        <source>Major Keys (Flat):</source>
+        <target state="translated">Majeurtoonsoorten (mollen):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorSharp" datatype="html">
+        <source>Minor Keys (Sharp):</source>
+        <target state="translated">Mineurtoonsoorten (kruisen):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorFlat" datatype="html">
+        <source>Minor Keys (Flat):</source>
+        <target state="translated">Mineurtoonsoorten (mollen):</target>
       </trans-unit>
       <trans-unit id="exercise.contrary_motion.title" datatype="html">
         <source>Contrary motion starting on the same note.</source>
@@ -3095,7 +3115,7 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
         <target state="translated">Rondleiding tonen</target>
       </trans-unit>
       <trans-unit id="browse.help" datatype="html">
-        <source> Help </source>
+        <source>Help</source>
         <target state="translated"> Help </target>
       </trans-unit>
       <trans-unit id="browse.clear" datatype="html">
@@ -3502,13 +3522,13 @@ Gebruik: over mineurakkoorden en mineurbluescontexten (i7- / i-centra) als je de
         <source><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - Piano Score</source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> van <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - Pianomuziek</target>
       </trans-unit>
-      <trans-unit id="score.copyLink" datatype="html">
-        <source>Copy link</source>
-        <target state="translated">Link kopiëren</target>
-      </trans-unit>
       <trans-unit id="score.back" datatype="html">
         <source>← Browse</source>
         <target state="translated">← Bladeren</target>
+      </trans-unit>
+      <trans-unit id="score.copyLink" datatype="html">
+        <source>Copy link</source>
+        <target state="translated">Link kopiëren</target>
       </trans-unit>
       <trans-unit id="score.edit" datatype="html">
         <source>Edit</source>

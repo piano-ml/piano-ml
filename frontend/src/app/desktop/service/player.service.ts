@@ -81,6 +81,10 @@ export class PlayerService implements OnDestroy {
   get elapsedTime() { return this.state.elapsedTime; }
   get duration() { return this.state.duration; }
   get isWaiting() { return this.state.isWaiting; }
+  /** The beat being heard (count-in or playing), null when nothing plays. */
+  get beat() { return this.state.beat.asReadonly(); }
+  /** False while wait mode waits for the student: the beat indicator stops with the music. */
+  get transportRunning() { return this.audio.running.asReadonly(); }
   get playConfiguration() { return this.state.playConfiguration; }
   get currentMeasure() { return this.state.currentMeasure; }
   get lastMidiEventTime() { return this.state.lastMidiEventTime; }
@@ -253,6 +257,7 @@ export class PlayerService implements OnDestroy {
 
   pause() {
     this.audio.pause();
+    this.state.beat.set(null);
     this.guide.allOff();
     this.recorder.takeEnded(false);
     this.revealBadNotes(); // stopped: the wrong notes of what was played
@@ -262,6 +267,7 @@ export class PlayerService implements OnDestroy {
     this.playConfiguration = playConfiguration;
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
     this.audio.stop();
+    this.state.beat.set(null);
     this.recorder.takeEnded(false); // a take still open is cut short (no-op after a pause or the end)
     this.assess.reset();
     this.lastMidiEventTime = -1;
@@ -279,6 +285,7 @@ export class PlayerService implements OnDestroy {
 
   async play(playConfigurations: PlayConfiguration) {
     this.audio.clearSchedule();
+    this.state.beat.set(null);
     this.pendingBadNotes.clear(); // the new pass collects its own
     this.scoreNotes.clear();
     this.recorder.takeEnded(false);
@@ -334,6 +341,7 @@ export class PlayerService implements OnDestroy {
         this.message.set('');
       }, 100);
       this.playConfiguration.currentStave = this.playConfiguration.scoreRange[0];
+      this.state.beat.set(null);
 
       // The take reached the end of its range; recorded before reset() clears the assessment
       this.assess.endTimed();

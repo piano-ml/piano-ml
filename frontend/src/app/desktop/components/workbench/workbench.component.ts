@@ -13,6 +13,7 @@ import { firstValueFrom, BehaviorSubject, filter, map, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { OsmdComponent } from '../osmd/osmd.component';
 import { FormsModule } from '@angular/forms';
+import { BeatIndicatorComponent } from '../beat-indicator/beat-indicator.component';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
 import { MidiSetupComponent } from '../midi-setup/midi-setup.component';
 import { TempoControlComponent } from '../tempo-control/tempo-control.component';
@@ -59,7 +60,7 @@ export function scoreLoadErrorMessage(error: unknown): string {
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, MixerDialogComponent, RemoteCoachToggleComponent],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, BeatIndicatorComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, MixerDialogComponent, RemoteCoachToggleComponent],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -92,6 +93,9 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   showMidiBlockedDialog = false;
   protected readonly midiBlockedMessage = MIDI_BLOCKED_MESSAGE;
   protected get soundFontState() { return this.playerService.soundFontState; }
+  /** The beat heard: a large indicator over the score during the count-in, a compact one while playing. */
+  protected get beat() { return this.playerService.beat; }
+  protected get transportRunning() { return this.playerService.transportRunning; }
   private midiPermission: PermissionStatus | null = null;
   private midiBlockedChecked = false;
   /** The popup opens once per visit, whichever check notices first. */

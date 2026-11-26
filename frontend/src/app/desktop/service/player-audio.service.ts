@@ -5,7 +5,7 @@ import { WorkletSynthesizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
 import { GOOD_RANGE, LiveStatus, PlayerAssessService } from './player-assess.service';
-import { PlayerStateService } from './player-state.service';
+import { BeatState, PlayerStateService } from './player-state.service';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import { SOUNDFONT_WORKLET_URL, loadSoundFontFile } from '../../shared/services/soundfont-cache';
@@ -117,6 +117,8 @@ export class PlayerAudioService implements OnDestroy {
   readonly latencyCalibrationMs = signal(readLatencyCalibration());
   /** The soundfont (about 10 MB) and its synth: Play is only offered once they are 'ready'. */
   readonly soundFontState = signal<'loading' | 'ready' | 'error'>('loading');
+  /** Whether the transport runs: false while wait mode waits for the student, or once stopped. */
+  readonly running = signal(false);
 
   constructor(
     private assess: PlayerAssessService,
@@ -490,6 +492,7 @@ export class PlayerAudioService implements OnDestroy {
       if (transport.state !== 'started') {
         this.ngZone.runOutsideAngular(() => transport.start());
       }
+      this.running.set(true);
     })();
 
     try {
@@ -510,6 +513,7 @@ export class PlayerAudioService implements OnDestroy {
       return false;
     }
     this.ngZone.runOutsideAngular(() => transport.start());
+    this.running.set(true);
     return true;
   }
 
@@ -528,6 +532,7 @@ export class PlayerAudioService implements OnDestroy {
       }
     }
     this.transport().pause();
+    this.running.set(false);
   }
 
   /**
@@ -538,6 +543,7 @@ export class PlayerAudioService implements OnDestroy {
     const draw = this.draw();
     this.guide.allOff();
     transport.stop();
+    this.running.set(false);
     transport.position = 0;
     this.clearSchedule();
 
@@ -743,6 +749,11 @@ export class PlayerAudioService implements OnDestroy {
   }
 
 
+  /** The beat indicator follows the audio clock: it shows `beat` when its click is heard. */
+  private showBeat(beat: Omit<BeatState, 'seq'>, time: number): void {
+    this.scheduleDraw(() => this.state.beat.update((previous) => ({ ...beat, seq: (previous?.seq ?? 0) + 1 })), time);
+  }
+
   /**
    * Décompte de mesure précis avant le départ, basé sur Tone.Transport
    */
@@ -773,24 +784,31 @@ export class PlayerAudioService implements OnDestroy {
     const transport = this.transport();
 
     const totalCountInBeats = beatsPerBar * bar;
+    const beatOf = (phase: BeatState['phase'], beatInBar: number, countInBar: number): Omit<BeatState, 'seq'> => ({
+      phase, beat: beatInBar + 1, beatsPerBar, countInBar, countInBars: bar, beatSeconds: stepSeconds,
+      timeSignature: [numerator, denominator],
+    });
     for (let i = 0; i < totalCountInBeats; i++) {
       offset = i * stepSeconds;
 
       transport.scheduleOnce((time: number) => {
         this.playMetronomeClick(i % beatsPerBar === 0, METRONOME_FULL_VELOCITY, time, null); // the count-in: not mixed
+        this.showBeat(beatOf('count-in', i % beatsPerBar, Math.floor(i / beatsPerBar) + 1), time);
       }, `${i * stepSeconds}`);
     }
 
     offset = totalCountInBeats * stepSeconds;
-    // metronome all allong
-    if (this.state.playConfiguration.useMetronome) {
-      let beatInBar = 0;
-      transport.scheduleRepeat((time: number) => {
-        const currentBeat = beatInBar;
-        beatInBar = (beatInBar + 1) % beatsPerBar;
+    // The beats all along: the metronome's clicks when it is on, the beat indicator always
+    const clicks = this.state.playConfiguration.useMetronome;
+    let beatInBar = 0;
+    transport.scheduleRepeat((time: number) => {
+      const currentBeat = beatInBar;
+      beatInBar = (beatInBar + 1) % beatsPerBar;
+      if (clicks) {
         this.playMetronomeClick(currentBeat === 0, METRONOME_FULL_VELOCITY, time); // at the metronome's level
-      }, stepSeconds, offset);
-    }
+      }
+      this.showBeat(beatOf('playing', currentBeat, 0), time);
+    }, stepSeconds, offset);
     return offset;
   }
 

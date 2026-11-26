@@ -325,3 +325,37 @@ app-workbench ::-webkit-scrollbar {
 #measure-range .noUi-marker-horizontal.noUi-marker.is-elapsed {
   background: var(--color-emerald-500);
 }
+
+/* The beat indicator: large over the score during the count-in, in a corner when the top bar is hidden */
+.wb-beat-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.wb-beat-enter {
+  animation: wb-beat-fade 200ms ease-out;
+}
+
+.wb-beat-leave {
+  animation: wb-beat-fade 250ms ease-in reverse;
+}
+
+@keyframes wb-beat-fade {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.wb-beat-corner {
+  position: fixed;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 30;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  pointer-events: none;
+}

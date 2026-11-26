@@ -8,6 +8,25 @@ import type { OpenSheetMusicDisplay, Cursor } from 'opensheetmusicdisplay';
  * Service central qui contient tout l'état partagé entre les différents services du player.
  * Ce service agit comme une source unique de vérité pour l'état du lecteur.
  */
+/**
+ * The beat being heard, for the beat indicator: set at each count-in or metronome beat, on the audio clock (Tone.Draw,
+ * when the click is heard), null when nothing plays.
+ */
+export interface BeatState {
+  phase: 'count-in' | 'playing';
+  /** 1-based beat within the bar. */
+  beat: number;
+  beatsPerBar: number;
+  /** 1-based bar of the count-in (count-in phase only). */
+  countInBar: number;
+  countInBars: number;
+  /** How long the beat lasts (seconds, tempo included). */
+  beatSeconds: number;
+  timeSignature: [number, number];
+  /** Increases at each beat: a new beat restarts the indicator's animations, even on the same number. */
+  seq: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -22,6 +41,7 @@ export class PlayerStateService {
   /** Wrong notes played so far: bumped on each one, so that two wrong notes in a row are two changes. */
   readonly wrongNotes = signal(0);
   readonly elapsedTime = new BehaviorSubject<number>(0);
+  readonly beat = signal<BeatState | null>(null);
 
   // Playback state
   duration = 0;
@@ -86,6 +106,7 @@ export class PlayerStateService {
 
   resetSession(): void {
     this.osmd = null;
+    this.beat.set(null);
     this.message.set("");
     this.elapsedTime.next(0);
     this.duration = 0;

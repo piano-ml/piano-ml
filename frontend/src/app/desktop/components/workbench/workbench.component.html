@@ -14,6 +14,20 @@
 }
 <div class="flex flex-col flex-grow h-dvh bg-white">
 
+  @if (beat(); as b) {
+  @if (b.phase === 'count-in') {
+  <!-- The count-in, large over the score: the player catches the beat before the first note -->
+  <div class="wb-beat-overlay" animate.enter="wb-beat-enter" animate.leave="wb-beat-leave">
+    <app-beat-indicator size="large" [beat]="b" [running]="transportRunning()" [bpm]="tempo" />
+  </div>
+  } @else if (!toggleToolbar) {
+  <!-- Playing with the top bar hidden (small screens): the compact indicator floats in a corner -->
+  <div class="wb-beat-corner wb-lcd">
+    <app-beat-indicator size="compact" [beat]="b" [running]="transportRunning()" />
+  </div>
+  }
+  }
+
   <div class="bg-black relative"><!-- top bar -->
 
     @if (toggleToolbar) {
@@ -32,6 +46,11 @@
                   &nbsp;{{ title }}
                 </div>
               </div>
+              @if (beat(); as b) {
+              @if (b.phase === 'playing') {
+              <app-beat-indicator class="flex-none mr-2" size="compact" [beat]="b" [running]="transportRunning()" />
+              }
+              }
               <div class="flex-none flex flex-col text-sm">
                 <div class="text-center">
                   {{ (elapsedTime | async) | elapsedTime }}
