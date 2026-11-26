@@ -4,6 +4,9 @@ import { BehaviorSubject } from 'rxjs';
 import type { PlayConfiguration, lateNote } from '../model/model';
 import type { OpenSheetMusicDisplay, Cursor } from 'opensheetmusicdisplay';
 
+/** How long wait mode must wait for the student before the keyboard shows, hidden or not (milliseconds). */
+export const WAIT_KEYBOARD_DELAY_MS = 250;
+
 /**
  * Service central qui contient tout l'état partagé entre les différents services du player.
  * Ce service agit comme une source unique de vérité pour l'état du lecteur.
@@ -25,7 +28,27 @@ export class PlayerStateService {
 
   // Playback state
   duration = 0;
-  isWaiting = false;
+  /**
+   * Wait mode: playback is paused until the student plays the notes due. Once that lasts WAIT_KEYBOARD_DELAY_MS,
+   * waitedLong turns true, until playback goes on or stops: the workbench shows the keyboard meanwhile, even when
+   * the student hid it.
+   */
+  get isWaiting(): boolean { return this.waiting; }
+  set isWaiting(value: boolean) {
+    if (value === this.waiting) {
+      return;
+    }
+    this.waiting = value;
+    clearTimeout(this.waitTimer);
+    if (value) {
+      this.waitTimer = setTimeout(() => this.waitedLong.set(true), WAIT_KEYBOARD_DELAY_MS);
+    } else {
+      this.waitedLong.set(false);
+    }
+  }
+  readonly waitedLong = signal(false);
+  private waiting = false;
+  private waitTimer?: ReturnType<typeof setTimeout>;
   playConfiguration!: PlayConfiguration;
   currentMeasure = -1;
   lastMidiEventTime = 0; // TODO: duplicate of currentTick?

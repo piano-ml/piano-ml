@@ -27,10 +27,11 @@ export interface LastTake {
   notesHit: number;
   notesWrong: number;
   onsets: number;
+  /** Notes played late (orange) */
   waits: number;
-  /** notesHit / (notesExpected + notesWrong); null when nothing was assessed */
+  /** 1 - (red + gray notes) / notes = notesHit / (notesExpected + notesWrong); null when nothing was assessed */
   accuracy: number | null;
-  /** 1 - waits / onsets; null when nothing was assessed */
+  /** 1 - (orange + red + gray notes) / notes = (notesHit - waits) / (notesExpected + notesWrong); null when nothing was assessed */
   flow: number | null;
 }
 

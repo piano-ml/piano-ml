@@ -656,7 +656,7 @@ describe('WorkbenchComponent', () => {
       const recorder = TestBed.inject(PracticeSessionRecorder);
       recorder.lastTake.set({ measureStart: 1, measureEnd: 2, completed: true, hands: 'both', tempoFactor: 0.6,
         notesExpected: 20, notesHit: 18, notesWrong: 2, onsets: 10, waits: 1 });
-      expect(control().state().lastTake).toMatchObject({ completed: true, accuracy: 18 / 22, flow: 0.9 });
+      expect(control().state().lastTake).toMatchObject({ completed: true, accuracy: 18 / 22, flow: 17 / 22 });
     });
   });
 

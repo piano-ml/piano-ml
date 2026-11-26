@@ -81,7 +81,7 @@ describe('PlayerControlService', () => {
     expect(waitFor('listen')).toEqual({ left: false, right: false });
     expect(accuracyOf(20, 15, 5)).toBe(15 / 25);
     expect(accuracyOf(0, 0, 3)).toBeNull();
-    expect(flowOf(10, 2)).toBe(0.8);
-    expect(flowOf(0, 0)).toBeNull();
+    expect(flowOf(20, 15, 5, 3)).toBe(12 / 25); // 1 - (3 orange + 5 red + 5 gray) / 25 notes
+    expect(flowOf(0, 0, 3, 0)).toBeNull();
   });
 });

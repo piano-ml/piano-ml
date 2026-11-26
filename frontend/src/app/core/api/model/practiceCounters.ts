@@ -30,7 +30,7 @@ export interface PracticeCounters {
      */
     onsets?: number;
     /**
-     * Onsets completed late - playback had to wait for the user
+     * Expected notes played late - playback had to wait for the user (a subset of notesHit)
      */
     waits?: number;
 }

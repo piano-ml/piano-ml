@@ -218,8 +218,9 @@
     </button>
   </div>
 
-  @if (!hideKeyboard && !(loading$ | async)) {
-  <div class="flex-none">
+  <!-- Hidden, the keyboard still shows while wait mode waits: the notes due are lit on it -->
+  @if ((!hideKeyboard || waitedLong()) && !(loading$ | async)) {
+  <div class="flex-none" animate.enter="wb-keyboard-enter" animate.leave="wb-keyboard-leave">
     <app-keyboard [minKey]="keyboardMinKey" [maxKey]="keyboardMaxKey" [keyHeight]="keyboardHeight"></app-keyboard>
   </div>
   }

@@ -325,3 +325,17 @@ app-workbench ::-webkit-scrollbar {
 #measure-range .noUi-marker-horizontal.noUi-marker.is-elapsed {
   background: var(--color-emerald-500);
 }
+
+/* The keyboard fades in and out (shown, hidden, or while wait mode waits); opacity only, no motion */
+.wb-keyboard-enter {
+  animation: wb-keyboard-fade 250ms ease-out;
+}
+
+.wb-keyboard-leave {
+  animation: wb-keyboard-fade 250ms ease-in reverse;
+}
+
+@keyframes wb-keyboard-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
