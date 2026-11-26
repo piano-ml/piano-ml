@@ -411,23 +411,17 @@ describe('PlayerAudioService', () => {
       expect(click.mock.calls.slice(-3).map(([strong]) => strong)).toEqual([true, false, true]);
     });
 
-    it('shows each beat on the indicator, count-in then playing, metronome on or off', () => {
+    it('shows each count-in beat on the indicator, and nothing more once the music starts', () => {
       state.playConfiguration.useMetronome = false;
-      const click = vi.spyOn(audio, 'playMetronomeClick').mockImplementation(() => undefined);
+      vi.spyOn(audio, 'playMetronomeClick').mockImplementation(() => undefined);
       audio.startCountIn(2, { timeSignature: [3, 4] } as TimeSignatureEvent, 120);
       const seen: string[] = [];
-      for (const event of schedule.events.filter((e) => !e.kind.startsWith('repeat'))) {
+      for (const event of schedule.events) {
         event.fn(0);
         const b = state.beat()!;
-        seen.push(`${b.phase} ${b.countInBar}:${b.beat}`);
+        seen.push(`${b.countInBar}:${b.beat}/${b.beatsPerBar} ${b.beatSeconds}s #${b.seq}`);
       }
-      expect(seen).toEqual(['count-in 1:1', 'count-in 1:2', 'count-in 1:3', 'count-in 2:1', 'count-in 2:2', 'count-in 2:3']);
-      const clicks = click.mock.calls.length;
-      const repeat = schedule.events.find((e) => e.kind.startsWith('repeat'))!;
-      const seq = state.beat()!.seq;
-      repeat.fn(0); repeat.fn(0);
-      expect(state.beat()).toMatchObject({ phase: 'playing', beat: 2, beatsPerBar: 3, beatSeconds: 0.5, seq: seq + 2 });
-      expect(click.mock.calls.length).toBe(clicks); // the metronome is off: no click while playing
+      expect(seen).toEqual(['1:1/3 0.5s #1', '1:2/3 0.5s #2', '1:3/3 0.5s #3', '2:1/3 0.5s #4', '2:2/3 0.5s #5', '2:3/3 0.5s #6']);
     });
 
     it('defaults to 4/4 without a time signature', () => {

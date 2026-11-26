@@ -85,10 +85,8 @@ export class PlayerService implements OnDestroy {
   get elapsedTime() { return this.state.elapsedTime; }
   get duration() { return this.state.duration; }
   get isWaiting() { return this.state.isWaiting; }
-  /** The beat being heard (count-in or playing), null when nothing plays. */
+  /** The count-in beat being heard, null once the music starts or when nothing plays. */
   get beat() { return this.state.beat.asReadonly(); }
-  /** False while wait mode waits for the student: the beat indicator stops with the music. */
-  get transportRunning() { return this.audio.running.asReadonly(); }
   /** Wait mode: playback has waited WAIT_KEYBOARD_DELAY_MS for the student (see PlayerStateService). */
   get waitedLong() { return this.state.waitedLong.asReadonly(); }
   get playConfiguration() { return this.state.playConfiguration; }
@@ -320,9 +318,13 @@ export class PlayerService implements OnDestroy {
       this.playConfiguration.midi!.header.tempos[0].bpm * this.playConfiguration.tempoFactor
     );
     midiEndTime = midiEndTime + offset;
-    // The previous pass's wrong notes stay on the score during the count-in, and go when the playing starts again
+    // The previous pass's wrong notes stay on the score during the count-in, and go when the playing starts again,
+    // with the count-in indicator
     if (offset > 0) {
-      this.audio.schedule((time) => this.audio.scheduleDraw(() => this.unHighlightBadNote(), time), offset);
+      this.audio.schedule((time) => this.audio.scheduleDraw(() => {
+        this.unHighlightBadNote();
+        this.state.beat.set(null);
+      }, time), offset);
     } else {
       this.unHighlightBadNote();
     }

@@ -1510,21 +1510,13 @@
         <source>Remote coach on</source>
         <target state="translated">远程教练已开启</target>
       </trans-unit>
-      <trans-unit id="beat.bar" datatype="html">
-        <source>Bar</source>
-        <target state="translated">小节</target>
-      </trans-unit>
-      <trans-unit id="beat.waiting" datatype="html">
-        <source>Waiting</source>
-        <target state="translated">等待中</target>
-      </trans-unit>
       <trans-unit id="beat.countIn" datatype="html">
         <source>Count-in</source>
         <target state="translated">预备拍</target>
       </trans-unit>
-      <trans-unit id="beat.playing" datatype="html">
-        <source>Playing</source>
-        <target state="translated">播放中</target>
+      <trans-unit id="beat.bar" datatype="html">
+        <source>Bar</source>
+        <target state="translated">小节</target>
       </trans-unit>
       <trans-unit id="beat.ofBar" datatype="html">
         <source>Beat <x id="beat" equiv-text="beat"/> of <x id="beats" equiv-text="beatsPerBar"/></source>

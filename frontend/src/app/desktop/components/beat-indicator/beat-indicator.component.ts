@@ -15,9 +15,9 @@ interface Segment {
 }
 
 /**
- * The bar as a ring, one segment per beat: the beats played are filled, the current one fills over its duration, and
- * the beat number pulses in the middle, stronger on the downbeat. Driven by BeatState, which is set on the audio
- * clock: the animations restart at each beat and never run ahead of the clicks.
+ * The count-in bar as a ring, one segment per beat: the beats counted are filled, the current one fills over its
+ * duration, and the beat number pulses in the middle, stronger on the downbeat. Driven by BeatState, which is set on
+ * the audio clock: the animations restart at each click and never run ahead of it.
  */
 @Component({
   selector: 'app-beat-indicator',
@@ -28,12 +28,8 @@ interface Segment {
 })
 export class BeatIndicatorComponent {
   readonly beat = input.required<BeatState>();
-  /** False while wait mode waits for the student: the current beat stops filling. */
-  readonly running = input(true);
   /** Quarter notes per minute, as the workbench shows the tempo. */
   readonly bpm = input<number>();
-  /** `large`: over the score during the count-in; `compact`: in the toolbar while playing. */
-  readonly size = input<'large' | 'compact'>('large');
 
   protected readonly segments = computed<Segment[]>(() => {
     const { beat, beatsPerBar } = this.beat();
@@ -47,19 +43,8 @@ export class BeatIndicatorComponent {
     }));
   });
 
-  protected readonly downbeat = computed(() => this.beat().beat === 1);
-
-  protected readonly phaseLabel = computed(() => {
-    if (!this.running()) {
-      return $localize`:@@beat.waiting:Waiting`;
-    }
-    return this.beat().phase === 'count-in'
-      ? $localize`:@@beat.countIn:Count-in`
-      : $localize`:@@beat.playing:Playing`;
-  });
-
   protected readonly ariaLabel = computed(() => {
     const { beat, beatsPerBar } = this.beat();
-    return `${this.phaseLabel()}: ${$localize`:@@beat.ofBar:Beat ${beat}:beat: of ${beatsPerBar}:beats:`}`;
+    return `${$localize`:@@beat.countIn:Count-in`}: ${$localize`:@@beat.ofBar:Beat ${beat}:beat: of ${beatsPerBar}:beats:`}`;
   });
 }

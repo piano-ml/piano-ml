@@ -326,7 +326,7 @@ app-workbench ::-webkit-scrollbar {
   background: var(--color-emerald-500);
 }
 
-/* The beat indicator: large over the score during the count-in, in a corner when the top bar is hidden */
+/* The beat indicator, over the score during the count-in */
 .wb-beat-overlay {
   position: fixed;
   inset: 0;
@@ -348,16 +348,6 @@ app-workbench ::-webkit-scrollbar {
 @keyframes wb-beat-fade {
   from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
-}
-
-.wb-beat-corner {
-  position: fixed;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 30;
-  padding: 0.25rem;
-  border-radius: 9999px;
-  pointer-events: none;
 }
 
 /* The keyboard fades in and out (shown, hidden, or while wait mode waits); opacity only, no motion */

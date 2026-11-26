@@ -12,15 +12,14 @@ export const WAIT_KEYBOARD_DELAY_MS = 250;
  * Ce service agit comme une source unique de vérité pour l'état du lecteur.
  */
 /**
- * The beat being heard, for the beat indicator: set at each count-in or metronome beat, on the audio clock (Tone.Draw,
- * when the click is heard), null when nothing plays.
+ * The count-in beat being heard, for the beat indicator: set at each click on the audio clock (Tone.Draw, when the
+ * click is heard), null once the music starts or when nothing plays.
  */
 export interface BeatState {
-  phase: 'count-in' | 'playing';
   /** 1-based beat within the bar. */
   beat: number;
   beatsPerBar: number;
-  /** 1-based bar of the count-in (count-in phase only). */
+  /** 1-based bar of the count-in. */
   countInBar: number;
   countInBars: number;
   /** How long the beat lasts (seconds, tempo included). */

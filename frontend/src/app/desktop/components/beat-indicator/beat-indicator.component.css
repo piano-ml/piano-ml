@@ -2,9 +2,8 @@
   display: inline-block;
 }
 
+/* A dark disk over the score, light marks */
 .beat-indicator {
-  /* Large: a dark disk over the score, light marks */
-  --beat-bg: rgba(12, 10, 9, 0.94);
   --beat-text: #f5f5f4;
   --beat-muted: #a8a29e;
   --beat-track: rgba(255, 255, 255, 0.16);
@@ -13,27 +12,14 @@
   position: relative;
   display: grid;
   place-items: center;
-  border-radius: 9999px;
-  color: var(--beat-text);
-  font-variant-numeric: tabular-nums;
-}
-
-.beat-large {
   width: min(64vw, 15rem);
   aspect-ratio: 1;
-  background: var(--beat-bg);
+  border-radius: 9999px;
+  background: rgba(12, 10, 9, 0.94);
   backdrop-filter: blur(3px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-}
-
-/* Compact: on the LCD of the toolbar, dark marks, no disk */
-.beat-compact {
-  --beat-text: #1c1917;
-  --beat-track: rgba(0, 0, 0, 0.18);
-  --beat-fill: #1c1917;
-  --beat-accent: #b45309;
-  width: 2.5rem;
-  height: 2.5rem;
+  color: var(--beat-text);
+  font-variant-numeric: tabular-nums;
 }
 
 .beat-ring {
@@ -46,11 +32,6 @@
 .beat-ring circle {
   fill: none;
   stroke-width: 6;
-  stroke-linecap: butt;
-}
-
-.beat-compact .beat-ring circle {
-  stroke-width: 9;
 }
 
 .beat-track {
@@ -69,10 +50,6 @@
 .beat-filling {
   stroke-dasharray: 0 100;
   animation: beat-fill var(--beat-duration, 0.5s) linear forwards;
-}
-
-.beat-paused .beat-filling {
-  animation-play-state: paused;
 }
 
 @keyframes beat-fill {
@@ -101,10 +78,6 @@
   font-weight: 600;
   /* The onset: a short pulse at each click */
   animation: beat-pulse 160ms ease-out;
-}
-
-.beat-compact .beat-number {
-  font-size: 1.1rem;
 }
 
 .beat-downbeat .beat-number {

@@ -93,9 +93,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   showMidiBlockedDialog = false;
   protected readonly midiBlockedMessage = MIDI_BLOCKED_MESSAGE;
   protected get soundFontState() { return this.playerService.soundFontState; }
-  /** The beat heard: a large indicator over the score during the count-in, a compact one while playing. */
+  /** The count-in beat heard: the beat indicator over the score. */
   protected get beat() { return this.playerService.beat; }
-  protected get transportRunning() { return this.playerService.transportRunning; }
   /** While wait mode waits for the student (after WAIT_KEYBOARD_DELAY_MS), the keyboard shows, hidden or not. */
   protected get waitedLong() { return this.playerService.waitedLong; }
   private midiPermission: PermissionStatus | null = null;

@@ -1510,21 +1510,13 @@
         <source>Remote coach on</source>
         <target state="translated">เปิดโค้ชทางไกลแล้ว</target>
       </trans-unit>
-      <trans-unit id="beat.bar" datatype="html">
-        <source>Bar</source>
-        <target state="translated">ห้อง</target>
-      </trans-unit>
-      <trans-unit id="beat.waiting" datatype="html">
-        <source>Waiting</source>
-        <target state="translated">กำลังรอ</target>
-      </trans-unit>
       <trans-unit id="beat.countIn" datatype="html">
         <source>Count-in</source>
         <target state="translated">นับนำ</target>
       </trans-unit>
-      <trans-unit id="beat.playing" datatype="html">
-        <source>Playing</source>
-        <target state="translated">กำลังเล่น</target>
+      <trans-unit id="beat.bar" datatype="html">
+        <source>Bar</source>
+        <target state="translated">ห้อง</target>
       </trans-unit>
       <trans-unit id="beat.ofBar" datatype="html">
         <source>Beat <x id="beat" equiv-text="beat"/> of <x id="beats" equiv-text="beatsPerBar"/></source>
