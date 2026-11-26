@@ -18,7 +18,7 @@ import { PracticeSessionRecorder } from './practice-session-recorder.service';
 type Callbacks = { onNoteStart: (t: number, n: Note, s: LiveStatus) => void; onNoteEnd: (t: number, n: Note, s: LiveStatus) => void };
 
 const status = (overrides: Partial<LiveStatus> = {}): LiveStatus => ({
-  shouldPause: false, expectations: new Map(), early: new Map(), bad: null, total: 0, badCount: 0, late: 0, ...overrides,
+  shouldPause: false, expectations: new Map(), early: new Map(), bad: null, badKey: null, total: 0, badCount: 0, late: 0, ...overrides,
 });
 
 describe('PlayerService', () => {
@@ -411,6 +411,43 @@ describe('PlayerService', () => {
         vi.advanceTimersByTime(1000);
         expect(player.message()).toBe('');
         player.pause();
+        expect(red(rendered.host)).toBeGreaterThan(0);
+      });
+
+      it('in wait mode, a key that may be played early is only BAD once no score note has matched it', async () => {
+        load({ waitForRightHand: true });
+        vi.useFakeTimers();
+        const badKey = { hand: 'rh', midi: 73 };
+        vi.spyOn(assess, 'getNewActual').mockReturnValue(status({ bad: 73, badKey }));
+        const early = vi.spyOn(assess, 'wasPlayedEarly').mockReturnValue(true);
+        const before = player.wrongNotes();
+        await send(down(73));
+        expect(player.message()).toBe('');
+        vi.advanceTimersByTime(1000);
+        expect(player.message()).toBe(''); // matched: a right note played early
+        expect(player.wrongNotes()).toBe(before);
+
+        early.mockReturnValue(false);
+        await send(down(73));
+        vi.advanceTimersByTime(250);
+        expect(player.message()).toBe(''); // still within GOOD_RANGE
+        vi.advanceTimersByTime(100);
+        expect(player.message()).toBe('BAD');
+        expect(player.wrongNotes()).toBe(before + 1);
+      });
+
+      it('in wait mode, stopping judges the keys not judged yet, and shows them', async () => {
+        load({ waitForRightHand: true });
+        const rendered = await renderScore(SIMPLE_SCORE);
+        dispose = rendered.dispose;
+        await player.setOsmd(rendered.osmd);
+        rendered.osmd.cursor.reset();
+        vi.useFakeTimers();
+        vi.spyOn(assess, 'getNewActual').mockReturnValue(status({ bad: 73, badKey: { hand: 'rh', midi: 73 } }));
+        vi.spyOn(assess, 'wasPlayedEarly').mockReturnValue(false);
+        await send(down(73));
+        player.pause();
+        expect(player.message()).toBe('BAD');
         expect(red(rendered.host)).toBeGreaterThan(0);
       });
 

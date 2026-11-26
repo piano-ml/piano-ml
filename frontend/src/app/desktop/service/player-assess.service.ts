@@ -5,20 +5,14 @@ import { CursorService } from "./cursor.service";
 
 
 /**
- * A note played within ±GOOD_RANGE seconds of its due time is in time (a hit): ±120 ms, the end of the
- * "Okay / Borderline" category below.
- *
- * Category           | Timing deviation (absolute value) | What it feels/sounds like                                 | Practical advice for beginners
- * Perfect            | 0 – 40 ms                         | Feels locked in, very solid                               | Ideal target when practicing slowly with a metronome
- * Good / Acceptable  | 40 – 80 ms                        | Still sounds “in time” to most listeners                  | Completely fine for beginners; keep practicing toward the perfect range
- * Okay / Borderline  | 80 – 120 ms                       | Slightly early or late, noticeable if you listen carefully | Workable while learning a piece, but try to tighten it
+ * The one timing tolerance of the assessment, in seconds: in play-along, a key pressed within ±GOOD_RANGE of a
+ * score note's due time hits it (otherwise it is a wrong note, and the note is missed once its window closes); in
+ * wait mode, an onset completed more than GOOD_RANGE after it was due is late (playback had to wait).
  */
-export const GOOD_RANGE = 120 / 1000
-/** Play-along: a note played within ±TIMING_RANGE but beyond ±GOOD_RANGE still counts, as late or early. */
-export const TIMING_RANGE = 250 / 1000
+export const GOOD_RANGE = 250 / 1000
 
 /** How a note of the take went, shown on the score when the pass ends (see timings()). */
-export type NoteTiming = 'late' | 'early' | 'missed';
+export type NoteTiming = 'late' | 'missed';
 
 export interface NoteKey {
   hand: string;
@@ -30,6 +24,10 @@ export interface LiveStatus {
   expectations: Map<number, Set<NoteKey>>;
   early: Map<number, Set<NoteKey>>;
   bad: number | null;
+  /**
+   * Wait mode: the key of the last wrong note, while it may still be a note played early (see wasPlayedEarly()).
+   */
+  badKey: NoteKey | null;
   /** Notes expected so far. */
   total: number;
   badCount: number;
@@ -46,7 +44,10 @@ export interface AssessCounters {
   wrong: number;
   /** Expected note or chord onsets. */
   onsets: number;
-  /** Onsets completed more than GOOD_RANGE after they were due: playback had to wait for the user. */
+  /**
+   * Expected notes played late (orange on the score): those of the onsets completed more than GOOD_RANGE after
+   * they were due, which playback had to wait for. A subset of the hit notes.
+   */
   waits: number;
 }
 
@@ -62,7 +63,7 @@ export interface AssessSnapshot extends AssessCounters {
   played: number;
 }
 
-/** A score note due at a transport time, in play-along mode: the user may play it within ±TIMING_RANGE. */
+/** A score note due at a transport time, in play-along mode: the user may play it within ±GOOD_RANGE. */
 interface TimedExpectation {
   /** Transport seconds, count-in included. */
   time: number;
@@ -71,8 +72,6 @@ interface TimedExpectation {
   hand: string;
   measure: number | undefined;
   hit: boolean;
-  /** Played, but beyond ±GOOD_RANGE. */
-  timing?: 'late' | 'early';
   /** Counted as expected: when played, or once its window closed unplayed (missed). */
   counted: boolean;
 }
@@ -97,6 +96,8 @@ export class PlayerAssessService implements OnDestroy {
   private measureCounters = new Map<number, AssessCounters>();
   /** Measure of each pending expectation and of each early (so far wrong) note. */
   private measureOfKey = new WeakMap<NoteKey, number>();
+  /** Wait mode: wrong notes taken back, as they were played ahead of the score note they matched. */
+  private matchedEarly = new WeakSet<NoteKey>();
   /** When each pending onset became due (ms), by its expectation time. */
   private onsetDueAt = new Map<number, { at: number; measure: number | undefined }>();
   private countedOnsets = new Set<number>();
@@ -127,6 +128,7 @@ export class PlayerAssessService implements OnDestroy {
     expectations: new Map<number, Set<NoteKey>>(),
     early: new Map<number, Set<NoteKey>>(),
     bad: null,
+    badKey: null,
     total: 0,
     badCount: 0,
     late: 0,
@@ -137,6 +139,7 @@ export class PlayerAssessService implements OnDestroy {
       shouldPause: false,
       expectations: new Map<number, Set<NoteKey>>(),
       bad: null,
+      badKey: null,
       early: new Map<number, Set<NoteKey>>(),
       total: 0,
       badCount: 0,
@@ -146,6 +149,7 @@ export class PlayerAssessService implements OnDestroy {
     this.counters = emptyCounters();
     this.measureCounters.clear();
     this.measureOfKey = new WeakMap<NoteKey, number>();
+    this.matchedEarly = new WeakSet<NoteKey>();
     this.onsetDueAt.clear();
     this.countedOnsets.clear();
     this.lastMeasure = undefined;
@@ -178,7 +182,7 @@ export class PlayerAssessService implements OnDestroy {
    */
   beginTimed(from: number): void {
     this.sortTimed();
-    const first = this.lowerBound(from - TIMING_RANGE);
+    const first = this.lowerBound(from - GOOD_RANGE);
     if (first > 0) {
       this.timed.splice(0, first);
       this.settledIndex = Math.max(0, this.settledIndex - first);
@@ -198,13 +202,13 @@ export class PlayerAssessService implements OnDestroy {
 
   /**
    * Play-along mode: the user pressed `pitch` at transport `now`. It hits the closest unplayed score note of that
-   * pitch due within ±TIMING_RANGE (late or early beyond ±GOOD_RANGE); otherwise it is a wrong note.
+   * pitch due within ±GOOD_RANGE; otherwise it is a wrong note.
    */
   playTimed(now: number, pitch: number): { bad: boolean } {
     this.settleTimed();
     this.played += 1;
     let best: TimedExpectation | undefined;
-    for (let i = this.lowerBound(now - TIMING_RANGE); i < this.timed.length && this.timed[i].time <= now + TIMING_RANGE; i++) {
+    for (let i = this.lowerBound(now - GOOD_RANGE); i < this.timed.length && this.timed[i].time <= now + GOOD_RANGE; i++) {
       const candidate = this.timed[i];
       if (!candidate.hit && candidate.midi === pitch
         && (!best || Math.abs(candidate.time - now) < Math.abs(best.time - now))) {
@@ -216,9 +220,6 @@ export class PlayerAssessService implements OnDestroy {
         this.countTimed(best);
       }
       best.hit = true;
-      if (Math.abs(now - best.time) > GOOD_RANGE) {
-        best.timing = now > best.time ? 'late' : 'early';
-      }
       this.count('hit', best.measure, 1);
       return { bad: false };
     }
@@ -230,7 +231,7 @@ export class PlayerAssessService implements OnDestroy {
   private settleTimed(): void {
     this.sortTimed();
     const now = this.clock();
-    for (; this.settledIndex < this.timed.length && this.timed[this.settledIndex].time + TIMING_RANGE < now; this.settledIndex++) {
+    for (; this.settledIndex < this.timed.length && this.timed[this.settledIndex].time + GOOD_RANGE < now; this.settledIndex++) {
       const expectation = this.timed[this.settledIndex];
       if (!expectation.counted) {
         this.countTimed(expectation);
@@ -325,6 +326,7 @@ export class PlayerAssessService implements OnDestroy {
   getNewActual(audioTime: number, midiEvent: MidiStateEvent): LiveStatus | null {
     this.played += 1;
     this.liveStatus.bad = null;
+    this.liveStatus.badKey = null;
     if (!this.maybeRemovePitchFromExpectations(midiEvent.note)) {
       this.liveStatus.bad = midiEvent.note;
       this.liveStatus.badCount += 1;
@@ -335,34 +337,42 @@ export class PlayerAssessService implements OnDestroy {
         earlySet = new Set<NoteKey>();
         this.liveStatus.early.set(midiEvent.time, earlySet);
       }
-      const earlyKey: NoteKey = { hand: 'rh', midi: midiEvent.note };
-      const keyExists = Array.from(earlySet).some(k => k.hand === 'rh' && k.midi === midiEvent.note);
-      if (!keyExists) {
+      let earlyKey = Array.from(earlySet).find(k => k.hand === 'rh' && k.midi === midiEvent.note);
+      if (!earlyKey) {
+        earlyKey = { hand: 'rh', midi: midiEvent.note };
         earlySet.add(earlyKey);
         if (wrongMeasure !== undefined) {
           this.measureOfKey.set(earlyKey, wrongMeasure);
         }
       }
+      this.liveStatus.badKey = earlyKey;
     }
     this.checkShouldPause();
     return this.liveStatus;
   }
 
   /**
-   * The notes of the take played late or early, or missed once their window closed (play-along); in wait mode, the
-   * notes of the onsets the score had to wait for, as late. When no note at all was hit (the user just listened),
-   * nothing is reported as missed: a score painted all gray says nothing.
+   * The notes of the take missed once their window closed (play-along); in wait mode, the notes of the onsets the
+   * score had to wait for, as late. When no note at all was hit (the user just listened), nothing is reported as
+   * missed: a score painted all gray says nothing.
    */
   timings(): { note: Note; timing: NoteTiming }[] {
     const timings = this.lateNotes.map((note) => ({ note, timing: 'late' as NoteTiming }));
     const anyHit = this.timed.some((expectation) => expectation.hit);
     for (const expectation of this.timed) {
-      const timing = expectation.hit ? expectation.timing : expectation.counted && anyHit ? 'missed' : undefined;
-      if (timing) {
-        timings.push({ note: expectation.note, timing });
+      if (!expectation.hit && expectation.counted && anyHit) {
+        timings.push({ note: expectation.note, timing: 'missed' });
       }
     }
     return timings;
+  }
+
+  /**
+   * Wait mode: whether the wrong note of `badKey` (LiveStatus) turned out to be a right note played early, matched
+   * by a score note that became due within GOOD_RANGE.
+   */
+  wasPlayedEarly(badKey: NoteKey): boolean {
+    return this.matchedEarly.has(badKey);
   }
 
   /** The counters of the current take: everything since the last reset(). */
@@ -413,7 +423,7 @@ export class PlayerAssessService implements OnDestroy {
     }
   }
 
-  /** An onset has all its notes: it was a wait if that took longer than GOOD_RANGE. */
+  /** An onset has all its notes: they are late (waits) if that took longer than GOOD_RANGE. */
   private onsetCompleted(noteTimeStart: number): void {
     const due = this.onsetDueAt.get(noteTimeStart);
     if (!due) {
@@ -423,7 +433,7 @@ export class PlayerAssessService implements OnDestroy {
     const notes = this.onsetNotes.get(noteTimeStart) ?? [];
     this.onsetNotes.delete(noteTimeStart);
     if (this.now() - due.at > GOOD_RANGE * 1000) {
-      this.count('waits', due.measure, 1);
+      this.count('waits', due.measure, notes.length);
       this.lateNotes.push(...notes);
     }
   }
@@ -477,6 +487,7 @@ export class PlayerAssessService implements OnDestroy {
       for (const earlyNote of earlyNotes) {
         if (this.maybeRemovePitchFromExpectations(earlyNote.midi)) {
           notesToDelete.push(earlyNote);
+          this.matchedEarly.add(earlyNote);
           // Played ahead of the score, not wrong: take back the wrong note counted when it was played
           this.count('wrong', this.measureOfKey.get(earlyNote), -1);
         }

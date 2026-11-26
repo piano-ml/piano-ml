@@ -18,7 +18,7 @@
       "practice:read"
     ],
     "timeoutSeconds": 10,
-    "description": "Overview of the student's practice: streak, volume, accuracy trend, level, most practiced keys and the five most recent pieces. Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
+    "description": "Overview of the student's practice: streak, volume, accuracy trend, level, most practiced keys and the five most recent pieces. Accuracy is correct notes over expected plus wrong notes; flow also counts as faults the notes played late, when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -38,7 +38,7 @@
       "practice:read"
     ],
     "timeoutSeconds": 10,
-    "description": "Day-by-day practice over a period: which days were practiced, for how long, and the streaks. Use it for questions about regularity. Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
+    "description": "Day-by-day practice over a period: which days were practiced, for how long, and the streaks. Use it for questions about regularity. Accuracy is correct notes over expected plus wrong notes; flow also counts as faults the notes played late, when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -65,7 +65,7 @@
       "practice:read"
     ],
     "timeoutSeconds": 10,
-    "description": "The pieces and exercises the student has practiced, with progress on each. Sort by recent, weakest, most_practiced, best or stale (not played for 14 days and not mastered). Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
+    "description": "The pieces and exercises the student has practiced, with progress on each. Sort by recent, weakest, most_practiced, best or stale (not played for 14 days and not mastered). Accuracy is correct notes over expected plus wrong notes; flow also counts as faults the notes played late, when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -111,7 +111,7 @@
       "practice:read"
     ],
     "timeoutSeconds": 10,
-    "description": "Everything known about the student's progress on one piece or one exercise: accuracy history, best tempo, coverage, weakest measures and the last sessions. Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
+    "description": "Everything known about the student's progress on one piece or one exercise: accuracy history, best tempo, coverage, weakest measures and the last sessions. Accuracy is correct notes over expected plus wrong notes; flow also counts as faults the notes played late, when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -156,7 +156,7 @@
       "practice:read"
     ],
     "timeoutSeconds": 10,
-    "description": "The measures where the student is weakest, across all pieces, each with a suggested range to loop. Use it to decide what to practice next. Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
+    "description": "The measures where the student is weakest, across all pieces, each with a suggested range to loop. Use it to decide what to practice next. Accuracy is correct notes over expected plus wrong notes; flow also counts as faults the notes played late, when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -185,7 +185,7 @@
       "practice:read"
     ],
     "timeoutSeconds": 10,
-    "description": "Time practiced and accuracy per musical key. Use it to find keys the student avoids or struggles in. Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
+    "description": "Time practiced and accuracy per musical key. Use it to find keys the student avoids or struggles in. Accuracy is correct notes over expected plus wrong notes; flow also counts as faults the notes played late, when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
     "inputSchema": {
       "type": "object",
       "properties": {},
@@ -199,7 +199,7 @@
       "practice:read"
     ],
     "timeoutSeconds": 10,
-    "description": "The student's last practice sessions, newest first, one short line each: what, when, range, hands, tempo, accuracy and flow. One session is all the takes on one piece or exercise during one visit. get_practice_session gives one session in detail. Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
+    "description": "The student's last practice sessions, newest first, one short line each: what, when, range, hands, tempo, accuracy and flow. One session is all the takes on one piece or exercise during one visit. get_practice_session gives one session in detail. Accuracy is correct notes over expected plus wrong notes; flow also counts as faults the notes played late, when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -240,7 +240,7 @@
       "practice:read"
     ],
     "timeoutSeconds": 10,
-    "description": "One practice session in detail: each take (range, tempo, hands, result) and the measures with their counters. Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
+    "description": "One practice session in detail: each take (range, tempo, hands, result) and the measures with their counters. Accuracy is correct notes over expected plus wrong notes; flow also counts as faults the notes played late, when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null.",
     "inputSchema": {
       "type": "object",
       "properties": {

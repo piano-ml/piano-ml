@@ -96,6 +96,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   /** The beat heard: a large indicator over the score during the count-in, a compact one while playing. */
   protected get beat() { return this.playerService.beat; }
   protected get transportRunning() { return this.playerService.transportRunning; }
+  /** While wait mode waits for the student (after WAIT_KEYBOARD_DELAY_MS), the keyboard shows, hidden or not. */
+  protected get waitedLong() { return this.playerService.waitedLong; }
   private midiPermission: PermissionStatus | null = null;
   private midiBlockedChecked = false;
   /** The popup opens once per visit, whichever check notices first. */
@@ -873,7 +875,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   // --- hands: a toggle per hand, pressed waits for the student, released plays along (hand-mode.ts) -----------
 
-  readonly handSides: readonly HandSide[] = ['right', 'left'];
+  /** Left hand first, as the hands sit on the keyboard. */
+  readonly handSides: readonly HandSide[] = ['left', 'right'];
 
   handMode(side: HandSide): HandMode {
     return handModeOf(this.playConfiguration, side);

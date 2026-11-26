@@ -15,7 +15,7 @@ import { Cursor, GraphicalNote, OpenSheetMusicDisplay, Note as OSMDNote, VexFlow
 import { PlayerStateService } from './player-state.service';
 import { PlayerKeyboardService } from './player-keyboard.service';
 import { PlayerAudioService } from './player-audio.service';
-import { LiveStatus, NoteKey, NoteTiming, PlayerAssessService } from './player-assess.service';
+import { GOOD_RANGE, LiveStatus, NoteKey, NoteTiming, PlayerAssessService } from './player-assess.service';
 import { CursorService } from './cursor.service';
 import { PracticeSessionRecorder } from './practice-session-recorder.service';
 import { PlayGuideService } from './play-guide.service';
@@ -41,8 +41,10 @@ export function readCountInBars(): number {
   }
 }
 
-/** The colors of the notes played off time or missed, on the score when the pass ends (red: wrong notes). */
-const TIMING_COLORS: Record<NoteTiming, string> = { late: '#D4A000', early: '#1E6FD9', missed: '#9CA3AF' };
+/** The colors of the notes played late or missed, on the score when the pass ends (red: wrong notes). */
+const TIMING_COLORS: Record<NoteTiming, string> = { late: '#D4A000', missed: '#9CA3AF' };
+/** Wait mode: how long after GOOD_RANGE a key that matched no note due is judged (see judgeLater()). */
+const WAIT_JUDGEMENT_MARGIN_MS = 50;
 
 @Injectable({
   providedIn: 'root'
@@ -64,6 +66,8 @@ export class PlayerService implements OnDestroy {
   /** The notehead of each score note of the pass, found under the cursor when the note became due. */
   private scoreNotes = new Map<Note, GraphicalNote>();
   private badMessageTimer?: ReturnType<typeof setTimeout>;
+  /** Wait mode: wrong notes waiting for their verdict, and that verdict (see judgeLater()). */
+  private readonly pendingJudgements = new Map<ReturnType<typeof setTimeout>, () => void>();
   /** Unsubscribes processMidiEvent from the MIDI service. */
   private removeNoteListener: () => void;
   private cachedTimeSignatureIndices?: Map<Midi.Header, number[]>;
@@ -85,6 +89,8 @@ export class PlayerService implements OnDestroy {
   get beat() { return this.state.beat.asReadonly(); }
   /** False while wait mode waits for the student: the beat indicator stops with the music. */
   get transportRunning() { return this.audio.running.asReadonly(); }
+  /** Wait mode: playback has waited WAIT_KEYBOARD_DELAY_MS for the student (see PlayerStateService). */
+  get waitedLong() { return this.state.waitedLong.asReadonly(); }
   get playConfiguration() { return this.state.playConfiguration; }
   get currentMeasure() { return this.state.currentMeasure; }
   get lastMidiEventTime() { return this.state.lastMidiEventTime; }
@@ -256,10 +262,12 @@ export class PlayerService implements OnDestroy {
   }
 
   pause() {
+    this.isWaiting = false;
     this.audio.pause();
     this.state.beat.set(null);
     this.guide.allOff();
     this.recorder.takeEnded(false);
+    this.judgePendingNow();
     this.revealBadNotes(); // stopped: the wrong notes of what was played
   }
 
@@ -268,6 +276,7 @@ export class PlayerService implements OnDestroy {
     this.state.invalidateTimeFactorCache(); // Invalidate cache when playConfiguration changes
     this.audio.stop();
     this.state.beat.set(null);
+    this.isWaiting = false;
     this.recorder.takeEnded(false); // a take still open is cut short (no-op after a pause or the end)
     this.assess.reset();
     this.lastMidiEventTime = -1;
@@ -284,6 +293,8 @@ export class PlayerService implements OnDestroy {
   }
 
   async play(playConfigurations: PlayConfiguration) {
+    this.isWaiting = false;
+    this.dropPendingJudgements(); // none after a stop or the end, which judge them
     this.audio.clearSchedule();
     this.state.beat.set(null);
     this.pendingBadNotes.clear(); // the new pass collects its own
@@ -345,6 +356,7 @@ export class PlayerService implements OnDestroy {
 
       // The take reached the end of its range; recorded before reset() clears the assessment
       this.assess.endTimed();
+      this.judgePendingNow();
       this.revealBadNotes();
       this.recorder.takeEnded(true);
       this.reset(this.playConfiguration);
@@ -425,8 +437,10 @@ export class PlayerService implements OnDestroy {
           await this.audio.start();
         }
       }
-      if (liveStatus.bad) {
-        this.showWrongNote(midiEvent.note);
+      if (liveStatus.bad !== null && liveStatus.badKey) {
+        this.judgeLater(liveStatus.bad, liveStatus.badKey);
+      } else if (liveStatus.bad !== null) {
+        this.showWrongNote(liveStatus.bad);
       } else {
         this.keyboard.removeMidiPitchFromKeyboard(midiEvent.note);
       }
@@ -435,22 +449,57 @@ export class PlayerService implements OnDestroy {
   }
 
   /**
-   * A wrong note, as it is played (synchronously, from the MIDI listener), in both modes: BAD and the count at once,
-   * the note on the score only when the pass ends (see revealBadNotes()), not to distract while playing. The
-   * on-screen keyboard never lights the keys the user plays, right or wrong.
+   * Wait mode: a key that matches no note due may be the next note played a little early. It is only wrong if no
+   * score note matches it within GOOD_RANGE (PlayerAssessService.wasPlayedEarly()): BAD is shown then, and the
+   * score note it is marked on is the one under the cursor when the key was played.
    */
-  private showWrongNote(pitch: number) {
-    this.collectBadNote(pitch);
+  private judgeLater(pitch: number, badKey: NoteKey) {
+    const badNote = this.findBadNote(pitch);
+    const judge = () => {
+      if (!this.assess.wasPlayedEarly(badKey)) {
+        this.showWrongNote(pitch, badNote);
+      }
+    };
+    const timer = setTimeout(() => {
+      this.pendingJudgements.delete(timer);
+      judge();
+    }, GOOD_RANGE * 1000 + WAIT_JUDGEMENT_MARGIN_MS);
+    this.pendingJudgements.set(timer, judge);
+  }
+
+  /** The pass ends or is stopped: the wrong notes not judged yet are judged now, before they are shown. */
+  private judgePendingNow() {
+    const judges = [...this.pendingJudgements.values()];
+    this.dropPendingJudgements();
+    judges.forEach((judge) => judge());
+  }
+
+  private dropPendingJudgements() {
+    for (const timer of this.pendingJudgements.keys()) {
+      clearTimeout(timer);
+    }
+    this.pendingJudgements.clear();
+  }
+
+  /**
+   * A wrong note, in both modes: BAD and the count at once, the note on the score only when the pass ends (see
+   * revealBadNotes()), not to distract while playing. The on-screen keyboard never lights the keys the user plays,
+   * right or wrong.
+   */
+  private showWrongNote(pitch: number, badNote = this.findBadNote(pitch)) {
+    if (badNote) {
+      this.pendingBadNotes.set(badNote.note, badNote.delta);
+    }
     this.message.set("BAD");
     clearTimeout(this.badMessageTimer);
     this.badMessageTimer = setTimeout(() => this.message.set(""), 1000);
     this.state.wrongNotes.update((count) => count + 1);
   }
 
-  /** Remembers the score note under the cursor closest to `pitch`, and how far from it the key was (half tones). */
-  private collectBadNote(pitch: number) {
+  /** The score note under the cursor closest to `pitch`, and how far from it the key was (half tones). */
+  private findBadNote(pitch: number): { note: GraphicalNote; delta: number } | undefined {
     const cursor = this.cursorService.cursor;
-    if (!cursor) return;
+    if (!cursor) return undefined;
     const osmdNotes = cursor.GNotesUnderCursor() as GraphicalNote[];
     let firstSourceNote: any;
     let closest: GraphicalNote | undefined;
@@ -473,8 +522,8 @@ export class PlayerService implements OnDestroy {
       }
     }
 
-    if (!closest || firstSourceNote?.TremoloInfo != null) return; // tremolo notes are not marked
-    this.pendingBadNotes.set(closest, closest.sourceNote.halfTone - pitch + 12);
+    if (!closest || firstSourceNote?.TremoloInfo != null) return undefined; // tremolo notes are not marked
+    return { note: closest, delta: closest.sourceNote.halfTone - pitch + 12 };
   }
 
   /** The notehead under the cursor that sounds `note`, for timings() when the pass ends. */
@@ -487,7 +536,7 @@ export class PlayerService implements OnDestroy {
   }
 
   /**
-   * The pass ended or was stopped: its notes played late (yellow), early (blue) or missed (gray), then its wrong
+   * The pass ended or was stopped: its notes played late (orange) or missed (gray), then its wrong
    * notes in red, each moved by how far off the key was.
    */
   private revealBadNotes() {

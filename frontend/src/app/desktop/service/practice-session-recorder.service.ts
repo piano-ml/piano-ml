@@ -96,11 +96,10 @@ export const assessedTake = (snapshot: AssessSnapshot, maxNotesPlayed = UNASSESS
   snapshot.played <= maxNotesPlayed ? { ...emptyCounters(), measures: [], played: snapshot.played } : snapshot;
 
 /**
- * Whether the session has an accuracy (notes were expected) or a flow (onsets were expected), as the backend
- * computes them. Without either (listening, no MIDI keyboard) the backend does not keep it: it is not sent.
+ * Whether the session has an accuracy and a flow (notes were expected), as the backend computes them. Without
+ * them (listening, no MIDI keyboard) the backend does not keep it: it is not sent.
  */
-export const isAssessed = (session: PracticeSessionApiInfo): boolean =>
-  (session.notesExpected ?? 0) > 0 || (session.onsets ?? 0) > 0;
+export const isAssessed = (session: PracticeSessionApiInfo): boolean => (session.notesExpected ?? 0) > 0;
 
 const toApiCounters = (c: AssessCounters) => ({
   notesExpected: c.expected, notesHit: c.hit, notesWrong: c.wrong, onsets: c.onsets, waits: c.waits,
@@ -317,7 +316,7 @@ export class PracticeSessionRecorder implements OnDestroy {
     const ratio = (c: AssessCounters) => ({
       ...toApiCounters(c),
       accuracy: accuracyOf(c.expected, c.hit, c.wrong),
-      flow: flowOf(c.onsets, c.waits),
+      flow: flowOf(c.expected, c.hit, c.wrong, c.waits),
     });
     const item = session.item;
     return {

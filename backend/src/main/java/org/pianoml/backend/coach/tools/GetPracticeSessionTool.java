@@ -90,7 +90,7 @@ public class GetPracticeSessionTool implements CoachToolHandler {
     row.put("onsets", t.getOnsets());
     row.put("waits", t.getWaits());
     row.put("accuracy", PracticeSessionService.accuracy(orZero(t.getNotesExpected()), orZero(t.getNotesHit()), orZero(t.getNotesWrong())));
-    row.put("flow", PracticeSessionService.flow(orZero(t.getOnsets()), orZero(t.getWaits())));
+    row.put("flow", PracticeSessionService.flow(orZero(t.getNotesExpected()), orZero(t.getNotesHit()), orZero(t.getNotesWrong()), orZero(t.getWaits())));
     return row;
   }
 }

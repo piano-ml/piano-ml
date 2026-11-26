@@ -359,3 +359,17 @@ app-workbench ::-webkit-scrollbar {
   border-radius: 9999px;
   pointer-events: none;
 }
+
+/* The keyboard fades in and out (shown, hidden, or while wait mode waits); opacity only, no motion */
+.wb-keyboard-enter {
+  animation: wb-keyboard-fade 250ms ease-out;
+}
+
+.wb-keyboard-leave {
+  animation: wb-keyboard-fade 250ms ease-in reverse;
+}
+
+@keyframes wb-keyboard-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
