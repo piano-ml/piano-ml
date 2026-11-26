@@ -113,6 +113,56 @@ app-workbench ::-webkit-scrollbar {
   white-space: nowrap;
 }
 
+/* Small screens (below md): each toolbar row is a grid of 6 equal columns, its square tiles fill the width.
+   The tiles keep their 4 px margin; the icons scale with the tile (cqi: the row's width). */
+@media (width < 48rem) {
+  .wb-tools-row {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    container-type: inline-size;
+  }
+
+  #tools .wb-tools-row .btn-desktop,
+  #tools .wb-tools-row .variant-workbench {
+    width: auto;
+    min-width: 0;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    justify-self: stretch;
+    align-self: start;
+  }
+
+  #tools .wb-tools-row .wb-toggle ng-icon {
+    font-size: min(32px, calc(100cqi / 6 * 0.5));
+  }
+
+  #tools .wb-tools-row .variant-workbench ng-icon {
+    font-size: min(48px, calc(100cqi / 6 * 0.75));
+  }
+
+  /* Loading sounds: the spinner alone fits the tile, the text stays for screen readers */
+  #tools [data-sounds-loading] > span:not(.spinner) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Sounds could not be loaded: the message and Retry take a row of their own */
+  #play-pause:has([data-sounds-error]) {
+    grid-column: 1 / -1;
+  }
+
+  #play-pause [data-sounds-error] .btn-desktop.sounds-status {
+    aspect-ratio: auto;
+    height: 40px;
+    padding: 0 0.75rem;
+  }
+}
+
 /* The score fades out at the top only, under the bar */
 .score-container {
   --score-fade: linear-gradient(to bottom,
