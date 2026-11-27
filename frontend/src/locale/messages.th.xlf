@@ -1510,13 +1510,13 @@
         <source>Remote coach on</source>
         <target state="translated">เปิดโค้ชทางไกลแล้ว</target>
       </trans-unit>
-      <trans-unit id="beat.countIn" datatype="html">
-        <source>Count-in</source>
-        <target state="translated">นับนำ</target>
-      </trans-unit>
       <trans-unit id="beat.bar" datatype="html">
         <source>Bar</source>
         <target state="translated">ห้อง</target>
+      </trans-unit>
+      <trans-unit id="beat.countIn" datatype="html">
+        <source>Count-in</source>
+        <target state="translated">นับนำ</target>
       </trans-unit>
       <trans-unit id="beat.ofBar" datatype="html">
         <source>Beat <x id="beat" equiv-text="beat"/> of <x id="beats" equiv-text="beatsPerBar"/></source>
@@ -3753,6 +3753,14 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="reimport.error.refused" datatype="html">
         <source>The server refused these tracks, or the original file is not a MIDI file.</source>
         <target state="translated">เซิร์ฟเวอร์ปฏิเสธแทร็กเหล่านี้ หรือไฟล์ต้นฉบับไม่ใช่ไฟล์ MIDI</target>
+      </trans-unit>
+      <trans-unit id="error.notFound.heading" datatype="html">
+        <source>Page not found</source>
+        <target state="translated">ไม่พบหน้านี้</target>
+      </trans-unit>
+      <trans-unit id="error.notFound.message" datatype="html">
+        <source>This page does not exist, or it has moved.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Check the address, or return to the homepage.</source>
+        <target state="translated">หน้านี้ไม่มีอยู่หรือถูกย้ายแล้ว<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> ตรวจสอบที่อยู่ หรือกลับไปที่หน้าแรก</target>
       </trans-unit>
       <trans-unit id="error.heading" datatype="html">
         <source>Oops! An error occurred</source>

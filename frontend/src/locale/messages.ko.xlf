@@ -1510,13 +1510,13 @@
         <source>Remote coach on</source>
         <target state="translated">원격 코치 켜짐</target>
       </trans-unit>
-      <trans-unit id="beat.countIn" datatype="html">
-        <source>Count-in</source>
-        <target state="translated">카운트인</target>
-      </trans-unit>
       <trans-unit id="beat.bar" datatype="html">
         <source>Bar</source>
         <target state="translated">마디</target>
+      </trans-unit>
+      <trans-unit id="beat.countIn" datatype="html">
+        <source>Count-in</source>
+        <target state="translated">카운트인</target>
       </trans-unit>
       <trans-unit id="beat.ofBar" datatype="html">
         <source>Beat <x id="beat" equiv-text="beat"/> of <x id="beats" equiv-text="beatsPerBar"/></source>
@@ -3753,6 +3753,14 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="reimport.error.refused" datatype="html">
         <source>The server refused these tracks, or the original file is not a MIDI file.</source>
         <target state="translated">서버가 이 트랙들을 거부했거나 원본 파일이 MIDI 파일이 아닙니다.</target>
+      </trans-unit>
+      <trans-unit id="error.notFound.heading" datatype="html">
+        <source>Page not found</source>
+        <target state="translated">페이지를 찾을 수 없습니다</target>
+      </trans-unit>
+      <trans-unit id="error.notFound.message" datatype="html">
+        <source>This page does not exist, or it has moved.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Check the address, or return to the homepage.</source>
+        <target state="translated">이 페이지는 존재하지 않거나 이동되었습니다.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> 주소를 확인하거나 홈페이지로 돌아가세요.</target>
       </trans-unit>
       <trans-unit id="error.heading" datatype="html">
         <source>Oops! An error occurred</source>

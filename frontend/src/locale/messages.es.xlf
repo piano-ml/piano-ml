@@ -1510,13 +1510,13 @@
         <source>Remote coach on</source>
         <target state="translated">Coach remoto activado</target>
       </trans-unit>
-      <trans-unit id="beat.countIn" datatype="html">
-        <source>Count-in</source>
-        <target state="translated">Cuenta previa</target>
-      </trans-unit>
       <trans-unit id="beat.bar" datatype="html">
         <source>Bar</source>
         <target state="translated">Compás</target>
+      </trans-unit>
+      <trans-unit id="beat.countIn" datatype="html">
+        <source>Count-in</source>
+        <target state="translated">Cuenta previa</target>
       </trans-unit>
       <trans-unit id="beat.ofBar" datatype="html">
         <source>Beat <x id="beat" equiv-text="beat"/> of <x id="beats" equiv-text="beatsPerBar"/></source>
@@ -3753,6 +3753,14 @@ Uso: sobre acordes menores y contextos de blues menor (centros i7 / i) cuando qu
       <trans-unit id="reimport.error.refused" datatype="html">
         <source>The server refused these tracks, or the original file is not a MIDI file.</source>
         <target state="translated">El servidor rechazó estas pistas, o el archivo original no es un archivo MIDI.</target>
+      </trans-unit>
+      <trans-unit id="error.notFound.heading" datatype="html">
+        <source>Page not found</source>
+        <target state="translated">Página no encontrada</target>
+      </trans-unit>
+      <trans-unit id="error.notFound.message" datatype="html">
+        <source>This page does not exist, or it has moved.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Check the address, or return to the homepage.</source>
+        <target state="translated">Esta página no existe o se ha movido.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Comprueba la dirección o vuelve a la página de inicio.</target>
       </trans-unit>
       <trans-unit id="error.heading" datatype="html">
         <source>Oops! An error occurred</source>
