@@ -9,7 +9,11 @@
     "install:browser": "playwright install --with-deps chromium"
   },
   "devDependencies": {
-    "codeceptjs": "4.2.2",
+    "codeceptjs": "4.2.6",
     "playwright": "1.65.0"
+  },
+  "overrides": {
+    "uuid": "^11.1.1",
+    "minimatch": "^11.0.1"
   }
 }

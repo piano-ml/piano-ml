@@ -1,0 +1,22 @@
+# Library search indexes: every library list is "scores with files, most played first" (ScoreRepositoryImpl),
+# which read and sorted the whole score table, spilling the sort to disk (the rows carry description and harmony).
+# Measured on 12,585 scores (EXPLAIN ANALYZE, first 100 rows):
+#   popular list   50 ms -> 0.2 ms   (idx_score_popular: the 100 most played, read in order)
+#   genre page     27 ms -> 2.3 ms   (idx_score_popular + idx_genre_tree_parent for the sub-genres)
+#   artist page    48 ms -> 0.8 ms   (idx_score_author_popular)
+# Partial indexes (WHERE has_files) are PostgreSQL only: H2, used by the tests, does not need them.
+databaseChangeLog:
+  - changeSet:
+      id: 032-1-add-library-search-indexes
+      author: pianoml
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: CREATE INDEX IF NOT EXISTS idx_score_popular ON pianoml.score (play_count DESC) WHERE has_files
+        - sql:
+            sql: CREATE INDEX IF NOT EXISTS idx_score_author_popular ON pianoml.score (author_id, play_count DESC) WHERE has_files
+        - sql:
+            sql: CREATE INDEX IF NOT EXISTS idx_genre_tree_parent ON pianoml.genre_tree (parent_id)
+      rollback:
+        - sql:
+            sql: DROP INDEX IF EXISTS pianoml.idx_score_popular; DROP INDEX IF EXISTS pianoml.idx_score_author_popular; DROP INDEX IF EXISTS pianoml.idx_genre_tree_parent

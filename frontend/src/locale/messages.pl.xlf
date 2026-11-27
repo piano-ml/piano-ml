@@ -1510,6 +1510,18 @@
         <source>Remote coach on</source>
         <target state="translated">Zdalny trener włączony</target>
       </trans-unit>
+      <trans-unit id="beat.bar" datatype="html">
+        <source>Bar</source>
+        <target state="translated">Takt</target>
+      </trans-unit>
+      <trans-unit id="beat.countIn" datatype="html">
+        <source>Count-in</source>
+        <target state="translated">Odliczanie</target>
+      </trans-unit>
+      <trans-unit id="beat.ofBar" datatype="html">
+        <source>Beat <x id="beat" equiv-text="beat"/> of <x id="beats" equiv-text="beatsPerBar"/></source>
+        <target state="translated">Miara <x id="beat" equiv-text="beat"/> z <x id="beats" equiv-text="beatsPerBar"/></target>
+      </trans-unit>
       <trans-unit id="latency.heading" datatype="html">
         <source>Timing calibration</source>
         <target state="translated">Kalibracja rytmu</target>
@@ -1658,34 +1670,6 @@
         <source> PianoML — The app might play piano (not the keyboard) </source>
         <target state="translated">PianoML — aplikacja gra na pianinie (nie klawiatura)</target>
       </trans-unit>
-      <trans-unit id="midiSetup.lowestKey" datatype="html">
-        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">Najniższy klawisz MIDI <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(zagraj dźwięk)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="midiSetup.highestKey" datatype="html">
-        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">Najwyższy klawisz MIDI <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(zagraj dźwięk)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="midiSetup.listening.lowest" datatype="html">
-        <source>Listening for MIDI — lowest key…</source>
-        <target state="translated">Nasłuch MIDI – najniższy klawisz…</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.listening.highest" datatype="html">
-        <source>Listening for MIDI — highest key…</source>
-        <target state="translated">Nasłuch MIDI – najwyższy klawisz…</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.key.min" datatype="html">
-        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
-        <target state="translated">Min. <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.key.max" datatype="html">
-        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
-        <target state="translated">Maks. <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.lowestKeyMustBeLess" datatype="html">
-        <source>Lowest key must be less than highest key.</source>
-        <target state="translated">Najniższy klawisz musi być niższy niż najwyższy.</target>
-      </trans-unit>
       <trans-unit id="midiSetup.hideKeyboard" datatype="html">
         <source>Hide Keyboard</source>
         <target state="translated">Ukryj klawiaturę</target>
@@ -1733,6 +1717,34 @@
       <trans-unit id="midiSetup.calibration.open" datatype="html">
         <source>Calibrate…</source>
         <target state="translated">Kalibruj…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.lowestKey" datatype="html">
+        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Najniższy klawisz MIDI <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(zagraj dźwięk)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.highestKey" datatype="html">
+        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Najwyższy klawisz MIDI <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(zagraj dźwięk)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.lowest" datatype="html">
+        <source>Listening for MIDI — lowest key…</source>
+        <target state="translated">Nasłuch MIDI – najniższy klawisz…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.highest" datatype="html">
+        <source>Listening for MIDI — highest key…</source>
+        <target state="translated">Nasłuch MIDI – najwyższy klawisz…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.min" datatype="html">
+        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
+        <target state="translated">Min. <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.max" datatype="html">
+        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
+        <target state="translated">Maks. <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.lowestKeyMustBeLess" datatype="html">
+        <source>Lowest key must be less than highest key.</source>
+        <target state="translated">Najniższy klawisz musi być niższy niż najwyższy.</target>
       </trans-unit>
       <trans-unit id="midiSetup.inputFallback" datatype="html">
         <source>MIDI Input</source>
@@ -1903,8 +1915,8 @@
         <target state="translated">Witaj w warsztacie!</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls.</source>
-        <target state="translated">Tutaj ćwiczysz i uczysz się ulubionych utworów fortepianowych. Pokażę ci elementy sterujące.</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← and → go back and forward; Esc shows the toolbar.</source>
+        <target state="translated">Tutaj ćwiczysz i uczysz się ulubionych utworów fortepianowych. Pokażę ci elementy sterujące. Skróty klawiszowe: spacja odtwarza lub wstrzymuje; 1, 2 i 3 czekają na prawą rękę, lewą rękę lub obie ręce i startują; 0 startuje granie razem z obiema rękami; + i − zmieniają tempo; ← i → cofają i przechodzą dalej; Esc pokazuje pasek narzędzi.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>
@@ -2482,26 +2494,6 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source> Start with 2 keys per day. Each day work on a different key pair. The following sequence takes 12 days to complete a full cycle of all 24 major + minor keys. </source>
         <target state="translated">Zacznij od 2 tonacji dziennie, każdego dnia innej pary. Poniższa sekwencja zajmuje 12 dni i obejmuje wszystkie 24 tonacje durowe i molowe.</target>
       </trans-unit>
-      <trans-unit id="exercises.majorSharp" datatype="html">
-        <source>Major Keys (Sharp):</source>
-        <target state="translated">Tonacje durowe (krzyżyki):</target>
-      </trans-unit>
-      <trans-unit id="exercises.day" datatype="html">
-        <source>Day <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</source>
-        <target state="translated">Dzień <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</target>
-      </trans-unit>
-      <trans-unit id="exercises.majorFlat" datatype="html">
-        <source>Major Keys (Flat):</source>
-        <target state="translated">Tonacje durowe (bemole):</target>
-      </trans-unit>
-      <trans-unit id="exercises.minorSharp" datatype="html">
-        <source>Minor Keys (Sharp):</source>
-        <target state="translated">Tonacje molowe (krzyżyki):</target>
-      </trans-unit>
-      <trans-unit id="exercises.minorFlat" datatype="html">
-        <source>Minor Keys (Flat):</source>
-        <target state="translated">Tonacje molowe (bemole):</target>
-      </trans-unit>
       <trans-unit id="exercises.level1.chromatic" datatype="html">
         <source>You can add the Chromatic Scale to any of these keys, starting on the key note.</source>
         <target state="translated">Do każdej z tych tonacji możesz dodać gamę chromatyczną, zaczynając od toniki.</target>
@@ -2541,6 +2533,26 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
       <trans-unit id="exercises.level4b.intro" datatype="html">
         <source>An alternative sequence goes the opposite direction around the Circle of 5ths.</source>
         <target state="translated">Alternatywna sekwencja przechodzi przez koło kwintowe w przeciwnym kierunku.</target>
+      </trans-unit>
+      <trans-unit id="exercises.day" datatype="html">
+        <source>Day <x id="INTERPOLATION" equiv-text="{{ group.day }}"/>:</source>
+        <target state="translated">Dzień <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorSharp" datatype="html">
+        <source>Major Keys (Sharp):</source>
+        <target state="translated">Tonacje durowe (krzyżyki):</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorFlat" datatype="html">
+        <source>Major Keys (Flat):</source>
+        <target state="translated">Tonacje durowe (bemole):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorSharp" datatype="html">
+        <source>Minor Keys (Sharp):</source>
+        <target state="translated">Tonacje molowe (krzyżyki):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorFlat" datatype="html">
+        <source>Minor Keys (Flat):</source>
+        <target state="translated">Tonacje molowe (bemole):</target>
       </trans-unit>
       <trans-unit id="exercise.contrary_motion.title" datatype="html">
         <source>Contrary motion starting on the same note.</source>
@@ -3095,7 +3107,7 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <target state="translated">Pokaż przewodnik</target>
       </trans-unit>
       <trans-unit id="browse.help" datatype="html">
-        <source> Help </source>
+        <source>Help</source>
         <target state="translated"> Pomoc </target>
       </trans-unit>
       <trans-unit id="browse.clear" datatype="html">
@@ -3502,13 +3514,13 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
         <source><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - Piano Score</source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> – <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> – nuty fortepianowe</target>
       </trans-unit>
-      <trans-unit id="score.copyLink" datatype="html">
-        <source>Copy link</source>
-        <target state="translated">Kopiuj link</target>
-      </trans-unit>
       <trans-unit id="score.back" datatype="html">
         <source>← Browse</source>
         <target state="translated">← Przeglądaj</target>
+      </trans-unit>
+      <trans-unit id="score.copyLink" datatype="html">
+        <source>Copy link</source>
+        <target state="translated">Kopiuj link</target>
       </trans-unit>
       <trans-unit id="score.edit" datatype="html">
         <source>Edit</source>
@@ -3741,6 +3753,14 @@ Zastosowanie: na akordach molowych i w kontekstach bluesa molowego (centra i7 / 
       <trans-unit id="reimport.error.refused" datatype="html">
         <source>The server refused these tracks, or the original file is not a MIDI file.</source>
         <target state="translated">Serwer odrzucił te ścieżki lub oryginalny plik nie jest plikiem MIDI.</target>
+      </trans-unit>
+      <trans-unit id="error.notFound.heading" datatype="html">
+        <source>Page not found</source>
+        <target state="translated">Nie znaleziono strony</target>
+      </trans-unit>
+      <trans-unit id="error.notFound.message" datatype="html">
+        <source>This page does not exist, or it has moved.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Check the address, or return to the homepage.</source>
+        <target state="translated">Ta strona nie istnieje lub została przeniesiona.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Sprawdź adres lub wróć na stronę główną.</target>
       </trans-unit>
       <trans-unit id="error.heading" datatype="html">
         <source>Oops! An error occurred</source>

@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, PLATFORM_ID, inject, ChangeDetect
 import { prefetchSoundFont } from '../../../shared/services/soundfont-cache';
 import { DatePipe, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ScoreService, ScoreApiInfo, GenreService, GenreApiInfo, WorkloadService, WorkloadApiInfo, YoutubeVideoApiInfo } from '../../../core/api';
+import { ScoreService, ScoreApiInfo, WorkloadService, WorkloadApiInfo, YoutubeVideoApiInfo } from '../../../core/api';
 import { AuthService } from '../../../account/services/auth.service';
 import { PlaylistStore } from '../../../account/services/playlist-store.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -38,9 +38,6 @@ export class ScoreInfoComponent implements OnInit {
   loading = false;
   error: string | null = null;
   score: ScoreApiInfo | null = null;
-  genres: GenreApiInfo[] = [];
-  loadingGenres = false;
-  selectedGenre: GenreApiInfo | null = null;
   workload: WorkloadApiInfo | null = null;
   loadingWorkload = false;
   videos: YoutubeVideoApiInfo[] = [];
@@ -82,7 +79,6 @@ export class ScoreInfoComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private scoreService: ScoreService,
-    private genreService: GenreService,
     private workloadService: WorkloadService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
@@ -102,7 +98,6 @@ export class ScoreInfoComponent implements OnInit {
 
   ngOnInit() {
     this.slug = this.route.snapshot.paramMap.get('slug');
-    this.loadGenres();
     if (!this.slug) {
       this.error = $localize`:@@score.error.noSlug:No score slug provided`;
       this.responseStatus.set(404);
@@ -113,24 +108,6 @@ export class ScoreInfoComponent implements OnInit {
   }
 
 
-  loadGenres() {
-    this.loadingGenres = true;
-    this.cdr.detectChanges();
-    this.genreService.genreGet().subscribe({
-      next: (genres) => {
-        this.genres = genres || [];
-        this.loadingGenres = false;
-        this.updateSelectedGenre();
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Error loading genres:', error);
-        this.loadingGenres = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
   loadScoreBySlug(slug: string) {
     this.loading = true;
     this.error = null;
@@ -140,7 +117,6 @@ export class ScoreInfoComponent implements OnInit {
       next: (score) => {
         this.score = score;
         this.updatePageTitle(score);
-        this.updateSelectedGenre();
         this.loading = false;
         this.loadVideos(score.id || '');
         // Load workload info if score doesn't have files
@@ -211,7 +187,6 @@ export class ScoreInfoComponent implements OnInit {
     this.seo.update(buildScoreSeo({
       score,
       slug: this.slug,
-      genreName: this.selectedGenre?.name,
       videos: this.videos
     }));
   }
@@ -233,15 +208,6 @@ export class ScoreInfoComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
-  }
-
-  updateSelectedGenre() {
-    if (this.score?.genre_id && this.genres.length > 0) {
-      this.selectedGenre = this.genres.find(g => g.id === this.score?.genre_id) || null;
-      // The genre feeds the description and the JSON-LD, so refresh them once
-      // it is known — genres and the score itself load independently.
-      this.updatePageTitle(this.score);
-    }
   }
 
   /** Whether the current user may download this file: the original for owners and admins, the rest also when public domain. */

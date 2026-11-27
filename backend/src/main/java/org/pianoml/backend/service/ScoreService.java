@@ -3,6 +3,10 @@ package org.pianoml.backend.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.openapitools.jackson.nullable.JsonNullable;
+import org.pianoml.backend.config.LibraryCache;
+import org.pianoml.backend.config.LibraryCacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.entity.Author;
 import org.pianoml.backend.entity.Genre;
@@ -43,6 +47,9 @@ import java.util.zip.ZipInputStream;
 @Slf4j
 @Service
 public class ScoreService {
+
+  @Autowired
+  private LibraryCache libraryCache;
 
   @Autowired
   private S3Client s3Client;
@@ -138,6 +145,7 @@ public class ScoreService {
     }
 
     Score savedScore = scoreRepository.save(score);
+    libraryCache.clear();
     return scoreMapper.toScoreApiInfo(savedScore);
 
   }
@@ -198,17 +206,32 @@ public class ScoreService {
           score.setFullKey(scoreApiInfo.getFullKey());
         }
         Score updatedScore = scoreRepository.save(score);
+        libraryCache.clear();
         return scoreMapper.toScoreApiInfo(updatedScore);
       });
   }
 
+  @Cacheable(cacheNames = LibraryCacheConfig.SEARCH, condition = "#user == null", sync = true)
   public List<ScoreApiInfo> searchScores(String keyword, String ownerId, String genreId, String artist, String artistSlug, String genreSlug, Boolean etude, String gradeStart, String gradeEnd, String tempo, String fullKey, String orderBy, Integer offset, Integer limit, User user, List<Integer> tracks, String description) {
     return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, artistSlug, genreSlug, etude, gradeStart, gradeEnd, tempo, fullKey, orderBy, offset, limit, user, tracks, description)
       .stream()
       .map(scoreMapper::toScoreApiInfo)
+      .map(ScoreService::forList)
       .collect(Collectors.toList());
   }
 
+  /**
+   * A score as the lists show it: without its description and harmony, which no list displays (the score page and
+   * the coach's get_score fetch the score itself). They were most of a list's weight: a library page of 100 scores
+   * carried 200 KB of JSON in its HTML (the server's responses handed to the browser), and as much in the cache.
+   */
+  static ScoreApiInfo forList(ScoreApiInfo score) {
+    score.setDescription(null);
+    score.setHarmony(JsonNullable.undefined());
+    return score;
+  }
+
+  @Cacheable(LibraryCacheConfig.FULL_KEYS)
   public List<String> getFullKeys() {
     return scoreRepository.findDistinctFullKeys();
   }
@@ -242,6 +265,7 @@ public class ScoreService {
         score.setHasFiles(true);
         score.setUploadedAt(OffsetDateTime.now());
         scoreRepository.save(score);
+        libraryCache.clear();
         log.info("successfully sent to bucket " + key);
       } finally {
         if (filename != null) {
@@ -379,6 +403,7 @@ public class ScoreService {
         }
 
         scoreRepository.save(score);
+        libraryCache.clear();
       } else {
         log.warn("No metadata found for score: {}", score.getId());
       }
@@ -495,6 +520,7 @@ public class ScoreService {
 
     // Delete from database
     scoreRepository.delete(score);
+    libraryCache.clear();
     log.info("Successfully deleted score: " + id);
     return true;
   }
@@ -514,6 +540,7 @@ public class ScoreService {
       userPlayCountRepository.deleteByScoreId(score.getId());
     }
     int deleted = scoreRepository.deleteAllByOwnerId(owner.getId());
+    libraryCache.clear();
     for (ScoreRepository.StoredFilesRef score : scores) {
       if (Boolean.TRUE.equals(score.getHasFiles())) {
         String key = makeBucketKey(owner.getId(), score.getMbid(), score.getId(), score.getVersion());
@@ -540,6 +567,7 @@ public class ScoreService {
     return getAuthorsWithScoreCounts(user, offset, limit, tracks, fullKey, slug, null, null);
   }
 
+  @Cacheable(cacheNames = LibraryCacheConfig.AUTHOR_BROWSE, condition = "#user == null", sync = true)
   public List<AuthorWithScoreCount> getAuthorsWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, String fullKey, String slug, String gradeStart, String gradeEnd) {
     int off = offset != null ? Math.max(0, offset) : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
@@ -570,6 +598,7 @@ public class ScoreService {
     return getGenresWithScoreCounts(user, offset, limit, tracks, genreFilter, fullKey, slug, null, null);
   }
 
+  @Cacheable(cacheNames = LibraryCacheConfig.GENRE_BROWSE, condition = "#user == null", sync = true)
   public List<ScoreGenreBrowseGet200ResponseInner> getGenresWithScoreCounts(User user, Integer offset, Integer limit, java.util.List<Integer> tracks, java.util.List<UUID> genreFilter, String fullKey, String slug, String gradeStart, String gradeEnd) {
     int off = offset != null ? Math.max(0, offset) : 0;
     Integer lim = limit != null && limit > 0 ? limit : null;
@@ -596,6 +625,7 @@ public class ScoreService {
   /**
    * Return counts of visible public-domain and copyrighted scores as the API model.
    */
+  @Cacheable(LibraryCacheConfig.STATS)
   public ScoreStatsGet200Response getScoreStats() {
     Long[] counts = scoreRepository.countPublicAndCopyrighted();
     ScoreStatsGet200Response resp = new ScoreStatsGet200Response();

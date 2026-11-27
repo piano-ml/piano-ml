@@ -29,7 +29,7 @@ export interface PracticeSessionApiInfo {
      */
     onsets?: number;
     /**
-     * Onsets completed late - playback had to wait for the user
+     * Expected notes played late - playback had to wait for the user (a subset of notesHit)
      */
     waits?: number;
     readonly id?: string;
@@ -89,7 +89,7 @@ export interface PracticeSessionApiInfo {
      */
     readonly accuracy?: number;
     /**
-     * 1 - waits / onsets; absent when nothing was assessed
+     * (notesHit - waits) / (notesExpected + notesWrong); absent when nothing was assessed
      */
     readonly flow?: number;
     endReason?: PracticeSessionApiInfo.EndReasonEnum;

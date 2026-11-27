@@ -1,5 +1,7 @@
 package org.pianoml.backend.service;
 
+import org.pianoml.backend.config.LibraryCache;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.pianoml.backend.entity.Score;
@@ -38,6 +40,8 @@ public class WorkloadProcessingService {
   private final PackService packService;
 
   private final ScoreService scoreService;
+
+  private final LibraryCache libraryCache;
 
   private final S3Client s3Client;
 
@@ -118,6 +122,8 @@ public class WorkloadProcessingService {
       score.setUploadedAt(OffsetDateTime.now());
       scoreRepository.save(score);
       scoreService.infosFromMetadata(score);
+      // The imported score now has its files: it enters the library lists
+      libraryCache.clear();
       workload.setStatus(Workload.WorkloadStatus.COMPLETED);
       workloadRepository.save(workload);
       log.info("Successfully saved workload {} and score {}", workload.getId(), score.getId());

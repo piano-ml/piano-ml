@@ -44,6 +44,12 @@ app-workbench ::-webkit-scrollbar {
   pointer-events: none;
 }
 
+/* No device: the app's warning red, so the reason nothing reacts is noticed */
+.wb-midi-input--none {
+  color: var(--color-red-400);
+  font-weight: 700;
+}
+
 /* A title too long for the display scrolls once */
 @keyframes scroll-text {
   0%,
@@ -324,4 +330,42 @@ app-workbench ::-webkit-scrollbar {
 
 #measure-range .noUi-marker-horizontal.noUi-marker.is-elapsed {
   background: var(--color-emerald-500);
+}
+
+/* The beat indicator, over the score during the count-in */
+.wb-beat-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.wb-beat-enter {
+  animation: wb-beat-fade 200ms ease-out;
+}
+
+.wb-beat-leave {
+  animation: wb-beat-fade 250ms ease-in reverse;
+}
+
+@keyframes wb-beat-fade {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* The keyboard fades in and out (shown, hidden, or while wait mode waits); opacity only, no motion */
+.wb-keyboard-enter {
+  animation: wb-keyboard-fade 250ms ease-out;
+}
+
+.wb-keyboard-leave {
+  animation: wb-keyboard-fade 250ms ease-in reverse;
+}
+
+@keyframes wb-keyboard-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

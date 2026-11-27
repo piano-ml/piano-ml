@@ -90,7 +90,7 @@ public class PracticeSessionService {
     int onsets = orZero(body.getOnsets());
     int waits = orZero(body.getWaits());
     Double accuracy = accuracy(expected, hit, wrong);
-    Double flow = flow(onsets, waits);
+    Double flow = flow(expected, hit, wrong, waits);
     if (accuracy == null && flow == null) {
       return Optional.empty();
     }
@@ -138,14 +138,25 @@ public class PracticeSessionService {
     return Optional.of(practiceSessionRepository.save(session));
   }
 
-  /** hit / (expected + wrong), or null when no note was expected (listening, no MIDI keyboard). */
+  /*
+   * Both are shares of the notes of the take as the score shows them when it ends: the expected notes plus the
+   * wrong ones (red). Missed notes (gray) count as red: expected - hit of them.
+   */
+
+  /**
+   * 1 - (red + gray) / notes = hit / (expected + wrong), or null when no note was expected (listening, no MIDI
+   * keyboard).
+   */
   public static Double accuracy(int expected, int hit, int wrong) {
     return expected <= 0 ? null : (double) hit / (expected + wrong);
   }
 
-  /** 1 - waits / onsets, or null when nothing was expected. */
-  public static Double flow(int onsets, int waits) {
-    return onsets <= 0 ? null : 1.0 - (double) waits / onsets;
+  /**
+   * 1 - (orange + red + gray) / notes = (hit - waits) / (expected + wrong), waits being the notes played late; or
+   * null when no note was expected.
+   */
+  public static Double flow(int expected, int hit, int wrong, int waits) {
+    return expected <= 0 ? null : (double) Math.max(0, hit - waits) / (expected + wrong);
   }
 
   private void validate(PracticeSessionApiInfo body) {
@@ -184,7 +195,7 @@ public class PracticeSessionService {
   private static void requireCounters(int expected, int hit, int wrong, int onsets, int waits) {
     require(expected >= 0 && hit >= 0 && wrong >= 0 && onsets >= 0 && waits >= 0, "negative counter");
     require(hit <= expected, "notesHit exceeds notesExpected");
-    require(waits <= onsets, "waits exceeds onsets");
+    require(waits <= hit, "waits exceeds notesHit");
     require(onsets <= expected, "onsets exceeds notesExpected");
   }
 

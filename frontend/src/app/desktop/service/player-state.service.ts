@@ -4,10 +4,31 @@ import { BehaviorSubject } from 'rxjs';
 import type { PlayConfiguration, lateNote } from '../model/model';
 import type { OpenSheetMusicDisplay, Cursor } from 'opensheetmusicdisplay';
 
+/** How long wait mode must wait for the student before the keyboard shows, hidden or not (milliseconds). */
+export const WAIT_KEYBOARD_DELAY_MS = 250;
+
 /**
  * Service central qui contient tout l'état partagé entre les différents services du player.
  * Ce service agit comme une source unique de vérité pour l'état du lecteur.
  */
+/**
+ * The count-in beat being heard, for the beat indicator: set at each click on the audio clock (Tone.Draw, when the
+ * click is heard), null once the music starts or when nothing plays.
+ */
+export interface BeatState {
+  /** 1-based beat within the bar. */
+  beat: number;
+  beatsPerBar: number;
+  /** 1-based bar of the count-in. */
+  countInBar: number;
+  countInBars: number;
+  /** How long the beat lasts (seconds, tempo included). */
+  beatSeconds: number;
+  timeSignature: [number, number];
+  /** Increases at each beat: a new beat restarts the indicator's animations, even on the same number. */
+  seq: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -22,10 +43,31 @@ export class PlayerStateService {
   /** Wrong notes played so far: bumped on each one, so that two wrong notes in a row are two changes. */
   readonly wrongNotes = signal(0);
   readonly elapsedTime = new BehaviorSubject<number>(0);
+  readonly beat = signal<BeatState | null>(null);
 
   // Playback state
   duration = 0;
-  isWaiting = false;
+  /**
+   * Wait mode: playback is paused until the student plays the notes due. Once that lasts WAIT_KEYBOARD_DELAY_MS,
+   * waitedLong turns true, until playback goes on or stops: the workbench shows the keyboard meanwhile, even when
+   * the student hid it.
+   */
+  get isWaiting(): boolean { return this.waiting; }
+  set isWaiting(value: boolean) {
+    if (value === this.waiting) {
+      return;
+    }
+    this.waiting = value;
+    clearTimeout(this.waitTimer);
+    if (value) {
+      this.waitTimer = setTimeout(() => this.waitedLong.set(true), WAIT_KEYBOARD_DELAY_MS);
+    } else {
+      this.waitedLong.set(false);
+    }
+  }
+  readonly waitedLong = signal(false);
+  private waiting = false;
+  private waitTimer?: ReturnType<typeof setTimeout>;
   playConfiguration!: PlayConfiguration;
   currentMeasure = -1;
   lastMidiEventTime = 0; // TODO: duplicate of currentTick?
@@ -86,6 +128,7 @@ export class PlayerStateService {
 
   resetSession(): void {
     this.osmd = null;
+    this.beat.set(null);
     this.message.set("");
     this.elapsedTime.next(0);
     this.duration = 0;
