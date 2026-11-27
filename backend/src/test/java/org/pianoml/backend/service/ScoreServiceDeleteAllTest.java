@@ -1,5 +1,6 @@
 package org.pianoml.backend.service;
 
+import org.pianoml.backend.config.LibraryCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pianoml.backend.entity.User;
@@ -35,6 +36,7 @@ class ScoreServiceDeleteAllTest {
     ReflectionTestUtils.setField(scoreService, "scoreRepository", scoreRepository);
     ReflectionTestUtils.setField(scoreService, "userPlayCountRepository", userPlayCountRepository);
     ReflectionTestUtils.setField(scoreService, "s3Client", s3Client);
+    ReflectionTestUtils.setField(scoreService, "libraryCache", mock(LibraryCache.class));
     ReflectionTestUtils.setField(scoreService, "bucketName", "bucket");
     owner = new User();
     owner.setId(UUID.randomUUID());

@@ -1,5 +1,6 @@
 package org.pianoml.backend.service;
 
+import org.pianoml.backend.config.LibraryCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -64,7 +65,7 @@ class WorkloadProcessingServiceTest {
     packService = mock(PackService.class);
     scoreService = mock(ScoreService.class);
     s3Client = mock(S3Client.class);
-    processing = new WorkloadProcessingService(workloadRepository, scoreRepository, packService, scoreService, s3Client);
+    processing = new WorkloadProcessingService(workloadRepository, scoreRepository, packService, scoreService, mock(LibraryCache.class), s3Client);
     ReflectionTestUtils.setField(processing, "bucketName", "test-bucket");
 
     User owner = new User();

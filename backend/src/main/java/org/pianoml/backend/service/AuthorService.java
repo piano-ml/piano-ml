@@ -1,5 +1,7 @@
 package org.pianoml.backend.service;
 
+import org.pianoml.backend.config.LibraryCache;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.pianoml.backend.entity.Author;
@@ -28,6 +30,8 @@ public class AuthorService {
   private final AuthorMapper authorMapper;
 
   private final MusicBrainzService musicBrainzService;
+
+  private final LibraryCache libraryCache;
 
   public Author maybeCreateAuthor(@NotNull UUID mbid) {
     Optional<Author> optAuthor = authorRepository.findByMbid(mbid);
@@ -60,7 +64,9 @@ public class AuthorService {
       return authorMapper.toAuthorApiInfo(author);
     }
     applyEditorialFields(author, authorApiInfo);
-    return authorMapper.toAuthorApiInfo(authorRepository.save(author));
+    Author saved = authorRepository.save(author);
+    libraryCache.clear();
+    return authorMapper.toAuthorApiInfo(saved);
   }
 
   public Optional<AuthorApiInfo> getAuthor(UUID id) {
@@ -78,6 +84,7 @@ public class AuthorService {
           applyEditorialFields(author, authorApiInfo);
         }
         Author updatedAuthor = authorRepository.save(author);
+        libraryCache.clear();
         return authorMapper.toAuthorApiInfo(updatedAuthor);
       });
   }

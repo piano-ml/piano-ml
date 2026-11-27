@@ -1,5 +1,6 @@
 package org.pianoml.backend.service;
 
+import org.pianoml.backend.config.LibraryCache;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,6 +32,9 @@ public class AuthorServiceTest {
 
   @Mock
   private MusicBrainzService musicBrainzService;
+
+  @Mock
+  private LibraryCache libraryCache;
 
   @Spy
   private AuthorMapper authorMapper = realMapper();

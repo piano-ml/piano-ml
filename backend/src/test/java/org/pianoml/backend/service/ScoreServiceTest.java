@@ -1,5 +1,6 @@
 package org.pianoml.backend.service;
 
+import org.pianoml.backend.config.LibraryCache;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +30,9 @@ public class ScoreServiceTest {
 
   @Mock
   private ScoreMapper scoreMapper;
+
+  @Mock
+  private LibraryCache libraryCache;
 
   @InjectMocks
   private ScoreService scoreService;
