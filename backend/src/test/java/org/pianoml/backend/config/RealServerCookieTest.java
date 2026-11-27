@@ -27,6 +27,9 @@ class RealServerCookieTest {
     return HttpClient.newHttpClient().send(request.build(), HttpResponse.BodyHandlers.ofString());
   }
 
+  /** A GET that issues the XSRF cookie: not a public, cacheable one (PublicCachePolicy), which carries no cookie. */
+  private static final String COOKIE_ISSUING_GET = "/score/search";
+
   private HttpRequest.Builder request(String path) {
     return HttpRequest.newBuilder(URI.create("http://localhost:" + port + path));
   }
@@ -34,7 +37,7 @@ class RealServerCookieTest {
   @Test
   void getFromPianomlOrigin_succeeds_andSharesTheXsrfCookieWithSubdomains() throws Exception {
     for (String origin : List.of("https://pianoml.org", "https://www.pianoml.org", "https://staging.pianoml.org")) {
-      HttpResponse<String> response = send(request("/genre").header("Origin", origin).GET());
+      HttpResponse<String> response = send(request(COOKIE_ISSUING_GET).header("Origin", origin).GET());
 
       assertThat(response.statusCode()).as(origin).isEqualTo(200);
       assertThat(response.headers().allValues("Set-Cookie")).as(origin)
@@ -55,7 +58,7 @@ class RealServerCookieTest {
 
   @Test
   void getWithoutOrigin_setsAHostOnlyXsrfCookie() throws Exception {
-    HttpResponse<String> response = send(request("/genre").GET());
+    HttpResponse<String> response = send(request(COOKIE_ISSUING_GET).GET());
 
     assertThat(response.statusCode()).isEqualTo(200);
     assertThat(response.headers().allValues("Set-Cookie"))
