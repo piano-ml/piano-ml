@@ -156,7 +156,8 @@ public class ErrorReportService {
     if (url == null || url.isBlank()) {
       throw new IllegalArgumentException("url is required");
     }
-    if (CrawlerUserAgents.isCrawler(request.getHeader("User-Agent"))) {
+    if (CrawlerUserAgents.isCrawler(request.getHeader("User-Agent"))
+      || isIgnoredFrontendError(body.getExceptionType(), body.getMessage())) {
       return;
     }
     ErrorReport report = new ErrorReport();

@@ -43,7 +43,22 @@ public final class ErrorReportSanitizer {
   private static final Pattern BUNDLE_HASH = Pattern.compile("[-.][A-Za-z0-9]{8,}(?=\\.m?js)");
   private static final Pattern ORIGIN = Pattern.compile("[a-z][a-z0-9+.-]*://[^/\\s)]+", Pattern.CASE_INSENSITIVE);
 
+  /**
+   * Browser errors that are not stored: substrings of "ExceptionType: message". One entry per noise source,
+   * each with the reason it is not a bug worth tracking.
+   */
+  private static final List<String> IGNORED_FRONTEND_ERRORS = List.of(
+    // A tab opened before a deploy asks for a lazy chunk the new release no longer serves
+    "TypeError: Failed to fetch dynamically imported module"
+  );
+
   private ErrorReportSanitizer() {
+  }
+
+  /** Whether a browser error is known noise ({@link #IGNORED_FRONTEND_ERRORS}) and must not be stored. */
+  public static boolean isIgnoredFrontendError(String exceptionType, String message) {
+    String text = (exceptionType == null ? "" : exceptionType + ": ") + (message == null ? "" : message);
+    return IGNORED_FRONTEND_ERRORS.stream().anyMatch(text::contains);
   }
 
   public static String truncate(String value, int max) {
