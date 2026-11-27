@@ -1915,8 +1915,8 @@
         <target state="translated">Witaj w warsztacie!</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
-        <target state="translated">Tutaj ćwiczysz i uczysz się ulubionych utworów fortepianowych. Pokażę ci elementy sterujące. Skróty klawiszowe: spacja odtwarza lub wstrzymuje; 1, 2 i 3 czekają na prawą rękę, lewą rękę lub obie ręce i startują; 0 startuje granie razem z obiema rękami; + i − zmieniają tempo; ← cofa; Esc pokazuje pasek narzędzi.</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← and → go back and forward; Esc shows the toolbar.</source>
+        <target state="translated">Tutaj ćwiczysz i uczysz się ulubionych utworów fortepianowych. Pokażę ci elementy sterujące. Skróty klawiszowe: spacja odtwarza lub wstrzymuje; 1, 2 i 3 czekają na prawą rękę, lewą rękę lub obie ręce i startują; 0 startuje granie razem z obiema rękami; + i − zmieniają tempo; ← i → cofają i przechodzą dalej; Esc pokazuje pasek narzędzi.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>

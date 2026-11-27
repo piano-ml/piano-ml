@@ -1,7 +1,8 @@
-import { TEMPO_SHORTCUT_STEP, type ShortcutKey, workbenchShortcut } from './workbench-shortcuts';
+import { TEMPO_SHORTCUT_STEP, workbenchShortcut } from './workbench-shortcuts';
+import type { ShortcutKey } from '../../../shared/keyboard/keyboard-shortcuts';
 
 function key(init: Partial<ShortcutKey>): ShortcutKey {
-  return { key: '', code: '', repeat: false, ctrlKey: false, metaKey: false, altKey: false, target: document.body, ...init };
+  return { key: '', code: '', repeat: false, ctrlKey: false, metaKey: false, altKey: false, shiftKey: false, target: document.body, ...init };
 }
 
 describe('workbenchShortcut', () => {
@@ -18,9 +19,8 @@ describe('workbenchShortcut', () => {
     expect(workbenchShortcut(key({ key: '0', code: 'Numpad0' }))).toEqual({ action: 'hands', hands: 'both', mode: 'along' });
   });
 
-  it('maps Space, the left arrow and Esc', () => {
+  it('maps Space and Esc', () => {
     expect(workbenchShortcut(key({ key: ' ', code: 'Space' }))).toEqual({ action: 'playPause' });
-    expect(workbenchShortcut(key({ key: 'ArrowLeft', code: 'ArrowLeft' }))).toEqual({ action: 'back' });
     expect(workbenchShortcut(key({ key: 'Escape', code: 'Escape' }))).toEqual({ action: 'showToolbar' });
   });
 
@@ -30,11 +30,12 @@ describe('workbenchShortcut', () => {
     expect(workbenchShortcut(key({ key: '-', code: 'Minus' }))).toEqual({ action: 'tempo', delta: -TEMPO_SHORTCUT_STEP });
   });
 
-  it('ignores held keys, browser shortcuts, other keys and the forward arrow', () => {
+  it('ignores held keys, browser shortcuts, other keys and the arrows (the app\'s history keys)', () => {
     expect(workbenchShortcut(key({ key: ' ', code: 'Space', repeat: true }))).toBeNull();
     expect(workbenchShortcut(key({ key: '1', code: 'Digit1', ctrlKey: true }))).toBeNull();
     expect(workbenchShortcut(key({ key: '+', code: 'Equal', metaKey: true }))).toBeNull();
     expect(workbenchShortcut(key({ key: 'a', code: 'KeyA' }))).toBeNull();
+    expect(workbenchShortcut(key({ key: 'ArrowLeft', code: 'ArrowLeft' }))).toBeNull();
     expect(workbenchShortcut(key({ key: 'ArrowRight', code: 'ArrowRight' }))).toBeNull();
   });
 
@@ -43,6 +44,6 @@ describe('workbenchShortcut', () => {
     expect(workbenchShortcut(key({ key: '1', code: 'Digit1', target: input }))).toBeNull();
     const handle = document.createElement('div');
     handle.className = 'noUi-handle';
-    expect(workbenchShortcut(key({ key: 'ArrowLeft', code: 'ArrowLeft', target: handle }))).toBeNull();
+    expect(workbenchShortcut(key({ key: '1', code: 'Digit1', target: handle }))).toBeNull();
   });
 });

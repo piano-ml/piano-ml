@@ -1915,8 +1915,8 @@
         <target state="translated">ยินดีต้อนรับสู่โต๊ะทำงาน!</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
-        <target state="translated">ที่นี่คุณฝึกและเรียนเพลงเปียโนที่ชอบได้ ขอแนะนำปุ่มควบคุมต่าง ๆ ปุ่มลัด: Space เล่นหรือหยุดชั่วคราว, 1, 2 และ 3 รอมือขวา มือซ้าย หรือทั้งสองมือแล้วเริ่มเล่น, 0 เริ่มเล่นไปพร้อมกันด้วยสองมือ, + และ − ปรับจังหวะ, ← ย้อนกลับ, Esc แสดงแถบเครื่องมือ</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← and → go back and forward; Esc shows the toolbar.</source>
+        <target state="translated">ที่นี่คุณฝึกและเรียนเพลงเปียโนที่ชอบได้ ขอแนะนำปุ่มควบคุมต่าง ๆ ปุ่มลัด: Space เล่นหรือหยุดชั่วคราว, 1, 2 และ 3 รอมือขวา มือซ้าย หรือทั้งสองมือแล้วเริ่มเล่น, 0 เริ่มเล่นไปพร้อมกันด้วยสองมือ, + และ − ปรับจังหวะ, ← และ → ย้อนกลับและไปข้างหน้า, Esc แสดงแถบเครื่องมือ</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>

@@ -1915,8 +1915,8 @@
         <target state="translated">Welkom in de werkplaats!</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
-        <target state="translated">Hier oefen en leer je je favoriete pianostukken. Ik laat je de bediening zien. Sneltoetsen: spatie speelt of pauzeert; 1, 2 en 3 wachten op je rechterhand, je linkerhand of beide handen en starten; 0 start meespelen met beide handen; + en − veranderen het tempo; ← gaat terug; Esc toont de werkbalk.</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← and → go back and forward; Esc shows the toolbar.</source>
+        <target state="translated">Hier oefen en leer je je favoriete pianostukken. Ik laat je de bediening zien. Sneltoetsen: spatie speelt of pauzeert; 1, 2 en 3 wachten op je rechterhand, je linkerhand of beide handen en starten; 0 start meespelen met beide handen; + en − veranderen het tempo; ← en → gaan terug en vooruit; Esc toont de werkbalk.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>

@@ -4,7 +4,7 @@ export const WORKBENCH_TOUR: BeaconStep[] = [
   {
     id: 'welcome',
     title: $localize`:@@workbench.tour.welcome.title:Welcome to the Workbench!`,
-    content: $localize`:@@workbench.tour.welcome.content:This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← goes back; Esc shows the toolbar.`,
+    content: $localize`:@@workbench.tour.welcome.content:This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← and → go back and forward; Esc shows the toolbar.`,
     position: 'center',
     showWithoutTarget: true,
   },

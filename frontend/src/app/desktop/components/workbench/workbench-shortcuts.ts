@@ -1,11 +1,11 @@
 import type { Hands, HandsMode } from '../../service/player-control.service';
+import { type ShortcutKey, hasCommandModifier, isKeyboardTarget } from '../../../shared/keyboard/keyboard-shortcuts';
 
 /** What a workbench keyboard shortcut does. */
 export type WorkbenchShortcut =
   | { action: 'hands'; hands: Hands; mode: HandsMode }
   | { action: 'playPause' }
   | { action: 'tempo'; delta: number }
-  | { action: 'back' }
   | { action: 'showToolbar' };
 
 /** Tempo change per + or − press (bpm); held down, the key repeats. */
@@ -25,15 +25,12 @@ const TEMPO_KEYS: Record<string, number> = {
   '-': -TEMPO_SHORTCUT_STEP, '_': -TEMPO_SHORTCUT_STEP, '−': -TEMPO_SHORTCUT_STEP,
 };
 
-/** The subset of KeyboardEvent the mapping reads. */
-export type ShortcutKey = Pick<KeyboardEvent, 'key' | 'code' | 'repeat' | 'ctrlKey' | 'metaKey' | 'altKey' | 'target'>;
-
 /**
  * The workbench shortcut for a key press, or null: keys typed in a field, with Ctrl/⌘/Alt (the browser's own
- * shortcuts), or held down (except the tempo) are left alone.
+ * shortcuts), or held down (except the tempo) are left alone. ← and → are the app's history keys (AppComponent).
  */
 export function workbenchShortcut(event: ShortcutKey): WorkbenchShortcut | null {
-  if (event.ctrlKey || event.metaKey || event.altKey || isEditable(event.target)) {
+  if (hasCommandModifier(event) || isKeyboardTarget(event.target)) {
     return null;
   }
   const tempo = TEMPO_KEYS[event.key];
@@ -49,18 +46,7 @@ export function workbenchShortcut(event: ShortcutKey): WorkbenchShortcut | null 
   }
   switch (event.key) {
     case ' ': return { action: 'playPause' };
-    case 'ArrowLeft': return { action: 'back' };
     case 'Escape': return { action: 'showToolbar' };
     default: return null;
   }
-}
-
-/** A text field, a select, an editable element, or a slider handle (the arrows move it). */
-function isEditable(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
-  return target.isContentEditable
-    || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
-    || target.closest('.noUi-handle, [role="slider"]') !== null;
 }
