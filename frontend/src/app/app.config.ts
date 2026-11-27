@@ -28,6 +28,7 @@ import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
 import { provideClientHydration, withEventReplay, withHttpTransferCacheOptions, withNoIncrementalHydration } from '@angular/platform-browser';
 import { isTransferCacheable } from './core/http/transfer-cache';
+import { SessionStorageService } from './account/services/session-storage.service';
 import { provideBeacon } from 'ng-beacon';
 import { provideI18n } from './shared/i18n';
 import { provideSeo } from './shared/seo';
@@ -129,7 +130,8 @@ export const appConfig: ApplicationConfig = {
         includeRequestsWithCredentials: true,
         // The API answers no-store and sets the XSRF cookie on every response; only the body is handed over
         includeNonCacheableRequests: true,
-        filter: (request) => isTransferCacheable(request, environment.api),
+        // Runs in the interceptor's injection context; the server always renders anonymously (no user id there)
+        filter: (request) => isTransferCacheable(request, environment.api, inject(SessionStorageService).getUserId() === null),
       })),
     provideBeacon()
   ]
