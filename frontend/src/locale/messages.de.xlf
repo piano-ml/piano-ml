@@ -1915,8 +1915,8 @@
         <target state="translated">Willkommen in der Werkstatt!</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls.</source>
-        <target state="translated">Hier übst und lernst du deine Lieblingsstücke. Ich zeige dir die Bedienelemente.</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
+        <target state="translated">Hier übst und lernst du deine Lieblingsstücke. Ich zeige dir die Bedienelemente. Tastenkürzel: Leertaste spielt oder pausiert; 1, 2 und 3 warten auf deine rechte Hand, deine linke Hand oder beide Hände und starten; + und − ändern das Tempo; ← geht zurück; Esc zeigt die Werkzeugleiste.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>

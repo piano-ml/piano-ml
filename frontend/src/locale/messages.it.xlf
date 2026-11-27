@@ -1915,8 +1915,8 @@
         <target state="translated">Benvenuto nel laboratorio!</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls.</source>
-        <target state="translated">Qui puoi esercitarti e imparare i tuoi brani preferiti. Ti mostro i comandi.</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
+        <target state="translated">Qui puoi esercitarti e imparare i tuoi brani preferiti. Ti mostro i comandi. Scorciatoie da tastiera: Spazio avvia o mette in pausa; 1, 2 e 3 aspettano la tua mano destra, la tua mano sinistra o entrambe le mani, e avviano; + e − cambiano il tempo; ← torna indietro; Esc mostra la barra degli strumenti.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>

@@ -1915,8 +1915,8 @@
         <target state="translated">欢迎来到工作台！</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls.</source>
-        <target state="translated">在这里你可以练习并学会喜欢的钢琴曲。我来带你认识各个控件。</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
+        <target state="translated">在这里你可以练习并学会喜欢的钢琴曲。我来带你认识各个控件。 键盘快捷键：空格键播放或暂停；1、2、3 分别等待右手、左手或双手并开始；+ 和 − 调整速度；← 返回；Esc 显示工具栏。</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>

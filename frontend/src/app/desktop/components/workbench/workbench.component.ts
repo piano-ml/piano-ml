@@ -1,5 +1,5 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, NgZone } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, NgZone, HostListener } from '@angular/core';
+import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RemoteCoachToggleComponent } from '../../../coach/remote/toggle/remote-coach-toggle.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -38,6 +38,7 @@ import { type Hands, type HandsMode, type PlayerState, PlayerControlService, typ
 import { type HandMode, type HandSide, handModeOf, handsModeOf, studentHands, withHandMode, withWait } from '../../model/hand-mode';
 import {MixerDialogComponent} from '../mixer-dialog/mixer-dialog.component';
 import {measurePipFilter, markMeasures} from './measure-range-pips';
+import { type WorkbenchShortcut, workbenchShortcut } from './workbench-shortcuts';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
@@ -221,6 +222,7 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
 
   private readonly beaconService = inject(BeaconService);
+  private readonly location = inject(Location);
   private readonly practiceRecorder = inject(PracticeSessionRecorder);
   private readonly playerControl = inject(PlayerControlService);
   private readonly playerAudio = inject(PlayerAudioService);
@@ -1185,6 +1187,54 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     } else {
       this.start();
     }
+  }
+
+  // --- keyboard shortcuts (workbench-shortcuts.ts), described in the tour's welcome step -------------------------
+
+  @HostListener('document:keydown', ['$event'])
+  onShortcutKey(event: KeyboardEvent): void {
+    // A dialog or the tour has the keyboard (the tour uses the arrows and Esc itself)
+    if (event.defaultPrevented || this.beaconService.isActive() || this.isDialogOpen()) {
+      return;
+    }
+    const shortcut = workbenchShortcut(event);
+    if (shortcut) {
+      // Space would also scroll the page or click the focused button
+      event.preventDefault();
+      this.runShortcut(shortcut);
+    }
+  }
+
+  private isDialogOpen(): boolean {
+    return this.isTempoOpen || this.isMixerOpen || this.isMidiSetupOpen || this.isCalibrationOpen || this.showMidiBlockedDialog;
+  }
+
+  private runShortcut(shortcut: WorkbenchShortcut): void {
+    switch (shortcut.action) {
+      case 'waitFor':
+        // As choosing the hands on the toolbar, then Play: playing, it restarts from where it is with them
+        if (this.isPlaying) {
+          this.stop();
+        }
+        this.controlHandle.setHands(shortcut.hands, 'wait');
+        void this.controlHandle.play(false);
+        break;
+      case 'playPause':
+        this.startStop();
+        break;
+      case 'tempo':
+        this.controlHandle.setTempoBpm(this.tempo + shortcut.delta);
+        break;
+      case 'back':
+        this.location.back();
+        break;
+      case 'showToolbar':
+        if (!this.toggleToolbar) {
+          this.fnToggleToolBar();
+        }
+        break;
+    }
+    this.changeDetector.markForCheck();
   }
 
   stop() {
