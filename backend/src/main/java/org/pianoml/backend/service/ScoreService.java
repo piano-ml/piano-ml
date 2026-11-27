@@ -3,6 +3,7 @@ package org.pianoml.backend.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.pianoml.backend.config.LibraryCache;
 import org.pianoml.backend.config.LibraryCacheConfig;
 import org.springframework.cache.annotation.Cacheable;
@@ -215,7 +216,19 @@ public class ScoreService {
     return scoreRepository.findWithSomeCriterias(keyword, ownerId, genreId, artist, artistSlug, genreSlug, etude, gradeStart, gradeEnd, tempo, fullKey, orderBy, offset, limit, user, tracks, description)
       .stream()
       .map(scoreMapper::toScoreApiInfo)
+      .map(ScoreService::forList)
       .collect(Collectors.toList());
+  }
+
+  /**
+   * A score as the lists show it: without its description and harmony, which no list displays (the score page and
+   * the coach's get_score fetch the score itself). They were most of a list's weight: a library page of 100 scores
+   * carried 200 KB of JSON in its HTML (the server's responses handed to the browser), and as much in the cache.
+   */
+  static ScoreApiInfo forList(ScoreApiInfo score) {
+    score.setDescription(null);
+    score.setHarmony(JsonNullable.undefined());
+    return score;
   }
 
   @Cacheable(LibraryCacheConfig.FULL_KEYS)

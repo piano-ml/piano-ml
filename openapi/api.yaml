@@ -365,6 +365,8 @@ paths:
       tags:
         - score
       summary: Search a score
+      description: >-
+        The scores as lists show them: description and harmony are left out (GET /score/{slug} has them).
       parameters:
         - name: keyword
           in: query
