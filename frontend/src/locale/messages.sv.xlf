@@ -1915,8 +1915,8 @@
         <target state="translated">Välkommen till verkstaden!</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
-        <target state="translated">Här övar du och lär dig dina favoritstycken. Jag visar dig reglagen. Kortkommandon: mellanslag spelar eller pausar; 1, 2 och 3 väntar på din högra hand, din vänstra hand eller båda händerna och startar; + och − ändrar tempot; ← går tillbaka; Esc visar verktygsfältet.</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
+        <target state="translated">Här övar du och lär dig dina favoritstycken. Jag visar dig reglagen. Kortkommandon: mellanslag spelar eller pausar; 1, 2 och 3 väntar på din högra hand, din vänstra hand eller båda händerna och startar; 0 startar samspel med båda händerna; + och − ändrar tempot; ← går tillbaka; Esc visar verktygsfältet.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>

@@ -1915,8 +1915,8 @@
         <target state="translated">작업대에 오신 것을 환영합니다!</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
-        <target state="translated">좋아하는 피아노 곡을 연습하고 배우는 곳입니다. 컨트롤을 안내해 드릴게요. 단축키: 스페이스는 재생 또는 일시정지, 1, 2, 3은 각각 오른손, 왼손, 양손을 기다리며 시작, + 와 − 는 템포 변경, ← 는 뒤로 가기, Esc는 도구 모음 표시입니다.</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
+        <target state="translated">좋아하는 피아노 곡을 연습하고 배우는 곳입니다. 컨트롤을 안내해 드릴게요. 단축키: 스페이스는 재생 또는 일시정지, 1, 2, 3은 각각 오른손, 왼손, 양손을 기다리며 시작, 0은 양손으로 함께 연주 시작, + 와 − 는 템포 변경, ← 는 뒤로 가기, Esc는 도구 모음 표시입니다.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>

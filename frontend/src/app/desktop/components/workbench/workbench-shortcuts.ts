@@ -1,8 +1,8 @@
-import type { Hands } from '../../service/player-control.service';
+import type { Hands, HandsMode } from '../../service/player-control.service';
 
 /** What a workbench keyboard shortcut does. */
 export type WorkbenchShortcut =
-  | { action: 'waitFor'; hands: Hands }
+  | { action: 'hands'; hands: Hands; mode: HandsMode }
   | { action: 'playPause' }
   | { action: 'tempo'; delta: number }
   | { action: 'back' }
@@ -11,11 +11,12 @@ export type WorkbenchShortcut =
 /** Tempo change per + or − press (bpm); held down, the key repeats. */
 export const TEMPO_SHORTCUT_STEP = 5;
 
-/** Physical keys (layout-independent: "1" is Shift+& on AZERTY) mapped to the hands waited for. */
-const HAND_KEYS: Record<string, Hands> = {
-  Digit1: 'right', Numpad1: 'right',
-  Digit2: 'left', Numpad2: 'left',
-  Digit3: 'both', Numpad3: 'both',
+/** Physical keys (layout-independent: "1" is Shift+& on AZERTY) mapped to the hands the student plays, and how. */
+const HAND_KEYS: Record<string, { hands: Hands; mode: HandsMode }> = {
+  Digit0: { hands: 'both', mode: 'along' }, Numpad0: { hands: 'both', mode: 'along' },
+  Digit1: { hands: 'right', mode: 'wait' }, Numpad1: { hands: 'right', mode: 'wait' },
+  Digit2: { hands: 'left', mode: 'wait' }, Numpad2: { hands: 'left', mode: 'wait' },
+  Digit3: { hands: 'both', mode: 'wait' }, Numpad3: { hands: 'both', mode: 'wait' },
 };
 
 /** Characters for the tempo: what the key types, so + works whatever the layout (Shift+= on QWERTY). */
@@ -44,7 +45,7 @@ export function workbenchShortcut(event: ShortcutKey): WorkbenchShortcut | null 
   }
   const hands = HAND_KEYS[event.code];
   if (hands) {
-    return { action: 'waitFor', hands };
+    return { action: 'hands', ...hands };
   }
   switch (event.key) {
     case ' ': return { action: 'playPause' };

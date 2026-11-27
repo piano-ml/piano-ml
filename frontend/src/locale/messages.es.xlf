@@ -1915,8 +1915,8 @@
         <target state="translated">¡Bienvenido al taller!</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
-        <target state="translated">Aquí puedes practicar y aprender tus piezas de piano favoritas. Te enseño los controles. Atajos de teclado: Espacio reproduce o pausa; 1, 2 y 3 esperan tu mano derecha, tu mano izquierda o ambas manos, y empiezan; + y − cambian el tempo; ← vuelve atrás; Esc muestra la barra de herramientas.</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← goes back; Esc shows the toolbar.</source>
+        <target state="translated">Aquí puedes practicar y aprender tus piezas de piano favoritas. Te enseño los controles. Atajos de teclado: Espacio reproduce o pausa; 1, 2 y 3 esperan tu mano derecha, tu mano izquierda o ambas manos, y empiezan; 0 empieza a tocar a la par con ambas manos; + y − cambian el tempo; ← vuelve atrás; Esc muestra la barra de herramientas.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>

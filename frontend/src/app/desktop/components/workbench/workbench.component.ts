@@ -1211,12 +1211,12 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   private runShortcut(shortcut: WorkbenchShortcut): void {
     switch (shortcut.action) {
-      case 'waitFor':
+      case 'hands':
         // As choosing the hands on the toolbar, then Play: playing, it restarts from where it is with them
         if (this.isPlaying) {
           this.stop();
         }
-        this.controlHandle.setHands(shortcut.hands, 'wait');
+        this.controlHandle.setHands(shortcut.hands, shortcut.mode);
         void this.controlHandle.play(false);
         break;
       case 'playPause':

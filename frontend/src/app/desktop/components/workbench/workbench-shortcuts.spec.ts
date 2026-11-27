@@ -6,10 +6,16 @@ function key(init: Partial<ShortcutKey>): ShortcutKey {
 
 describe('workbenchShortcut', () => {
   it('maps 1, 2 and 3 to waiting for the right hand, the left hand and both, by physical key', () => {
-    expect(workbenchShortcut(key({ key: '1', code: 'Digit1' }))).toEqual({ action: 'waitFor', hands: 'right' });
+    expect(workbenchShortcut(key({ key: '1', code: 'Digit1' }))).toEqual({ action: 'hands', hands: 'right', mode: 'wait' });
     // AZERTY: the 2 key types "é" without Shift
-    expect(workbenchShortcut(key({ key: 'é', code: 'Digit2' }))).toEqual({ action: 'waitFor', hands: 'left' });
-    expect(workbenchShortcut(key({ key: '3', code: 'Numpad3' }))).toEqual({ action: 'waitFor', hands: 'both' });
+    expect(workbenchShortcut(key({ key: 'é', code: 'Digit2' }))).toEqual({ action: 'hands', hands: 'left', mode: 'wait' });
+    expect(workbenchShortcut(key({ key: '3', code: 'Numpad3' }))).toEqual({ action: 'hands', hands: 'both', mode: 'wait' });
+  });
+
+  it('maps 0 to playing along with both hands', () => {
+    // AZERTY: the 0 key types "à" without Shift
+    expect(workbenchShortcut(key({ key: 'à', code: 'Digit0' }))).toEqual({ action: 'hands', hands: 'both', mode: 'along' });
+    expect(workbenchShortcut(key({ key: '0', code: 'Numpad0' }))).toEqual({ action: 'hands', hands: 'both', mode: 'along' });
   });
 
   it('maps Space, the left arrow and Esc', () => {
