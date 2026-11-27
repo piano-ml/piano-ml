@@ -44,6 +44,11 @@ app-workbench ::-webkit-scrollbar {
   pointer-events: none;
 }
 
+/* No device: the app's warning red, so the reason nothing reacts is noticed */
+.wb-midi-input--none {
+  color: var(--color-red-400);
+}
+
 /* A title too long for the display scrolls once */
 @keyframes scroll-text {
   0%,
