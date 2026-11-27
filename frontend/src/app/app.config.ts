@@ -26,7 +26,8 @@ import { provideErrorReporting } from './core/error-reporting/provide-error-repo
 
 import { provideApi } from './core/api';
 import { environment } from '../environments/environment';
-import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
+import { provideClientHydration, withEventReplay, withHttpTransferCacheOptions, withNoIncrementalHydration } from '@angular/platform-browser';
+import { isTransferCacheable } from './core/http/transfer-cache';
 import { provideBeacon } from 'ng-beacon';
 import { provideI18n } from './shared/i18n';
 import { provideSeo } from './shared/seo';
@@ -122,7 +123,14 @@ export const appConfig: ApplicationConfig = {
     }),
 
     provideSeo(),
-    provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
+    provideClientHydration(withEventReplay(), withNoIncrementalHydration(),
+      // The public API responses the server fetched are reused by the browser instead of fetched again (CLS)
+      withHttpTransferCacheOptions({
+        includeRequestsWithCredentials: true,
+        // The API answers no-store and sets the XSRF cookie on every response; only the body is handed over
+        includeNonCacheableRequests: true,
+        filter: (request) => isTransferCacheable(request, environment.api),
+      })),
     provideBeacon()
   ]
 };
