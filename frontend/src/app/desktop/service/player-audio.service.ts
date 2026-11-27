@@ -5,7 +5,7 @@ import { WorkletSynthesizer } from "spessasynth_lib";
 import type { Note } from '@tonejs/midi/dist/Note';
 import type * as Midi from '@tonejs/midi';
 import { GOOD_RANGE, LiveStatus, PlayerAssessService } from './player-assess.service';
-import { PlayerStateService } from './player-state.service';
+import { BeatState, PlayerStateService } from './player-state.service';
 import { MidiServiceService } from '../../shared/services/midi-service.service';
 import { TimeSignatureEvent } from '@tonejs/midi/dist/Header';
 import { SOUNDFONT_WORKLET_URL, loadSoundFontFile } from '../../shared/services/soundfont-cache';
@@ -743,6 +743,11 @@ export class PlayerAudioService implements OnDestroy {
   }
 
 
+  /** The count-in indicator follows the audio clock: it shows `beat` when its click is heard. */
+  private showBeat(beat: Omit<BeatState, 'seq'>, time: number): void {
+    this.scheduleDraw(() => this.state.beat.update((previous) => ({ ...beat, seq: (previous?.seq ?? 0) + 1 })), time);
+  }
+
   /**
    * Décompte de mesure précis avant le départ, basé sur Tone.Transport
    */
@@ -778,6 +783,10 @@ export class PlayerAudioService implements OnDestroy {
 
       transport.scheduleOnce((time: number) => {
         this.playMetronomeClick(i % beatsPerBar === 0, METRONOME_FULL_VELOCITY, time, null); // the count-in: not mixed
+        this.showBeat({
+          beat: i % beatsPerBar + 1, beatsPerBar, countInBar: Math.floor(i / beatsPerBar) + 1, countInBars: bar,
+          beatSeconds: stepSeconds, timeSignature: [numerator, denominator],
+        }, time);
       }, `${i * stepSeconds}`);
     }
 

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.pianoml.backend.config.PublicCachePolicy;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
@@ -72,8 +73,15 @@ public class OriginAwareCsrfTokenRepository implements CsrfTokenRepository {
     return hostOnly.generateToken(request);
   }
 
+  /**
+   * Not on the public, cacheable responses (PublicCachePolicy): a cache must never store a Set-Cookie. The SPA gets
+   * the cookie from its other calls, or from the 403 of a first write, which it retries.
+   */
   @Override
   public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
+    if (PublicCachePolicy.isPublic(request)) {
+      return;
+    }
     forRequest(request).saveToken(token, request, response);
   }
 

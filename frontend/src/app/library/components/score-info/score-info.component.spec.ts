@@ -111,8 +111,7 @@ describe('ScoreInfoComponent', () => {
       expect(el.querySelector('.page-title')?.textContent).toBe('Gymnopédie No. 1');
       expect(el.querySelector('.page-sub-title')?.textContent).toBe('Erik Satie');
       expect(el.textContent).toContain('3:05'); // duration
-      expect(component.selectedGenre?.name).toBe('Classical');
-      expect(seo).toHaveBeenCalled();
+      expect(seo).toHaveBeenCalledWith(expect.objectContaining({ description: expect.stringContaining('classical') }));
       expect(workloads.workloadIdGet).not.toHaveBeenCalled(); // has files
     });
 
@@ -140,11 +139,9 @@ describe('ScoreInfoComponent', () => {
       expect(component.error).toBe('Failed to load score');
     });
 
-    it('still shows the score when the genres cannot be loaded', async () => {
-      genres.genreGet.mockReturnValue(throwError(() => new Error('down')));
+    it('does not fetch the list of all genres (the score gives its genre name)', async () => {
       await render();
-      expect(component.selectedGenre).toBeNull();
-      expect(el.querySelector('.page-title')).toBeTruthy();
+      expect(genres.genreGet).not.toHaveBeenCalled();
     });
   });
 

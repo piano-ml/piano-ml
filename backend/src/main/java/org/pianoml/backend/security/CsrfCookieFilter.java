@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.pianoml.backend.config.PublicCachePolicy;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,6 +20,12 @@ public class CsrfCookieFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
     throws ServletException, IOException {
+    // Public, cacheable responses carry no cookie (PublicCachePolicy, see OriginAwareCsrfTokenRepository#saveToken),
+    // not even the expiry of a stale one
+    if (PublicCachePolicy.isPublic(request)) {
+      filterChain.doFilter(request, response);
+      return;
+    }
     CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
     if (csrfToken != null) {
       csrfToken.getToken();

@@ -169,7 +169,7 @@ class PracticeControllerTest {
       .andExpect(jsonPath("$.tonic").value("C"))
       .andExpect(jsonPath("$.grade").value(3.0))
       .andExpect(jsonPath("$.accuracy", closeTo(90.0 / 110.0, 1e-9)))
-      .andExpect(jsonPath("$.flow", closeTo(0.9, 1e-9)))
+      .andExpect(jsonPath("$.flow", closeTo(85.0 / 110, 1e-9)))
       .andExpect(jsonPath("$.measures", hasSize(4)))
       .andExpect(jsonPath("$.takes", hasSize(2)));
 
@@ -258,6 +258,8 @@ class PracticeControllerTest {
     putSession(user, UUID.randomUUID(), scoreSession(score, 10, 400)).andExpect(status().isBadRequest());
     // more notes hit than expected
     putSession(user, UUID.randomUUID(), valid.replace("\"notesHit\": 90,", "\"notesHit\": 101,")).andExpect(status().isBadRequest());
+    // more notes late than notes hit
+    putSession(user, UUID.randomUUID(), valid.replace("\"onsets\": 50, \"waits\": 5,", "\"onsets\": 50, \"waits\": 91,")).andExpect(status().isBadRequest());
     // older than a week
     putSession(user, UUID.randomUUID(), scoreSession(score, 8 * 24 * 60, 100)).andExpect(status().isBadRequest());
     // in the future

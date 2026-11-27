@@ -14,6 +14,13 @@
 }
 <div class="flex flex-col flex-grow h-dvh bg-white">
 
+  @if (beat(); as b) {
+  <!-- The count-in, over the score: the player catches the beat before the first note -->
+  <div class="wb-beat-overlay" animate.enter="wb-beat-enter" animate.leave="wb-beat-leave">
+    <app-beat-indicator [beat]="b" [bpm]="tempo" />
+  </div>
+  }
+
   <div class="bg-black relative"><!-- top bar -->
 
     @if (toggleToolbar) {
@@ -208,7 +215,7 @@
     @if (midiInputName()) {
     <span class="wb-midi-input">{{ midiInputName() }}</span>
     } @else {
-    <span class="wb-midi-input" i18n="@@midiSetup.noInputs">
+    <span class="wb-midi-input wb-midi-input--none" i18n="@@midiSetup.noInputs">
       No MIDI IN devices detected.
     </span>
     }
@@ -218,8 +225,9 @@
     </button>
   </div>
 
-  @if (!hideKeyboard && !(loading$ | async)) {
-  <div class="flex-none">
+  <!-- Hidden, the keyboard still shows while wait mode waits: the notes due are lit on it -->
+  @if ((!hideKeyboard || waitedLong()) && !(loading$ | async)) {
+  <div class="flex-none" animate.enter="wb-keyboard-enter" animate.leave="wb-keyboard-leave">
     <app-keyboard [minKey]="keyboardMinKey" [maxKey]="keyboardMaxKey" [keyHeight]="keyboardHeight"></app-keyboard>
   </div>
   }
