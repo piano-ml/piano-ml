@@ -67,3 +67,5 @@ databaseChangeLog:
       file: db/changelog/changes/031-create-password-reset-token.yaml
   - include:
       file: db/changelog/changes/032-add-library-search-indexes.yaml
+  - include:
+      file: db/changelog/changes/033-add-score-genre-popular-index.yaml

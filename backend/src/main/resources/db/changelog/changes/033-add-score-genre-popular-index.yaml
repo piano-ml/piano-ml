@@ -1,0 +1,15 @@
+# The scores of a genre, most played first, for the genre pages: ScoreRepositoryImpl now filters on
+# genre_id IN (the genre and its sub-genres), which PostgreSQL serves with this index for a small genre
+# (reggae, 9 scores: 25 ms -> 0.1 ms) and with idx_score_popular for a large one (folk: 0.85 ms).
+# PostgreSQL only (partial index); H2, used by the tests, does not need it.
+databaseChangeLog:
+  - changeSet:
+      id: 033-1-add-score-genre-popular-index
+      author: pianoml
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: CREATE INDEX IF NOT EXISTS idx_score_genre_popular ON pianoml.score (genre_id, play_count DESC) WHERE has_files
+      rollback:
+        - sql:
+            sql: DROP INDEX IF EXISTS pianoml.idx_score_genre_popular
