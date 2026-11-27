@@ -48,8 +48,10 @@ public final class ErrorReportSanitizer {
    * each with the reason it is not a bug worth tracking.
    */
   private static final List<String> IGNORED_FRONTEND_ERRORS = List.of(
-    // A tab opened before a deploy asks for a lazy chunk the new release no longer serves
-    "TypeError: Failed to fetch dynamically imported module"
+    // A tab opened before a deploy asks for a lazy chunk the new release no longer serves: Chrome, Firefox, Safari
+    "TypeError: Failed to fetch dynamically imported module",
+    "TypeError: error loading dynamically imported module",
+    "TypeError: Importing a module script failed."
   );
 
   private ErrorReportSanitizer() {
