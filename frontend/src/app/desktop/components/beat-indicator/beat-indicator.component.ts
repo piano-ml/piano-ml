@@ -16,7 +16,7 @@ interface Segment {
 
 /**
  * The count-in bar as a ring, one segment per beat: the beats counted are filled, the current one fills over its
- * duration, and the beat number pulses in the middle, stronger on the downbeat. Driven by BeatState, which is set on
+ * duration, and the beats left count down in the middle, pulsing, stronger on the downbeat. Driven by BeatState, which is set on
  * the audio clock: the animations restart at each click and never run ahead of it.
  */
 @Component({
@@ -41,6 +41,12 @@ export class BeatIndicatorComponent {
       length: share - gap,
       state: index + 1 < beat ? 'past' : index + 1 === beat ? 'current' : 'future',
     }));
+  });
+
+  /** The number shown: the count-in counts down to the bar's last beat (4, 3, 2, 1 in 4/4). */
+  protected readonly countdown = computed(() => {
+    const { beat, beatsPerBar } = this.beat();
+    return beatsPerBar - beat + 1;
   });
 
   protected readonly ariaLabel = computed(() => {
