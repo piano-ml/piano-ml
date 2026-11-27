@@ -27,7 +27,7 @@ export interface PracticeTake {
      */
     onsets?: number;
     /**
-     * Onsets completed late - playback had to wait for the user
+     * Expected notes played late - playback had to wait for the user (a subset of notesHit)
      */
     waits?: number;
     startedAt?: string;

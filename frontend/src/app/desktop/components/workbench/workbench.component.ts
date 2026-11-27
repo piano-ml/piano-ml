@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, NgZone } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, OnDestroy, effect, PLATFORM_ID, inject, OnInit, NgZone, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RemoteCoachToggleComponent } from '../../../coach/remote/toggle/remote-coach-toggle.component';
@@ -13,6 +13,7 @@ import { firstValueFrom, BehaviorSubject, filter, map, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { OsmdComponent } from '../osmd/osmd.component';
 import { FormsModule } from '@angular/forms';
+import { BeatIndicatorComponent } from '../beat-indicator/beat-indicator.component';
 import { KeyboardComponent } from '../keyboard/keyboard.component';
 import { MidiSetupComponent } from '../midi-setup/midi-setup.component';
 import { TempoControlComponent } from '../tempo-control/tempo-control.component';
@@ -37,6 +38,8 @@ import { type Hands, type HandsMode, type PlayerState, PlayerControlService, typ
 import { type HandMode, type HandSide, handModeOf, handsModeOf, studentHands, withHandMode, withWait } from '../../model/hand-mode';
 import {MixerDialogComponent} from '../mixer-dialog/mixer-dialog.component';
 import {measurePipFilter, markMeasures} from './measure-range-pips';
+import { type WorkbenchShortcut, workbenchShortcut } from './workbench-shortcuts';
+import { isDialogOpen } from '../../../shared/keyboard/keyboard-shortcuts';
 
 const DOWNLOADING_SCORE = $localize`:@@workbench.progress.download:Downloading the score`;
 
@@ -59,7 +62,7 @@ export function scoreLoadErrorMessage(error: unknown): string {
 
 @Component({
   selector: 'app-workbench',
-  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, MixerDialogComponent, RemoteCoachToggleComponent],
+  imports: [CommonModule, FormsModule, NgIcon, OsmdComponent, KeyboardComponent, BeatIndicatorComponent, MidiSetupComponent, LatencyCalibrationComponent, TempoControlComponent, ElapsedTimePipe, MixerDialogComponent, RemoteCoachToggleComponent],
   templateUrl: './workbench.component.html',
   styleUrl: './workbench.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -92,6 +95,10 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
   showMidiBlockedDialog = false;
   protected readonly midiBlockedMessage = MIDI_BLOCKED_MESSAGE;
   protected get soundFontState() { return this.playerService.soundFontState; }
+  /** The count-in beat heard: the beat indicator over the score. */
+  protected get beat() { return this.playerService.beat; }
+  /** While wait mode waits for the student (after WAIT_KEYBOARD_DELAY_MS), the keyboard shows, hidden or not. */
+  protected get waitedLong() { return this.playerService.waitedLong; }
   private midiPermission: PermissionStatus | null = null;
   private midiBlockedChecked = false;
   /** The popup opens once per visit, whichever check notices first. */
@@ -869,7 +876,8 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
 
   // --- hands: a toggle per hand, pressed waits for the student, released plays along (hand-mode.ts) -----------
 
-  readonly handSides: readonly HandSide[] = ['right', 'left'];
+  /** Left hand first, as the hands sit on the keyboard. */
+  readonly handSides: readonly HandSide[] = ['left', 'right'];
 
   handMode(side: HandSide): HandMode {
     return handModeOf(this.playConfiguration, side);
@@ -1179,6 +1187,47 @@ export class WorkbenchComponent implements OnInit, OnDestroy {
     } else {
       this.start();
     }
+  }
+
+  // --- keyboard shortcuts (workbench-shortcuts.ts), described in the tour's welcome step -------------------------
+
+  @HostListener('document:keydown', ['$event'])
+  onShortcutKey(event: KeyboardEvent): void {
+    // A dialog or the tour has the keyboard (the tour uses Esc itself)
+    if (event.defaultPrevented || this.beaconService.isActive() || isDialogOpen()) {
+      return;
+    }
+    const shortcut = workbenchShortcut(event);
+    if (shortcut) {
+      // Space would also scroll the page or click the focused button
+      event.preventDefault();
+      this.runShortcut(shortcut);
+    }
+  }
+
+  private runShortcut(shortcut: WorkbenchShortcut): void {
+    switch (shortcut.action) {
+      case 'hands':
+        // As choosing the hands on the toolbar, then Play: playing, it restarts from where it is with them
+        if (this.isPlaying) {
+          this.stop();
+        }
+        this.controlHandle.setHands(shortcut.hands, shortcut.mode);
+        void this.controlHandle.play(false);
+        break;
+      case 'playPause':
+        this.startStop();
+        break;
+      case 'tempo':
+        this.controlHandle.setTempoBpm(this.tempo + shortcut.delta);
+        break;
+      case 'showToolbar':
+        if (!this.toggleToolbar) {
+          this.fnToggleToolBar();
+        }
+        break;
+    }
+    this.changeDetector.markForCheck();
   }
 
   stop() {

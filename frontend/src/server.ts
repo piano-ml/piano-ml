@@ -35,8 +35,10 @@ export function app(): express.Express {
   // Cloud Run always sets `X-Forwarded-For`. Angular only trusts `x-forwarded-host`
   // and `x-forwarded-proto` by default, and silently falls back to client-side
   // rendering on any other `X-Forwarded-*` header, which disables SSR entirely.
+  // Google's front end also sends the standard `Forwarded` header; untrusted, Angular strips it and logs a
+  // warning on every request. Its `host` is still checked against `allowedHosts` and its `proto` against http(s).
   const angularNodeAppEngine = new AngularNodeAppEngine({
-    trustProxyHeaders: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host'],
+    trustProxyHeaders: ['forwarded', 'x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host'],
   });
 
   server.use('/api/**', (req, res) => res.json({ hello: 'foo' }));

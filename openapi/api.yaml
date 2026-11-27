@@ -365,6 +365,8 @@ paths:
       tags:
         - score
       summary: Search a score
+      description: >-
+        The scores as lists show them: description and harmony are left out (GET /score/{slug} has them).
       parameters:
         - name: keyword
           in: query
@@ -2627,7 +2629,7 @@ components:
         waits:
           type: integer
           minimum: 0
-          description: Onsets completed late - playback had to wait for the user
+          description: Expected notes played late - playback had to wait for the user (a subset of notesHit)
     PracticeMeasure:
       allOf:
         - $ref: '#/components/schemas/PracticeCounters'
@@ -2769,7 +2771,7 @@ components:
               type: number
               format: double
               readOnly: true
-              description: 1 - waits / onsets; absent when nothing was assessed
+              description: (notesHit - waits) / (notesExpected + notesWrong); absent when nothing was assessed
             endReason:
               type: string
               enum: [ended, stopped, left, unloaded, idle]

@@ -115,7 +115,7 @@ public class PracticeSession {
   /** notesHit / (notesExpected + notesWrong); null when nothing was assessed. */
   private Double accuracy;
 
-  /** 1 - waits / onsets; null when nothing was assessed. */
+  /** (notesHit - waits) / (notesExpected + notesWrong); null when nothing was assessed. */
   private Double flow;
 
   @Column(name = "end_reason")

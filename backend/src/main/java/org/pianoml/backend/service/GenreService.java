@@ -1,5 +1,9 @@
 package org.pianoml.backend.service;
 
+import org.pianoml.backend.config.LibraryCache;
+import org.pianoml.backend.config.LibraryCacheConfig;
+import org.springframework.cache.annotation.Cacheable;
+
 import org.pianoml.backend.entity.Genre;
 import org.pianoml.backend.mapper.GenreMapper;
 import org.pianoml.backend.model.GenreApiInfo;
@@ -19,10 +23,14 @@ public class GenreService {
   private GenreRepository genreRepository;
 
   @Autowired
+  private LibraryCache libraryCache;
+
+  @Autowired
   private GenreMapper genreMapper;
 
   public GenreApiInfo createGenre(GenreApiInfo genreApiInfos) {
     Genre newGenre = genreRepository.save(genreMapper.toGenre(genreApiInfos));
+    libraryCache.clear();
     return genreMapper.toGenreApiInfo(newGenre);
   }
 
@@ -38,6 +46,7 @@ public class GenreService {
     });
   }
 
+  @Cacheable(LibraryCacheConfig.GENRES)
   public List<GenreApiInfo> getAllGenres() {
     return genreRepository.findAllWithScoreCountRaw().stream()
       .map(this::mapRawToGenreApiInfo)
@@ -50,6 +59,7 @@ public class GenreService {
         genre.setName(genreApiInfo.getName());
         genre.setDescription(genreApiInfo.getDescription());
         Genre updatedGenre = genreRepository.save(genre);
+        libraryCache.clear();
         return genreMapper.toGenreApiInfo(updatedGenre);
       });
   }

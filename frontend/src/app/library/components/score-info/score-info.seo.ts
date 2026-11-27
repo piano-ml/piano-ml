@@ -8,19 +8,19 @@ const UNTITLED = $localize`:@@seo.score.untitled:Untitled`;
 export interface ScoreSeoInput {
   score: ScoreApiInfo | null;
   slug: string | null;
-  genreName?: string;
   videos?: YoutubeVideoApiInfo[];
 }
 
 /** Builds the metadata for a single score page. */
-export function buildScoreSeo({ score, slug, genreName, videos }: ScoreSeoInput): SeoData {
+export function buildScoreSeo({ score, slug, videos }: ScoreSeoInput): SeoData {
   if (!score) {
     return { title: $localize`:@@seo.score.title:Score`, noindex: true };
   }
 
   const author = (score.author || '').trim() || UNKNOWN_AUTHOR;
   const title = (score.title || '').trim() || UNTITLED;
-  const genre = (genreName || score.genre || '').trim();
+  // The genre's name, as the score API gives it (no need for the 350 KB list of all genres)
+  const genre = (score.genre || '').trim();
   const canonical = `/score/${score.immutableSlug || score.mutableSlug || slug}`;
 
   const composition = {

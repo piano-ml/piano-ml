@@ -137,6 +137,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
+		<!-- Library read caches (LibraryCacheConfig): in-process, per instance -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+		</dependency>
 		<!-- Coach OAuth (issue #414): fetching client metadata documents with a pinned, SSRF-guarded DNS resolver -->
 		<dependency>
 			<groupId>org.apache.httpcomponents.client5</groupId>

@@ -1,0 +1,101 @@
+:host {
+  display: inline-block;
+}
+
+/* A white disk over the score, dark marks */
+.beat-indicator {
+  --beat-text: #000;
+  --beat-muted: #57534e;
+  --beat-track: rgba(0, 0, 0, 0.1);
+  --beat-fill: #10b981;
+  --beat-accent: #f59e0b;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(64vw, 15rem);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(3px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  color: var(--beat-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.beat-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.beat-ring circle {
+  fill: none;
+  stroke-width: 6;
+}
+
+.beat-track {
+  stroke: var(--beat-track);
+}
+
+.beat-fill {
+  stroke: var(--beat-fill);
+}
+
+.beat-fill-downbeat {
+  stroke: var(--beat-accent);
+}
+
+/* The current beat fills over its duration, from its click */
+.beat-filling {
+  stroke-dasharray: 0 100;
+  animation: beat-fill var(--beat-duration, 0.5s) linear forwards;
+}
+
+@keyframes beat-fill {
+  from { stroke-dasharray: 0 100; }
+  to { stroke-dasharray: var(--beat-length) 100; }
+}
+
+.beat-center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.beat-number {
+  font-size: 5.5rem;
+  font-weight: 600;
+  /* The onset: a short pulse at each click */
+  animation: beat-pulse 160ms ease-out;
+}
+
+/* The downbeat number stays black: the amber segment and the stronger pulse mark it */
+.beat-downbeat .beat-number {
+  animation-name: beat-pulse-strong;
+  animation-duration: 220ms;
+}
+
+@keyframes beat-pulse {
+  from { transform: scale(1.12); }
+  to { transform: scale(1); }
+}
+
+@keyframes beat-pulse-strong {
+  from { transform: scale(1.3); }
+  to { transform: scale(1); }
+}
+
+.beat-meta {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--beat-muted);
+}
+
+.beat-bpm {
+  color: var(--beat-text);
+}

@@ -224,7 +224,7 @@ The text after **Description** is copied verbatim into `coach-tools.json`.
 
 ### 4.3 Practice history and accuracy (scope `practice:read`, server)
 
-Every description in this group ends with: "Accuracy is correct notes over expected plus wrong notes; flow drops when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null."
+Every description in this group ends with: "Accuracy is correct notes over expected plus wrong notes; flow also counts as faults the notes played late, when playback had to wait for the student. Both exist only when the student played on a MIDI keyboard with hands set to left, right or both; otherwise they are null."
 
 Data comes from `PracticeSummaryService.summary(user, timeZone)` and `PracticeSessionService`. `timeZone` is an optional IANA name; an invalid one is `INVALID_ARGUMENT`.
 
@@ -516,7 +516,7 @@ Verify each fact you depend on. If one is wrong, stop and report.
 17. Fingering, harmony and lyrics visibility are applied by `window.location.reload()` (`reloadOsmd()`); they are not tools.
 18. `desktop/service/player-audio.service.ts` `start()` awaits `audioContext.resume()` and `Tone.start()`; without a user gesture that promise may stay pending.
 19. `desktop/service/practice-session-recorder.service.ts` records sessions for logged-in users only and holds the session in progress in private fields (`session`, with `takes`, `totals`, `measures`). It sends the whole session at the end of each take, every 30 s and when the workbench is left.
-20. `accuracy = notesHit / (notesExpected + notesWrong)`; `flow = 1 - waits / onsets`; absent when the denominator is 0.
+20. `accuracy = notesHit / (notesExpected + notesWrong)`; `flow = (notesHit - waits) / (notesExpected + notesWrong)`, waits being the notes played late; absent when notesExpected is 0.
 21. A score opens at `/work/:slug`. Navigating to the URL already shown does nothing (`lastRouteKey`).
 22. An exercise is generated in the browser: `exercises/exercices.ts` `loadExercice(router, exercise, scaleOrChord, key)` writes MusicXML and MIDI to `localStorage` and navigates to `/workbench/scale/...` or `/workbench/agility/...`. Catalogs: `scales`, `chords`, `majorKeys`, `minorKeys` in `desktop/service/music-theory.ts`; patterns in `exercises/scales/pattern.ts` and `exercises/agility/pattern.ts` (each entry has a stable `key`).
 23. `WorkbenchComponent.ngOnDestroy` removes those `localStorage` entries, so an exercise opened while another workbench page is on screen loses its data (issue #413).

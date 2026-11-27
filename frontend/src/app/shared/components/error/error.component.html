@@ -1,6 +1,12 @@
 <div class="error-page">
+  @if (notFound) {
+  <h1 i18n="@@error.notFound.heading">Page not found</h1>
+  <p i18n="@@error.notFound.message">This page does not exist, or it has moved.<br>
+    Check the address, or return to the homepage.</p>
+  } @else {
   <h1 i18n="@@error.heading">Oops! An error occurred</h1>
   <p i18n="@@error.message">We're sorry, an unexpected error has happened.<br>
     Please try again later or return to the homepage.</p>
+  }
   <a routerLink="/" class="btn-home" i18n="@@error.backHome">Back to homepage</a>
 </div>

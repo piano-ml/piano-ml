@@ -1510,6 +1510,18 @@
         <source>Remote coach on</source>
         <target state="translated">Віддалений тренер увімкнений</target>
       </trans-unit>
+      <trans-unit id="beat.bar" datatype="html">
+        <source>Bar</source>
+        <target state="translated">Такт</target>
+      </trans-unit>
+      <trans-unit id="beat.countIn" datatype="html">
+        <source>Count-in</source>
+        <target state="translated">Відлік</target>
+      </trans-unit>
+      <trans-unit id="beat.ofBar" datatype="html">
+        <source>Beat <x id="beat" equiv-text="beat"/> of <x id="beats" equiv-text="beatsPerBar"/></source>
+        <target state="translated">Доля <x id="beat" equiv-text="beat"/> з <x id="beats" equiv-text="beatsPerBar"/></target>
+      </trans-unit>
       <trans-unit id="latency.heading" datatype="html">
         <source>Timing calibration</source>
         <target state="translated">Калібрування таймінгу</target>
@@ -1658,34 +1670,6 @@
         <source> PianoML — The app might play piano (not the keyboard) </source>
         <target state="translated">PianoML — грає застосунок (а не клавіатура)</target>
       </trans-unit>
-      <trans-unit id="midiSetup.lowestKey" datatype="html">
-        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">Найнижча MIDI-клавіша <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(зіграйте ноту)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="midiSetup.highestKey" datatype="html">
-        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
-        <target state="translated">Найвища MIDI-клавіша <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(зіграйте ноту)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
-      </trans-unit>
-      <trans-unit id="midiSetup.listening.lowest" datatype="html">
-        <source>Listening for MIDI — lowest key…</source>
-        <target state="translated">Очікування MIDI — найнижча клавіша…</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.listening.highest" datatype="html">
-        <source>Listening for MIDI — highest key…</source>
-        <target state="translated">Очікування MIDI — найвища клавіша…</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.key.min" datatype="html">
-        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
-        <target state="translated">Мін. <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.key.max" datatype="html">
-        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
-        <target state="translated">Макс. <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
-      </trans-unit>
-      <trans-unit id="midiSetup.lowestKeyMustBeLess" datatype="html">
-        <source>Lowest key must be less than highest key.</source>
-        <target state="translated">Найнижча клавіша має бути нижчою за найвищу.</target>
-      </trans-unit>
       <trans-unit id="midiSetup.hideKeyboard" datatype="html">
         <source>Hide Keyboard</source>
         <target state="translated">Сховати клавіатуру</target>
@@ -1733,6 +1717,34 @@
       <trans-unit id="midiSetup.calibration.open" datatype="html">
         <source>Calibrate…</source>
         <target state="translated">Калібрувати…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.lowestKey" datatype="html">
+        <source>MIDI lowest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Найнижча MIDI-клавіша <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(зіграйте ноту)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.highestKey" datatype="html">
+        <source>MIDI highest key <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(play a note)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target state="translated">Найвища MIDI-клавіша <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;normal-case font-normal tracking-normal text-neutral-500 ml-1&quot;&gt;"/>(зіграйте ноту)<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.lowest" datatype="html">
+        <source>Listening for MIDI — lowest key…</source>
+        <target state="translated">Очікування MIDI — найнижча клавіша…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.listening.highest" datatype="html">
+        <source>Listening for MIDI — highest key…</source>
+        <target state="translated">Очікування MIDI — найвища клавіша…</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.min" datatype="html">
+        <source>Min <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</source>
+        <target state="translated">Мін. <x id="INTERPOLATION" equiv-text="{{ 21 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.key.max" datatype="html">
+        <source>Max <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</source>
+        <target state="translated">Макс. <x id="INTERPOLATION" equiv-text="{{ 108 }}"/>.</target>
+      </trans-unit>
+      <trans-unit id="midiSetup.lowestKeyMustBeLess" datatype="html">
+        <source>Lowest key must be less than highest key.</source>
+        <target state="translated">Найнижча клавіша має бути нижчою за найвищу.</target>
       </trans-unit>
       <trans-unit id="midiSetup.inputFallback" datatype="html">
         <source>MIDI Input</source>
@@ -1903,8 +1915,8 @@
         <target state="translated">Ласкаво просимо до майстерні!</target>
       </trans-unit>
       <trans-unit id="workbench.tour.welcome.content" datatype="html">
-        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls.</source>
-        <target state="translated">Тут ви розучуєте улюблені фортепіанні твори. Покажу вам елементи керування.</target>
+        <source>This is where you can practice and learn your favorite piano pieces. Let me show you around the controls. Keyboard shortcuts: Space plays or pauses; 1, 2 and 3 wait for your right hand, your left hand or both hands, and start; 0 starts playing along with both hands; + and − change the tempo; ← and → go back and forward; Esc shows the toolbar.</source>
+        <target state="translated">Тут ви розучуєте улюблені фортепіанні твори. Покажу вам елементи керування. Гарячі клавіші: Пробіл запускає або ставить на паузу; 1, 2 і 3 чекають на праву руку, ліву руку або обидві руки й запускають; 0 запускає гру разом обома руками; + і − змінюють темп; ← і → переходять назад і вперед; Esc показує панель інструментів.</target>
       </trans-unit>
       <trans-unit id="workbench.tour.playPause.title" datatype="html">
         <source>Play / Pause</source>
@@ -2482,26 +2494,6 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source> Start with 2 keys per day. Each day work on a different key pair. The following sequence takes 12 days to complete a full cycle of all 24 major + minor keys. </source>
         <target state="translated">Почніть з 2 тональностей на день, щодня іншу пару. Наведена послідовність займає 12 днів і охоплює всі 24 мажорні та мінорні тональності.</target>
       </trans-unit>
-      <trans-unit id="exercises.majorSharp" datatype="html">
-        <source>Major Keys (Sharp):</source>
-        <target state="translated">Мажорні тональності (дієзи):</target>
-      </trans-unit>
-      <trans-unit id="exercises.day" datatype="html">
-        <source>Day <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</source>
-        <target state="translated">День <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</target>
-      </trans-unit>
-      <trans-unit id="exercises.majorFlat" datatype="html">
-        <source>Major Keys (Flat):</source>
-        <target state="translated">Мажорні тональності (бемолі):</target>
-      </trans-unit>
-      <trans-unit id="exercises.minorSharp" datatype="html">
-        <source>Minor Keys (Sharp):</source>
-        <target state="translated">Мінорні тональності (дієзи):</target>
-      </trans-unit>
-      <trans-unit id="exercises.minorFlat" datatype="html">
-        <source>Minor Keys (Flat):</source>
-        <target state="translated">Мінорні тональності (бемолі):</target>
-      </trans-unit>
       <trans-unit id="exercises.level1.chromatic" datatype="html">
         <source>You can add the Chromatic Scale to any of these keys, starting on the key note.</source>
         <target state="translated">До будь-якої з цих тональностей можна додати хроматичну гаму, починаючи з тоніки.</target>
@@ -2541,6 +2533,26 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="exercises.level4b.intro" datatype="html">
         <source>An alternative sequence goes the opposite direction around the Circle of 5ths.</source>
         <target state="translated">Альтернативна послідовність іде квінтовим колом у протилежному напрямку.</target>
+      </trans-unit>
+      <trans-unit id="exercises.day" datatype="html">
+        <source>Day <x id="INTERPOLATION" equiv-text="{{ group.day }}"/>:</source>
+        <target state="translated">День <x id="INTERPOLATION" equiv-text="{{ 1 }}"/>:</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorSharp" datatype="html">
+        <source>Major Keys (Sharp):</source>
+        <target state="translated">Мажорні тональності (дієзи):</target>
+      </trans-unit>
+      <trans-unit id="exercises.majorFlat" datatype="html">
+        <source>Major Keys (Flat):</source>
+        <target state="translated">Мажорні тональності (бемолі):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorSharp" datatype="html">
+        <source>Minor Keys (Sharp):</source>
+        <target state="translated">Мінорні тональності (дієзи):</target>
+      </trans-unit>
+      <trans-unit id="exercises.minorFlat" datatype="html">
+        <source>Minor Keys (Flat):</source>
+        <target state="translated">Мінорні тональності (бемолі):</target>
       </trans-unit>
       <trans-unit id="exercise.contrary_motion.title" datatype="html">
         <source>Contrary motion starting on the same note.</source>
@@ -3095,7 +3107,7 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <target state="translated">Показати огляд</target>
       </trans-unit>
       <trans-unit id="browse.help" datatype="html">
-        <source> Help </source>
+        <source>Help</source>
         <target state="translated"> Довідка </target>
       </trans-unit>
       <trans-unit id="browse.clear" datatype="html">
@@ -3502,13 +3514,13 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
         <source><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> by <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> - Piano Score</source>
         <target state="translated"><x id="INTERPOLATION" equiv-text="{{ score?.title }}"/> — <x id="INTERPOLATION_1" equiv-text="{{ score?.author }}"/> — фортепіанні ноти</target>
       </trans-unit>
-      <trans-unit id="score.copyLink" datatype="html">
-        <source>Copy link</source>
-        <target state="translated">Копіювати посилання</target>
-      </trans-unit>
       <trans-unit id="score.back" datatype="html">
         <source>← Browse</source>
         <target state="translated">← Перегляд</target>
+      </trans-unit>
+      <trans-unit id="score.copyLink" datatype="html">
+        <source>Copy link</source>
+        <target state="translated">Копіювати посилання</target>
       </trans-unit>
       <trans-unit id="score.edit" datatype="html">
         <source>Edit</source>
@@ -3741,6 +3753,14 @@ Usage: use it over minor chords and minor-blues contexts (i7 / i chord centers) 
       <trans-unit id="reimport.error.refused" datatype="html">
         <source>The server refused these tracks, or the original file is not a MIDI file.</source>
         <target state="translated">Сервер відхилив ці доріжки, або оригінальний файл не є MIDI-файлом.</target>
+      </trans-unit>
+      <trans-unit id="error.notFound.heading" datatype="html">
+        <source>Page not found</source>
+        <target state="translated">Сторінку не знайдено</target>
+      </trans-unit>
+      <trans-unit id="error.notFound.message" datatype="html">
+        <source>This page does not exist, or it has moved.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Check the address, or return to the homepage.</source>
+        <target state="translated">Цієї сторінки не існує або її переміщено.<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br&gt;"/> Перевірте адресу або поверніться на головну сторінку.</target>
       </trans-unit>
       <trans-unit id="error.heading" datatype="html">
         <source>Oops! An error occurred</source>

@@ -6,14 +6,22 @@ import type { LastTake } from './player-control.service';
  * get_current_session (takes, totals): both tools must report the same accuracy for the same take.
  */
 
-/** notesHit / (notesExpected + notesWrong), null when nothing was assessed. */
+/*
+ * Both are shares of the notes of the take as the score shows them when it ends: the expected notes plus the
+ * wrong ones (red). Missed notes (gray) count as red: notesExpected - notesHit of them.
+ */
+
+/** 1 - (red + gray) / notes = notesHit / (notesExpected + notesWrong), null when nothing was assessed. */
 export function accuracyOf(notesExpected: number, notesHit: number, notesWrong: number): number | null {
   return notesExpected > 0 ? notesHit / (notesExpected + notesWrong) : null;
 }
 
-/** 1 - waits / onsets, null when nothing was assessed. */
-export function flowOf(onsets: number, waits: number): number | null {
-  return onsets > 0 ? 1 - waits / onsets : null;
+/**
+ * 1 - (orange + red + gray) / notes = (notesHit - waits) / (notesExpected + notesWrong), waits being the notes
+ * played late; null when nothing was assessed.
+ */
+export function flowOf(notesExpected: number, notesHit: number, notesWrong: number, waits: number): number | null {
+  return notesExpected > 0 ? Math.max(0, notesHit - waits) / (notesExpected + notesWrong) : null;
 }
 
 /** A recorded take as the coach sees it: missing counts as zero, with its accuracy and flow. */
@@ -36,6 +44,6 @@ export function lastTakeOf(take: PracticeTake): LastTake {
     onsets,
     waits,
     accuracy: accuracyOf(notesExpected, notesHit, notesWrong),
-    flow: flowOf(onsets, waits),
+    flow: flowOf(notesExpected, notesHit, notesWrong, waits),
   };
 }
