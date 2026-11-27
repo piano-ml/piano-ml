@@ -65,14 +65,6 @@
   line-height: 1;
 }
 
-.beat-phase {
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--beat-muted);
-  margin-bottom: 0.4rem;
-}
-
 .beat-number {
   font-size: 5.5rem;
   font-weight: 600;
